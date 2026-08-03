@@ -71,7 +71,15 @@ def main() -> None:
     ap.add_argument("--eval-every", type=int, default=250)
     ap.add_argument("--eval-batches", type=int, default=30)
     ap.add_argument("--device", default="auto")
+    ap.add_argument("--permute-roles", action="store_true",
+                    help="control: fixed random bijection over roles (structure kept, "
+                         "semantics destroyed). A gain that survives this is not provenance.")
+    ap.add_argument("--random-roles", action="store_true",
+                    help="control: independent random role per segment (structure destroyed too)")
+    ap.add_argument("--tag", default="", help="suffix for the run directory")
     args = ap.parse_args()
+    if args.permute_roles and args.random_roles:
+        raise SystemExit("--permute-roles and --random-roles are mutually exclusive")
 
     torch.manual_seed(args.seed)
     dev = device_of(args.device)
@@ -84,12 +92,16 @@ def main() -> None:
 
     # Step count is part of the identity: a 1000-step and a 4000-step run of the
     # same arm are different experiments and must not overwrite each other.
-    run_dir = LOCAL / "runs" / f"{args.arm}_{args.size}_st{args.steps}_s{args.seed}"
+    ctrl = "_permuted" if args.permute_roles else "_randroles" if args.random_roles else ""
+    tag = f"_{args.tag}" if args.tag else ""
+    run_dir = (LOCAL / "runs" /
+               f"{args.arm}_{args.size}_st{args.steps}_s{args.seed}{ctrl}{tag}")
     inst = Instrumentor(model, run_dir, args.arm)
 
     mk = lambda split, seed: BundleDataset(  # noqa: E731
         LOCAL / "bundles" / f"{split}.jsonl", tok, arm=args.arm,
-        max_seq_len=args.seq_len, max_tokens_per_segment=args.seg_tokens, seed=seed)
+        max_seq_len=args.seq_len, max_tokens_per_segment=args.seg_tokens, seed=seed,
+        permute_roles=args.permute_roles, random_roles=args.random_roles)
     train_ds, val_ds = mk("train", args.seed), mk("val", 12345)
     # Same seed => same data order across arms. Compute-matching requires it.
     g = torch.Generator().manual_seed(args.seed)

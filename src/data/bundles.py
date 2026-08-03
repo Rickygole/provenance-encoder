@@ -19,7 +19,7 @@ import numpy as np
 import torch
 from tokenizers import Tokenizer
 
-from .roles import ROLE_NAMES
+from .roles import N_ROLES, ROLE_NAMES
 
 RESERVED_PER_SEGMENT = 2
 AGE_BUCKETS = [(6, "0h"), (24, "6h"), (72, "24h"), (168, "72h"), (float("inf"), "7d")]
@@ -43,10 +43,28 @@ def auth_bucket(hours: float, n_buckets: int = 4) -> int:
 class BundleDataset(torch.utils.data.Dataset):
     def __init__(self, path: str | Path, tokenizer: Tokenizer, *, arm: str,
                  max_seq_len: int = 512, max_tokens_per_segment: int = 96,
-                 mlm_prob: float = 0.15, seed: int = 0):
+                 mlm_prob: float = 0.15, seed: int = 0, permute_roles: bool = False,
+                 random_roles: bool = False):
         self.rows = [json.loads(l) for l in Path(path).open()]
         self.tok = tokenizer
         self.arm = arm
+        # CONTROLS. permute_roles applies a fixed random bijection over the role
+        # vocabulary: structure is preserved exactly, semantics destroyed.
+        # random_roles assigns each segment an independent random role: structure
+        # destroyed too. If a gain survives permute_roles, it is not provenance;
+        # if it survives random_roles as well, it is capacity or noise.
+        self.permute_roles = permute_roles
+        self.random_roles = random_roles
+        # Must be a DERANGEMENT -- no fixed points. A permutation that maps the
+        # most common role to itself leaves most tokens correctly labelled and is
+        # not a control at all.
+        _rng = np.random.default_rng(9876)
+        _src = np.arange(1, N_ROLES)
+        while True:
+            _p = _rng.permutation(_src)
+            if not (_p == _src).any():
+                break
+        self.role_perm = {0: 0, **{int(s): int(d) for s, d in zip(_src, _p)}}
         self.max_seq_len = max_seq_len
         self.max_seg = max_tokens_per_segment
         self.mlm_prob = mlm_prob
@@ -74,10 +92,15 @@ class BundleDataset(torch.utils.data.Dataset):
         cur = 0
         ids[cur], mask[cur], cur = self.cls_id, 1.0, cur + 1
 
+        rr = np.random.default_rng(idx)  # deterministic per example
         for seg in b["segments"]:
             if cur + RESERVED_PER_SEGMENT + 8 >= S:
                 break
             r = int(seg["role"])
+            if self.random_roles:
+                r = int(rr.integers(1, N_ROLES))
+            elif self.permute_roles:
+                r = self.role_perm.get(r, r)
             hours = float(seg["delta_t_hours"])
 
             # Reserved slots -- identical budget in every arm.
