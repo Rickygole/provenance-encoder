@@ -1,0 +1,47 @@
+# ---------------------------------------------------------------------------
+# RESTRICTED DATA — DO NOT REMOVE THESE RULES
+# MIMIC-III / PhysioNet credentialed data and anything derived from it must
+# never enter version control. PhysioNet DUA clause 3 (no sharing access) and
+# clause 4 (reasonable and prudent electronic security).
+# A prior submission drew a formal DUA charge; these rules are the control.
+# ---------------------------------------------------------------------------
+# No trailing slash: local_only is a SYMLINK to storage outside this tree, and a
+# trailing-slash pattern matches directories only -- it would miss the symlink
+# and leave 216MB of MIMIC-derived data one `git add -A` from being committed.
+local_only
+**/local_only
+local_only/
+**/local_only/
+*.csv
+*.csv.gz
+NOTEEVENTS*
+PATIENTS*
+ADMISSIONS*
+PRESCRIPTIONS*
+DIAGNOSES*
+*note*.jsonl
+*bundle*.jsonl
+mimic*
+MIMIC*
+
+# Model artifacts and corpora.
+# NOTE: these patterns are ANCHORED with a leading slash. An unanchored "data/"
+# matches src/data/ anywhere in the tree and would silently drop this project's
+# own source package from every commit.
+/checkpoints/
+/data/
+*.bin
+*.npy
+*.pt
+*.safetensors
+*.xml.gz
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# OS
+.DS_Store
