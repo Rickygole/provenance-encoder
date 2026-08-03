@@ -1,22 +1,35 @@
 #!/usr/bin/env bash
-# THE decisive control. A4 gained 0.84 nats over vanilla at 1000 steps. Is that
-# provenance, or is it a full-rank attention bias shared across every layer?
+# Does A4's 0.84-nat gain come from PROVENANCE, or from any per-segment partition?
 #
-#   real      -- true role labels
-#   permuted  -- derangement of role labels: structure kept, semantics destroyed
-#   random    -- independent random role per segment: structure destroyed too
+# All arms use --shuffle-segments so role is decorrelated from bundle position
+# (bundles are chronological; segment index alone predicts role at 45.1% vs a
+# 32.6% majority baseline).
 #
-# If the gain survives permuted, it is not provenance. If it survives random, it
-# is capacity or structure and nothing to do with document authority.
+#   A4 real      : true role labels                 -- the claim
+#   A5 segidx    : ordinal position in bundle       -- POSITIVE competing hypothesis
+#   A4 random    : independent random role/segment  -- destroys consistency
+#   A4 length    : note-length bucket               -- informative, no authority meaning
+#   A1 vanilla   : reference under the same shuffling
+#
+# A5 ~ A4  => segmentation, not provenance. Thesis dead, mechanism identified.
+# A5 ~ A1  => role identity does real work.
+#
+# NOTE: --permute-roles is deliberately absent. A global derangement is VACUOUS:
+# `A` is a free KxK table, so the model relearns the permuted table and the loss
+# is unchanged by construction. It has zero statistical power.
 set -u
 cd "$(dirname "$0")/.."
 OUT=/Users/rickygole/mimic_local_only/controls.log
 : > "$OUT"
-for spec in "A4:" "A4:--permute-roles" "A4:--random-roles" "A3:--random-roles"; do
-  arm="${spec%%:*}"; flag="${spec#*:}"
-  echo "=== arm=$arm control='${flag:-real}' ===" >> "$OUT"
-  python3 scripts/pretrain.py --arm "$arm" --size 10M --steps 1000 --batch 8 \
-    --seq-len 256 --seg-tokens 36 --seed 0 --eval-every 500 --eval-batches 30 \
-    $flag >> "$OUT" 2>&1
-done
+run () {
+  echo "=== $1 ===" >> "$OUT"
+  shift
+  python3 scripts/pretrain.py --size 10M --steps 1000 --batch 8 --seq-len 256 \
+    --seg-tokens 36 --seed 0 --eval-every 500 --eval-batches 30 "$@" >> "$OUT" 2>&1
+}
+run "A1 vanilla (shuffled)"       --arm A1 --shuffle-segments
+run "A4 real roles (shuffled)"    --arm A4 --shuffle-segments
+run "A5 segment-index roles"      --arm A4 --shuffle-segments --segment-index-roles
+run "A4 random roles"             --arm A4 --shuffle-segments --random-roles
+run "A4 length-bucket roles"      --arm A4 --shuffle-segments --length-roles
 echo "controls complete" >> "$OUT"

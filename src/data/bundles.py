@@ -44,15 +44,28 @@ class BundleDataset(torch.utils.data.Dataset):
     def __init__(self, path: str | Path, tokenizer: Tokenizer, *, arm: str,
                  max_seq_len: int = 512, max_tokens_per_segment: int = 96,
                  mlm_prob: float = 0.15, seed: int = 0, permute_roles: bool = False,
-                 random_roles: bool = False, length_roles: bool = False):
+                 random_roles: bool = False, length_roles: bool = False,
+                 segment_index_roles: bool = False, shuffle_segments: bool = False):
         self.rows = [json.loads(l) for l in Path(path).open()]
         self.tok = tokenizer
         self.arm = arm
-        # CONTROLS. permute_roles applies a fixed random bijection over the role
-        # vocabulary: structure is preserved exactly, semantics destroyed.
-        # random_roles assigns each segment an independent random role: structure
-        # destroyed too. If a gain survives permute_roles, it is not provenance;
-        # if it survives random_roles as well, it is capacity or noise.
+        # CONTROLS.
+        #
+        # WARNING on permute_roles: a GLOBAL derangement is VACUOUS. `A` is a free
+        # KxK table, so under a global relabeling sigma the model simply learns
+        # A'[sigma(r), sigma(r')] = A[r, r']. The loss surface is isomorphic and
+        # the result is fixed at the uncorrupted value by construction. It has
+        # zero statistical power. Kept only for the regression test that proves
+        # this; never cite it as evidence. Use random_roles or segment_index_roles.
+        #
+        # random_roles assigns each segment an independent random role, which
+        # destroys cross-example consistency and is a real (if weak) test.
+        #
+        # segment_index_roles is the decisive POSITIVE competing hypothesis: keys
+        # the bias on ordinal position in the bundle, carrying zero provenance
+        # meaning. It is only meaningful with shuffle_segments=True, because
+        # bundles are built in chronological order and role therefore correlates
+        # with position -- without shuffling, A5 is a re-run of A4.
         self.permute_roles = permute_roles
         self.random_roles = random_roles
         # length_roles replaces the role id with a note-length bucket: a per-segment
@@ -60,6 +73,8 @@ class BundleDataset(torch.utils.data.Dataset):
         # semantics. If this helps as much as real roles, the mechanism is "any
         # informative per-segment category", not document provenance.
         self.length_roles = length_roles
+        self.segment_index_roles = segment_index_roles
+        self.shuffle_segments = shuffle_segments
         # Must be a DERANGEMENT -- no fixed points. A permutation that maps the
         # most common role to itself leaves most tokens correctly labelled and is
         # not a control at all.
@@ -98,7 +113,13 @@ class BundleDataset(torch.utils.data.Dataset):
         ids[cur], mask[cur], cur = self.cls_id, 1.0, cur + 1
 
         rr = np.random.default_rng(idx)  # deterministic per example
-        for seg in b["segments"]:
+        segments = list(b["segments"])
+        if self.shuffle_segments:
+            # Bundles are assembled chronologically, so role correlates with
+            # position. Shuffling decorrelates them; without this, a segment-index
+            # control is indistinguishable from the role condition.
+            segments = [segments[i] for i in rr.permutation(len(segments))]
+        for seg_i, seg in enumerate(segments):
             if cur + RESERVED_PER_SEGMENT + 8 >= S:
                 break
             r = int(seg["role"])
@@ -110,6 +131,9 @@ class BundleDataset(torch.utils.data.Dataset):
                 # 6 length buckets mapped onto role slots 1..6
                 L = len(seg["text"])
                 r = 1 + min(5, int(L // 250))
+            elif self.segment_index_roles:
+                # A5: ordinal position in the bundle. Zero provenance meaning.
+                r = 1 + min(N_ROLES - 2, seg_i)
             hours = float(seg["delta_t_hours"])
 
             # Reserved slots -- identical budget in every arm.

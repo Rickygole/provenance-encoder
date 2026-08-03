@@ -37,9 +37,23 @@ def device_of(name: str) -> torch.device:
     return torch.device("cpu")
 
 
-def evaluate(model, loader, dev, max_batches: int) -> float:
+POS_BINS = [(0, 8), (8, 20), (20, 40), (40, 1000)]
+
+
+def evaluate(model, loader, dev, max_batches: int, by_position: bool = False):
+    """Mean MLM loss, optionally broken down by position WITHIN a segment.
+
+    The position breakdown is a free diagnostic for the boilerplate confound: at
+    seq 256 with ~6 segments, each note contributes only ~36 tokens, so training
+    sits almost entirely in note OPENINGS -- the most template-heavy, most
+    role-stereotyped region. If a provenance advantage is concentrated in the
+    first few tokens of each segment and decays to zero, the mechanism is
+    template identification under aggressive truncation, not provenance.
+    """
     model.eval()
     tot, n = 0.0, 0
+    bin_sum = [0.0] * len(POS_BINS)
+    bin_cnt = [0] * len(POS_BINS)
     with torch.no_grad():
         for i, b in enumerate(loader):
             if i >= max_batches:
@@ -53,8 +67,26 @@ def evaluate(model, loader, dev, max_batches: int) -> float:
             if torch.isfinite(loss):
                 tot += float(loss)
                 n += 1
+            if by_position:
+                per_tok = F.cross_entropy(
+                    logits.view(-1, logits.size(-1)), b["mlm_labels"].view(-1),
+                    ignore_index=-100, reduction="none").view(b["mlm_labels"].shape)
+                valid = b["mlm_labels"] != -100
+                lp = b["local_positions"]
+                for bi, (lo, hi) in enumerate(POS_BINS):
+                    sel = valid & (lp >= lo) & (lp < hi)
+                    c = int(sel.sum())
+                    if c:
+                        bin_sum[bi] += float(per_tok[sel].sum())
+                        bin_cnt[bi] += c
     model.train()
-    return tot / max(n, 1)
+    mean = tot / max(n, 1)
+    if not by_position:
+        return mean
+    breakdown = {f"pos_{lo}_{hi}": (bin_sum[i] / bin_cnt[i] if bin_cnt[i] else None)
+                 for i, (lo, hi) in enumerate(POS_BINS)}
+    breakdown_n = {f"pos_{lo}_{hi}_n": bin_cnt[i] for i, (lo, hi) in enumerate(POS_BINS)}
+    return mean, {**breakdown, **breakdown_n}
 
 
 def main() -> None:
@@ -79,10 +111,26 @@ def main() -> None:
     ap.add_argument("--length-roles", action="store_true",
                     help="control: bias keyed on note-length bucket instead of role. An "
                          "informative per-segment category with no authority semantics.")
+    ap.add_argument("--segment-index-roles", action="store_true",
+                    help="A5 control: key the bias on ordinal position in the bundle "
+                         "(zero provenance meaning). Requires --shuffle-segments.")
+    ap.add_argument("--shuffle-segments", action="store_true",
+                    help="randomize segment order within a bundle, decorrelating role "
+                         "from position (bundles are built chronologically)")
     ap.add_argument("--tag", default="", help="suffix for the run directory")
     args = ap.parse_args()
-    if sum([args.permute_roles, args.random_roles, args.length_roles]) > 1:
+    if sum([args.permute_roles, args.random_roles, args.length_roles,
+            args.segment_index_roles]) > 1:
         raise SystemExit("role controls are mutually exclusive")
+    if args.segment_index_roles and not args.shuffle_segments:
+        raise SystemExit(
+            "--segment-index-roles without --shuffle-segments is meaningless: bundles "
+            "are chronological, so segment index and role are the same variable and "
+            "this would just re-run the role condition."
+        )
+    if args.permute_roles:
+        print("WARNING: a global role derangement is VACUOUS -- the model relearns the "
+              "permuted table and the loss is unchanged by construction. Do not cite.")
 
     torch.manual_seed(args.seed)
     dev = device_of(args.device)
@@ -96,7 +144,9 @@ def main() -> None:
     # Step count is part of the identity: a 1000-step and a 4000-step run of the
     # same arm are different experiments and must not overwrite each other.
     ctrl = ("_permuted" if args.permute_roles else "_randroles" if args.random_roles
-            else "_lenroles" if args.length_roles else "")
+            else "_lenroles" if args.length_roles
+            else "_segidx" if args.segment_index_roles else "")
+    ctrl += "_shuf" if args.shuffle_segments else ""
     tag = f"_{args.tag}" if args.tag else ""
     run_dir = (LOCAL / "runs" /
                f"{args.arm}_{args.size}_st{args.steps}_s{args.seed}{ctrl}{tag}")
@@ -106,7 +156,8 @@ def main() -> None:
         LOCAL / "bundles" / f"{split}.jsonl", tok, arm=args.arm,
         max_seq_len=args.seq_len, max_tokens_per_segment=args.seg_tokens, seed=seed,
         permute_roles=args.permute_roles, random_roles=args.random_roles,
-        length_roles=args.length_roles)
+        length_roles=args.length_roles, segment_index_roles=args.segment_index_roles,
+        shuffle_segments=args.shuffle_segments)
     train_ds, val_ds = mk("train", args.seed), mk("val", 12345)
     # Same seed => same data order across arms. Compute-matching requires it.
     g = torch.Generator().manual_seed(args.seed)
@@ -175,13 +226,19 @@ def main() -> None:
                 inst.assert_alive(step / args.steps)
 
     rep = inst.final_report()
-    final_val = evaluate(model, val_dl, dev, args.eval_batches * 2)
+    final_val, pos_breakdown = evaluate(model, val_dl, dev, args.eval_batches * 2,
+                                        by_position=True)
     summary = {
         "arm": args.arm, "size": args.size, "seed": args.seed, "steps": args.steps,
         "tokens": tokens, "non_emb_params": model.n_params(True),
         "final_val_loss": final_val, "final_val_ppl": math.exp(min(final_val, 20)),
         "wall_seconds": time.time() - t0, "history": hist,
         "provenance_params": rep["provenance_params"],
+        "loss_by_segment_position": pos_breakdown,
+        "controls": {"permute_roles": args.permute_roles, "random_roles": args.random_roles,
+                     "length_roles": args.length_roles,
+                     "segment_index_roles": args.segment_index_roles,
+                     "shuffle_segments": args.shuffle_segments},
     }
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2))
     print(f"\nFINAL arm={args.arm} val_loss={final_val:.4f} "
