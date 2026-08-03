@@ -203,6 +203,34 @@ register, not clinical content — `medquist36` (a transcription vendor tag), `j
 ablation already covers this objection: deleting the top 1,000 features costs 2.3 points,
 so the conclusion holds after removing every template artifact.
 
+### Local LLM baseline (`scripts/ollama_role_baseline.py`)
+
+Llama 3 8B via Ollama on `127.0.0.1` — the compliant replacement for ACCORD's
+GPT-4o calls, which PhysioNet's guidance identifies as prohibited for restricted
+data. The script refuses any non-local host.
+
+Zero-shot, temperature 0, 300 notes, scrub level 2, first 1500 chars:
+
+| Model | Same input | Accuracy |
+|---|---|---|
+| TF-IDF + logistic regression | first 1500 chars | **96.4%** |
+| Llama 3 8B zero-shot | first 1500 chars | **33.0%** (chance 33.3%) |
+
+The model predicted `discharge` **zero times in 300** and `physician` 287 times —
+degenerate collapse to one label. The first instinct was a harness bug: scrub
+level 2 removes the admin header that opens a discharge summary, and truncation
+shows only the head. The control refutes that — a linear model recovers role from
+**the identical bytes** at 96.4%. The information is present; this
+model-and-prompt does not use it.
+
+Limits, stated because the temptation to over-read this is exactly the ACCORD
+failure mode: one prompt, one model, zero-shot, no few-shot demonstrations, no
+prompt search. The defensible claim is "this configuration is at chance," not
+"LLMs cannot do this." Few-shot is the obvious next test and has not been run.
+
+What it does establish: the redundancy result is **not** an artifact of giving the
+probe more text than a realistic consumer would see.
+
 ### Consequence — stated precisely
 
 **The information-channel framing is dead.** "Provenance supplies information the text does
