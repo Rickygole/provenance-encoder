@@ -231,6 +231,47 @@ prompt search. The defensible claim is "this configuration is at chance," not
 What it does establish: the redundancy result is **not** an artifact of giving the
 probe more text than a realistic consumer would see.
 
+### 6c. THE MECHANISM, identified (controls, 1000 steps, 10M, seq 256)
+
+All arms below shuffle segment order, so role is decorrelated from bundle
+position (bundles are chronological; segment index alone predicts role at 45.1%
+against a 32.6% majority baseline).
+
+| Arm | Bias keyed on | val_loss | vs A1 |
+|---|---|---|---|
+| A1 | nothing | 4.3465 | — |
+| A2 | provenance as literal prefix tokens | ≈4.38 | ~0.00 |
+| A4 | **true role labels** | 3.5325 | −0.814 |
+| **A5** | **ordinal position in bundle (no provenance meaning)** | **3.4216** | **−0.925** |
+
+**A5 recovers 114% of A4's gain.** Labelling segments by an arbitrary ordinal is
+*better* than labelling them by who wrote the note.
+
+Why: **91.2% of bundles contain ≥2 segments sharing a role.** True role labels are
+a *lossy* partition — two nursing notes in one admission collapse to one id and
+become indistinguishable to the bias. Segment index never collides.
+
+So the mechanism is **document segmentation**: a shared-across-layers additive
+logit bias inducing soft block-diagonal attention ("attend within your own
+note"), which is worth a great deal under MLM on packed multi-document input.
+Provenance is a degraded proxy for the partition, not the source of the gain.
+
+Note also that A4 is unchanged by shuffling (3.5325 vs 3.5415), which rules out
+the competing story that role was merely a stand-in for chronological position.
+
+**Comparison class.** This device is not new. T5's relative position bias is a
+learned additive logit table computed once and shared across every layer; this
+is the same object with the bucketing function `f(i−j)` replaced by
+`f(seg(i), seg(j))`. ALiBi is the same idea with a fixed monotone bias, and its
+headline result is likewise faster early training. The correct baselines are
+T5-RPE and ALiBi, not BERT.
+
+**A control that must never be cited.** A *global* derangement of role labels is
+vacuous: `A` is a free K×K table, so under relabeling σ the model simply learns
+`A'[σ(r),σ(r')] = A[r,r']`. The loss surface is isomorphic and the result is
+fixed at the uncorrupted value by construction. It was implemented, recognized as
+powerless, and removed. Guarded in code.
+
 ### Consequence — stated precisely
 
 **The information-channel framing is dead.** "Provenance supplies information the text does
