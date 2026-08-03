@@ -82,7 +82,9 @@ def main() -> None:
     cfg.max_seq_len = args.seq_len
     model = ProvenanceEncoder(cfg).to(dev)
 
-    run_dir = LOCAL / "runs" / f"{args.arm}_{args.size}_s{args.seed}"
+    # Step count is part of the identity: a 1000-step and a 4000-step run of the
+    # same arm are different experiments and must not overwrite each other.
+    run_dir = LOCAL / "runs" / f"{args.arm}_{args.size}_st{args.steps}_s{args.seed}"
     inst = Instrumentor(model, run_dir, args.arm)
 
     mk = lambda split, seed: BundleDataset(  # noqa: E731
