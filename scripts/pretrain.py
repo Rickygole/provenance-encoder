@@ -76,10 +76,13 @@ def main() -> None:
                          "semantics destroyed). A gain that survives this is not provenance.")
     ap.add_argument("--random-roles", action="store_true",
                     help="control: independent random role per segment (structure destroyed too)")
+    ap.add_argument("--length-roles", action="store_true",
+                    help="control: bias keyed on note-length bucket instead of role. An "
+                         "informative per-segment category with no authority semantics.")
     ap.add_argument("--tag", default="", help="suffix for the run directory")
     args = ap.parse_args()
-    if args.permute_roles and args.random_roles:
-        raise SystemExit("--permute-roles and --random-roles are mutually exclusive")
+    if sum([args.permute_roles, args.random_roles, args.length_roles]) > 1:
+        raise SystemExit("role controls are mutually exclusive")
 
     torch.manual_seed(args.seed)
     dev = device_of(args.device)
@@ -92,7 +95,8 @@ def main() -> None:
 
     # Step count is part of the identity: a 1000-step and a 4000-step run of the
     # same arm are different experiments and must not overwrite each other.
-    ctrl = "_permuted" if args.permute_roles else "_randroles" if args.random_roles else ""
+    ctrl = ("_permuted" if args.permute_roles else "_randroles" if args.random_roles
+            else "_lenroles" if args.length_roles else "")
     tag = f"_{args.tag}" if args.tag else ""
     run_dir = (LOCAL / "runs" /
                f"{args.arm}_{args.size}_st{args.steps}_s{args.seed}{ctrl}{tag}")
@@ -101,7 +105,8 @@ def main() -> None:
     mk = lambda split, seed: BundleDataset(  # noqa: E731
         LOCAL / "bundles" / f"{split}.jsonl", tok, arm=args.arm,
         max_seq_len=args.seq_len, max_tokens_per_segment=args.seg_tokens, seed=seed,
-        permute_roles=args.permute_roles, random_roles=args.random_roles)
+        permute_roles=args.permute_roles, random_roles=args.random_roles,
+        length_roles=args.length_roles)
     train_ds, val_ds = mk("train", args.seed), mk("val", 12345)
     # Same seed => same data order across arms. Compute-matching requires it.
     g = torch.Generator().manual_seed(args.seed)

@@ -44,7 +44,7 @@ class BundleDataset(torch.utils.data.Dataset):
     def __init__(self, path: str | Path, tokenizer: Tokenizer, *, arm: str,
                  max_seq_len: int = 512, max_tokens_per_segment: int = 96,
                  mlm_prob: float = 0.15, seed: int = 0, permute_roles: bool = False,
-                 random_roles: bool = False):
+                 random_roles: bool = False, length_roles: bool = False):
         self.rows = [json.loads(l) for l in Path(path).open()]
         self.tok = tokenizer
         self.arm = arm
@@ -55,6 +55,11 @@ class BundleDataset(torch.utils.data.Dataset):
         # if it survives random_roles as well, it is capacity or noise.
         self.permute_roles = permute_roles
         self.random_roles = random_roles
+        # length_roles replaces the role id with a note-length bucket: a per-segment
+        # categorical that is genuinely informative but carries no authority
+        # semantics. If this helps as much as real roles, the mechanism is "any
+        # informative per-segment category", not document provenance.
+        self.length_roles = length_roles
         # Must be a DERANGEMENT -- no fixed points. A permutation that maps the
         # most common role to itself leaves most tokens correctly labelled and is
         # not a control at all.
@@ -101,6 +106,10 @@ class BundleDataset(torch.utils.data.Dataset):
                 r = int(rr.integers(1, N_ROLES))
             elif self.permute_roles:
                 r = self.role_perm.get(r, r)
+            elif self.length_roles:
+                # 6 length buckets mapped onto role slots 1..6
+                L = len(seg["text"])
+                r = 1 + min(5, int(L // 250))
             hours = float(seg["delta_t_hours"])
 
             # Reserved slots -- identical budget in every arm.
