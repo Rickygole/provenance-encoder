@@ -244,8 +244,36 @@ against a 32.6% majority baseline).
 | A4 | **true role labels** | 3.5325 | −0.814 |
 | **A5** | **ordinal position in bundle (no provenance meaning)** | **3.4216** | **−0.925** |
 
+Full control set, monotone in partition quality:
+
+| Bias keyed on | distinct ids/seq | val_loss | % of A4's gain |
+|---|---|---|---|
+| nothing | — | 4.3465 | 0% |
+| note-length bucket | 2.77 | 4.0174 | 40% |
+| random role per segment | 3.98 | 3.8587 | 60% |
+| true role labels | 3.70 | 3.5325 | 100% |
+| **ordinal segment index** | ~5.8 | **3.4216** | **114%** |
+
 **A5 recovers 114% of A4's gain.** Labelling segments by an arbitrary ordinal is
 *better* than labelling them by who wrote the note.
+
+One nuance that keeps the claim honest: random roles yield *more* distinct ids per
+sequence than real roles (3.98 vs 3.70) yet perform 0.33 nats worse. So resolution
+alone is not the whole story — **consistency across examples** matters too (nursing
+is always id 1 under real labels, arbitrary under random). The precise claim is
+that the bias needs a *consistent, high-resolution* segment partition. Semantic
+content contributes nothing beyond that.
+
+**Boilerplate diagnostic — negative, which strengthens the result.** At seq 256 each
+note contributes ~36 tokens, so training sits in note openings. If the advantage
+were template identification, it would concentrate there. Loss gap (A1 − A4) by
+position within segment:
+
+| tokens 0–8 | 8–20 | 20–40 |
+|---|---|---|
+| +0.8869 | +0.8201 | +0.7865 |
+
+Flat. Not a truncation artifact.
 
 Why: **91.2% of bundles contain ≥2 segments sharing a role.** True role labels are
 a *lossy* partition — two nursing notes in one admission collapse to one id and
