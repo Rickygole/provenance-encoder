@@ -49,6 +49,12 @@ class EncoderConfig:
     center_authority: bool = True   # A <- A - rowmean(A) every forward pass
     zero_init_authority: bool = True  # never initialize at a hypothesized value
 
+    # --- control: replace the segment bias with a pure distance bias (ALiBi) ---
+    # A6. Uses NO segment or role information at all, only |i - j| on global
+    # positions. If this recovers the gain, the mechanism is locality, not
+    # segmentation, and the finding reduces further to a 2021 result.
+    alibi_bias: bool = False
+
     def __post_init__(self) -> None:
         if self.arm not in ARMS:
             raise ValueError(f"arm must be one of {ARMS}, got {self.arm!r}")

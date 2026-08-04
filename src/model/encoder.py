@@ -55,6 +55,11 @@ class ProvenanceBias(nn.Module):
             self.decay_raw = nn.Parameter(torch.full((H,), -5.0))
             self.direction = nn.Parameter(torch.zeros(H))
 
+        if cfg.alibi_bias:
+            # One learned slope per head over |i - j|. Zero-init like everything
+            # else, so any locality prior has to be learned rather than assumed.
+            self.alibi_raw = nn.Parameter(torch.full((H,), -5.0))
+
     def centered_authority(self) -> torch.Tensor:
         """A - rowmean(A). The identifiable part; the only thing that affects the function."""
         A = self.authority
@@ -69,6 +74,13 @@ class ProvenanceBias(nn.Module):
     ) -> torch.Tensor:
         B, S = role_ids.shape
         H, K = self.cfg.n_heads, self.cfg.n_roles
+
+        if self.cfg.alibi_bias:
+            # Pure distance bias. Deliberately ignores role_ids entirely.
+            pos = torch.arange(S, device=role_ids.device, dtype=torch.float32)
+            dist = (pos.unsqueeze(-1) - pos.unsqueeze(-2)).abs()      # (S, S)
+            slope = F.softplus(self.alibi_raw).view(H, 1, 1)
+            return (-slope * dist.unsqueeze(0)).unsqueeze(0).expand(B, H, S, S)
 
         A = self.centered_authority()                        # (H, K, K)
         flat_idx = (role_ids.unsqueeze(-1) * K + role_ids.unsqueeze(-2))  # (B, S, S)
@@ -222,6 +234,9 @@ class ProvenanceEncoder(nn.Module):
         """
         out: dict[str, torch.Tensor] = {}
         if self.bias_module is not None:
+            if self.cfg.alibi_bias:
+                out["alibi_raw"] = self.bias_module.alibi_raw
+                return out
             out["authority"] = self.bias_module.authority
             if self.cfg.use_time_bias:
                 out["decay_raw"] = self.bias_module.decay_raw

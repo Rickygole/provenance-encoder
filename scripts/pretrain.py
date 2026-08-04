@@ -117,6 +117,9 @@ def main() -> None:
     ap.add_argument("--shuffle-segments", action="store_true",
                     help="randomize segment order within a bundle, decorrelating role "
                          "from position (bundles are built chronologically)")
+    ap.add_argument("--alibi", action="store_true",
+                    help="A6 control: replace the segment bias with a pure ALiBi "
+                         "distance bias using NO segment or role information")
     ap.add_argument("--tag", default="", help="suffix for the run directory")
     args = ap.parse_args()
     if sum([args.permute_roles, args.random_roles, args.length_roles,
@@ -139,6 +142,9 @@ def main() -> None:
     cfg = preset(args.size, arm=args.arm)
     cfg.vocab_size = tok.get_vocab_size()
     cfg.max_seq_len = args.seq_len
+    cfg.alibi_bias = args.alibi
+    if args.alibi and not cfg.use_authority_bias:
+        raise SystemExit("--alibi needs an arm with a bias module (A3 or A4)")
     model = ProvenanceEncoder(cfg).to(dev)
 
     # Step count is part of the identity: a 1000-step and a 4000-step run of the
@@ -146,6 +152,7 @@ def main() -> None:
     ctrl = ("_permuted" if args.permute_roles else "_randroles" if args.random_roles
             else "_lenroles" if args.length_roles
             else "_segidx" if args.segment_index_roles else "")
+    ctrl += "_alibi" if args.alibi else ""
     ctrl += "_shuf" if args.shuffle_segments else ""
     tag = f"_{args.tag}" if args.tag else ""
     run_dir = (LOCAL / "runs" /
