@@ -10,7 +10,14 @@ specific way this task could silently become trivial:
   1. DISCHARGE SUMMARIES ARE EXCLUDED. They are authored at discharge and state
      the outcome verbatim. Including them is the ACCORD Rule-F1=0.953 failure.
   2. Only notes charted within [ADMITTIME, ADMITTIME + 48h] are used.
-  3. Nothing charted at or after DEATHTIME, which would be posthumous.
+  3. ADMISSIONS THAT END (death or discharge) INSIDE THE WINDOW ARE DROPPED.
+     This replaces an earlier posthumous-note filter that was LABEL-CONDITIONED
+     and therefore a leak: DEATHTIME is non-null for exactly the 5,854 positive
+     admissions and zero negatives (verified), so filtering on it truncated the
+     observation window for positives only. The window became a function of the
+     outcome. Requiring survival through the window makes the input
+     label-independent by construction, and the label becomes "died later in
+     this admission" -- the standard benchmark definition.
   4. Splits are group-disjoint by SUBJECT_ID -- a patient with several
      admissions must not appear on both sides.
 
@@ -75,13 +82,24 @@ def main() -> None:
                 "subject_id": r["SUBJECT_ID"].strip(),
                 "t0": t0,
                 "death": parse(r.get("DEATHTIME")),
+                "discharge": parse(r.get("DISCHTIME")),
                 "label": int(r["HOSPITAL_EXPIRE_FLAG"]),
             }
     print(f"admissions with ADMITTIME: {len(adm):,}")
 
     cutoff = timedelta(hours=args.window_hours)
+    # LABEL-INDEPENDENT GATE. Keep only admissions still ongoing at the end of
+    # the observation window, so no positive has its notes truncated relative to
+    # a negative. Applied to admissions BEFORE any note is read.
+    n_before = len(adm)
+    adm = {h: a for h, a in adm.items()
+           if (a["discharge"] is None or a["discharge"] > a["t0"] + cutoff)
+           and (a["death"] is None or a["death"] > a["t0"] + cutoff)}
+    print(f"admissions still ongoing at {args.window_hours}h: {len(adm):,} "
+          f"(dropped {n_before - len(adm):,} that ended inside the window)")
     by_adm: dict[str, list] = defaultdict(list)
-    n_rows = kept = drop_late = drop_death = drop_role = 0
+    n_rows = kept = drop_late = drop_role = 0
+    drop_death = 0
 
     with gzip.open(args.notes, "rt", newline="") as f:
         for r in csv.DictReader(f):
@@ -102,9 +120,9 @@ def main() -> None:
             if ts < a["t0"] or ts > a["t0"] + cutoff:   # rule 2
                 drop_late += 1
                 continue
-            if a["death"] and ts >= a["death"]:          # rule 3
-                drop_death += 1
-                continue
+            # rule 3 is now enforced at the admission level, above: any
+            # admission ending inside the window is gone, so no note here can be
+            # posthumous and no per-note label-conditioned filter is needed.
             txt = (r.get("TEXT") or "").strip()
             if len(txt) < 100:
                 continue
