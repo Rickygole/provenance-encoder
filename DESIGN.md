@@ -342,6 +342,44 @@ locality, a further chunk is document-boundary alignment, and none of it is
 metadata semantics — and the best-performing form is the simplest and already
 published.
 
+### 6e. DOWNSTREAM: does any of it survive on a real labeled task?
+
+The task ACCORD never had. In-hospital mortality from the notes of the first 48
+hours, input = a bundle of notes from several authors. Discharge summaries
+excluded (they state the outcome), posthumous notes excluded, splits
+group-disjoint by `SUBJECT_ID`.
+
+**36,504 examples, 3,730 positives, 734 in the test set** — against ACCORD's 253
+and 12, and 6.8× the 548 positives ACCORD's own power analysis said it needed.
+
+| Model | non-emb params | pretraining | AUROC | AUPRC |
+|---|---|---|---|---|
+| PubMedBERT + concatenation | 109,482,240 | 3.1B words | 0.8223 | 0.3878 |
+| ours, block-mask pretrained | 10,638,720 | ~6M tokens | 0.8014 | 0.3258 |
+| ours, **random init** | 10,638,720 | **none** | 0.7998 | 0.3290 |
+| ours, vanilla pretrained | 10,638,336 | ~6M tokens | 0.7937 | 0.3121 |
+
+**Two findings, and the second undercuts the first.**
+
+1. A from-scratch 10M encoder reaches **97.5% of PubMedBERT's AUROC** with 1/11
+   the parameters and roughly 1/1000 the pretraining data. Competitive per
+   parameter on the input shape it was built for.
+
+2. **Pretraining contributes nothing.** Random initialization (0.7998 / 0.3290)
+   matches the block-mask pretrained model (0.8014 / 0.3258) and beats it on
+   AUPRC. And the 1.337-nat MLM advantage of block masking converts to only
+   +0.008 AUROC downstream.
+
+So the pretraining-loss results in §6c–6d, however cleanly controlled, **do not
+transfer**. What produces the downstream number is 25,527 labeled examples, not
+the architecture and not the pretraining objective. Any claim resting on MLM loss
+as a proxy for clinical utility is unsupported by this evidence — which is
+precisely the kind of proxy-metric failure ACCORD was originally written about.
+
+Caveats: one seed per arm, 3 epochs, seq 256, val-set selection. The
+PubMedBERT row is a single run kept as a reference point, not a matched
+comparison — it uses a different tokenizer and 512 positions.
+
 ### Consequence — stated precisely
 
 **The information-channel framing is dead.** "Provenance supplies information the text does

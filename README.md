@@ -27,6 +27,21 @@ Most of the apparent benefit of metadata conditioning is locality; a further par
 is document-boundary alignment; none of it is metadata semantics. The best form
 is the simplest and was already published (Zhao et al., ACL 2024).
 
+## Downstream result (multi-note mortality, 36,504 examples / 3,730 positives)
+
+| Model | non-emb params | pretraining | AUROC | AUPRC |
+|---|---|---|---|---|
+| PubMedBERT + concatenation | 109,482,240 | 3.1B words | 0.8223 | 0.3878 |
+| ours, block-mask pretrained | 10,638,720 | ~6M tokens | 0.8014 | 0.3258 |
+| ours, **random init** | 10,638,720 | **none** | 0.7998 | 0.3290 |
+| ours, vanilla pretrained | 10,638,336 | ~6M tokens | 0.7937 | 0.3121 |
+
+A from-scratch 10M encoder reaches 97.5% of PubMedBERT's AUROC at 1/11 the
+parameters and ~1/1000 the pretraining data. **But pretraining contributes
+nothing** — random init matches it — and a 1.34-nat MLM advantage converts to
++0.008 AUROC. The pretraining-loss results above do not transfer; 25k labels do
+the work. All numbers in `results/`.
+
 ## Why this exists
 
 Grew out of ACCORD (NeurIPS 2026, withdrawn). Reviewers said the architecture was
