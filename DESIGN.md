@@ -300,6 +300,48 @@ vacuous: `A` is a free K×K table, so under relabeling σ the model simply learn
 fixed at the uncorrupted value by construction. It was implemented, recognized as
 powerless, and removed. Guarded in code.
 
+### 6d. FINAL ARM COMPARISON — 7 arms × 3 seeds, all controls
+
+10M params, seq 256, batch 8, 1000 steps, MLM on packed multi-document bundles,
+segment order shuffled. Mean ± std over 3 seeds. "% " is the fraction of the
+segment-index bias's gain over vanilla.
+
+| Arm | val_loss | vs vanilla | % | uses segment info |
+|---|---|---|---|---|
+| vanilla (no bias) | 4.3554 ±0.0085 | — | 0% | no |
+| T5 relative position bias | 4.1035 ±0.0029 | −0.2520 | 27% | no |
+| misaligned block bias | 3.9109 ±0.0293 | −0.4445 | 47% | no |
+| ALiBi distance bias | 3.7435 ±0.0023 | −0.6119 | 65% | no |
+| true role labels | 3.5310 ±0.0076 | −0.8244 | 87% | yes |
+| segment-index bias | 3.4078 ±0.0225 | −0.9476 | 100% | yes |
+| **hard block mask (fixed)** | **3.2772 ±0.0124** | **−1.0782** | **114%** | yes |
+
+Seed spreads are ≤0.03 against effects of 0.25–1.08, so every ordering is
+resolved.
+
+**What each control settled:**
+
+1. **Provenance contributes nothing, and slightly hurts.** True role labels are
+   0.123 nats *worse* than an arbitrary segment ordinal. The original thesis is
+   dead, measured rather than argued.
+2. **"Learned" is decoration.** A fixed block-diagonal mask beats the learned
+   bias by 0.131 nats. The operative method is intra-document attention masking
+   (Zhao et al., ACL 2024) — this work reproduces it, it does not improve on it.
+3. **Document boundaries genuinely matter.** Misaligned blocks with the same
+   block count recover only 47% versus 100% for aligned. Alignment is worth
+   0.503 nats, so "any coarse blocking" is not the explanation.
+4. **Locality explains most but not all.** ALiBi recovers 65% with no segment
+   information at all, leaving a 0.336-nat segment-alignment residual.
+5. **T5-RPE recovers only 27%**, so the baseline's lack of relative position is
+   not the story either.
+
+**Bottom line.** The finding is not a provenance architecture and not a novel
+mechanism. It is a controlled decomposition of a known one: on packed
+multi-document input, most of the benefit attributed to metadata conditioning is
+locality, a further chunk is document-boundary alignment, and none of it is
+metadata semantics — and the best-performing form is the simplest and already
+published.
+
 ### Consequence — stated precisely
 
 **The information-channel framing is dead.** "Provenance supplies information the text does
