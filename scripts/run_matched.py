@@ -50,6 +50,7 @@ from tokenizers import Tokenizer
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+from src.data.bundles import RESERVED_PER_SEGMENT  # noqa: E402
 from src.data.roles import N_ROLES  # noqa: E402
 from src.model.config import EncoderConfig, preset  # noqa: E402
 from src.model.encoder import ProvenanceEncoder  # noqa: E402
@@ -201,9 +202,18 @@ class OursDataset(torch.utils.data.Dataset):
     how OursBert/BertDataset below behaves under the same max_len.
     """
 
-    def __init__(self, rows, tok: Tokenizer, max_len: int, pos_bound: int):
+    def __init__(self, rows, tok: Tokenizer, max_len: int, pos_bound: int,
+                 seg_tokens: int | None = None, semantic_roles: bool = False):
         self.rows, self.tok, self.max_len = rows, tok, max_len
         self.pos_bound = pos_bound  # nn.Embedding row count for local_positions
+        # PRETRAINING-CONVENTION COMPATIBILITY. src/data/bundles.py caps each
+        # segment at seg_tokens (default 36) and lays local positions in
+        # [RESERVED_PER_SEGMENT, RESERVED_PER_SEGMENT + n). If fine-tuning uses
+        # a different cap or starts positions at 0, a pretrained checkpoint is
+        # asked to interpret position rows that never received a gradient --
+        # which fully explains ours_pretrained scoring BELOW ours_random.
+        self.seg_tokens = seg_tokens
+        self.semantic_roles = semantic_roles
         v = tok.get_vocab()
         self.pad, self.cls, self.sep = v["[PAD]"], v["[CLS]"], v["[SEP]"]
 
@@ -227,6 +237,8 @@ class OursDataset(torch.utils.data.Dataset):
         # 1.39 of 6.78 notes while the floor saw all of them -- a 6x information
         # asymmetry that was reported as a "matched" protocol.
         per_seg_tok = max(8, (S - 2) // 8)
+        if self.seg_tokens is not None:
+            per_seg_tok = min(per_seg_tok, self.seg_tokens)
         for k, s in enumerate(r["segments"], start=1):
             enc = self.tok.encode(s["text"]).ids[:per_seg_tok]
             if not enc:
@@ -235,13 +247,16 @@ class OursDataset(torch.utils.data.Dataset):
                 continue
             n = len(enc)
             ids[cur:cur + n] = enc
-            role[cur:cur + n] = 1 + min(N_ROLES - 2, k - 1)
-            lpos[cur:cur + n] = np.arange(n)
+            role[cur:cur + n] = (int(s["role"]) if self.semantic_roles
+                                 else 1 + min(N_ROLES - 2, k - 1))
+            lpos[cur:cur + n] = np.arange(RESERVED_PER_SEGMENT,
+                                          RESERVED_PER_SEGMENT + n)
             dt[cur:cur + n] = float(s["delta_t_hours"])
             mask[cur:cur + n] = 1.0
             cur += n
             ids[cur], role[cur] = self.sep, role[cur - 1]
-            mask[cur], dt[cur], lpos[cur] = 1.0, dt[cur - 1], n
+            mask[cur], dt[cur] = 1.0, dt[cur - 1]
+            lpos[cur] = RESERVED_PER_SEGMENT + n
             cur += 1
             n_tok += n + 1
             n_seg += 1
