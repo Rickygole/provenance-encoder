@@ -22,11 +22,76 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from src.data.bundles import BundleDataset  # noqa: E402
+from src.data.lineage import hash_file, hash_task_splits  # noqa: E402
 from src.model.config import preset  # noqa: E402
 from src.model.encoder import ProvenanceEncoder  # noqa: E402
 from src.train.instrument import Instrumentor  # noqa: E402
 
 LOCAL = ROOT / "local_only"
+
+
+def check_lineage(task_dir: Path, bundles_dir: Path, tokenizer_dir: Path) -> str:
+    """Refuse to pretrain on a stale or mismatched corpus. See
+    src/data/lineage.py and scripts/build_bundles.py's docstring for the
+    contamination this closes: bundles used to be built from an independent
+    subject split and could contain the task's val/test patients' discharge
+    summaries. Every hash here is recomputed fresh, never cached.
+    """
+    bundles_meta_path = bundles_dir / "meta.json"
+    if not bundles_meta_path.exists():
+        raise SystemExit(
+            f"{bundles_meta_path} missing -- run scripts/build_bundles.py "
+            f"(after scripts/build_task.py) before pretraining."
+        )
+    bundles_meta = json.loads(bundles_meta_path.read_text())
+    stored_task_hash = bundles_meta.get("task_split_hash")
+    if stored_task_hash is None:
+        raise SystemExit(
+            "local_only/bundles/meta.json has no task_split_hash -- this "
+            "corpus predates the contamination fix (it was built with an "
+            "independent subject shuffle instead of the task's split). "
+            "Rebuild with the current scripts/build_bundles.py, then retrain "
+            "the tokenizer with scripts/train_tokenizer.py, before pretraining."
+        )
+    fresh_task_hash, task_counts = hash_task_splits(task_dir)
+    if fresh_task_hash != stored_task_hash:
+        raise SystemExit(
+            f"STALE PRETRAINING CORPUS: local_only/bundles was built from "
+            f"task_split_hash={stored_task_hash}, but {task_dir} currently "
+            f"hashes to {fresh_task_hash} (subjects: {task_counts}). The "
+            f"downstream task split has changed since the bundles were built "
+            f"-- rerun scripts/build_bundles.py, then scripts/train_tokenizer.py, "
+            f"before pretraining. Refusing to silently pretrain on a corpus "
+            f"that may now include the task's current val/test patients."
+        )
+
+    tok_lineage_path = tokenizer_dir / "lineage.json"
+    if not tok_lineage_path.exists():
+        raise SystemExit(
+            f"{tok_lineage_path} missing -- retrain the tokenizer with the "
+            f"current scripts/train_tokenizer.py (it now stamps a lineage.json)."
+        )
+    tok_lineage = json.loads(tok_lineage_path.read_text())
+    train_jsonl = bundles_dir / "train.jsonl"
+    fresh_bundles_hash = hash_file(train_jsonl)
+    if tok_lineage.get("bundles_content_hash") != fresh_bundles_hash:
+        raise SystemExit(
+            f"STALE TOKENIZER: {tok_lineage_path} was trained on bundles "
+            f"content hash {tok_lineage.get('bundles_content_hash')}, but "
+            f"{train_jsonl} currently hashes to {fresh_bundles_hash}. The "
+            f"bundle corpus was rebuilt since the tokenizer was trained -- "
+            f"rerun scripts/train_tokenizer.py before pretraining."
+        )
+    if tok_lineage.get("task_split_hash") != stored_task_hash:
+        raise SystemExit(
+            f"STALE TOKENIZER: {tok_lineage_path}'s task_split_hash "
+            f"({tok_lineage.get('task_split_hash')}) does not match the "
+            f"current bundles' task_split_hash ({stored_task_hash}). Rerun "
+            f"scripts/build_bundles.py then scripts/train_tokenizer.py."
+        )
+    print(f"lineage OK: task_split_hash={stored_task_hash} "
+          f"(subjects {task_counts}) -> bundles -> tokenizer, all matched.")
+    return stored_task_hash
 
 
 def device_of(name: str) -> torch.device:
@@ -133,6 +198,13 @@ def main() -> None:
                     help="A6 control: replace the segment bias with a pure ALiBi "
                          "distance bias using NO segment or role information")
     ap.add_argument("--tag", default="", help="suffix for the run directory")
+    ap.add_argument("--task-dir", default=str(LOCAL / "task"),
+                    help="downstream task split the bundles must be derived from "
+                         "(lineage check); override only for smoke-testing")
+    ap.add_argument("--bundles-dir", default=str(LOCAL / "bundles"),
+                    help="override for smoke-testing against a scratch corpus")
+    ap.add_argument("--tokenizer-dir", default=str(LOCAL / "tokenizer"),
+                    help="override for smoke-testing against a scratch tokenizer")
     args = ap.parse_args()
     if sum([args.permute_roles, args.random_roles, args.length_roles,
             args.segment_index_roles]) > 1:
@@ -147,9 +219,14 @@ def main() -> None:
         print("WARNING: a global role derangement is VACUOUS -- the model relearns the "
               "permuted table and the loss is unchanged by construction. Do not cite.")
 
+    task_dir = Path(args.task_dir)
+    bundles_dir = Path(args.bundles_dir)
+    tokenizer_dir = Path(args.tokenizer_dir)
+    check_lineage(task_dir, bundles_dir, tokenizer_dir)
+
     torch.manual_seed(args.seed)
     dev = device_of(args.device)
-    tok = Tokenizer.from_file(str(LOCAL / "tokenizer" / "wordpiece.json"))
+    tok = Tokenizer.from_file(str(tokenizer_dir / "wordpiece.json"))
 
     cfg = preset(args.size, arm=args.arm)
     cfg.vocab_size = tok.get_vocab_size()
@@ -180,7 +257,7 @@ def main() -> None:
     inst = Instrumentor(model, run_dir, args.arm)
 
     mk = lambda split, seed: BundleDataset(  # noqa: E731
-        LOCAL / "bundles" / f"{split}.jsonl", tok, arm=args.arm,
+        bundles_dir / f"{split}.jsonl", tok, arm=args.arm,
         max_seq_len=args.seq_len, max_tokens_per_segment=args.seg_tokens, seed=seed,
         permute_roles=args.permute_roles, random_roles=args.random_roles,
         length_roles=args.length_roles, segment_index_roles=args.segment_index_roles,

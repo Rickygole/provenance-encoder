@@ -33,6 +33,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import random
 import sys
 import time
 from pathlib import Path
@@ -68,6 +69,53 @@ def load_rows(task_dir: Path, split: str, limit: int = 0) -> list[dict]:
     if limit:
         rows = rows[:limit]
     return rows
+
+
+def subsample_group_disjoint(rows: list[dict], n: int, seed: int) -> list[dict]:
+    """Subject-group-disjoint, prevalence-preserving subsample of `rows` down to
+    ~n examples. Used by the label-budget ladder (scripts/run_label_ladder.sh):
+    pretraining's benefit is supposed to live in the LOW-label regime, and that
+    claim is only honest if the low-label subsamples are built with the same
+    discipline as the original splits.
+
+    Operates entirely WITHIN the split it is given (in practice, only ever
+    called on the already-selected train split -- val/test are untouched), so
+    it cannot by itself introduce cross-split leakage. Whole subjects are kept
+    or dropped together (never split across the boundary of "in the
+    subsample" / "not in the subsample"), and positive- and negative-carrying
+    subjects are drawn from separately shuffled pools so the achieved positive
+    rate tracks `rows`' positive rate rather than drifting with subsample size.
+    """
+    if n <= 0 or n >= len(rows):
+        return rows
+    by_subj: dict[str, list[dict]] = {}
+    for r in rows:
+        by_subj.setdefault(r["subject_id"], []).append(r)
+    prevalence = sum(r["label"] for r in rows) / len(rows)
+    pos_subjects = [s for s, rs in by_subj.items() if any(r["label"] for r in rs)]
+    neg_subjects = [s for s, rs in by_subj.items() if not any(r["label"] for r in rs)]
+    rng = random.Random(seed)
+    rng.shuffle(pos_subjects)
+    rng.shuffle(neg_subjects)
+    target_pos = round(n * prevalence)
+    target_neg = n - target_pos
+
+    out: list[dict] = []
+    n_pos = n_neg = 0
+    for s in pos_subjects:
+        if n_pos >= target_pos:
+            break
+        rs = by_subj[s]
+        out.extend(rs)
+        n_pos += sum(r["label"] for r in rs)
+    for s in neg_subjects:
+        if n_neg >= target_neg:
+            break
+        rs = by_subj[s]
+        out.extend(rs)
+        n_neg += sum(1 - r["label"] for r in rs)
+    rng.shuffle(out)
+    return out
 
 
 def budget_rows(rows: list[dict], chars_per_note: int) -> list[dict]:
@@ -218,8 +266,9 @@ class OursClf(nn.Module):
         return self.head(self.drop(h[:, 0])).squeeze(-1)
 
 
-def build_ours_model(init: str, ckpt: Path | None, max_len: int, device):
-    tok = Tokenizer.from_file(str(LOCAL / "tokenizer" / "wordpiece.json"))
+def build_ours_model(init: str, ckpt: Path | None, max_len: int, device,
+                      tokenizer_dir: Path = LOCAL / "tokenizer"):
+    tok = Tokenizer.from_file(str(Path(tokenizer_dir) / "wordpiece.json"))
     if init == "pretrained":
         ck = torch.load(Path(ckpt) / "model.pt", map_location="cpu", weights_only=False)
         cfg = EncoderConfig(**{k: v for k, v in ck["cfg"].items()
@@ -258,9 +307,11 @@ def eval_ours(model, dl, dev):
     return roc_auc_score(ys, ps), average_precision_score(ys, ps), ps, ys
 
 
-def train_ours_one(init, ckpt, train_ds, val_ds, epochs, lr, batch, seed, device):
+def train_ours_one(init, ckpt, train_ds, val_ds, epochs, lr, batch, seed, device,
+                    tokenizer_dir: Path = LOCAL / "tokenizer"):
     torch.manual_seed(seed)
-    model, tok, pos_bound, arm, pretraining_desc = build_ours_model(init, ckpt, train_ds.max_len, device)
+    model, tok, pos_bound, arm, pretraining_desc = build_ours_model(
+        init, ckpt, train_ds.max_len, device, tokenizer_dir)
     g = torch.Generator().manual_seed(seed)
     dtr = torch.utils.data.DataLoader(train_ds, batch_size=batch, shuffle=True, generator=g)
     dva = torch.utils.data.DataLoader(val_ds, batch_size=batch)
@@ -582,8 +633,19 @@ def main() -> None:
     ap.add_argument("--ckpt", default=str(DEFAULT_CKPT), help="pretrained checkpoint dir for ours_pretrained")
     ap.add_argument("--limit-train", type=int, default=0, help="0 = full train set")
     ap.add_argument("--limit-eval", type=int, default=0, help="0 = full val set")
+    ap.add_argument("--subsample-train", type=int, default=0,
+                    help="if >0, subsample the TRAIN split (only) to ~N examples, "
+                         "subject-group-disjoint and prevalence-preserving (see "
+                         "subsample_group_disjoint). Drives the label-budget ladder "
+                         "(scripts/run_label_ladder.sh). val/test are never subsampled "
+                         "or otherwise touched by this flag.")
+    ap.add_argument("--subsample-seed", type=int, default=0)
     ap.add_argument("--task-dir", default=str(LOCAL / "task"),
                     help="override for smoke-testing without touching the real task dir")
+    ap.add_argument("--tokenizer-dir", default=str(LOCAL / "tokenizer"),
+                    help="override for smoke-testing against a scratch tokenizer that "
+                         "matches a scratch --ckpt's vocab (a --ckpt pretrained with a "
+                         "different tokenizer than this one will fail on vocab_size)")
     ap.add_argument("--n-boot", type=int, default=2000)
     ap.add_argument("--device", default="auto")
     ap.add_argument("--tag", default="")
@@ -609,6 +671,20 @@ def main() -> None:
     lr_grid = [float(x) for x in args.lr_grid.split(",")]
     seeds = [int(x) for x in args.seeds.split(",")]
     task_dir = Path(args.task_dir)
+    tokenizer_dir = Path(args.tokenizer_dir)
+
+    train_rows = load_rows(task_dir, "train", args.limit_train)
+    val_rows = load_rows(task_dir, "val", args.limit_eval)
+
+    subsample_info = None
+    if args.subsample_train:
+        before = len(train_rows)
+        train_rows = subsample_group_disjoint(train_rows, args.subsample_train, args.subsample_seed)
+        subsample_info = {
+            "target_n": args.subsample_train, "before_n": before, "achieved_n": len(train_rows),
+            "achieved_prevalence": sum(r["label"] for r in train_rows) / max(len(train_rows), 1),
+            "seed": args.subsample_seed,
+        }
 
     protocol = {
         "max_len": args.max_len, "chars_per_note": args.chars_per_note,
@@ -616,7 +692,9 @@ def main() -> None:
         "batch_ours": args.batch_ours, "batch_bert": args.batch_bert,
         "accum_bert": args.accum_bert, "effective_batch_bert": args.batch_bert * args.accum_bert,
         "ckpt": args.ckpt, "limit_train": args.limit_train, "limit_eval": args.limit_eval,
-        "task_dir": str(task_dir), "device": str(dev), "systems": systems,
+        "subsample_train": subsample_info,
+        "task_dir": str(task_dir), "tokenizer_dir": str(tokenizer_dir),
+        "device": str(dev), "systems": systems,
         "selection_rule": "best epoch by val AUROC; LR chosen by mean best-epoch val AUROC "
                            "across seeds; identical for every neural arm",
         "argv": sys.argv[1:],
@@ -624,9 +702,12 @@ def main() -> None:
     print("PROTOCOL (shared across every neural arm)")
     print(json.dumps(protocol, indent=2))
     print()
+    if subsample_info:
+        print(f"train subsampled (subject-group-disjoint, prevalence-preserving): "
+              f"{subsample_info['before_n']:,} -> {subsample_info['achieved_n']:,} "
+              f"(target {subsample_info['target_n']:,}), "
+              f"prevalence {subsample_info['achieved_prevalence']:.2%}\n")
 
-    train_rows = load_rows(task_dir, "train", args.limit_train)
-    val_rows = load_rows(task_dir, "val", args.limit_eval)
     print(f"train={len(train_rows):,} val={len(val_rows):,} "
           f"val_positives={sum(r['label'] for r in val_rows):.0f}\n")
 
@@ -658,7 +739,7 @@ def main() -> None:
             continue
         print(f">> our encoder, {init} init  (max_len={args.max_len} tokens, "
               f"chars_per_note={args.chars_per_note})")
-        tok = Tokenizer.from_file(str(LOCAL / "tokenizer" / "wordpiece.json"))
+        tok = Tokenizer.from_file(str(tokenizer_dir / "wordpiece.json"))
         pos_bound = args.max_len
         if init == "pretrained":
             ck = torch.load(Path(args.ckpt) / "model.pt", map_location="cpu", weights_only=False)
@@ -673,7 +754,7 @@ def main() -> None:
             for seed in seeds:
                 t0 = time.time()
                 r = train_ours_one(init, args.ckpt, train_ds, val_ds, args.epochs, lr,
-                                    args.batch_ours, seed, dev)
+                                    args.batch_ours, seed, dev, tokenizer_dir)
                 runs[(lr, seed)] = r
                 print(f"   lr={lr:.0e} seed={seed}: best AUROC {r['best']['auroc']:.4f} "
                       f"AUPRC {r['best']['auprc']:.4f} @epoch{r['best']['epoch']} "
@@ -830,9 +911,9 @@ def main() -> None:
             init = "pretrained" if key == "ours_pretrained" else "random"
             print(f"  scoring {key} on test with the val-selected weights "
                   f"(lr={lr:.0e} seed={seed0}, no retraining)")
-            tok = Tokenizer.from_file(str(LOCAL / "tokenizer" / "wordpiece.json"))
+            tok = Tokenizer.from_file(str(tokenizer_dir / "wordpiece.json"))
             test_ds = OursDataset(btest, tok, args.max_len, pos_bound)
-            model, _, _, _, _ = build_ours_model(init, args.ckpt, args.max_len, dev)
+            model, _, _, _, _ = build_ours_model(init, args.ckpt, args.max_len, dev, tokenizer_dir)
             model.load_state_dict(state)
             dte = torch.utils.data.DataLoader(test_ds, batch_size=args.batch_ours)
             auroc, auprc, ps, ys = eval_ours(model, dte, dev)

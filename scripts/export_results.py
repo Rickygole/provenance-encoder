@@ -33,6 +33,17 @@ SCALAR_KEYS = {
     "orig_n", "match_n", "retained", "orig_median", "match_median",
     "match_p10", "match_p90", "length_only", "levels", "length_matched_level2",
     "full_note_scrubbed", "windows", "top_terms",
+    # Pretraining-corpus lineage (contamination fix; see src/data/lineage.py
+    # and scripts/build_bundles.py).
+    "task_split_hash", "task_split_counts", "derived_from_task_dir",
+    "pretrain_val_frac", "contamination_fix", "bundles_content_hash",
+    "bundles_dir", "vocab_size",
+    # Token/label-budget ladders (scripts/run_token_ladder.sh,
+    # scripts/run_label_ladder.sh).
+    "mlm_tokens", "mlm_val_loss", "ckpt", "budget_tag", "n_train", "prevalence",
+    "metadata_auroc", "tfidf_auroc", "ours_random_auroc_mean", "ours_random_auroc_std",
+    "ours_pretrained_auroc_mean", "ours_pretrained_auroc_std", "pretrain_minus_random",
+    "subsample_train", "target_n", "before_n", "achieved_n", "achieved_prevalence",
 }
 
 
