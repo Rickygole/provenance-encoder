@@ -271,6 +271,16 @@ def main() -> None:
                      "global_positions": args.global_positions},
     }
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2))
+    # Save weights. Every run before this one produced scalars and nothing else,
+    # so no pretrained encoder existed to fine-tune. Optimizer state is omitted
+    # deliberately: disk is tight and these runs are cheap to repeat.
+    torch.save({"model": model.state_dict(),
+                "cfg": {k: getattr(cfg, k) for k in
+                        ("vocab_size", "d_model", "n_layers", "n_heads", "d_ff",
+                         "max_seq_len", "n_roles", "n_auth_buckets", "arm",
+                         "alibi_bias", "rpe_bias", "hard_block_mask")}},
+               run_dir / "model.pt")
+    print(f"saved weights -> {run_dir / 'model.pt'}")
     print(f"\nFINAL arm={args.arm} val_loss={final_val:.4f} "
           f"ppl={math.exp(min(final_val,20)):.2f} ({time.time()-t0:.0f}s)")
     for k, m in rep["provenance_params"].items():

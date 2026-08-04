@@ -110,8 +110,14 @@ class ProvenanceBias(nn.Module):
 
         if self.cfg.hard_block_mask:
             # Limit case: attend only within your own segment. Fixed, not learned.
+            # Role 0 ([CLS] and padding) is GLOBAL in both directions. Without
+            # this, [CLS] attends only to other role-0 tokens -- i.e. itself --
+            # so any classifier reading [CLS] sees nothing and collapses to a
+            # constant (observed: AUROC exactly 0.5000).
             same = (role_ids.unsqueeze(-1) == role_ids.unsqueeze(-2))  # (B, S, S)
-            out = torch.where(same, 0.0, NEG_INF).to(torch.float32)
+            glob = (role_ids == 0)
+            vis = same | glob.unsqueeze(-1) | glob.unsqueeze(-2)
+            out = torch.where(vis, 0.0, NEG_INF).to(torch.float32)
             return out.unsqueeze(1).expand(B, H, S, S)
 
         A = self.centered_authority()                        # (H, K, K)
