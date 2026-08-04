@@ -359,6 +359,33 @@ and 12, and 6.8× the 548 positives ACCORD's own power analysis said it needed.
 | ours, **random init** | 10,638,720 | **none** | 0.7998 | 0.3290 |
 | ours, vanilla pretrained | 10,638,336 | ~6M tokens | 0.7937 | 0.3121 |
 
+### With three seeds (pretraining seed varied, not just fine-tuning seed)
+
+| Arm | n | AUROC | AUPRC |
+|---|---|---|---|
+| **random init (NO pretraining)** | 3 | **0.8003 ±0.0031** | 0.3242 ±0.0062 |
+| block-mask pretrained | 3 | 0.7956 ±0.0079 | 0.3330 ±0.0063 |
+| vanilla pretrained | 3 | 0.7952 ±0.0062 | 0.3142 ±0.0139 |
+
+Between-arm spread **0.0051**; within-arm seed std up to **0.0079**. Seed noise
+exceeds the effect. **The three arms are statistically indistinguishable**, and
+the un-pretrained model has the highest mean.
+
+The single-seed ordering did not survive: on seed 0 block-mask led vanilla by
+0.0077; on seed 1 vanilla led block-mask by 0.0034. The ordering flips with seed.
+
+**Contrast the two regimes, because this is the actual result:**
+
+| | effect size | seed std |
+|---|---|---|
+| pretraining loss (block vs vanilla) | 1.320 nats | ±0.015 |
+| downstream AUROC (same two models) | 0.0004 | ±0.0079 |
+
+A pretraining difference reproducible to three decimals predicts **nothing**
+about the downstream task. That is a proxy-metric failure, measured — and it is
+the same class of error ACCORD was written about, found this time in our own
+work before publication rather than after.
+
 **Two findings, and the second undercuts the first.**
 
 1. A from-scratch 10M encoder reaches **97.5% of PubMedBERT's AUROC** with 1/11

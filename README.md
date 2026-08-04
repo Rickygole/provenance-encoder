@@ -36,11 +36,23 @@ is the simplest and was already published (Zhao et al., ACL 2024).
 | ours, **random init** | 10,638,720 | **none** | 0.7998 | 0.3290 |
 | ours, vanilla pretrained | 10,638,336 | ~6M tokens | 0.7937 | 0.3121 |
 
-A from-scratch 10M encoder reaches 97.5% of PubMedBERT's AUROC at 1/11 the
+### Three seeds, pretraining seed varied
+
+| Arm | AUROC | AUPRC |
+|---|---|---|
+| **random init (NO pretraining)** | **0.8003 ±0.0031** | 0.3242 ±0.0062 |
+| block-mask pretrained | 0.7956 ±0.0079 | 0.3330 ±0.0063 |
+| vanilla pretrained | 0.7952 ±0.0062 | 0.3142 ±0.0139 |
+
+A from-scratch 10M encoder reaches ~97% of PubMedBERT's AUROC at 1/11 the
 parameters and ~1/1000 the pretraining data. **But pretraining contributes
-nothing** — random init matches it — and a 1.34-nat MLM advantage converts to
-+0.008 AUROC. The pretraining-loss results above do not transfer; 25k labels do
-the work. All numbers in `results/`.
+nothing**: seed noise (±0.0079) exceeds the between-arm spread (0.0051), the
+un-pretrained model has the highest mean, and the single-seed ordering flips
+between seeds.
+
+The sharp version: a pretraining-loss gap of **1.320 ± 0.015 nats** predicts a
+downstream AUROC difference of **0.0004**. A metric stable to three decimals that
+forecasts nothing — a proxy-metric failure, measured. All numbers in `results/`.
 
 ## Why this exists
 
