@@ -222,10 +222,17 @@ class OursDataset(torch.utils.data.Dataset):
         ids[cur], mask[cur] = self.cls, 1.0
         cur += 1
         n_tok, n_seg = 0, 0
+        # Ration max_len ACROSS notes. Without a per-segment cap the first note
+        # consumed the whole budget and the loop broke, so the neural arms saw
+        # 1.39 of 6.78 notes while the floor saw all of them -- a 6x information
+        # asymmetry that was reported as a "matched" protocol.
+        per_seg_tok = max(8, (S - 2) // 8)
         for k, s in enumerate(r["segments"], start=1):
-            enc = self.tok.encode(s["text"]).ids
-            if not enc or cur + len(enc) + 1 >= S:
-                break
+            enc = self.tok.encode(s["text"]).ids[:per_seg_tok]
+            if not enc:
+                continue
+            if cur + len(enc) + 1 >= S:
+                continue
             n = len(enc)
             ids[cur:cur + n] = enc
             role[cur:cur + n] = 1 + min(N_ROLES - 2, k - 1)
@@ -363,10 +370,13 @@ class BertDataset(torch.utils.data.Dataset):
         ids = [self.tok.cls_token_id]
         seg = [0]
         n_tok, n_seg = 0, 0
+        per_seg_tok = max(8, (self.max_len - 2) // 8)
         for k, s in enumerate(r["segments"], start=1):
-            enc = self.tok.encode(s["text"], add_special_tokens=False)
-            if not enc or len(ids) + len(enc) + 1 > self.max_len:
-                break
+            enc = self.tok.encode(s["text"], add_special_tokens=False)[:per_seg_tok]
+            if not enc:
+                continue
+            if len(ids) + len(enc) + 1 > self.max_len:
+                continue
             ids += enc + [self.tok.sep_token_id]
             seg += [k] * (len(enc) + 1)
             n_tok += len(enc) + 1
