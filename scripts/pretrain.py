@@ -117,6 +117,18 @@ def main() -> None:
     ap.add_argument("--shuffle-segments", action="store_true",
                     help="randomize segment order within a bundle, decorrelating role "
                          "from position (bundles are built chronologically)")
+    ap.add_argument("--global-positions", action="store_true",
+                    help="T0-1: standard absolute positions instead of "
+                         "local-within-segment. Without this the vanilla baseline has "
+                         "no global position coordinate and every 'segmentation' gain "
+                         "may just be the model buying position back.")
+    ap.add_argument("--rpe", action="store_true",
+                    help="T0-2: T5-style relative position bias, the comparison class")
+    ap.add_argument("--hard-block", action="store_true",
+                    help="T0-4: fixed block-diagonal mask, the limit of the learned bias")
+    ap.add_argument("--misaligned-blocks", action="store_true",
+                    help="T0-3: same block count, boundaries NOT at document edges. "
+                         "Isolates document structure from any coarse blocking.")
     ap.add_argument("--alibi", action="store_true",
                     help="A6 control: replace the segment bias with a pure ALiBi "
                          "distance bias using NO segment or role information")
@@ -143,8 +155,12 @@ def main() -> None:
     cfg.vocab_size = tok.get_vocab_size()
     cfg.max_seq_len = args.seq_len
     cfg.alibi_bias = args.alibi
-    if args.alibi and not cfg.use_authority_bias:
-        raise SystemExit("--alibi needs an arm with a bias module (A3 or A4)")
+    cfg.rpe_bias = args.rpe
+    cfg.hard_block_mask = args.hard_block
+    if (args.alibi or args.rpe or args.hard_block) and not cfg.use_authority_bias:
+        raise SystemExit("bias controls need an arm with a bias module (A3 or A4)")
+    if sum([args.alibi, args.rpe, args.hard_block]) > 1:
+        raise SystemExit("bias controls are mutually exclusive")
     model = ProvenanceEncoder(cfg).to(dev)
 
     # Step count is part of the identity: a 1000-step and a 4000-step run of the
@@ -153,6 +169,10 @@ def main() -> None:
             else "_lenroles" if args.length_roles
             else "_segidx" if args.segment_index_roles else "")
     ctrl += "_alibi" if args.alibi else ""
+    ctrl += "_rpe" if args.rpe else ""
+    ctrl += "_hardblk" if args.hard_block else ""
+    ctrl += "_misalign" if args.misaligned_blocks else ""
+    ctrl += "_globalpos" if args.global_positions else ""
     ctrl += "_shuf" if args.shuffle_segments else ""
     tag = f"_{args.tag}" if args.tag else ""
     run_dir = (LOCAL / "runs" /
@@ -164,7 +184,9 @@ def main() -> None:
         max_seq_len=args.seq_len, max_tokens_per_segment=args.seg_tokens, seed=seed,
         permute_roles=args.permute_roles, random_roles=args.random_roles,
         length_roles=args.length_roles, segment_index_roles=args.segment_index_roles,
-        shuffle_segments=args.shuffle_segments)
+        shuffle_segments=args.shuffle_segments,
+        global_positions=args.global_positions,
+        misaligned_blocks=args.misaligned_blocks)
     train_ds, val_ds = mk("train", args.seed), mk("val", 12345)
     # Same seed => same data order across arms. Compute-matching requires it.
     g = torch.Generator().manual_seed(args.seed)
@@ -245,7 +267,8 @@ def main() -> None:
         "controls": {"permute_roles": args.permute_roles, "random_roles": args.random_roles,
                      "length_roles": args.length_roles,
                      "segment_index_roles": args.segment_index_roles,
-                     "shuffle_segments": args.shuffle_segments},
+                     "shuffle_segments": args.shuffle_segments,
+                     "global_positions": args.global_positions},
     }
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2))
     print(f"\nFINAL arm={args.arm} val_loss={final_val:.4f} "

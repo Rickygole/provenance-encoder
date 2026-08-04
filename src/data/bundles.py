@@ -45,7 +45,8 @@ class BundleDataset(torch.utils.data.Dataset):
                  max_seq_len: int = 512, max_tokens_per_segment: int = 96,
                  mlm_prob: float = 0.15, seed: int = 0, permute_roles: bool = False,
                  random_roles: bool = False, length_roles: bool = False,
-                 segment_index_roles: bool = False, shuffle_segments: bool = False):
+                 segment_index_roles: bool = False, shuffle_segments: bool = False,
+                 global_positions: bool = False, misaligned_blocks: bool = False):
         self.rows = [json.loads(l) for l in Path(path).open()]
         self.tok = tokenizer
         self.arm = arm
@@ -75,6 +76,16 @@ class BundleDataset(torch.utils.data.Dataset):
         self.length_roles = length_roles
         self.segment_index_roles = segment_index_roles
         self.shuffle_segments = shuffle_segments
+        # THE BASELINE FIX. Local-within-segment positions mean the vanilla arm has
+        # NO global position coordinate: token 5 of segment 1 and token 5 of
+        # segment 5 receive identical position embeddings. Since
+        # local_position + segment_index = global_position, an arm keyed on
+        # segment index hands the model back exactly the coordinate this deletes.
+        # Every measured "segmentation" gain may therefore be a positionally
+        # handicapped baseline buying position back. This flag restores standard
+        # absolute positions so the baseline is not crippled by construction.
+        self.global_positions = global_positions
+        self.misaligned_blocks = misaligned_blocks
         # Must be a DERANGEMENT -- no fixed points. A permutation that maps the
         # most common role to itself leaves most tokens correctly labelled and is
         # not a control at all.
@@ -154,7 +165,11 @@ class BundleDataset(torch.utils.data.Dataset):
             ids[cur:cur + n] = enc
             role[cur:cur + n] = r
             dt[cur:cur + n] = hours
-            lpos[cur:cur + n] = np.arange(RESERVED_PER_SEGMENT, RESERVED_PER_SEGMENT + n)
+            if self.global_positions:
+                lpos[cur:cur + n] = np.arange(cur, cur + n)
+            else:
+                lpos[cur:cur + n] = np.arange(RESERVED_PER_SEGMENT,
+                                              RESERVED_PER_SEGMENT + n)
             mask[cur:cur + n] = 1.0
             cur += n
 
@@ -162,6 +177,23 @@ class BundleDataset(torch.utils.data.Dataset):
                 ids[cur], role[cur], dt[cur], mask[cur] = self.sep_id, r, hours, 1.0
                 lpos[cur] = RESERVED_PER_SEGMENT + n
                 cur += 1
+
+        if self.misaligned_blocks:
+            # THE IDENTIFYING CONTROL. Same number of contiguous blocks, same
+            # size distribution, but boundaries placed at random offsets that do
+            # NOT coincide with document boundaries. Isolates *document*
+            # structure from *any* coarse blocking of the sequence. If this ties
+            # the aligned version, the word "document" comes out of every claim.
+            n_real = max(1, len(segments))
+            valid = int(mask.sum())
+            cuts = sorted(rr.choice(np.arange(1, max(2, valid)),
+                                    size=min(n_real - 1, max(1, valid - 1)),
+                                    replace=False).tolist()) if n_real > 1 else []
+            blk, prev = np.zeros(S, dtype=np.int64), 0
+            for bi, c in enumerate(cuts + [valid]):
+                blk[prev:c] = 1 + (bi % (N_ROLES - 2))
+                prev = c
+            role = np.where(mask > 0, blk, 0)
 
         labels = np.full(S, -100, dtype=np.int64)
         maskable = np.where((mask > 0) & (ids != self.cls_id) & (ids != self.sep_id))[0]

@@ -60,6 +60,26 @@ class ProvenanceBias(nn.Module):
             # else, so any locality prior has to be learned rather than assumed.
             self.alibi_raw = nn.Parameter(torch.full((H,), -5.0))
 
+        if cfg.rpe_bias:
+            self.rpe = nn.Parameter(torch.zeros(H, cfg.rpe_buckets))
+
+    def _rpe_bucket(self, S: int, device) -> torch.Tensor:
+        """T5 relative-position bucketing: exact for small |i-j|, log-spaced beyond."""
+        nb, maxd = self.cfg.rpe_buckets, self.cfg.rpe_max_distance
+        pos = torch.arange(S, device=device)
+        rel = pos.unsqueeze(-2) - pos.unsqueeze(-1)        # (S, S) = j - i
+        num = nb // 2
+        ret = (rel > 0).long() * num
+        n = rel.abs()
+        small = num // 2
+        is_small = n < small
+        large = small + (
+            torch.log(n.float().clamp(min=1) / small)
+            / math.log(maxd / small) * (num - small)
+        ).long()
+        large = large.clamp(max=num - 1)
+        return ret + torch.where(is_small, n, large)
+
     def centered_authority(self) -> torch.Tensor:
         """A - rowmean(A). The identifiable part; the only thing that affects the function."""
         A = self.authority
@@ -81,6 +101,18 @@ class ProvenanceBias(nn.Module):
             dist = (pos.unsqueeze(-1) - pos.unsqueeze(-2)).abs()      # (S, S)
             slope = F.softplus(self.alibi_raw).view(H, 1, 1)
             return (-slope * dist.unsqueeze(0)).unsqueeze(0).expand(B, H, S, S)
+
+        if self.cfg.rpe_bias:
+            # T5 relative position bias. Also ignores role_ids entirely.
+            bucket = self._rpe_bucket(S, role_ids.device)            # (S, S)
+            bias = self.rpe[:, bucket.reshape(-1)].view(H, S, S)
+            return bias.unsqueeze(0).expand(B, H, S, S)
+
+        if self.cfg.hard_block_mask:
+            # Limit case: attend only within your own segment. Fixed, not learned.
+            same = (role_ids.unsqueeze(-1) == role_ids.unsqueeze(-2))  # (B, S, S)
+            out = torch.where(same, 0.0, NEG_INF).to(torch.float32)
+            return out.unsqueeze(1).expand(B, H, S, S)
 
         A = self.centered_authority()                        # (H, K, K)
         flat_idx = (role_ids.unsqueeze(-1) * K + role_ids.unsqueeze(-2))  # (B, S, S)
@@ -237,6 +269,11 @@ class ProvenanceEncoder(nn.Module):
             if self.cfg.alibi_bias:
                 out["alibi_raw"] = self.bias_module.alibi_raw
                 return out
+            if self.cfg.rpe_bias:
+                out["rpe"] = self.bias_module.rpe
+                return out
+            if self.cfg.hard_block_mask:
+                return out  # fixed mask, nothing learned
             out["authority"] = self.bias_module.authority
             if self.cfg.use_time_bias:
                 out["decay_raw"] = self.bias_module.decay_raw

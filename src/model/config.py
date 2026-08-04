@@ -55,6 +55,18 @@ class EncoderConfig:
     # segmentation, and the finding reduces further to a 2021 result.
     alibi_bias: bool = False
 
+    # T5-style relative position bias: learned per (head, log-bucketed i-j).
+    # This is the device's own comparison class -- segments average ~44 tokens, so
+    # a segment bias is a boundary-aligned coarse relative-position bias. If
+    # T5-RPE ties it, the finding is "the baseline lacked RPE", i.e. Raffel 2020.
+    rpe_bias: bool = False
+    rpe_buckets: int = 32
+    rpe_max_distance: int = 128
+
+    # Hard block-diagonal mask: the limit case of the learned segment bias.
+    # If a fixed boolean mask matches the learned one, "learned" is decoration.
+    hard_block_mask: bool = False
+
     def __post_init__(self) -> None:
         if self.arm not in ARMS:
             raise ValueError(f"arm must be one of {ARMS}, got {self.arm!r}")
