@@ -1,0 +1,611 @@
+% ============================================================================
+%  Chapter 4. Rule-Based Candidate Generation and the Exemplar Selection Failure
+%
+%  \input file. Requires booktabs, amsmath, natbib in the parent preamble.
+%  Bibliography: accord/thesis/refs.bib
+%
+%  Traceability: accord/phase3_mining.py (rules, exemplar measurement, splits),
+%  accord/dictionaries.py (drug classes, dose parsing), accord/CORRECTIONS.md
+%  (C3, C6, C8).
+% ============================================================================
+
+\chapter{Rule-Based Candidate Generation and the Exemplar Selection Failure}
+\label{ch:candidates}
+
+\section{The Problem This Chapter Solves, and the One It Creates}
+\label{sec:cand-overview}
+
+True medication contradictions between a nursing note and a discharge summary
+are rare. Chapter~\ref{ch:data} produced $9{,}783$ admissions; a board-certified
+pharmacist, annotating a stratified sample drawn from the candidate pool, found
+$12$ genuine contradictions in $299$ pairs. Exhaustive human review of all
+$9{,}783$ admissions is not feasible, and exhaustive machine scoring of all
+cross-note medication pairs is both computationally wasteful and statistically
+hostile: the positive class would sit somewhere below one in ten thousand.
+
+Candidate generation is the standard response. A cheap, high-recall,
+low-precision rule set narrows the space to a pool that a model or a human can
+examine. The rules are not intended to be accurate. They are intended to be
+\emph{transparent} and \emph{enriching}: transparent because each candidate
+carries a reason, and enriching because the base rate inside the pool should be
+far above the base rate outside it.
+
+This chapter constructs four such rules, reports their yield, and then reports
+the finding that dominates the chapter and, arguably, the thesis. \emph{The
+mechanism that decided which sentence pair to attach to a candidate was
+independent of the mechanism that decided the candidate was a conflict.} A
+candidate was flagged because the \emph{set} of actions observed for a drug in
+one note conflicted with the set observed in the other, but the sentence pair
+written into the candidate record was the first mention of that drug on each
+side, which need not be, and $41.4\%$ of the time was not, the mention carrying
+the conflicting action.
+
+Every consumer of the candidate pool downstream saw only the sentence pair. The
+pharmacist annotated the sentence pair. The weak labeller of
+Chapter~\ref{ch:weak} read the sentence pair. The model of
+Chapter~\ref{ch:arch} was trained on the sentence pair. For a large minority of
+candidates, all three were reasoning about evidence that did not contain the
+conflict that had caused the candidate to exist.
+
+\section{Problem Formulation}
+\label{sec:cand-formulation}
+
+Let an admission $a$ have a nursing note $N_a$ and a discharge summary $D_a$.
+Chapter~\ref{ch:data}'s extractor yields, for each note, a set of medication
+mentions. Write $M(N_a)$ and $M(D_a)$ for these sets. Each mention
+$m$ carries a normalised drug $\mathrm{drug}(m)$, an action label
+$\mathrm{act}(m) \in \{\textsc{cess}, \textsc{cont}, \textsc{init},
+\textsc{dose}, \textsc{unc}\}$, an optional numeric dose
+$(\mathrm{val}(m), \mathrm{unit}(m))$, a sentence $\mathrm{sent}(m)$, and, in
+the rebuilt pipeline only, a character offset $\mathrm{pos}(m)$ into the note.
+
+A \emph{candidate} is a tuple
+\[
+c = \bigl(a,\; r,\; d,\; m_N,\; m_D\bigr),
+\]
+where $r \in \{1,2,3,4\}$ is the rule that produced it, $d$ is the drug or drug
+pair at issue, and $(m_N, m_D)$ is the \emph{exemplar pair}: the single mention
+from each note that is presented as evidence.
+
+The distinction that this chapter turns on is between the \emph{trigger
+predicate} $T_r(a, d)$, which decides whether a candidate exists, and the
+\emph{exemplar selector} $E_r(a, d)$, which decides what $(m_N, m_D)$ is. A
+correct implementation requires
+\[
+T_r \text{ holds} \;\Longrightarrow\; \mathrm{act}(m_N) \text{ and }
+\mathrm{act}(m_D) \text{ are the two actions that made } T_r \text{ hold}.
+\]
+The reference implementation does not satisfy this, because $T_r$ quantifies
+over sets of mentions and $E_r$ was implemented as
+\texttt{.iloc[0]}, the first row of the drug's mention group.
+
+\section{The Four Rules}
+\label{sec:rules}
+
+\subsection{Rule 1: direct action conflict}
+
+Rule 1 fires when the same drug $d$ appears in both notes and the action sets
+disagree in a specific direction:
+\[
+T_1(a,d) \;=\;
+\bigl(\textsc{cont} \in A_N \wedge \textsc{cess} \in A_D\bigr)
+\;\vee\;
+\bigl(\textsc{cess} \in A_N \wedge \textsc{cont} \in A_D\bigr),
+\]
+where $A_N = \{\mathrm{act}(m) : m \in M(N_a), \mathrm{drug}(m) = d\}$ and $A_D$
+is defined analogously. This is the canonical case: the nursing note records the
+drug as held and the discharge summary orders it continued, or the reverse.
+
+Note the existential quantifier. Rule 1 fires if \emph{some} mention on each
+side carries the required action. A drug mentioned five times in a discharge
+summary with four continuation mentions and one cessation mention satisfies the
+predicate. This is deliberate and correct for a high-recall trigger. It is also
+precisely what makes the exemplar selection problem non-trivial.
+
+\subsection{Rule 2: drug class conflict}
+
+Rule 2 generalises Rule 1 to the pharmacologic class. Two \emph{different} drugs
+in the same class, one continued and one ceased across the two notes, may
+represent a substitution that was documented on one side and not the other. It
+uses a hand-written dictionary of $10$ classes covering $34$ drugs
+(ACE inhibitors, ARBs, beta blockers, loop diuretics, anticoagulants, statins,
+insulins, nitrates, antiarrhythmics, aldosterone antagonists). The predicate is
+$T_1$ with the drug identity relaxed to class identity, plus a guard that the
+drug sets on the two sides are not identical, which would return the candidate
+to Rule 1's territory.
+
+The class dictionary is a limitation in itself. Ten classes and $34$ drugs is a
+small fraction of the pharmacologic space, it is not derived from a standard
+terminology such as ATC or RxNorm, and its class boundaries encode one author's
+judgement. It has no mechanism for cross-class interactions, which are a large
+share of clinically significant medication problems.
+
+\subsection{Rule 3: dosage conflict}
+
+Rule 3 fires when the same drug carries a parseable numeric dose in both notes,
+the two doses reduce to the same canonical unit, and they differ by more than
+$20\%$ of the larger value:
+\[
+T_3(a,d) \;=\; \exists\, (m_N, m_D) :\;
+\mathrm{unit}(m_N) = \mathrm{unit}(m_D)
+\;\wedge\;
+\frac{\max - \min}{\max} > 0.20 .
+\]
+The $20\%$ threshold is a judgement call with no empirical derivation. It is not
+tuned, and it is not clinically grounded in the sense that different drug
+classes tolerate very different dose variation. A $25\%$ change in a statin dose
+and a $25\%$ change in a warfarin dose are not comparable events. This is a
+known weakness of the rule and it is not addressed anywhere in this thesis.
+
+Rule 3's exemplar selection is correct by construction: the exemplar pair is the
+$(m_N, m_D)$ pair achieving the largest percentage difference, so it necessarily
+carries the conflict. There is no \texttt{.iloc[0]} defect to fix here, because
+the rule had no reference implementation at all. It exists only in the rebuild,
+for the reason given in Chapter~\ref{ch:data}: the reference extractor stored
+dose strings and never parsed them to numbers, so there was nothing to compute a
+percentage from.
+
+\subsection{Rule 4: omission conflict}
+
+Rule 4 fires when a drug receives a cessation action in the nursing note and is
+\emph{absent} from every extracted mention in the discharge summary, classified
+or not:
+\[
+T_4(a,d) \;=\;
+\bigl(\exists\, m \in M(N_a) : \mathrm{drug}(m) = d \wedge
+\mathrm{act}(m) = \textsc{cess}\bigr)
+\;\wedge\;
+d \notin \{\mathrm{drug}(m) : m \in M(D_a)\}.
+\]
+This is the clinically most interesting rule and the one with the weakest
+evidence, because absence is not the same as a decision. A drug held at the
+bedside and never mentioned again in the discharge summary may have been
+deliberately discontinued and correctly omitted, or may have been dropped from
+the discharge list by oversight. The rule cannot distinguish these, and neither
+can the sentence pair it produces, because there is no discharge sentence: the
+discharge side of a Rule 4 candidate is the literal string \texttt{absent}.
+
+That property is worth flagging now and is returned to in
+Chapter~\ref{ch:weak}: Rule 4 is the only rule whose candidates present the
+downstream consumer with a structurally different input, a nursing sentence
+paired with an empty string. It is also the only rule on which the weak
+labeller and the trained model behave differently from the other three.
+
+\section{Candidate Yield}
+\label{sec:cand-yield}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{clrr}
+\toprule
+\textbf{Rule} & \textbf{Trigger} & \textbf{Candidates} & \textbf{Admissions} \\
+\midrule
+1 & Direct action conflict (same drug, opposite actions) & 886   & 701 \\
+2 & Drug class conflict (same class, different agents)   & 203   & 195 \\
+3 & Dosage conflict ($>20\%$ difference)                 & 521   & n/a \\
+4 & Omission (held in nursing, absent from discharge)    & 370   & n/a \\
+\midrule
+  & \textbf{Total raw}                                   & \textbf{1,980} & n/a \\
+  & \textbf{After temporal prefilter}                    & \textbf{1,978} & \textbf{1,203} \\
+\bottomrule
+\end{tabular}
+\caption{Candidate yield by rule. Per-rule admission counts were preserved in
+the run log only for Rules 1 and 2. The temporal prefilter removed two
+candidates in total; Chapter~\ref{ch:data}, Section~\ref{sec:charttime},
+explains why this filter should be understood as an instrument failure rather
+than a measurement, and why the two-candidate reduction carries no information.}
+\label{tab:yield-rules}
+\end{table}
+
+Table~\ref{tab:yield-rules} reports the pool. Two observations.
+
+First, the pool is small relative to the cohort: $1{,}978$ candidates from
+$9{,}783$ admissions, so roughly one admission in eight contributes a candidate,
+and the $1{,}978$ candidates come from only $1{,}203$ distinct admissions, about
+$1.64$ candidates per contributing admission. The concentration is not
+incidental; Section~\ref{sec:splits} shows that it is the reason a row-level
+train/test split leaks.
+
+Second, the drug distribution is dominated by a handful of agents, shown in
+Table~\ref{tab:top-drugs}. Furosemide alone accounts for $373$ candidates,
+nearly a fifth of the pool.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrl}
+\toprule
+\textbf{Drug} & \textbf{Candidates} & \textbf{Class} \\
+\midrule
+Furosemide  & 373 & Loop diuretic \\
+Metoprolol  & 297 & Beta blocker \\
+Heparin     & 166 & Anticoagulant \\
+Warfarin    & 145 & Anticoagulant \\
+Amiodarone  & 110 & Antiarrhythmic \\
+\bottomrule
+\end{tabular}
+\caption{The five most frequent drugs in the candidate pool. These five account
+for $1{,}091$ of $1{,}978$ candidates. Within Rule 2, anticoagulants contribute
+$107$ of $203$ candidates and beta blockers $34$, so two of ten classes supply
+$69\%$ of the class-conflict pool. A model trained on this pool sees a small
+number of drugs repeatedly and has ample opportunity to key on drug identity
+rather than on the relationship between the two sentences.}
+\label{tab:top-drugs}
+\end{table}
+
+\section{The Exemplar Selection Failure}
+\label{sec:exemplar}
+
+\subsection{The defect}
+
+The reference mining code for Rules 1 and 2 has the following shape:
+
+\begin{quote}\ttfamily\small
+conflict = ('continuation' in n\_actions and 'cessation' in d\_actions) \\
+\hphantom{conflict = }or ('cessation' in n\_actions and 'continuation' in d\_actions) \\
+if conflict: \\
+\hphantom{if }n\_row = nursing[nursing['drug'] == drug].iloc[0] \\
+\hphantom{if }d\_row = discharge[discharge['drug'] == drug].iloc[0]
+\end{quote}
+
+The first two lines evaluate the trigger over sets. The last two lines select
+the exemplar by positional index into the drug's mention group. Nothing
+constrains \texttt{n\_row} and \texttt{d\_row} to carry the actions that made
+\texttt{conflict} true.
+
+The failure mode is concrete. Suppose a discharge summary mentions furosemide
+five times: four windows resolve to \emph{continuation} and one, later in the
+note, resolves to \emph{cessation}. Suppose the nursing note has a single
+\emph{continuation} mention. Then $A_N = \{\textsc{cont}\}$,
+$A_D = \{\textsc{cont}, \textsc{cess}\}$, the trigger fires on the
+$(\textsc{cont}, \textsc{cess})$ branch, and the candidate is real by the rule's
+own definition. But \texttt{.iloc[0]} on the discharge side returns a
+\emph{continuation} row. The exemplar pair that the pipeline labels a
+contradiction consists of two sentences in which the two notes \emph{agree}.
+
+\subsection{Why the defect was invisible}
+
+Chapter~\ref{ch:data} noted that the reference mentions table stored no
+positional information. That is the enabling condition. Without a sentence index
+or a character offset, mentions of the same drug within the same note are
+indistinguishable rows, and \texttt{.iloc[0]} is not obviously different from any
+other choice; there was no representation in which ``the mention that carries
+the conflict'' could be expressed. The bug is therefore not a typo. It is a
+consequence of an upstream schema decision, and it is the clearest instance in
+this project of the pattern that \citet{sculley2015debt} describe as
+configuration and data-dependency debt: a defect made unreachable by the absence
+of the field that would have exposed it.
+
+\subsection{The fix}
+
+The rebuilt implementation (\texttt{accord/phase3\_mining.py}) selects, on each
+side independently, among only those mentions whose \emph{own} action equals the
+action required by that specific candidate's conflict branch:
+\[
+E_r^{\text{new}}(a,d) = \bigl(\arg\!\min_{m \in C_N} \delta(m),\;
+\arg\!\min_{m \in C_D} \delta(m)\bigr),
+\]
+\[
+C_N = \{m : \mathrm{drug}(m)=d,\ \mathrm{act}(m) = \rho_N\}, \quad
+C_D = \{m : \mathrm{drug}(m)=d,\ \mathrm{act}(m) = \rho_D\},
+\]
+where $(\rho_N, \rho_D)$ is the required action pair for the branch that fired,
+and $\delta(m)$ is the character distance from $m$ to the nearest dose-bearing
+mention in the same note. The tie-break is a heuristic with a stated rationale:
+a mention adjacent to a concrete dose is more likely to be a substantive
+instruction than a passing reference in an allergy list or a problem list. If no
+dose-bearing mention exists in the note, the tie-break falls back to the
+earliest qualifying sentence, for determinism.
+
+The tie-break is not validated. It affects only which of several
+\emph{qualifying} mentions is chosen, so it cannot reintroduce the original
+defect, but the claim that dose adjacency indicates clinical substance is an
+assumption. [TODO: measure whether the dose-adjacency tie-break changes the
+pharmacist's judgement relative to an earliest-sentence tie-break, on a sample
+of candidates where the two disagree.]
+
+\subsection{The measurement}
+
+The rebuild instruments both selectors and records, for every action-conflict
+candidate, whether the old exemplar's action pair matched the required pair and
+whether the fix changed the selected rows. Table~\ref{tab:exemplar} reports the
+result.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+ & \textbf{Old exemplar correct} & \textbf{Exemplar changed by fix} \\
+\midrule
+Rule 1 (direct action conflict) & 60.5\% & n/a \\
+Rule 2 (drug class conflict)    & 50.4\% & n/a \\
+\midrule
+\textbf{Rules 1 $+$ 2 pooled}   & \textbf{58.6\%} & \textbf{739 / 1,307 (56.5\%)} \\
+\bottomrule
+\end{tabular}
+\caption{Exemplar correctness under the reference selector. ``Old exemplar
+correct'' is the fraction of action-conflict candidates for which the
+\texttt{.iloc[0]} exemplar pair actually carried the two actions that triggered
+the candidate. The complement, $41.4\%$, is the fraction of action-conflict
+candidates justified to every downstream consumer by a sentence pair that did
+not contain the conflict. Rule 2 is worse than Rule 1, as expected: class-level
+conflicts quantify over more mentions, so the probability that the first mention
+happens to be the conflicting one is lower. The rebuild mined $1{,}307$
+action-conflict candidates against the reference's $1{,}089$
+($886 + 203$), because it runs against the corrected cohort of
+Chapter~\ref{ch:data} and an offset-bearing mentions table; the rate is measured
+on the rebuild's pool and is reported as such.}
+\label{tab:exemplar}
+\end{table}
+
+Three readings of Table~\ref{tab:exemplar} are worth separating.
+
+\paragraph{As a bug report.} $41.4\%$ of action-conflict candidates carried
+evidence inconsistent with their own trigger, and $56.5\%$ of them change
+exemplar under the fix. The two numbers differ because a candidate can change
+exemplar on one side while the old exemplar happened to be correct on the other,
+or vice versa.
+
+\paragraph{As a bound on annotation validity.} The pharmacist annotated the
+exemplar pair. For roughly two in five action-conflict candidates, the sentence
+pair presented did not contain the flagged conflict. The pharmacist's judgement
+on those pairs is a correct judgement about the wrong evidence. This means the
+$4.0\%$ contradiction rate reported in Section~\ref{sec:gold} is an
+\textbf{upper bound on the validity of the annotation exercise}, not a clean
+estimate of the candidate pool's precision. Whether the true precision is higher
+or lower is not determinable from the data collected, because we do not know how
+the pharmacist would have ruled on the corrected exemplars. This limitation is
+restated in every chapter that uses the $4.0\%$ figure.
+
+\paragraph{As a scoping constraint.} The exemplar defect contaminates
+\emph{annotation}. It does not contaminate the measurements in
+Chapter~\ref{ch:eval} that are computed on model scores against the annotation:
+the AUROC, the threshold sweep, the severity correlations, and the transfer
+collapse are all statements about whether the model's output ordering carries
+information about the pharmacist's label, whatever that label was measured
+against. If the model had learned anything from the exemplar sentences, it would
+show up as ranking signal against those same sentences. It does not.
+Section~\ref{sec:eval-scoping} in Chapter~\ref{ch:eval} makes this argument
+formally.
+
+\section{The Gold Standard}
+\label{sec:gold}
+
+\subsection{Sampling}
+
+A stratified sample of $300$ candidates was drawn from the $1{,}978$-pair pool,
+allocated across rules as shown in Table~\ref{tab:gold}. The allocation
+oversamples Rules 2 and 4 relative to their share of the pool, on the reasoning
+that these are the rules whose behaviour was least understood.
+
+\subsection{Annotation protocol}
+
+A single board-certified pharmacist annotated $299$ of the $300$ sampled
+pairs.\footnote{The sampling frame is $300$; $299$ annotations were returned.
+[TODO: identify which stratum lost a row. The per-rule rates in
+Table~\ref{tab:gold} are computed against the $300$-row stratum sizes, which
+reproduce the reported percentages exactly, so the missing row's stratum cannot
+be recovered from the rates alone.]} For each pair the annotator recorded a
+three-way label (\emph{contradiction}, \emph{not a contradiction},
+\emph{ambiguous}), a free-text justification, a confidence rating, and, for
+contradictions, a $1$ to $5$ danger rating.
+
+Annotation was performed in two passes separated by a two-week washout. This
+controls for within-session drift and fatigue. It does not establish inter-rater
+reliability, because there is one rater.
+
+\subsection{A retracted reliability claim}
+
+The project previously reported a Cohen's $\kappa$ of $1.000$ between ``two
+independent pharmacist judgement instruments,'' offered as an answer to reviewer
+requests for inter-rater reliability. That claim is withdrawn. The two
+``instruments'' were the binary contradiction label and the $1$ to $5$ danger
+rating. A pair that is not a contradiction has no danger by definition, so
+$\texttt{label} = \textit{contradiction} \iff \texttt{danger} > 0$ is an
+identity and $\kappa = 1.000$ is guaranteed by construction
+\citep{cohen1960kappa}. It measures nothing about annotator reliability.
+
+The honest statement is the one made here: this study has one annotator, a
+two-pass protocol with a two-week washout, and \textbf{no established inter-rater
+reliability}. With $12$ positives in $299$ pairs, a second annotator would be
+the highest-value single addition to this work, and the absence of one is a
+first-order limitation on every conclusion that rests on the gold labels.
+
+\subsection{Results}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{clrrrr}
+\toprule
+\textbf{Rule} & \textbf{Trigger} & \textbf{Sampled} & \textbf{True} & \textbf{Rule} & \textbf{ACCORD} \\
+              &                  &                  & \textbf{contra.} & \textbf{precision} & \textbf{precision} \\
+\midrule
+1 & Direct action conflict & 134 & 3 & 2.2\% & 2.3\% \\
+2 & Drug class conflict    & 31  & 3 & 9.7\% & 10.0\% \\
+3 & Dosage conflict        & 79  & 4 & 5.1\% & 5.2\% \\
+4 & Omission               & 56  & 2 & 3.6\% & 2.4\% \\
+\midrule
+  & \textbf{Pooled}        & \textbf{300} & \textbf{12} & \textbf{4.0\%} & \textbf{4.7\%} \\
+\bottomrule
+\end{tabular}
+\caption{Gold-standard results by rule. ``Rule precision'' is the fraction of
+that rule's annotated candidates the pharmacist judged to be true
+contradictions, that is, the rule's own precision as a detector. ``ACCORD
+precision'' is the precision of the trained detector of Chapter~\ref{ch:arch}
+restricted to that rule's candidates, reported here for direct comparison and
+derived in full in Chapter~\ref{ch:eval}. The per-rule true-contradiction counts
+$(3,3,4,2)$ are derived from the reported rates and stratum sizes and sum to the
+$12$ observed positives. Sampled counts are the stratum sizes of the $300$-row
+frame; $299$ annotations were returned.}
+\label{tab:gold}
+\end{table}
+
+Of $299$ annotated pairs: $12$ contradictions ($4.0\%$), $241$ not
+contradictions, and $46$ ambiguous ($15.4\%$). The ambiguous rate is itself a
+result. One in six candidates could not be adjudicated by a board-certified
+pharmacist from the presented evidence. Some of that is the exemplar defect,
+some is the inherent underspecification of a two-sentence view of a medication
+decision, and the two cannot be separated with the data collected.
+
+\subsection{The finding in Table~\ref{tab:gold}}
+
+Read the last two columns together. For Rules 1, 2, and 3, ACCORD's precision on
+a rule's candidates is essentially identical to that rule's own base rate:
+$2.3$ against $2.2$, $10.0$ against $9.7$, $5.2$ against $5.1$. For Rule 4 it is
+\emph{below} the base rate, $2.4$ against $3.6$.
+
+The interpretation is direct. A detector that adds discriminative value on top
+of a rule should have precision above that rule's base rate, because it should
+be discarding some of the rule's false positives. ACCORD does not. Its precision
+tracks the base rate because it predicts \emph{positive} for essentially every
+candidate the rules hand it, in which case precision is arithmetically forced to
+approximately the base rate divided by the predicted-positive rate.
+Chapter~\ref{ch:weak} shows where that near-universal positive prediction comes
+from, and Chapter~\ref{ch:eval} shows that it holds at every threshold, not just
+at $0.5$.
+
+The Rule 4 case is the informative exception. Rule 4 is the only rule on which
+the model does \emph{not} predict positive almost universally (it predicts
+positive at $74.5\%$), and it is the only rule on which the model's precision
+falls below the base rate. Arithmetically, ACCORD recovers only one of the two
+true Rule 4 contradictions, which accounts for both the precision drop and the
+single miss in the $11/12$ recall reported in Chapter~\ref{ch:eval}. Where the
+model exercises any selectivity at all, it selects wrongly.
+
+\section{Splitting, and Why the Reference Split Leaked}
+\label{sec:splits}
+
+The reference pipeline split the candidate pool at the row level:
+
+\begin{quote}\ttfamily\small
+labels\_df = labels[labels['weak\_label'] != 'ambiguous'].sample(frac=1, random\_state=42) \\
+train\_df = labels\_df.iloc[:int(n*0.8)]
+\end{quote}
+
+With $1{,}978$ candidates drawn from $1{,}203$ admissions, and with a patient
+population that has known repeat admissions, this places candidates that share a
+nursing note, a discharge summary, an admission, or a patient on both sides of
+the split. Two candidates from the same admission differ only in the drug at
+issue; the surrounding note text, the de-identification surrogates, and the
+documentation style are identical. A model that memorises note-level surface
+features will score them together.
+
+The rebuild splits by \texttt{SUBJECT\_ID} with disjointness asserted in code:
+\[
+S_{\text{train}} \cap S_{\text{val}} = S_{\text{train}} \cap S_{\text{test}}
+= S_{\text{val}} \cap S_{\text{test}} = \emptyset,
+\qquad
+S_{\text{train}} \cup S_{\text{val}} \cup S_{\text{test}} = S .
+\]
+Patient-level grouping is the correct unit here because it is the only unit that
+guarantees no shared note and no shared documentation episode. Assertions rather
+than comments are used deliberately: the reference pipeline's split was not
+wrong because the author believed row-level splitting was acceptable, it was
+wrong because nothing in the code would have complained.
+
+All results reported in Chapters~\ref{ch:arch} and~\ref{ch:eval} for the trained
+model use a held-out set that excludes the $299$ annotated pairs. An earlier
+reported configuration trained on the full $1{,}978$-pair pool, which contains
+those $299$ pairs. That configuration is training on the evaluation set, its
+results are not reported anywhere in this thesis, and the reader should treat
+any earlier project artifact quoting it as superseded.
+
+\section{Proposed Figures}
+\label{sec:cand-figures}
+
+\begin{figure}[t]
+\centering
+\framebox[\linewidth]{\parbox[c][6cm][c]{0.92\linewidth}{\centering
+\textit{[Figure asset 4.1: schematic of the exemplar defect. Two columns,}
+\textit{``nursing note'' and ``discharge summary''. Each column shows five}
+\textit{abstract mention slots with action tags (no clinical text). The}
+\textit{discharge column has four CONT slots and one CESS slot at position 5.}
+\textit{An arrow labelled ``trigger: sets conflict'' spans both columns. A}
+\textit{second arrow labelled \texttt{.iloc[0]} points at slot 1 (CONT). A}
+\textit{third arrow labelled ``fix: action-matched + dose-adjacent'' points at}
+\textit{slot 5 (CESS). Caption box: ``the pair shown to the annotator, the LLM,}
+\textit{and the model is the \texttt{.iloc[0]} pair''.]}}}
+\caption{The exemplar selection defect. The trigger predicate quantifies over
+sets of mentions; the exemplar selector indexes positionally. Nothing forces the
+two to agree, and for $41.4\%$ of action-conflict candidates they did not. No
+clinical text appears in this figure; slots are abstract.}
+\label{fig:exemplar}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\framebox[\linewidth]{\parbox[c][5cm][c]{0.92\linewidth}{\centering
+\textit{[Figure asset 4.2: grouped bar chart, one group per rule. Bars: (a)}
+\textit{rule precision from the pharmacist, 2.2 / 9.7 / 5.1 / 3.6; (b) ACCORD}
+\textit{precision on that rule's candidates, 2.3 / 10.0 / 5.2 / 2.4. A dashed}
+\textit{horizontal line at the pooled 4.0\% base rate. Rule 4's pair is the only}
+\textit{one where (b) is below (a); highlight it.]}}}
+\caption{ACCORD's precision tracks each rule's own base rate. The reader should
+notice that the model contributes no lift over the rule that generated the
+candidate on any of the four rules, and that on Rule 4, the only rule where it
+declines a substantial fraction of candidates, its precision falls below the
+base rate.}
+\label{fig:rule-precision}
+\end{figure}
+
+\section{Limitations}
+\label{sec:cand-limitations}
+
+\paragraph{The rules encode one author's clinical judgement.} The class
+dictionary, the $20\%$ dose threshold, the choice of four rules rather than
+forty, and the decision to treat absence as evidence in Rule 4 are all
+unvalidated design choices. No clinician reviewed the rule set before it was
+run.
+
+\paragraph{Rules 3 and 4 have no reference implementation.} They exist only in
+the rebuild. Any comparison between rebuild and reference behaviour is therefore
+restricted to Rules 1 and 2, which is why Table~\ref{tab:exemplar} covers only
+those two.
+
+\paragraph{The exemplar defect bounds annotation validity, and the bound is
+one-sided in an unknown direction.} We know $41.4\%$ of action-conflict
+candidates were annotated against evidence that did not carry their conflict. We
+do not know how the pharmacist would have ruled on corrected evidence. Both a
+higher and a lower true precision are consistent with the data. Re-annotating a
+sample of the changed candidates under the corrected selector is the single
+measurement that would resolve this, and it was not performed. [TODO: re-annotate
+$n \approx 100$ of the $739$ changed candidates and report the label-change
+rate.]
+
+\paragraph{One annotator.} Section~\ref{sec:gold}. Twelve positives is a small
+number on which to rest a benchmark, and the confidence intervals in
+Chapter~\ref{ch:eval} reflect that.
+
+\paragraph{The candidate pool bounds recall absolutely.} Nothing outside the
+$1{,}978$ candidates can ever be detected by this pipeline. The rules' recall
+against the full set of true contradictions in the $9{,}783$ admissions is
+unmeasured and unmeasurable without exhaustive review. Every recall figure in
+this thesis is recall \emph{within} the candidate pool.
+
+\section{Summary}
+\label{sec:cand-summary}
+
+Four rules produce $1{,}978$ candidates over $1{,}203$ admissions, enriched to a
+pharmacist-measured base rate of $4.0\%$ from a background rate that is orders
+of magnitude lower. That much works.
+
+The chapter's principal finding is that the enrichment came with a defect that
+was invisible to every downstream consumer. For $41.4\%$ of action-conflict
+candidates, the sentence pair carrying the justification did not carry the
+conflict, because the trigger quantified over sets while the exemplar selector
+indexed positionally, and because the upstream schema had no field in which the
+distinction could be expressed. The fix changes the exemplar for $739$ of
+$1{,}307$ candidates.
+
+The consequence is a bound, not a correction: the $4.0\%$ figure is an upper
+bound on the validity of the annotation exercise rather than an estimate of the
+pipeline's precision. Chapter~\ref{ch:eval} shows that this bound does not
+compromise the negative result, because the negative result is measured on
+model scores against the same annotations, and the model's scores turn out to
+carry no information about those annotations at all.
+
+Chapter~\ref{ch:weak} takes the candidate pool and asks a language model to
+label it.

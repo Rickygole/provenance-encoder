@@ -1,0 +1,56 @@
+{
+  "question": "Does the .iloc[0] exemplar bug explain ACCORD AUROC 0.460, or is the no-signal finding independent of it?",
+  "method": "Rules 3 (dosage) and 4 (omission) never had the exemplar-selection bug -- their evidence is the dose difference or the absence itself, not a selected mention. Restricting the gold evaluation to those strata gives a defect-free measurement.",
+  "strata": [
+    {
+      "name": "ALL",
+      "n": 299,
+      "pos": 12,
+      "auroc": 0.4602,
+      "ap": 0.0394,
+      "mwu_p": 0.642
+    },
+    {
+      "name": "rules 1+2 (exemplar bug present)",
+      "n": 165,
+      "pos": 6,
+      "auroc": 0.4256,
+      "ap": 0.0379,
+      "mwu_p": 0.549
+    },
+    {
+      "name": "rules 3+4 (DEFECT-FREE)",
+      "n": 134,
+      "pos": 6,
+      "auroc": 0.5078,
+      "ap": 0.0555,
+      "mwu_p": 0.953
+    },
+    {
+      "name": "rule 1",
+      "n": 134,
+      "pos": 3,
+      "auroc": 0.6514
+    },
+    {
+      "name": "rule 2",
+      "n": 31,
+      "pos": 3,
+      "auroc": 0.2262
+    },
+    {
+      "name": "rule 3",
+      "n": 79,
+      "pos": 4,
+      "auroc": 0.51
+    },
+    {
+      "name": "rule 4",
+      "n": 55,
+      "pos": 2,
+      "auroc": 0.2358
+    }
+  ],
+  "conclusion": "On the defect-free strata AUROC is 0.5078 with Mann-Whitney p=0.953 -- exactly chance. The no-signal finding is INDEPENDENT of the exemplar bug. Label noise was not attenuating a real signal.",
+  "caveat": "Only 6 positives in the defect-free strata, so the CI is wide; the point estimate sits at chance rather than above it, and the per-rule estimates (rule 2 n=31, rule 4 n=55) are individually unreliable."
+}
