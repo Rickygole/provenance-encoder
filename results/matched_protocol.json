@@ -18,7 +18,7 @@
     "limit_train": 0,
     "limit_eval": 0,
     "subsample_train": null,
-    "task_dir": "local_only/task",
+    "task_dir": "local_only/task_readmit30",
     "tokenizer_dir": "/Users/rickygole/provenance-encoder/local_only/tokenizer",
     "device": "mps",
     "systems": [
@@ -28,7 +28,7 @@
     "selection_rule": "best epoch by val AUROC; LR chosen by mean best-epoch val AUROC across seeds; identical for every neural arm",
     "argv": [
       "--task-dir",
-      "local_only/task",
+      "local_only/task_readmit30",
       "--systems",
       "ours_random,ours_pretrained",
       "--ckpt",
@@ -45,103 +45,103 @@
       "2"
     ]
   },
-  "n_train": 23846,
-  "n_val": 3396,
-  "n_val_pos": 314,
+  "n_train": 21779,
+  "n_val": 3109,
+  "n_val_pos": 200,
   "systems": {
     "ours_random": {
       "system": "ours_random",
-      "chosen_lr": 5e-05,
+      "chosen_lr": 2e-05,
       "lr_grid_means": {
-        "2e-05": 0.7711780339509873,
-        "5e-05": 0.7744474801291246
+        "2e-05": 0.6358834651082846,
+        "5e-05": 0.629578893090409
       },
       "seeds": [
         2
       ],
       "best_epochs": {
-        "2": 0
+        "2": 1
       },
-      "auroc_mean": 0.7744474801291246,
+      "auroc_mean": 0.6358834651082846,
       "auroc_std": 0.0,
-      "auprc_mean": 0.2506281319829444,
+      "auprc_mean": 0.10546818136233095,
       "auprc_std": 0.0,
-      "minutes_per_run": 14.629930035273235,
+      "minutes_per_run": 13.369739898045857,
       "family": "neural",
       "extra_inputs": "role_ids, segment position, delta_t",
       "params": 10638720,
       "pretraining": "none",
       "budget_stats": {
         "n_sample": 300,
-        "mean_tokens_used": 188.18666666666667,
-        "mean_seq_fill_frac": 0.7351041666666667,
-        "mean_segs_used": 5.91,
-        "mean_segs_total": 6.33,
-        "mean_seg_truncation_frac": 0.05249999999999999
+        "mean_tokens_used": 196.91,
+        "mean_seq_fill_frac": 0.7691796875,
+        "mean_segs_used": 6.196666666666666,
+        "mean_segs_total": 6.67,
+        "mean_seg_truncation_frac": 0.0591666666666667
       }
     },
     "ours_pretrained": {
       "system": "ours_pretrained",
-      "chosen_lr": 5e-05,
+      "chosen_lr": 2e-05,
       "lr_grid_means": {
-        "2e-05": 0.7648044738919636,
-        "5e-05": 0.7720026287835263
+        "2e-05": 0.6341130972842901,
+        "5e-05": 0.6127896184255759
       },
       "seeds": [
         2
       ],
       "best_epochs": {
-        "2": 0
+        "2": 1
       },
-      "auroc_mean": 0.7720026287835263,
+      "auroc_mean": 0.6341130972842901,
       "auroc_std": 0.0,
-      "auprc_mean": 0.26400318640413833,
+      "auprc_mean": 0.09756595978622194,
       "auprc_std": 0.0,
-      "minutes_per_run": 14.639394334952037,
+      "minutes_per_run": 13.375967884063721,
       "family": "neural",
       "extra_inputs": "role_ids, segment position, delta_t",
       "params": 10638720,
       "pretraining": "block-mask MLM, local_only/runs/A3_10M_st3000_s0_hardblk_shuf",
       "budget_stats": {
         "n_sample": 300,
-        "mean_tokens_used": 188.18666666666667,
-        "mean_seq_fill_frac": 0.7351041666666667,
-        "mean_segs_used": 5.91,
-        "mean_segs_total": 6.33,
-        "mean_seg_truncation_frac": 0.05249999999999999
+        "mean_tokens_used": 196.91,
+        "mean_seq_fill_frac": 0.7691796875,
+        "mean_segs_used": 6.196666666666666,
+        "mean_segs_total": 6.67,
+        "mean_seg_truncation_frac": 0.0591666666666667
       }
     }
   },
   "pointwise": {
     "ours_random": {
-      "auroc": 0.7744474801291246,
-      "auprc": 0.2506281319829444,
+      "auroc": 0.6358834651082846,
+      "auprc": 0.10546818136233095,
       "auroc_ci": {
-        "point": 0.7744474801291246,
-        "lo": 0.7505175023709911,
-        "hi": 0.7970039563343042,
+        "point": 0.6358834651082846,
+        "lo": 0.5929018216937416,
+        "hi": 0.6742892691017173,
         "n_boot_used": 2000
       },
       "auprc_ci": {
-        "point": 0.2506281319829444,
-        "lo": 0.21368298915658737,
-        "hi": 0.2971437556684666,
+        "point": 0.10546818136233095,
+        "lo": 0.08657558679303279,
+        "hi": 0.13365408620798405,
         "n_boot_used": 2000
       }
     },
     "ours_pretrained": {
-      "auroc": 0.7720026287835263,
-      "auprc": 0.26400318640413833,
+      "auroc": 0.6341130972842901,
+      "auprc": 0.09756595978622194,
       "auroc_ci": {
-        "point": 0.7720026287835263,
-        "lo": 0.7457877217177303,
-        "hi": 0.7955465736306234,
+        "point": 0.6341130972842901,
+        "lo": 0.5952937972819087,
+        "hi": 0.6703989007948952,
         "n_boot_used": 2000
       },
       "auprc_ci": {
-        "point": 0.26400318640413833,
-        "lo": 0.2242188249704661,
-        "hi": 0.31081652685790184,
+        "point": 0.09756595978622194,
+        "lo": 0.08084853646815429,
+        "hi": 0.12294789685868897,
         "n_boot_used": 2000
       }
     }
