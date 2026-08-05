@@ -355,7 +355,18 @@ def main() -> None:
                 "cfg": {k: getattr(cfg, k) for k in
                         ("vocab_size", "d_model", "n_layers", "n_heads", "d_ff",
                          "max_seq_len", "n_roles", "n_auth_buckets", "arm",
-                         "alibi_bias", "rpe_bias", "hard_block_mask")}},
+                         "alibi_bias", "rpe_bias", "hard_block_mask")},
+                # Fine-tuning MUST reproduce the input convention this was
+                # trained under, or the encoder is asked to interpret position
+                # rows and role ids it never saw. Recorded rather than
+                # hardcoded so a checkpoint trained with different settings
+                # cannot be silently mis-evaluated.
+                "input_convention": {
+                    "seg_tokens": args.seg_tokens,
+                    "semantic_roles": not (args.segment_index_roles or
+                                           args.random_roles or
+                                           args.length_roles),
+                }},
                run_dir / "model.pt")
     print(f"saved weights -> {run_dir / 'model.pt'}")
     print(f"\nFINAL arm={args.arm} val_loss={final_val:.4f} "

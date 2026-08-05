@@ -303,6 +303,16 @@ def build_ours_model(init: str, ckpt: Path | None, max_len: int, device,
         enc.load_state_dict(ck["model"])
         pos_bound = cfg.max_seq_len  # pos_embed table size actually loaded from ckpt
         pretraining_desc = f"block-mask MLM, {ckpt}"
+        # Read the convention this checkpoint was TRAINED under. Never hardcode:
+        # a checkpoint pretrained with different --seg-tokens or a role control
+        # would otherwise be silently mis-evaluated.
+        conv = ck.get("input_convention")
+        if conv is None:
+            raise SystemExit(
+                f"{ckpt}/model.pt has no input_convention block -- it predates "
+                "the fix that records how it was trained. Re-pretrain with the "
+                "current scripts/pretrain.py; evaluating it under a guessed "
+                "convention is how ours_pretrained scored below ours_random.")
     else:
         cfg = EncoderConfig(arm="A3", vocab_size=tok.get_vocab_size(), d_model=384,
                             n_layers=6, n_heads=6, d_ff=1536, max_seq_len=max_len)
@@ -310,8 +320,12 @@ def build_ours_model(init: str, ckpt: Path | None, max_len: int, device,
         enc = ProvenanceEncoder(cfg)
         pos_bound = max_len
         pretraining_desc = "none"
+    if init != "pretrained":
+        # Random init defines its own convention; match pretraining's so the two
+        # arms remain comparable to each other as well as to the checkpoint.
+        conv = {"seg_tokens": None, "semantic_roles": False}
     model = OursClf(enc).to(device)
-    return model, tok, pos_bound, cfg.arm, pretraining_desc
+    return model, tok, pos_bound, cfg.arm, pretraining_desc, conv
 
 
 @torch.no_grad()
@@ -332,7 +346,7 @@ def eval_ours(model, dl, dev):
 def train_ours_one(init, ckpt, train_ds, val_ds, epochs, lr, batch, seed, device,
                     tokenizer_dir: Path = LOCAL / "tokenizer"):
     torch.manual_seed(seed)
-    model, tok, pos_bound, arm, pretraining_desc = build_ours_model(
+    model, tok, pos_bound, arm, pretraining_desc, conv = build_ours_model(
         init, ckpt, train_ds.max_len, device, tokenizer_dir)
     g = torch.Generator().manual_seed(seed)
     dtr = torch.utils.data.DataLoader(train_ds, batch_size=batch, shuffle=True, generator=g)
@@ -769,8 +783,12 @@ def main() -> None:
         if init == "pretrained":
             ck = torch.load(Path(args.ckpt) / "model.pt", map_location="cpu", weights_only=False)
             pos_bound = ck["cfg"]["max_seq_len"]
-        train_ds = OursDataset(btr, tok, args.max_len, pos_bound)
-        val_ds = OursDataset(bva, tok, args.max_len, pos_bound)
+        train_ds = OursDataset(btr, tok, args.max_len, pos_bound,
+                               seg_tokens=conv["seg_tokens"],
+                               semantic_roles=conv["semantic_roles"])
+        val_ds = OursDataset(bva, tok, args.max_len, pos_bound,
+                             seg_tokens=conv["seg_tokens"],
+                             semantic_roles=conv["semantic_roles"])
         stats = budget_stats(val_ds)
         print(f"   token budget actually consumed: {json.dumps(stats)}")
 
@@ -937,8 +955,10 @@ def main() -> None:
             print(f"  scoring {key} on test with the val-selected weights "
                   f"(lr={lr:.0e} seed={seed0}, no retraining)")
             tok = Tokenizer.from_file(str(tokenizer_dir / "wordpiece.json"))
-            test_ds = OursDataset(btest, tok, args.max_len, pos_bound)
-            model, _, _, _, _ = build_ours_model(init, args.ckpt, args.max_len, dev, tokenizer_dir)
+            test_ds = OursDataset(btest, tok, args.max_len, pos_bound,
+                                  seg_tokens=conv["seg_tokens"],
+                                  semantic_roles=conv["semantic_roles"])
+            model, _, _, _, _, conv = build_ours_model(init, args.ckpt, args.max_len, dev, tokenizer_dir)
             model.load_state_dict(state)
             dte = torch.utils.data.DataLoader(test_ds, batch_size=args.batch_ours)
             auroc, auprc, ps, ys = eval_ours(model, dte, dev)
