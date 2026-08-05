@@ -1,0 +1,394 @@
+% ============================================================================
+%  Chapter 1. Introduction
+%
+%  \input file. No preamble. The parent document must load:
+%      \usepackage{booktabs}   % \toprule \midrule \bottomrule \cmidrule
+%      \usepackage{amsmath}    % aligned display math
+%      \usepackage{graphicx}   % (only if figure assets are substituted in)
+%      \usepackage[round]{natbib}  % \citep \citet
+%  Bibliography: accord/thesis/refs.bib
+%
+%  Every quantity in this chapter is forward-referenced to the chapter that
+%  derives it. No number appears here that is not derived in Chapters 3 to 8 or
+%  recorded in accord/CORRECTIONS.md.
+% ============================================================================
+
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{A Patient Goes Home on a Held Medication}
+\label{sec:intro-problem}
+
+A patient admitted for decompensated heart failure is discharged on eleven
+medications. Somewhere in the middle of the stay a nurse records that the loop
+diuretic was withheld because the patient had become hypovolemic. Two days
+later the discharge summary, written by a physician who is reconciling a
+medication list against an admission list, instructs that the same diuretic be
+continued at its admission dose. The two documents disagree. Only one of them
+governs what the patient does after leaving the building, and it is not the one
+that contains the reason the instruction is wrong.
+
+Nothing about this scenario is exotic. Polypharmacy is the norm in heart
+failure, the drugs involved have narrow therapeutic windows, and the transition
+from inpatient to outpatient care is the single most error-prone moment in the
+medication lifecycle. Unintended medication discrepancies are present in a
+large share of hospital admissions \citep{cornish2005discrepancies} and
+discharges \citep{wong2008reconciliation}; adverse events in the weeks after
+discharge are common, frequently drug-related, and frequently preventable
+\citep{forster2003adverse}; errors traceable to discontinuity between the
+inpatient and outpatient settings affect a substantial fraction of discharged
+patients \citep{moore2003discontinuity}; and the information transfer that
+would prevent them is unreliable in both content and timing
+\citep{kripalani2007deficits}. Adverse drug events were established as a
+first-order inpatient safety problem three decades ago
+\citep{bates1995ade} and the transition-of-care component of that problem has
+not been solved since.
+
+This thesis takes as its object one narrow, checkable instance of that problem:
+a \emph{cross-note medication contradiction}, defined as a disagreement about a
+specific drug between a nursing progress note and the discharge summary of the
+same admission. Chapter~\ref{ch:candidates} constructs four transparent rules
+over extracted medication mentions and applies them to MIMIC-III
+\citep{johnson2016mimic}, yielding $1{,}978$ candidate contradictions across
+$1{,}203$ admissions drawn from a heart-failure cohort of $9{,}783$. A
+board-certified pharmacist annotating a stratified sample of those candidates
+confirmed $12$ genuine contradictions in $299$ pairs, four of them rated $4$ or
+$5$ on a five-point danger scale.
+
+Those numbers establish the tension this thesis is built on. The phenomenon is
+systematic rather than anecdotal: rules over a single institution's notes
+surface nearly two thousand candidates, and a domain expert confirms that some
+of them are real and dangerous. But the phenomenon is also \emph{rare} in the
+population a system would have to screen, and rarity is not a nuisance
+parameter here. It is the thing that breaks every stage of the pipeline that
+follows.
+
+\section{The Pipeline the Field Would Build, and Where It Breaks}
+\label{sec:intro-gap}
+
+Faced with this problem, the standard construction is close to automatic. Mine
+candidates with cheap, high-recall rules, because exhaustive expert review of
+every cross-note medication pair is infeasible. Label the candidates with an
+instruction-tuned language model, because expert annotation does not scale and
+recent work reports that such models match or exceed crowd annotators on many
+classification tasks \citep{gilardi2023chatgpt}. Distil those labels into a
+purpose-built neural detector over a domain-pretrained clinical encoder
+\citep{gu2021biomedbert,alsentzer2019clinicalbert}, with architectural
+components encoding the domain structure that generic natural language
+inference models lack. Evaluate against the expert annotations. Report.
+
+The construction is defensible at every step, and this thesis executed it. It
+fails at every step, and the failures are not the ones the literature would
+predict.
+
+\paragraph{The gap.} Prior work on clinical natural language inference
+establishes that encoder models can classify entailment relations between
+clinician-authored sentence pairs \citep{romanov2018mednli}, and prior work on
+weak supervision establishes that noisy programmatic labels can substitute for
+hand annotation when the noise sources are multiple and their errors are
+conditionally independent \citep{ratner2016dataprogramming,ratner2017snorkel}.
+Neither body of work addresses what happens when the positive class occupies
+four percent of an already-enriched candidate pool, when there is exactly one
+noise source, and when that source's error is a systematic prior shift rather
+than independent noise. Under those conditions the standard recipe does not
+degrade gracefully. It produces a system whose outputs are statistically
+independent of the labels, and it produces that system while emitting metrics
+that look survivable.
+
+\paragraph{The consequence for what gets reported.} The reason this matters
+beyond one project is that the failure is quiet. A system with no signal, trained
+on supervision whose marginal is inverted, still produces a contradiction
+$F_1$, a recall figure, an ablation table, and an auxiliary-task accuracy. Every
+one of those numbers can be reported in good faith by someone who has not run
+the specific diagnostic that would falsify it. Chapters~\ref{ch:arch}
+and~\ref{ch:eval} document four such claims from this project's own earlier
+submission, each of which survived internal review and none of which survives
+its own first check.
+
+\section{Research Questions}
+\label{sec:intro-rqs}
+
+The project was designed around four questions. They are stated here in the
+form in which they were posed, before the answers were known, because the value
+of the thesis lies substantially in the gap between what was asked and what
+turned out to be answerable.
+
+\begin{description}
+\item[RQ1 (Authority).] Does conditioning a cross-note inference model on
+      \emph{note-type authority} outperform symmetric natural language
+      inference? The construct, developed in Chapter~\ref{ch:data} as
+      \emph{clinical note priority}, is that a discharge summary and a nursing
+      progress note carry different institutional weight, so a disagreement
+      between them is not a symmetric relation.
+\item[RQ2 (Temporality).] Does encoding temporal metadata, the ordering of the
+      two notes and the interval between them, improve detection over a
+      time-agnostic pairwise model?
+\item[RQ3 (Severity).] Can published clinical practice guidelines be used to
+      rank confirmed contradictions by danger, so that a triage system surfaces
+      the harmful ones first?
+\item[RQ4 (Supervision).] Can weak supervision from an instruction-tuned
+      language model replace expert annotation at the scale required to train a
+      detector for a rare clinical event?
+\end{description}
+
+\section{Contributions, Stated as Findings}
+\label{sec:intro-contributions}
+
+This thesis contributes no working system. Its contributions are measurements,
+and they are stated as such. Each is a finding about the pipeline rather than a
+component of it, each is traceable to a named chapter, and each is accompanied
+by the diagnostic that would have produced it earlier.
+
+\begin{enumerate}
+\item \textbf{Rule-based candidate mining yields a four percent precision pool,
+      and the evidence attached to those candidates was frequently the wrong
+      evidence.} Four transparent rules enrich the candidate space to a
+      pharmacist-measured base rate of $4.0\%$, which is a real and useful
+      enrichment over an unfiltered background rate orders of magnitude lower.
+      But the mechanism that decided \emph{which} candidate a sentence pair was
+      flagged for was independent of the mechanism that selected the sentence
+      pair to display, and for $41.4\%$ of action-conflict candidates the
+      displayed evidence did not contain the flagged conflict. Every downstream
+      consumer, the annotator, the weak labeller, and the model, reasoned about
+      that evidence. The $4.0\%$ figure is therefore an upper bound on the
+      validity of the annotation exercise rather than a clean estimate of pool
+      precision. Chapter~\ref{ch:candidates}.
+
+\item \textbf{Language model weak supervision is miscalibrated by a factor of
+      roughly twenty-one, and the detector inherits the labeller's prior rather
+      than its judgement.} The weak labeller assigned the positive class to
+      $84.9\%$ of $1{,}679$ candidates against a measured base rate of $4.0\%$.
+      Under that base rate at least $95\%$ of its positive labels are wrong. The
+      trained detector then reproduced the labeller's per-rule
+      predicted-positive rate to within $1.5$ percentage points on three of four
+      rules, while the rules' true prevalences differ from one another by more
+      than a factor of four. Reproducing the quantity that carries no
+      information about the truth, and not the quantity that does, is the
+      signature of a model that has learned the label's marginal rather than its
+      conditional. This answers RQ4 in the negative, and the negative is
+      specific: the failure is calibration, not comprehension, because the same
+      labeller recovers $11$ of the $12$ true contradictions.
+      Chapter~\ref{ch:weak}.
+
+\item \textbf{Authority conditioning contributes nothing, and the claim that it
+      does is falsified four independent ways.} The authority parameter reported
+      as \emph{discovered} at $(\alpha_N, \alpha_D) \approx (0.5, 1.0)$ was
+      \emph{initialised} at exactly $[0.5, 1.0]$; it moved by $1.8\%$ and
+      $0.6\%$, agreeing to the third decimal across seeds; it sits on a branch
+      that a subsequent LayerNorm largely erases, leaving a near-zero gradient;
+      and the project's own ablation shows that constraining
+      $\alpha_N = \alpha_D$ \emph{improves} both reported metrics. RQ1 is
+      therefore not answered in the affirmative and, more precisely, was never
+      tested: the implementation could not have detected an authority signal had
+      one existed. Chapter~\ref{ch:arch}.
+
+\item \textbf{The trained detector carries no rank signal, and the finding
+      survives the one defect that could plausibly have manufactured it.} On the
+      $299$ annotated pairs the contradiction probability achieves AUROC
+      $0.460$, average precision at the no-skill line, Mann-Whitney $p = 0.64$,
+      and a bootstrap $95\%$ confidence interval of $[0.287, 0.633]$. The
+      fifteen highest-scored pairs contain zero true contradictions. Restricted
+      to Rules 3 and 4, the strata that are free of the exemplar defect by
+      construction, AUROC is $0.5078$ with Mann-Whitney $p = 0.953$, which is
+      chance to four significant figures. That stratum contains six positives,
+      so the estimate is wide, and it is reported with that width attached.
+      Chapters~\ref{ch:eval} and~\ref{ch:discussion}.
+
+\item \textbf{RQ3 is untestable from this work, because the component that would
+      have answered it was never trained.} The guideline-grounded harm estimator
+      has no guideline corpus; its ``guideline bank'' is twenty randomly
+      initialised vectors. Its harm head appears in no term of the training
+      objective. Its outputs across the evaluation set span $0.398$ to $0.610$,
+      the range of an untrained sigmoid, and correlate with the pharmacist's
+      danger rating at $\rho = -0.0001$. That null is a measurement of an
+      untrained module, not evidence about whether clinical severity is
+      predictable, and reporting it as the latter would be the single most
+      misleading move available in this document. Chapters~\ref{ch:arch}
+      and~\ref{ch:eval}.
+
+\item \textbf{A prescriptive result about evaluation under low prevalence.} At
+      the evaluation set's operating prevalence of $12$ positives against $241$
+      negatives, balanced accuracy, Matthews correlation, and
+      prevalence-adjusted bias-adjusted kappa all prefer a system that recovers
+      $6$ of $12$ contradictions over one that recovers $11$, and the exchange
+      rate is available in closed form: the preference flips once the additional
+      true negatives per forgone true positive exceed $Q/P = 20.08$.
+      Chapter~\ref{ch:metrics} derives this, and then sharpens it against the
+      empirical situation, in which the systems being compared mostly have no
+      discriminative ability at all.
+\end{enumerate}
+
+\paragraph{RQ2 has no answer, for a reason that is itself a finding.}
+\texttt{CHARTTIME} is null for $100\%$ of MIMIC-III discharge summaries. The
+temporal ordering RQ2 requires cannot be established at finer than day
+granularity between the two notes of a pair, and the filter that purported to
+measure whether conflicts were resolved by intervening documentation was, on
+inspection, matching a twenty-way alternation containing both directions of the
+medication decision at once. The temporal question is not answered negatively.
+It is unaddressable in this resource, and the correct report is the data
+limitation rather than the measurement. Chapter~\ref{ch:data},
+Section~\ref{sec:charttime}.
+
+\section{What the Results Look Like}
+\label{sec:intro-results}
+
+The headline is stated once, plainly, so that nothing later in the document
+reads as a reveal.
+
+On the $299$ pharmacist-annotated pairs, the trained detector predicts
+\emph{contradiction} for $278$, achieving precision $0.047$ against a base rate
+of $0.040$, recall $0.917$, and accuracy $0.115$. At thresholds of $0.05$,
+$0.10$, and $0.15$ it predicts positive for every pair, because no score in the
+evaluation set falls below $0.15$. Its Matthews correlation is $-0.007$. The
+weak labeller it was distilled from scores $-0.044$, which is worse than
+chance. A general-purpose model prompted zero-shot on the same $299$ pairs, with
+no training data and no clinical components, is the only system in the
+comparison with a positive Matthews correlation, at $+0.109$ and $8.45\%$
+precision.
+
+Two consequences follow immediately and are developed at length later. First,
+the task is not impossible: something above chance is extractable from the same
+evidence, so the failure is a property of this pipeline rather than of the
+problem. Second, the failures are causally independent of one another. The
+exemplar defect, the prevalence mismatch, the initialisation artifact, the
+auxiliary-head leakage, and the untrained severity head each have their own
+mechanism and their own detector, and repairing any one of them in isolation
+would still leave a system with AUROC near $0.5$.
+
+A third consequence is the one this thesis regards as most transferable. The
+component sanity check in Chapter~\ref{ch:eval} shows that BioMedBERT
+fine-tuned on MedNLI reaches $83.90\%$ accuracy and $83.91\%$ macro $F_1$,
+inside the published range for comparable encoder systems. That result is a
+property of the backbone and contains zero components of the system under
+study. Reporting it under the system's name would have produced a document in
+which a strong number and a failing system coexist without the reader being
+able to tell which is which. This thesis does not do that, and
+Chapter~\ref{ch:eval} explains why the temptation to do it is structural rather
+than personal.
+
+\section{Scope, and What This Thesis Does Not Claim}
+\label{sec:intro-scope}
+
+Three boundaries are worth fixing before the reader encounters the chapters that
+test them.
+
+\paragraph{This is a negative result about one pipeline on one resource, not
+about the problem.} Nothing here establishes that cross-note contradiction
+detection is unsolvable, that clinical note priority is unlearnable, or that
+clinical severity is unpredictable. Each of those hypotheses remains open, and
+Chapter~\ref{ch:discussion} states what a correct test of each would require.
+What is established is that this pipeline did not test them, and that the
+measurements which would have revealed that were cheap and were not run.
+
+\paragraph{The evidence base is small and single-site.} Twelve positives
+support every interval in Chapter~\ref{ch:eval}. One annotator produced every
+gold label, with a two-pass protocol and a two-week washout, and inter-rater
+reliability is not established. A previously reported $\kappa = 1.000$ is
+retracted as circular. The cohort is critical-care admissions at one US academic
+medical centre over a historical period. Chapter~\ref{ch:discussion} treats
+these as first-order limitations rather than as caveats.
+
+\paragraph{The system as measured is not deployable, and its failure mode is
+worse than inaction.} At $91.7\%$ recall and $4.7\%$ precision, a clinical
+alert built on this detector generates roughly twenty false alarms per true
+contradiction. Alert override rates in computerised order entry are already
+between $49\%$ and $96\%$ \citep{vandersijs2006overriding}, and alerting burden
+degrades response \citep{ancker2017alertfatigue}. A system that consumes
+clinician attention while carrying, by Chapter~\ref{ch:eval}'s Measurement 1,
+no information, is not a weak system. It is a harmful one.
+
+\section{Structure of the Thesis}
+\label{sec:intro-structure}
+
+Chapter~\ref{ch:background} organises the prior work into five clusters,
+identifies the six gaps the project set out to address, and is candid that two
+of those gaps are weakened as framings by this thesis's own findings. It also
+develops three bodies of literature that the project needed and did not consult:
+class imbalance, reporting standards for clinical prediction models, and the
+behaviour of agreement and correlation metrics at low prevalence.
+
+Chapters~\ref{ch:data} through~\ref{ch:eval} are the empirical core.
+Chapter~\ref{ch:data} builds the cohort and the medication mention table and
+documents two constraints, the \texttt{CHARTTIME} absence and an $8.9{:}1$
+asymmetry in extraction yield between the two note types, that govern everything
+after it. Chapter~\ref{ch:candidates} constructs the four rules, reports the
+gold standard, and measures the exemplar selection failure.
+Chapter~\ref{ch:weak} reports the weak supervision prevalence mismatch and the
+transfer of the labeller's marginal to the student. Chapter~\ref{ch:arch}
+audits the model against the code that produced its results and falsifies three
+claimed contributions. Chapter~\ref{ch:eval} measures the system four
+independent ways and reports that all four agree.
+
+Chapter~\ref{ch:metrics} takes up the evaluation question separately, because it
+generalises past this system: it derives in closed form what balanced accuracy,
+Matthews correlation, and prevalence-adjusted kappa are actually selecting for
+at this prevalence, and then sharpens the argument against the empirical
+situation in which most of the compared systems have no signal to select among.
+Chapter~\ref{ch:discussion} states the limitations without hedging, including
+one design flaw serious enough to invalidate the intended deployment story, and
+sets out what a continuation of this work should do first.
+Chapter~\ref{ch:conclusion} is short.
+
+\section{Proposed Figures}
+\label{sec:intro-figures}
+
+\begin{figure}[t]
+\centering
+\framebox[\linewidth]{\parbox[c][6cm][c]{0.92\linewidth}{\centering
+\textit{[Figure asset 1.1: the pipeline as a left-to-right chain with a status}
+\textit{badge under each stage. Stages: cohort construction; medication}
+\textit{extraction; rule-based candidate generation; LLM weak supervision;}
+\textit{detector training; evaluation. Badges, in order: WORKS; UNVALIDATED;}
+\textit{ENRICHES BUT MIS-ATTRIBUTES EVIDENCE (41.4\%); FAILS (21x prevalence}
+\textit{mismatch); THREE CLAIMS FALSIFIED; FAILS (AUROC 0.460). Beneath each}
+\textit{badge, in small type, the single diagnostic that would have caught the}
+\textit{failure at that stage. No clinical text.]}}}
+\caption{The thesis in one view. The reader should notice that the failures are
+at different stages, have different mechanisms, and each have a cheap detector,
+and that a project fixing any one of them in isolation would still have produced
+a system with no ranking signal.}
+\label{fig:pipeline-status}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\framebox[\linewidth]{\parbox[c][5cm][c]{0.92\linewidth}{\centering
+\textit{[Figure asset 1.2: three horizontal bars on a shared 0--100\% axis.}
+\textit{Bar 1, weak labeller positive rate: 84.9\%. Bar 2, detector}
+\textit{predicted-positive rate on the gold set: 278/299. Bar 3,}
+\textit{pharmacist-measured true rate: 4.0\%. A bracket spans bars 1 and 3}
+\textit{annotated ``21x''. Inset: MCC for four systems, GPT-4o zero-shot}
+\textit{+0.109, GPT-4o few-shot +0.012, ACCORD -0.007, Llama 3 8B -0.044,}
+\textit{with a zero line marked ``chance''.]}}}
+\caption{The single number that determines the rest of the thesis, and its
+consequence. A labeller whose marginal is inverted relative to the truth
+produces a student that reproduces the marginal, and a system whose Matthews
+correlation is at or below chance while a zero-shot general-purpose model on the
+same evidence is above it.}
+\label{fig:intro-headline}
+\end{figure}
+
+\section{Summary}
+\label{sec:intro-summary}
+
+Dangerous medication contradictions between nursing notes and discharge
+summaries are a real and recurring patient-safety problem. Four transparent
+rules over one institution's notes surface $1{,}978$ candidates across $1{,}203$
+admissions, and a board-certified pharmacist confirms $12$ genuine
+contradictions in a $299$-pair sample, four of them rated $4$ or $5$ for danger.
+
+The pipeline the field would naturally build for this problem, rule-based
+candidate mining followed by language model weak supervision followed by a
+purpose-built neural detector, fails at every stage. The rules attach the wrong
+evidence to $41.4\%$ of action-conflict candidates. The weak labeller is
+positive at $84.9\%$ against a $4.0\%$ base rate and the detector inherits that
+marginal rather than any judgement. Three architectural contributions do not
+survive an audit of the code that produced their numbers, and a fourth research
+question was never tested because the component that would answer it received no
+gradient. The resulting detector has AUROC $0.460$ on the full evaluation set
+and $0.5078$ on the strata that are free of the evidence-selection defect by
+construction.
+
+These failures are measurable, they are diagnosable, and each of them was
+detectable before any results table existed. That is the claim of this thesis,
+and Chapters~\ref{ch:data} through~\ref{ch:metrics} are its evidence.

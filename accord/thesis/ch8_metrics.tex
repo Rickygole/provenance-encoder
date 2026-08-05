@@ -1,0 +1,500 @@
+% ============================================================================
+%  Chapter 8. What the Metrics Selected
+%
+%  \input file. Requires booktabs, amsmath, natbib in the parent preamble.
+%  Bibliography: accord/thesis/refs.bib
+%
+%  This chapter supersedes the withdrawn NeurIPS submission on metric selection
+%  under low prevalence. The arithmetic is unchanged; the claim attached to it
+%  is narrowed in one direction (no descriptive claim about field practice) and
+%  strengthened in another (the empirical situation is worse than the paper
+%  described).
+%
+%  Traceability: Chapter 7, Table \ref{tab:systems} and Table \ref{tab:sweep};
+%  accord/CORRECTIONS.md. All confusion matrices in this chapter are
+%  reconstructed from reported precision and recall and are validated by
+%  reproducing the independently reported MCC values.
+% ============================================================================
+
+\chapter{What the Metrics Selected}
+\label{ch:metrics}
+
+\section{Why This Chapter Is Separate}
+\label{sec:met-overview}
+
+Chapter~\ref{ch:eval} established that the detector has no ranking signal. This
+chapter asks a different question, one that survives the specific system and is
+the only part of the project that was previously submitted for external review
+as a standalone contribution: at the prevalence of this evaluation set, what do
+the standard summary statistics actually select for?
+
+The question is separable from the system because it is arithmetic. Given an
+evaluation set with $P$ positives and $Q$ negatives, balanced accuracy,
+prevalence-adjusted bias-adjusted kappa, and Matthews correlation each induce an
+ordering over classifiers, and that ordering encodes an exchange rate between
+missed positives and avoided false positives. The exchange rate is a property of
+$P$ and $Q$, not of the systems. It can be computed before any system is run,
+and at $P = 12$ against $Q = 241$ it is large enough to be worth stating in a
+paper.
+
+The chapter proceeds in three parts. Section~\ref{sec:met-closedform} derives
+the exchange rate. Section~\ref{sec:met-systems} applies it to the systems of
+Chapter~\ref{ch:eval} and shows that all three statistics prefer a system
+recovering $6$ of $12$ contradictions over one recovering $11$.
+Section~\ref{sec:met-sharpened} then does the thing that the earlier submission
+did not: it asks whether the preference was \emph{wrong}, and concludes that it
+was not, which makes the original framing incorrect and the underlying
+prescription stronger.
+
+\section{The Prior Submission and What Reviewers Said}
+\label{sec:met-prior}
+
+The material in Sections~\ref{sec:met-closedform} and~\ref{sec:met-systems} was
+submitted to NeurIPS 2026 and withdrawn. The reviews are summarised here because
+the revision this chapter represents is a response to them, and because two of
+the three objections were correct.
+
+\paragraph{Significance, scored 1.} The reviewer wrote that the paper ``argues
+against a failure mode that does not seem to exist in practice.'' This objection
+is substantially correct as applied to the submitted framing. The paper asserted
+that the field selects models by these statistics under these conditions, and
+offered no evidence for that assertion. Reviewer JDYj asked for the evidence
+directly. It does not exist, it was not collected, and this chapter therefore
+withdraws the descriptive claim entirely. What remains is prescriptive, and
+Section~\ref{sec:met-prescription} states it in that form.
+
+\paragraph{Originality, scored 1 and 2.} Both reviewers characterised the
+contribution as ``largely a class imbalance problem.'' This is correct as far as
+it goes and is why Section~\ref{sec:bg-imbalance} of Chapter~\ref{ch:background}
+now treats that literature at length. It is also not a complete answer. The
+imbalance literature is overwhelmingly concerned with \emph{fitting} under skew:
+resampling \citep{chawla2002smote}, cost-sensitive decision rules
+\citep{elkan2001cost}, loss reshaping
+\citep{lin2017focal,cui2019classbalanced,cao2019ldam,menon2021logitadjust}. The
+one result in that literature which speaks most directly to evaluation,
+\citet{vandengoorbergh2022harm}, establishes that imbalance corrections harm
+calibration and do not improve discrimination, and that whatever they achieve is
+achievable by moving a threshold. That is a statement about what corrections do
+to a model. It is not a statement about which model a summary statistic picks,
+and the question of which model a summary statistic picks is what
+Section~\ref{sec:met-closedform} answers.
+
+\paragraph{A third objection, from a different reviewer, that this thesis
+accepts in full.} Reviewer 1yJj observed that there is no value in reporting on
+a contaminated set, because that is training on the test set. Correct. The
+contaminated configuration is withdrawn from this thesis in its entirety
+(Chapter~\ref{ch:candidates}, Section~\ref{sec:splits}), and no number in this
+chapter derives from it.
+
+\section{The Closed-Form Result}
+\label{sec:met-closedform}
+
+\subsection{Setup}
+
+Let an evaluation set contain $N$ items, of which $P$ are positive and
+$Q = N - P$ are negative. A classifier produces a confusion matrix
+$(\mathrm{TP}, \mathrm{FN}, \mathrm{FP}, \mathrm{TN})$ with
+$\mathrm{TP} + \mathrm{FN} = P$ and $\mathrm{FP} + \mathrm{TN} = Q$. On the
+evaluation set of Chapter~\ref{ch:eval}, restricted to the non-ambiguous pairs,
+\[
+N = 253, \qquad P = 12, \qquad Q = 241, \qquad \pi = P/N = 4.74\% .
+\]
+
+\subsection{Balanced accuracy}
+
+Balanced accuracy \citep{brodersen2010balanced} is the unweighted mean of
+sensitivity and specificity,
+\[
+\mathrm{BA} \;=\; \frac{1}{2}\!\left(\frac{\mathrm{TP}}{P} +
+\frac{\mathrm{TN}}{Q}\right).
+\]
+For two classifiers $A$ and $B$,
+\[
+\mathrm{BA}(B) - \mathrm{BA}(A) \;=\;
+\frac{1}{2}\!\left(\frac{\Delta\mathrm{TP}}{P} +
+\frac{\Delta\mathrm{TN}}{Q}\right),
+\]
+with $\Delta\mathrm{TP} = \mathrm{TP}_B - \mathrm{TP}_A$ and
+$\Delta\mathrm{TN} = \mathrm{TN}_B - \mathrm{TN}_A$. Suppose $B$ catches fewer
+positives, $\Delta\mathrm{TP} = -\delta$ with $\delta > 0$. Then $B$ is
+preferred exactly when
+
+\begin{equation}
+\boxed{\;\frac{\Delta\mathrm{TN}}{\delta} \;>\; \frac{Q}{P}\;}
+\label{eq:exchange}
+\end{equation}
+
+that is, when $B$ avoids more than $Q/P$ of $A$'s false positives for every true
+positive it forgoes. At $P = 12$ and $Q = 241$,
+\[
+\frac{Q}{P} = \frac{241}{12} = 20.08 .
+\]
+
+Equation~\eqref{eq:exchange} is the whole result. It contains no model, no
+dataset beyond its two counts, and no assumption. It says that selecting by
+balanced accuracy on this evaluation set is equivalent to declaring, in advance
+and silently, that one missed contradiction is worth twenty avoided false
+alarms.
+
+\subsection{Prevalence-adjusted bias-adjusted kappa}
+
+PABAK \citep{byrt1993pabak} was introduced to remove the sensitivity of Cohen's
+$\kappa$ \citep{cohen1960kappa} to marginal imbalance, the sensitivity
+documented as paradoxical by \citet{feinstein1990paradoxes} and analysed by
+\citet{cicchetti1990resolving}. Its definition is
+\[
+\mathrm{PABAK} \;=\; 2 p_o - 1, \qquad
+p_o = \frac{\mathrm{TP} + \mathrm{TN}}{N},
+\]
+where $p_o$ is observed agreement. For a classifier evaluated against a gold
+label, $p_o$ is raw accuracy, so
+\[
+\mathrm{PABAK} = 2\,\mathrm{accuracy} - 1 ,
+\]
+a strictly increasing affine transform of accuracy. Its exchange rate follows
+immediately: $B$ is preferred over $A$ exactly when
+$\Delta\mathrm{TP} + \Delta\mathrm{TN} > 0$, that is, when
+\[
+\frac{\Delta\mathrm{TN}}{\delta} > 1 .
+\]
+
+This deserves emphasis because it is the opposite of what the measure's name
+suggests. PABAK removes kappa's prevalence sensitivity by discarding the
+marginal information that produced it, and what remains is a rescaling of
+accuracy, whose implicit exchange rate is one avoided false positive per
+forgone true positive \emph{in raw counts}. At $\pi = 4.74\%$ that is
+substantially more hostile to the minority class than balanced accuracy, not
+less. A measure adopted for its robustness to prevalence is, at this prevalence,
+the least robust of the three. This observation is consistent with
+\citet{delgado2019kappa}, who argue on related grounds that kappa should be
+avoided as a classification performance measure.
+
+\subsection{Matthews correlation}
+
+MCC \citep{matthews1975mcc} is
+\[
+\mathrm{MCC} = \frac{\mathrm{TP}\cdot\mathrm{TN} -
+\mathrm{FP}\cdot\mathrm{FN}}
+{\sqrt{(\mathrm{TP}{+}\mathrm{FP})(\mathrm{TP}{+}\mathrm{FN})
+(\mathrm{TN}{+}\mathrm{FP})(\mathrm{TN}{+}\mathrm{FN})}} .
+\]
+Unlike the other two it is not affine in the confusion cells, so it admits no
+constant exchange rate and the comparison between two classifiers must be
+evaluated numerically. It is nonetheless the statistic most often recommended
+for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation}, and
+it is the statistic Chapter~\ref{ch:eval} reports, so its behaviour on this
+evaluation set is the practically relevant case.
+Section~\ref{sec:met-systems} evaluates it directly.
+
+\section{The Systems}
+\label{sec:met-systems}
+
+\subsection{Reconstructed confusion matrices, and their validation}
+
+Chapter~\ref{ch:eval}, Table~\ref{tab:systems}, reports precision, recall, and
+MCC for four systems. The full confusion matrix for each follows from precision,
+recall, $P$, and $Q$ by arithmetic, and the reconstruction can be validated:
+MCC is not used in the reconstruction, so reproducing the independently reported
+MCC from the reconstructed cells is a genuine check.
+Table~\ref{tab:met-confusion} reports both.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{System} & \textbf{TP} & \textbf{FN} & \textbf{FP} & \textbf{TN} &
+\textbf{MCC} & \textbf{MCC} \\
+ & & & & & \textbf{(derived)} & \textbf{(reported)} \\
+\midrule
+GPT-4o, zero-shot          & 6  & 6 & 65  & 176 & $+0.109$ & $+0.109$ \\
+GPT-4o, few-shot           & 7  & 5 & 134 & 107 & $+0.012$ & $+0.012$ \\
+ACCORD, $\tau = 0.5$       & 11 & 1 & 223 & 18  & $-0.007$ & $-0.007$ \\
+Llama 3 8B (weak labeller) & 11 & 1 & 231 & 10  & $-0.044$ & $-0.044$ \\
+\bottomrule
+\end{tabular}
+\caption{Confusion matrices reconstructed from the precision and recall reported
+in Chapter~\ref{ch:eval}, Table~\ref{tab:systems}, on the $253$ non-ambiguous
+pairs ($P = 12$, $Q = 241$). The final two columns are the check: MCC computed
+from the reconstructed cells agrees with the independently reported MCC to three
+decimal places for all four systems. The ACCORD row is independently
+corroborated by Chapter~\ref{ch:eval}'s reported accuracy of $0.115$, which is
+$(11 + 18)/253$. Nine further systems appeared in the withdrawn submission's
+comparison table. [TODO: recover the remaining nine rows from the submission's
+result artifacts and report them here on the identical $253$-pair basis, or
+state that they cannot be reproduced and restrict the chapter to four.]}
+\label{tab:met-confusion}
+\end{table}
+
+\subsection{What the three statistics select}
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{System} & \textbf{Recall} & \textbf{Balanced} & \textbf{PABAK} &
+\textbf{MCC} \\
+ & \textbf{(of 12)} & \textbf{accuracy} & & \\
+\midrule
+GPT-4o, zero-shot          & 6  & \textbf{0.615} & $\mathbf{+0.439}$ & $\mathbf{+0.109}$ \\
+GPT-4o, few-shot           & 7  & 0.514          & $-0.099$          & $+0.012$ \\
+ACCORD, $\tau = 0.5$       & 11 & 0.496          & $-0.771$          & $-0.007$ \\
+Llama 3 8B (weak labeller) & 11 & 0.479          & $-0.834$          & $-0.044$ \\
+\bottomrule
+\end{tabular}
+\caption{All three statistics induce the same ordering, and all three place the
+system that recovers $6$ of $12$ contradictions above the two that recover $11$.
+Balanced accuracy and PABAK are derived from the cells in
+Table~\ref{tab:met-confusion}; MCC is as reported in Chapter~\ref{ch:eval}.
+Balanced accuracy separates the top and bottom systems by $0.14$; PABAK, being
+a rescaling of accuracy, separates them by $1.27$ on a $[-1, 1]$ scale, which is
+the numerical signature of a measure dominated by the majority class.}
+\label{tab:met-selection}
+\end{table}
+
+Table~\ref{tab:met-selection} is the result the earlier submission reported.
+Applying Equation~\eqref{eq:exchange} to the decisive pair makes the mechanism
+explicit. Moving from ACCORD to GPT-4o zero-shot forgoes $\delta = 5$ true
+positives and gains $\Delta\mathrm{TN} = 176 - 18 = 158$ true negatives. The
+threshold is $5 \times 20.08 = 100.4$, so the preference flips once at least
+$101$ of ACCORD's false positives are avoided. GPT-4o avoids $158$ of them, and
+the flip is therefore not marginal: it clears the threshold by more than half
+again.
+
+\paragraph{The claim as originally made.} Balanced accuracy, PABAK, and MCC all
+select a system that misses half the contradictions over one that misses one in
+twelve, and the exchange rate that produces this is available in closed form
+before any experiment is run. That claim is correct and this chapter does not
+retract it.
+
+\section{The Sharpened Claim}
+\label{sec:met-sharpened}
+
+\subsection{The question the earlier submission did not ask}
+
+The submitted framing carried an unstated premise: that a system recovering $11$
+of $12$ is the better system, and that the metrics, in preferring the one
+recovering $6$, were preferring the worse. The reviewer who wrote that the paper
+argues against a failure mode that does not seem to exist in practice was, on
+this point, closer to right than the paper was.
+
+Chapter~\ref{ch:eval}'s four measurements supply the missing information, and
+they invert the reading. Consider what the $11$ of $12$ consists of. ACCORD
+predicts \emph{contradiction} for $234$ of the $253$ non-ambiguous pairs. At
+thresholds $0.05$, $0.10$, and $0.15$ its predicted-positive rate is exactly
+$1.000$, because no score in the evaluation set falls below $0.15$
+(Chapter~\ref{ch:eval}, Table~\ref{tab:sweep}). Its AUROC is $0.460$ with a
+Mann-Whitney $p$ of $0.64$ and a bootstrap $95\%$ interval of $[0.287, 0.633]$;
+its fifteen highest-scored pairs contain zero true contradictions. Its recall of
+$11/12$ is the recall of a near-constant positive predictor, and it is not
+evidence of detection.
+
+\subsection{The corrected statement}
+
+\textbf{The metrics were not choosing a worse system over a better one. They were
+choosing among a field in which three of the four systems have no discriminative
+ability at all, and the system they chose was the only one that had any.}
+
+The evidence for that reading is in the MCC column of
+Table~\ref{tab:met-selection} and is independent of the exchange-rate argument.
+ACCORD sits at $-0.007$, indistinguishable from chance. The weak labeller it was
+distilled from sits at $-0.044$, which is worse than chance. GPT-4o zero-shot at
+$+0.109$, with $8.45\%$ precision against a base rate of $4.74\%$, is the only
+system in the comparison whose predictions carry information about the labels.
+Balanced accuracy, PABAK, and MCC all put it first. On this evaluation set they
+were right.
+
+\subsection{Why this makes the argument stronger, not weaker}
+
+Three consequences follow, and they are the substance of the chapter.
+
+\paragraph{The arithmetic is unchanged and is now unconfounded.}
+Equation~\eqref{eq:exchange} holds regardless of which system happens to be
+better. The exchange rate of $20.08$ true negatives per true positive is a
+property of $P = 12$ and $Q = 241$, and a paper that selects by balanced
+accuracy on such a set accepts that rate whether or not its particular
+comparison lands on the right side of it. The earlier submission tied a general
+arithmetic point to a specific empirical claim about which system was better,
+and the empirical claim was wrong. Untying them removes the only part of the
+argument that could be falsified by a better model.
+
+\paragraph{The empirical situation is worse than the submission described.} The
+submission's implicit worry was that a good high-recall system might be passed
+over. What Chapter~\ref{ch:eval} shows is that the high-recall systems were not
+good; they were constant. The failure mode a low-prevalence evaluation must
+guard against is therefore not primarily ``the metric prefers the wrong system''
+but ``every system in the comparison, including the one the metric prefers, may
+be near the no-skill line, and a metric that ranks them will still return a
+ranking.'' A statistic that produces an ordering over four systems with MCCs of
+$+0.109$, $+0.012$, $-0.007$, and $-0.044$ has produced an ordering over a set
+in which three members are noise. Nothing in the statistic says so. The
+statistics that do say so are the ones Chapter~\ref{ch:eval} reports alongside
+it: a threshold-free ranking measure with a confidence interval, a
+significance test on the score distributions, an average precision against the
+base rate, and a top-$k$ count.
+
+\paragraph{Recall in isolation is the trap, not the metric.} The original
+framing treated $11/12$ as the quantity to be protected. Both this chapter and
+Chapter~\ref{ch:eval}, Section~\ref{sec:errors-reading}, now state the opposite:
+recall alone is the most misleading statistic available in this setting, because
+a constant-positive predictor achieves recall $1.0$ by construction. The
+appropriate defence of a high-recall system is not that recall is high; it is a
+demonstration that the predicted-positive rate is meaningfully below one and
+that the score ordering separates the classes. ACCORD fails both.
+
+\section{The Prescription}
+\label{sec:met-prescription}
+
+This chapter makes no claim about how the field selects models. It makes four
+recommendations, each of which is checkable by a reviewer in one line and none
+of which requires agreement with the diagnosis above.
+
+\begin{enumerate}
+\item \textbf{Report $Q/P$ next to any balanced accuracy.} It is the exchange
+      rate that measure imposes, by Equation~\eqref{eq:exchange}. On this
+      evaluation set it is $20.08$. A reader who is content with that rate can
+      proceed; a reader who is not now knows to object, and did not before.
+
+\item \textbf{Do not report PABAK as a prevalence-robust measure.} It is
+      $2\,\mathrm{accuracy} - 1$. If accuracy would be an inappropriate summary
+      for the evaluation set, PABAK is inappropriate for the same reason and to
+      the same degree, and its name conceals this.
+
+\item \textbf{Prespecify the primary metric, and state the cost ratio it
+      encodes.} TRIPOD+AI \citep{collins2024tripodai} requires performance
+      measures to be prespecified for clinical prediction models, and the
+      cost-sensitive framing \citep{elkan2001cost} makes explicit that a
+      decision threshold is a statement about relative misclassification cost.
+      Where the costs are genuinely asymmetric and known only approximately,
+      decision curve analysis \citep{vickers2006dca} reports performance across
+      a range of threshold probabilities rather than committing to one.
+
+\item \textbf{Report at least one measure that can say ``no system here has
+      signal.''} A ranking statistic returns a ranking whether or not the ranked
+      objects differ. The measures that refuse are a threshold-free
+      discrimination estimate with an interval, a test on the score
+      distributions, average precision against the base rate, and a top-$k$
+      count. Chapter~\ref{ch:eval} reports all four, and all four agree that
+      three of the four systems in Table~\ref{tab:met-selection} are noise.
+\end{enumerate}
+
+\paragraph{A fifth recommendation this thesis cannot yet support.} Where the
+positive class is heterogeneous in severity, the natural evaluation is
+severity-weighted rather than count-based. Chapter~\ref{ch:eval},
+Table~\ref{tab:danger}, records that the twelve confirmed contradictions carry
+danger ratings distributed $(2, 4, 2, 1, 3)$ across the scale $1$ to $5$, so
+four of twelve are rated $4$ or $5$. A severity-weighted recall would count
+those four more heavily. [TODO: report, for each system in
+Table~\ref{tab:met-confusion}, which of the twelve true contradictions it
+recovered, broken down by danger rating, and recompute recall with severity
+weights. The per-item recovery is not recorded in the present result artifacts,
+so the weighted comparison cannot be made here.]
+
+\section{Proposed Figures}
+\label{sec:met-figures}
+
+\begin{figure}[t]
+\centering
+\framebox[\linewidth]{\parbox[c][5.5cm][c]{0.92\linewidth}{\centering
+\textit{[Figure asset 8.1: the exchange rate. X axis, forgone true positives}
+\textit{$\delta$ from 0 to 12. Y axis, additional true negatives $\Delta$TN from}
+\textit{0 to 241. Three indifference lines through the origin: PABAK at slope 1,}
+\textit{balanced accuracy at slope $Q/P = 20.08$, and a shaded band for MCC}
+\textit{traced numerically. Plot the four systems of Table 8.1 as points}
+\textit{relative to ACCORD as the origin; GPT-4o zero-shot sits at}
+\textit{$(\delta, \Delta$TN$) = (5, 158)$, above both lines.]}}}
+\caption{What each statistic trades. The reader should notice that the
+indifference slope is a property of the evaluation set's class counts alone, and
+that PABAK's slope of $1$ makes it the most majority-dominated of the three
+despite its name.}
+\label{fig:met-exchange}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\framebox[\linewidth]{\parbox[c][5cm][c]{0.92\linewidth}{\centering
+\textit{[Figure asset 8.2: two panels sharing a y axis of four systems. Left,}
+\textit{recall out of 12: GPT-4o zs 6, GPT-4o fs 7, ACCORD 11, Llama 11.}
+\textit{Right, MCC with a vertical line at 0 labelled ``chance'': $+0.109$,}
+\textit{$+0.012$, $-0.007$, $-0.044$. Annotate the ACCORD and Llama bars in the}
+\textit{left panel with their predicted-positive counts, 234/253 and 242/253.}
+\textit{Caption box: ``the high-recall systems predict positive almost}
+\textit{everywhere''.]}}}
+\caption{The sharpened claim in one view. The two systems with the highest
+recall achieve it by predicting the positive class for over ninety percent of
+the evaluation set, and both sit at or below chance on Matthews correlation. The
+metrics that prefer the low-recall system are not preferring a worse detector;
+they are the only summaries in the comparison that register the difference.}
+\label{fig:met-sharpened}
+\end{figure}
+
+\section{Limitations of This Chapter}
+\label{sec:met-limitations}
+
+\paragraph{One evaluation set, twelve positives.} Every number in
+Table~\ref{tab:met-selection} rests on $P = 12$. The exchange rate of
+Equation~\eqref{eq:exchange} is exact given the class counts and does not
+depend on sample size, but the empirical claim that the metric-preferred system
+is the only one with signal rests on four MCC values whose sampling variability
+is not characterised here. Chapter~\ref{ch:eval} reports a bootstrap interval
+for ACCORD's AUROC, $[0.287, 0.633]$; no comparable interval is reported for any
+MCC. [TODO: bootstrap all four MCCs on the $253$-pair evaluation set,
+$B = 10{,}000$, and report intervals. If GPT-4o zero-shot's interval contains
+zero, the claim that it is the only system with discriminative ability weakens
+to a claim that it is the only system whose point estimate is positive.]
+
+\paragraph{The confusion matrices are reconstructed, not read from an artifact.}
+Table~\ref{tab:met-confusion} derives all sixteen cells from reported precision
+and recall. The derivation is validated by reproducing four independently
+reported MCC values to three decimals and by reproducing Chapter~\ref{ch:eval}'s
+reported accuracy for ACCORD, which is strong evidence that it is correct, but
+it remains a reconstruction. [TODO: emit the four confusion matrices directly
+from the audit script and confirm cell by cell.]
+
+\paragraph{Nine systems are missing.} The withdrawn submission compared thirteen
+systems; four are recoverable at the level of traceability this thesis requires.
+The chapter's conclusions do not depend on the missing nine, since the decisive
+comparison is between the metric-preferred system and the highest-recall system
+and both are present, but the comparison table is incomplete and is marked as
+such.
+
+\paragraph{No claim about field practice is made or supported.} This is a
+deliberate retreat from the earlier submission. Whether papers in this area
+select models by balanced accuracy or PABAK at low prevalence is an empirical
+question about the literature, it was asserted without evidence, and it is
+withdrawn. A survey establishing the base rates of metric reporting in clinical
+NLP evaluations would settle it and was not conducted.
+
+\paragraph{The severity-weighted analysis is not performed.}
+Section~\ref{sec:met-prescription}, final paragraph. This is the most
+substantive missing measurement in the chapter, because a triage system's value
+is concentrated in the four contradictions rated $4$ or $5$ and none of the
+statistics discussed here distinguishes them from the eight rated lower.
+
+\section{Summary}
+\label{sec:met-summary}
+
+On an evaluation set with $P = 12$ positives and $Q = 241$ negatives, balanced
+accuracy prefers a system that forgoes a true positive whenever it avoids more
+than $Q/P = 20.08$ false positives; PABAK, which is $2\,\mathrm{accuracy} - 1$
+and therefore not prevalence-robust in any useful sense, prefers it at a rate of
+$1$; and MCC, which is not affine in the confusion cells, must be checked
+numerically. Checked numerically, all three place a system recovering $6$ of
+$12$ contradictions above two systems recovering $11$.
+
+That much was the content of a withdrawn submission and it stands. What does not
+stand is the framing. The systems recovering $11$ of $12$ do so by predicting
+the positive class for over ninety percent of the evaluation set, at a
+predicted-positive rate of exactly $1.000$ at every threshold from $0.05$ to
+$0.15$, with AUROC $0.460$ and zero true contradictions in the top fifteen. Their
+Matthews correlations are $-0.007$ and $-0.044$. The metric-preferred system, at
+$+0.109$, is the only one in the comparison with discriminative ability. The
+metrics did not select a worse system. They selected the only system there was,
+out of a field in which the alternatives were noise.
+
+The prescription that survives is narrower than the original claim and harder to
+argue with: state $Q/P$ beside any balanced accuracy, do not present PABAK as
+prevalence-robust, prespecify the primary measure and the cost ratio it encodes,
+and report at least one statistic capable of returning the answer that no system
+in the comparison has signal.
