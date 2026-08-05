@@ -18,7 +18,7 @@
     "limit_train": 0,
     "limit_eval": 0,
     "subsample_train": null,
-    "task_dir": "/Users/rickygole/provenance-encoder/local_only/task",
+    "task_dir": "local_only/task_readmit30",
     "tokenizer_dir": "/Users/rickygole/provenance-encoder/local_only/tokenizer",
     "device": "mps",
     "systems": [
@@ -29,6 +29,8 @@
     ],
     "selection_rule": "best epoch by val AUROC; LR chosen by mean best-epoch val AUROC across seeds; identical for every neural arm",
     "argv": [
+      "--task-dir",
+      "local_only/task_readmit30",
       "--systems",
       "metadata,tfidf,ours_random,pubmedbert",
       "--max-len",
@@ -43,9 +45,9 @@
       "2"
     ]
   },
-  "n_train": 23846,
-  "n_val": 3396,
-  "n_val_pos": 314,
+  "n_train": 21779,
+  "n_val": 3109,
+  "n_val_pos": 200,
   "systems": {
     "metadata_lr": {
       "system": "metadata_lr",
@@ -65,129 +67,129 @@
     },
     "ours_random": {
       "system": "ours_random",
-      "chosen_lr": 2e-05,
+      "chosen_lr": 5e-05,
       "lr_grid_means": {
-        "2e-05": 0.8007642485440425,
-        "5e-05": 0.7982119312052312
+        "2e-05": 0.6332605706428326,
+        "5e-05": 0.6356118941216913
       },
       "seeds": [
         2
       ],
       "best_epochs": {
-        "2": 1
+        "2": 0
       },
-      "auroc_mean": 0.8007642485440425,
+      "auroc_mean": 0.6356118941216913,
       "auroc_std": 0.0,
-      "auprc_mean": 0.32311268884281535,
+      "auprc_mean": 0.10099376004720778,
       "auprc_std": 0.0,
-      "minutes_per_run": 31.095932201544443,
+      "minutes_per_run": 28.275117683410645,
       "family": "neural",
       "extra_inputs": "role_ids, segment position, delta_t",
       "params": 10638720,
       "pretraining": "none",
       "budget_stats": {
         "n_sample": 300,
-        "mean_tokens_used": 372.81666666666666,
-        "mean_seq_fill_frac": 0.7281575520833333,
-        "mean_segs_used": 6.156666666666666,
-        "mean_segs_total": 6.33,
-        "mean_seg_truncation_frac": 0.021666666666666612
+        "mean_tokens_used": 392.62,
+        "mean_seq_fill_frac": 0.7668359375,
+        "mean_segs_used": 6.52,
+        "mean_segs_total": 6.67,
+        "mean_seg_truncation_frac": 0.018750000000000044
       }
     },
     "pubmedbert": {
       "system": "pubmedbert",
       "chosen_lr": 2e-05,
       "lr_grid_means": {
-        "2e-05": 0.8177356088568511,
-        "5e-05": 0.7454326952884429
+        "2e-05": 0.6676675833619801,
+        "5e-05": 0.5952655551735992
       },
       "seeds": [
         2
       ],
       "best_epochs": {
-        "2": 1
+        "2": 2
       },
-      "auroc_mean": 0.8177356088568511,
+      "auroc_mean": 0.6676675833619801,
       "auroc_std": 0.0,
-      "auprc_mean": 0.3318312580818507,
+      "auprc_mean": 0.12158747482298679,
       "auprc_std": 0.0,
-      "minutes_per_run": 184.5740416010221,
+      "minutes_per_run": 167.36120501359304,
       "family": "neural",
       "extra_inputs": "text only",
       "params": 109482240,
       "pretraining": "PubMed abstracts+fulltext, 3.1B words",
       "budget_stats": {
         "n_sample": 300,
-        "mean_tokens_used": 374.46666666666664,
-        "mean_seq_fill_frac": 0.7313802083333333,
-        "mean_segs_used": 6.136666666666667,
-        "mean_segs_total": 6.33,
-        "mean_seg_truncation_frac": 0.02416666666666667
+        "mean_tokens_used": 394.2033333333333,
+        "mean_seq_fill_frac": 0.7699283854166666,
+        "mean_segs_used": 6.486666666666666,
+        "mean_segs_total": 6.67,
+        "mean_seg_truncation_frac": 0.022916666666666696
       }
     }
   },
   "pointwise": {
     "metadata_lr": {
-      "auroc": 0.6757750984760496,
-      "auprc": 0.16418140609077375,
+      "auroc": 0.5776400825025783,
+      "auprc": 0.10160198580659763,
       "auroc_ci": {
-        "point": 0.6757750984760496,
-        "lo": 0.6444440041282365,
-        "hi": 0.7052966900774509,
+        "point": 0.5776400825025783,
+        "lo": 0.5351477480605275,
+        "hi": 0.6182400546137052,
         "n_boot_used": 2000
       },
       "auprc_ci": {
-        "point": 0.16418140609077375,
-        "lo": 0.14150198494804173,
-        "hi": 0.19731359050211167,
+        "point": 0.10160198580659763,
+        "lo": 0.07939676502500251,
+        "hi": 0.1371006006523423,
         "n_boot_used": 2000
       }
     },
     "tfidf_lr": {
-      "auroc": 0.8743319541864203,
-      "auprc": 0.44096622292355797,
+      "auroc": 0.6776847713991063,
+      "auprc": 0.11655635323634725,
       "auroc_ci": {
-        "point": 0.8743319541864203,
-        "lo": 0.8553180927189835,
-        "hi": 0.8914258025741665,
+        "point": 0.6776847713991063,
+        "lo": 0.6375211703251201,
+        "hi": 0.7162415844037168,
         "n_boot_used": 2000
       },
       "auprc_ci": {
-        "point": 0.44096622292355797,
-        "lo": 0.3850553517449352,
-        "hi": 0.49734630675426333,
+        "point": 0.11655635323634725,
+        "lo": 0.09682419558363786,
+        "hi": 0.1465596780435927,
         "n_boot_used": 2000
       }
     },
     "ours_random": {
-      "auroc": 0.8007642485440425,
-      "auprc": 0.32311268884281535,
+      "auroc": 0.6356118941216913,
+      "auprc": 0.10099376004720778,
       "auroc_ci": {
-        "point": 0.8007642485440425,
-        "lo": 0.7763539740767073,
-        "hi": 0.8225879539123617,
+        "point": 0.6356118941216913,
+        "lo": 0.5948601146215147,
+        "hi": 0.6726180542195247,
         "n_boot_used": 2000
       },
       "auprc_ci": {
-        "point": 0.32311268884281535,
-        "lo": 0.27535126279922206,
-        "hi": 0.3774424730135741,
+        "point": 0.10099376004720778,
+        "lo": 0.08369632313519089,
+        "hi": 0.12771284572551328,
         "n_boot_used": 2000
       }
     },
     "pubmedbert": {
-      "auroc": 0.8177356088568511,
-      "auprc": 0.3318312580818507,
+      "auroc": 0.6676675833619801,
+      "auprc": 0.12158747482298679,
       "auroc_ci": {
-        "point": 0.8177356088568511,
-        "lo": 0.7956311032803929,
-        "hi": 0.8392642217006656,
+        "point": 0.6676675833619801,
+        "lo": 0.6267199733796134,
+        "hi": 0.7054090489871886,
         "n_boot_used": 2000
       },
       "auprc_ci": {
-        "point": 0.3318312580818507,
-        "lo": 0.28381231940752194,
-        "hi": 0.3871103923864141,
+        "point": 0.12158747482298679,
+        "lo": 0.09705465859452894,
+        "hi": 0.15977836472428744,
         "n_boot_used": 2000
       }
     }
@@ -197,17 +199,17 @@
       "a": "ours_random",
       "b": "tfidf_lr",
       "delong": {
-        "auc_a": 0.8007642485440425,
-        "auc_b": 0.8743319541864205,
-        "diff": -0.07356770564237802,
-        "se": 0.009357981033206673,
-        "z": -7.861493347905278,
-        "p_value": 3.774758283725532e-15
+        "auc_a": 0.6356118941216913,
+        "auc_b": 0.6776847713991063,
+        "diff": -0.042072877277415044,
+        "se": 0.018566230810462932,
+        "z": -2.2660968565415565,
+        "p_value": 0.023445453676037564
       },
       "bootstrap_diff": {
-        "point": -0.0735677056423778,
-        "lo": -0.09179833794640985,
-        "hi": -0.05544323698199764,
+        "point": -0.042072877277415044,
+        "lo": -0.07886667947890248,
+        "hi": -0.004649524954683602,
         "n_boot_used": 2000
       }
     },
@@ -215,17 +217,17 @@
       "a": "pubmedbert",
       "b": "tfidf_lr",
       "delong": {
-        "auc_a": 0.8177356088568513,
-        "auc_b": 0.8743319541864205,
-        "diff": -0.05659634532956925,
-        "se": 0.009067833887158849,
-        "z": -6.241440462392736,
-        "p_value": 4.335594105953078e-10
+        "auc_a": 0.6676675833619801,
+        "auc_b": 0.6776847713991063,
+        "diff": -0.010017188037126257,
+        "se": 0.017021672306056095,
+        "z": -0.5884961158347684,
+        "p_value": 0.5561993402074086
       },
       "bootstrap_diff": {
-        "point": -0.05659634532956914,
-        "lo": -0.0741696256198043,
-        "hi": -0.03941670756412653,
+        "point": -0.010017188037126257,
+        "lo": -0.04433166017086162,
+        "hi": 0.023508633561462378,
         "n_boot_used": 2000
       }
     }

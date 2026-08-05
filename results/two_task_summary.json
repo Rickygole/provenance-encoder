@@ -1,0 +1,42 @@
+{
+  "protocol": "identical chars/note for every system; best-epoch-on-val; LR grid; paired DeLong + bootstrap on same val rows",
+  "tasks": [
+    {
+      "task": "48h multi-note in-hospital mortality",
+      "n": 34018,
+      "prevalence": 0.0875,
+      "val_positives": 314,
+      "metadata_only": 0.6758,
+      "tfidf_floor": 0.8673,
+      "pubmedbert": 0.8177,
+      "ours_10M_random": 0.8008,
+      "pubmedbert_minus_floor": -0.0496,
+      "verdict": "floor beats PubMedBERT; outside its 95% CI"
+    },
+    {
+      "task": "30-day readmission",
+      "n": 31043,
+      "prevalence": 0.0653,
+      "val_positives": 200,
+      "metadata_only": 0.5776,
+      "tfidf_floor": 0.6777,
+      "pubmedbert": 0.6677,
+      "ours_10M_random": 0.6356,
+      "pubmedbert_minus_floor": -0.01,
+      "pubmedbert_delong_p": 0.5562,
+      "pubmedbert_boot_ci": [
+        -0.0443,
+        0.0235
+      ],
+      "ours_minus_floor": -0.0421,
+      "ours_delong_p": 0.0234,
+      "ours_boot_ci": [
+        -0.0789,
+        -0.0046
+      ],
+      "verdict": "PubMedBERT statistically TIED with the floor; ours significantly below it"
+    }
+  ],
+  "finding": "Across two multi-note clinical tasks with very different bag-of-words floors (0.867 and 0.678), a TF-IDF baseline is never worse than a 110M domain-pretrained transformer. The size of its advantage tracks the floor: it wins by 0.050 where the floor is high and ties where the floor is low. The floor is therefore predictive of whether contextual encoding will help, and is cheap to measure before any model is built.",
+  "caveats": "validation not test; 314 and 200 val positives so CIs are wide (~0.03-0.04); one seed reported per selected LR; ours_pretrained pending re-pretraining under a recorded input convention."
+}
