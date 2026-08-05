@@ -288,6 +288,25 @@ class OursClf(nn.Module):
         return self.head(self.drop(h[:, 0])).squeeze(-1)
 
 
+def read_convention(init: str, ckpt: Path | None) -> dict:
+    """The input convention a checkpoint was TRAINED under.
+
+    Needed in main() where the datasets are built, which is a different scope
+    from build_ours_model(). Kept as one function so the two paths cannot drift.
+    """
+    if init != "pretrained":
+        return {"seg_tokens": None, "semantic_roles": False}
+    ck = torch.load(Path(ckpt) / "model.pt", map_location="cpu", weights_only=False)
+    conv = ck.get("input_convention")
+    if conv is None:
+        raise SystemExit(
+            f"{ckpt}/model.pt has no input_convention block -- it predates the "
+            "fix that records how it was trained. Re-pretrain with the current "
+            "scripts/pretrain.py; evaluating under a guessed convention is how "
+            "ours_pretrained scored below ours_random.")
+    return conv
+
+
 def build_ours_model(init: str, ckpt: Path | None, max_len: int, device,
                       tokenizer_dir: Path = LOCAL / "tokenizer"):
     tok = Tokenizer.from_file(str(Path(tokenizer_dir) / "wordpiece.json"))
@@ -783,6 +802,7 @@ def main() -> None:
         if init == "pretrained":
             ck = torch.load(Path(args.ckpt) / "model.pt", map_location="cpu", weights_only=False)
             pos_bound = ck["cfg"]["max_seq_len"]
+        conv = read_convention(init, args.ckpt)
         train_ds = OursDataset(btr, tok, args.max_len, pos_bound,
                                seg_tokens=conv["seg_tokens"],
                                semantic_roles=conv["semantic_roles"])
@@ -955,6 +975,7 @@ def main() -> None:
             print(f"  scoring {key} on test with the val-selected weights "
                   f"(lr={lr:.0e} seed={seed0}, no retraining)")
             tok = Tokenizer.from_file(str(tokenizer_dir / "wordpiece.json"))
+            conv = read_convention(init, args.ckpt)
             test_ds = OursDataset(btest, tok, args.max_len, pos_bound,
                                   seg_tokens=conv["seg_tokens"],
                                   semantic_roles=conv["semantic_roles"])

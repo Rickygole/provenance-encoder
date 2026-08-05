@@ -1,0 +1,101 @@
+{
+  "protocol": {
+    "max_len": 256,
+    "chars_per_note": 600,
+    "epochs": 1,
+    "lr_grid": [
+      2e-05
+    ],
+    "seeds": [
+      1
+    ],
+    "batch_ours": 16,
+    "batch_bert": 4,
+    "accum_bert": 4,
+    "effective_batch_bert": 16,
+    "ckpt": "/Users/rickygole/provenance-encoder/local_only/runs/A3_10M_st3000_s0_hardblk_shuf",
+    "limit_train": 40,
+    "limit_eval": 40,
+    "subsample_train": null,
+    "task_dir": "/Users/rickygole/provenance-encoder/local_only/task",
+    "tokenizer_dir": "/Users/rickygole/provenance-encoder/local_only/tokenizer",
+    "device": "mps",
+    "systems": [
+      "ours_random"
+    ],
+    "selection_rule": "best epoch by val AUROC; LR chosen by mean best-epoch val AUROC across seeds; identical for every neural arm",
+    "argv": [
+      "--systems",
+      "ours_random",
+      "--max-len",
+      "256",
+      "--chars-per-note",
+      "600",
+      "--epochs",
+      "1",
+      "--lr-grid",
+      "2e-5",
+      "--seeds",
+      "1",
+      "--limit-train",
+      "40",
+      "--limit-eval",
+      "40"
+    ]
+  },
+  "n_train": 40,
+  "n_val": 40,
+  "n_val_pos": 4,
+  "systems": {
+    "ours_random": {
+      "system": "ours_random",
+      "chosen_lr": 2e-05,
+      "lr_grid_means": {
+        "2e-05": 0.45833333333333326
+      },
+      "seeds": [
+        1
+      ],
+      "best_epochs": {
+        "1": 0
+      },
+      "auroc_mean": 0.45833333333333326,
+      "auroc_std": 0.0,
+      "auprc_mean": 0.11028726708074534,
+      "auprc_std": 0.0,
+      "minutes_per_run": 0.15001845359802246,
+      "family": "neural",
+      "extra_inputs": "role_ids, segment position, delta_t",
+      "params": 10638720,
+      "pretraining": "none",
+      "budget_stats": {
+        "n_sample": 40,
+        "mean_tokens_used": 202.575,
+        "mean_seq_fill_frac": 0.79130859375,
+        "mean_segs_used": 6.375,
+        "mean_segs_total": 6.8,
+        "mean_seg_truncation_frac": 0.05312499999999998
+      }
+    }
+  },
+  "pointwise": {
+    "ours_random": {
+      "auroc": 0.45833333333333326,
+      "auprc": 0.11028726708074534,
+      "auroc_ci": {
+        "point": 0.45833333333333326,
+        "lo": 0.16216216216216217,
+        "hi": 0.7085178571428571,
+        "n_boot_used": 1970
+      },
+      "auprc_ci": {
+        "point": 0.11028726708074534,
+        "lo": 0.047619047619047616,
+        "hi": 0.27445793473355584,
+        "n_boot_used": 1970
+      }
+    }
+  },
+  "pairwise_vs_floor": [],
+  "spent_test_set": false
+}
