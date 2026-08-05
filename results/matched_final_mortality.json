@@ -1,0 +1,39 @@
+{
+  "task": "MIMIC-III 48h multi-note in-hospital mortality (label-leak fixed, survive-48h gate)",
+  "n": {
+    "train": 23846,
+    "val": 3396,
+    "test": 6776,
+    "val_positives": 314
+  },
+  "protocol": "identical 1200 chars/note for EVERY system; seq 512; 3 epochs; LR grid {2e-5,5e-5}; best-epoch-on-val selection; neural arms verified at 6.16/6.14 notes and 372.8/374.5 tokens consumed",
+  "rows": [
+    {
+      "system": "TF-IDF + LR",
+      "auroc": 0.8673,
+      "auprc": 0.4318,
+      "params": null
+    },
+    {
+      "system": "PubMedBERT + concat",
+      "auroc": 0.8177,
+      "auprc": 0.3318,
+      "params": 109482240
+    },
+    {
+      "system": "ours from-scratch, random init",
+      "auroc": 0.8008,
+      "auprc": 0.3231,
+      "params": 10638720
+    },
+    {
+      "system": "metadata only (no text)",
+      "auroc": 0.6758,
+      "auprc": 0.1642,
+      "params": null
+    }
+  ],
+  "finding": "At matched input, bag-of-words beats a 110M biomedical transformer by 0.050 AUROC / 0.100 AUPRC. PubMedBERT is outside the TF-IDF 95% CI [0.8553,0.8914].",
+  "retracted": "An earlier 0.22 AUROC gap was a harness bug: the neural arms consumed 1.39 of 6.78 notes while the floor read all of them. Fixed; PubMedBERT recovered 0.6376 -> 0.8177.",
+  "caveats": "validation not test; 314 val positives so CI ~ +/-0.03; single seed reported per selected LR; ours_pretrained excluded pending re-pretraining under a recorded input convention."
+}

@@ -1,101 +1,234 @@
 {
   "protocol": {
-    "max_len": 256,
-    "chars_per_note": 600,
-    "epochs": 1,
+    "max_len": 512,
+    "chars_per_note": 1200,
+    "epochs": 3,
     "lr_grid": [
-      2e-05
+      2e-05,
+      5e-05
     ],
     "seeds": [
-      1
+      2
     ],
     "batch_ours": 16,
     "batch_bert": 4,
     "accum_bert": 4,
     "effective_batch_bert": 16,
     "ckpt": "/Users/rickygole/provenance-encoder/local_only/runs/A3_10M_st3000_s0_hardblk_shuf",
-    "limit_train": 40,
-    "limit_eval": 40,
+    "limit_train": 0,
+    "limit_eval": 0,
     "subsample_train": null,
     "task_dir": "/Users/rickygole/provenance-encoder/local_only/task",
     "tokenizer_dir": "/Users/rickygole/provenance-encoder/local_only/tokenizer",
     "device": "mps",
     "systems": [
-      "ours_random"
+      "metadata",
+      "tfidf",
+      "ours_random",
+      "pubmedbert"
     ],
     "selection_rule": "best epoch by val AUROC; LR chosen by mean best-epoch val AUROC across seeds; identical for every neural arm",
     "argv": [
       "--systems",
-      "ours_random",
+      "metadata,tfidf,ours_random,pubmedbert",
       "--max-len",
-      "256",
+      "512",
       "--chars-per-note",
-      "600",
+      "1200",
       "--epochs",
-      "1",
+      "3",
       "--lr-grid",
-      "2e-5",
+      "2e-5,5e-5",
       "--seeds",
-      "1",
-      "--limit-train",
-      "40",
-      "--limit-eval",
-      "40"
+      "2"
     ]
   },
-  "n_train": 40,
-  "n_val": 40,
-  "n_val_pos": 4,
+  "n_train": 23846,
+  "n_val": 3396,
+  "n_val_pos": 314,
   "systems": {
+    "metadata_lr": {
+      "system": "metadata_lr",
+      "family": "floor",
+      "extra_inputs": "counts/lengths/timing, NO TEXT",
+      "params": 19,
+      "pretraining": "none",
+      "note": "no text whatsoever"
+    },
+    "tfidf_lr": {
+      "system": "tfidf_lr",
+      "family": "floor",
+      "extra_inputs": "none (bag of words, full text)",
+      "params": 60001,
+      "pretraining": "none",
+      "note": "full bundle text, no truncation"
+    },
     "ours_random": {
       "system": "ours_random",
       "chosen_lr": 2e-05,
       "lr_grid_means": {
-        "2e-05": 0.45833333333333326
+        "2e-05": 0.8007642485440425,
+        "5e-05": 0.7982119312052312
       },
       "seeds": [
-        1
+        2
       ],
       "best_epochs": {
-        "1": 0
+        "2": 1
       },
-      "auroc_mean": 0.45833333333333326,
+      "auroc_mean": 0.8007642485440425,
       "auroc_std": 0.0,
-      "auprc_mean": 0.11028726708074534,
+      "auprc_mean": 0.32311268884281535,
       "auprc_std": 0.0,
-      "minutes_per_run": 0.15001845359802246,
+      "minutes_per_run": 31.095932201544443,
       "family": "neural",
       "extra_inputs": "role_ids, segment position, delta_t",
       "params": 10638720,
       "pretraining": "none",
       "budget_stats": {
-        "n_sample": 40,
-        "mean_tokens_used": 202.575,
-        "mean_seq_fill_frac": 0.79130859375,
-        "mean_segs_used": 6.375,
-        "mean_segs_total": 6.8,
-        "mean_seg_truncation_frac": 0.05312499999999998
+        "n_sample": 300,
+        "mean_tokens_used": 372.81666666666666,
+        "mean_seq_fill_frac": 0.7281575520833333,
+        "mean_segs_used": 6.156666666666666,
+        "mean_segs_total": 6.33,
+        "mean_seg_truncation_frac": 0.021666666666666612
+      }
+    },
+    "pubmedbert": {
+      "system": "pubmedbert",
+      "chosen_lr": 2e-05,
+      "lr_grid_means": {
+        "2e-05": 0.8177356088568511,
+        "5e-05": 0.7454326952884429
+      },
+      "seeds": [
+        2
+      ],
+      "best_epochs": {
+        "2": 1
+      },
+      "auroc_mean": 0.8177356088568511,
+      "auroc_std": 0.0,
+      "auprc_mean": 0.3318312580818507,
+      "auprc_std": 0.0,
+      "minutes_per_run": 184.5740416010221,
+      "family": "neural",
+      "extra_inputs": "text only",
+      "params": 109482240,
+      "pretraining": "PubMed abstracts+fulltext, 3.1B words",
+      "budget_stats": {
+        "n_sample": 300,
+        "mean_tokens_used": 374.46666666666664,
+        "mean_seq_fill_frac": 0.7313802083333333,
+        "mean_segs_used": 6.136666666666667,
+        "mean_segs_total": 6.33,
+        "mean_seg_truncation_frac": 0.02416666666666667
       }
     }
   },
   "pointwise": {
-    "ours_random": {
-      "auroc": 0.45833333333333326,
-      "auprc": 0.11028726708074534,
+    "metadata_lr": {
+      "auroc": 0.6757750984760496,
+      "auprc": 0.16418140609077375,
       "auroc_ci": {
-        "point": 0.45833333333333326,
-        "lo": 0.16216216216216217,
-        "hi": 0.7085178571428571,
-        "n_boot_used": 1970
+        "point": 0.6757750984760496,
+        "lo": 0.6444440041282365,
+        "hi": 0.7052966900774509,
+        "n_boot_used": 2000
       },
       "auprc_ci": {
-        "point": 0.11028726708074534,
-        "lo": 0.047619047619047616,
-        "hi": 0.27445793473355584,
-        "n_boot_used": 1970
+        "point": 0.16418140609077375,
+        "lo": 0.14150198494804173,
+        "hi": 0.19731359050211167,
+        "n_boot_used": 2000
+      }
+    },
+    "tfidf_lr": {
+      "auroc": 0.8743319541864203,
+      "auprc": 0.44096622292355797,
+      "auroc_ci": {
+        "point": 0.8743319541864203,
+        "lo": 0.8553180927189835,
+        "hi": 0.8914258025741665,
+        "n_boot_used": 2000
+      },
+      "auprc_ci": {
+        "point": 0.44096622292355797,
+        "lo": 0.3850553517449352,
+        "hi": 0.49734630675426333,
+        "n_boot_used": 2000
+      }
+    },
+    "ours_random": {
+      "auroc": 0.8007642485440425,
+      "auprc": 0.32311268884281535,
+      "auroc_ci": {
+        "point": 0.8007642485440425,
+        "lo": 0.7763539740767073,
+        "hi": 0.8225879539123617,
+        "n_boot_used": 2000
+      },
+      "auprc_ci": {
+        "point": 0.32311268884281535,
+        "lo": 0.27535126279922206,
+        "hi": 0.3774424730135741,
+        "n_boot_used": 2000
+      }
+    },
+    "pubmedbert": {
+      "auroc": 0.8177356088568511,
+      "auprc": 0.3318312580818507,
+      "auroc_ci": {
+        "point": 0.8177356088568511,
+        "lo": 0.7956311032803929,
+        "hi": 0.8392642217006656,
+        "n_boot_used": 2000
+      },
+      "auprc_ci": {
+        "point": 0.3318312580818507,
+        "lo": 0.28381231940752194,
+        "hi": 0.3871103923864141,
+        "n_boot_used": 2000
       }
     }
   },
-  "pairwise_vs_floor": [],
+  "pairwise_vs_floor": [
+    {
+      "a": "ours_random",
+      "b": "tfidf_lr",
+      "delong": {
+        "auc_a": 0.8007642485440425,
+        "auc_b": 0.8743319541864205,
+        "diff": -0.07356770564237802,
+        "se": 0.009357981033206673,
+        "z": -7.861493347905278,
+        "p_value": 3.774758283725532e-15
+      },
+      "bootstrap_diff": {
+        "point": -0.0735677056423778,
+        "lo": -0.09179833794640985,
+        "hi": -0.05544323698199764,
+        "n_boot_used": 2000
+      }
+    },
+    {
+      "a": "pubmedbert",
+      "b": "tfidf_lr",
+      "delong": {
+        "auc_a": 0.8177356088568513,
+        "auc_b": 0.8743319541864205,
+        "diff": -0.05659634532956925,
+        "se": 0.009067833887158849,
+        "z": -6.241440462392736,
+        "p_value": 4.335594105953078e-10
+      },
+      "bootstrap_diff": {
+        "point": -0.05659634532956914,
+        "lo": -0.0741696256198043,
+        "hi": -0.03941670756412653,
+        "n_boot_used": 2000
+      }
+    }
+  ],
   "spent_test_set": false
 }
