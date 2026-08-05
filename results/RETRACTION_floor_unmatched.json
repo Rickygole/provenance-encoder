@@ -1,0 +1,25 @@
+{
+  "retracts": "Finding 1 as stated in results/two_task_summary.json, results/matched_final_mortality.json and results/FINAL_SUMMARY.json",
+  "claim_retracted": "A TF-IDF floor is never worse than a 110M domain-pretrained transformer, and the gap tracks the floor.",
+  "why": "The floor was evaluated on FULL note text while the neural arms were capped at chars_per_note AND a per-segment token cap of (max_len-2)//8 = 63 tokens AND the total sequence budget. Measured: floor read 6,587 chars/bundle, neural arms encoded 1,545. A 4.3x asymmetry.",
+  "corrected_at_the_neural_window": {
+    "mortality": {
+      "tfidf_full": 0.8743,
+      "tfidf_at_window": 0.8198,
+      "pubmedbert": 0.8177,
+      "gap_before": 0.0566,
+      "gap_after": 0.0021
+    },
+    "readmission": {
+      "tfidf_full": 0.6777,
+      "tfidf_at_window": 0.6496,
+      "pubmedbert": 0.6677,
+      "gap_before": 0.01,
+      "gap_after": -0.0181
+    }
+  },
+  "conclusion": "At genuinely matched input the floor advantage vanishes on mortality (+0.002) and REVERSES on readmission (-0.018). PubMedBERT beats the floor on readmission. The claim is false as stated.",
+  "aggravating": "results/floor_matched_budget.json already documented this exact defect and the final harness reverted to full text anyway. The 0.8673 figure in the summary tables appears in no run log; it was computed outside the harness and paired with a CI from a different configuration.",
+  "fix": "scripts/run_matched.py now routes the floor through neural_window_rows(), applying all three caps in the same order as the neural datasets.",
+  "what_survives": "The proxy-metric decoupling: a 1.32 +/- 0.015 nat MLM gap across 7 arms x 3 seeds transfers to at most ~0.03 AUROC downstream. And the provenance falsification, which is independent of this bug."
+}

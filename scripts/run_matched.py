@@ -174,6 +174,32 @@ def text_of(rows: list[dict]) -> list[str]:
     return [" ".join(s["text"] for s in r["segments"]) for r in rows]
 
 
+
+def neural_window_rows(rows, tok, chars_per_note: int, max_len: int):
+    """Reduce each bundle to EXACTLY the text the neural arms encode.
+
+    Applies all three caps in order: chars_per_note, then the per-segment token
+    cap, then the total sequence budget. A floor evaluated on more than this is
+    not a floor -- it is a different experiment. Previously the floor read 6,587
+    chars while the neural arms encoded 1,545, and that 4.3x asymmetry WAS the
+    entire headline gap: correcting it moved mortality from +0.050 to +0.002 and
+    REVERSED readmission to -0.018.
+    """
+    per_seg = max(8, (max_len - 2) // 8)
+    out = []
+    for r in rows:
+        cur, parts = 1, []
+        for seg in r["segments"]:
+            ids = tok.encode(seg["text"][:chars_per_note]).ids[:per_seg]
+            if not ids or cur + len(ids) + 1 >= max_len:
+                continue
+            parts.append(tok.decode(ids))
+            cur += len(ids) + 1
+        out.append({**r, "segments": [{"role": 1, "delta_t_hours": 0.0,
+                                       "text": " ".join(parts)}]})
+    return out
+
+
 def run_tfidf(train_rows, val_rows) -> dict:
     ytr = np.array([r["label"] for r in train_rows])
     yva = np.array([r["label"] for r in val_rows])
@@ -779,8 +805,11 @@ def main() -> None:
 
     # ---- (b) TF-IDF ----
     if "tfidf" in systems:
-        print(">> TF-IDF + logistic regression (full text)")
-        results["tfidf_lr"] = run_tfidf(train_rows, val_rows)
+        print(">> TF-IDF + logistic regression (AT THE NEURAL WINDOW)")
+        _wt = Tokenizer.from_file(str(Path(args.tokenizer_dir) / "wordpiece.json"))
+        results["tfidf_lr"] = run_tfidf(
+            neural_window_rows(train_rows, _wt, args.chars_per_note, args.max_len),
+            neural_window_rows(val_rows, _wt, args.chars_per_note, args.max_len))
         print(f"   AUROC {roc_auc_score(results['tfidf_lr']['y'], results['tfidf_lr']['p']):.4f}")
 
     # ---- shared char-budgeted rows for the two neural arms ----
@@ -954,7 +983,10 @@ def main() -> None:
             if name == "metadata_lr":
                 r = run_metadata(train_rows, test_rows)
             else:
-                r = run_tfidf(train_rows, test_rows)
+                _wt = Tokenizer.from_file(str(Path(args.tokenizer_dir) / "wordpiece.json"))
+                r = run_tfidf(
+                    neural_window_rows(train_rows, _wt, args.chars_per_note, args.max_len),
+                    neural_window_rows(test_rows, _wt, args.chars_per_note, args.max_len))
             test_results[name] = r
             print(f"  {name}: test AUROC {roc_auc_score(r['y'], r['p']):.4f} "
                   f"AUPRC {average_precision_score(r['y'], r['p']):.4f}")
