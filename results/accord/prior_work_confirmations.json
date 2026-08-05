@@ -1,0 +1,30 @@
+{
+  "source": "thesis/outputs/ on Google Drive (ricky.gole@morgan.edu), recovered 2026-08-05",
+  "confirmation_1": {
+    "file": "threshold_optimization.json",
+    "finding": "At thresholds 0.05/0.10/0.15 the model gives precision 0.0474, recall 1.0, pos_rate 1.0 -- it predicts positive on every pair.",
+    "significance": "Independent prior confirmation of the 2026-08-05 diagnosis (contra_prob AUROC 0.460 vs pharmacist gold). No operating point recovers precision above the 4.0% base rate."
+  },
+  "confirmation_2": {
+    "file": "pharmacist_internal_consistency.json",
+    "claim": "internal_consistency_kappa = 1.000, described as two independent pharmacist instruments agreeing perfectly, with rebuttal_use = answers the N=1 annotator concern.",
+    "problem": "CIRCULAR. A not-contradiction has no danger by definition, so label==contradiction <=> danger_rating>0 is an identity, not an agreement measurement. kappa=1.000 is guaranteed by construction and measures nothing.",
+    "action": "Remove from any rebuttal. Reviewers JDYj and p4E8 asked for inter-rater reliability; this would read as evasion. Answer with a second annotator or the severity-ranking reframe."
+  },
+  "confirmation_3": {
+    "file": "prefilter_finding.json",
+    "claim": "Only 2 of 1610 candidates resolved by intermediate notes -- validates the clinical need for automated detection.",
+    "problem": "The resolution regex contains both continue and discontinue among 20 alternations, so it matches nearly any medication sentence. 2/1610 is an instrument failure, not a measurement of clinical documentation practice."
+  },
+  "pipeline_counts_verified": {
+    "total_candidates": 1980,
+    "admissions": 1205,
+    "by_rule": {
+      "1": 886,
+      "2": 203,
+      "3": 521,
+      "4": 370
+    },
+    "after_prefilter": 1978
+  }
+}
