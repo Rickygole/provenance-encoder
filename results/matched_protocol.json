@@ -1,7 +1,7 @@
 {
   "protocol": {
-    "max_len": 512,
-    "chars_per_note": 1200,
+    "max_len": 256,
+    "chars_per_note": 600,
     "epochs": 3,
     "lr_grid": [
       2e-05,
@@ -14,29 +14,29 @@
     "batch_bert": 4,
     "accum_bert": 4,
     "effective_batch_bert": 16,
-    "ckpt": "/Users/rickygole/provenance-encoder/local_only/runs/A3_10M_st3000_s0_hardblk_shuf",
+    "ckpt": "local_only/runs/A3_10M_st3000_s0_hardblk_shuf",
     "limit_train": 0,
     "limit_eval": 0,
     "subsample_train": null,
-    "task_dir": "local_only/task_readmit30",
+    "task_dir": "local_only/task",
     "tokenizer_dir": "/Users/rickygole/provenance-encoder/local_only/tokenizer",
     "device": "mps",
     "systems": [
-      "metadata",
-      "tfidf",
       "ours_random",
-      "pubmedbert"
+      "ours_pretrained"
     ],
     "selection_rule": "best epoch by val AUROC; LR chosen by mean best-epoch val AUROC across seeds; identical for every neural arm",
     "argv": [
       "--task-dir",
-      "local_only/task_readmit30",
+      "local_only/task",
       "--systems",
-      "metadata,tfidf,ours_random,pubmedbert",
+      "ours_random,ours_pretrained",
+      "--ckpt",
+      "local_only/runs/A3_10M_st3000_s0_hardblk_shuf",
       "--max-len",
-      "512",
+      "256",
       "--chars-per-note",
-      "1200",
+      "600",
       "--epochs",
       "3",
       "--lr-grid",
@@ -45,32 +45,16 @@
       "2"
     ]
   },
-  "n_train": 21779,
-  "n_val": 3109,
-  "n_val_pos": 200,
+  "n_train": 23846,
+  "n_val": 3396,
+  "n_val_pos": 314,
   "systems": {
-    "metadata_lr": {
-      "system": "metadata_lr",
-      "family": "floor",
-      "extra_inputs": "counts/lengths/timing, NO TEXT",
-      "params": 19,
-      "pretraining": "none",
-      "note": "no text whatsoever"
-    },
-    "tfidf_lr": {
-      "system": "tfidf_lr",
-      "family": "floor",
-      "extra_inputs": "none (bag of words, full text)",
-      "params": 60001,
-      "pretraining": "none",
-      "note": "full bundle text, no truncation"
-    },
     "ours_random": {
       "system": "ours_random",
       "chosen_lr": 5e-05,
       "lr_grid_means": {
-        "2e-05": 0.6332605706428326,
-        "5e-05": 0.6356118941216913
+        "2e-05": 0.7711780339509873,
+        "5e-05": 0.7744474801291246
       },
       "seeds": [
         2
@@ -78,159 +62,90 @@
       "best_epochs": {
         "2": 0
       },
-      "auroc_mean": 0.6356118941216913,
+      "auroc_mean": 0.7744474801291246,
       "auroc_std": 0.0,
-      "auprc_mean": 0.10099376004720778,
+      "auprc_mean": 0.2506281319829444,
       "auprc_std": 0.0,
-      "minutes_per_run": 28.275117683410645,
+      "minutes_per_run": 14.629930035273235,
       "family": "neural",
       "extra_inputs": "role_ids, segment position, delta_t",
       "params": 10638720,
       "pretraining": "none",
       "budget_stats": {
         "n_sample": 300,
-        "mean_tokens_used": 392.62,
-        "mean_seq_fill_frac": 0.7668359375,
-        "mean_segs_used": 6.52,
-        "mean_segs_total": 6.67,
-        "mean_seg_truncation_frac": 0.018750000000000044
+        "mean_tokens_used": 188.18666666666667,
+        "mean_seq_fill_frac": 0.7351041666666667,
+        "mean_segs_used": 5.91,
+        "mean_segs_total": 6.33,
+        "mean_seg_truncation_frac": 0.05249999999999999
       }
     },
-    "pubmedbert": {
-      "system": "pubmedbert",
-      "chosen_lr": 2e-05,
+    "ours_pretrained": {
+      "system": "ours_pretrained",
+      "chosen_lr": 5e-05,
       "lr_grid_means": {
-        "2e-05": 0.6676675833619801,
-        "5e-05": 0.5952655551735992
+        "2e-05": 0.7648044738919636,
+        "5e-05": 0.7720026287835263
       },
       "seeds": [
         2
       ],
       "best_epochs": {
-        "2": 2
+        "2": 0
       },
-      "auroc_mean": 0.6676675833619801,
+      "auroc_mean": 0.7720026287835263,
       "auroc_std": 0.0,
-      "auprc_mean": 0.12158747482298679,
+      "auprc_mean": 0.26400318640413833,
       "auprc_std": 0.0,
-      "minutes_per_run": 167.36120501359304,
+      "minutes_per_run": 14.639394334952037,
       "family": "neural",
-      "extra_inputs": "text only",
-      "params": 109482240,
-      "pretraining": "PubMed abstracts+fulltext, 3.1B words",
+      "extra_inputs": "role_ids, segment position, delta_t",
+      "params": 10638720,
+      "pretraining": "block-mask MLM, local_only/runs/A3_10M_st3000_s0_hardblk_shuf",
       "budget_stats": {
         "n_sample": 300,
-        "mean_tokens_used": 394.2033333333333,
-        "mean_seq_fill_frac": 0.7699283854166666,
-        "mean_segs_used": 6.486666666666666,
-        "mean_segs_total": 6.67,
-        "mean_seg_truncation_frac": 0.022916666666666696
+        "mean_tokens_used": 188.18666666666667,
+        "mean_seq_fill_frac": 0.7351041666666667,
+        "mean_segs_used": 5.91,
+        "mean_segs_total": 6.33,
+        "mean_seg_truncation_frac": 0.05249999999999999
       }
     }
   },
   "pointwise": {
-    "metadata_lr": {
-      "auroc": 0.5776400825025783,
-      "auprc": 0.10160198580659763,
-      "auroc_ci": {
-        "point": 0.5776400825025783,
-        "lo": 0.5351477480605275,
-        "hi": 0.6182400546137052,
-        "n_boot_used": 2000
-      },
-      "auprc_ci": {
-        "point": 0.10160198580659763,
-        "lo": 0.07939676502500251,
-        "hi": 0.1371006006523423,
-        "n_boot_used": 2000
-      }
-    },
-    "tfidf_lr": {
-      "auroc": 0.6776847713991063,
-      "auprc": 0.11655635323634725,
-      "auroc_ci": {
-        "point": 0.6776847713991063,
-        "lo": 0.6375211703251201,
-        "hi": 0.7162415844037168,
-        "n_boot_used": 2000
-      },
-      "auprc_ci": {
-        "point": 0.11655635323634725,
-        "lo": 0.09682419558363786,
-        "hi": 0.1465596780435927,
-        "n_boot_used": 2000
-      }
-    },
     "ours_random": {
-      "auroc": 0.6356118941216913,
-      "auprc": 0.10099376004720778,
+      "auroc": 0.7744474801291246,
+      "auprc": 0.2506281319829444,
       "auroc_ci": {
-        "point": 0.6356118941216913,
-        "lo": 0.5948601146215147,
-        "hi": 0.6726180542195247,
+        "point": 0.7744474801291246,
+        "lo": 0.7505175023709911,
+        "hi": 0.7970039563343042,
         "n_boot_used": 2000
       },
       "auprc_ci": {
-        "point": 0.10099376004720778,
-        "lo": 0.08369632313519089,
-        "hi": 0.12771284572551328,
+        "point": 0.2506281319829444,
+        "lo": 0.21368298915658737,
+        "hi": 0.2971437556684666,
         "n_boot_used": 2000
       }
     },
-    "pubmedbert": {
-      "auroc": 0.6676675833619801,
-      "auprc": 0.12158747482298679,
+    "ours_pretrained": {
+      "auroc": 0.7720026287835263,
+      "auprc": 0.26400318640413833,
       "auroc_ci": {
-        "point": 0.6676675833619801,
-        "lo": 0.6267199733796134,
-        "hi": 0.7054090489871886,
+        "point": 0.7720026287835263,
+        "lo": 0.7457877217177303,
+        "hi": 0.7955465736306234,
         "n_boot_used": 2000
       },
       "auprc_ci": {
-        "point": 0.12158747482298679,
-        "lo": 0.09705465859452894,
-        "hi": 0.15977836472428744,
+        "point": 0.26400318640413833,
+        "lo": 0.2242188249704661,
+        "hi": 0.31081652685790184,
         "n_boot_used": 2000
       }
     }
   },
-  "pairwise_vs_floor": [
-    {
-      "a": "ours_random",
-      "b": "tfidf_lr",
-      "delong": {
-        "auc_a": 0.6356118941216913,
-        "auc_b": 0.6776847713991063,
-        "diff": -0.042072877277415044,
-        "se": 0.018566230810462932,
-        "z": -2.2660968565415565,
-        "p_value": 0.023445453676037564
-      },
-      "bootstrap_diff": {
-        "point": -0.042072877277415044,
-        "lo": -0.07886667947890248,
-        "hi": -0.004649524954683602,
-        "n_boot_used": 2000
-      }
-    },
-    {
-      "a": "pubmedbert",
-      "b": "tfidf_lr",
-      "delong": {
-        "auc_a": 0.6676675833619801,
-        "auc_b": 0.6776847713991063,
-        "diff": -0.010017188037126257,
-        "se": 0.017021672306056095,
-        "z": -0.5884961158347684,
-        "p_value": 0.5561993402074086
-      },
-      "bootstrap_diff": {
-        "point": -0.010017188037126257,
-        "lo": -0.04433166017086162,
-        "hi": 0.023508633561462378,
-        "n_boot_used": 2000
-      }
-    }
-  ],
+  "pairwise_vs_floor": [],
   "spent_test_set": false
 }
