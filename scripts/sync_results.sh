@@ -16,11 +16,17 @@ REPO="/Users/rickygole/provenance-encoder"
 LOCAL="/Users/rickygole/mimic_local_only"
 DRIVE="/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/results_2026-08"
 
-# MIMIC-III de-identification surrogates, the section headers that would only
-# appear inside a real note, and the two identifier columns. Identifiers matter
-# as much as text: HADM_ID joined to anything is restricted data under the
-# PhysioNet DUA, not a derived aggregate.
-TEXT_MARKERS='\[\*\*|admission date|chief complaint|discharge medications|nursing_sentence|discharge_sentence|HADM_ID|SUBJECT_ID'
+# MIMIC-III de-identification surrogates and the section headers that would
+# only appear inside a real note.
+TEXT_MARKERS='\[\*\*|admission date|chief complaint|discharge medications|nursing_sentence|discharge_sentence'
+
+# Identifiers matter as much as text -- HADM_ID joined to anything is restricted
+# data, not a derived aggregate -- but only when they are a DATA KEY. These
+# files legitimately discuss identifiers in prose ("audit.csv keys on
+# HADM_ID+drug"), and a gate that fires on prose gets ignored, which is worse
+# than no gate. So match the structural forms only: a JSON key, or a CSV header
+# at the start of a line.
+ID_MARKERS='"(HADM_ID|SUBJECT_ID)"[[:space:]]*:|^(HADM_ID|SUBJECT_ID),|,(HADM_ID|SUBJECT_ID),'
 
 # Structural exclusion, which beats pattern matching: a note sentence carrying
 # no surrogate and no section header passes a content scan. Row-level formats
@@ -69,7 +75,11 @@ for p in $(find results/accord -type f); do
     exit 1
   fi
   if grep -qiE "$TEXT_MARKERS" "$p" 2>/dev/null; then
-    echo "ABORT: note text or identifier in $p"
+    echo "ABORT: note text in $p"
+    exit 1
+  fi
+  if grep -qE "$ID_MARKERS" "$p" 2>/dev/null; then
+    echo "ABORT: identifier used as a data key in $p"
     exit 1
   fi
 done
