@@ -527,6 +527,71 @@ being missed, and it needs an explanation the thesis does not currently have.
 
 ---
 
+## C18. Decontamination was row-level; 158 of 266 gold subjects were also in the training pool
+
+**Claimed.** The weak-label pool was decontaminated against the 299 evaluation pairs by removing
+overlapping rows (`removal_reason == 'pharmacist_overlap'`), and the decontaminated retrain is
+described as the clean configuration.
+
+**Actual.** Removing overlapping *rows* is not subject-level disjointness. Building the control
+baseline surfaced that **158 of the 266 gold subjects also had rows in the 1,679-row training
+pool — 291 rows in total**, under different `(drug, rule)` combinations within the same or other
+admissions of the same patient. Those rows share the patient, and frequently the note text, with
+evaluation pairs.
+
+This is C8 recurring at a different layer. C8 was about the train/test split *within* the pool,
+and `accord/phase3_mining.py` fixes that. The pool-versus-gold boundary was never checked at
+subject level.
+
+**Correction.** Any configuration described as decontaminated must assert `SUBJECT_ID`
+disjointness against the gold set, not just row removal. `accord/control/data.py` does this and
+`assert`s it rather than filtering silently. Whether ACCORD's own decontaminated retrain carries
+this leakage is not established here and should be checked — it bears on C16.
+
+---
+
+## C19. The defect-free control result, and what it does and does not license
+
+**The experiment.** A deliberately plain BioMedBERT cross-encoder —
+`[CLS] nursing [SEP] discharge [SEP]` → CLS → one `nn.Linear` → BCE. No rule feature, no
+authority parameter, no ATCG/PPC/GGHE, no harm head, no confidence weighting. Same weak labels,
+same 299 gold pairs, subject-disjoint split, `set_seed()` inside `main()` (C7), fresh process per
+seed.
+
+| stratum | seed 42 | seed 123 | seed 2024 | mean ± std |
+|---|---|---|---|---|
+| all 299 (12 pos) | 0.459 | 0.503 | 0.528 | **0.497 ± 0.035** |
+| defect-free rules 3+4 (6 pos) | 0.542 | 0.535 | 0.512 | **0.530 ± 0.016** |
+
+Ensemble against ACCORD on the same pairs:
+
+| | AUROC | bootstrap 95% CI | AP (base 4.0%) | top-15 TP |
+|---|---|---|---|---|
+| vanilla control | 0.469 | [0.288, 0.655] | 0.051 | 1 |
+| ACCORD `contra_prob` | 0.460 | [0.288, 0.633] | 0.039 | 0 |
+
+**DeLong, paired:** all-299 diff +0.009, z = 0.088, **p = 0.930**; defect-free diff +0.039,
+z = 0.788, **p = 0.431**. No difference on either stratum.
+
+**Floors.** Majority-class gives AUROC exactly 0.5 and AP exactly the base rate — the metric code
+is correct at the degenerate case. **TF-IDF + logistic regression gives AUROC 0.576 / 0.573 and
+AP 0.157 / 0.277 — higher than both neural models.** Reported as found; whether that is
+small-*n* noise or genuine surface-form signal is not established.
+
+**What this licenses.** A defect-free architecture, trained identically on the same split,
+produces a result statistically indistinguishable from the flawed one. That is evidence *against*
+"ACCORD's thirteen defects caused the chance-level result."
+
+**What it does not license.** It is not evidence *for* "the task is unlearnable." The control's
+CI upper bound is 0.655 (0.828 on the defect-free stratum), and the minimum detectable AUROC at
+80% power is **0.739** for the full set and **0.839** for the defect-free stratum, which has only
+6 positives. This evaluation cannot separate "genuinely near chance" from "a real but
+sub-threshold effect." The entitled claim is: *no system tested, including a clean baseline, is
+distinguishable from chance on this evaluation, and this evaluation is underpowered to establish
+that the task is near chance.* Anything stronger repeats the error C15 identifies.
+
+---
+
 ## What survives all of this
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings
