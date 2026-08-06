@@ -371,6 +371,60 @@ absolute cosine values are specific to the vanilla checkpoint.
 
 ---
 
+## C15. The thesis's external-validity claim rests on a non-significant result
+
+**Claimed.** `ch1_introduction.tex:249-252`: *"the task is not impossible: something above chance
+is extractable from the same evidence, so the failure is a property of this pipeline rather than
+of the problem."* This is the only sentence in ten chapters that converts an engineering
+post-mortem into a research contribution; `ch1:275-281` explicitly disclaims everything else.
+
+**Actual.** It rests entirely on GPT-4o zero-shot in `results/accord/step3_baselines.json`:
+`tp 6, fn 6, fp 65, tn 176`, n = 253, MCC = +0.1089. Running the test that was never run:
+
+| test | statistic | p |
+|---|---|---|
+| χ² = n·MCC², df 1 | 3.003 | **0.083** |
+| χ² with Yates correction | 1.970 | 0.160 |
+| Fisher exact, two-sided | OR 2.71 | 0.102 |
+| bootstrap MCC 95% CI (20k) | — | **[−0.032, 0.249]** |
+
+Expected TP under independence is 3.37 against 6 observed. The interval includes zero. It is the
+maximum of four systems compared, uncorrected. No CI for it appears in any results file or any
+chapter, and `step3_baselines.json`'s own note concedes no AUROC, no AP and no second operating
+point can ever be computed for it because only aggregates were released.
+
+**Why this is self-inflicted.** `ch8_metrics.tex:329-331` writes: *"A statistic that produces an
+ordering over four systems with MCCs of +0.109, +0.012, −0.007, and −0.044 has produced an
+ordering over a set in which three members are noise."* Three. The thesis applies its own
+standard to every system except the one it needs. `ch8:332-335` then prescribes that such a claim
+requires a threshold-free ranking measure with a confidence interval, a significance test, an
+average precision against the base rate, and a top-k count. The +0.109 has none of the four. All
+four systems are noise.
+
+**Correction.** Withdraw "something above chance is extractable." State that no system tested,
+including GPT-4o zero-shot, is distinguishable from chance on this evaluation.
+
+**What this leaves, and the experiment that fixes it.** Without that sentence the residual claim
+is *an author-built pipeline containing thirteen documented author-introduced defects did not
+work* — and there is nothing to rebut it with, because **no vanilla cross-encoder, no NLI
+baseline and no majority-class baseline exists on the ACCORD split.** `results/accord/` contains
+exactly one continuous score, ACCORD's own `contra_prob`; every AUROC in the document (0.460,
+0.5078, 0.5044) is that same defective model against the same 12 positives. The "four independent
+measurements" of no-signal at `ch9:217-219` are four views of one instrument. The majority-class
+baseline is still an open `[TODO]` at `ch6_architecture.tex:219` and `:526`, inside the list of
+practices the thesis prescribes to others. And `section6_auroc_power.json` gives
+`minimum_detectable_auc = 0.7382` at 80% power with 12 positives, so the instrument cannot
+distinguish a broken system from a mediocre-but-real one at all.
+
+The missing control is one experiment: a vanilla BioMedBERT cross-encoder pair classifier on the
+`SUBJECT_ID`-disjoint split from `phase3_mining.py`, corrected exemplars, no rule feature, no
+authority parameter, no auxiliary heads, scored continuously on all 299 with a bootstrap CI. If
+it also lands at chance with an interval excluding 0.6, the thesis has, for the first time,
+evidence that the failure is not the bugs. If it clears chance, the honest title is *a post-mortem
+of an implementation*. Either result is defensible; shipping without it is not.
+
+---
+
 ## What survives all of this
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings
