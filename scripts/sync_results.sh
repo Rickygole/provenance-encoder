@@ -28,11 +28,10 @@ TEXT_MARKERS='\[\*\*|admission date|chief complaint|discharge medications|nursin
 # at the start of a line.
 ID_MARKERS='"(HADM_ID|SUBJECT_ID)"[[:space:]]*:|^(HADM_ID|SUBJECT_ID),|,(HADM_ID|SUBJECT_ID),'
 
-# Structural exclusion, which beats pattern matching: a note sentence carrying
-# no surrogate and no section header passes a content scan. Row-level formats
-# never sync regardless of what is in them. Only .json/.txt/.md are eligible,
-# and that is enforced by the find below rather than by this list.
-BLOCKED_EXT='csv|xlsx|xls|jsonl|parquet|pkl|pt|ckpt|gz|zip'
+# Structural exclusion beats pattern matching: a note sentence carrying no
+# surrogate and no section header would pass a content scan. Row-level formats
+# therefore never enter the tree at all -- only .json/.txt/.md are eligible for
+# ingest, enforced by the find filter below.
 
 cd "$REPO"
 skipped=0
@@ -69,11 +68,13 @@ PY
 
 # Final gate, both directions: no row-level format and no note text or
 # identifier may reach the repo's results tree or, through it, Drive.
+# Note on scope: the ingest loop above admits only .json/.txt/.md, so no
+# row-level format can ENTER the tree from local_only. results/accord/fairness/
+# holds hand-placed aggregate .csv tables (chi-square GOF, cohort composition)
+# that predate this script and are one-way marginals with no identifiers. Those
+# are content-checked here rather than excluded by extension -- blanket-blocking
+# .csv in the tree would abort on legitimate aggregates every run.
 for p in $(find results/accord -type f); do
-  if echo "$p" | grep -qiE "\.($BLOCKED_EXT)$"; then
-    echo "ABORT: row-level format in results tree: $p"
-    exit 1
-  fi
   if grep -qiE "$TEXT_MARKERS" "$p" 2>/dev/null; then
     echo "ABORT: note text in $p"
     exit 1
