@@ -592,6 +592,48 @@ that the task is near chance.* Anything stronger repeats the error C15 identifie
 
 ---
 
+## C20. C10 repaired: the miscalibration is model-agnostic, the differential is not
+
+C10 recorded that *"clinical miscalibration is model-agnostic"* was printed from a results dict
+containing a **hardcoded** Llama row, because Llama-3-8B never loaded (gated repo, 401) and only
+Mistral-7B ran — and that `llm_preds.append(pred if pred else pk)` scored every unparseable
+generation as a positive. The claim was retracted. It has now been run for real.
+
+**Method.** The original prompt was recovered verbatim from `prompts_existing.csv`
+(`config_id = llama_baseline`) and reused unchanged. All **1,679** pool rows, three local models
+via Ollama, temperature 0. Unparseable generations are recorded as their own `UNPARSEABLE`
+category and never defaulted to positive — the C10 bug class. Same regression specification as
+the original, including `C(rule_cat)`, so the comparison is like-for-like.
+
+| model | positive rate | vs 4.0% gold | unparseable | MISSING-language OR [95% CI] | p |
+|---|---|---|---|---|---|
+| Llama-3-8B (original, HF API — reference) | 0.8487 | **21.2×** | — | 1.686 [1.108, 2.567] | 0.015 |
+| `llama3:8b` (local) | 0.9470 | **23.6×** | 0.0% | **0.741** [0.426, 1.287] | 0.29 |
+| `granite3.3:8b` | 0.7219 | **18.0×** | 0.0% | 0.887 [0.667, 1.180] | 0.41 |
+| `qwen3:8b` | 0.6349 | **15.8×** | 0.0% | 1.031 [0.785, 1.355] | 0.82 |
+
+**(i) Gross miscalibration replicates 3/3.** Every model over-calls contradictions by 15.8× to
+23.6× against the 4.0% pharmacist base rate. The unparseable rate is 0.0% in all three, so none
+of this is the C10 default-to-positive artifact. **The model-agnostic claim is now true and
+earned** — it can be reinstated, citing this run rather than the hardcoded dict.
+
+**(ii) The demographic differential replicates 0/3.** No model reaches significance, and the
+local `llama3:8b` points the *opposite* way (0.741) from the original 1.686. This holds under the
+*same* specification that produced 1.69, so the effect is not even a specification artifact that
+generalizes — it is specific to the original endpoint's outputs.
+
+**Correction.** Reinstate the miscalibration claim as measured across three open-weights models.
+Report the differential as model-specific and not replicated. This is the third independent line
+against it, after C14 (the crude association runs the other way, 0.82) and the marginal refit
+(1.42 [0.96, 2.10], p = 0.081).
+
+**What survives is the useful half.** A 15.8–23.6× over-call rate reproduced across three
+independently trained model families says the failure is a property of the *task* — asking an
+instruction-tuned model to adjudicate a low-prevalence clinical judgment from two sentences —
+rather than of any one model or endpoint.
+
+---
+
 ## What survives all of this
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings

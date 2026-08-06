@@ -397,6 +397,525 @@
       "seed": 42
     }
   },
+  "control/baselines.json": {
+    "majority_class": {
+      "description": "constant score = training-pool positive rate; predicts the majority weak-label class (contradiction, 85.2% of training rows) for every gold pair",
+      "gold_all": {
+        "ap": 0.04013377926421405,
+        "auroc": 0.5,
+        "n": 299,
+        "pos": 12,
+        "top15_tp": 0
+      },
+      "gold_defect_free_rule34": {
+        "ap": 0.04477611940298507,
+        "auroc": 0.5,
+        "n": 134,
+        "pos": 6,
+        "top15_tp": 1
+      },
+      "train_majority_rate": 0.8520710059171598
+    },
+    "n_gold": 299,
+    "n_train": 1183,
+    "tfidf_logreg": {
+      "description": "TF-IDF (1-2gram, max_features=5000, min_df=2) over 'nursing [SEP] discharge' concatenated text + LogisticRegression, trained on the identical weak-label pool, no class rebalancing",
+      "gold_all": {
+        "ap": 0.1570977148911732,
+        "auroc": 0.5760743321718931,
+        "n": 299,
+        "pos": 12,
+        "top15_tp": 2
+      },
+      "gold_defect_free_rule34": {
+        "ap": 0.27679335197833804,
+        "auroc": 0.5729166666666666,
+        "n": 134,
+        "pos": 6,
+        "top15_tp": 2
+      },
+      "max_features": 5000,
+      "ngram_range": [
+        1,
+        2
+      ]
+    },
+    "train_pos_rate": 0.8520710059171598
+  },
+  "control/final_report.json": {
+    "accord_contra_prob_same_299_pairs": {
+      "gold_all": {
+        "ap": 0.03937094454599891,
+        "auroc": 0.4602206736353078,
+        "bootstrap": {
+          "boot_mean": 0.46056764865706257,
+          "boot_std": 0.0870094108107361,
+          "ci95": [
+            0.28832752613240425,
+            0.632585159342703
+          ],
+          "n_boot_valid": 10000
+        },
+        "n": 299,
+        "pos": 12,
+        "top15_tp": 0
+      },
+      "gold_defect_free_rule34": {
+        "ap": 0.05548387091036819,
+        "auroc": 0.5078125,
+        "bootstrap": {
+          "boot_mean": 0.509153695650365,
+          "boot_std": 0.13679722875807976,
+          "ci95": [
+            0.2180266772700984,
+            0.7582697201017812
+          ],
+          "n_boot_valid": 10000
+        },
+        "n": 134,
+        "pos": 6,
+        "top15_tp": 0
+      }
+    },
+    "ap_mean_std_across_seeds": {
+      "gold_all": {
+        "mean": 0.049145118020182975,
+        "std": 0.002438426618572604
+      },
+      "gold_defect_free_rule34": {
+        "mean": 0.07074446976541704,
+        "std": 0.010843926321024022
+      }
+    },
+    "auroc_mean_std_across_seeds": {
+      "gold_all": {
+        "mean": 0.4967092528068138,
+        "std": 0.034966792693814724,
+        "values": [
+          0.4590592334494773,
+          0.502903600464576,
+          0.528164924506388
+        ]
+      },
+      "gold_defect_free_rule34": {
+        "mean": 0.529513888888889,
+        "std": 0.015751082735784797,
+        "values": [
+          0.5416666666666667,
+          0.53515625,
+          0.51171875
+        ]
+      }
+    },
+    "baselines": {
+      "majority_class": {
+        "description": "constant score = training-pool positive rate; predicts the majority weak-label class (contradiction, 85.2% of training rows) for every gold pair",
+        "gold_all": {
+          "ap": 0.04013377926421405,
+          "auroc": 0.5,
+          "n": 299,
+          "pos": 12,
+          "top15_tp": 0
+        },
+        "gold_defect_free_rule34": {
+          "ap": 0.04477611940298507,
+          "auroc": 0.5,
+          "n": 134,
+          "pos": 6,
+          "top15_tp": 1
+        },
+        "train_majority_rate": 0.8520710059171598
+      },
+      "n_gold": 299,
+      "n_train": 1183,
+      "tfidf_logreg": {
+        "description": "TF-IDF (1-2gram, max_features=5000, min_df=2) over 'nursing [SEP] discharge' concatenated text + LogisticRegression, trained on the identical weak-label pool, no class rebalancing",
+        "gold_all": {
+          "ap": 0.1570977148911732,
+          "auroc": 0.5760743321718931,
+          "n": 299,
+          "pos": 12,
+          "top15_tp": 2
+        },
+        "gold_defect_free_rule34": {
+          "ap": 0.27679335197833804,
+          "auroc": 0.5729166666666666,
+          "n": 134,
+          "pos": 6,
+          "top15_tp": 2
+        },
+        "max_features": 5000,
+        "ngram_range": [
+          1,
+          2
+        ]
+      },
+      "train_pos_rate": 0.8520710059171598
+    },
+    "bootstrap_n_resamples": 10000,
+    "bootstrap_seed": 20260806,
+    "delong_ensemble_vs_accord": {
+      "gold_all": {
+        "auc_a": 0.4692218350754936,
+        "auc_b": 0.46022067363530783,
+        "auc_diff": 0.009001161440185756,
+        "ci95_diff": [
+          -0.1919282125552155,
+          0.209930535435587
+        ],
+        "p": 0.9300329582352953,
+        "se_diff": 0.10251498673234759,
+        "z": 0.08780337126401372
+      },
+      "gold_defect_free_rule34": {
+        "auc_a": 0.546875,
+        "auc_b": 0.5078125,
+        "auc_diff": 0.0390625,
+        "ci95_diff": [
+          -0.05808067358622779,
+          0.1362056735862278
+        ],
+        "p": 0.4306143435685692,
+        "se_diff": 0.04956284366644275,
+        "z": 0.7881408149800702
+      }
+    },
+    "delong_per_seed_vs_accord_gold_all": {
+      "123": {
+        "auc_a": 0.502903600464576,
+        "auc_b": 0.46022067363530783,
+        "auc_diff": 0.04268292682926822,
+        "ci95_diff": [
+          -0.14928617151300488,
+          0.23465202517154132
+        ],
+        "p": 0.66298787819815,
+        "se_diff": 0.0979434175215679,
+        "z": 0.43579168370216514
+      },
+      "2024": {
+        "auc_a": 0.528164924506388,
+        "auc_b": 0.46022067363530783,
+        "auc_diff": 0.06794425087108014,
+        "ci95_diff": [
+          -0.12153494402759568,
+          0.25742344576975595
+        ],
+        "p": 0.4821647608553734,
+        "se_diff": 0.09667305862177338,
+        "z": 0.7028250873586952
+      },
+      "42": {
+        "auc_a": 0.45905923344947736,
+        "auc_b": 0.46022067363530783,
+        "auc_diff": -0.0011614401858304757,
+        "ci95_diff": [
+          -0.20729691573801767,
+          0.20497403536635672
+        ],
+        "p": 0.991188873943635,
+        "se_diff": 0.10517116099601388,
+        "z": -0.011043333313345241
+      }
+    },
+    "ensemble_mean_of_seed_scores": {
+      "gold_all": {
+        "ap": 0.05120451969895093,
+        "auroc": 0.46922183507549364,
+        "bootstrap": {
+          "boot_mean": 0.46989528251804,
+          "boot_std": 0.09369050911043682,
+          "ci95": [
+            0.28796569387385995,
+            0.6553109217171716
+          ],
+          "n_boot_valid": 10000
+        },
+        "n": 299,
+        "pos": 12,
+        "top15_tp": 1
+      },
+      "gold_defect_free_rule34": {
+        "ap": 0.078358866567188,
+        "auroc": 0.546875,
+        "bootstrap": {
+          "boot_mean": 0.5479078853798579,
+          "boot_std": 0.1481085780053316,
+          "ci95": [
+            0.24184073920265783,
+            0.8281430288461535
+          ],
+          "n_boot_valid": 10000
+        },
+        "n": 134,
+        "pos": 6,
+        "top15_tp": 1
+      }
+    },
+    "interpretation": "INCONCLUSIVE_WIDE_CI",
+    "n_seeds": 3,
+    "per_seed": [
+      {
+        "gold_all": {
+          "ap": 0.046353881982887826,
+          "auroc": 0.4590592334494773,
+          "bootstrap": {
+            "boot_mean": 0.46003407085319287,
+            "boot_std": 0.08727994773615826,
+            "ci95": [
+              0.2891413523690921,
+              0.6314908094583522
+            ],
+            "n_boot_valid": 10000
+          },
+          "n": 299,
+          "pos": 12,
+          "top15_tp": 1
+        },
+        "gold_defect_free_rule34": {
+          "ap": 0.08160058720915389,
+          "auroc": 0.5416666666666667,
+          "bootstrap": {
+            "boot_mean": 0.5426134526076813,
+            "boot_std": 0.14185660960879562,
+            "ci95": [
+              0.24971612560057901,
+              0.8153869047619047
+            ],
+            "n_boot_valid": 10000
+          },
+          "n": 134,
+          "pos": 6,
+          "top15_tp": 1
+        },
+        "seed": 42
+      },
+      {
+        "gold_all": {
+          "ap": 0.05022030599616582,
+          "auroc": 0.502903600464576,
+          "bootstrap": {
+            "boot_mean": 0.5031554822246042,
+            "boot_std": 0.09205388816453385,
+            "ci95": [
+              0.32101906630740396,
+              0.6826452997593303
+            ],
+            "n_boot_valid": 10000
+          },
+          "n": 299,
+          "pos": 12,
+          "top15_tp": 0
+        },
+        "gold_defect_free_rule34": {
+          "ap": 0.07072004626362424,
+          "auroc": 0.53515625,
+          "bootstrap": {
+            "boot_mean": 0.5368533662473164,
+            "boot_std": 0.14780826348836215,
+            "ci95": [
+              0.231769588371766,
+              0.8294278403585271
+            ],
+            "n_boot_valid": 10000
+          },
+          "n": 134,
+          "pos": 6,
+          "top15_tp": 2
+        },
+        "seed": 123
+      },
+      {
+        "gold_all": {
+          "ap": 0.050861166081495254,
+          "auroc": 0.528164924506388,
+          "bootstrap": {
+            "boot_mean": 0.5278107034558379,
+            "boot_std": 0.09398726214012514,
+            "ci95": [
+              0.34233042533347413,
+              0.7109149244208872
+            ],
+            "n_boot_valid": 10000
+          },
+          "n": 299,
+          "pos": 12,
+          "top15_tp": 0
+        },
+        "gold_defect_free_rule34": {
+          "ap": 0.05991277582347297,
+          "auroc": 0.51171875,
+          "bootstrap": {
+            "boot_mean": 0.5132909972280268,
+            "boot_std": 0.14600686703283036,
+            "ci95": [
+              0.20584726788959073,
+              0.7942317708333333
+            ],
+            "n_boot_valid": 10000
+          },
+          "n": 134,
+          "pos": 6,
+          "top15_tp": 0
+        },
+        "seed": 2024
+      }
+    ],
+    "power_ceiling": {
+      "recomputed_same_formula_defect_free_rule34_n134": {
+        "gap_above_chance": 0.33907790289788753,
+        "minimum_detectable_auc": 0.8390779028978875,
+        "n_neg": 128,
+        "n_pos": 6,
+        "se_auc_under_null": 0.12103072956898178
+      },
+      "recomputed_same_formula_gold_all_ambiguous_included_n299": {
+        "gap_above_chance": 0.23869442202876123,
+        "minimum_detectable_auc": 0.7386944220287612,
+        "n_neg": 287,
+        "n_pos": 12,
+        "se_auc_under_null": 0.08519977207387462
+      },
+      "referenced_file": "/Users/rickygole/provenance-encoder/results/accord/section6_auroc_power.json",
+      "referenced_gold_all_ambiguous_excluded": {
+        "alpha": 0.05,
+        "gap_above_chance": 0.2382,
+        "minimum_detectable_auc": 0.7382,
+        "n_negatives": 241,
+        "n_positives": 12,
+        "power": 0.8,
+        "se_auc_under_null": 0.08555
+      }
+    },
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "top15_tp_per_seed": {
+      "gold_all": [
+        1,
+        0,
+        0
+      ],
+      "gold_defect_free_rule34": [
+        1,
+        2,
+        0
+      ]
+    },
+    "verdict": "The vanilla control's point estimate is near chance and its CI does not clearly exclude 0.5, but the CI upper bound is not tight enough to rule out a real sub-power effect either. With only 12 (gold_all) / 6 (defect-free) positives, the minimum detectable AUROC at 80% power is well above what a near-chance point estimate could distinguish from a moderate real effect -- see power_ceiling below. This evaluation cannot adjudicate between 'the task is genuinely near-impossible at this AUROC' and 'there may be a real but sub-threshold effect'; only a much larger gold set could."
+  },
+  "control/metrics_seed123.json": {
+    "batch_size": 16,
+    "epochs": 3,
+    "gold_all": {
+      "ap": 0.05022030599616582,
+      "auroc": 0.502903600464576,
+      "n": 299,
+      "pos": 12,
+      "top15_tp": 0
+    },
+    "gold_defect_free_rule34": {
+      "ap": 0.07072004626362424,
+      "auroc": 0.53515625,
+      "n": 134,
+      "pos": 6,
+      "top15_tp": 2
+    },
+    "gold_rules12": {
+      "ap": 0.037432279420342246,
+      "auroc": 0.42557651991614254,
+      "n": 165,
+      "pos": 6,
+      "top15_tp": 0
+    },
+    "history": [
+      {
+        "elapsed_sec": 97.15597701072693,
+        "epoch": 1,
+        "train_loss": 0.31457280774466184,
+        "val_loss": 0.26971353408766957
+      },
+      {
+        "elapsed_sec": 89.63959193229675,
+        "epoch": 2,
+        "train_loss": 0.23302492451958756,
+        "val_loss": 0.31899574180928675
+      },
+      {
+        "elapsed_sec": 92.01343178749084,
+        "epoch": 3,
+        "train_loss": 0.1942121834192655,
+        "val_loss": 0.3183360448697718
+      }
+    ],
+    "lr": 2e-05,
+    "max_length": 160,
+    "n_gold_subjects": 266,
+    "n_leaked_rows_excluded": 291,
+    "n_pool_subjects": 867,
+    "n_train": 1183,
+    "n_val": 205,
+    "seed": 123,
+    "train_pos_rate": 0.8520710059171598,
+    "val_pos_rate": 0.8390243902439024
+  },
+  "control/metrics_seed2024.json": {
+    "batch_size": 16,
+    "epochs": 3,
+    "gold_all": {
+      "ap": 0.050861166081495254,
+      "auroc": 0.528164924506388,
+      "n": 299,
+      "pos": 12,
+      "top15_tp": 0
+    },
+    "gold_defect_free_rule34": {
+      "ap": 0.05991277582347297,
+      "auroc": 0.51171875,
+      "n": 134,
+      "pos": 6,
+      "top15_tp": 0
+    },
+    "gold_rules12": {
+      "ap": 0.05350652553735369,
+      "auroc": 0.5031446540880504,
+      "n": 165,
+      "pos": 6,
+      "top15_tp": 1
+    },
+    "history": [
+      {
+        "elapsed_sec": 94.71607613563538,
+        "epoch": 1,
+        "train_loss": 0.3222695147698951,
+        "val_loss": 0.290980952832757
+      },
+      {
+        "elapsed_sec": 88.89415979385376,
+        "epoch": 2,
+        "train_loss": 0.24208752023700125,
+        "val_loss": 0.29073452455241505
+      },
+      {
+        "elapsed_sec": 84.79309296607971,
+        "epoch": 3,
+        "train_loss": 0.19285773908497414,
+        "val_loss": 0.265549493999016
+      }
+    ],
+    "lr": 2e-05,
+    "max_length": 160,
+    "n_gold_subjects": 266,
+    "n_leaked_rows_excluded": 291,
+    "n_pool_subjects": 867,
+    "n_train": 1183,
+    "n_val": 205,
+    "seed": 2024,
+    "train_pos_rate": 0.8520710059171598,
+    "val_pos_rate": 0.8390243902439024
+  },
   "control/metrics_seed42.json": {
     "batch_size": 16,
     "epochs": 3,
@@ -507,6 +1026,72 @@
         "pos": 2
       }
     ]
+  },
+  "denominator_validation/real_cohort_validation.json": {
+    "selection_stage": {
+      "adjusted_OR": {
+        "CI_high": 0.732,
+        "CI_low": 0.5548,
+        "OR": 0.6372,
+        "p": 0.0
+      },
+      "adjusted_OR_breaches_four_fifths_rule": true,
+      "n_admissions": 9783,
+      "raw_four_fifths_ratio": 0.46756367131186927,
+      "raw_yield_english": 0.2081,
+      "raw_yield_missing": 0.0973,
+      "raw_yield_ratio_missing_over_english": 0.46756367131186927,
+      "unadjusted_OR": {
+        "CI_high": 0.4648,
+        "CI_low": 0.3602,
+        "OR": 0.4092,
+        "p": 0.0
+      }
+    },
+    "standard_audit_on_candidate_pool_exp1a": {
+      "demographic_parity_four_fifths_ratio": 0.9609552154195011,
+      "demographic_parity_gap": 0.03434305659436554,
+      "demographic_parity_rate_english": 0.8795811518324608,
+      "demographic_parity_rate_missing": 0.8452380952380952,
+      "english": {
+        "FN": 0,
+        "FNR": 0.0,
+        "FP": 160,
+        "FPR": 0.874,
+        "TN": 23,
+        "TP": 8,
+        "group": "ENGLISH",
+        "n": 191,
+        "n_neg": 183,
+        "n_pos": 8,
+        "precision": 0.048,
+        "recall": 1.0
+      },
+      "fpr_gap": 0.02400000000000002,
+      "missing": {
+        "FN": 1,
+        "FNR": 0.25,
+        "FP": 68,
+        "FPR": 0.85,
+        "TN": 12,
+        "TP": 3,
+        "group": "MISSING",
+        "n": 84,
+        "n_neg": 80,
+        "n_pos": 4,
+        "precision": 0.042,
+        "recall": 0.75
+      },
+      "precision_gap": 0.005999999999999998,
+      "recall_gap": 0.25,
+      "recall_metric_breaches_tolerance_but_unreliable_n": true,
+      "well_powered_metrics_breach_tolerance": false
+    },
+    "tolerances": {
+      "four_fifths_threshold": 0.8,
+      "parity_gap_tolerance": 0.05
+    },
+    "verdict": "standard per-group audit on the candidate pool would NOT have caught the OR=0.64 upstream selection bias on well-powered metrics"
   },
   "diag/bonus_bootstrap_ci.json": {
     "contra_prob_auroc_bootstrap_ci_n299": {
