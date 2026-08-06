@@ -15,6 +15,7 @@ set -euo pipefail
 REPO="/Users/rickygole/provenance-encoder"
 LOCAL="/Users/rickygole/mimic_local_only"
 DRIVE="/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/results_2026-08"
+DRIVE_CODE="/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/code_2026-08"
 
 # MIMIC-III de-identification surrogates and the section headers that would
 # only appear inside a real note.
@@ -88,6 +89,36 @@ done
 mkdir -p "$DRIVE"
 cp -R results/accord/. "$DRIVE/"
 
-echo "repo:  $(find results/accord -type f | wc -l | tr -d ' ') files"
-echo "drive: $(find "$DRIVE" -type f | wc -l | tr -d ' ') files -> $DRIVE"
+# Code goes to Drive too, so the evidence and the thing that produced it stay
+# together. Code is not just safe to share -- PhysioNet License 1.5.0 Clause 8
+# obliges contributing analysis code to an open repository. What is excluded is
+# the local_only symlink (MIMIC-derived), caches, and git internals.
+mkdir -p "$DRIVE_CODE"
+rsync -a --delete \
+  --exclude 'local_only' --exclude 'local_only/**' \
+  --exclude '__pycache__' --exclude '*.pyc' \
+  --exclude '.git' --exclude '.DS_Store' \
+  --exclude '*.pt' --exclude '*.ckpt' --exclude '*.bin' \
+  accord/ scripts/ src/ tests/ "$DRIVE_CODE/" 2>/dev/null || {
+    for d in accord scripts src tests; do
+      [ -d "$d" ] && cp -R "$d" "$DRIVE_CODE/" 2>/dev/null
+    done
+  }
+find "$DRIVE_CODE" \( -name '__pycache__' -o -name '*.pyc' \) -prune -exec rm -rf {} + 2>/dev/null
+
+# Same standard for code as for results: a script that embeds sample rows is a
+# leak in a .py file. Checked after the copy so what is ON Drive is what passed.
+for p in $(find "$DRIVE_CODE" -type f \( -name '*.py' -o -name '*.sh' -o -name '*.tex' \)); do
+  case "$p" in
+    */sync_results.sh|*/export_results.py) continue ;;   # these hold the markers as patterns
+  esac
+  if grep -qiE "$TEXT_MARKERS" "$p" 2>/dev/null; then
+    echo "ABORT: note text in code file $p"
+    exit 1
+  fi
+done
+
+echo "repo:    $(find results/accord -type f | wc -l | tr -d ' ') result files"
+echo "drive:   $(find "$DRIVE" -type f | wc -l | tr -d ' ') result files -> $DRIVE"
+echo "code:    $(find "$DRIVE_CODE" -type f | wc -l | tr -d ' ') files -> $DRIVE_CODE"
 echo "skipped for note text: $skipped"

@@ -1,0 +1,132 @@
+Weak-supervision rows: 1679 (demo-matched)
+
+======================================================================
+b0: CRUDE positive-call rate by language group (no adjustment)
+======================================================================
+                        mean  count
+language_group3                    
+ENGLISH               0.8618   1064
+RECORDED_NON_ENGLISH  0.7947    151
+MISSING               0.8362    464
+chi2=5.424, dof=2, p=0.0664
+Crude OR (English vs Missing, positive-call): 1.2219
+
+======================================================================
+b1: MARGINAL logistic model (no rule_cat), cluster-robust SE on HADM_ID
+======================================================================
+                           Logit Regression Results                           
+==============================================================================
+Dep. Variable:               weak_pos   No. Observations:                 1679
+Model:                          Logit   Df Residuals:                     1674
+Method:                           MLE   Df Model:                            4
+Date:                Thu, 06 Aug 2026   Pseudo R-squ.:                 0.04259
+Time:                        17:04:20   Log-Likelihood:                -683.06
+converged:                       True   LL-Null:                       -713.45
+Covariance Type:              cluster   LLR p-value:                 1.998e-12
+====================================================================================================================================
+                                                                       coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------------------------------------------------------------
+Intercept                                                           -4.0438      2.400     -1.685      0.092      -8.749       0.661
+C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]    -0.4036      0.281     -1.434      0.152      -0.955       0.148
+C(language_group3, Treatment('ENGLISH'))[T.MISSING]                  0.3488      0.200      1.747      0.081      -0.043       0.740
+log_note_chars                                                       0.4946      0.261      1.892      0.059      -0.018       1.007
+n_mentions                                                           0.0307      0.008      3.820      0.000       0.015       0.046
+====================================================================================================================================
+
+Odds ratios (marginal, cluster-robust SE), 95% CI:
+                                                                  CI_low  CI_high      OR       p
+Intercept                                                         0.0002   1.9368  0.0175  0.0921
+C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]  0.3848   1.1595  0.6679  0.1515
+C(language_group3, Treatment('ENGLISH'))[T.MISSING]               0.9583   2.0963  1.4174  0.0807
+log_note_chars                                                    0.9823   2.7375  1.6399  0.0585
+n_mentions                                                        1.0150   1.0475  1.0311  0.0001
+
+For comparison -- rule-CONDITIONED model (the collider-biased one, exp1c) on same rows:
+                                                                  CI_low   CI_high      OR       p
+Intercept                                                         0.0103  129.1057  1.1530  0.9528
+C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]  0.4967    1.4418  0.8462  0.5391
+C(language_group3, Treatment('ENGLISH'))[T.MISSING]               1.1079    2.5671  1.6864  0.0148
+C(rule_cat)[T.rule2]                                              0.1347    0.3716  0.2238  0.0000
+C(rule_cat)[T.rule3]                                              1.1204    4.6164  2.2743  0.0229
+C(rule_cat)[T.rule4]                                              0.0299    0.0679  0.0450  0.0000
+log_note_chars                                                    0.7731    2.1422  1.2869  0.3320
+n_mentions                                                        0.9927    1.0223  1.0074  0.3258
+
+======================================================================
+b2: rule x language_group3 crosstab (counts and row-%, and positive rate per cell)
+======================================================================
+
+Counts:
+rule                    1    2    3    4
+language_group3                         
+ENGLISH               491  111  304  158
+RECORDED_NON_ENGLISH   65   16   34   36
+MISSING               196   44  103  121
+
+Row-normalized (rule composition WITHIN each language group):
+rule                       1       2       3       4
+language_group3                                     
+ENGLISH               0.4615  0.1043  0.2857  0.1485
+RECORDED_NON_ENGLISH  0.4305  0.1060  0.2252  0.2384
+MISSING               0.4224  0.0948  0.2220  0.2608
+
+Positive-call rate per (language_group3 x rule) cell:
+                        mean                         count               
+rule                       1       2       3       4     1    2    3    4
+language_group3                                                          
+ENGLISH               0.9430  0.8018  0.9803  0.4241   491  111  304  158
+RECORDED_NON_ENGLISH  0.9231  0.7500  0.9412  0.4444    65   16   34   36
+MISSING               0.9745  0.8636  0.9806  0.4793   196   44  103  121
+
+chi2 test, language_group3 x rule independence: chi2=31.404, dof=6, p=2.12e-05
+
+Share of each language group's weak-labelled candidates that are Rule 4 (omission):
+language_group3
+ENGLISH                 0.1485
+RECORDED_NON_ENGLISH    0.2384
+MISSING                 0.2608
+Name: 4, dtype: float64
+
+======================================================================
+b3: Llama positive rate vs evidence length (chars, tokens), MARGINAL, all 1,679 rows
+======================================================================
+
+Positive-call rate by evidence-length decile (all rows, no demographic split):
+                mean  count  median_evidence_chars  median_evidence_tokens
+chars_decile                                                              
+0             0.7765    170                   67.0                    10.5
+1             0.8580    169                  113.0                    18.0
+2             0.8606    165                  140.0                    23.0
+3             0.9053    169                  167.0                    27.0
+4             0.5225    222                  197.0                    31.0
+5             0.9732    112                  208.0                    34.0
+6             0.9240    171                  235.0                    39.0
+7             0.9701    167                  263.0                    43.0
+8             0.9345    168                  297.5                    48.5
+9             0.9096    166                  353.0                    57.0
+
+Spearman rank correlation (evidence_chars vs weak_pos): rho=0.1143, p=2.66e-06
+Spearman rank correlation (evidence_tokens vs weak_pos): rho=0.1249, p=2.85e-07
+
+Cochran-Armitage trend test across evidence-length deciles: z=5.682, p=1.33e-08
+
+Logistic trend model, weak_pos ~ log(evidence_chars+1):
+                           Logit Regression Results                           
+==============================================================================
+Dep. Variable:               weak_pos   No. Observations:                 1679
+Model:                          Logit   Df Residuals:                     1677
+Method:                           MLE   Df Model:                            1
+Date:                Thu, 06 Aug 2026   Pseudo R-squ.:                0.009870
+Time:                        17:04:20   Log-Likelihood:                -706.41
+converged:                       True   LL-Null:                       -713.45
+Covariance Type:            nonrobust   LLR p-value:                 0.0001748
+======================================================================================
+                         coef    std err          z      P>|z|      [0.025      0.975]
+--------------------------------------------------------------------------------------
+Intercept             -0.6988      0.631     -1.108      0.268      -1.935       0.537
+log_evidence_chars     0.4695      0.123      3.832      0.000       0.229       0.710
+======================================================================================
+OR per unit log(evidence_chars+1): 1.5992, p=0.0001
+
+Decile positive-rate sequence strictly monotonic: False
+[0.7765, 0.858, 0.8606, 0.9053, 0.5225, 0.9732, 0.924, 0.9701, 0.9345, 0.9096]

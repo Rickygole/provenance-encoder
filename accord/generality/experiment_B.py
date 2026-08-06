@@ -186,6 +186,8 @@ log(rule_lang_rowpct.to_string())
 pos_rate_cell = ws.groupby(["language_group3", "rule"])["weak_pos"].agg(["mean", "count"]).unstack("rule")
 log("\nPositive-call rate per (language_group3 x rule) cell:")
 log(pos_rate_cell.round(4).to_string())
+pos_rate_cell_flat = pos_rate_cell.copy()
+pos_rate_cell_flat.columns = ["_".join(str(x) for x in col) for col in pos_rate_cell_flat.columns]
 
 # chi2 test: is rule distribution independent of language group?
 chi2_rl, p_rl, dof_rl, _ = stats.chi2_contingency(rule_lang_counts)
@@ -198,7 +200,7 @@ log(str(rule4_share))
 b2_results = {
     "counts": rule_lang_counts.to_dict(),
     "row_pct_rule_composition_by_language": rule_lang_rowpct.to_dict(),
-    "positive_rate_by_cell": pos_rate_cell.round(4).to_dict(),
+    "positive_rate_by_cell": pos_rate_cell_flat.round(4).reset_index().to_dict(orient="records"),
     "chi2_independence": {"chi2": float(chi2_rl), "dof": int(dof_rl), "p": float(p_rl)},
 }
 
