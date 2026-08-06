@@ -189,6 +189,107 @@ removed.
 
 ---
 
+## C11. The ethnicity disparity is a missingness artifact
+
+**Claimed.** Earlier fairness analysis in this project reported that candidate generation
+under-selects minority patients, offered as the reviewer-requested sociodemographic breakdown.
+
+**Actual.** Once `UNKNOWN/OTHER/DECLINED` is separated from named minority groups
+(`results/accord/differential/exp3_disaggregation.json`):
+
+| group | n | candidate yield |
+|---|---|---|
+| WHITE | 7,155 | 15.6% |
+| NAMED MINORITY | 1,427 | **16.5%** |
+| UNKNOWN / OTHER | 1,201 | 11.3% |
+
+χ² = 0.55, p = 0.46 between White and named minority — no difference, and named minorities are
+if anything selected slightly *more* often. The entire earlier effect was the unknown bucket.
+
+**Correction.** Retract the ethnicity disparity. Report that there is **no evidence of a
+race/ethnicity effect** in candidate generation, and that the apparent one was administrative
+missingness misread as demography. This is the same failure mode the language analysis had.
+
+---
+
+## C12. The language finding splits, and only half survives
+
+**Claimed.** Rule-based mining under-selects non-English-speaking patients (43.3% → 60.4%
+English in the candidate pool, χ² = 150.7).
+
+**Actual.** Admission-level logistic regression on all 9,783 cohort admissions
+(`exp2a_candidate_yield_regression.json`), before and after adjusting for documentation volume:
+
+| group | unadjusted OR | + log(note chars), LOS |
+|---|---|---|
+| recorded non-English | 0.77 [0.63, 0.95], p = 0.012 | **0.94 [0.76, 1.15], p = 0.53** |
+| language not recorded | 0.41 [0.36, 0.46], p < 0.001 | **0.64 [0.55, 0.73], p < 0.001** |
+
+The recorded-non-English deficit is fully explained by note volume and does not survive. The
+missing-language deficit attenuates by ~40% and survives, and survives non-parametrically as
+well: within every note-length decile the gap holds, CMH common OR 0.63, p = 1.2 × 10⁻¹³.
+
+**Correction.** The finding is not about language. It is about **administrative completeness**:
+admissions with an unrecorded `LANGUAGE` field are systematically under-selected by rule-based
+mining, independent of how much was written about them. State it that way.
+
+**The part that is new.** On the same axis, the LLM labeller moves in the *opposite* direction.
+Adjusted for note length, mention count and rule (`exp1c_logistic_regression.json`, n = 1,679),
+missing-language admissions receive a positive weak label at **OR 1.69 [1.11, 2.57], p = 0.015**.
+The subgroup the miner drops is the subgroup the labeller over-flags. Report this as a
+differential *positive-call rate*, not a differential *error rate* — with 12 gold positives the
+error-rate version is not estimable (`exp1a_gold_error_rates_by_group.json`), and saying
+otherwise would repeat C3's mistake of claiming more than the instrument can measure.
+
+---
+
+## C13. "Clinical homogeneity" does not explain the Stage 0 collapse
+
+**Claimed.** Stage 0 self-supervised admission-coherence pretraining converged to exactly
+ln(2) = 0.6931 with dev accuracy 0.5000 on every epoch, in both the frozen and partially
+unfrozen runs. The explanation given: *heart failure admissions are too similar to each other
+to generate a useful self-supervised signal.* Nothing in the notebook measures similarity.
+
+**Actual** (`results/accord/stage0/`, four matched configurations, split by `SUBJECT_ID` with
+a fixed dev set — the original had neither):
+
+| config | head | window | final dev loss | dev acc |
+|---|---|---|---|---|
+| baseline | bottleneck | first 256 tok | 0.6933 | **0.5000 every epoch** |
+| H1 ablation | direct concat | first 256 tok | 0.6929 | 0.5000, best 0.531 |
+| H2 ablation | bottleneck | last 256 tok | 0.6933 | **0.5000 every epoch** |
+| both fixed | direct concat | last 256 tok | 0.6929 | 0.5154 |
+
+The baseline reproduces the published number exactly on a leak-free pipeline, so the collapse
+is real. But the *cause* is architectural, not linguistic:
+
+- **H2 (header truncation) is not supported.** Head → tail truncation moves cosine
+  separability AUROC 0.5162 → 0.5177. Nothing.
+- **H3 (clinical homogeneity) is refuted, positively rather than by absence of evidence.**
+  Twenty deliberately unrelated non-clinical sentences — cooking, astronomy, finance, no MIMIC
+  data — embedded through the identical frozen BioMedBERT CLS extraction give mean pairwise
+  cosine **0.9113 ± 0.0207**, against **0.9176** for matched clinical pairs and **0.9162** for
+  mismatched ones (`anisotropy_control.json`). A recipe and a marathon route are as "similar"
+  as a real nursing/discharge pair from the same admission. The ~0.92 is CLS-token anisotropy
+  in a non-contrastively-fine-tuned masked LM, not a property of heart failure notes.
+- **H1 (the 1-D bottleneck) is the demonstrated cause.** `conflict_scorer → Sigmoid → Linear(1,1)`
+  routes the entire 256-dim pair representation through one scalar before the loss. Both
+  bottleneck configs sit at *exactly* 0.5000 in every epoch; both direct-head configs leave
+  chance. It is the only intervention that changes the signature.
+
+**Correction.** Remove the clinical-homogeneity explanation from the thesis and name the
+bottleneck. State the compounding limitation honestly: even with the bottleneck removed the
+task only reaches ~51.5%, because a frozen non-fine-tuned CLS token carries little
+admission-level signal to begin with — which is the anisotropy result again, and is a
+limitation of the *encoder choice*, not of clinical text.
+
+**Caveat on this correction.** The reference notebook initialized the backbone from a Stage-1
+MedNLI checkpoint that is not on disk; these runs use vanilla BioMedBERT. The backbone is
+frozen in every configuration, so this cannot affect the H1/H2 gradient argument, but the
+absolute cosine values are specific to the vanilla checkpoint.
+
+---
+
 ## What survives all of this
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings
