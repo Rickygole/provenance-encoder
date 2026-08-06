@@ -425,6 +425,54 @@ of an implementation*. Either result is defensible; shipping without it is not.
 
 ---
 
+## C16. The reported evaluation appears to be the contaminated run
+
+**Claimed, four separate times.** *"its results are not reported anywhere in this thesis"*
+(ch4:513); *"The only reported configuration is the one trained on the held-out complement"*
+(ch6:465); *"The single configuration that trained on those pairs is not reported anywhere in
+this thesis"* (ch7:43); *"results from a configuration trained on the evaluation set are
+withdrawn"* (ch7:754). C5 records the same commitment.
+
+**Actual.** Every number in Chapters 7 and 8 and the Chapter 9 defect-free analysis derives from
+`gold_standard_accord_results.csv`. Recomputed directly from that file: **TP 11, FN 1 — recall
+11/12 = 0.9167.**
+
+`accord_supp/results/accord_decontamination_paper_table.csv` gives, for the two configurations:
+
+| metric | contaminated | decontaminated (3 seeds) |
+|---|---|---|
+| **recall** | **11/12 = 0.917** | **0.7778 ± 0.0393** |
+| precision | 0.0470 | 0.0424 ± 0.0023 |
+| f1_pos | 0.0894 | 0.0804 ± 0.0043 |
+| pr_auc | 0.0461 | 0.0579 ± 0.0034 |
+| kappa | −0.001 | −0.0105 ± 0.0048 |
+| alpha_n / alpha_d | 0.509 / 1.006 (single seed) | 0.5076 ± 0.0006 / 1.0038 ± 0.0010 |
+
+The decontaminated retrain's recall never reaches 11/12 in any seed — its range is 9–10 of 12.
+The reported file matches the **contaminated** column on the one metric that cannot be
+coincidental, and `step3_baselines.json` matches that column digit-for-digit on the 253-pair core
+(f1 0.0894, mcc −0.007, pr_auc 0.0461, TP 11 / FN 1 / FP 223 / TN 18).
+
+**Scope.** This propagates to AUROC 0.460 and its bootstrap CI, the top-15 check, the Spearman
+correlations, the threshold sweep, the 0.5078 defect-free stratum, and all four rows of the
+system comparison — every one is computed from that CSV.
+
+**Correction — one of two things is true and it must be established which.** Either the gold
+score file is the contaminated model, in which case Chapters 7–9 must be regenerated from the
+decontaminated checkpoints and the headline numbers move (recall 0.917 → 0.778, precision
+0.0470 → 0.0424, κ −0.001 → −0.0105); or `accord_decontamination_paper_table.csv` is mislabelled
+and must be fixed. Until then the thesis asserts four times that it excludes a configuration
+whose numbers it reports.
+
+**What this does not change.** The decontaminated run is *worse* on every metric, so the negative
+conclusion survives and strengthens. C1's numbers are wrong in the same direction and for the
+same reason: the symmetric ablation is **F1 0.7603 / acc 0.9091**, not 0.7775 / 0.9192, and the
+authority weights **(0.509, 1.006)** are a contaminated single seed — the 3-seed decontaminated
+values are **(0.5076 ± 0.0006, 1.0038 ± 0.0010)**, a 1.5% / 0.4% move rather than 1.8% / 0.6%.
+Both corrections make the original claims *more* clearly artifacts, not less.
+
+---
+
 ## What survives all of this
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings
