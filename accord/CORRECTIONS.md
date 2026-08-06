@@ -226,20 +226,101 @@ English in the candidate pool, χ² = 150.7).
 | language not recorded | 0.41 [0.36, 0.46], p < 0.001 | **0.64 [0.55, 0.73], p < 0.001** |
 
 The recorded-non-English deficit is fully explained by note volume and does not survive. The
-missing-language deficit attenuates by ~40% and survives, and survives non-parametrically as
-well: within every note-length decile the gap holds, CMH common OR 0.63, p = 1.2 × 10⁻¹³.
+missing-language deficit attenuates by ~40% and remains significant.
+
+**An earlier version of this correction claimed the deficit "holds within every note-length
+decile, CMH common OR 0.63, p = 1.2 × 10⁻¹³." That claim was wrong and is withdrawn.** The
+per-decile odds ratios in `exp2b_decile_stratified.json` are:
+
+| decile | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| OR | 0.90 | **1.35** | 0.98 | **1.10** | 0.86 | 0.58 | 0.56 | 0.49 | 0.48 | 0.42 |
+
+The effect **reverses** in deciles 1 and 3, is null in 0, 2 and 4, and appears only in the upper
+half, increasing monotonically with note length. Breslow-Day on these strata gives
+**χ² = 31.11, p = 2.8 × 10⁻⁴** — homogeneity is rejected, so a CMH "common odds ratio" has no
+referent here. This is effect modification by documentation volume, and it is concentrated in
+decile 9, the only unbounded stratum and therefore the one with the most residual within-stratum
+volume confounding. The stratification was run to rule volume out and its own output identifies
+volume as the modifier.
+
+**What the analysis is entitled to claim.** The missing-language deficit is real *among heavily
+documented admissions* and absent among lightly documented ones. Report the interaction, not a
+pooled OR. `DBSOURCE` (CareVue 2001–2008 vs MetaVision 2008–2012) is not in the adjustment set
+and is the standard era proxy in MIMIC-III — `ADMITTIME` is date-shifted per patient so calendar
+era is otherwise unrecoverable. Both LANGUAGE recording practice and nursing-note format changed
+across that boundary, so OR 0.64 has an unexcluded era explanation until `DBSOURCE` is added.
 
 **Correction.** The finding is not about language. It is about **administrative completeness**:
 admissions with an unrecorded `LANGUAGE` field are systematically under-selected by rule-based
 mining, independent of how much was written about them. State it that way.
 
-**The part that is new.** On the same axis, the LLM labeller moves in the *opposite* direction.
-Adjusted for note length, mention count and rule (`exp1c_logistic_regression.json`, n = 1,679),
-missing-language admissions receive a positive weak label at **OR 1.69 [1.11, 2.57], p = 0.015**.
-The subgroup the miner drops is the subgroup the labeller over-flags. Report this as a
-differential *positive-call rate*, not a differential *error rate* — with 12 gold positives the
-error-rate version is not estimable (`exp1a_gold_error_rates_by_group.json`), and saying
-otherwise would repeat C3's mistake of claiming more than the instrument can measure.
+---
+
+## C14. The "compounding bias" claim is withdrawn — the sign was produced by adjustment
+
+**Claimed** (by me, earlier the same day, and promoted as the thesis's novel contribution).
+The LLM labeller moves in the *opposite* direction to the miner on the same axis: adjusted for
+note length, mention count and rule, missing-language admissions receive a positive weak label
+at OR 1.69 [1.11, 2.57], p = 0.015. *"The subgroup the miner drops is the subgroup the labeller
+over-flags."*
+
+**Actual.** Unadjusted, the effect points the other way and is not significant.
+`exp1b_positive_rate_by_group.json`, the same n = 1,679 rows as the adjusted model:
+
+| group | n | positive-call rate |
+|---|---|---|
+| ENGLISH | 1,064 | 0.8618 |
+| **MISSING** | 464 | **0.8362** |
+| RECORDED NON-ENGLISH | 151 | 0.7947 |
+
+χ² = 5.42, **p = 0.066**. Crude MISSING-vs-ENGLISH OR = **0.82** — the missing group is flagged
+*less*, not more. Adjustment moves 0.82 → 1.69, a reversal across the null.
+
+**The mechanism of the reversal.** `accord/differential/run_experiments.py:348` conditions on
+`C(rule_cat)`:
+
+```python
+"weak_pos ~ C(language_group3, Treatment('ENGLISH')) + log_note_chars + n_mentions_row + C(rule_cat)"
+```
+
+`rule_cat` is the identity of the mining rule that produced the row — a deterministic **output of
+Stage 1**, the very stage C12 says selects differentially on this exposure. The sample is
+additionally conditioned on `has_candidate == 1`. So the Stage-2 model adjusts for a mediator of
+the exposure inside a sample selected on that mediator's parent: collider-stratification bias,
+with C12 as the proof that the selection is differential. The volume covariates cannot be doing
+the work — `log_note_chars` and `n_mentions_row` both have p ≈ 0.33 — which leaves `rule_cat`
+(rule 4: OR 0.045, p = 1.5 × 10⁻⁴⁹). Rule 4 is the **omission** rule, "held in nursing, absent
+from discharge," which is exactly what sparse, administratively incomplete admissions trigger.
+The model conditions away the mechanism and reports the residue as bias.
+
+**Independent replication, in the wrong direction, on the only data with ground truth.**
+`exp1a_gold_error_rates_by_group.json`, the 299 pharmacist pairs — a sample *disjoint* from the
+1,679:
+
+| group | n | positive-call rate | FPR |
+|---|---|---|---|
+| ENGLISH | 191 | 0.880 | 0.874 |
+| MISSING | 84 | 0.845 | **0.850** |
+
+Two independent samples, both crude, both opposite to the claim. On the one measurement where
+truth exists, the missing group's error rate is *lower*.
+
+**Correction.** Delete "compounding" and OR 1.69. The defensible statement is: *unadjusted, the
+labeller's positive-call rate does not differ by language-recording status (χ² p = 0.066); on the
+gold subset the false-positive rate is 0.874 (English) vs 0.850 (missing); with 12 gold positives
+a differential error rate is not estimable. The observed pipeline-level disparity is located at
+Stage 1 alone.* Any retained Stage-2 statement must be fit marginally, without `rule_cat`, with
+cluster-robust standard errors on `HADM_ID`, and reported next to the rule × language crosstab so
+the mediator is visible.
+
+**Why this one matters most.** C11 retracted an ethnicity disparity as a missingness artifact and
+C12 split the language finding so only half survived. C14 is a *new* fairness finding recovered
+from the half that had just been shown null, by adding a covariate that flips its sign. It is the
+same failure the thesis is about, committed in the analysis that claims to have learned from it.
+The document that catches C1–C13 did not catch C14, and C14 was the lead.
+
+---
 
 ---
 
