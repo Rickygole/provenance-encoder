@@ -1,0 +1,47 @@
+Loaded candidate pool: 1679 rows from /Users/rickygole/mimic_local_only/accord_supp/accord_weak_supervision_labels_decontam.csv
+Original (v1) Llama-3-8B weak_label positive rate on this pool: 0.8487
+
+Loaded gold set: 299 pairs, 12 pharmacist positives (base rate 0.0401)
+
+Covariate match rate on the 1,679-row pool: 1.0000
+Regression-eligible pool rows (after covariate join): 1679
+*** SUBSAMPLED the candidate pool to n=15 rows (fixed seed=42, np.random.default_rng) because --subsample-n was set. The gold set (n=299) is still run in full. ***
+
+======================================================================
+MODEL: llama3:8b
+======================================================================
+    [llama3:8b | candidate pool] 15/15  (10s elapsed)
+    [llama3:8b | gold set] 200/299  (216s elapsed)
+    [llama3:8b | gold set] 299/299  (298s elapsed)
+
+  -- llama3:8b: candidate pool (n=15, parseable=15) --
+     positive=15  negative=0  UNPARSEABLE=0 (0.000%)
+     positive rate (of parseable) = 1.0000
+     calibration vs gold base rate (0.0401): 24.92x
+
+  -- llama3:8b: gold set (n=299, parseable=299) --
+     UNPARSEABLE=0 (0.000%)
+     positive rate (of parseable) = 0.9532  calibration = 23.75x
+     confusion (parseable only): TP=12 FP=273 FN=0 TN=14
+     recall=1.000  accuracy=0.087  kappa=0.004099410709710427
+
+  -- llama3:8b: logistic regression (dropping 0 UNPARSEABLE rows from pool), n=15 --
+     MISSING-language OR = 1.5183 [0.0, inf] p=1.0
+     RECORDED_NON_ENGLISH OR = 1.057 [0.0, inf] p=1.0
+
+======================================================================
+REFERENCE: original Llama-3-8B-Instruct (HF Inference API, retracted C10 run)
+======================================================================
+  pool positive rate = 0.8487  calibration = 21.15x
+  MISSING-language OR = 1.6864 [1.1079, 2.5671] p=0.0148
+
+======================================================================
+SUMMARY TABLE
+======================================================================
+                                                                    model  n_pool  pool_positive_rate  unparseable_rate_pool  calibration_vs_4pct_gold  missing_language_OR missing_language_CI  missing_language_p
+Llama-3-8B-Instruct (original, HF Inference API -- REFERENCE, not re-run)    1679              0.8487                    NaN                     21.15               1.6864    [1.1079, 2.5671]              0.0148
+                                                                llama3:8b      15              1.0000                    0.0                     24.92               1.5183          [0.0, inf]              1.0000
+
+VERDICT (i) gross miscalibration: models with pool calibration ratio > 3x (i.e. clearly over-flagging relative to the 4% gold base rate): ['llama3:8b'] of ['llama3:8b']
+VERDICT (ii) demographic differential: models replicating a significant (p<0.05) MISSING-language OR > 1 (over-flagging the missing-language subgroup): [] of ['llama3:8b']
+  --> Differential did NOT replicate in any locally-run model: the original finding is model-specific to Llama-3-8B-Instruct (HF Inference API) and must be reported as such.

@@ -473,6 +473,60 @@ Both corrections make the original claims *more* clearly artifacts, not less.
 
 ---
 
+## C17. The volume adjustment controls the wrong note
+
+**Claimed.** C12, and the 3-cohort replication built on it: rule-based mining under-selects
+admissions with an unrecorded `LANGUAGE` field, adjusted OR 0.64, *"independent of how much was
+written about them."*
+
+**Actual.** The adjustment uses `log1p(total_note_chars)` — the sum of both notes. But the
+discharge summary is **91.4%** of that total (median), the two lengths are nearly uncorrelated
+(**r = 0.174** on the log scale), and the medians are **970** chars nursing against **10,643**
+discharge. The mining rules require the drug to appear in **both** notes, so the binding
+constraint is the *nursing* note. The paper's single covariate is therefore ~91% a measure of the
+note that does not bind.
+
+Refitting the identical model with the two lengths entered separately (recomputed directly,
+n = 9,783):
+
+| volume adjustment | MISSING OR [95% CI] | p |
+|---|---|---|
+| none | 0.415 [0.367, 0.470] | 1.0e-43 |
+| **log(total) — the spec used** | **0.639 [0.558, 0.732]** | 1.0e-10 |
+| log(nursing) only | 0.787 [0.685, 0.905] | 0.00074 |
+| log(discharge) only | 0.527 [0.462, 0.602] | 3.2e-21 |
+| **log(nursing) + log(discharge)** | **0.894 [0.772, 1.034]** | **0.13** |
+
+The one specification reporting a strong effect is the one under-controlling the covariate the
+rule actually depends on. Under the correct adjustment the interval includes 1.
+
+**The stratified check confirms it from the other direction.** Stratifying on the *paper's*
+variable, Breslow-Day rejects homogeneity (χ² = 50.19, p = 9.9 × 10⁻⁸) so the pooled CMH OR has
+no referent. Stratifying on **nursing**-note deciles it is well behaved:
+
+| stratifier | CMH common OR | p | Breslow-Day |
+|---|---|---|---|
+| total note chars | 0.551 | ~0 | **χ² 50.19, p = 9.9e-8 — rejected** |
+| **nursing note chars** | **0.746** | **4.4e-5** | χ² 3.59, **p = 0.936 — homogeneous** |
+
+**Correction.** Withdraw *"independent of how much was written."* What survives is real but
+smaller and volume-entangled: **stratified on nursing-note length, common OR 0.746 (p = 4.4e-5),
+homogeneous across all ten strata.** Report the full specification curve above rather than one
+row, and state plainly that the effect is not separable from documentation volume once volume is
+measured on the axis the rule depends on.
+
+**This also qualifies the 3-cohort replication.** Sepsis (0.58) and AKI (0.53) reproduced the
+finding under the *same* mis-specification, so they replicate the specification, not yet the
+effect. Re-run all three with nursing and discharge length entered separately before the
+replication is claimed.
+
+**And the direction of modification undercuts the original reading.** The deficit is concentrated
+where documentation is *heaviest* — crude OR below vs above median note length runs HF 1.16→2.85,
+sepsis 1.64→2.36, AKI 1.56→3.28. That is the opposite of a story about under-documented patients
+being missed, and it needs an explanation the thesis does not currently have.
+
+---
+
 ## What survives all of this
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings

@@ -1,0 +1,68 @@
+{
+  "prompt_source": "prompts_existing.csv, config_id=llama_baseline (verbatim)",
+  "system_prompt": "You are a clinical pharmacist reviewing medication reconciliation between nursing progress notes and hospital discharge summaries. Your task is to identify dangerous medication contradictions. Respond with exactly one word: contradiction or not_contradiction.",
+  "user_prompt_template": "Nursing Progress Note:\n{nursing_note}\n\nDischarge Summary:\n{discharge_summary}\n\nIs there a dangerous medication contradiction between these two notes?",
+  "temperature": 0,
+  "seed": 42,
+  "max_tokens": 50,
+  "gold_base_rate": 0.04013377926421405,
+  "n_gold": 299,
+  "n_gold_positive": 12,
+  "original_llama3_reference": {
+    "pool_positive_rate": 0.848719475878499,
+    "calibration_ratio": 21.147260273972602,
+    "missing_language_OR_CI_p": {
+      "CI_low": 1.1079,
+      "CI_high": 2.5671,
+      "OR": 1.6864,
+      "p": 0.0148
+    }
+  },
+  "per_model": {
+    "llama3:8b": {
+      "pool": {
+        "n": 15,
+        "n_unparseable": 0,
+        "unparseable_rate": 0.0,
+        "n_positive": 15,
+        "n_negative": 0,
+        "positive_rate_of_parseable": 1.0,
+        "calibration_ratio_vs_gold_base_rate": 24.916666666666664
+      },
+      "gold": {
+        "n": 299,
+        "n_unparseable": 0,
+        "unparseable_rate": 0.0,
+        "n_parseable": 299,
+        "positive_rate_of_parseable": 0.9531772575250836,
+        "calibration_ratio_vs_gold_base_rate": 23.75,
+        "confusion": {
+          "TP": 12,
+          "FP": 273,
+          "FN": 0,
+          "TN": 14
+        },
+        "recall": 1.0,
+        "accuracy": 0.08695652173913043,
+        "kappa": 0.004099410709710427
+      },
+      "language_regression": {
+        "n": 15,
+        "converged": false,
+        "missing_language_OR": 1.5183,
+        "missing_language_CI_low": 0.0,
+        "missing_language_CI_high": Infinity,
+        "missing_language_p": 1.0,
+        "recorded_non_english_OR": 1.057,
+        "recorded_non_english_CI_low": 0.0,
+        "recorded_non_english_CI_high": Infinity,
+        "recorded_non_english_p": 1.0,
+        "pseudo_r2": Infinity
+      }
+    }
+  },
+  "replicating_models_gross_miscalibration": [
+    "llama3:8b"
+  ],
+  "replicating_models_demographic_differential": []
+}
