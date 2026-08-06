@@ -1,0 +1,98 @@
+{
+  "join_feasibility": {
+    "shared_key_exists": false,
+    "reason": "audit.csv keys on HADM_ID+drug; gold file keys on pair_id only; no overlapping column",
+    "audit_rule_counts": {
+      "1": 134,
+      "2": 31,
+      "3": 79,
+      "4": 55
+    },
+    "gold_rule_counts": {
+      "1": 134,
+      "2": 31,
+      "3": 79,
+      "4": 55
+    },
+    "rule_counts_identical_confirms_same_299_pairs": true,
+    "positional_rule_match_in_given_row_order": 95,
+    "expected_match_if_order_is_random_wrt_rule": 94.3,
+    "conclusion": "Row order in audit.csv carries no alignment to gold pair_id order (observed match ~= chance). A true pair-level join (Llama weak label vs pharmacist label on the SAME note pair) is not reconstructable from the released, de-identified files. Falling back to rule-stratified (many-to-one) comparison, which is valid because rule membership counts match exactly (299=299) and rule is the only variable shared across both files."
+  },
+  "weak_confidence_is_degenerate": {
+    "crosstab_label_x_confidence": {
+      "0.95": {
+        "contradiction": 1425,
+        "not_contradiction": 0
+      },
+      "1.0": {
+        "contradiction": 0,
+        "not_contradiction": 254
+      }
+    },
+    "n_unique_confidence_values": 2,
+    "finding": "weak_confidence takes exactly 2 values (0.95, 1.00), and is a deterministic function of weak_label (0.95 iff contradiction, 1.00 iff not_contradiction) in all 1679 training rows and all 299 audit rows. It is not a real graded confidence score -- it cannot be swept as a threshold because it carries zero information beyond the label itself. Confidence-threshold precision curves (0.5/0.7/0.9/0.95) are therefore not meaningful: at any threshold <=0.95 every row passes; at 1.00 only not_contradiction rows pass by construction.",
+    "same_pattern_in_audit_299": {
+      "0.95": {
+        "contradiction": 261,
+        "not_contradiction": 0
+      },
+      "1.0": {
+        "contradiction": 0,
+        "not_contradiction": 38
+      }
+    }
+  },
+  "rule_stratified_calibration": {
+    "1": {
+      "n_gold": 134,
+      "llama_weak_label_pos_rate_on_these_299_pairs": 0.9552,
+      "llama_weak_label_pos_rate_on_full_1679_train_pool": 0.9495,
+      "pharmacist_true_pos_rate_gold": 0.0224,
+      "accord_predicted_pos_rate_gold": 0.9701
+    },
+    "2": {
+      "n_gold": 31,
+      "llama_weak_label_pos_rate_on_these_299_pairs": 0.9677,
+      "llama_weak_label_pos_rate_on_full_1679_train_pool": 0.8129,
+      "pharmacist_true_pos_rate_gold": 0.0968,
+      "accord_predicted_pos_rate_gold": 0.9677
+    },
+    "3": {
+      "n_gold": 79,
+      "llama_weak_label_pos_rate_on_these_299_pairs": 0.9873,
+      "llama_weak_label_pos_rate_on_full_1679_train_pool": 0.9773,
+      "pharmacist_true_pos_rate_gold": 0.0506,
+      "accord_predicted_pos_rate_gold": 0.9747
+    },
+    "4": {
+      "n_gold": 55,
+      "llama_weak_label_pos_rate_on_these_299_pairs": 0.4545,
+      "llama_weak_label_pos_rate_on_full_1679_train_pool": 0.4476,
+      "pharmacist_true_pos_rate_gold": 0.0364,
+      "accord_predicted_pos_rate_gold": 0.7455
+    }
+  },
+  "llama_implied_precision_by_rule_if_uninformative": {
+    "1": {
+      "llama_predicts_positive_rate": 0.9552,
+      "true_positive_rate": 0.0224,
+      "note": "if Llama predicted positive at this rate uninformatively (same rate for TP and FP pairs), expected precision = true_pos_rate (the base rate), regardless of how high weak_pos_rate is"
+    },
+    "2": {
+      "llama_predicts_positive_rate": 0.9677,
+      "true_positive_rate": 0.0968,
+      "note": "if Llama predicted positive at this rate uninformatively (same rate for TP and FP pairs), expected precision = true_pos_rate (the base rate), regardless of how high weak_pos_rate is"
+    },
+    "3": {
+      "llama_predicts_positive_rate": 0.9873,
+      "true_positive_rate": 0.0506,
+      "note": "if Llama predicted positive at this rate uninformatively (same rate for TP and FP pairs), expected precision = true_pos_rate (the base rate), regardless of how high weak_pos_rate is"
+    },
+    "4": {
+      "llama_predicts_positive_rate": 0.4545,
+      "true_positive_rate": 0.0364,
+      "note": "if Llama predicted positive at this rate uninformatively (same rate for TP and FP pairs), expected precision = true_pos_rate (the base rate), regardless of how high weak_pos_rate is"
+    }
+  }
+}

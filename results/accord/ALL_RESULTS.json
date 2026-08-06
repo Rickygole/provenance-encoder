@@ -427,6 +427,387 @@
       }
     ]
   },
+  "diag/bonus_bootstrap_ci.json": {
+    "contra_prob_auroc_bootstrap_ci_n299": {
+      "bootstrap_mean": 0.4613,
+      "ci_95_hi": 0.6327,
+      "ci_95_lo": 0.2865,
+      "n_boot": 10000,
+      "point_estimate": 0.4602,
+      "seed": 42
+    },
+    "harm_score_auroc_bootstrap_ci_n299": {
+      "bootstrap_mean": 0.5045,
+      "ci_95_hi": 0.6766,
+      "ci_95_lo": 0.329,
+      "n_boot": 10000,
+      "point_estimate": 0.5044,
+      "seed": 42
+    }
+  },
+  "diag/step0_1_join_and_calibration.json": {
+    "join_feasibility": {
+      "audit_rule_counts": {
+        "1": 134,
+        "2": 31,
+        "3": 79,
+        "4": 55
+      },
+      "conclusion": "Row order in audit.csv carries no alignment to gold pair_id order (observed match ~= chance). A true pair-level join (Llama weak label vs pharmacist label on the SAME note pair) is not reconstructable from the released, de-identified files. Falling back to rule-stratified (many-to-one) comparison, which is valid because rule membership counts match exactly (299=299) and rule is the only variable shared across both files.",
+      "expected_match_if_order_is_random_wrt_rule": 94.3,
+      "gold_rule_counts": {
+        "1": 134,
+        "2": 31,
+        "3": 79,
+        "4": 55
+      },
+      "positional_rule_match_in_given_row_order": 95,
+      "reason": "audit.csv keys on HADM_ID+drug; gold file keys on pair_id only; no overlapping column",
+      "rule_counts_identical_confirms_same_299_pairs": true,
+      "shared_key_exists": false
+    },
+    "llama_implied_precision_by_rule_if_uninformative": {
+      "1": {
+        "llama_predicts_positive_rate": 0.9552,
+        "note": "if Llama predicted positive at this rate uninformatively (same rate for TP and FP pairs), expected precision = true_pos_rate (the base rate), regardless of how high weak_pos_rate is",
+        "true_positive_rate": 0.0224
+      },
+      "2": {
+        "llama_predicts_positive_rate": 0.9677,
+        "note": "if Llama predicted positive at this rate uninformatively (same rate for TP and FP pairs), expected precision = true_pos_rate (the base rate), regardless of how high weak_pos_rate is",
+        "true_positive_rate": 0.0968
+      },
+      "3": {
+        "llama_predicts_positive_rate": 0.9873,
+        "note": "if Llama predicted positive at this rate uninformatively (same rate for TP and FP pairs), expected precision = true_pos_rate (the base rate), regardless of how high weak_pos_rate is",
+        "true_positive_rate": 0.0506
+      },
+      "4": {
+        "llama_predicts_positive_rate": 0.4545,
+        "note": "if Llama predicted positive at this rate uninformatively (same rate for TP and FP pairs), expected precision = true_pos_rate (the base rate), regardless of how high weak_pos_rate is",
+        "true_positive_rate": 0.0364
+      }
+    },
+    "rule_stratified_calibration": {
+      "1": {
+        "accord_predicted_pos_rate_gold": 0.9701,
+        "llama_weak_label_pos_rate_on_full_1679_train_pool": 0.9495,
+        "llama_weak_label_pos_rate_on_these_299_pairs": 0.9552,
+        "n_gold": 134,
+        "pharmacist_true_pos_rate_gold": 0.0224
+      },
+      "2": {
+        "accord_predicted_pos_rate_gold": 0.9677,
+        "llama_weak_label_pos_rate_on_full_1679_train_pool": 0.8129,
+        "llama_weak_label_pos_rate_on_these_299_pairs": 0.9677,
+        "n_gold": 31,
+        "pharmacist_true_pos_rate_gold": 0.0968
+      },
+      "3": {
+        "accord_predicted_pos_rate_gold": 0.9747,
+        "llama_weak_label_pos_rate_on_full_1679_train_pool": 0.9773,
+        "llama_weak_label_pos_rate_on_these_299_pairs": 0.9873,
+        "n_gold": 79,
+        "pharmacist_true_pos_rate_gold": 0.0506
+      },
+      "4": {
+        "accord_predicted_pos_rate_gold": 0.7455,
+        "llama_weak_label_pos_rate_on_full_1679_train_pool": 0.4476,
+        "llama_weak_label_pos_rate_on_these_299_pairs": 0.4545,
+        "n_gold": 55,
+        "pharmacist_true_pos_rate_gold": 0.0364
+      }
+    },
+    "weak_confidence_is_degenerate": {
+      "crosstab_label_x_confidence": {
+        "0.95": {
+          "contradiction": 1425,
+          "not_contradiction": 0
+        },
+        "1.0": {
+          "contradiction": 0,
+          "not_contradiction": 254
+        }
+      },
+      "finding": "weak_confidence takes exactly 2 values (0.95, 1.00), and is a deterministic function of weak_label (0.95 iff contradiction, 1.00 iff not_contradiction) in all 1679 training rows and all 299 audit rows. It is not a real graded confidence score -- it cannot be swept as a threshold because it carries zero information beyond the label itself. Confidence-threshold precision curves (0.5/0.7/0.9/0.95) are therefore not meaningful: at any threshold <=0.95 every row passes; at 1.00 only not_contradiction rows pass by construction.",
+      "n_unique_confidence_values": 2,
+      "same_pattern_in_audit_299": {
+        "0.95": {
+          "contradiction": 261,
+          "not_contradiction": 0
+        },
+        "1.0": {
+          "contradiction": 0,
+          "not_contradiction": 38
+        }
+      }
+    }
+  },
+  "diag/step2_signal_check.json": {
+    "accord_contra_prob_distribution_by_group": {
+      "gold_ambiguous_n46": {
+        "max": 0.5104,
+        "mean": 0.4274,
+        "min": 0.3511,
+        "std": 0.0405
+      },
+      "gold_negative_not_contradiction_n241": {
+        "max": 0.5528,
+        "mean": 0.4282,
+        "min": 0.3061,
+        "std": 0.05
+      },
+      "gold_positive_contradiction_n12": {
+        "max": 0.478,
+        "mean": 0.4198,
+        "min": 0.3356,
+        "std": 0.0485
+      },
+      "mann_whitney_u_p_value_pos_vs_neg": 0.6418
+    },
+    "accord_harm_score_distribution_by_group": {
+      "gold_ambiguous_n46": {
+        "max": 0.5778,
+        "mean": 0.5028,
+        "min": 0.4055,
+        "std": 0.0406
+      },
+      "gold_negative_not_contradiction_n241": {
+        "max": 0.6096,
+        "mean": 0.5045,
+        "min": 0.3977,
+        "std": 0.0379
+      },
+      "gold_positive_contradiction_n12": {
+        "max": 0.5596,
+        "mean": 0.5039,
+        "min": 0.4272,
+        "std": 0.039
+      },
+      "mann_whitney_u_p_value_pos_vs_neg": 0.9606
+    },
+    "contra_prob_vs_pharm_label__ambiguous_as_negative_n299": {
+      "ap_lift_over_base_rate": -0.0008,
+      "auroc": 0.4602,
+      "average_precision": 0.0394,
+      "base_rate": 0.0401,
+      "n": 299,
+      "n_pos": 12
+    },
+    "contra_prob_vs_pharm_label__ambiguous_as_positive_n299": {
+      "ap_lift_over_base_rate": -0.0145,
+      "auroc": 0.4897,
+      "average_precision": 0.1795,
+      "base_rate": 0.194,
+      "n": 299,
+      "n_pos": 58
+    },
+    "contra_prob_vs_pharm_label__ambiguous_excluded_n253": {
+      "ap_lift_over_base_rate": -0.0013,
+      "auroc": 0.4595,
+      "average_precision": 0.0461,
+      "base_rate": 0.0474,
+      "n": 253,
+      "n_pos": 12
+    },
+    "harm_score_vs_pharm_label__ambiguous_as_negative_n299": {
+      "ap_lift_over_base_rate": 0.0069,
+      "auroc": 0.5044,
+      "average_precision": 0.047,
+      "base_rate": 0.0401,
+      "n": 299,
+      "n_pos": 12
+    },
+    "harm_score_vs_pharm_label__ambiguous_excluded_n253": {
+      "ap_lift_over_base_rate": 0.0084,
+      "auroc": 0.5045,
+      "average_precision": 0.0558,
+      "base_rate": 0.0474,
+      "n": 253,
+      "n_pos": 12
+    }
+  },
+  "diag/step3_baselines.json": {
+    "accord_binary_at_0.5_253core": {
+      "balanced_accuracy": 0.4957,
+      "f1": 0.0894,
+      "fn": 1,
+      "fp": 223,
+      "mcc": -0.007,
+      "model": "accord_binary_0.5",
+      "n": 253,
+      "precision": 0.047,
+      "recall": 0.9167,
+      "single_point_pseudo_auc": 0.4957,
+      "tn": 18,
+      "tp": 11
+    },
+    "gpt4o_fewshot": {
+      "balanced_accuracy": 0.5137,
+      "f1": 0.0915,
+      "fn": 5,
+      "fp": 134,
+      "mcc": 0.0117,
+      "model": "gpt4o_fewshot",
+      "n": 253,
+      "precision": 0.0496,
+      "recall": 0.5833,
+      "single_point_pseudo_auc": 0.5137,
+      "tn": 107,
+      "tp": 7
+    },
+    "gpt4o_zeroshot": {
+      "balanced_accuracy": 0.6151,
+      "f1": 0.1446,
+      "fn": 6,
+      "fp": 65,
+      "mcc": 0.1089,
+      "model": "gpt4o_zeroshot",
+      "n": 253,
+      "precision": 0.0845,
+      "recall": 0.5,
+      "single_point_pseudo_auc": 0.6151,
+      "tn": 176,
+      "tp": 6
+    },
+    "llama_baseline": {
+      "balanced_accuracy": 0.4791,
+      "f1": 0.0866,
+      "fn": 1,
+      "fp": 231,
+      "mcc": -0.0436,
+      "model": "llama_baseline",
+      "n": 253,
+      "precision": 0.0455,
+      "recall": 0.9167,
+      "single_point_pseudo_auc": 0.4791,
+      "tn": 10,
+      "tp": 11
+    },
+    "note": "Only ACCORD (accord_contra_prob) is released as a continuous score across all 299 gold pairs, so only ACCORD has a true AUROC/AP (see step2). Baselines are binary calls; only ONE operating point is available per baseline (241 negatives released in aggregate only, per MIMIC DUA), so a full ROC/PR curve cannot be computed for llama_baseline / gpt4o_zeroshot / gpt4o_fewshot. single_point_pseudo_auc is the trapezoid through (0,0)-(FPR,TPR)-(1,1) at that one operating point -- a rough ranking heuristic, NOT a true AUROC, reported only because ACCORD continuous AUROC (~0.46-0.50) needs a reference point for \"who ranks best\"."
+  },
+  "diag/step4_threshold_fix_test.json": {
+    "auroc_under_resampled_prevalence_match_gold_truth_0.04": {
+      "mean_auroc": 0.4611,
+      "n_bootstrap": 200,
+      "std_auroc": 0.0171
+    },
+    "auroc_under_resampled_prevalence_match_weak_label_pool_0.2": {
+      "mean_auroc": 0.4583,
+      "n_bootstrap": 200,
+      "std_auroc": 0.0475
+    },
+    "base_rate_reference": 0.0401,
+    "contra_prob_best_operating_point_n299": {
+      "best_single_threshold_precision": 0.0536,
+      "best_single_threshold_precision_at_recall": 0.5,
+      "max_precision_anywhere_on_curve": 1.0
+    },
+    "contra_prob_precision_at_recall_targets_n299": {
+      "0.5": 0.0536,
+      "0.75": 0.041,
+      "0.9167": 0.041
+    },
+    "harm_score_best_operating_point_n299": {
+      "best_single_threshold_precision": 0.0769,
+      "best_single_threshold_precision_at_recall": 0.1667,
+      "max_precision_anywhere_on_curve": 1.0
+    },
+    "harm_score_precision_at_recall_targets_n299": {
+      "0.5": 0.0506,
+      "0.75": 0.0444,
+      "0.9167": 0.0411
+    },
+    "interpretation": "If AUROC>>0.5, precision should rise well above the base rate as recall target is relaxed below the max. Since AUROC~0.46-0.50 (step2), precision at every recall target stays within noise of the 4.0% base rate -- no threshold on accord_contra_prob or accord_harm_score recovers usable precision. This is the operational test of the AUROC finding: a ranking with no signal cannot be rescued by moving the cutoff.",
+    "max_precision_anywhere_on_curve_caveat": "The 1.0 values above are the trivial edge point sklearn.precision_recall_curve always appends at recall=0 (no predictions made) -- not a genuine top-ranked hit. The actual top-15 highest-scored pairs by both accord_contra_prob and accord_harm_score are ALL pharmacist not_contradiction (0/15 hits, vs ~0.6 expected by chance).",
+    "top15_ranked_by_contra_prob_hit_rate": {
+      "n_true_positive_in_top15": 0,
+      "note": "top 15 highest-scored pairs by accord_contra_prob; expected under random ranking ~15*0.04=0.6"
+    },
+    "top15_ranked_by_harm_score_hit_rate": {
+      "n_true_positive_in_top15": 0,
+      "note": "top 15 highest-scored pairs by accord_harm_score; all 15 are pharmacist not_contradiction"
+    }
+  },
+  "diag/step5_ranking.json": {
+    "full_299_contra_prob_vs_danger_rating": {
+      "n": 299,
+      "p_value": 0.6224,
+      "spearman_rho": -0.0286
+    },
+    "full_299_harm_score_vs_danger_rating": {
+      "n": 299,
+      "p_value": 0.9991,
+      "spearman_rho": -0.0001
+    },
+    "harm_score_range_check": {
+      "claimed_range_in_paper": "0.398-0.610",
+      "observed_max": 0.609565,
+      "observed_min": 0.397705,
+      "verified": true
+    },
+    "positives_only_n12_contra_prob_vs_danger_rating": {
+      "p_value": 0.3833,
+      "spearman_rho": -0.2771
+    },
+    "positives_only_n12_harm_score_vs_danger_rating": {
+      "p_value": 0.019,
+      "spearman_rho": -0.6621
+    }
+  },
+  "diag/step6_error_taxonomy.json": {
+    "accord_missed_pairs": [
+      {
+        "danger_rating": 4,
+        "drug_class": "electrolyte_management",
+        "failure_mode_taxonomy": "omission",
+        "pair_id": "PAIR_0233"
+      }
+    ],
+    "all_models_caught_set_overlap": {
+      "accord_only_missed": [
+        "PAIR_0233"
+      ],
+      "gpt4o_only_missed": [
+        "PAIR_0003",
+        "PAIR_0067",
+        "PAIR_0134",
+        "PAIR_0218",
+        "PAIR_0233",
+        "PAIR_0247"
+      ],
+      "llama_only_caught": [
+        "PAIR_0233"
+      ]
+    },
+    "caught_counts": {
+      "accord": 11,
+      "gpt4o_zeroshot": 6,
+      "llama_baseline": 11
+    },
+    "danger_rating_distribution": {
+      "1": 2,
+      "2": 4,
+      "3": 2,
+      "4": 1,
+      "5": 3
+    },
+    "drug_class_counts": {
+      "anticoagulant": 3,
+      "antiplatelet": 1,
+      "antiplatelet_vs_anticoagulant": 1,
+      "antithrombotic": 1,
+      "beta_blocker": 2,
+      "electrolyte_management": 1,
+      "loop_diuretic": 3
+    },
+    "failure_mode_taxonomy_counts": {
+      "class_conflict": 1,
+      "dosage_conflict": 3,
+      "drug_substitution": 1,
+      "omission": 7
+    }
+  },
   "differential/exp1a_gold_error_rates_by_group.json": {
     "GENDER": [
       {
@@ -954,6 +1335,207 @@
       }
     }
   },
+  "exemplar/exemplar_correctness_recomputed.json": {
+    "calibration_check": {
+      "iloc0_discharge_action_match_rate": 0.9508,
+      "iloc0_nursing_action_match_rate": 0.8934,
+      "interpretation": "High match rate confirms accord_decontamination_audit.csv stores the pre-fix (.iloc[0]) exemplar actions -- i.e. what the pharmacist actually saw -- not the corrected exemplar. Residual mismatch is attributable to row-order differences between the mentions table snapshot used here and the exact extraction-time order of the original buggy pipeline.",
+      "rule1_rows_checked": 122
+    },
+    "exemplar_correctness_by_rule": [
+      {
+        "correct_rate_among_resolved": 0.5556,
+        "n": 108,
+        "n_correct": 60,
+        "n_resolved": 108,
+        "n_unresolved": 26,
+        "rule": 1
+      },
+      {
+        "correct_rate_among_resolved": 0.4138,
+        "n": 29,
+        "n_correct": 12,
+        "n_resolved": 29,
+        "n_unresolved": 2,
+        "rule": 2
+      },
+      {
+        "correct_rate_among_resolved": 1.0,
+        "n": 79,
+        "n_correct": 79,
+        "n_resolved": 79,
+        "n_unresolved": 0,
+        "rule": 3
+      },
+      {
+        "correct_rate_among_resolved": 1.0,
+        "n": 55,
+        "n_correct": 55,
+        "n_resolved": 55,
+        "n_unresolved": 0,
+        "rule": 4
+      }
+    ],
+    "rule_1_2_pooled": {
+      "correct_rate_among_resolved": 0.5255,
+      "n": 165,
+      "n_correct": 72,
+      "n_resolved": 137,
+      "n_unresolved": 28,
+      "n_wrong": 65,
+      "reference_full_2296_candidate_pool_rate_from_task_description": 0.586
+    }
+  },
+  "exemplar/step2plus_results.json": {
+    "accord_model_stats_rule12_vs_rule34": {
+      "rule_1_2": {
+        "auroc_contra_prob": 0.4256,
+        "n": 165,
+        "n_pos": 6,
+        "precision": 0.0375
+      },
+      "rule_3_4": {
+        "auroc_contra_prob": 0.5078,
+        "n": 134,
+        "n_pos": 6,
+        "precision": 0.0424
+      }
+    },
+    "audit_to_candidates_join": {
+      "match_rate": 0.1171,
+      "n_audit_rows": 299,
+      "n_matched_to_rebuilt_candidates_table": 35,
+      "note": "This join uses real shared keys present in BOTH files (both are internal MIMIC-derived tables from the same extraction pipeline), unlike the audit<->gold join which has no shared identifying key. Unmatched rows (if any) are likely candidates removed/altered between the two pipeline runs (e.g. weak-label pool vs full candidate pool) or rows for which sentence text changed slightly between extraction passes."
+    },
+    "confounded_proxy_rule12_vs_rule34": {
+      "fisher_exact": {
+        "odds_ratio": 0.805,
+        "p_value": 0.7725
+      },
+      "rule_1_2": {
+        "n": 165,
+        "positives": 6,
+        "rate": 0.0364
+      },
+      "rule_3_4": {
+        "n": 134,
+        "positives": 6,
+        "rate": 0.0448
+      },
+      "two_by_two_table": {
+        "cols": [
+          "contradiction",
+          "not_contradiction"
+        ],
+        "rows": [
+          "rule_1_2",
+          "rule_3_4"
+        ],
+        "table": [
+          [
+            6,
+            159
+          ],
+          [
+            6,
+            128
+          ]
+        ]
+      },
+      "warning": "CONFOUNDED. This substitutes rule-identity (1+2 = defect-eligible rules, 3+4 = defect-free by construction) for the requested within-pair exemplar-correct/wrong split, because the pair_id<->HADM_ID join needed for the real test does not exist in files on this machine. Rule identity also carries real differences in clinical content and pharmacist base rate independent of the exemplar bug, so a difference here is not clean evidence of dilution, and a null result here does not rule dilution out."
+    },
+    "danger_rating_distribution": {
+      "rule_1_2": {
+        "0.0": 159,
+        "1.0": 1,
+        "2.0": 2,
+        "3.0": 1,
+        "5.0": 2
+      },
+      "rule_3_4": {
+        "0.0": 128,
+        "1.0": 1,
+        "2.0": 2,
+        "3.0": 1,
+        "4.0": 1,
+        "5.0": 1
+      }
+    },
+    "exemplar_correct_rate_by_rule_in_299_audited_pairs": [
+      {
+        "correct_rate": 1.0,
+        "n": 20,
+        "n_known": 20,
+        "rule": 1
+      },
+      {
+        "correct_rate": 1.0,
+        "n": 3,
+        "n_known": 3,
+        "rule": 2
+      },
+      {
+        "correct_rate": 1.0,
+        "n": 79,
+        "n_known": 79,
+        "rule": 3
+      },
+      {
+        "correct_rate": 1.0,
+        "n": 55,
+        "n_known": 55,
+        "rule": 4
+      }
+    ],
+    "per_rule_pharmacist_positive_rate_gold_exact": [
+      {
+        "n": 134,
+        "positives": 3,
+        "rate": 0.0224,
+        "rule": 1
+      },
+      {
+        "n": 31,
+        "positives": 3,
+        "rate": 0.0968,
+        "rule": 2
+      },
+      {
+        "n": 79,
+        "positives": 4,
+        "rate": 0.0506,
+        "rule": 3
+      },
+      {
+        "n": 55,
+        "positives": 2,
+        "rate": 0.0364,
+        "rule": 4
+      }
+    ],
+    "power_analysis": {
+      "achieved_power_at_observed_effect_rule12_vs_rule34": 0.0576,
+      "fisher_p_value_rule12_vs_rule34": 0.7725,
+      "min_detectable_rate_diff_80pct_power_alpha05": {
+        "base_rate_used": 0.0401,
+        "min_detectable_abs_diff": 0.0895,
+        "n1_rule12": 165,
+        "n2_rule34": 134
+      },
+      "n_positives_total": 12,
+      "overall_pharmacist_positive_rate": 0.0401,
+      "statement": "With 12 positives total split across 299 pairs, any two-group split of this sample size can only reliably detect very large absolute rate differences (computed below). Small-to-moderate dilution effects (e.g. a 5-10 point gap in positive rate) are not resolvable at this n."
+    },
+    "rule_1_2_pooled_exemplar_correct_rate_in_299": {
+      "n": 165,
+      "n_correct": 23,
+      "n_known": 23,
+      "rate": 1.0,
+      "reference_full_pool_rate_from_task": 0.586
+    },
+    "seed": 0,
+    "unresolved_rows_rule12_no_match": 142
+  },
   "fairness/all_results_summary.json": {
     "section1_gof": [
       {
@@ -1316,6 +1898,12 @@
     "n_positives": 12,
     "power": 0.8,
     "se_auc_under_null": 0.08555
+  },
+  "generality/mention_count_crosscheck.json": {
+    "n": 9783,
+    "official_total": 218544,
+    "pearson_r": 0.9951412334324623,
+    "simplified_total": 227363
   },
   "prior_work_confirmations.json": {
     "confirmation_1": {

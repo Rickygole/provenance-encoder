@@ -1,0 +1,150 @@
+{
+  "seed": 0,
+  "audit_to_candidates_join": {
+    "n_audit_rows": 299,
+    "n_matched_to_rebuilt_candidates_table": 35,
+    "match_rate": 0.1171,
+    "note": "This join uses real shared keys present in BOTH files (both are internal MIMIC-derived tables from the same extraction pipeline), unlike the audit<->gold join which has no shared identifying key. Unmatched rows (if any) are likely candidates removed/altered between the two pipeline runs (e.g. weak-label pool vs full candidate pool) or rows for which sentence text changed slightly between extraction passes."
+  },
+  "unresolved_rows_rule12_no_match": 142,
+  "exemplar_correct_rate_by_rule_in_299_audited_pairs": [
+    {
+      "rule": 1,
+      "n": 20,
+      "n_known": 20,
+      "correct_rate": 1.0
+    },
+    {
+      "rule": 2,
+      "n": 3,
+      "n_known": 3,
+      "correct_rate": 1.0
+    },
+    {
+      "rule": 3,
+      "n": 79,
+      "n_known": 79,
+      "correct_rate": 1.0
+    },
+    {
+      "rule": 4,
+      "n": 55,
+      "n_known": 55,
+      "correct_rate": 1.0
+    }
+  ],
+  "rule_1_2_pooled_exemplar_correct_rate_in_299": {
+    "n": 165,
+    "n_known": 23,
+    "n_correct": 23,
+    "rate": 1.0,
+    "reference_full_pool_rate_from_task": 0.586
+  },
+  "confounded_proxy_rule12_vs_rule34": {
+    "warning": "CONFOUNDED. This substitutes rule-identity (1+2 = defect-eligible rules, 3+4 = defect-free by construction) for the requested within-pair exemplar-correct/wrong split, because the pair_id<->HADM_ID join needed for the real test does not exist in files on this machine. Rule identity also carries real differences in clinical content and pharmacist base rate independent of the exemplar bug, so a difference here is not clean evidence of dilution, and a null result here does not rule dilution out.",
+    "rule_1_2": {
+      "n": 165,
+      "positives": 6,
+      "rate": 0.0364
+    },
+    "rule_3_4": {
+      "n": 134,
+      "positives": 6,
+      "rate": 0.0448
+    },
+    "two_by_two_table": {
+      "rows": [
+        "rule_1_2",
+        "rule_3_4"
+      ],
+      "cols": [
+        "contradiction",
+        "not_contradiction"
+      ],
+      "table": [
+        [
+          6,
+          159
+        ],
+        [
+          6,
+          128
+        ]
+      ]
+    },
+    "fisher_exact": {
+      "odds_ratio": 0.805,
+      "p_value": 0.7725
+    }
+  },
+  "per_rule_pharmacist_positive_rate_gold_exact": [
+    {
+      "rule": 1,
+      "n": 134,
+      "positives": 3,
+      "rate": 0.0224
+    },
+    {
+      "rule": 2,
+      "n": 31,
+      "positives": 3,
+      "rate": 0.0968
+    },
+    {
+      "rule": 3,
+      "n": 79,
+      "positives": 4,
+      "rate": 0.0506
+    },
+    {
+      "rule": 4,
+      "n": 55,
+      "positives": 2,
+      "rate": 0.0364
+    }
+  ],
+  "accord_model_stats_rule12_vs_rule34": {
+    "rule_1_2": {
+      "n": 165,
+      "n_pos": 6,
+      "precision": 0.0375,
+      "auroc_contra_prob": 0.4256
+    },
+    "rule_3_4": {
+      "n": 134,
+      "n_pos": 6,
+      "precision": 0.0424,
+      "auroc_contra_prob": 0.5078
+    }
+  },
+  "danger_rating_distribution": {
+    "rule_1_2": {
+      "0.0": 159,
+      "1.0": 1,
+      "2.0": 2,
+      "3.0": 1,
+      "5.0": 2
+    },
+    "rule_3_4": {
+      "0.0": 128,
+      "1.0": 1,
+      "2.0": 2,
+      "3.0": 1,
+      "4.0": 1,
+      "5.0": 1
+    }
+  },
+  "power_analysis": {
+    "overall_pharmacist_positive_rate": 0.0401,
+    "n_positives_total": 12,
+    "fisher_p_value_rule12_vs_rule34": 0.7725,
+    "achieved_power_at_observed_effect_rule12_vs_rule34": 0.0576,
+    "min_detectable_rate_diff_80pct_power_alpha05": {
+      "n1_rule12": 165,
+      "n2_rule34": 134,
+      "base_rate_used": 0.0401,
+      "min_detectable_abs_diff": 0.0895
+    },
+    "statement": "With 12 positives total split across 299 pairs, any two-group split of this sample size can only reliably detect very large absolute rate differences (computed below). Small-to-moderate dilution effects (e.g. a 5-10 point gap in positive rate) are not resolvable at this n."
+  }
+}

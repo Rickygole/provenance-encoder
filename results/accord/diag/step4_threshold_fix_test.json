@@ -1,0 +1,43 @@
+{
+  "contra_prob_precision_at_recall_targets_n299": {
+    "0.5": 0.0536,
+    "0.75": 0.041,
+    "0.9167": 0.041
+  },
+  "contra_prob_best_operating_point_n299": {
+    "best_single_threshold_precision_at_recall": 0.5,
+    "best_single_threshold_precision": 0.0536,
+    "max_precision_anywhere_on_curve": 1.0
+  },
+  "harm_score_precision_at_recall_targets_n299": {
+    "0.5": 0.0506,
+    "0.75": 0.0444,
+    "0.9167": 0.0411
+  },
+  "harm_score_best_operating_point_n299": {
+    "best_single_threshold_precision_at_recall": 0.1667,
+    "best_single_threshold_precision": 0.0769,
+    "max_precision_anywhere_on_curve": 1.0
+  },
+  "base_rate_reference": 0.0401,
+  "interpretation": "If AUROC>>0.5, precision should rise well above the base rate as recall target is relaxed below the max. Since AUROC~0.46-0.50 (step2), precision at every recall target stays within noise of the 4.0% base rate -- no threshold on accord_contra_prob or accord_harm_score recovers usable precision. This is the operational test of the AUROC finding: a ranking with no signal cannot be rescued by moving the cutoff.",
+  "auroc_under_resampled_prevalence_match_gold_truth_0.04": {
+    "mean_auroc": 0.4611,
+    "std_auroc": 0.0171,
+    "n_bootstrap": 200
+  },
+  "auroc_under_resampled_prevalence_match_weak_label_pool_0.2": {
+    "mean_auroc": 0.4583,
+    "std_auroc": 0.0475,
+    "n_bootstrap": 200
+  },
+  "top15_ranked_by_contra_prob_hit_rate": {
+    "n_true_positive_in_top15": 0,
+    "note": "top 15 highest-scored pairs by accord_contra_prob; expected under random ranking ~15*0.04=0.6"
+  },
+  "top15_ranked_by_harm_score_hit_rate": {
+    "n_true_positive_in_top15": 0,
+    "note": "top 15 highest-scored pairs by accord_harm_score; all 15 are pharmacist not_contradiction"
+  },
+  "max_precision_anywhere_on_curve_caveat": "The 1.0 values above are the trivial edge point sklearn.precision_recall_curve always appends at recall=0 (no predictions made) -- not a genuine top-ranked hit. The actual top-15 highest-scored pairs by both accord_contra_prob and accord_harm_score are ALL pharmacist not_contradiction (0/15 hits, vs ~0.6 expected by chance)."
+}
