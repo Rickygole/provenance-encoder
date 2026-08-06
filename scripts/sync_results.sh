@@ -16,9 +16,17 @@ REPO="/Users/rickygole/provenance-encoder"
 LOCAL="/Users/rickygole/mimic_local_only"
 DRIVE="/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/results_2026-08"
 
-# MIMIC-III de-identification surrogates and the section headers that would
-# only ever appear inside a real note.
-TEXT_MARKERS='\[\*\*|admission date|chief complaint|discharge medications|nursing_sentence|discharge_sentence'
+# MIMIC-III de-identification surrogates, the section headers that would only
+# appear inside a real note, and the two identifier columns. Identifiers matter
+# as much as text: HADM_ID joined to anything is restricted data under the
+# PhysioNet DUA, not a derived aggregate.
+TEXT_MARKERS='\[\*\*|admission date|chief complaint|discharge medications|nursing_sentence|discharge_sentence|HADM_ID|SUBJECT_ID'
+
+# Structural exclusion, which beats pattern matching: a note sentence carrying
+# no surrogate and no section header passes a content scan. Row-level formats
+# never sync regardless of what is in them. Only .json/.txt/.md are eligible,
+# and that is enforced by the find below rather than by this list.
+BLOCKED_EXT='csv|xlsx|xls|jsonl|parquet|pkl|pt|ckpt|gz|zip'
 
 cd "$REPO"
 skipped=0
@@ -53,10 +61,15 @@ dest.write_text(json.dumps(out, indent=2, sort_keys=True, default=str))
 print(f"consolidated {len(out)} result files -> {dest}")
 PY
 
-# Final gate: nothing in the repo's results tree may contain note text.
+# Final gate, both directions: no row-level format and no note text or
+# identifier may reach the repo's results tree or, through it, Drive.
 for p in $(find results/accord -type f); do
+  if echo "$p" | grep -qiE "\.($BLOCKED_EXT)$"; then
+    echo "ABORT: row-level format in results tree: $p"
+    exit 1
+  fi
   if grep -qiE "$TEXT_MARKERS" "$p" 2>/dev/null; then
-    echo "ABORT: note text in $p"
+    echo "ABORT: note text or identifier in $p"
     exit 1
   fi
 done
