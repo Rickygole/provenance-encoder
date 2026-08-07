@@ -553,10 +553,54 @@ homogeneous across all ten strata.** Report the full specification curve above r
 row, and state plainly that the effect is not separable from documentation volume once volume is
 measured on the axis the rule depends on.
 
-**This also qualifies the 3-cohort replication.** Sepsis (0.58) and AKI (0.53) reproduced the
-finding under the *same* mis-specification, so they replicate the specification, not yet the
-effect. Re-run all three with nursing and discharge length entered separately before the
-replication is claimed.
+### The 3/3 replication is withdrawn. Re-run under the corrected specification it is 1/3.
+
+Sepsis and AKI reproduced the finding under the *same* mis-specification. Re-run with the two
+note lengths entered separately, cluster-robust on `SUBJECT_ID` (the re-run reproduces the
+original "none" and "total" rows to 4 dp in all three cohorts, so this is the same pipeline):
+
+| specification | HF (9,783) | Sepsis (4,339) | AKI (7,579) |
+|---|---|---|---|
+| none | 0.409 [0.360, 0.465] | 0.408 [0.321, 0.518] | 0.370 [0.315, 0.434] |
+| log(total) — **the spec used** | 0.637 [0.557, 0.729] | 0.582 [0.455, 0.745] | 0.535 [0.452, 0.632] |
+| log(nursing) only | 0.798 [0.691, 0.922] | 0.922 [0.697, 1.220] | 0.714 [0.596, 0.854] |
+| log(discharge) only | 0.528 [0.462, 0.603] | 0.491 [0.384, 0.627] | 0.452 [0.383, 0.533] |
+| **log(nursing) + log(discharge)** | **0.902 [0.777, 1.046]** p=0.17 | **1.005 [0.756, 1.336]** p=0.97 | **0.778 [0.647, 0.935]** p=0.0075 |
+
+**Under the corrected regression the deficit replicates in 1 of 3 cohorts — AKI only.** HF and
+sepsis collapse to null, sepsis to dead flat. The originally reported 0.64 / 0.58 / 0.53 was
+carried by discharge-summary length, which the mining rule does not gate on.
+
+**The stratified analysis disagrees, and the disagreement is the finding.** On *nursing* deciles,
+Breslow-Day fails to reject homogeneity in all three cohorts, so pooled ORs are valid there:
+
+| cohort | Breslow-Day | pooled CMH OR |
+|---|---|---|
+| HF | χ² 3.83, p = 0.92 | **0.743 [0.645, 0.855]**, p = 3.3e-5 |
+| Sepsis | χ² 11.70, p = 0.23 | 0.864 [0.659, 1.133], p = 0.29 |
+| AKI | χ² 3.19, p = 0.96 | **0.651 [0.547, 0.775]**, p = 1.2e-6 |
+
+So: **2/3 conditioning on nursing length alone, 1/3 conditioning on both.** The entire difference
+is whether discharge-summary length belongs in the adjustment set — and that is a causal
+question, not a statistical one. If administrative thinness causes both the blank `LANGUAGE`
+field and sparse documentation, discharge length is a **mediator** and conditioning on it is
+adjusting away the mechanism. If it is an independent determinant of whether the rule can fire,
+it is a confounder and belongs.
+
+**Correction.** Withdraw "replicates 3/3." Report the specification curve, both analyses, and the
+DAG the choice depends on. The honest summary is that the effect is somewhere in **OR 0.65–1.00
+depending on cohort and specification**, is strongest in AKI, and is absent in sepsis under every
+correct specification.
+
+**Interactions.** `language × log(nursing chars)` reaches significance in no cohort (HF p = 0.26,
+sepsis p = 0.082, AKI p = 0.086), so the earlier "the gap grows with note length" claim is also
+not supported once the right volume variable is used.
+
+**Clustering is a non-issue and can be stated as a robustness result.** Robust/naive SE ratios
+are 0.97–1.03 across all specifications and all three cohorts.
+
+**`DBSOURCE` remains open.** `ICUSTAYS.csv` is still not on this machine and was not downloaded.
+The era confound is unclosed in all three cohorts.
 
 **And the direction of modification undercuts the original reading.** The deficit is concentrated
 where documentation is *heaviest* — crude OR below vs above median note length runs HF 1.16→2.85,
