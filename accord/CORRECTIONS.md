@@ -992,3 +992,82 @@ demonstrated harm here. It is "the audit cannot see upstream removal at all."
 - **MedNLI 83.9% / 83.9% macro F1** full fine-tune vs **72.7%** LoRA r=16 — correctly run, inside
   published SOTA, provided it is labelled as BioMedBERT and not as ACCORD
 - The **negative result itself**, which is measured four independent ways and is the thesis
+
+---
+
+## C26. Novelty reassessed: the sweep is pre-empted, and four-fifths on a missingness flag is attackable
+
+**C21 recorded that the denominator framing survived its falsifier.** The *survey* leg did. A
+second novelty pass then found prior art that C21's survey was not built to catch, and it removes
+two of the lead claim's four legs.
+
+**1. The synthetic sweep is a denser version of an experiment Pfohl et al. already ran.** C21 and
+my own summary both described Pfohl et al. (NeurIPS 2025, arXiv:2506.04193) as theory-only. From
+the PDF, Section 5: *"We conduct a small experiment to verify a subset of the properties expected
+under selection… three selection mechanisms corresponding to cases where the selection mechanism
+depends on X, Y, or {Y,A},"* plus simulations over their Table 1 DAGs and real-data experiments on
+ACS PUMS. Our sweep's headline sub-finding — that blindness *"breaks down only when selection
+depends directly on the outcome"* — **is their S←Y and S←{Y,A} condition**, and before that it is
+Bareinboim–Pearl recoverability. With C24 (the sweep has no positive control), the simulation leg
+must be **demoted to replication, not presented as evidence**.
+
+**2. Stage-level fairness measurement across a pipeline was published empirically in 2021 at
+n=37 pipelines.** Biswas & Rajan, *"Fair Preprocessing: Towards Understanding Compositional
+Fairness of Data Transformers in Machine Learning Pipeline"* (arXiv:2106.06054): *"we conducted a
+detailed fairness evaluation of the preprocessing stages in 37 pipelines… we showed how the local
+fairness of a preprocessing stage composes in the global fairness of the pipeline."* That is
+"measure fairness at the stage, not just the model," five years earlier. And Black et al.,
+*"Toward Operationalizing Pipeline-aware ML Fairness"* (arXiv:2309.17337), establishes
+pipeline-aware fairness as a **named agenda with a published roadmap** — so no sentence of the
+form "nobody audits the pipeline rather than the model" is available.
+
+**3. The four-fifths choice is now a citable attack.** Watkins, McKenna & Chen, *"The four-fifths
+rule is not disparate impact: a woeful tale of epistemic trespassing in algorithmic fairness"*
+(arXiv:2202.09519). The lead number applies a US employment-law construct, stripped of its
+protected-class and practical-significance scaffolding, to a **data-completeness indicator** —
+and C24 already showed four-fifths passes on both actual protected attributes. Defend the
+extension explicitly in one paragraph, or switch to a metric without legal baggage. Unanswered,
+this is fatal to the headline.
+
+**4. Adjacent demonstrations of the same shape exist.** Sariola et al., *"The Illusion of
+Fairness"* (arXiv:2507.02152): an intervention *"appears to achieve parity using traditional
+measures, but in fact has roughly 10% disparity when measured appropriately."* And in
+recommendation retrieval the point is assumed background — FairSync (arXiv:2402.10628):
+*"without a high-quality set of candidates, the stage-2 ranker cannot ensure the required exposure
+of groups."*
+
+**5. "Model-agnostic" fails on a second, independent ground.** Beyond C23 (GPT-4o 7.0× vs 8B
+23.9×), the *direction* of LLM annotator bias is unstable across the literature: Kotte
+(arXiv:2606.12426) and MultiSoc-4D (arXiv:2605.06940) find annotators **under**-calling and
+collapsing to fallback labels; Zhang et al. (arXiv:2605.16386) find compression toward the scale
+midpoint across three model families. Three models sharing one prompt cannot separate
+model-invariance from prompt-specificity. The reframe that survives is *"the direction of LLM
+weak-label bias is set by the prompt, not the model"* — a better paper, requiring prompt variation
+not yet run.
+
+**6. Claim 4 (transfer collapse as a leakage diagnostic) should be retracted outright.**
+Cross-domain collapse as a shortcut/leakage tell is textbook (Kaufman/Rosset/Perlich on leakage;
+Geirhos et al. on shortcut learning — verify both before citing). Diagnosing one's own
+input-equals-target bug is a reproducibility note.
+
+**7. The null-attribute finding is the cleanest surviving delta, with two citations to engage.**
+Martínez-Plumed et al., *"Fairness and Missing Values"* (arXiv:1905.12728) already shows rows with
+missing values have *different* fairness characteristics than complete rows — the mechanism that
+makes routine deletion indefensible, seven years earlier. Cite it as the mechanism and position
+the survey as documenting that the field ignored it. Bhatti et al. (arXiv:2503.07313) reports
+*"listwise deletion gives the highest fairness on average"* — a direct counter that must be met
+head-on.
+
+**The only defensible construction.** No single claim carries a thesis. Fuse the dissociation with
+the null-attribute finding and the survey: *the audit runs on a pool built by a filtering stage
+that itself fails the audit, and the audit's standard practice of dropping null-attribute records
+deletes precisely the population that filter differentially removed* — 0/25 papers audit both
+stages, 13/31 do not report null handling. That loop is in neither Pfohl (theory + census), nor
+Qi (selection only), nor Acitores Cortina (filter harm only), nor Biswas & Rajan (tabular
+transformers, no missing-attribute dimension).
+
+**Coverage limitation, and it matters.** This pass ran on arXiv and OpenReview only — Semantic
+Scholar rate-limited, **PubMed and the ACL Anthology not searched**. Claims 1, 3 and 5 all live
+partly in PubMed-indexed venues, and a JAMIA or JBI reporting-practice review would kill the
+null-attribute finding outright and would not have been visible here. **Run that pass before
+committing to the framing.**
