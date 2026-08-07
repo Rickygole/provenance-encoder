@@ -498,9 +498,21 @@ simply no signal, which is what the thesis argues. It also now agrees with the i
 vanilla control (C19: 0.497 ± 0.035, DeLong p = 0.930) — two unrelated models, one flawed and one
 deliberately plain, both at chance on the same pairs.
 
-**One caveat carried forward.** The decontaminated run's own train/eval boundary was enforced at
-row level, and C18 shows that leaves subject-level overlap. These corrected numbers are the right
-ones to report, but the configuration behind them is not certified subject-disjoint.
+**One caveat carried forward, now settled — and it is worse than "not certified."** The
+decontaminated run trained on the 1,679-row decontaminated pool, which spans **1,025 subjects**.
+The 299 gold-evaluated pairs span **266 subjects**. **158 of those 266 — 59.4% — are in both.**
+The decontaminated configuration is *not* subject-disjoint from its own evaluation set; row-level
+removal of `pharmacist_overlap` rows left the majority of evaluated patients in training under
+different `(drug, rule)` combinations.
+
+So the corrected numbers in this section are the right ones to *report in place of* the
+contaminated ones, but neither configuration is clean. The only subject-disjoint measurement in
+the project is the control baseline in C19, which excludes the 291 overlapping rows and asserts
+disjointness in code — and it lands at **0.497 ± 0.035**, indistinguishable from both.
+
+That three-way agreement is the useful outcome: contaminated 0.4595, decontaminated 0.5145,
+subject-disjoint control 0.497. Leakage at either level did not manufacture signal, because there
+was none to manufacture.
 
 **What this does not change.** The decontaminated run is *worse* on every metric, so the negative
 conclusion survives and strengthens. C1's numbers are wrong in the same direction and for the
