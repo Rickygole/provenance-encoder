@@ -792,6 +792,51 @@ all excluded from the counts.
 
 ---
 
+## C22. The pool audit "passes" partly because the audited classifier is near-constant
+
+**Claimed.** The dissociation's real-data leg: candidate generation fails the four-fifths rule at
+0.468 while the standard subgroup audit on the resulting pool passes everything — demographic
+parity gap 0.034, FPR gap 0.024, precision gap 0.006, four-fifths 0.961.
+
+**Actual.** The audited classifier predicts positive on **261 of 299 pairs — 87.3%** — against an
+expert base rate of 4.0%. Per group (`exp1a_gold_error_rates_by_group.json`):
+
+| group | n | predicted positive | rate | FPR |
+|---|---|---|---|---|
+| ENGLISH | 191 | 168 | 0.880 | 0.874 |
+| MISSING | 84 | 71 | 0.845 | 0.850 |
+| RECORDED NON-ENGLISH | 24 | 22 | 0.917 | 0.917 |
+
+A classifier that calls positive ~87% of the time is close to constant, and a near-constant
+classifier satisfies demographic parity almost by construction — the maximum spread available
+across these groups is 0.072. So the audit did not *fail to detect* a disparity it could have
+detected; it was applied to a model with little room to exhibit one.
+
+**Correction.** The real-data leg cannot be reported as *"the audit was blind to the bias."* The
+defensible version is: *"the audit was uninformative here, for two compounding reasons — the
+denominator had already been filtered, and the audited model was near-degenerate."* The
+degeneracy must be stated on the same page as the 0.961.
+
+**Which leg is load-bearing.** The synthetic sweep, not the cohort. In simulation the downstream
+classifier has AUROC 0.895 — genuinely non-degenerate — and the audit *still* returns a parity
+gap of 0.0013 while the selection ratio is 0.063. That is the clean demonstration; the MIMIC
+cohort is a worked example whose classifier happens to be degenerate. The paper's honest
+structure is therefore: an analytic point, a simulation that demonstrates it, a survey showing
+nobody checks, and a clinical instance — not *"demonstrated on real data"* with the simulation as
+support.
+
+**What would repair the real-data leg.** Run the pool audit against a *non-degenerate* downstream
+classifier on the same cohort — the subject-disjoint control from C19 emits continuous scores and
+could be thresholded to a sensible operating point. If the dissociation survives with a
+non-degenerate model on real data, that leg becomes a strength rather than a liability.
+
+**Note this is independent of the detector's quality.** The dissociation is a property of Stage 1
+versus the pool audit and would hold if the downstream detector were perfect. The degeneracy
+problem is specifically about whether *this* audit had the power to reject, not about whether the
+argument is right.
+
+---
+
 ## What survives all of this
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings
