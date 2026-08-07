@@ -971,6 +971,47 @@
     "train_pos_rate": 0.8520710059171598,
     "val_pos_rate": 0.8390243902439024
   },
+  "decontam/corrected_gold_metrics.json": {
+    "aggregate": {
+      "auroc_mean": 0.5210926694329184,
+      "auroc_std": 0.020120797407989183,
+      "bootstrap_B": 10000,
+      "bootstrap_seed": 42,
+      "ensemble_auroc": 0.5145228215767634,
+      "ensemble_ci95": [
+        0.3209574856693268,
+        0.7033717778609418
+      ],
+      "ensemble_mannwhitney_p": 0.8667920078913933
+    },
+    "contaminated_same_253_pairs": {
+      "auroc": 0.4595,
+      "note": "what the thesis currently reports as 0.460"
+    },
+    "n": 253,
+    "n_positives": 12,
+    "note": "Decontaminated configuration recomputed from gold_eval_decontam_predictions.csv. Resolves C16: the previously reported AUROC 0.460 was the contaminated run.",
+    "per_seed": {
+      "seed0": {
+        "ap": 0.0612867563282229,
+        "auroc": 0.5494467496542186,
+        "mannwhitney_p": 0.5646446188022769,
+        "top15_tp": 1
+      },
+      "seed1": {
+        "ap": 0.05922144878569231,
+        "auroc": 0.5089903181189488,
+        "mannwhitney_p": 0.9179106759185339,
+        "top15_tp": 0
+      },
+      "seed2": {
+        "ap": 0.05329181173549567,
+        "auroc": 0.5048409405255878,
+        "mannwhitney_p": 0.9564855846684651,
+        "top15_tp": 0
+      }
+    }
+  },
   "defect_free_strata.json": {
     "caveat": "Only 6 positives in the defect-free strata, so the CI is wide; the point estimate sits at chance rather than above it, and the per-rule estimates (rule 2 n=31, rule 4 n=55) are individually unreliable.",
     "conclusion": "On the defect-free strata AUROC is 0.5078 with Mann-Whitney p=0.953 -- exactly chance. The no-signal finding is INDEPENDENT of the exemplar bug. Label noise was not attenuating a real signal.",
@@ -2564,6 +2605,806 @@
     "n_positives": 12,
     "power": 0.8,
     "se_auc_under_null": 0.08555
+  },
+  "generality/experimentA_corrected_replication.json": {
+    "aki": {
+      "cohort": "aki",
+      "corr_log_nursing_log_discharge": 0.1840928173961791,
+      "language_x_lognursingchars_interaction": {
+        "C(language_group3, Treatment('ENGLISH'))[T.MISSING]:log_nursing": {
+          "OR_per_unit_log_nursing_chars": 1.2281,
+          "coef": 0.2055,
+          "p": 0.086113,
+          "se_robust": 0.1197
+        },
+        "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]:log_nursing": {
+          "OR_per_unit_log_nursing_chars": 1.0084,
+          "coef": 0.0083,
+          "p": 0.954354,
+          "se_robust": 0.1456
+        }
+      },
+      "median_discharge_chars": 11328.0,
+      "median_discharge_share_of_total": 0.9126176738536289,
+      "median_nursing_chars": 1055.0,
+      "n_note_pair_cohort": 7579,
+      "n_regression": 7579,
+      "nursing_decile_stratified": {
+        "breslow_day_p": 0.9562500453934342,
+        "breslow_day_statistic": 3.1907380199241357,
+        "cmh_p": 1.1998108726540835e-06,
+        "cmh_pooled_OR": 0.6513360482762787,
+        "cmh_pooled_OR_CI": [
+          0.5474312172107918,
+          0.7749624691585739
+        ],
+        "cmh_test_statistic": 23.577519642006877,
+        "homogeneity_not_rejected": true,
+        "n_strata": 10,
+        "per_stratum_crude_OR": [
+          {
+            "OR": 0.7107,
+            "decile": 0,
+            "n": 678
+          },
+          {
+            "OR": 0.5093,
+            "decile": 1,
+            "n": 668
+          },
+          {
+            "OR": 0.6873,
+            "decile": 2,
+            "n": 669
+          },
+          {
+            "OR": 0.6872,
+            "decile": 3,
+            "n": 693
+          },
+          {
+            "OR": 0.506,
+            "decile": 4,
+            "n": 679
+          },
+          {
+            "OR": 0.7013,
+            "decile": 5,
+            "n": 671
+          },
+          {
+            "OR": 0.8404,
+            "decile": 6,
+            "n": 676
+          },
+          {
+            "OR": 0.6077,
+            "decile": 7,
+            "n": 695
+          },
+          {
+            "OR": 0.5946,
+            "decile": 8,
+            "n": 674
+          },
+          {
+            "OR": 0.7947,
+            "decile": 9,
+            "n": 684
+          }
+        ],
+        "pooled_OR_valid": true
+      },
+      "robust_over_naive_SE_ratio_MISSING_coef": {
+        "discharge_only": 1.002,
+        "none": 1.0148,
+        "nursing_only": 1.0263,
+        "nursing_plus_discharge": 1.0217,
+        "total": 0.9973
+      },
+      "specification_curve": {
+        "discharge_only": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.5332,
+              "CI_low": 0.3829,
+              "OR": 0.4519,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.9081,
+              "CI_low": 0.5562,
+              "OR": 0.7107,
+              "p": 0.006325
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.5334,
+              "CI_low": 0.3828,
+              "OR": 0.4519,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.9125,
+              "CI_low": 0.5536,
+              "OR": 0.7107,
+              "p": 0.007394
+            }
+          },
+          "spec": "discharge_only"
+        },
+        "none": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.4334,
+              "CI_low": 0.3153,
+              "OR": 0.3696,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.8459,
+              "CI_low": 0.5201,
+              "OR": 0.6633,
+              "p": 0.000938
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.4344,
+              "CI_low": 0.3146,
+              "OR": 0.3696,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.8504,
+              "CI_low": 0.5174,
+              "OR": 0.6633,
+              "p": 0.0012
+            }
+          },
+          "spec": "none"
+        },
+        "nursing_only": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.8499,
+              "CI_low": 0.599,
+              "OR": 0.7135,
+              "p": 0.000155
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.1207,
+              "CI_low": 0.6689,
+              "OR": 0.8658,
+              "p": 0.273854
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.8538,
+              "CI_low": 0.5963,
+              "OR": 0.7135,
+              "p": 0.000228
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.1254,
+              "CI_low": 0.6661,
+              "OR": 0.8658,
+              "p": 0.281554
+            }
+          },
+          "spec": "nursing_only"
+        },
+        "nursing_plus_discharge": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.9316,
+              "CI_low": 0.6496,
+              "OR": 0.7779,
+              "p": 0.006333
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.1439,
+              "CI_low": 0.6816,
+              "OR": 0.883,
+              "p": 0.346195
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.9353,
+              "CI_low": 0.6471,
+              "OR": 0.7779,
+              "p": 0.007539
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.1495,
+              "CI_low": 0.6782,
+              "OR": 0.883,
+              "p": 0.35516
+            }
+          },
+          "spec": "nursing_plus_discharge"
+        },
+        "total": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.6326,
+              "CI_low": 0.4517,
+              "OR": 0.5346,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.9677,
+              "CI_low": 0.5901,
+              "OR": 0.7557,
+              "p": 0.026415
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.6324,
+              "CI_low": 0.4519,
+              "OR": 0.5346,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.9713,
+              "CI_low": 0.588,
+              "OR": 0.7557,
+              "p": 0.028695
+            }
+          },
+          "spec": "total"
+        }
+      },
+      "subject_clustering": {
+        "n_admissions": 7579,
+        "n_admissions_in_those_subjects": 1875,
+        "n_subjects_with_gt1_admission": 772,
+        "n_unique_subjects": 6476
+      },
+      "total_decile_stratified_crosscheck": {
+        "breslow_day_p": 9.503267818233851e-07,
+        "breslow_day_statistic": 44.930625577117866,
+        "cmh_p": 0.0,
+        "cmh_pooled_OR": 0.4766177116392703,
+        "n_strata": 10
+      }
+    },
+    "hf": {
+      "cohort": "hf",
+      "corr_log_nursing_log_discharge": 0.1735558409634676,
+      "language_x_lognursingchars_interaction": {
+        "C(language_group3, Treatment('ENGLISH'))[T.MISSING]:log_nursing": {
+          "OR_per_unit_log_nursing_chars": 1.1142,
+          "coef": 0.1081,
+          "p": 0.256292,
+          "se_robust": 0.0953
+        },
+        "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]:log_nursing": {
+          "OR_per_unit_log_nursing_chars": 0.9663,
+          "coef": -0.0343,
+          "p": 0.767737,
+          "se_robust": 0.1162
+        }
+      },
+      "median_discharge_chars": 10643.0,
+      "median_discharge_share_of_total": 0.9136263128800443,
+      "median_nursing_chars": 970.0,
+      "n_note_pair_cohort": 9783,
+      "n_regression": 9783,
+      "nursing_decile_stratified": {
+        "breslow_day_p": 0.9223112427046577,
+        "breslow_day_statistic": 3.828856094545499,
+        "cmh_p": 3.303027870282804e-05,
+        "cmh_pooled_OR": 0.74262180656936,
+        "cmh_pooled_OR_CI": [
+          0.645205077418577,
+          0.8547470670857144
+        ],
+        "cmh_test_statistic": 17.234954998673345,
+        "homogeneity_not_rejected": true,
+        "n_strata": 10,
+        "per_stratum_crude_OR": [
+          {
+            "OR": 0.8428,
+            "decile": 0,
+            "n": 889
+          },
+          {
+            "OR": 0.9878,
+            "decile": 1,
+            "n": 883
+          },
+          {
+            "OR": 0.7187,
+            "decile": 2,
+            "n": 879
+          },
+          {
+            "OR": 0.8431,
+            "decile": 3,
+            "n": 885
+          },
+          {
+            "OR": 0.7929,
+            "decile": 4,
+            "n": 893
+          },
+          {
+            "OR": 0.7114,
+            "decile": 5,
+            "n": 872
+          },
+          {
+            "OR": 0.757,
+            "decile": 6,
+            "n": 882
+          },
+          {
+            "OR": 0.5778,
+            "decile": 7,
+            "n": 862
+          },
+          {
+            "OR": 0.7716,
+            "decile": 8,
+            "n": 890
+          },
+          {
+            "OR": 1.1061,
+            "decile": 9,
+            "n": 862
+          }
+        ],
+        "pooled_OR_valid": true
+      },
+      "robust_over_naive_SE_ratio_MISSING_coef": {
+        "discharge_only": 0.982,
+        "none": 1.007,
+        "nursing_only": 1.0146,
+        "nursing_plus_discharge": 0.9969,
+        "total": 0.9722
+      },
+      "specification_curve": {
+        "discharge_only": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.6044,
+              "CI_low": 0.4608,
+              "OR": 0.5278,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.0609,
+              "CI_low": 0.7055,
+              "OR": 0.8651,
+              "p": 0.163889
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.6029,
+              "CI_low": 0.4619,
+              "OR": 0.5278,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.0589,
+              "CI_low": 0.7068,
+              "OR": 0.8651,
+              "p": 0.160147
+            }
+          },
+          "spec": "discharge_only"
+        },
+        "none": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.4648,
+              "CI_low": 0.3602,
+              "OR": 0.4092,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.945,
+              "CI_low": 0.631,
+              "OR": 0.7722,
+              "p": 0.012116
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.4652,
+              "CI_low": 0.3599,
+              "OR": 0.4092,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.9451,
+              "CI_low": 0.631,
+              "OR": 0.7722,
+              "p": 0.01213
+            }
+          },
+          "spec": "none"
+        },
+        "nursing_only": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.9204,
+              "CI_low": 0.6923,
+              "OR": 0.7983,
+              "p": 0.001929
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.2915,
+              "CI_low": 0.8387,
+              "OR": 1.0408,
+              "p": 0.71669
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.9224,
+              "CI_low": 0.6909,
+              "OR": 0.7983,
+              "p": 0.00224
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.2889,
+              "CI_low": 0.8404,
+              "OR": 1.0408,
+              "p": 0.714157
+            }
+          },
+          "spec": "nursing_only"
+        },
+        "nursing_plus_discharge": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 1.0461,
+              "CI_low": 0.777,
+              "OR": 0.9016,
+              "p": 0.172
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.3507,
+              "CI_low": 0.8746,
+              "OR": 1.0869,
+              "p": 0.452377
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 1.0456,
+              "CI_low": 0.7773,
+              "OR": 0.9016,
+              "p": 0.170658
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.3493,
+              "CI_low": 0.8755,
+              "OR": 1.0869,
+              "p": 0.450182
+            }
+          },
+          "spec": "nursing_plus_discharge"
+        },
+        "total": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.732,
+              "CI_low": 0.5548,
+              "OR": 0.6372,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.151,
+              "CI_low": 0.7625,
+              "OR": 0.9368,
+              "p": 0.534538
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.7291,
+              "CI_low": 0.5569,
+              "OR": 0.6372,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.147,
+              "CI_low": 0.7652,
+              "OR": 0.9368,
+              "p": 0.527467
+            }
+          },
+          "spec": "total"
+        }
+      },
+      "subject_clustering": {
+        "n_admissions": 9783,
+        "n_admissions_in_those_subjects": 3435,
+        "n_subjects_with_gt1_admission": 1291,
+        "n_unique_subjects": 7639
+      },
+      "total_decile_stratified_crosscheck": {
+        "breslow_day_p": 1.1332319349577347e-07,
+        "breslow_day_statistic": 49.88293935730358,
+        "cmh_p": 0.0,
+        "cmh_pooled_OR": 0.5508842803790368,
+        "n_strata": 10
+      }
+    },
+    "sepsis": {
+      "cohort": "sepsis",
+      "corr_log_nursing_log_discharge": 0.1873950726820053,
+      "language_x_lognursingchars_interaction": {
+        "C(language_group3, Treatment('ENGLISH'))[T.MISSING]:log_nursing": {
+          "OR_per_unit_log_nursing_chars": 1.4495,
+          "coef": 0.3712,
+          "p": 0.081777,
+          "se_robust": 0.2133
+        },
+        "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]:log_nursing": {
+          "OR_per_unit_log_nursing_chars": 1.642,
+          "coef": 0.4959,
+          "p": 0.072188,
+          "se_robust": 0.2758
+        }
+      },
+      "median_discharge_chars": 10765.0,
+      "median_discharge_share_of_total": 0.9168430601753855,
+      "median_nursing_chars": 971.0,
+      "n_note_pair_cohort": 4339,
+      "n_regression": 4339,
+      "nursing_decile_stratified": {
+        "breslow_day_p": 0.23085573160630335,
+        "breslow_day_statistic": 11.698320378613491,
+        "cmh_p": 0.28720116040746635,
+        "cmh_pooled_OR": 0.8640257644145922,
+        "cmh_pooled_OR_CI": [
+          0.6587662405403806,
+          1.1332404055190188
+        ],
+        "cmh_test_statistic": 1.1326952790287517,
+        "homogeneity_not_rejected": true,
+        "n_strata": 10,
+        "per_stratum_crude_OR": [
+          {
+            "OR": 0.1089,
+            "decile": 0,
+            "n": 394
+          },
+          {
+            "OR": 2.51,
+            "decile": 1,
+            "n": 383
+          },
+          {
+            "OR": 1.0,
+            "decile": 2,
+            "n": 384
+          },
+          {
+            "OR": 0.5179,
+            "decile": 3,
+            "n": 390
+          },
+          {
+            "OR": 1.2009,
+            "decile": 4,
+            "n": 399
+          },
+          {
+            "OR": 0.5536,
+            "decile": 5,
+            "n": 391
+          },
+          {
+            "OR": 0.946,
+            "decile": 6,
+            "n": 384
+          },
+          {
+            "OR": 0.8433,
+            "decile": 7,
+            "n": 381
+          },
+          {
+            "OR": 0.8843,
+            "decile": 8,
+            "n": 384
+          },
+          {
+            "OR": 3.2,
+            "decile": 9,
+            "n": 398
+          }
+        ],
+        "pooled_OR_valid": true
+      },
+      "robust_over_naive_SE_ratio_MISSING_coef": {
+        "discharge_only": 0.9845,
+        "none": 0.9949,
+        "nursing_only": 1.0304,
+        "nursing_plus_discharge": 1.0206,
+        "total": 0.9761
+      },
+      "specification_curve": {
+        "discharge_only": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.6289,
+              "CI_low": 0.3827,
+              "OR": 0.4906,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.9555,
+              "CI_low": 0.4229,
+              "OR": 0.6357,
+              "p": 0.02934
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.6265,
+              "CI_low": 0.3841,
+              "OR": 0.4906,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.0127,
+              "CI_low": 0.3991,
+              "OR": 0.6357,
+              "p": 0.056548
+            }
+          },
+          "spec": "discharge_only"
+        },
+        "none": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.5182,
+              "CI_low": 0.3209,
+              "OR": 0.4078,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.9046,
+              "CI_low": 0.4018,
+              "OR": 0.6029,
+              "p": 0.014524
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.5175,
+              "CI_low": 0.3213,
+              "OR": 0.4078,
+              "p": 0.0
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 0.9569,
+              "CI_low": 0.3799,
+              "OR": 0.6029,
+              "p": 0.031789
+            }
+          },
+          "spec": "none"
+        },
+        "nursing_only": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 1.2104,
+              "CI_low": 0.7025,
+              "OR": 0.9221,
+              "p": 0.559026
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.317,
+              "CI_low": 0.5547,
+              "OR": 0.8547,
+              "p": 0.476622
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 1.2204,
+              "CI_low": 0.6967,
+              "OR": 0.9221,
+              "p": 0.570672
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.3857,
+              "CI_low": 0.5272,
+              "OR": 0.8547,
+              "p": 0.524262
+            }
+          },
+          "spec": "nursing_only"
+        },
+        "nursing_plus_discharge": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 1.3285,
+              "CI_low": 0.7602,
+              "OR": 1.005,
+              "p": 0.972249
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.3396,
+              "CI_low": 0.5636,
+              "OR": 0.8689,
+              "p": 0.524651
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 1.3361,
+              "CI_low": 0.7559,
+              "OR": 1.005,
+              "p": 0.972809
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.41,
+              "CI_low": 0.5355,
+              "OR": 0.8689,
+              "p": 0.56943
+            }
+          },
+          "spec": "nursing_plus_discharge"
+        },
+        "total": {
+          "naive": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.7495,
+              "CI_low": 0.4523,
+              "OR": 0.5823,
+              "p": 2.7e-05
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.0231,
+              "CI_low": 0.4501,
+              "OR": 0.6786,
+              "p": 0.064157
+            }
+          },
+          "robust": {
+            "C(language_group3, Treatment('ENGLISH'))[T.MISSING]": {
+              "CI_high": 0.745,
+              "CI_low": 0.4551,
+              "OR": 0.5823,
+              "p": 1.7e-05
+            },
+            "C(language_group3, Treatment('ENGLISH'))[T.RECORDED_NON_ENGLISH]": {
+              "CI_high": 1.0841,
+              "CI_low": 0.4248,
+              "OR": 0.6786,
+              "p": 0.104778
+            }
+          },
+          "spec": "total"
+        }
+      },
+      "subject_clustering": {
+        "n_admissions": 4339,
+        "n_admissions_in_those_subjects": 830,
+        "n_subjects_with_gt1_admission": 350,
+        "n_unique_subjects": 3859
+      },
+      "total_decile_stratified_crosscheck": {
+        "breslow_day_p": 0.28826429731281067,
+        "breslow_day_statistic": 10.819786100880371,
+        "cmh_p": 9.634273248071423e-07,
+        "cmh_pooled_OR": 0.5307957884019834,
+        "n_strata": 10
+      }
+    }
   },
   "generality/experimentA_replication.json": {
     "aki": {

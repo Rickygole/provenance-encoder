@@ -716,6 +716,70 @@ rather than of any one model or endpoint.
 
 ---
 
+## C21. The denominator framing survives its falsifier — and my earlier "already published" call was too broad
+
+**What I said earlier.** After a novelty sweep I reported that the denominator argument was
+*"published, direct hit"* — Pfohl et al., NeurIPS 2025 (arXiv:2506.04193), which states that under
+selection bias, disaggregated evaluation *"may be invalid without explicit assumptions regarding
+the bias mechanism."* That is correct about the **theory** and I over-generalized it to the whole
+claim.
+
+**The falsifier.** A systematic coding of published clinical NLP / clinical ML fairness
+evaluations was run specifically to kill the framing: if the field routinely audits
+candidate generation against a source-population denominator, this thesis is a case study, not a
+critique. Of 31 papers read at methods level, 29 have a filtering or candidate-generation stage:
+
+| | yes | partial | no |
+|---|---|---|---|
+| reports subgroup composition **before** the filter | 3 | 2 | **24** |
+| audit denominator is the **source population** | 4 | — | **25** |
+| states how **missing** stratifying attributes are handled | 12 | 5 | **13** |
+| reports any **per-stage** decomposition | 3 | 1 | **27** |
+
+**The decisive cross-tab:** of the 25 papers that audit a downstream model on a filtered pool,
+**0 also audit the filtering stage**. Of the 4 that audit selection against a population
+denominator, **0 audit a downstream model**. The two activities are disjoint literatures.
+
+**Correction to the claim's wording.** Do *not* write "the field never audits selection." Write:
+*the field audits selection and audits models, but in disjoint literatures — cohort
+representativeness work never carries through to a model audit, and model-audit work never looks
+upstream.* The unclaimed contribution is the **dissociation**: a selection stage failing the
+four-fifths rule at 0.468 while the pool audit passes on demographic parity (0.034), FPR gap
+(0.024) and four-fifths (0.961).
+
+**Prior work that must be cited and positioned against, not discovered by a reviewer:**
+- **Acitores Cortina et al., JMIR Med Inform 2025;13:e67591** — 19 data-quality filters over ~12M
+  patients across 4 databases; filters differentially remove minoritized groups; recommends
+  reporting group sizes before *and* after filtering. Evaluates no downstream model and shows no
+  dissociation. Its future-work section asks for this experiment.
+- **Qi et al., JAMIA Open 2021;4(3):ooab077** — reframes RCT enrollment as a classifier and
+  applies fairness metrics to the *selection decision* against NHANES. This pre-empts the
+  **method**. It must be cited explicitly; a reviewer who knows it will ask.
+- **Haghighathoseini et al., AMIA Annu Symp Proc 2024:473–482** — 16 cohort variants on N3C,
+  composition shifts by sex/race/ethnicity; does not compare fairness metrics across variants.
+
+**The one high-risk unknown is closed.** Huang et al., arXiv:2309.01935, *"The impact of EHR data
+continuity on prediction model fairness and racial-ethnic disparities"* — flagged as the paper
+most likely to pre-empt this framing and available only as an abstract. Retrieved: it stratifies
+cohorts by an EHR data-continuity measure (MPEC) and reports that fairness varies across them. It
+does **not** compare cohort composition to a source population, does not use standard subgroup
+fairness metrics in the audit sense, and makes no denominator argument. **It was withdrawn by its
+authors on 2026-02-26 pending substantial revision**, so it should not be cited as prior work at
+all.
+
+**A second, independent failure mode worth reporting.** 13 of 31 papers say nothing about how
+records with a missing stratifying attribute are handled, and those that do state it
+overwhelmingly say they **dropped** them — deleting exactly the population most likely to have
+been differentially filtered upstream.
+
+**Method limitation, stated because it bounds the claim.** The sample is purposive, not random:
+it oversamples pipelines that *can* exhibit the failure. The counts answer "among papers where
+this failure is possible, how many check?" — not "what fraction of the field checks?" Coverage of
+ML4H, CHIL and Lancet Digital Health is thin, and 6 papers were inaccessible plus 3 abstract-only,
+all excluded from the counts.
+
+---
+
 ## What survives all of this
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings
