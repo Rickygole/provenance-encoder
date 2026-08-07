@@ -870,6 +870,13 @@ requires varying the thing you claim not to depend on.
 calibration claim needs the yes-token logprob, a reliability diagram, ECE, and AUROC against
 gold. Chapter 8 prescribes exactly this and the claim violates it.
 
+**Third — the reference row must not appear in any paper.** The C20 table retains
+"Llama-3-8B-Instruct (original, HF Inference API)" for comparison. It belongs *here*, because this
+document's job is to record what was originally claimed and why it was wrong. It must not appear
+in a submitted table, and no number traceable to it may be reported as a result: that run sent
+MIMIC-III note text to a third-party hosted inference endpoint. The C20 re-run is local Ollama and
+is the only version that should be cited going forward.
+
 ---
 
 ## C24. Both empirical legs of the lead claim are compromised
