@@ -933,7 +933,58 @@ conservative, not inflated.
 
 ---
 
-## What survives all of this
+## C25. The era confound is closed without `ICUSTAYS.csv`, and it largely explains the effect
+
+**What the record said.** C17 and the three-cohort re-run both state that `DBSOURCE` — the
+CareVue/MetaVision era marker, and the only usable era proxy since `ADMITTIME` is date-shifted —
+is unrecoverable because `ICUSTAYS.csv` is not on this machine. That was wrong.
+
+**The proxy that is on disk.** MIMIC-III splits nursing documentation across two `NOTEEVENTS`
+categories on the same boundary: `Nursing/other` (CareVue, 822,497 notes) and `Nursing`
+(MetaVision, 223,556). An admission-level era label is a groupby on a file already local.
+
+**The confounding is near-total.** For the 9,783 HF note-pair admissions (7,485 CareVue,
+2,271 MetaVision, 27 both):
+
+| era | ENGLISH | **MISSING** | OTHER | candidate yield |
+|---|---|---|---|---|
+| CareVue | 0.295 | **0.608** | 0.097 | **0.1093** |
+| MetaVision | 0.882 | **0.005** | 0.114 | **0.2924** |
+
+`LANGUAGE` was recorded for almost no one in CareVue and almost everyone in MetaVision — 60.8%
+missing versus 0.5%. And candidate yield differs by era by a factor of **2.7×**. So
+"unrecorded `LANGUAGE`" is very close to a relabelling of "CareVue era," and the two cannot be
+cleanly separated in this data.
+
+**The specification curve with era added:**
+
+| adjustment | MISSING OR [95% CI] | p |
+|---|---|---|
+| raw | 0.415 [0.367, 0.470] | 1.0e-43 |
+| + era | 0.723 [0.620, 0.843] | 3.4e-05 |
+| + nursing + discharge length | 0.894 [0.772, 1.034] | 0.13 |
+| **+ nursing + discharge + era** | **0.859 [0.730, 1.010]** | **0.066** |
+
+**Correction.** The documentation-completeness selection effect does not survive joint adjustment
+for note volume and documentation era. Combined with C17 (null in HF and sepsis under the correct
+volume specification) and C24 (four-fifths passes on both actual protected attributes), the
+clinical selection finding is **not a defensible standalone result** and must not be reported as
+one. What remains reportable is the raw composition shift — 46.6% of the cohort to 29.8% of the
+candidate pool — stated as a fact about the pipeline with its mechanism openly attributed to
+documentation volume and EHR-system era rather than to patient language.
+
+**Why this does not damage the lead claim, if the lead claim is stated correctly.** The audit
+argument is about *detectability*, not about injustice: a per-group audit computed on the
+post-selection pool is invariant to the selection rate, **regardless of whether the removal is
+discriminatory, benign, or purely mechanical**. Under that statement the four-fifths ratio of
+0.468 is the right computation — four-fifths is defined on raw selection rates and deliberately
+does not ask about cause — and this correction becomes supporting evidence rather than a threat:
+the mechanism is mundane, and blindness to *mechanical* filtering is a far more general problem
+than blindness to discriminatory filtering, because mechanical filtering is in essentially every
+pipeline the survey covers.
+
+The lead claim must therefore never be phrased as "the audit missed a fairness harm." There is no
+demonstrated harm here. It is "the audit cannot see upstream removal at all."
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings
 - **Phase 1 cohort construction** — 13,597 HF admissions, the 3-role → 2-role retreat documented
