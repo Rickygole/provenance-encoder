@@ -457,12 +457,50 @@ coincidental, and `step3_baselines.json` matches that column digit-for-digit on 
 correlations, the threshold sweep, the 0.5078 defect-free stratum, and all four rows of the
 system comparison — every one is computed from that CSV.
 
-**Correction — one of two things is true and it must be established which.** Either the gold
-score file is the contaminated model, in which case Chapters 7–9 must be regenerated from the
-decontaminated checkpoints and the headline numbers move (recall 0.917 → 0.778, precision
-0.0470 → 0.0424, κ −0.001 → −0.0105); or `accord_decontamination_paper_table.csv` is mislabelled
-and must be fixed. Until then the thesis asserts four times that it excludes a configuration
-whose numbers it reports.
+### RESOLVED — it is the contaminated model, and the corrected numbers are recoverable
+
+`accord_v2_decontam_gold_aggregate.json` holds the three decontaminated seeds' confusion
+matrices on the 253-pair core:
+
+| seed | TP | FN | FP | TN | recall |
+|---|---|---|---|---|---|
+| 0 | 9 | 3 | 216 | 25 | 0.750 |
+| 1 | 10 | 2 | 210 | 31 | 0.833 |
+| 2 | 9 | 3 | 207 | 34 | 0.750 |
+
+The best decontaminated seed reaches **10/12**. The reported result is **11/12**. No
+decontaminated seed can produce it. **`gold_standard_accord_results.csv` is the contaminated
+configuration**, and Chapters 7, 8 and 9 report it.
+
+**The corrected numbers.** `thesis/outputs/gold_eval_decontam_predictions.csv` on Drive carries
+the per-pair continuous probabilities for all three seeds on the same 253 pairs, so the headline
+AUROC does not need the checkpoints and can be recomputed now:
+
+| | AUROC | Mann-Whitney p | top-15 TP | AP |
+|---|---|---|---|---|
+| seed 0 | 0.5494 | 0.565 | 1 | 0.0613 |
+| seed 1 | 0.5090 | 0.918 | 0 | 0.0592 |
+| seed 2 | 0.5048 | 0.956 | 0 | 0.0533 |
+| **mean ± std** | **0.5211 ± 0.0201** | — | — | — |
+| **3-seed ensemble** | **0.5145**, 95% CI **[0.321, 0.703]** | **0.867** | 1 | — |
+| *contaminated, same 253 pairs* | *0.4595* | *(0.64 as reported)* | *0* | *0.0461* |
+
+Plus, from the aggregate file: recall **0.7778 ± 0.0393**, precision **0.0424 ± 0.0023**,
+PR-AUC **0.0579 ± 0.0034**, κ **−0.0105 ± 0.0048**, ECE **0.8015 ± 0.0226**.
+
+**Correction.** Replace every Chapter 7/8/9 number derived from `gold_standard_accord_results.csv`
+with the decontaminated equivalents above, and state that the earlier figures were the
+contaminated configuration. **The headline AUROC becomes 0.52, not 0.46.**
+
+**This makes the negative result cleaner, not weaker.** An AUROC *below* chance was always the
+odd part of the old number; 0.5145 with a CI of [0.321, 0.703] and Mann-Whitney p = 0.867 is
+simply no signal, which is what the thesis argues. It also now agrees with the independent
+vanilla control (C19: 0.497 ± 0.035, DeLong p = 0.930) — two unrelated models, one flawed and one
+deliberately plain, both at chance on the same pairs.
+
+**One caveat carried forward.** The decontaminated run's own train/eval boundary was enforced at
+row level, and C18 shows that leaves subject-level overlap. These corrected numbers are the right
+ones to report, but the configuration behind them is not certified subject-disjoint.
 
 **What this does not change.** The decontaminated run is *worse* on every metric, so the negative
 conclusion survives and strengthens. C1's numbers are wrong in the same direction and for the

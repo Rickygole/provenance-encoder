@@ -5,19 +5,26 @@ Loaded gold set: 299 pairs, 12 pharmacist positives (base rate 0.0401)
 
 Covariate match rate on the 1,679-row pool: 1.0000
 Regression-eligible pool rows (after covariate join): 1679
-*** SUBSAMPLED the candidate pool to n=15 rows (fixed seed=42, np.random.default_rng) because --subsample-n was set. The gold set (n=299) is still run in full. ***
 
 ======================================================================
 MODEL: llama3:8b
 ======================================================================
-    [llama3:8b | candidate pool] 15/15  (10s elapsed)
-    [llama3:8b | gold set] 200/299  (216s elapsed)
-    [llama3:8b | gold set] 299/299  (298s elapsed)
+    [llama3:8b | candidate pool] 200/1679  (210s elapsed)
+    [llama3:8b | candidate pool] 400/1679  (513s elapsed)
+    [llama3:8b | candidate pool] 600/1679  (812s elapsed)
+    [llama3:8b | candidate pool] 800/1679  (1059s elapsed)
+    [llama3:8b | candidate pool] 1000/1679  (1224s elapsed)
+    [llama3:8b | candidate pool] 1200/1679  (1379s elapsed)
+    [llama3:8b | candidate pool] 1400/1679  (1521s elapsed)
+    [llama3:8b | candidate pool] 1600/1679  (1639s elapsed)
+    [llama3:8b | candidate pool] 1679/1679  (1684s elapsed)
+    [llama3:8b | gold set] 200/299  (143s elapsed)
+    [llama3:8b | gold set] 299/299  (212s elapsed)
 
-  -- llama3:8b: candidate pool (n=15, parseable=15) --
-     positive=15  negative=0  UNPARSEABLE=0 (0.000%)
-     positive rate (of parseable) = 1.0000
-     calibration vs gold base rate (0.0401): 24.92x
+  -- llama3:8b: candidate pool (n=1679, parseable=1679) --
+     positive=1590  negative=89  UNPARSEABLE=0 (0.000%)
+     positive rate (of parseable) = 0.9470
+     calibration vs gold base rate (0.0401): 23.60x
 
   -- llama3:8b: gold set (n=299, parseable=299) --
      UNPARSEABLE=0 (0.000%)
@@ -25,9 +32,69 @@ MODEL: llama3:8b
      confusion (parseable only): TP=12 FP=273 FN=0 TN=14
      recall=1.000  accuracy=0.087  kappa=0.004099410709710427
 
-  -- llama3:8b: logistic regression (dropping 0 UNPARSEABLE rows from pool), n=15 --
-     MISSING-language OR = 1.5183 [0.0, inf] p=1.0
-     RECORDED_NON_ENGLISH OR = 1.057 [0.0, inf] p=1.0
+  -- llama3:8b: logistic regression (dropping 0 UNPARSEABLE rows from pool), n=1679 --
+     MISSING-language OR = 0.7406 [0.4263, 1.2866] p=0.28655
+     RECORDED_NON_ENGLISH OR = 0.7032 [0.354, 1.3972] p=0.31483
+
+======================================================================
+MODEL: granite3.3:8b
+======================================================================
+    [granite3.3:8b | candidate pool] 200/1679  (171s elapsed)
+    [granite3.3:8b | candidate pool] 400/1679  (339s elapsed)
+    [granite3.3:8b | candidate pool] 600/1679  (509s elapsed)
+    [granite3.3:8b | candidate pool] 800/1679  (681s elapsed)
+    [granite3.3:8b | candidate pool] 1000/1679  (841s elapsed)
+    [granite3.3:8b | candidate pool] 1200/1679  (1030s elapsed)
+    [granite3.3:8b | candidate pool] 1400/1679  (1205s elapsed)
+    [granite3.3:8b | candidate pool] 1600/1679  (1345s elapsed)
+    [granite3.3:8b | candidate pool] 1679/1679  (1401s elapsed)
+    [granite3.3:8b | gold set] 200/299  (177s elapsed)
+    [granite3.3:8b | gold set] 299/299  (266s elapsed)
+
+  -- granite3.3:8b: candidate pool (n=1679, parseable=1679) --
+     positive=1212  negative=467  UNPARSEABLE=0 (0.000%)
+     positive rate (of parseable) = 0.7219
+     calibration vs gold base rate (0.0401): 17.99x
+
+  -- granite3.3:8b: gold set (n=299, parseable=299) --
+     UNPARSEABLE=0 (0.000%)
+     positive rate (of parseable) = 0.7425  calibration = 18.50x
+     confusion (parseable only): TP=12 FP=210 FN=0 TN=77
+     recall=1.000  accuracy=0.298  kappa=0.028589993502274202
+
+  -- granite3.3:8b: logistic regression (dropping 0 UNPARSEABLE rows from pool), n=1679 --
+     MISSING-language OR = 0.8873 [0.667, 1.1802] p=0.4113
+     RECORDED_NON_ENGLISH OR = 0.7279 [0.4983, 1.0633] p=0.10047
+
+======================================================================
+MODEL: qwen3:8b
+======================================================================
+    [qwen3:8b | candidate pool] 200/1679  (167s elapsed)
+    [qwen3:8b | candidate pool] 400/1679  (330s elapsed)
+    [qwen3:8b | candidate pool] 600/1679  (494s elapsed)
+    [qwen3:8b | candidate pool] 800/1679  (658s elapsed)
+    [qwen3:8b | candidate pool] 1000/1679  (818s elapsed)
+    [qwen3:8b | candidate pool] 1200/1679  (1002s elapsed)
+    [qwen3:8b | candidate pool] 1400/1679  (1175s elapsed)
+    [qwen3:8b | candidate pool] 1600/1679  (1318s elapsed)
+    [qwen3:8b | candidate pool] 1679/1679  (1372s elapsed)
+    [qwen3:8b | gold set] 200/299  (174s elapsed)
+    [qwen3:8b | gold set] 299/299  (260s elapsed)
+
+  -- qwen3:8b: candidate pool (n=1679, parseable=1679) --
+     positive=1066  negative=613  UNPARSEABLE=0 (0.000%)
+     positive rate (of parseable) = 0.6349
+     calibration vs gold base rate (0.0401): 15.82x
+
+  -- qwen3:8b: gold set (n=299, parseable=299) --
+     UNPARSEABLE=0 (0.000%)
+     positive rate (of parseable) = 0.6187  calibration = 15.42x
+     confusion (parseable only): TP=11 FP=174 FN=1 TN=113
+     recall=0.917  accuracy=0.415  kappa=0.039256008666434083
+
+  -- qwen3:8b: logistic regression (dropping 0 UNPARSEABLE rows from pool), n=1679 --
+     MISSING-language OR = 1.0314 [0.7852, 1.3547] p=0.82441
+     RECORDED_NON_ENGLISH OR = 1.0788 [0.7393, 1.5741] p=0.69409
 
 ======================================================================
 REFERENCE: original Llama-3-8B-Instruct (HF Inference API, retracted C10 run)
@@ -39,9 +106,11 @@ REFERENCE: original Llama-3-8B-Instruct (HF Inference API, retracted C10 run)
 SUMMARY TABLE
 ======================================================================
                                                                     model  n_pool  pool_positive_rate  unparseable_rate_pool  calibration_vs_4pct_gold  missing_language_OR missing_language_CI  missing_language_p
-Llama-3-8B-Instruct (original, HF Inference API -- REFERENCE, not re-run)    1679              0.8487                    NaN                     21.15               1.6864    [1.1079, 2.5671]              0.0148
-                                                                llama3:8b      15              1.0000                    0.0                     24.92               1.5183          [0.0, inf]              1.0000
+Llama-3-8B-Instruct (original, HF Inference API -- REFERENCE, not re-run)    1679              0.8487                    NaN                     21.15               1.6864    [1.1079, 2.5671]             0.01480
+                                                                llama3:8b    1679              0.9470                    0.0                     23.60               0.7406    [0.4263, 1.2866]             0.28655
+                                                            granite3.3:8b    1679              0.7219                    0.0                     17.99               0.8873     [0.667, 1.1802]             0.41130
+                                                                 qwen3:8b    1679              0.6349                    0.0                     15.82               1.0314    [0.7852, 1.3547]             0.82441
 
-VERDICT (i) gross miscalibration: models with pool calibration ratio > 3x (i.e. clearly over-flagging relative to the 4% gold base rate): ['llama3:8b'] of ['llama3:8b']
-VERDICT (ii) demographic differential: models replicating a significant (p<0.05) MISSING-language OR > 1 (over-flagging the missing-language subgroup): [] of ['llama3:8b']
+VERDICT (i) gross miscalibration: models with pool calibration ratio > 3x (i.e. clearly over-flagging relative to the 4% gold base rate): ['llama3:8b', 'granite3.3:8b', 'qwen3:8b'] of ['llama3:8b', 'granite3.3:8b', 'qwen3:8b']
+VERDICT (ii) demographic differential: models replicating a significant (p<0.05) MISSING-language OR > 1 (over-flagging the missing-language subgroup): [] of ['llama3:8b', 'granite3.3:8b', 'qwen3:8b']
   --> Differential did NOT replicate in any locally-run model: the original finding is model-specific to Llama-3-8B-Instruct (HF Inference API) and must be reported as such.
