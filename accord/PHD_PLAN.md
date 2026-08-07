@@ -360,3 +360,142 @@ this body of work currently sends is destruction, and that is not the signal to 
 
 *Advisor matching, funding map, and the full C2/C3 experiment matrix are being compiled separately
 and will be appended as §11–13.*
+
+---
+
+## 11. Advisor targets
+
+Ranked by fit × attainability. Every paper below was retrieved from the arXiv API, not from
+memory. **Venues are largely unverified** — arXiv returns titles and dates, not venue.
+
+### Top targets
+
+| advisor | institution | hosts | why |
+|---|---|---|---|
+| **Shalmali Joshi** | Columbia, Biomedical Informatics | **C1+C2+C3** | *"ICYM2I: The illusion of multimodal informativeness under missingness"*; *"Why did the Model Fail?"*; a path-specific causal fairness pipeline. Three critique-framed papers in four years. **Best fit × attainability on the list** — DBMI programs weight MIMIC-III work far more than CS departments |
+| **Naomi Saphra** | Boston University, CDS | **C4** (+C2) | *"Hidden Breakthroughs in Language Model Training"* decomposes loss to expose what scalar loss hides — the inverse of the 1.320-nat finding. **Explicitly recruiting for 2027**, and states plainly: *"I am primarily interested in understanding systems, not creating them."* **Highest expected value on the whole list** |
+| **Amanda Coston** | UC Berkeley, **Statistics** | **C1+C2+C3** | *"Falsifying Discriminant Validity of Predictive Algorithms"* (solo); *"Characterizing Fairness Over the Set of Good Models Under Selective Labels."* Essentially zero system-building output. **Route caveat: Statistics, not EECS** — their rubric screens on measure-theoretic probability and real analysis. Consider approaching as co-advisor from a Berkeley CPH or EECS admit |
+| **Jenna Wiens** | Michigan CSE (MLD3) | **C1+C2+C3** | *"From Biased Selective Labels to Pseudo-Labels"*; *"On the Limits of Selective AI Prediction."* Senior-authors explicitly limiting results with students |
+| **Jean Feng** | UCSF, Epi & Biostat | **C1+C2** | *"A hierarchical decomposition for explaining ML performance discrepancies"* is structurally the same object as C2, but across domains rather than pipeline stages. C2 is a natural extension of his framework — the ideal relationship to an advisor's line. **UCSF has no CS PhD**; verify the entry route |
+| **Byron Wallace** | Northeastern, Khoury | **C1+C2+C4** | The only person who can host clinical NLP evaluation critique *and* the proxy-metric question. Publishes negative results under his own name |
+| **Irene Y. Chen** | Berkeley EECS + UCSF | **C1+C2** | *"Access to care improves EHR reliability and clinical risk prediction model performance"* — the C1 mechanism, measured. Joint appointment means **more than one admissions door** |
+
+Also strong: Ghassemi (MIT, C1+C2), Pierson (Berkeley — *"A Bayesian Model for Multi-stage
+Censoring"* is the closest formal antecedent to C1), McDermott (Harvard DBMI, C2+C4), Agrawal
+(Duke, C4), Ustun (UCSD, C2), Nabi (Emory, **the right technical home for C3's proof**),
+Bareinboim (Columbia — **committee member, not primary advisor**; now mostly causal RL).
+
+### Pre-emption reads
+
+- **Stephen Pfohl is at Google Research, not faculty.** He cannot advise. He is an obvious person
+  to email and a plausible internship host.
+- **Sanmi Koyejo is the only faculty node on the Pfohl paper.** Best possible match on paper,
+  **worst on access** — and being co-advised inside the group that wrote the adjacent paper risks
+  C1 being absorbed rather than credited.
+- **C1 is not pre-empted, and say why in one sentence.** Pfohl et al. is about *interpreting*
+  disaggregated metrics when subgroups genuinely differ. C1 is that the audit is *invariant to the
+  selection rate* — a non-identifiability result about where the audit is computed, not how to read
+  it. Complementary. Cite in the first paragraph.
+
+### Two action items
+
+1. **Check whether Olawale Salaudeen has started a faculty position for Fall 2027.** His
+   *"Measurement to Meaning: A Validity-Centered Framework for AI Evaluation"* and *"Are Domain
+   Generalization Benchmarks with Accuracy on the Line Misspecified?"* put him at roughly #2 on
+   this list if he has. New labs take students. His domain failed DNS; verify another way.
+2. **Verify affiliations for Qi, Acitores Cortina, Biswas & Rajan, Martínez-Plumed.** If Acitores
+   Cortina is Columbia DBMI, that is Joshi's department — a citation and a potential committee
+   member, not a reason to avoid.
+
+### Stratification
+
+**Reach:** MIT EECS (Ghassemi), Stanford CS (Koyejo), Berkeley EECS (Pierson, Chen), Berkeley
+Statistics (Coston), Harvard DBMI (McDermott), Columbia CS (Bareinboim).
+**Match:** **Columbia BMI (Joshi)**, Michigan CSE (Wiens), Northeastern (Wallace), UCSD (Ustun),
+Duke (Agrawal), NYU (Chunara), JHU (Field), UCSF (Feng).
+**Likely:** **BU CDS (Saphra)**, Emory Biostat (Nabi).
+
+---
+
+## 12. Funding
+
+**The headline: almost every prestige federal award is categorically closed**, on status rather
+than competitiveness. An active NIW petition means not-yet-permanent-resident.
+
+| program | status |
+|---|---|
+| **NSF GRFP** | **ineligible on two independent grounds** — citizenship, *and* "completed less than one academic year of graduate study." The MS ran Jan 2025–Dec 2026. **A green card would not fix the second bar** |
+| NDSEG | permanent residents explicitly ineligible — strictest in the set |
+| Hertz, NIH F31, F99/K00, AHRQ | citizen/PR only |
+| Ford Predoctoral | **appears discontinued** — removed from the National Academies listing, page 404s |
+| NVIDIA ($60k, internationals eligible) | needs first PhD year complete → **Sept 2028** |
+| Google PhD Fellowship | nomination-only, **4 nominees per US university** → Spring 2028; the real contest is the internal nomination, which advisor advocacy decides |
+| Microsoft Research | call still shows paused — unclear |
+
+**The two open doors:**
+1. **Knight-Hennessy Scholars** — open to **all citizenships**, funds 3 years at Stanford, estimated
+   early October 2026. **Deadline unverified** (site returns 403 to automated fetch).
+   **Confirm this first — it is the single largest opening.**
+2. **Departmental fellowships bundled with admission** — open to internationals, usually no separate
+   application. **Highest EV: a strong PhD application *is* the fellowship application.**
+
+**Drop:** Coefficient Giving (weak fit), Soros (likely ineligible).
+
+**NIW note:** *"original contributions of major significance"* is the **EB-1A** standard, not NIW.
+Under Dhanasar, awards support prong 2. Do not import EB-1A language — attorney decides. Awards
+that carry weight: Knight-Hennessy, Google/NVIDIA (2028+), and **AMIA/ACMI awards**, which punch
+above their size because they are peer recognition in-field. Merely money: departmental
+fellowships, TA lines, travel grants. **Export your reviewer invitation emails this week** — the
+most under-documented independent-recognition artifact available.
+
+---
+
+## 13. The C2 and C3 experiment matrices
+
+Full matrices are in the agent record; the operative subsets:
+
+**C2 submittable** — cells A (decomposition exactness), G (preconditions fire), F (non-degenerate
+classifier × operating-point sweep), E (multi-attribute), I (null-attribute policy ablation),
+L (metric-choice ablation — the Watkins defense), K (bootstrap CIs), D2 (second own pipeline),
+D3 (**mimic3-benchmarks — the pipeline you did not write**). ≈ **48 laptop machine-hours**,
+6–10 weeks engineering.
+
+**C3 submittable** — cells 0 (state and prove, with the Cov term), 1 (**positive control**),
+2 (negative control), 3 (axis-1 sweep violating S ⊥ X | A), 5 (joint boundary map — C3's figure),
+8 (metric ablation), 9 (power layer), 10 (semi-synthetic on the mortality task).
+**Under 10 machine-hours** plus 1–2 weeks proof-writing.
+
+**Skip, with the limitations sentence pre-written:** analyst user study, mitigation study,
+cross-pipeline flag transfer, MIMIC-IV/eICU, downstream model-class sweeps, any LLM-annotator arm
+inside C2/C3 (direction is prompt-set, would confound stage attribution).
+
+**Cut the dense 11-point `or_select` grid to 5 points** and spend the replicates on CIs and the
+second axis. Grid density was never the missing thing — the positive control and the X-axis were.
+
+### Do now, ranked by value per hour
+
+1. **C3-0** — write the proposition with the Cov term. Zero compute. May kill C3 for two weeks' cost
+2. **C3-1 + C3-2 + C3-9** — positive control, negative control, power layer. **Under one hour**, and
+   the single change that makes the simulation falsifiable
+3. **C2-G** — do the preconditions fire on the 87.3%-positive ACCORD model and *not* on the mortality
+   model? Under an hour; it is the protocol's own falsifier
+4. **C2-F** — operating-point sweep, ~1h post-hoc on saved scores (13h if retraining)
+5. **C3-3 + C3-5 + C3-8** — ~4 hours, produces C3's headline figure
+6. **C3-10** — semi-synthetic on the mortality task, 1–2h. **Compute the MDE table first**:
+   race-stratified FPR at MIMIC test proportions has MDE ≈ 0.04 against a 0.05 tolerance, so
+   attribute choice is load-bearing
+7. **C2-D3** — mimic3-benchmarks, 8–12h plus setup. The hardest reviewer demand to answer late
+8. **C3-15** — ACS PUMS replication. Public, no credentialing, ~a day. **Best external-validity-
+   per-hour cell in either contribution**
+
+### One positioning note
+
+**No cluster access is a strength for C4 and a liability elsewhere.** A 10.6M-parameter
+from-scratch encoder reaching 0.8003 against PubMedBERT's 0.8223 is *more* impressive without a
+cluster. Saphra, Agrawal and McDermott will read it that way; Ghassemi's group published
+*"The Role of Computing Resources in Publishing Foundation Model Research"* analyzing 6,517 papers
+on exactly this axis.
+
+**And the withdrawn submission plus a 27-item correction record including a caught
+collider-stratification error is, to a methodology advisor, a positive signal.** Coston, Wiens,
+Joshi, Feng and Saphra all publish work whose value is finding errors. Do not bury it.
