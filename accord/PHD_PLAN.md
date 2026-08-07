@@ -127,18 +127,49 @@ cannot see.
 **Kill condition:** if it recovers nothing beyond a raw composition table, it is a checklist and
 must be described as one.
 
-**Compute:** needs a cluster for multi-pipeline validation. **Not feasible on the M1.**
-**Timeline:** 6–9 months, Year 1.
+**Compute:** laptop-feasible. Submittable subset ≈ 48 machine-hours; the binding cost is
+engineering time, not compute. **Timeline:** 6–10 weeks of engineering, startable now.
+
+**One structural warning.** The log-disparity decomposition Σ log(r_k/r_{k-1}) = log(r_K/r_0) is a
+**telescoping identity** — exactly additive by arithmetic, always. It will validate and prove
+nothing, and a reviewer will say it is a difference of logs of a table you already printed. The
+non-trivial content must be counterfactual attribution (what composition would be if stage k were
+group-blind, holding others fixed — Kitagawa–Oaxaca–Blinder or Shapley, which is *not*
+order-independent), the interaction with the null-attribute bucket, or the preconditions that let
+the protocol refuse to report.
+
+**And HF/sepsis/AKI is one pipeline on three cohorts, not three pipelines.** A reviewer will say so
+in the first paragraph. The external requirement is real: mimic3-benchmarks (Harutyunyan) has a
+documented exclusion cascade where each exclusion is a free stage boundary.
 
 ---
 
 ### C3 — The invariance result
 
-**Claim.** Under S ⊥ Y | (A, X), a predictor evaluated on the selected pool satisfies equalized FPR
-regardless of how strongly S depends on A. Plus a characterization of where it breaks.
+**Claim — corrected 2026-08-07; the earlier wording was false.** It is a **preservation** result,
+not an equalization result. "The pool satisfies equalized FPR" is refuted in two lines: a
+population with an FPR gap of 0.2 and no selection at all yields a pool gap of 0.2. The correct
+statement is that the **pool FPR gap equals the population FPR gap**, and is therefore invariant
+to the magnitude of selection.
 
-**State:** not started. The current simulation assumes the condition by fiat, which is why it has
-no contrast.
+It also needs a condition I had not stated. Writing π(x,a) = P(S=1 | X=x, A=a):
+
+```
+FPR_a^pool − FPR_a^pop = Cov(f(X), π(X,a) | Y=0, A=a) / E[π(X,a) | Y=0, A=a]
+```
+
+Invariance to the A-dependence of selection holds **only if π(x,a) = π(a)** — i.e. **S ⊥ X | A**
+as well as S ⊥ Y | (A,X). That covariance term *is* the characterization of where it breaks, it is
+estimable in real data, and it is the whole contribution.
+
+**Why the pilot sweep is degenerate — root cause identified.**
+`accord/denominator/simulate.py:141` sets `logit_s = s0 + s1*a + leak_gamma*y_centered`, with **no
+X term**, and draws `a` independently of `x` and `y`. So Cov(f(X), π) ≡ 0 by construction and
+invariance is forced. The C24 no-contrast finding — 0.00112 at or_select 1.00 versus 0.00129 at
+0.05 — is that one line, not a result about audits.
+
+**State:** not started. The simulation needs an X-dependent selection term before it can test
+anything.
 
 **Needed:**
 1. State it as a proposition and prove it
@@ -153,7 +184,12 @@ died.
 **Kill condition:** if it is a direct corollary of published recoverability theory, report it as
 such and fold it into C2 as the protocol's justification.
 
-**Compute:** trivial. **Timeline:** 4–6 months, Year 1–2.
+**Compute:** under 10 machine-hours for the entire submittable set. **Timeline:** 1–2 weeks of
+proof-writing plus a few days of simulation. Startable now.
+
+**Note on statistics:** these are Monte Carlo simulations — report CIs over 200–500 replicates per
+grid point, never "3 seeds." Reporting seeds for a simulation is a category error, and C7 in the
+corrections record means a reviewer will notice.
 
 ---
 
@@ -265,16 +301,28 @@ leading with something that works matters.
 
 ## 8. Compute and infrastructure
 
+**Corrected 2026-08-07. The earlier version of this section said C2 and C3 were blocked on a
+cluster. That was wrong, and it was the most consequential error in this plan.**
+
 | need | today | required |
 |---|---|---|
 | C1 experiments | M1 sufficient | — |
 | C4 seeds and replication | M1 sufficient | — |
-| C4 scaling to 30M/100M | **blocked** | ~4× A100-days |
-| C2 multi-pipeline validation | **blocked** | cluster + access to third-party pipelines |
-| C3 theory and simulation | M1 sufficient | — |
+| **C2 — full Tier-1 matrix** | **M1 sufficient** | binding cost is *engineering hours*, not GPU hours; a cluster barely shortens a pandas job over MIMIC CSVs |
+| **C3 — full Tier-1 matrix** | **M1 sufficient** | entire Tier-1 set is **under 10 machine-hours**; C3 needs a proof, not compute |
+| C2-D4 MIMIC-Extract | tight | 16GB is marginal |
+| C2-Q MIMIC-IV / eICU | blocked | cluster |
+| C4 scaling to 30M/100M | blocked | ~4× A100-days |
 
-Roughly half the dissertation is laptop-feasible. That half should be finished before a program
-starts, which is the strongest possible application material.
+**Minimum viable subsets, costed:**
+- **C2 submittable** — cells A, G, F, E, I, L, K, D2, D3: ≈ **48 laptop machine-hours** plus 6–10
+  weeks of engineering
+- **C3 submittable** — cells 0, 1, 2, 3, 5, 8, 9, 10: **under 10 machine-hours** plus 1–2 weeks of
+  proof-writing
+
+**Nearly the whole dissertation except C4 scaling is laptop-feasible.** That changes the strategy
+completely: the PhD work is not gated on admission. Finishing C2 and C3 before a program starts is
+the strongest possible application material, and it is available.
 
 ---
 
