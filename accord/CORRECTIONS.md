@@ -837,6 +837,95 @@ argument is right.
 
 ---
 
+## C23. "Model-agnostic miscalibration" is refuted by a file already in the results directory
+
+**Claimed, by me, in C20.** Three 8B open-weights models over-call at 15.8×–23.6× against the
+4.0% base rate, so *"the model-agnostic claim is now true and earned."*
+
+**Actual.** `results/accord/step3_baselines.json`, present throughout:
+
+| system | positives | n | rate | × vs 4.0% |
+|---|---|---|---|---|
+| llama_baseline | 242 | 253 | 0.957 | **23.9×** |
+| **gpt4o_zeroshot** | 71 | 253 | 0.281 | **7.0×** |
+| gpt4o_fewshot | 141 | 253 | 0.557 | 13.9× |
+
+The one frontier model in the data over-calls at **one third** the rate of the 8B models, and
+few-shot prompting moves the same model from 7.0× to 13.9×. Three 8B instruction-tuned models
+under one fixed prompt is a single point in a scale × prompt space, and **both axes move the
+quantity claimed to be model-invariant.**
+
+**Correction.** Withdraw "model-agnostic." The defensible claim is: *every model tested over-calls
+by at least 7×, and the magnitude varies with scale (7.0× to 23.9×) and with prompting (7.0× to
+13.9× within one model).* That is still a strong result — a 7× floor across everything tested —
+and it is the one the data supports.
+
+**This is C10's failure mode repeating in the correction that repaired C10.** C10 was a
+model-agnostic claim asserted from one model plus a hardcoded row. C20 replaced it with a
+model-agnostic claim from three models of one size under one prompt, while a contradicting
+measurement sat in the same results directory. The lesson is the same both times: "agnostic"
+requires varying the thing you claim not to depend on.
+
+**Second, separate problem.** Positive rate at the argmax is a *decision rate*, not calibration. A
+calibration claim needs the yes-token logprob, a reliability diagram, ECE, and AUROC against
+gold. Chapter 8 prescribes exactly this and the claim violates it.
+
+---
+
+## C24. Both empirical legs of the lead claim are compromised
+
+**Leg 1 — the real-data dissociation rests on the one contrast that is not a protected attribute.**
+Four-fifths ratios at the selection stage (`exp3_disaggregation.json`):
+
+| contrast | ratio | verdict |
+|---|---|---|
+| NAMED_MINORITY vs WHITE | 0.1647 / 0.1564 = **1.053** | **passes** |
+| RECORDED_NON_ENGLISH vs ENGLISH | 0.1673 / 0.2081 = **0.804** | **passes** |
+| UNKNOWN_OTHER vs WHITE | 0.1132 / 0.1564 = 0.724 | fails |
+| **MISSING vs ENGLISH** | 0.0973 / 0.2081 = **0.468** | fails |
+
+**On every attribute that is actually a protected characteristic, candidate generation passes.**
+The only two failures are the two administrative-missingness buckets. C11 is a formal retraction
+of exactly this inference — administrative missingness read as demography — and the lead claim
+commits it again, then applies a disparate-impact standard designed for protected classes to a
+category covering 46.6% of the cohort. Combined with C22 (the audited classifier is near-constant)
+this leg cannot carry the claim.
+
+**Leg 2 — the synthetic sweep has no positive control.** From
+`accord/denominator/results/sweep1_summary.csv`:
+
+| or_select | demographic-parity gap |
+|---|---|
+| 0.05 (20× under-selection) | 0.001287 |
+| 0.64 (the observed value) | 0.000755 |
+| **1.00 (no selection bias at all)** | **0.001116** |
+| 2.00 | 0.001068 |
+
+The null condition and the most extreme condition produce indistinguishable audit output. The
+sweep cannot separate *"the audit is blind to selection bias"* from *"the generative model
+contains no disparity for the audit to find."* `simulate.py` draws group, features and outcome
+mutually independently, so with the leak parameter at zero every audit metric is forced to zero
+gap by construction. The sweep illustrates its own assumption.
+
+**Correction.** Neither leg demonstrates the claim as stated. **The 31-paper survey is the only
+leg still standing**, and two independent adversarial reviews reached that conclusion separately.
+Note the survey's purposive sampling cuts the *right* way here: deliberately oversampling
+pipelines most exposed to the failure and still finding 0 of 25 makes the disjointness conclusion
+conservative, not inflated.
+
+**What would repair each leg.**
+- Leg 1: sweep the pool audit's operating point across the three available continuous scorers
+  (ACCORD `contra_prob`, the C19 control, TF-IDF+LR) from a 4% positive rate up to 90%, and report
+  the audit verdict as a function of that rate. If the audit passes across the whole sweep while
+  selection sits at 0.468, the claim holds. If it passes only in the degenerate region, it does not.
+- Leg 2: make the group associated with features and outcome — which C12 asserts is true of these
+  admissions — and make selection depend on documentation volume, which C17 shows it does. Then
+  the sweep tests something.
+- Better than either: state the invariance as a proposition with a short proof, and demote the
+  sweep to numerical illustration of a theorem rather than evidence for a conjecture.
+
+---
+
 ## What survives all of this
 
 - **299 two-pass pharmacist annotations** with confidence, justification and 1–5 danger ratings
