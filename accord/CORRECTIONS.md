@@ -1071,3 +1071,49 @@ Scholar rate-limited, **PubMed and the ACL Anthology not searched**. Claims 1, 3
 partly in PubMed-indexed venues, and a JAMIA or JBI reporting-practice review would kill the
 null-attribute finding outright and would not have been visible here. **Run that pass before
 committing to the framing.**
+
+---
+
+## C27. The survey's reliability holds under blind second coding
+
+**The concern.** The 31-paper survey was single-coder, purposive, with no reliability estimate,
+and it is now the only leg of the lead claim still standing. C3 in this same record retracts a
+κ = 1.000 claim for exactly this class of error, so the survey had to be held to the standard it
+was failing to find in others.
+
+**The test.** A second coder, blind to the first coder's answers and to the hypothesis, was given
+only the field definitions and 10 of the 31 papers. It retrieved **all 10 in full** — zero
+inaccessible — and returned 21 verbatim supporting quotes with section attributions.
+
+**Cohen's κ on the decisive field** ("does the paper audit the filtering stage against a pre-filter
+or external denominator"), bracketing the first coder's *Partial* codes both ways:
+
+| mapping | agreement | κ | disagreement |
+|---|---|---|---|
+| Partial = YES vs literal reading | 9/10 | **0.783** | Wang |
+| Partial = NO vs strict reading | **10/10** | **1.000** | none |
+| Partial = YES vs strict reading | 9/10 | **0.737** | Banda |
+
+**The decisive cell is empty.** Papers auditing *both* a downstream model and the filtering stage:
+**0 of 10** under the strict reading, 2 of 10 under a literal one — and the second coder flagged
+both of those (Banda, Wang) as weak on its own initiative, noting Wang's before/after comparison
+serves confounder balance in a matched design rather than equity, and never reports what fraction
+of each racial group survived any filter.
+
+**Independent structural confirmation, which the second coder volunteered.** The two papers that
+audit filtering as their primary object (Acitores Cortina, Qi) **neither audits a downstream
+model** — Acitores explicitly defers it to future work, Qi has no model at all. And all six papers
+that audit a model on a filtered pool apply substantive filters, none of the unambiguous ones
+examining the filter's compositional effect. That is the disjointness claim reproduced by a coder
+who was not told it was the hypothesis.
+
+**Verdict.** κ of 0.74–1.00 clears the ≥0.75 bar under two of three mappings and is borderline on
+the third. The survey is real. **The count in the decisive cell is fragile to two judgment calls
+and must be adjudicated explicitly in writing rather than reported as a bare number** — state the
+strict and literal readings side by side, publish the per-paper coding table with quotes, and let
+the reader see the two ambiguous cases.
+
+**This is the only leg of the lead claim that has strengthened under adversarial review.** C24
+compromised the real-data leg, C26 demoted the simulation to replication. The survey survived a
+falsifier designed to kill it (C21) and now a blind reliability check. The thesis should be built
+on it.
