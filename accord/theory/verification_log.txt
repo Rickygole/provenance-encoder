@@ -29,6 +29,17 @@ Tested against an ARBITRARY, strongly X-dependent, group-dependent pi.
   MAX |observed - closed form| over 200 random pi, 2 groups, 4 metrics: 5.898e-16
   VERDICT: PASS (tolerance 1e-12)
 
+  E1b. EQUIVALENT ODDS FORM (more interpretable than the covariance):
+       odds(FPR_a^pool) = r_a * odds(FPR_a^pop),  where
+       r_a = E[pi | Y=0,A=a,f=1] / E[pi | Y=0,A=a,f=0].
+       grp        r_a      pred odds       obs odds     |diff|
+         0   1.192856   0.6913375873   0.6913375873   5.55e-16
+         1   1.025667   0.3791861255   0.3791861255   0.00e+00
+       MAX |diff| over 200 random pi: 1.332e-15
+       => the ENTIRE effect of X-dependent selection on a group's FPR is a
+          multiplicative tilt of the FPR ODDS by r_a. The gap on the
+          log-odds scale shifts by exactly log(r_1/r_0).
+
 ==============================================================================
 E2. pi(x,a) = pi(a):  per-group invariance, and invariance to MAGNITUDE
 ==============================================================================
@@ -262,12 +273,41 @@ f). If invariance held for every f, b_a would be 0 at every threshold.
     accidentally be uncorrelated with pi; a family of f's cannot.
 
 ==============================================================================
+E12. A SHARPER SUFFICIENT CONDITION THAN pi(x,a)=pi(a)
+==============================================================================
+Theorem 3(iii): for threshold rules of a fixed score s, FPR is preserved
+at EVERY threshold iff E[pi | s(X), Y=0, A=a] is a.s. CONSTANT. pi itself
+may vary wildly within a score level. Construct exactly that:
+    pi ranges over [0.2528, 0.6971] -- strongly X-dependent.
+    grp 0: E[pi | score level, Y=0] per level = [0.5000000000, 0.5000000000, 0.5000000000, 0.5000000000]  (flat by construction)
+    grp 1: E[pi | score level, Y=0] per level = [0.5000000000, 0.5000000000, 0.5000000000, 0.5000000000]  (flat by construction)
+
+    PREDICTION 1: FPR preserved at EVERY threshold (exactly).
+      max |FPR bias| over thresholds x groups: 3.331e-16  -> PRESERVED
+      pop FPR gap -0.097002689474 -> pool -0.097002689474
+
+    PREDICTION 2: TPR is NOT preserved -- the Y=1 stratum reweights X
+    differently, so flatness on the Y=0 stratum buys nothing there.
+      pop TPR gap -0.0403452664 -> pool -0.0455985103   |diff| 5.253e-03
+      grp 0 TPR 0.6689953576 -> 0.6672370436
+      grp 1 TPR 0.6286500912 -> 0.6216385333
+
+    PREDICTION 3: calibration is NOT preserved (pi varies within levels).
+      max calibration deviation: 1.752986e-02  -> BROKEN
+
+    All three predictions confirmed. This is the practically useful form:
+    the auditable condition is 'selection propensity is flat in the score
+    within the true-negative stratum', NOT 'selection ignores X'.
+
+==============================================================================
 SUMMARY
 ==============================================================================
-    [PASS] E1 covariance decomposition exact
-    [PASS] E2 pi(x,a)=pi(a) full invariance
-    [PASS] E6 bias linear in lam (closed form)
-    [PASS] E8 Monte Carlo agrees with exact pool
+    [PASS] E1  covariance decomposition exact
+    [PASS] E1b odds-ratio form exact
+    [PASS] E2  pi(x,a)=pi(a) full invariance
+    [PASS] E6  bias linear in lam (closed form)
+    [PASS] E8  Monte Carlo agrees with exact pool
+    [PASS] E12 score-flat condition behaves as predicted
 
     E1 max error: 5.898e-16
     E6 max error: 2.498e-16   R^2 = 1.000000000000000

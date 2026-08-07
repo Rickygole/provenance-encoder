@@ -1171,3 +1171,68 @@ is unaffected and is if anything strengthened.
 cohort appears as a worked example of *why the audit is uninformative here* — degenerate classifier,
 underpowered cells, and an operating point that flatters the result — not as a demonstration that
 audits are blind. That is a smaller claim and it is the one the data supports.
+
+---
+
+## C29. The invariance proposition is verified numerically, and the metric taxonomy is the finding
+
+**Method.** `accord/theory/selection_invariance.py` — fully discrete, so every quantity is **exact
+with no Monte Carlo error**. Critically, every metric is computed by one function applied to a
+joint table over (A, X, Y): "population" is that function on the population table, "pool" is the
+*same* function on the selection-reweighted table. Nothing about the pool is computed from the
+closed form being tested, so the check is genuine rather than tautological.
+
+**The identity holds.** The covariance decomposition
+`FPR^pool − FPR^pop = Cov(f(X), π(X,a) | Y=0, A=a) / E[π(X,a) | Y=0, A=a]` verifies at
+**5.9 × 10⁻¹⁶**; the odds form at 1.3 × 10⁻¹⁵; a 19-point sweep tracks the closed form with
+**R² = 1.000**, max error 2.5 × 10⁻¹⁶; and a 20,000,000-draw Monte Carlo agrees at max z = 2.09.
+
+**The taxonomy is the real result.** Under selection depending on A and Y but **not** X
+(S ⊥ X | A):
+
+| metric | pool vs population gap | invariant? |
+|---|---|---|
+| **FPR** | −0.09700 vs −0.09700 (diff 5.6e-17) | **yes** |
+| **TPR** | −0.04035 vs −0.04035 (diff 0.0) | **yes** |
+| **AUROC** | +0.01364 vs +0.01364 (diff 0.0) | **yes** |
+| demographic parity | −0.0707 vs +0.1456 (diff 0.216) | no |
+| PPV | +0.0765 vs +0.6489 (diff 0.572) | no |
+| NPV | −0.0068 vs −0.5966 (diff 0.590) | no |
+| prevalence | +0.0153 vs +0.6506 (diff 0.635) | no |
+| calibration | — (maxdiff 0.628) | no |
+
+Under selection that depends on the **score**, everything breaks except calibration
+(maxdiff 1.1 × 10⁻¹⁶).
+
+**What this means, stated carefully.** *Invariant* means the pool gap equals the population gap —
+the audit reports the truth about the model but is **structurally unable to register that
+selection occurred**. *Not invariant* means the pool gap differs from the population gap — the
+audit reports a **corrupted** number, not a detection. So equalized-odds metrics and AUROC are
+unbiased-but-blind; parity, predictive-value and calibration metrics are actively contaminated by
+selection. **Neither class detects upstream removal**, and that two-way split is a sharper claim
+than "audits are blind."
+
+**One further result.** The bias is **not monotone** in the strength of X-dependence: it peaks at
+λ = 0.95 and is smaller at λ = 1.0. So "more selection on features ⇒ more bias" is false, which
+matters for anyone trying to bound the error.
+
+**Kill condition still OPEN.** Whether this is a corollary of Bareinboim–Pearl recoverability or of
+Pfohl et al. (NeurIPS 2025) has **not** been determined — the agent checking it died before
+finishing, and its log mentions Pfohl only once. Until that check is done, this must be described
+as a verified proposition, **not** as a novel theoretical contribution.
+
+---
+
+## C30. The rebuilt simulator can now fail, and its controls fire correctly
+
+`accord/denominator/simulate_v2.py`, replacing the instrument C24 showed was degenerate.
+
+| control | result |
+|---|---|
+| **positive** — plant a population gap, no selection | DP gap **0.1389** [0.1384, 0.1394], four-fifths **0.557** → **detected** |
+| **negative** — no gap, no selection | DP gap **0.00031** [−0.0002, 0.0008] |
+| **noise floor** | DP upper-95 **0.00165**, FPR upper-95 **0.00151** |
+
+The original simulator could not distinguish its null condition from a 20× selection disparity
+(0.00112 vs 0.00129). The rebuild detects a planted gap 84× above its own noise floor and stays
+quiet when there is nothing to find. Reported as CIs over replicates, not "3 seeds" — C7's lesson.

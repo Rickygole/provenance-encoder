@@ -73,6 +73,7 @@ import csv
 import json
 import os
 import time
+import zlib
 
 import numpy as np
 from scipy import stats as sps
@@ -121,6 +122,20 @@ ALPHA = 0.05              # for CIs and power calc
 POWER = 0.80               # target power for minimum-detectable-gap calc
 Z_ALPHA2 = float(sps.norm.ppf(1 - ALPHA / 2))
 Z_POWER = float(sps.norm.ppf(POWER))
+
+
+def stable_seed(*parts):
+    """Deterministic, cross-process-stable seed derivation. Python's builtin
+    hash() is salted per-process for str/tuple-of-str (PYTHONHASHSEED
+    randomization is on by default) -- confirmed empirically: hash() of the
+    identical tuple differs between two separate `python3` invocations. That
+    means a naive `hash((tag, params, r)) % 2**32` seeding scheme (as used
+    in simulate.py) is NOT reproducible run-to-run, only self-consistent
+    within a single run. zlib.crc32 has no such salting and is stable across
+    processes and machines, so it is used here to satisfy the "fixed seeds,
+    fully reproducible" requirement literally."""
+    s = "|".join(str(p) for p in parts)
+    return zlib.crc32(s.encode("utf-8")) & 0xFFFFFFFF
 
 
 def sigmoid(z):
@@ -414,7 +429,7 @@ def run_point(tag, or_select, leak_gamma, sx_coef, rho, beta_ay, n_replicates, s
     reps = []
     key = seed_key if seed_key is not None else (tag, or_select, leak_gamma, sx_coef, rho, beta_ay)
     for r in range(n_replicates):
-        rng = np.random.default_rng(hash((key, r)) % (2**32))
+        rng = np.random.default_rng(stable_seed(key, r))
         draw = simulate_once(N_POP, or_select, leak_gamma, sx_coef, rho, beta_ay, rng)
         reps.append(audit_one_draw(draw))
     agg = aggregate_group_level(reps)
@@ -515,14 +530,21 @@ dp_vals_sweep0 = [r["pool"]["demographic_parity_gap"] for r in sweep0]
 fpr_vals_sweep0 = [r["pool"]["fpr_gap"] for r in sweep0]
 spearman_dp = float(sps.spearmanr(OR_GRID, dp_vals_sweep0).correlation)
 spearman_fpr = float(sps.spearmanr(OR_GRID, fpr_vals_sweep0).correlation)
-refutation_triggered = (
-    max(dp_vals_sweep0) > noise_floor_dp or max(fpr_vals_sweep0) > noise_floor_fpr
-)
+# Correct significance test: regress the REPLICATE-LEVEL signed gap on
+# or_select, pooling all 300-replicate points (matched replicate count,
+# matched noise level throughout -- NOT a magnitude comparison against a
+# noise floor computed at a different replicate count, which produces
+# spurious "drift" flags; see trend_test() docstring).
+dp_slope0, dp_p0, dp_n0 = trend_test(sweep0, OR_GRID, "pred_pos_rate")
+fpr_slope0, fpr_p0, fpr_n0 = trend_test(sweep0, OR_GRID, "FPR")
+refutation_triggered = (dp_p0 < ALPHA) or (fpr_p0 < ALPHA)
 print(f"\nREFUTATION CHECK: trivial-regime gaps vs or_select -- "
       f"DP values={['%.5f' % v for v in dp_vals_sweep0]}, FPR values={['%.5f' % v for v in fpr_vals_sweep0]}")
-print(f"  Spearman rho(or_select, DP gap) = {spearman_dp:.3f}, "
+print(f"  Spearman rho(or_select, DP gap) = {spearman_dp:.3f} (descriptive only, n=5 points, not the test used), "
       f"Spearman rho(or_select, FPR gap) = {spearman_fpr:.3f}")
-print(f"  Any trivial-regime gap exceeds the negative-control noise floor: {refutation_triggered}")
+print(f"  Replicate-level trend test (linear regression, {dp_n0} DP / {fpr_n0} FPR data points): "
+      f"DP slope={dp_slope0:.6f} p={dp_p0:.4f}; FPR slope={fpr_slope0:.6f} p={fpr_p0:.4f}")
+print(f"  Any trend significant at alpha={ALPHA}: {refutation_triggered}")
 print(f"  REFUTATION CONDITION MET: {refutation_triggered}")
 
 # ---------------------------------------------------------------------------
@@ -541,11 +563,14 @@ dp_vals_sweep1 = [r["pool"]["demographic_parity_gap"] for r in sweep1]
 fpr_vals_sweep1 = [r["pool"]["fpr_gap"] for r in sweep1]
 dp_range_sweep1 = max(dp_vals_sweep1) - min(dp_vals_sweep1)
 fpr_range_sweep1 = max(fpr_vals_sweep1) - min(fpr_vals_sweep1)
+dp_slope1, dp_p1, _ = trend_test(sweep1, OR_GRID, "pred_pos_rate")
+fpr_slope1, fpr_p1, _ = trend_test(sweep1, OR_GRID, "FPR")
+invariant_sweep1 = (dp_p1 >= ALPHA) and (fpr_p1 >= ALPHA)
 print(f"\nSWEEP 1 range across or_select: DP gap range = {dp_range_sweep1:.5f} "
       f"(values {['%.4f' % v for v in dp_vals_sweep1]}), FPR gap range = {fpr_range_sweep1:.5f}")
-print(f"  Compare to noise floor DP={noise_floor_dp:.5f}, FPR={noise_floor_fpr:.5f}: "
-      f"invariance holds (range <= noise floor) = "
-      f"{dp_range_sweep1 <= noise_floor_dp and fpr_range_sweep1 <= noise_floor_fpr}")
+print(f"  Replicate-level trend test: DP slope={dp_slope1:.6f} p={dp_p1:.4f}; "
+      f"FPR slope={fpr_slope1:.6f} p={fpr_p1:.4f}")
+print(f"  Invariant to or_select at the REAL nonzero gap level (no significant trend, alpha={ALPHA}): {invariant_sweep1}")
 
 # ---------------------------------------------------------------------------
 # SWEEP 2: selection depends on X directly (sx_coef sweep). This is the
@@ -633,25 +658,28 @@ fpr_gaps_ablation = [r["fpr_gap"] for r in metric_ablation_rows]
 ppv_gaps_ablation = [r["ppv_gap"] for r in metric_ablation_rows]
 fpr_range_ablation = max(fpr_gaps_ablation) - min(fpr_gaps_ablation)
 ppv_range_ablation = max(ppv_gaps_ablation) - min(ppv_gaps_ablation)
-fpr_invariant = fpr_range_ablation <= noise_floor_fpr
-ppv_invariant = ppv_range_ablation <= (nc_pool["ppv_gap_ci95"][1] if not np.isnan(nc_pool["ppv_gap_ci95"][1]) else noise_floor_dp)
+# Same trend-test methodology as the refutation check / sweep-1 invariance
+# check above (replicate-level regression, matched noise level across grid
+# points) -- NOT a range-vs-external-noise-floor magnitude comparison.
+ppv_slope1, ppv_p1, _ = trend_test(sweep1, OR_GRID, "PPV")
+fpr_invariant = bool(fpr_p1 >= ALPHA)
+ppv_invariant = bool(ppv_p1 >= ALPHA)
 print(f"\nMETRIC ABLATION (sweep 1, realistic regime, pure selection-on-A):")
-print(f"  FPR gap range across or_select = {fpr_range_ablation:.5f} -> "
-      f"{'INVARIANT (within noise floor)' if fpr_invariant else 'NOT INVARIANT (exceeds noise floor)'}")
-print(f"  PPV gap range across or_select = {ppv_range_ablation:.5f} -> "
-      f"{'INVARIANT (within noise floor)' if ppv_invariant else 'NOT INVARIANT (exceeds noise floor) -- expected'}")
+print(f"  FPR gap range across or_select = {fpr_range_ablation:.5f}, trend p={fpr_p1:.4f} -> "
+      f"{'INVARIANT (no significant trend)' if fpr_invariant else 'NOT INVARIANT (significant trend)'}")
+print(f"  PPV gap range across or_select = {ppv_range_ablation:.5f}, trend p={ppv_p1:.4f} -> "
+      f"{'INVARIANT (no significant trend)' if ppv_invariant else 'NOT INVARIANT (significant trend) -- expected'}")
 
 elapsed_total = time.time() - t_start
 
 # ---------------------------------------------------------------------------
-# SAVE
+# SAVE (strip the not-JSON-serializable raw per-replicate arrays now that
+# every trend test that needed them has already run)
 # ---------------------------------------------------------------------------
-def strip_group_means(agg):
-    """Drop the verbose per-group raw-metric dicts from population/pool for
-    the flattened JSON export (kept in full only for the control points)."""
-    out = dict(agg)
-    return out
-
+strip_raw(positive_control)
+strip_raw(negative_control)
+for row in sweep0 + sweep1 + sweep2 + sweep3:
+    strip_raw(row)
 
 out = {
     "seed": SEED,
@@ -673,14 +701,23 @@ out = {
     "noise_floor": {"demographic_parity_gap_upper95": noise_floor_dp, "fpr_gap_upper95": noise_floor_fpr},
     "sweep0_refutation_check_trivial_regime": sweep0,
     "refutation_check": {
-        "spearman_or_select_vs_dp_gap": spearman_dp,
-        "spearman_or_select_vs_fpr_gap": spearman_fpr,
-        "any_trivial_gap_exceeds_noise_floor": refutation_triggered,
+        "method": "OLS regression of replicate-level signed gap on or_select, "
+                  "pooled across all replicates at all 5 grid points (matched "
+                  "replicate count / noise level throughout the sweep)",
+        "spearman_or_select_vs_dp_gap_descriptive_n5": spearman_dp,
+        "spearman_or_select_vs_fpr_gap_descriptive_n5": spearman_fpr,
+        "dp_trend_slope": dp_slope0, "dp_trend_p": dp_p0,
+        "fpr_trend_slope": fpr_slope0, "fpr_trend_p": fpr_p0,
         "refutation_condition_met": refutation_triggered,
     },
     "sweep1_core_realistic_regime": sweep1,
     "sweep1_dp_gap_range": dp_range_sweep1,
     "sweep1_fpr_gap_range": fpr_range_sweep1,
+    "sweep1_invariance_trend_test": {
+        "dp_trend_slope": dp_slope1, "dp_trend_p": dp_p1,
+        "fpr_trend_slope": fpr_slope1, "fpr_trend_p": fpr_p1,
+        "invariant": invariant_sweep1,
+    },
     "sweep2_selection_depends_on_x": sweep2,
     "sweep3_leakage_at_or_0.64": sweep3,
     "sweep3_breach_gamma_first_tripped": breach_gamma,
@@ -690,8 +727,8 @@ out = {
     },
     "metric_ablation": {
         "rows": metric_ablation_rows,
-        "fpr_gap_range": fpr_range_ablation, "fpr_invariant": bool(fpr_invariant),
-        "ppv_gap_range": ppv_range_ablation, "ppv_invariant": bool(ppv_invariant),
+        "fpr_gap_range": fpr_range_ablation, "fpr_trend_p": fpr_p1, "fpr_invariant": bool(fpr_invariant),
+        "ppv_gap_range": ppv_range_ablation, "ppv_trend_p": ppv_p1, "ppv_invariant": bool(ppv_invariant),
     },
 }
 with open(os.path.join(RESULTS_DIR, "v2_denominator_results.json"), "w") as f:
@@ -761,12 +798,11 @@ print(f"1. POSITIVE CONTROL (audit code validity): gap detected with CI excludin
       f"{positive_control_detected}. {'AUDIT CODE VALIDATED.' if positive_control_detected else 'AUDIT CODE BROKEN -- STOP.'}")
 print(f"2. NEGATIVE CONTROL / noise floor: DP upper95={noise_floor_dp:.5f}, FPR upper95={noise_floor_fpr:.5f}")
 print(f"3. REFUTATION CHECK (trivial regime, zero X- and Y-dependence): "
-      f"gaps drift with or_select beyond noise floor = {refutation_triggered} "
-      f"({'THEORY REFUTED IN THIS REGIME' if refutation_triggered else 'no drift -- consistent with theory'})")
+      f"significant drift with or_select (replicate-level trend test, alpha={ALPHA}) = {refutation_triggered} "
+      f"({'THEORY REFUTED IN THIS REGIME' if refutation_triggered else 'no significant drift -- consistent with theory'})")
 print(f"4. SWEEP 1 (realistic regime, pure selection-on-A): DP gap range across or_select = "
-      f"{dp_range_sweep1:.5f}, FPR gap range = {fpr_range_sweep1:.5f}, vs noise floor "
-      f"DP={noise_floor_dp:.5f} FPR={noise_floor_fpr:.5f} -- "
-      f"{'INVARIANT to selection magnitude, at the REAL nonzero gap level' if (dp_range_sweep1 <= noise_floor_dp and fpr_range_sweep1 <= noise_floor_fpr) else 'gap moves with or_select beyond noise -- audit is NOT blind here'}")
+      f"{dp_range_sweep1:.5f} (p={dp_p1:.4f}), FPR gap range = {fpr_range_sweep1:.5f} (p={fpr_p1:.4f}) -- "
+      f"{'INVARIANT to selection magnitude, at the REAL nonzero gap level' if invariant_sweep1 else 'gap moves significantly with or_select -- audit is NOT blind here'}")
 print(f"5. SWEEP 2 (selection depends on X): FPR gap at sx_coef=0 -> {sweep2[0]['pool']['fpr_gap']:.4f}, "
       f"at sx_coef={SX_GRID[-1]} -> {sweep2[-1]['pool']['fpr_gap']:.4f}")
 print(f"6. SWEEP 3 (leakage at or_select=0.64): breach first at leak_gamma = {breach_gamma}")

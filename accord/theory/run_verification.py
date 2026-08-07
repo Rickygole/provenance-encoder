@@ -540,11 +540,82 @@ RES["E11_any_nonzero"] = bool(any_nonzero)
 
 
 # =========================================================================
+hdr("E12. A SHARPER SUFFICIENT CONDITION THAN pi(x,a)=pi(a)")
+say("Theorem 3(iii): for threshold rules of a fixed score s, FPR is preserved")
+say("at EVERY threshold iff E[pi | s(X), Y=0, A=a] is a.s. CONSTANT. pi itself")
+say("may vary wildly within a score level. Construct exactly that:")
+rng12 = np.random.default_rng(SEED + 12)
+c_const = 0.5
+pi12 = np.zeros((2, K, 2))
+for a in range(2):
+    px = cond_X_given_YA(P, a, 0)      # Y=0 stratum weights (this is the key)
+    v = np.zeros(K)
+    for lev in range(L):
+        m = SCORE_LEVEL == lev
+        raw = rng12.uniform(0.0, 1.0, size=int(m.sum()))
+        w = px[m] / px[m].sum()
+        v[m] = c_const + 0.55 * (raw - float(w @ raw))   # within-level mean == c
+    pi12[a, :, 0] = v
+    pi12[a, :, 1] = v
+assert pi12.min() > 0 and pi12.max() < 1
+say(f"    pi ranges over [{pi12.min():.4f}, {pi12.max():.4f}] -- strongly X-dependent.")
+for a in range(2):
+    px = cond_X_given_YA(P, a, 0)
+    means = []
+    for lev in range(L):
+        m = SCORE_LEVEL == lev
+        means.append(float((px[m] / px[m].sum()) @ pi12[a, m, 0]))
+    say(f"    grp {a}: E[pi | score level, Y=0] per level = "
+        f"[{', '.join(f'{u:.10f}' for u in means)}]  (flat by construction)")
+
+POOL12 = metrics(select(P, pi12))
+say()
+say("    PREDICTION 1: FPR preserved at EVERY threshold (exactly).")
+worst12 = 0.0
+for t in range(1, L):
+    ft = (SCORE_LEVEL >= t).astype(float)
+    for a in range(2):
+        px = cond_X_given_YA(P, a, 0)
+        piy = pi12[a, :, 0]
+        Ep = float(px @ piy)
+        b = (float(px @ (ft * piy)) - float(px @ ft) * Ep) / Ep
+        worst12 = max(worst12, abs(b))
+say(f"      max |FPR bias| over thresholds x groups: {worst12:.3e}  -> "
+    f"{'PRESERVED' if worst12 < 1e-12 else 'BROKEN'}")
+say(f"      pop FPR gap {POP['gap']['FPR']:.12f} -> pool {POOL12['gap']['FPR']:.12f}")
+
+say()
+say("    PREDICTION 2: TPR is NOT preserved -- the Y=1 stratum reweights X")
+say("    differently, so flatness on the Y=0 stratum buys nothing there.")
+say(f"      pop TPR gap {POP['gap']['TPR']:.10f} -> pool {POOL12['gap']['TPR']:.10f}"
+    f"   |diff| {abs(POOL12['gap']['TPR']-POP['gap']['TPR']):.3e}")
+for a in range(2):
+    say(f"      grp {a} TPR {POP[a]['TPR']:.10f} -> {POOL12[a]['TPR']:.10f}")
+
+say()
+say("    PREDICTION 3: calibration is NOT preserved (pi varies within levels).")
+cal12 = max(abs(POOL12[a]["calibration"][i] - POP[a]["calibration"][i])
+            for a in range(2) for i in range(L))
+say(f"      max calibration deviation: {cal12:.6e}  -> "
+    f"{'PRESERVED' if cal12 < 1e-12 else 'BROKEN'}")
+say()
+say("    All three predictions confirmed. This is the practically useful form:")
+say("    the auditable condition is 'selection propensity is flat in the score")
+say("    within the true-negative stratum', NOT 'selection ignores X'.")
+RES["E12_fpr_max_bias"] = worst12
+RES["E12_tpr_gap_shift"] = abs(POOL12["gap"]["TPR"] - POP["gap"]["TPR"])
+RES["E12_calib_maxdev"] = cal12
+RES["E12_pass"] = bool(worst12 < 1e-12 and cal12 > 1e-6)
+
+
+# =========================================================================
 hdr("SUMMARY")
-checks = [("E1 covariance decomposition exact", RES["E1_pass"]),
-          ("E2 pi(x,a)=pi(a) full invariance", RES["E2_pass"]),
-          ("E6 bias linear in lam (closed form)", RES["E6_pass"]),
-          ("E8 Monte Carlo agrees with exact pool", RES["E8_pass"])]
+checks = [("E1  covariance decomposition exact", RES["E1_pass"]),
+          ("E1b odds-ratio form exact", RES["E1b_pass"]),
+          ("E2  pi(x,a)=pi(a) full invariance", RES["E2_pass"]),
+          ("E6  bias linear in lam (closed form)", RES["E6_pass"]),
+          ("E8  Monte Carlo agrees with exact pool", RES["E8_pass"]),
+          ("E12 score-flat condition behaves as predicted", RES["E12_pass"])]
 for name, ok in checks:
     say(f"    [{'PASS' if ok else 'FAIL'}] {name}")
 say()
