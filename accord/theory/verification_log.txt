@@ -1,0 +1,274 @@
+
+==============================================================================
+MODEL
+==============================================================================
+K=12 X-atoms, L=4 score levels, threshold at level 2 (f=1 on levels 2,3)
+P(A=1) = 0.4500
+  group 0: FPR=0.366914 TPR=0.668995 DP=0.478030 PPV=0.514779 AUROC=0.703371 prev=0.367835
+  group 1: FPR=0.269912 TPR=0.628650 DP=0.407363 PPV=0.591289 AUROC=0.717010 prev=0.383153
+  POPULATION FPR gap = -0.097003
+  POPULATION TPR gap = -0.040345
+
+==============================================================================
+E1. ALGEBRA CHECK: does the covariance decomposition hold exactly?
+==============================================================================
+Claim:  M_a^pool - M_a^pop = Cov(g, pi_y | cond) / E[pi_y | cond]
+Tested against an ARBITRARY, strongly X-dependent, group-dependent pi.
+
+  sample (trial 0):
+    grp metric   observed shift      closed form     |diff|
+      0    FPR   0.018715981130   0.018715981130   7.29e-17
+      0    TPR   0.025061297765   0.025061297765   1.87e-16
+      0     DP   0.025018889578   0.025018889578   5.90e-17
+      0    PPV   0.010477015991   0.010477015991   6.94e-18
+      1    FPR  -0.124786502393  -0.124786502393   6.94e-17
+      1    TPR  -0.131058161026  -0.131058161026   8.33e-17
+      1     DP  -0.142576107749  -0.142576107749   2.78e-17
+      1    PPV   0.046702978974   0.046702978974   3.05e-16
+
+  MAX |observed - closed form| over 200 random pi, 2 groups, 4 metrics: 5.898e-16
+  VERDICT: PASS (tolerance 1e-12)
+
+==============================================================================
+E2. pi(x,a) = pi(a):  per-group invariance, and invariance to MAGNITUDE
+==============================================================================
+2a. Extreme group-dependent selection: pi(A=0)=0.90, pi(A=1)=0.05 (18x).
+          metric        pop gap       pool gap     |diff|
+             FPR  -0.0970026895  -0.0970026895   1.11e-16
+             TPR  -0.0403452664  -0.0403452664   3.33e-16
+              DP  -0.0706668982  -0.0706668982   5.55e-17
+             PPV   0.0765094950   0.0765094950   3.33e-16
+             NPV  -0.0068253690  -0.0068253690   1.11e-16
+           AUROC   0.0136386196   0.0136386196   3.33e-16
+      prevalence   0.0153181253   0.0153181253   1.11e-16
+      calib lvl0   0.0849874486   0.0849874486   0.00e+00
+      calib lvl1  -0.0055134279  -0.0055134279   1.11e-16
+      calib lvl2   0.0926668907   0.0926668907   0.00e+00
+      calib lvl3   0.0608318804   0.0608318804   1.11e-16
+    max |pool gap - pop gap| across ALL metrics: 3.331e-16
+
+2b. Sweep the MAGNITUDE of group-dependence over 5 orders of magnitude.
+    pi(A=0)=0.99 fixed; pi(A=1) swept.  Reporting pool FPR gap.
+       pi(A=1)        ratio       pool FPR gap   dev from pop
+         1e+00            1  -0.09700268947415       0.00e+00
+         5e-01            2  -0.09700268947415       0.00e+00
+         1e-01           10  -0.09700268947415       5.55e-17
+         1e-02           99  -0.09700268947415       5.55e-17
+         1e-03          990  -0.09700268947415       1.11e-16
+         1e-04         9900  -0.09700268947415       1.67e-16
+         1e-05        99000  -0.09700268947415       1.11e-16
+         1e-06       990000  -0.09700268947415       1.11e-16
+    max deviation across the whole sweep: 1.665e-16
+    VERDICT: PASS
+
+    NOTE: 'magnitude invariance' is not a separate theorem. Once each
+    group's pool metric EQUALS its population metric, the magnitude of
+    pi(a) cannot matter -- it has already cancelled. See report.
+
+==============================================================================
+E3. TAXONOMY, axis 1:  pi(x,a,y) = pi(a,y)   [selection on A and Y, not X]
+==============================================================================
+This is the Pfohl-style 'S depends on {Y,A}' regime.
+          metric        pop gap       pool gap      |diff|  invariant?
+             FPR  -0.0970026895  -0.0970026895    5.55e-17  YES
+             TPR  -0.0403452664  -0.0403452664    0.00e+00  YES
+           AUROC   0.0136386196   0.0136386196    0.00e+00  YES
+              DP  -0.0706668982   0.1455848754    2.16e-01  NO
+             PPV   0.0765094950   0.6488779441    5.72e-01  NO
+             NPV  -0.0068253690  -0.5965546282    5.90e-01  NO
+      prevalence   0.0153181253   0.6505678352    6.35e-01  NO
+     calibration             --             --    6.28e-01  NO
+
+    Also check PER-GROUP (not just the gap):
+      group 0: FPR 0.3669143297 -> 0.3669143297 | AUROC 0.7033710055 -> 0.7033710055 | PPV 0.5147790281 -> 0.2612505432
+      group 1: FPR 0.2699116402 -> 0.2699116402 | AUROC 0.7170096250 -> 0.7170096250 | PPV 0.5912885231 -> 0.9101284873
+
+==============================================================================
+E4. TAXONOMY, axis 2a:  pi depends on X ONLY THROUGH THE SCORE
+==============================================================================
+i.e. pi(x,a) = g(s(x), a). Realistic: you admit to the pool based on the
+model's own output. Prediction: per-score-level CALIBRATION is exactly
+preserved; FPR/TPR/DP/PPV/AUROC are not.
+
+            metric        pop gap       pool gap      |diff|  invariant?
+               FPR  -0.0970026895   0.3456982780    4.43e-01  NO
+               TPR  -0.0403452664   0.4324631073    4.73e-01  NO
+             AUROC   0.0136386196   0.0020117196    1.16e-02  NO
+                DP  -0.0706668982   0.4349344147    5.06e-01  NO
+               PPV   0.0765094950   0.1317707447    5.53e-02  NO
+               NPV  -0.0068253690  -0.0416707213    3.48e-02  NO
+        prevalence   0.0153181253   0.2116726927    1.96e-01  NO
+
+    per-score-level calibration, PER GROUP (pop -> pool):
+      grp 0 level 0: 0.089609490487 -> 0.089609490487   |diff| 1.39e-17
+      grp 0 level 1: 0.306758028979 -> 0.306758028979   |diff| 0.00e+00
+      grp 0 level 2: 0.431089972596 -> 0.431089972596   |diff| 5.55e-17
+      grp 0 level 3: 0.630306190844 -> 0.630306190844   |diff| 1.11e-16
+      grp 1 level 0: 0.174596939059 -> 0.174596939059   |diff| 0.00e+00
+      grp 1 level 1: 0.301244601065 -> 0.301244601065   |diff| 5.55e-17
+      grp 1 level 2: 0.523756863303 -> 0.523756863303   |diff| 0.00e+00
+      grp 1 level 3: 0.691138071206 -> 0.691138071206   |diff| 0.00e+00
+    MAX calibration deviation: 1.110e-16  -> EXACTLY PRESERVED
+
+==============================================================================
+E5. TAXONOMY, axis 2b:  pi depends on X WITHIN score levels
+==============================================================================
+Now pi is not a function of the score. Prediction: calibration breaks too.
+    MAX calibration deviation: 2.289032e-02  -> BROKEN (as predicted)
+    FPR gap -0.09700269 -> -0.20972355
+
+==============================================================================
+E6. THE SWEEP: bias vs strength of X-dependence (the headline check)
+==============================================================================
+Family: pi(x,a) = pibar_a * (1 + lam * h_a(x)), h_a centered under
+P(X | Y=0, A=a). Then E[pi | Y=0,A=a] = pibar_a for EVERY lam, so the
+closed form predicts b_a(lam) = lam * Cov(f, h_a | Y=0, A=a): EXACTLY LINEAR.
+    predicted slopes db_a/dlam = Cov(f,h_a|Y=0,A=a): a=0 +0.0537405961, a=1 +0.1320014044
+    predicted slope of the GAP shift: +0.0782608083
+
+       lam        obs b_0       pred b_0        obs b_1       pred b_1   gap shift obs  gap shift pred
+     0.000  -0.0000000000   0.0000000000   0.0000000000   0.0000000000    0.0000000000    0.0000000000
+     0.050   0.0026870298   0.0026870298   0.0066000702   0.0066000702    0.0039130404    0.0039130404
+     0.100   0.0053740596   0.0053740596   0.0132001404   0.0132001404    0.0078260808    0.0078260808
+     0.150   0.0080610894   0.0080610894   0.0198002107   0.0198002107    0.0117391212    0.0117391212
+     0.200   0.0107481192   0.0107481192   0.0264002809   0.0264002809    0.0156521617    0.0156521617
+     0.250   0.0134351490   0.0134351490   0.0330003511   0.0330003511    0.0195652021    0.0195652021
+     0.300   0.0161221788   0.0161221788   0.0396004213   0.0396004213    0.0234782425    0.0234782425
+     0.350   0.0188092086   0.0188092086   0.0462004915   0.0462004915    0.0273912829    0.0273912829
+     0.400   0.0214962385   0.0214962385   0.0528005618   0.0528005618    0.0313043233    0.0313043233
+     0.450   0.0241832683   0.0241832683   0.0594006320   0.0594006320    0.0352173637    0.0352173637
+     0.500   0.0268702981   0.0268702981   0.0660007022   0.0660007022    0.0391304041    0.0391304041
+     0.550   0.0295573279   0.0295573279   0.0726007724   0.0726007724    0.0430434445    0.0430434445
+     0.600   0.0322443577   0.0322443577   0.0792008426   0.0792008426    0.0469564850    0.0469564850
+     0.650   0.0349313875   0.0349313875   0.0858009129   0.0858009129    0.0508695254    0.0508695254
+     0.700   0.0376184173   0.0376184173   0.0924009831   0.0924009831    0.0547825658    0.0547825658
+     0.750   0.0403054471   0.0403054471   0.0990010533   0.0990010533    0.0586956062    0.0586956062
+     0.800   0.0429924769   0.0429924769   0.1056011235   0.1056011235    0.0626086466    0.0626086466
+     0.850   0.0456795067   0.0456795067   0.1122011937   0.1122011937    0.0665216870    0.0665216870
+     0.900   0.0483665365   0.0483665365   0.1188012640   0.1188012640    0.0704347274    0.0704347274
+
+    MAX |observed - predicted| over the sweep: 2.498e-16
+    R^2 of closed form vs observed gap shift: 1.000000000000000
+    VERDICT: PASS
+
+==============================================================================
+E7. IS THE BIAS MONOTONE IN THE STRENGTH OF X-DEPENDENCE?
+==============================================================================
+In the mean-preserving multiplicative family above: yes, exactly linear.
+Question: is monotonicity a general property? Search a logistic family
+   pi_lam(x) = sigmoid(alpha + lam * h(x))
+for a counterexample where b(lam) = Cov(f,pi_lam)/E[pi_lam] is NON-monotone.
+    COUNTEREXAMPLE FOUND after 2 draws. alpha = -0.007364
+    b(0) = -1.110e-16 (must be 0: no X-dependence => no bias)
+    |b| PEAKS at 0.061599 (b=-0.061599) at lam = 0.950,
+    then DECAYS back to |b| = 0.020886 at lam = 12.0.
+    So |b| is non-monotone: it rises then falls by a factor of 2.95x.
+    sampled trajectory:
+      lam= 0.000  b=-0.00000000
+      lam= 1.200  b=-0.06018147
+      lam= 2.400  b=-0.04537095
+      lam= 3.600  b=-0.03711252
+      lam= 4.800  b=-0.03225312
+      lam= 6.000  b=-0.02874799
+      lam= 7.200  b=-0.02610437
+      lam= 8.400  b=-0.02413129
+      lam= 9.600  b=-0.02268385
+      lam=10.800  b=-0.02163651
+      lam=12.000  b=-0.02088584
+
+    => Monotonicity is NOT a general property. It holds exactly (and
+       linearly) in the mean-preserving multiplicative family, because
+       there the denominator E[pi] is constant in lam. Here the
+       denominator moves too: as lam -> infinity, pi -> an indicator,
+       and BOTH Cov and E[pi] saturate, so b can turn around.
+       Substantively: the worst audit distortion occurs at MODERATE
+       X-dependence, not at the most extreme.
+
+==============================================================================
+E8. MONTE CARLO CROSS-CHECK (independent of all the algebra above)
+==============================================================================
+Draw (A,X,Y) then S~Bernoulli(pi), keep S=1, compute metrics empirically.
+    N drawn = 20,000,000; N selected = 9,350,977 (0.4675)
+    grp metric     exact pool    monte carlo     |diff|       ~SE       z
+      0    FPR     0.40453275     0.40498029   4.48e-04  2.63e-04   1.701
+      0    TPR     0.70157411     0.70177972   2.06e-04  3.23e-04   0.637
+      0     DP     0.51325325     0.51356699   3.14e-04  2.13e-04   1.470
+      0    PPV     0.50030674     0.49993930   3.67e-04  2.13e-04   1.721
+      1    FPR     0.36231262     0.36191399   3.99e-04  3.23e-04   1.236
+      1    TPR     0.73516354     0.73538128   2.18e-04  3.44e-04   0.633
+      1     DP     0.52096876     0.52090351   6.52e-05  2.54e-04   0.257
+      1    PPV     0.60047363     0.60099550   5.22e-04  2.49e-04   2.095
+
+    max |z| = 2.095  (expect < ~3 if the exact pool table is right)
+    VERDICT: PASS
+
+==============================================================================
+E9. THE ESTIMAND IS INVARIANT; THE STANDARD ERROR IS NOT
+==============================================================================
+Under pi(x,a)=pi(a) the pool FPR gap equals the population gap exactly.
+But harsher selection shrinks the pool, so the AUDIT gets noisier.
+Repeated sampling, N=200,000 drawn, pi(A=0)=0.9, pi(A=1) swept, 500 reps.
+      pi(A=1)    mean pool gap   bias vs pop    SD of gap  MC SE of mean  mean n(A=1,Y=0)
+         0.90      -0.09724560     -2.43e-04     0.002674       1.20e-04          49985.0
+         0.30      -0.09681807      1.85e-04     0.003843       1.72e-04          16662.9
+         0.10      -0.09661204      3.91e-04     0.006458       2.89e-04           5552.8
+         0.03      -0.09724973     -2.47e-04     0.011024       4.93e-04           1669.2
+         0.01      -0.09817340     -1.17e-03     0.018471       8.26e-04            555.0
+
+      pi(A=1)   observed SD   analytic SD    ratio
+         0.90      0.002674      0.002767    0.966
+         0.30      0.003843      0.003943    0.975
+         0.10      0.006458      0.006262    1.031
+         0.03      0.011024      0.011047    0.998
+         0.01      0.018471      0.018939    0.975
+    SD inflation from pi(A=1)=0.9 to 0.01: 6.91x observed, 6.84x predicted.
+    (The naive sqrt(0.9/0.01) = 9.5x is NOT the right prediction: group 0
+     is held at pi=0.9, so only one of the two variance terms scales.)
+    max |bias| in units of its own Monte Carlo SE: 2.03
+    Bias stays at Monte Carlo zero throughout; only the variance moves.
+
+==============================================================================
+E10. 'ONLY IF pi(x,a)=pi(a)' IS FALSE **FOR THE GAP**  (precision check)
+==============================================================================
+pi(x,a)=pi(a) is SUFFICIENT for per-group invariance, and per-group
+invariance implies gap invariance. But the GAP can be preserved by
+cancellation while BOTH groups are individually biased. Constructed:
+choose group-specific lam_a so that lam_0*slope_0 = lam_1*slope_1.
+    lam_0 = 0.900000, lam_1 = 0.366409  (both nonzero => pi DOES depend on X)
+    per-group FPR shift: b_0 = +0.048366536521   b_1 = +0.048366536521
+    |b_0 - b_1| = 0.000e+00   (they cancel)
+    population FPR gap = -0.097002689474
+    pool       FPR gap = -0.097002689474
+    |gap difference|   = 0.000e+00
+
+    => GAP is preserved to machine precision, yet each group's FPR is
+       wrong by ~0.048 and pi is NOT of the form pi(a).
+       So 'invariance holds ONLY IF pi(x,a)=pi(a)' is FALSE as stated
+       for the gap. It is true for PER-GROUP invariance uniformly over f.
+
+==============================================================================
+E11. NECESSITY: invariance FOR ALL f forces pi to be constant
+==============================================================================
+Fix one non-constant pi(x,a). Sweep the decision threshold (which changes
+f). If invariance held for every f, b_a would be 0 at every threshold.
+     threshold lvl              b_0              b_1        gap shift
+                 1     0.0280498771    -0.0031989166    -0.0312487937
+                 2     0.1420376438     0.0538095455    -0.0882280983
+                 3     0.0195713953    -0.0036112476    -0.0231826430
+
+    Some threshold gives nonzero bias: True
+    Consistent with the proposition: uniformity over f is what forces
+    pi to be a.s. constant on each (Y=0, A=a) stratum. A single f can
+    accidentally be uncorrelated with pi; a family of f's cannot.
+
+==============================================================================
+SUMMARY
+==============================================================================
+    [PASS] E1 covariance decomposition exact
+    [PASS] E2 pi(x,a)=pi(a) full invariance
+    [PASS] E6 bias linear in lam (closed form)
+    [PASS] E8 Monte Carlo agrees with exact pool
+
+    E1 max error: 5.898e-16
+    E6 max error: 2.498e-16   R^2 = 1.000000000000000
+    E8 max |z|:   2.095

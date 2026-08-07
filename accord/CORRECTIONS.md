@@ -1117,3 +1117,57 @@ the reader see the two ambiguous cases.
 compromised the real-data leg, C26 demoted the simulation to replication. The survey survived a
 falsifier designed to kill it (C21) and now a blind reliability check. The thesis should be built
 on it.
+
+---
+
+## C28. The real-data leg is dead: the audit is not blind, it fails almost everywhere
+
+**The test.** C22 showed the audited classifier is near-constant, so "the audit passes" might be
+degeneracy rather than blindness. The way to settle it is to sweep the operating point: threshold
+each available continuous scorer so the predicted-positive rate runs from the 4.0% base rate up to
+89%, and recompute the full audit at every point with bootstrap CIs (2,000 resamples, seed 42,
+tolerance 0.05).
+
+**Result — the audit detects large disparities at nearly every operating point.**
+
+| scorer | operating points passing **all** metrics |
+|---|---|
+| ACCORD `contra_prob` | **2 of 35** (5.7%) |
+| subject-disjoint control (C19) | **9 of 35** (25.7%) |
+| TF-IDF + LR | **0 of 35** (0%) |
+
+Across the ACCORD sweep the demographic-parity gap ranges **0.006 to 0.298** and the four-fifths
+ratio **0.321 to 0.884**. At the top of the sweep (achieved rate 0.890) the DP gap is **0.120**,
+not the 0.034 that was reported.
+
+**Correction.** *"The pool audit passes every well-powered metric"* is false as a general
+statement. It was true at one operating point and is false at 33 of 35. The audit is **not blind
+to disparity in the pool** — it reports substantial gaps almost everywhere. **The real-data leg of
+the audit-dissociation claim is withdrawn.**
+
+What this does *not* touch: the audit measures disparity in the *model's behaviour on the pool*,
+which is a different quantity from the *selection rate into the pool*. The conceptual argument —
+that a pool-level audit has no mechanism to report upstream removal — is unaffected. But it can no
+longer be illustrated with this cohort, and **the survey is the only remaining empirical leg**.
+
+**Two traceability problems surfaced by the same run.**
+
+1. **`accord_pred` is not a threshold of `accord_contra_prob`.** The best single threshold (0.3563)
+   reproduces the binary predictions at only **0.970** accuracy, and a top-*k* selection by score
+   agrees at 0.967. The released probability and the released decision do not come from the same
+   decision rule. This is consistent with C16 — the two columns appear to originate from different
+   runs.
+2. **The predicted-positive count does not reconcile.** The raw file has `accord_pred` =
+   `contradiction` on **278 of 299** rows (93.0%), while `exp1a_gold_error_rates_by_group.json`
+   implies **261** (87.3%) — a **17-row** discrepancy. The column has three values
+   (`contradiction` 278, `ambiguous` 15, `not_contradiction` 6), so the handling of `ambiguous`
+   differs between the released file and the analysis that used it. Resolve which is correct
+   before either number appears anywhere.
+
+Note both readings are degenerate — 87.3% or 93.0% against a 4.0% base rate — so C22's conclusion
+is unaffected and is if anything strengthened.
+
+**Consequence for the paper.** Paper A leads with the survey and the conceptual argument. The MIMIC
+cohort appears as a worked example of *why the audit is uninformative here* — degenerate classifier,
+underpowered cells, and an operating point that flatters the result — not as a demonstration that
+audits are blind. That is a smaller claim and it is the one the data supports.
