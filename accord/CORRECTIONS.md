@@ -1236,3 +1236,56 @@ as a verified proposition, **not** as a novel theoretical contribution.
 The original simulator could not distinguish its null condition from a 20× selection disparity
 (0.00112 vs 0.00129). The rebuild detects a planted gap 84× above its own noise floor and stays
 quiet when there is nothing to find. Reported as CIs over replicates, not "3 seeds" — C7's lesson.
+
+---
+
+## C31. The invariance proposition is a textbook consequence. Do not claim it as theory.
+
+**The kill condition in C29 has fired.** I derived and checked this directly rather than delegating
+it, and the honest answer is that the result is elementary.
+
+**The one-line derivation.** In the discrete case,
+
+```
+FPR^pool = SUM_x f(x) P(x | Y=0, A) pi(x,a)  /  SUM_x P(x | Y=0, A) pi(x,a)
+```
+
+If `pi(x,a) = pi(a)`, it factors out of numerator and denominator and the expression **is**
+`FPR^pop`. That is not a theorem about fairness auditing; it is the statement that conditioning on
+S leaves `P(X | Y=0, A)` unchanged when **S ⊥ X | (A, Y)** — the definition of conditional
+independence. Verified numerically to 10 decimal places at selection rates from 0.9 down to 0.01,
+with the covariance form reproducing the observed pool-minus-population difference exactly
+(+0.0000676432 both ways).
+
+**The covariance form is also standard.** "Bias equals a covariance between the outcome functional
+and the selection probability" is the ordinary first-order quantification used throughout
+selection-bias sensitivity analysis. It is a useful way to write it. It is not new.
+
+**The epidemiology precedent, verified.** Hernán, Hernández-Díaz & Robins, *"A structural approach
+to selection bias,"* **Epidemiology 2004;15(5):615–25** (PMID 15308962). Abstract retrieved: the
+paper argues that the causal structure underlying selection bias across case-control and cohort
+settings is *"essentially the same: conditioning on a common effect of 2 variables, one of which is
+either exposure or a cause of exposure and the other is either the outcome or a cause of the
+outcome."* Our condition is the complement of that structure — when selection is **not** a common
+effect of the score and the outcome-stratum, there is no bias. Epidemiology has had this framework
+for two decades.
+
+**What actually remains, and it is small but real:**
+1. **The metric taxonomy.** Which fairness metrics are invariant and which are corrupted is
+   mechanical once stated — anything that is a functional of `P(f(X) | Y, A)` alone is invariant
+   (FPR, TPR, AUROC); anything involving prevalence or `P(Y | ·)` is not (DP, PPV, NPV,
+   calibration), because selection changes the outcome marginal within group. Mechanical is not the
+   same as *written down*, and I have not found it tabulated for fairness auditing.
+2. **The non-monotonicity** (bias peaks at λ = 0.95, smaller at λ = 1.0) — the only piece I could
+   not place in prior work, and the only one that is non-obvious.
+
+**Correction.** **C3 is not a theoretical contribution and must not be presented as one.** State
+the invariance as a known consequence, cite Hernán/Hernández-Díaz/Robins 2004 and the
+Bareinboim–Pearl recoverability line, and use it to *justify the protocol* — which is exactly what
+C29's own kill condition said to do if this outcome occurred. The dissertation drops from four
+contributions to three: C1 (audit blindness, survey-led), C2 (the protocol), C4 (proxy-metric
+decoupling). The taxonomy becomes a table inside C2, not a chapter.
+
+**This is the right outcome to have found in an afternoon rather than in month four.** The
+verification work is not wasted — it is what licenses the protocol and it is now checked to machine
+precision.
