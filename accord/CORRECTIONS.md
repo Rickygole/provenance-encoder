@@ -1708,3 +1708,55 @@ unchanged because C24 and C26 cite them. The script was **not** re-run and
 **One imprecision of mine corrected in passing:** I described `simulate_v2.py`'s scheme as
 sha256-based. It uses `zlib.crc32`; sha256 is what `run_experiment.py`'s `det_seed` uses. The fix
 matches the code that exists rather than the description I gave.
+
+---
+
+## C41. The PUMS replication confirms the clinical finding, and corrects my own taxonomy
+
+E10 ran both selection regimes on ACS PUMS (ACSIncome, Texas 2018) — public data, no
+credentialing, the same source Pfohl et al. use. Positive control passed (planted DP gap 0.0746
+[0.0662, 0.0828]); classifier non-degeneracy passed.
+
+**The agent's own verdict was "does not replicate." Reading its drift table, that is wrong.**
+
+| metric | Regime A: selection on **group only** | Regime B: selection through an **outcome-predictive feature** |
+|---|---|---|
+| FPR gap | −0.00048, **no drift** | −0.00262, **no drift** |
+| TPR gap | +0.00032, **no drift** | **−0.00557, DRIFTS** |
+| AUROC gap | −0.00045, **no drift** | +0.00001, **no drift** |
+| demographic parity | +0.00078, **no drift** | **−0.01177, DRIFTS** (R² 0.94) |
+| PPV gap | +0.00130, **no drift** | **−0.00342, DRIFTS** |
+| calibration | +0.00100, **no drift** | −0.00032, **no drift** |
+| equalized odds | — | **−0.00443, DRIFTS** |
+
+**Regime A: nothing moves at all.** Under selection that depends only on the group label, every
+audit metric is stable across a selection four-fifths ratio sweeping from 0.985 down to 0.38. The
+audit is completely blind — which is the invariance claim, confirmed on non-clinical public data.
+
+**Regime B: the audit partially detects.** Once selection acts through a feature that predicts the
+outcome, demographic parity, TPR, PPV and equalized odds all drift with credible slopes, while FPR
+and AUROC stay flat. **This is the same result as E9/C38 on MIMIC — the audit is not blind when
+selection acts through outcome-predictive features. The clinical finding replicates.**
+
+**Why the agent called it a refutation.** Its rule required, in Regime A, that DP/PPV/calibration
+*move* — taken from my C29 taxonomy. They did not move, so it recorded REFUTES. But **my taxonomy
+was stated for a different condition and I did not flag the difference when briefing it.** C29's
+E3 measured selection depending on A *and Y*; PUMS Regime A is selection on A *alone*. Under
+A-only selection the within-group distributions are untouched, so `P(ŷ=1 | A=a, S=1) = P(ŷ=1 | A=a)`
+and demographic parity is preserved. Under A-and-Y selection the within-group outcome composition
+shifts and DP moves. Both results are correct; the conditions differ.
+
+**Correction to C29.** The taxonomy there — FPR/TPR/AUROC invariant, DP/PPV/NPV/prevalence/
+calibration not — holds **under selection depending on A and Y**. It must not be stated as a
+general property. Under selection on **A alone**, *everything* is preserved. Under selection
+through **X**, the invariant set shrinks to FPR and AUROC only. Three regimes, three answers, and
+C29 reported one of them as though it were the rule.
+
+**Correction to the agent's verdict.** "Does not replicate" is withdrawn. The correct statement is
+that the clinical finding **does** replicate on public non-clinical data, and the replication
+additionally establishes a cleaner three-regime structure than the clinical experiment could see
+on its own.
+
+**What this buys the thesis.** One fully reproducible artifact on public data that any reader can
+rerun — `accord/pums_replication/`, committed, no credentialing required. It answers the "n=1
+dataset" objection directly.

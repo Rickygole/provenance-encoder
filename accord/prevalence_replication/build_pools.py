@@ -33,6 +33,12 @@ import pandas as pd
 SEED = 42
 POOL_N = 100
 PREVALENCE_LEVELS = [0.02, 0.05, 0.10, 0.25]
+# A second, larger, DISJOINT pool set used only by run_distillation_supplement.py.
+# N=100 turned out too small for TF-IDF+LR to separate at all (5-fold CV student
+# collapsed to all-negative regardless of teacher marginal -- see REPORT.md); this
+# larger pool exists to give the distillation question adequate statistical power
+# without re-running the full 3-model x 2-prompt sweep at higher N.
+DISTILL_POOL_N = 300
 DATA_DIR = os.path.dirname(os.path.abspath(__file__)) + "/data"
 OUT_DIR = os.path.dirname(os.path.abspath(__file__)) + "/data/pools"
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -91,7 +97,45 @@ summary = pd.DataFrame(summary_rows)
 summary.to_csv(os.path.join(OUT_DIR, "pool_summary.csv"), index=False)
 print("\nPool summary:")
 print(summary.to_string(index=False))
-print(f"\nTotal distinct items used across all pools: "
+print(f"\nSweep pools -- total distinct items used: "
       f"{pos_cursor + neg_cursor} of {len(df)} available "
       f"(pos used {pos_cursor}/{len(pos_pool_idx)}, neg used {neg_cursor}/{len(neg_pool_idx)}) "
       f"-- disjoint by construction, no item reused across prevalence levels.")
+
+# ---------------------------------------------------------------------------
+# Distillation-supplement pools: larger N, continuing the SAME RNG cursors so
+# they are disjoint from every sweep pool above (no item reused).
+# ---------------------------------------------------------------------------
+distill_summary_rows = []
+for p in PREVALENCE_LEVELS:
+    n_pos = round(DISTILL_POOL_N * p)
+    n_neg = DISTILL_POOL_N - n_pos
+    pos_idx = pos_pool_idx[pos_cursor: pos_cursor + n_pos]
+    neg_idx = neg_pool_idx[neg_cursor: neg_cursor + n_neg]
+    pos_cursor += n_pos
+    neg_cursor += n_neg
+    assert len(pos_idx) == n_pos and len(neg_idx) == n_neg, \
+        f"Not enough disjoint rows left for distill prevalence {p}"
+
+    idx = np.concatenate([pos_idx, neg_idx])
+    RNG.shuffle(idx)
+    pool = df.loc[idx, ["premise", "hypothesis", "is_contradiction"]].reset_index(drop=True)
+    pool.insert(0, "item_id", [f"distill_p{p:.2f}_{i:03d}" for i in range(len(pool))])
+
+    achieved_rate = pool["is_contradiction"].mean()
+    out_path = os.path.join(OUT_DIR, f"distill_pool_prevalence_{p:.2f}.csv")
+    pool.to_csv(out_path, index=False)
+    print(f"[distill] prevalence target={p:.2%}  n={len(pool)}  "
+          f"n_pos={int(pool['is_contradiction'].sum())} achieved_rate={achieved_rate:.4f}  -> {out_path}")
+    distill_summary_rows.append({
+        "target_prevalence": p, "n": len(pool),
+        "n_pos": int(pool["is_contradiction"].sum()),
+        "achieved_prevalence": achieved_rate,
+    })
+
+distill_summary = pd.DataFrame(distill_summary_rows)
+distill_summary.to_csv(os.path.join(OUT_DIR, "distill_pool_summary.csv"), index=False)
+print(f"\nDistillation-supplement pools -- total distinct items used (cumulative): "
+      f"{pos_cursor + neg_cursor} of {len(df)} available "
+      f"(pos used {pos_cursor}/{len(pos_pool_idx)}, neg used {neg_cursor}/{len(neg_pool_idx)}) "
+      f"-- disjoint from the sweep pools and from each other.")

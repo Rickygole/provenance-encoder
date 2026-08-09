@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import time
+from math import sqrt
 from pathlib import Path
 
 import numpy as np
@@ -73,24 +74,45 @@ def solve_intercept_feature(beta, target_rate, feat, n=300_000, rng=None):
     return (lo + hi) / 2
 
 
-def solve_p0_group(OR, target_rate, w1):
-    """Regime A: selection probability constant within group, depends on
-    group only (NOT on X or Y). Given a group-level odds ratio p1/(1-p1) =
-    OR * p0/(1-p0) and the population's group-1 share w1, bisect p0 so the
-    marginal selection rate stays pinned at target_rate."""
-    w0 = 1 - w1
-    lo, hi = 1e-6, 1 - 1e-6
-    for _ in range(100):
+REGIME_A_Y_ODDS_RATIO = 3.0  # fixed case/control retention asymmetry, same in both
+# groups -- mirrors accord/theory/selection_invariance.py's `pi_group_and_y`, the
+# actual mechanism behind the C29 taxonomy ("S depends on A and Y but not X").
+#
+# IMPORTANT CORRECTION, made after a first (wrong) attempt at this regime: a
+# selection rule depending literally ONLY on the group label -- S _||_ (X,Y) | A
+# -- leaves EVERY audit metric exactly invariant, including demographic parity,
+# PPV and calibration, because conditioning on S=1 within a fixed group changes
+# nothing about the joint (X,Y) law given that group. Verified both by direct
+# derivation and empirically (a first run showed DP/PPV/calibration gaps flat
+# across the whole OR sweep, matching population, under literal group-only
+# selection). To reproduce the taxonomy split the task and C29 both describe
+# (FPR/TPR/AUROC invariant, DP/PPV/calibration NOT invariant), selection must
+# depend on Y too -- that is what actually breaks the within-group prevalence.
+# The "group-level selection odds ratio" that is swept below is the marginal
+# A-effect (beta_A in a logit-additive P(S=1|A,Y)=sigmoid(c+beta_A*A+beta_Y*Y)
+# model); the Y-effect (beta_Y = ln(REGIME_A_Y_ODDS_RATIO)) is held fixed. This
+# is still S _||_ X | (A,Y) -- selection independent of the covariates given
+# group AND outcome -- which is the actual condition under which FPR/TPR/AUROC
+# are provably invariant while DP/PPV/calibration are not.
+
+
+def solve_intercept_AY(beta_A, beta_Y, target_rate, group1, y, n=300_000, rng=None):
+    """Bisect the shared intercept c in P(S=1|A,Y)=sigmoid(c+beta_A*A+beta_Y*Y)
+    so the OVERALL marginal selection rate stays pinned at target_rate as
+    beta_A (the swept group-odds-ratio parameter) varies."""
+    rng = rng or np.random.default_rng(0)
+    idx = rng.integers(0, len(y), n)
+    a = group1[idx].astype(float)
+    yy = y[idx].astype(float)
+    lo, hi = -12.0, 12.0
+    for _ in range(60):
         mid = (lo + hi) / 2
-        p1 = OR * mid / (1 + (OR - 1) * mid)
-        rate = w0 * mid + w1 * p1
+        rate = sigmoid(mid + beta_A * a + beta_Y * yy).mean()
         if rate > target_rate:
             hi = mid
         else:
             lo = mid
-    p0 = (lo + hi) / 2
-    p1 = OR * p0 / (1 + (OR - 1) * p0)
-    return p0, p1
+    return (lo + hi) / 2
 
 
 def auroc_gap(y, score, group1):
@@ -223,17 +245,26 @@ def main():
         raise SystemExit(1)
 
     # -----------------------------------------------------------------
-    # STEP 4: REGIME A -- selection depends ONLY on group (S _||_ X | A,
-    # and here also S _||_ Y since S doesn't look at Y either -- a strict
-    # subcase of the theoretical invariance condition). Sweep the
-    # group-level selection odds ratio.
+    # STEP 4: REGIME A -- selection depends on GROUP and OUTCOME but NOT on
+    # the covariates (S _||_ X | A, Y) -- the actual C29/theory-file
+    # mechanism (`pi_group_and_y`). The swept quantity is the group-level
+    # selection odds ratio (beta_A); a FIXED case/control retention odds
+    # ratio (REGIME_A_Y_ODDS_RATIO) is applied identically in both groups so
+    # that DP/PPV/calibration are pulled away from their population values
+    # (see the correction note above solve_intercept_AY) while FPR/TPR/AUROC,
+    # computed within Y-strata where selection is still a uniform function of
+    # A alone, remain provably invariant to X.
     # -----------------------------------------------------------------
-    section("STEP 4: REGIME A -- selection depends only on group label (S _||_ X)")
-    w1 = group1.mean()
+    section("STEP 4: REGIME A -- selection depends on group AND outcome, not covariates (S _||_ X | A,Y)")
+    beta_Y = float(np.log(REGIME_A_Y_ODDS_RATIO))
+    print(f"Fixed case/control (Y) selection odds ratio = {REGIME_A_Y_ODDS_RATIO} in both groups; "
+          f"swept quantity = group (A) selection odds ratio.")
     regimeA_rows = []
     for OR in OR_GRID:
-        p0, p1 = solve_p0_group(OR, TARGET_SELECTION_RATE, w1)
-        p_row = np.where(group1, p1, p0)  # S depends only on this row's group, not on X or Y
+        beta_A = float(np.log(OR))
+        rng_intercept = np.random.default_rng(det_seed("A_intercept", OR))
+        c = solve_intercept_AY(beta_A, beta_Y, TARGET_SELECTION_RATE, group1, y_, rng=rng_intercept)
+        p_row = sigmoid(c + beta_A * group1.astype(float) + beta_Y * y_.astype(float))
         rng_primary = np.random.default_rng(det_seed("A_primary", OR))
         s = rng_primary.binomial(1, p_row).astype(bool)
 
@@ -248,7 +279,7 @@ def main():
                                                res["g1"]["pred_pos_rate"])
 
         row = dict(
-            OR=OR, p0=p0, p1=p1, n_pool=int(s.sum()), n0=n0, n1=n1,
+            OR=OR, beta_A=beta_A, beta_Y=beta_Y, intercept=c, n_pool=int(s.sum()), n0=n0, n1=n1,
             selection_rate_group0=float(r0_sel), selection_rate_group1=float(r1_sel),
             selection_four_fifths=float(sel_ff),
             demographic_parity_gap=res["demographic_parity_gap"],
@@ -270,13 +301,25 @@ def main():
             row["tpr_gap_ci_lo"] <= pop_res["tpr_gap"] <= row["tpr_gap_ci_hi"])
         row["auroc_gap_matches_population"] = bool(
             row["auroc_gap_ci_lo"] <= pop_extra["auroc_gap"] <= row["auroc_gap_ci_hi"])
+        # DP/PPV/calibration are the metrics theory predicts should NOT match
+        # population here (their prevalence-dependence is disturbed by the
+        # fixed Y-selectivity term) -- same CI-coverage check, opposite
+        # expected outcome.
+        row["dp_gap_matches_population"] = bool(
+            row["dp_gap_ci_lo"] <= pop_res["demographic_parity_gap"] <= row["dp_gap_ci_hi"])
+        row["ppv_gap_matches_population"] = bool(
+            row["ppv_gap_ci_lo"] <= pop_res["ppv_gap"] <= row["ppv_gap_ci_hi"])
+        row["calib_matches_population"] = bool(
+            row["calib_ci_lo"] <= pop_res["calibration_gap_diff"] <= row["calib_ci_hi"])
         regimeA_rows.append(row)
         print(f"OR={OR:5.2f}  n_pool={row['n_pool']:5d}  sel_4/5={sel_ff:.3f}  "
-              f"DP={row['demographic_parity_gap']:.4f}  FPR_gap={row['fpr_gap']:.4f} "
+              f"DP={row['demographic_parity_gap']:.4f} match_pop={row['dp_gap_matches_population']}  "
+              f"FPR_gap={row['fpr_gap']:.4f} "
               f"(pop={pop_res['fpr_gap']:.4f}, match={row['fpr_gap_matches_population']})  "
               f"TPR_gap={row['tpr_gap']:.4f} (match={row['tpr_gap_matches_population']})  "
               f"AUROC_gap={row['auroc_gap']:.4f} (match={row['auroc_gap_matches_population']})  "
-              f"PPV_gap={row['ppv_gap']:.4f}  4/5={row['four_fifths_ratio_pool']:.3f}")
+              f"PPV_gap={row['ppv_gap']:.4f} match_pop={row['ppv_gap_matches_population']}  "
+              f"4/5={row['four_fifths_ratio_pool']:.3f}")
 
     # -----------------------------------------------------------------
     # STEP 5: REGIME B -- selection depends on WKHP (usual hours worked
@@ -456,19 +499,57 @@ def main():
     # STEP 7: verdict.
     # -----------------------------------------------------------------
     section("STEP 7: VERDICT")
-    # Regime A: SUPPORTS invariance iff FPR/TPR/AUROC gap CIs contain the
-    # population value at every OR, AND their slope vs OR is not credibly
-    # nonzero, AND at least one of DP/PPV/calibration DOES show credible
-    # drift (i.e. the audit is not simply insensitive to everything).
-    A_invariant_metrics_flat = all(
-        (not drift_A[k]["credible_drift"]) for k in ["fpr_gap", "tpr_gap", "auroc_gap"])
-    A_matches_population = all(
-        r["fpr_gap_matches_population"] and r["tpr_gap_matches_population"]
-        and r["auroc_gap_matches_population"] for r in regimeA_rows)
+    # Regime A -- two families of evidence, each tested at the AGGREGATE
+    # level rather than "every single point must pass" (a first version of
+    # this script used a strict all-points-must-match rule and it produced
+    # exactly the kind of false alarm this note warns about: 1 mismatch out
+    # of 36 pointwise 95%-CI coverage checks (12 OR values x 3 metrics),
+    # which is within the ~1.8 expected by chance alone at a 5% level, but
+    # flipped the whole regime's verdict to REFUTES). Corrected criterion:
+    #   (a) OLS slope of the metric vs OR has a 95% CI that excludes 0
+    #       (credible_drift, from Step 6), and/or
+    #   (b) the pointwise mismatch RATE clearly exceeds the ~5% false-positive
+    #       rate expected from repeated 95%-CI coverage checks under the
+    #       null (using a 2-SD binomial guard band).
+    # A metric counts as "invariant" only if NEITHER fires; "contaminated"
+    # only if the majority of points fail to cover the population value
+    # (clearly more than chance).
+    def mismatch_excess(n_tests, n_mismatch, alpha=0.05, z=2.0):
+        expected = alpha * n_tests
+        sd = sqrt(n_tests * alpha * (1 - alpha))
+        return n_mismatch > expected + z * sd
+
+    n_A = len(regimeA_rows)
+    A_mismatch = {}
+    for key, match_key in [("fpr_gap", "fpr_gap_matches_population"),
+                            ("tpr_gap", "tpr_gap_matches_population"),
+                            ("auroc_gap", "auroc_gap_matches_population")]:
+        n_mis = sum(1 for r in regimeA_rows if not r[match_key])
+        A_mismatch[key] = dict(n_mismatch=n_mis, n_tests=n_A,
+                                excess=mismatch_excess(n_A, n_mis))
+    A_invariant_metrics_ok = all(
+        (not drift_A[k]["credible_drift"]) and (not A_mismatch[k]["excess"])
+        for k in ["fpr_gap", "tpr_gap", "auroc_gap"])
+
+    A_contam_majority_mismatch = {}
+    for key, match_key in [("demographic_parity_gap", "dp_gap_matches_population"),
+                            ("ppv_gap", "ppv_gap_matches_population"),
+                            ("calibration_gap_diff", "calib_matches_population")]:
+        n_mis = sum(1 for r in regimeA_rows if not r[match_key])
+        A_contam_majority_mismatch[key] = dict(n_mismatch=n_mis, n_tests=n_A,
+                                                majority=n_mis > n_A / 2)
     A_contaminated_metrics_move = any(
-        drift_A[k]["credible_drift"] for k in ["demographic_parity_gap", "ppv_gap", "calibration_gap_diff"])
-    regimeA_verdict = "SUPPORTS" if (A_invariant_metrics_flat and A_matches_population
-                                      and A_contaminated_metrics_move) else "REFUTES"
+        drift_A[k]["credible_drift"] or A_contam_majority_mismatch[k]["majority"]
+        for k in ["demographic_parity_gap", "ppv_gap", "calibration_gap_diff"])
+
+    regimeA_verdict = "SUPPORTS" if (A_invariant_metrics_ok and A_contaminated_metrics_move) else "REFUTES"
+    print("Regime A per-metric evidence:")
+    for k, v in A_mismatch.items():
+        print(f"  {k} (should be invariant): mismatches={v['n_mismatch']}/{v['n_tests']} "
+              f"excess-vs-chance={v['excess']}  OLS credible_drift={drift_A[k]['credible_drift']}")
+    for k, v in A_contam_majority_mismatch.items():
+        print(f"  {k} (should be contaminated): mismatches={v['n_mismatch']}/{v['n_tests']} "
+              f"majority={v['majority']}  OLS credible_drift={drift_A[k]['credible_drift']}")
 
     # Regime B: the DECISIVE test mirrors C29/C31's actual mechanism -- FPR,
     # TPR and AUROC gaps are the metrics theory says MUST equal the
@@ -510,9 +591,9 @@ def main():
         regimeB_verdict = "SUPPORTS (FPR/TPR/AUROC gap stays pinned to population value across the sweep)"
 
     clinical_replicates = (regimeA_verdict == "SUPPORTS") and regimeB_verdict.startswith("REFUTES")
-    print(f"Regime A (group-only selection) verdict: {regimeA_verdict}")
-    print(f"  FPR/TPR/AUROC gap flat & CI-covers-population: {A_invariant_metrics_flat and A_matches_population}")
-    print(f"  DP/PPV/calibration move: {A_contaminated_metrics_move}")
+    print(f"Regime A (group+outcome, not-covariate selection) verdict: {regimeA_verdict}")
+    print(f"  FPR/TPR/AUROC invariant (no excess mismatch, no credible drift): {A_invariant_metrics_ok}")
+    print(f"  DP/PPV/calibration move (majority mismatch or credible drift): {A_contaminated_metrics_move}")
     print(f"Regime B (feature-driven selection) verdict: {regimeB_verdict}")
     print(f"  FPR/TPR/AUROC pointwise divergence from population at any beta<=target: "
           f"{B_core_pointwise_divergence}")
@@ -542,6 +623,9 @@ def main():
             four_fifths_ci=[ff_ci["ci_lo"], ff_ci["ci_hi"]], passed=pc_pass,
         ),
         regimeA_sweep=regimeA_rows, regimeA_drift=drift_A, regimeA_verdict=regimeA_verdict,
+        regimeA_invariant_metric_evidence=A_mismatch,
+        regimeA_contaminated_metric_evidence=A_contam_majority_mismatch,
+        regimeA_y_odds_ratio=REGIME_A_Y_ODDS_RATIO,
         regimeB_sweep=regimeB_rows, regimeB_drift=drift_B, regimeB_verdict=regimeB_verdict,
         regimeB_core_pointwise_divergence=B_core_pointwise_divergence,
         regimeB_core_credible_drift=B_core_credible_drift,
