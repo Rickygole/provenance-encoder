@@ -1,0 +1,123 @@
+
+==============================================================================
+STEP 0: data (ACSIncome, TX, 2018 1-Year ACS PUMS, via folktables)
+==============================================================================
+raw task frame: n=135924, positive rate (PINCP>$50k)=0.3648
+group (primary) = SEX; female share=0.4686
+group (secondary) = RAC1P; white=105835, black=12529, other=17560
+split sizes: train=81554 val=27184 test=27186 (60/20/20, seed=42, disjoint-index-asserted)
+
+==============================================================================
+STEP 1: reference classifier (LogisticRegression, fit once, train only)
+==============================================================================
+train n=81554 base_rate=0.3636
+val   n=27184 base_rate=0.3639
+threshold=0.4827 (target FPR=0.15, achieved=0.1500)
+val AUROC=0.8823  pred_pos_rate=0.3634  precision=0.7375  precision_lift=2.027x
+
+Non-degeneracy check: PASS
+
+==============================================================================
+STEP 2: build population (val+test), score with frozen classifier
+==============================================================================
+Population n=54370, female rate=0.4686, label base rate=0.3666
+Population predicted-positive rate at frozen threshold=0.3639
+Population-level (no selection) reference gaps:
+  DP_gap=0.1243 [0.1164,0.1322]  TPR_gap=0.0379  FPR_gap=0.0309  AUROC_gap=0.0069  PPV_gap=0.1043  calib_gap=0.0578  4/5=0.7055
+
+==============================================================================
+STEP 3: POSITIVE CONTROL (planted logit shift, full population, no selection)
+==============================================================================
+Injected logit shift: +1.2 to female-group scores only.
+Group pred_pos_rate: male=0.4221 female=0.4967
+Demographic parity gap = 0.0746, 95% CI = [0.0662,0.0828]
+Four-fifths ratio = 0.8498, 95% CI = [0.8347,0.8657]
+
+POSITIVE CONTROL: PASS
+
+==============================================================================
+STEP 4: REGIME A -- selection depends on group AND outcome, not covariates (S _||_ X | A,Y)
+==============================================================================
+Fixed case/control (Y) selection odds ratio = 3.0 in both groups; swept quantity = group (A) selection odds ratio.
+OR= 1.00  n_pool=16368  sel_4/5=0.889  DP=0.1356 match_pop=True  FPR_gap=0.0401 (pop=0.0309, match=True)  TPR_gap=0.0339 (match=True)  AUROC_gap=0.0112 (match=True)  PPV_gap=0.0620 match_pop=False  4/5=0.746
+OR= 1.25  n_pool=16227  sel_4/5=0.961  DP=0.1276 match_pop=True  FPR_gap=0.0164 (pop=0.0309, match=True)  TPR_gap=0.0361 (match=True)  AUROC_gap=0.0000 (match=True)  PPV_gap=0.0840 match_pop=False  4/5=0.756
+OR= 1.50  n_pool=16208  sel_4/5=0.879  DP=0.1532 match_pop=False  FPR_gap=0.0388 (pop=0.0309, match=True)  TPR_gap=0.0374 (match=True)  AUROC_gap=0.0118 (match=True)  PPV_gap=0.0762 match_pop=False  4/5=0.714
+OR= 1.75  n_pool=16301  sel_4/5=0.768  DP=0.1540 match_pop=False  FPR_gap=0.0435 (pop=0.0309, match=True)  TPR_gap=0.0399 (match=True)  AUROC_gap=0.0125 (match=True)  PPV_gap=0.0695 match_pop=False  4/5=0.712
+OR= 2.00  n_pool=16209  sel_4/5=0.715  DP=0.1523 match_pop=False  FPR_gap=0.0391 (pop=0.0309, match=True)  TPR_gap=0.0342 (match=True)  AUROC_gap=0.0167 (match=True)  PPV_gap=0.0828 match_pop=False  4/5=0.720
+OR= 2.50  n_pool=16242  sel_4/5=0.628  DP=0.1571 match_pop=False  FPR_gap=0.0211 (pop=0.0309, match=True)  TPR_gap=0.0379 (match=True)  AUROC_gap=0.0005 (match=True)  PPV_gap=0.1039 match_pop=True  4/5=0.711
+OR= 3.00  n_pool=16436  sel_4/5=0.537  DP=0.1560 match_pop=False  FPR_gap=0.0207 (pop=0.0309, match=True)  TPR_gap=0.0266 (match=True)  AUROC_gap=0.0076 (match=True)  PPV_gap=0.1020 match_pop=True  4/5=0.707
+OR= 4.00  n_pool=16381  sel_4/5=0.448  DP=0.1804 match_pop=False  FPR_gap=0.0210 (pop=0.0309, match=True)  TPR_gap=0.0414 (match=True)  AUROC_gap=0.0018 (match=True)  PPV_gap=0.1198 match_pop=True  4/5=0.673
+OR= 5.00  n_pool=16261  sel_4/5=0.389  DP=0.1946 match_pop=False  FPR_gap=0.0319 (pop=0.0309, match=True)  TPR_gap=0.0485 (match=True)  AUROC_gap=0.0086 (match=True)  PPV_gap=0.1225 match_pop=False  4/5=0.655
+OR= 6.00  n_pool=16427  sel_4/5=0.353  DP=0.1883 match_pop=False  FPR_gap=0.0264 (pop=0.0309, match=True)  TPR_gap=0.0377 (match=True)  AUROC_gap=0.0018 (match=True)  PPV_gap=0.1227 match_pop=False  4/5=0.659
+OR= 8.00  n_pool=16238  sel_4/5=0.283  DP=0.2073 match_pop=False  FPR_gap=0.0585 (pop=0.0309, match=False)  TPR_gap=0.0373 (match=True)  AUROC_gap=0.0160 (match=True)  PPV_gap=0.1146 match_pop=True  4/5=0.636
+OR=10.00  n_pool=16302  sel_4/5=0.238  DP=0.1944 match_pop=False  FPR_gap=0.0112 (pop=0.0309, match=True)  TPR_gap=0.0328 (match=True)  AUROC_gap=0.0010 (match=True)  PPV_gap=0.1463 match_pop=False  4/5=0.651
+
+==============================================================================
+STEP 5: REGIME B -- selection through outcome-predictive feature (WKHP)
+==============================================================================
+selection feature = z(WKHP, usual hours worked/week); chosen because it predicts the outcome and is excluded from the classifier's inputs.
+corr(feat, label)=0.3290  corr(feat, female)=-0.2092
+beta= 0.0  n_pool=16137 (m=8581,f=7556)  sel_4/5=0.999  DP=0.1181 [0.1037,0.1329] call=breach        FPR_gap=0.0127 match_pop=False  TPR_gap=0.0371 match_pop=True  AUROC_gap=0.0009 match_pop=True  pool_4/5=0.717 call=breach        MDE=0.0212  powered=True
+beta= 0.5  n_pool=16569 (m=9494,f=7075)  sel_4/5=0.845  DP=0.1203 [0.1051,0.1352] call=breach        FPR_gap=0.0288 match_pop=True  TPR_gap=0.0480 match_pop=True  AUROC_gap=0.0007 match_pop=True  pool_4/5=0.749 call=breach        MDE=0.0218  powered=True
+beta= 1.0  n_pool=16198 (m=9606,f=6592)  sel_4/5=0.778  DP=0.1135 [0.0980,0.1293] call=breach        FPR_gap=0.0321 match_pop=True  TPR_gap=0.0312 match_pop=True  AUROC_gap=0.0058 match_pop=True  pool_4/5=0.783 call=inconclusive  MDE=0.0224  powered=True
+beta= 1.5  n_pool=16286 (m=9987,f=6299)  sel_4/5=0.715  DP=0.1139 [0.0978,0.1292] call=breach        FPR_gap=0.0384 match_pop=True  TPR_gap=0.0294 match_pop=True  AUROC_gap=0.0128 match_pop=True  pool_4/5=0.794 call=inconclusive  MDE=0.0225  powered=True
+beta= 2.0  n_pool=16322 (m=10127,f=6195)  sel_4/5=0.694  DP=0.1061 [0.0903,0.1219] call=breach        FPR_gap=0.0313 match_pop=True  TPR_gap=0.0207 match_pop=True  AUROC_gap=0.0087 match_pop=True  pool_4/5=0.814 call=inconclusive  MDE=0.0226  powered=True
+beta= 2.5  n_pool=16362 (m=10334,f=6028)  sel_4/5=0.661  DP=0.0988 [0.0829,0.1142] call=breach        FPR_gap=0.0370 match_pop=True  TPR_gap=0.0297 match_pop=True  AUROC_gap=0.0050 match_pop=True  pool_4/5=0.829 call=pass          MDE=0.0226  powered=True
+beta= 3.0  n_pool=16388 (m=10495,f=5893)  sel_4/5=0.637  DP=0.0811 [0.0657,0.0971] call=breach        FPR_gap=0.0130 match_pop=True  TPR_gap=0.0162 match_pop=False  AUROC_gap=0.0047 match_pop=True  pool_4/5=0.861 call=pass          MDE=0.0227  powered=True
+beta= 3.5  n_pool=16112 (m=10418,f=5694)  sel_4/5=0.620  DP=0.0707 [0.0545,0.0869] call=breach        FPR_gap=0.0019 match_pop=False  TPR_gap=0.0181 match_pop=False  AUROC_gap=0.0020 match_pop=True  pool_4/5=0.881 call=pass          MDE=0.0229  powered=True
+beta= 4.0  n_pool=16194 (m=10543,f=5651)  sel_4/5=0.608  DP=0.0678 [0.0517,0.0836] call=breach        FPR_gap=0.0058 match_pop=False  TPR_gap=0.0017 match_pop=False  AUROC_gap=0.0090 match_pop=True  pool_4/5=0.887 call=pass          MDE=0.0228  powered=True
+beta= 4.5  n_pool=16392 (m=10742,f=5650)  sel_4/5=0.596  DP=0.0636 [0.0474,0.0798] call=inconclusive  FPR_gap=0.0025 match_pop=False  TPR_gap=0.0015 match_pop=False  AUROC_gap=0.0058 match_pop=True  pool_4/5=0.895 call=pass          MDE=0.0227  powered=True
+beta= 5.0  n_pool=16343 (m=10720,f=5623)  sel_4/5=0.595  DP=0.0594 [0.0435,0.0754] call=inconclusive  FPR_gap=0.0012 match_pop=False  TPR_gap=0.0042 match_pop=False  AUROC_gap=0.0049 match_pop=True  pool_4/5=0.903 call=pass          MDE=0.0227  powered=True
+beta= 5.5  n_pool=16299 (m=10751,f=5548)  sel_4/5=0.585  DP=0.0524 [0.0362,0.0686] call=inconclusive  FPR_gap=0.0122 match_pop=True  TPR_gap=0.0045 match_pop=False  AUROC_gap=0.0019 match_pop=True  pool_4/5=0.915 call=pass          MDE=0.0227  powered=True
+beta= 6.0  n_pool=16215 (m=10742,f=5473)  sel_4/5=0.578  DP=0.0443 [0.0282,0.0598] call=inconclusive  FPR_gap=0.0163 match_pop=True  TPR_gap=0.0020 match_pop=False  AUROC_gap=0.0028 match_pop=True  pool_4/5=0.928 call=pass          MDE=0.0228  powered=True
+beta= 7.0  n_pool=16236 (m=10788,f=5448)  sel_4/5=0.573  DP=0.0466 [0.0307,0.0623] call=inconclusive  FPR_gap=0.0120 match_pop=True  TPR_gap=0.0042 match_pop=False  AUROC_gap=0.0041 match_pop=True  pool_4/5=0.925 call=pass          MDE=0.0227  powered=True
+beta= 8.0  n_pool=16301 (m=10872,f=5429)  sel_4/5=0.566  DP=0.0410 [0.0248,0.0564] call=inconclusive  FPR_gap=0.0172 match_pop=True  TPR_gap=0.0034 match_pop=False  AUROC_gap=0.0070 match_pop=True  pool_4/5=0.934 call=pass          MDE=0.0227  powered=True
+
+==============================================================================
+STEP 5b: secondary group axis (RAC1P Black vs White) in Regime B
+==============================================================================
+beta= 0.0  Black-v-White (n=14031): DP_gap=0.1087 CI=[0.08391067654146764, 0.13272405037169666]  4/5=0.713  FPR_gap=0.0175  TPR_gap=0.0745
+beta= 5.5  Black-v-White (n=14378): DP_gap=0.1346 CI=[0.10617140326014697, 0.16317096060328815]  4/5=0.784  FPR_gap=0.0264  TPR_gap=0.0890
+beta= 8.0  Black-v-White (n=14416): DP_gap=0.1294 CI=[0.09895031857618855, 0.15883700378660576]  4/5=0.797  FPR_gap=0.0348  TPR_gap=0.0803
+
+==============================================================================
+STEP 6: drift checks (OLS slope of gap point-estimates vs selection strength)
+==============================================================================
+Regime A (selection depends only on group; x = odds ratio):
+  fpr_gap: slope=-0.000473 CI=[-0.003785328520631167, 0.0028402963634060184] credible_drift=False R^2=0.010
+  tpr_gap: slope=0.000084 CI=[-0.0011973642058322987, 0.0013657610194110772] credible_drift=False R^2=0.002
+  auroc_gap: slope=-0.000395 CI=[-0.00189083413341368, 0.0011011013230794145] credible_drift=False R^2=0.033
+  demographic_parity_gap: slope=0.007805 CI=[0.004952228208618011, 0.010657274227064084] credible_drift=True R^2=0.788
+  ppv_gap: slope=0.007822 CI=[0.004821985797544514, 0.010822282859193087] credible_drift=True R^2=0.771
+  calibration_gap_diff: slope=0.008147 CI=[0.005760357613792442, 0.010533956893447518] credible_drift=True R^2=0.853
+Regime B (selection depends on WKHP; x = beta):
+  demographic_parity_gap: slope=-0.011765 CI=[-0.013593980527153434, -0.00993627415641865] credible_drift=True R^2=0.937
+  tpr_gap: slope=-0.005575 CI=[-0.007389440881944475, -0.003760150607226993] credible_drift=True R^2=0.772
+  fpr_gap: slope=-0.002619 CI=[-0.0054140049906663944, 0.00017551455580813984] credible_drift=False R^2=0.240
+  auroc_gap: slope=0.000011 CI=[-0.0008177876746824955, 0.0008407088907305453] credible_drift=False R^2=0.000
+  ppv_gap: slope=-0.003419 CI=[-0.00609130633538899, -0.0007473512802788113] credible_drift=True R^2=0.370
+  equalized_odds_gap: slope=-0.004429 CI=[-0.0067844358257040105, -0.002074421870848516] credible_drift=True R^2=0.559
+  calibration_gap_diff: slope=-0.000323 CI=[-0.001749896243762328, 0.0011035208892261764] credible_drift=False R^2=0.018
+
+==============================================================================
+STEP 7: VERDICT
+==============================================================================
+Regime A per-metric evidence:
+  fpr_gap (should be invariant): mismatches=1/12 excess-vs-chance=False  OLS credible_drift=False
+  tpr_gap (should be invariant): mismatches=0/12 excess-vs-chance=False  OLS credible_drift=False
+  auroc_gap (should be invariant): mismatches=0/12 excess-vs-chance=False  OLS credible_drift=False
+  demographic_parity_gap (should be contaminated): mismatches=10/12 majority=True  OLS credible_drift=True
+  ppv_gap (should be contaminated): mismatches=8/12 majority=True  OLS credible_drift=True
+  calibration_gap_diff (should be contaminated): mismatches=11/12 majority=True  OLS credible_drift=True
+Regime A (group+outcome, not-covariate selection) verdict: SUPPORTS
+  FPR/TPR/AUROC invariant (no excess mismatch, no credible drift): True
+  DP/PPV/calibration move (majority mismatch or credible drift): True
+Regime B (feature-driven selection) verdict: REFUTES (FPR/TPR/AUROC gap diverges from population under feature-based selection)
+  FPR/TPR/AUROC pointwise divergence from population at any beta<=target: True
+  FPR/TPR/AUROC credible OLS drift vs beta: True
+  [secondary, literal MIMIC-protocol absolute DP-gap/4-5 breach call (confounded by intrinsic population gap, see note above)]: True
+
+OVERALL: clinical MIMIC finding REPLICATES on ACS PUMS (ACSIncome, TX 2018).
+
+Saved results to /Users/rickygole/provenance-encoder/accord/pums_replication/results. Total runtime: 844.9s
+ALL_DONE

@@ -1798,11 +1798,13 @@ llama3's abstain rate to **0.32** and qwen3's to 0.25, and drove qwen3's positiv
 both low-prevalence levels. Consistent with C23: prompt moves the quantity by as much as model
 choice does.
 
-**The distillation half is also negative.** Across the granite3.3 pools the student's marginal came
-out **closer to the true prevalence than to the teacher's** at 2% and 5%, and tied at 10% — the
-opposite of the clinical prevalence-inheritance finding. Student out-of-fold accuracy against true
-gold (0.98, 0.95, 0.90) exceeds accuracy against the teacher label at every level, so the student
-is not simply reproducing its teacher.
+**The distillation half — I got this wrong; see C43.** I reported the student's marginal as
+"closer to true prevalence than to the teacher's" and called it the opposite of prevalence
+inheritance. That reading is withdrawn: `student_marginal_oof` is **0.0 in every combination**,
+i.e. the student predicts the negative class on 100% of out-of-fold rows, so "closer to a small
+true prevalence" is guaranteed by the degeneracy rather than measured. Corrected in C43, where a
+threshold-independent soft metric and a well-powered N=300 replication both show the student
+tracking the **teacher's** marginal to within 0.1–0.5pp.
 
 **What this means for the thesis.** The clinical over-calling result stands as measured — it is
 real, it replicates across three model families *in that setting*, and C20's repair of C10 holds.
@@ -1810,3 +1812,91 @@ What is withdrawn is the extrapolation. This is the fourth claim in this project
 measurement and fail as a generalization, and the pattern is worth stating explicitly in the
 discussion: nothing here transferred out of the setting it was measured in without being tested,
 and every time it was tested, it shrank.
+
+---
+
+## C43. C42's "distillation half is also negative" is a threshold artifact — measured properly, the student inherits the teacher's marginal
+
+**Claimed, in C42.** *"The distillation half is also negative. Across the granite3.3 pools the
+student's marginal came out closer to the true prevalence than to the teacher's at 2% and 5%, and
+tied at 10% — the opposite of the clinical prevalence-inheritance finding."*
+
+**Actual.** Every distillation number in C42 comes from `student_marginal_oof` — the mean of the
+student's **0.5-threshold hard predictions**, out-of-fold. At N=100 (5-fold CV, ~64-80 training
+rows per fold, 3000-dim TF-IDF), the student's out-of-fold prediction is `not_contradiction` for
+**every single row, in every one of the 22 fittable model×prompt×prevalence combos** —
+`degenerate_hard_threshold: true` throughout `results/distillation_results.json`. A constant-0
+classifier's marginal is trivially 0.0, so "closer to true than to teacher" is guaranteed whenever
+true prevalence is smaller than half the teacher's marginal — which is exactly the 2%/5% regime
+C42 reports on. It is not a measurement of what the student learned; it is an artifact of
+insufficient training data producing a majority-class classifier, restated as if it were a finding
+about inheritance. The accompanying claim — that OOF accuracy against true gold (0.98, 0.95, 0.90)
+exceeds accuracy against the teacher label — has the identical explanation: a constant-negative
+classifier scores higher against whichever target has fewer positives, and true prevalence (2%,
+5%, 10%) has fewer positives than the teacher's marginal (5%, 7%, 10%) at every level tested. This
+is mechanically implied by the degeneracy, not independent evidence against inheritance.
+
+**The threshold-independent number tells the opposite story.** Mean out-of-fold **predicted
+probability** of `contradiction` (`student_marginal_oof_soft` — same fold splits, same features,
+same classifier, just not collapsed through a 0.5 cutoff) tracks the teacher's marginal closely at
+every one of the 22 fittable N=100 combos, e.g. llama3:8b bare prompt: teacher
+0.070/0.170/0.060/0.120 vs. student-soft 0.068/0.165/0.059/0.117 — within 0.002–0.005 at every
+level, against true prevalence 0.020/0.050/0.100/0.250, which the soft marginal tracks much more
+loosely.
+
+**Re-run at N=300 to rule out "N=100 is just too small to trust either way."** A fresh, disjoint
+pool set (`build_pools.py`'s `DISTILL_POOL_N=300`, seed 42) and `llama3:8b`/bare prompt —
+`run_distillation_supplement.py`, `results/distillation_supplement_results.json`:
+
+| true prevalence | teacher marginal | student soft marginal | true prevalence (decided) | \|soft − teacher\| | \|soft − true\| |
+|---|---|---|---|---|---|
+| 2% | 0.097 | 0.094 | 0.020 | **0.003** | 0.074 |
+| 5% | 0.063 | 0.062 | 0.050 | **0.002** | 0.012 |
+| 10% | 0.140 | 0.135 | 0.100 | **0.005** | 0.035 |
+| 25% | 0.143 | 0.140 | 0.250 | **0.003** | 0.110 |
+
+At N=300 — three times the training data C42 used, and the hard-threshold student is *still*
+degenerate at 3 of 4 levels, confirming the hard/soft distinction rather than an N=100 fluke — the
+student's soft marginal is within 0.5pp of the teacher at every level, and off the true prevalence
+by 1.2–11.0pp. This is tighter agreement with the teacher than the clinical pipeline's own
+headline distillation number (reproduced the teacher's per-rule rate to within 1.5pp).
+
+**Correction.** Withdraw C42's distillation conclusion. The corrected statement: on non-clinical
+text, at both N=100 and a well-powered N=300, a TF-IDF+LR student trained on an LLM's rare-class
+labels reproduces the LLM's own marginal, not the ground truth, whenever the two diverge — the
+prevalence-inheritance mechanism from the clinical pipeline **does** generalize. What C42 got right
+and this correction does not touch: the over-calling *magnitude* (3.5× max here vs. 15.8–23.6× on
+clinical pairs, C20) is still clinical-task-specific, and the calibration-slope analysis in
+`accord/prevalence_replication/results/REPORT.md` (0.028–0.62 across all six model×prompt
+combinations, all well below the ideal of 1) still shows every model under-responding to true
+prevalence — that finding does not depend on the threshold used and is unaffected by this
+correction.
+
+**Lesson, again.** A derived summary statistic (a thresholded marginal) can point the opposite
+direction from the estimator it was thresholded from, and nothing in the pipeline flags this unless
+the un-thresholded quantity is computed and compared. This is the same class of error as C9's
+degenerate confidence field and C3's circular kappa: a number that looks like a measurement but is
+actually determined by the measurement procedure's own limitations, not by the thing it claims to
+measure.
+
+### C43 addendum — how I made this error, since the pattern matters
+
+C42's distillation reading is exactly the failure mode **C22** documents, committed by me two days
+after writing it. C22's finding was that an audit "passed" because the classifier predicted
+positive on 87.3% of pairs — a near-constant predictor satisfies parity by construction rather
+than by fairness. Here a student predicting the negative class on 100% of rows lands "closer to a
+small true prevalence" by construction rather than by tracking truth.
+
+Both are the same mistake: **reading a criterion as satisfied without first checking whether the
+predictor had the range to fail it.** The signal was in plain sight — `student_marginal_oof: 0.0`,
+repeated identically across every model, prompt and prevalence level. A value that never varies
+across eight conditions is a property of the code, not of the data, and I quoted it as a finding.
+
+The protocol this thesis prescribes already covers it: **the degeneracy precondition must run
+before any metric is reported.** It exists in `accord/selection_experiment/` (C38) and fires
+correctly there. It was not applied to the distillation analysis because that analysis was read
+off a JSON file by hand rather than run through the protocol.
+
+That is the argument for making the precondition an executable gate rather than a checklist item,
+and it belongs in the C2 protocol chapter as a worked example — including the fact that its author
+tripped the same wire twice.
