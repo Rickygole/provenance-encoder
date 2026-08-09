@@ -4,6 +4,9 @@
 chapters. Every number below is traceable to a committed script and was independently
 recomputed rather than relayed.
 
+
+> **SUPERSEDED FRAMING — 2026-08-09.** **Evaluation instruments in clinical NLP routinely report numbers determined by the measurement procedure rather than by the quantity claimed, and the failure is invisible without a positive control or a degeneracy precondition.** (See CORRECTIONS.md C46 — the earlier 'audit blindness' framing is refuted by this project's own C38/C40/C41.)
+
 ---
 
 ## 1. What the thesis is now
@@ -110,7 +113,7 @@ with the mechanism openly attributed to documentation volume and EHR era, not pa
 The only venue whose decision (~late October) lands before December application deadlines.
 
 **Split into two, do not merge:**
-- **Paper A** (Proceedings, 8pp) — selection-stage audit blindness. ACCORD appears only as "the
+- **Paper A** (Proceedings, 8pp) — instrument validity; the audit work is one demonstration inside it, not the claim. ACCORD appears only as "the
   pipeline we audited." Does not depend on the detector working.
 - **Paper B** (Findings, 4pp, non-archival) — the clinical negative result. Three configurations
   at chance, DeLong p = 0.930, TF-IDF (**0.576**) beating both neural models.

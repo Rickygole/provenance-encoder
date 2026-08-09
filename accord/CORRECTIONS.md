@@ -2015,3 +2015,92 @@ that the honest envelope is **OR 0.65–1.00**.
 This is the fourth time in this project that a claim I expected to hold one way went the other
 under a test I designed. That the tests were run before the writing rather than after is the only
 reason it is a paragraph and not a retraction.
+
+---
+
+# THE RECORD CLOSES HERE — 2026-08-09
+
+## C46. The framing was wrong, and the experimental record is now closed
+
+**The error, and it is mine.** `THESIS_STATUS.md:113` and `PHD_PLAN.md:80` both lead the thesis
+with **audit blindness**. C38 concludes: *"The audit is not blind when selection acts through
+features that predict the outcome."* C40 confirms it across 270 cells with `SUPPORTS` occurring at
+**zero of 18** operating points. C41 replicates the refutation on public data. C28 had already
+killed the real-data leg at 33 of 35 thresholds, and C31 established the underlying theory is
+elementary.
+
+**I have been planning a chapter around a proposition this project disproved.** Written that way
+the thesis argues something its own chapter refutes, and it fails in the first twenty minutes of a
+defense.
+
+### The framing that survives everything
+
+> **Evaluation instruments in clinical NLP routinely report numbers determined by the measurement
+> procedure rather than by the quantity claimed, and the failure is invisible without a positive
+> control or a degeneracy precondition.**
+
+This is not a new claim — it is C44's sentence generalized: *the instrument works elsewhere, so its
+failure on the clinical task is a property of the task rather than of the measurement.* Instances
+already measured:
+
+| instrument | reported | actually determined by |
+|---|---|---|
+| pretraining loss | downstream utility | nothing — 1.320 nats → 0.002–0.004 AUROC |
+| domain pretraining + 10× params | capability | the task — +0.0031 (p=0.69) clinical vs **+5.2 points (p<0.0001)** on AG News |
+| auxiliary rule head F1 0.9603 | learned structure | leakage — 0.065/0.060 out of domain |
+| κ = 1.000 | annotator reliability | an identity by construction (C3) |
+| `weak_confidence` | confidence | the label (C9) |
+| demographic parity gap 0.034 | fairness | an 87.3%-positive classifier (C22) |
+| student "tracks truth" | distillation fidelity | a constant-negative predictor (C43) |
+| four MCCs ordered | system ranking | nothing — all four intervals contain zero (C36) |
+| pool audit reading | selection bias | which of three regimes holds (C41) |
+
+**The audit work belongs inside this chapter as one of three demonstrations** — the one where the
+instrument's reading depends on a regime assumption nobody states — not as the thesis.
+
+### The correction record is nine lineages, not 45 items
+
+Presented chronologically, 45 entries read as churn. They are **nine claim lineages**, each with a
+terminal verdict; 29 of the 45 sit in a chain that supersedes earlier entries:
+
+| lineage | chain |
+|---|---|
+| LLM over-calling | C10 → C20 → C23 → C42 |
+| invariance theory | C29 → C31 → C41 |
+| scaling / small encoder | C32 → C34 → C37 → C44 |
+| language selection | C12 → C17 → C25 → C45 |
+| contamination | C1 → C16 → C18 → C19 |
+| audit dissociation | C22 → C24 → C28 → C38 → C40 |
+| survey | C21 → C27 → C35 |
+| distillation | C43 |
+| transfer leakage | C2 |
+
+The thesis should present these nine with their terminal verdicts, and demote the chronological log
+to a sub-appendix.
+
+### The stopping rule
+
+Ten corrections landed in the final two days, including C43 (my own documented failure mode,
+committed two days after documenting it) and C45 (my prediction refuted by tests I designed). A
+reader watching errors surface at an accelerating rate will assume C46 exists. **It does — this is
+it — and the record closes here.**
+
+**What was audited:** every numeric claim in the ten thesis chapters against its producing script;
+every architectural claim against the code that would implement it; every reported metric against
+its confusion matrix; the data lineage of every training run; and every framing claim against a
+falsifier chosen before the result was known.
+
+**What was deliberately not audited:** the pre-2026-08-04 task-split artifacts, which no longer
+exist on disk (C32); the original rule-3/4 generating code, unrecoverable (C4); the MedNLI run log,
+the v1 component parameter counts, and the transfer-collapse figures, all marked unrecoverable on
+the page rather than deleted (C36); and the BioNLP/LOUHI/main-ACL venues, unreachable by the
+available search tooling (C35).
+
+**Closed 2026-08-09.** Further corrections, if any, belong in a revision history and not in this
+document.
+
+### Two items that are arithmetic, not experiments, and may still be resolved
+
+The 17-row discrepancy between `accord_pred` (278 of 299) and `exp1a`'s implied 261 (C28), and the
+`22,446,855` parameter count that reconstructs exactly but appears in no artifact (C36). Both are
+computations on existing files. Neither reopens the record.

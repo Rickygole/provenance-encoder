@@ -5,6 +5,9 @@ conflated: the 34-day sprint to a submittable artifact, the applications window,
 dissertation arc itself. Conflating a thesis-grade observation with a paper-grade claim produced
 seven retractions this week; the separation below is the correction.
 
+
+> **SUPERSEDED FRAMING — 2026-08-09.** **Evaluation instruments in clinical NLP routinely report numbers determined by the measurement procedure rather than by the quantity claimed, and the failure is invisible without a positive control or a degeneracy precondition.** (See CORRECTIONS.md C46 — the earlier 'audit blindness' framing is refuted by this project's own C38/C40/C41.)
+
 ---
 
 ## 0. Standing rules
@@ -77,7 +80,7 @@ Every number independently recomputed, traceable to a committed script.
 
 ## 3. The four contributions
 
-### C1 — Audit blindness
+### C1 — Instrument validity (was: audit blindness — see C46)
 
 **Claim.** A per-group fairness audit computed on a post-selection pool is invariant to the
 selection rate itself. No audit at the model stage can detect that a subgroup was removed
