@@ -40,11 +40,14 @@ paper.
 The chapter proceeds in three parts. Section~\ref{sec:met-closedform} derives
 the exchange rate. Section~\ref{sec:met-systems} applies it to the systems of
 Chapter~\ref{ch:eval} and shows that all three statistics prefer a system
-recovering $6$ of $12$ contradictions over one recovering $11$.
+recovering $6$ of $12$ contradictions over one recovering $11$ (the count of the
+contaminated run; the decontaminated retrain recovers $9$, $10$ and $9$ across
+three seeds, which does not change the direction of the preference).
 Section~\ref{sec:met-sharpened} then does the thing that the earlier submission
-did not: it asks whether the preference was \emph{wrong}, and concludes that it
-was not, which makes the original framing incorrect and the underlying
-prescription stronger.
+did not: it asks whether the preference was \emph{wrong}, and concludes that the
+question is not answerable on this evaluation set, because all four systems' MCC
+intervals contain zero. That makes the original framing incorrect and the
+underlying prescription stronger.
 
 \section{The Prior Submission and What Reviewers Said}
 \label{sec:met-prior}
@@ -81,10 +84,20 @@ Section~\ref{sec:met-closedform} answers.
 
 \paragraph{A third objection, from a different reviewer, that this thesis
 accepts in full.} Reviewer 1yJj observed that there is no value in reporting on
-a contaminated set, because that is training on the test set. Correct. The
-contaminated configuration is withdrawn from this thesis in its entirety
-(Chapter~\ref{ch:candidates}, Section~\ref{sec:splits}), and no number in this
-chapter derives from it.
+a contaminated set, because that is training on the test set. Correct, and the
+earlier response to it was wrong on the facts. That response asserted that the
+contaminated configuration was withdrawn in its entirety and that no number in
+this chapter derived from it. In fact every ACCORD figure in the version of this
+chapter that carried that sentence --- the AUROC, the Mann-Whitney $p$, the
+bootstrap interval, the top-fifteen count, and the $11/12$ recall on which the
+whole ``sharpened claim'' turns --- was computed from
+\texttt{gold\_standard\_accord\_results.csv}, which \emph{is} the contaminated
+run (\texttt{CORRECTIONS.md} C16). Those figures are replaced here by the
+decontaminated retrain, which is worse on recall, precision, $F_1$ and $\kappa$;
+the reviewer's objection therefore lands harder than the earlier reply allowed,
+and the chapter's conclusion survives it because the correction moves in the
+direction the chapter argues. The quantities that remain contaminated-run
+because no decontaminated equivalent has been computed are marked $\dagger$.
 
 \section{The Closed-Form Result}
 \label{sec:met-closedform}
@@ -209,7 +222,7 @@ Table~\ref{tab:met-confusion} reports both.
 \midrule
 GPT-4o, zero-shot          & 6  & 6 & 65  & 176 & $+0.109$ & $+0.109$ \\
 GPT-4o, few-shot           & 7  & 5 & 134 & 107 & $+0.012$ & $+0.012$ \\
-ACCORD, $\tau = 0.5$       & 11 & 1 & 223 & 18  & $-0.007$ & $-0.007$ \\
+ACCORD, $\tau = 0.5$$^{\dagger}$ & 11 & 1 & 223 & 18  & $-0.007$ & $-0.007$ \\
 Llama 3 8B (weak labeller) & 11 & 1 & 231 & 10  & $-0.044$ & $-0.044$ \\
 \bottomrule
 \end{tabular}
@@ -219,7 +232,17 @@ pairs ($P = 12$, $Q = 241$). The final two columns are the check: MCC computed
 from the reconstructed cells agrees with the independently reported MCC to three
 decimal places for all four systems. The ACCORD row is independently
 corroborated by Chapter~\ref{ch:eval}'s reported accuracy of $0.115$, which is
-$(11 + 18)/253$. Nine further systems appeared in the withdrawn submission's
+$(11 + 18)/253$. $\dagger$~The ACCORD row is the \emph{contaminated}
+configuration's confusion matrix; its $\mathrm{TP} = 11$ is a recall no
+decontaminated seed reaches (the three seeds give $9$, $10$ and $9$, and a
+three-seed mean precision of $0.0424$ against this row's $0.047$). It is retained
+because the decontaminated per-seed confusion matrices have not been reduced to a
+single comparable row, and because every derived quantity in this chapter ---
+balanced accuracy, PABAK, the exchange-rate comparison, and the MCC intervals ---
+was computed from it. Those quantities therefore all inherit the flag.
+[TODO: rebuild this row from the decontaminated seeds and recompute
+Tables~\ref{tab:met-selection} and~\ref{tab:met-mccci} on it.] Nine further
+systems appeared in the withdrawn submission's
 comparison table. [TODO: recover the remaining nine rows from the submission's
 result artifacts and report them here on the identical $253$-pair basis, or
 state that they cannot be reproduced and restrict the chapter to four.]}
@@ -239,12 +262,18 @@ state that they cannot be reproduced and restrict the chapter to four.]}
 \midrule
 GPT-4o, zero-shot          & 6  & \textbf{0.615} & $\mathbf{+0.439}$ & $\mathbf{+0.109}$ \\
 GPT-4o, few-shot           & 7  & 0.514          & $-0.099$          & $+0.012$ \\
-ACCORD, $\tau = 0.5$       & 11 & 0.496          & $-0.771$          & $-0.007$ \\
+ACCORD, $\tau = 0.5$$^{\dagger}$ & 11 & 0.496    & $-0.771$          & $-0.007$ \\
 Llama 3 8B (weak labeller) & 11 & 0.479          & $-0.834$          & $-0.044$ \\
 \bottomrule
 \end{tabular}
 \caption{All three statistics induce the same ordering, and all three place the
 system that recovers $6$ of $12$ contradictions above the two that recover $11$.
+$\dagger$~The ACCORD row is the contaminated configuration
+(Table~\ref{tab:met-confusion}); the decontaminated retrain recovers $9$, $10$
+and $9$ of $12$, so the arithmetic below is stated for a system recovering $11$
+that this thesis no longer reports as its result. The exchange-rate conclusion
+does not depend on which of these two rows is used --- both recover far more than
+$6$ --- but the specific cell counts do.
 Balanced accuracy and PABAK are derived from the cells in
 Table~\ref{tab:met-confusion}; MCC is as reported in Chapter~\ref{ch:eval}.
 Balanced accuracy separates the top and bottom systems by $0.14$; PABAK, being
@@ -280,30 +309,65 @@ argues against a failure mode that does not seem to exist in practice was, on
 this point, closer to right than the paper was.
 
 Chapter~\ref{ch:eval}'s four measurements supply the missing information, and
-they invert the reading. Consider what the $11$ of $12$ consists of. ACCORD
-predicts \emph{contradiction} for $234$ of the $253$ non-ambiguous pairs. At
-thresholds $0.05$, $0.10$, and $0.15$ its predicted-positive rate is exactly
-$1.000$, because no score in the evaluation set falls below $0.15$
-(Chapter~\ref{ch:eval}, Table~\ref{tab:sweep}). Its AUROC is $0.460$ with a
-Mann-Whitney $p$ of $0.64$ and a bootstrap $95\%$ interval of $[0.287, 0.633]$;
-its fifteen highest-scored pairs contain zero true contradictions. Its recall of
-$11/12$ is the recall of a near-constant positive predictor, and it is not
-evidence of detection.
+they invert the reading. Consider what that high recall consists of. ACCORD
+predicts \emph{contradiction} for $234$ of the $253$ non-ambiguous
+pairs$^{\dagger}$. At thresholds $0.05$, $0.10$, and $0.15$ its
+predicted-positive rate is exactly $1.000$, because no score in the evaluation
+set falls below $0.15$ (Chapter~\ref{ch:eval}, Table~\ref{tab:sweep}). Its AUROC
+is $0.5145$ with a Mann-Whitney $p$ of $0.867$ and a bootstrap $95\%$ interval of
+$[0.321, 0.703]$; its fifteen highest-scored pairs contain one true contradiction
+against $0.6$ expected under random ordering. And the $11/12$ itself does not
+stand: it is the contaminated run's recall, and the decontaminated retrain
+recovers $9$, $10$ and $9$ of the $12$ across three seeds, a mean of
+$0.7778 \pm 0.0393$. Whichever figure is used, it is the recall of a
+near-constant positive predictor, and it is not evidence of detection.
 
 \subsection{The corrected statement}
 
 \textbf{The metrics were not choosing a worse system over a better one. They were
-choosing among a field in which three of the four systems have no discriminative
-ability at all, and the system they chose was the only one that had any.}
+choosing among a field in which no system has demonstrated discriminative
+ability, and returning an ordering anyway.}
 
 The evidence for that reading is in the MCC column of
-Table~\ref{tab:met-selection} and is independent of the exchange-rate argument.
-ACCORD sits at $-0.007$, indistinguishable from chance. The weak labeller it was
-distilled from sits at $-0.044$, which is worse than chance. GPT-4o zero-shot at
-$+0.109$, with $8.45\%$ precision against a base rate of $4.74\%$, is the only
-system in the comparison whose predictions carry information about the labels.
-Balanced accuracy, PABAK, and MCC all put it first. On this evaluation set they
-were right.
+Table~\ref{tab:met-selection}, and it requires the intervals that column was
+originally reported without. Those intervals are given in
+Table~\ref{tab:met-mccci}.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrrc}
+\toprule
+\textbf{System} & \textbf{$n$} & \textbf{MCC} & \textbf{$95\%$ CI} \\
+\midrule
+GPT-4o, zero-shot          & 253 & $+0.1089$ & $[-0.0319, 0.2484]$ \\
+GPT-4o, few-shot           & 253 & $+0.0117$ & $[-0.1120, 0.1319]$ \\
+ACCORD, $\tau = 0.5$$^{\dagger}$ & 253 & $-0.0070$ & $[-0.1626, 0.0753]$ \\
+Llama 3 8B (weak labeller) & 253 & $-0.0436$ & $[-0.2337, 0.0563]$ \\
+\bottomrule
+\end{tabular}
+\caption{Bootstrap $95\%$ confidence intervals on Matthews correlation for all
+four systems, $B = 10{,}000$ resamples, seed $42$, on the $253$-pair
+non-ambiguous evaluation set. \textbf{All four intervals contain zero.} No system
+in this comparison is distinguishable from chance, the ordering the point
+estimates induce is not identified, and no claim in this thesis may rest on it.
+$\dagger$~ACCORD's row is computed from the contaminated confusion matrix of
+Table~\ref{tab:met-confusion}; see the note there.}
+\label{tab:met-mccci}
+\end{table}
+
+ACCORD sits at $-0.0070$, indistinguishable from chance. The weak labeller it was
+distilled from sits at $-0.0436$, and its interval also spans zero, so it is not
+established to be worse than chance either. GPT-4o zero-shot at $+0.1089$, with
+$8.45\%$ precision against a base rate of $4.74\%$, has the only point estimate
+that is meaningfully positive and the only one whose interval nearly excludes
+zero --- but it does not exclude it. Balanced accuracy, PABAK, and MCC all put it
+first. On this evaluation set that preference is not contradicted by anything;
+neither is it supported by a difference the data can resolve. [Correction note:
+the earlier text read that GPT-4o zero-shot ``is the only system in the
+comparison whose predictions carry information about the labels'' and that ``on
+this evaluation set they were right.'' Both rely on separating four systems whose
+intervals overlap, and both are withdrawn.]
 
 \subsection{Why this makes the argument stronger, not weaker}
 
@@ -327,15 +391,19 @@ guard against is therefore not primarily ``the metric prefers the wrong system''
 but ``every system in the comparison, including the one the metric prefers, may
 be near the no-skill line, and a metric that ranks them will still return a
 ranking.'' A statistic that produces an ordering over four systems with MCCs of
-$+0.109$, $+0.012$, $-0.007$, and $-0.044$ has produced an ordering over a set
-in which three members are noise. Nothing in the statistic says so. The
+$+0.1089$, $+0.0117$, $-0.0070$, and $-0.0436$ has produced an ordering over a
+set in which \emph{all four} members are noise: every one of the four intervals
+in Table~\ref{tab:met-mccci} contains zero. This is the strongest available form
+of the chapter's point, and it is stronger than the version originally written,
+which said three. Nothing in the statistic says so. The
 statistics that do say so are the ones Chapter~\ref{ch:eval} reports alongside
 it: a threshold-free ranking measure with a confidence interval, a
 significance test on the score distributions, an average precision against the
 base rate, and a top-$k$ count.
 
 \paragraph{Recall in isolation is the trap, not the metric.} The original
-framing treated $11/12$ as the quantity to be protected. Both this chapter and
+framing treated the $11/12$ as the quantity to be protected --- a figure that,
+as it turns out, belonged to the contaminated run. Both this chapter and
 Chapter~\ref{ch:eval}, Section~\ref{sec:errors-reading}, now state the opposite:
 recall alone is the most misleading statistic available in this setting, because
 a constant-positive predictor achieves recall $1.0$ by construction. The
@@ -375,8 +443,9 @@ of which requires agreement with the diagnosis above.
       objects differ. The measures that refuse are a threshold-free
       discrimination estimate with an interval, a test on the score
       distributions, average precision against the base rate, and a top-$k$
-      count. Chapter~\ref{ch:eval} reports all four, and all four agree that
-      three of the four systems in Table~\ref{tab:met-selection} are noise.
+      count. Chapter~\ref{ch:eval} reports all four, and together with the
+      intervals of Table~\ref{tab:met-mccci} they agree that all four of the
+      systems in Table~\ref{tab:met-selection} are noise.
 \end{enumerate}
 
 \paragraph{A fifth recommendation this thesis cannot yet support.} Where the
@@ -415,17 +484,23 @@ despite its name.}
 \centering
 \framebox[\linewidth]{\parbox[c][5cm][c]{0.92\linewidth}{\centering
 \textit{[Figure asset 8.2: two panels sharing a y axis of four systems. Left,}
-\textit{recall out of 12: GPT-4o zs 6, GPT-4o fs 7, ACCORD 11, Llama 11.}
-\textit{Right, MCC with a vertical line at 0 labelled ``chance'': $+0.109$,}
-\textit{$+0.012$, $-0.007$, $-0.044$. Annotate the ACCORD and Llama bars in the}
-\textit{left panel with their predicted-positive counts, 234/253 and 242/253.}
-\textit{Caption box: ``the high-recall systems predict positive almost}
-\textit{everywhere''.]}}}
+\textit{recall out of 12: GPT-4o zs 6, GPT-4o fs 7, ACCORD 9.3 (seeds 9/10/9),}
+\textit{Llama 11. Right, MCC with a vertical line at 0 labelled ``chance'':}
+\textit{$+0.1089$, $+0.0117$, $-0.0070$, $-0.0436$, each drawn with its $95\%$}
+\textit{bootstrap interval from Table 8.4: $[-0.0319, 0.2484]$,}
+\textit{$[-0.1120, 0.1319]$, $[-0.1626, 0.0753]$, $[-0.2337, 0.0563]$. Every}
+\textit{error bar crosses the chance line and this must be visible. Annotate the}
+\textit{ACCORD and Llama bars in the left panel with their predicted-positive}
+\textit{counts, 234/253 (contaminated run) and 242/253. Caption box: ``the}
+\textit{high-recall systems predict positive almost everywhere, and no interval}
+\textit{excludes chance''.]}}}
 \caption{The sharpened claim in one view. The two systems with the highest
 recall achieve it by predicting the positive class for over ninety percent of
 the evaluation set, and both sit at or below chance on Matthews correlation. The
-metrics that prefer the low-recall system are not preferring a worse detector;
-they are the only summaries in the comparison that register the difference.}
+right panel is the load-bearing one: all four intervals cross zero, so the
+ordering the metrics return is an ordering over noise. The metrics that prefer
+the low-recall system are not preferring a worse detector; nor are they resolving
+a difference this evaluation set can support.}
 \label{fig:met-sharpened}
 \end{figure}
 
@@ -435,14 +510,15 @@ they are the only summaries in the comparison that register the difference.}
 \paragraph{One evaluation set, twelve positives.} Every number in
 Table~\ref{tab:met-selection} rests on $P = 12$. The exchange rate of
 Equation~\eqref{eq:exchange} is exact given the class counts and does not
-depend on sample size, but the empirical claim that the metric-preferred system
-is the only one with signal rests on four MCC values whose sampling variability
-is not characterised here. Chapter~\ref{ch:eval} reports a bootstrap interval
-for ACCORD's AUROC, $[0.287, 0.633]$; no comparable interval is reported for any
-MCC. [TODO: bootstrap all four MCCs on the $253$-pair evaluation set,
-$B = 10{,}000$, and report intervals. If GPT-4o zero-shot's interval contains
-zero, the claim that it is the only system with discriminative ability weakens
-to a claim that it is the only system whose point estimate is positive.]
+depend on sample size, and the sampling variability of the four MCC values is now
+characterised. Chapter~\ref{ch:eval} reports a bootstrap interval for ACCORD's
+AUROC, $[0.321, 0.703]$, and Table~\ref{tab:met-mccci} reports the four
+corresponding MCC intervals, $B = 10{,}000$ resamples at seed $42$. The
+anticipated outcome is the one that occurred: GPT-4o zero-shot's interval
+contains zero, so the claim that it is the only system with discriminative
+ability weakens to the claim that it is the only system whose point estimate is
+meaningfully positive, and this chapter makes only the weaker claim. All four
+intervals contain zero.
 
 \paragraph{The confusion matrices are reconstructed, not read from an artifact.}
 Table~\ref{tab:met-confusion} derives all sixteen cells from reported precision
@@ -484,14 +560,18 @@ numerically. Checked numerically, all three place a system recovering $6$ of
 $12$ contradictions above two systems recovering $11$.
 
 That much was the content of a withdrawn submission and it stands. What does not
-stand is the framing. The systems recovering $11$ of $12$ do so by predicting
+stand is the framing. The high-recall systems achieve their recall by predicting
 the positive class for over ninety percent of the evaluation set, at a
 predicted-positive rate of exactly $1.000$ at every threshold from $0.05$ to
-$0.15$, with AUROC $0.460$ and zero true contradictions in the top fifteen. Their
-Matthews correlations are $-0.007$ and $-0.044$. The metric-preferred system, at
-$+0.109$, is the only one in the comparison with discriminative ability. The
-metrics did not select a worse system. They selected the only system there was,
-out of a field in which the alternatives were noise.
+$0.15$, with AUROC $0.5145$ and one true contradiction in the top fifteen against
+$0.6$ expected. Their Matthews correlations are $-0.0070$ and $-0.0436$. ACCORD's
+own $11/12$ does not survive decontamination either: the retrain recovers $9$,
+$10$ and $9$ of $12$. The metric-preferred system, at $+0.1089$, has the only
+meaningfully positive point estimate, but its $95\%$ interval is
+$[-0.0319, 0.2484]$ and, like the other three, contains zero. The metrics did not
+select a worse system. Nor did they select the only system with signal: they
+returned an ordering over four systems none of which is distinguishable from
+chance, and returning it is all a ranking statistic can do.
 
 The prescription that survives is narrower than the original claim and harder to
 argue with: state $Q/P$ beside any balanced accuracy, do not present PABAK as

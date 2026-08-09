@@ -27,8 +27,8 @@ parameter reported as discovered at $(0.5, 1.0)$ was initialised at exactly
 $[0.5, 1.0]$; it moved by $1.8\%$ and $0.6\%$, agreeing across seeds to the
 third decimal; it sits on a branch immediately followed by a LayerNorm that
 largely erases it, leaving a near-zero gradient; and constraining
-$\alpha_N = \alpha_D$ improves both reported metrics, $0.7775$ against $0.7368$
-on contradiction $F_1$ and $0.9192$ against $0.8939$ on accuracy. Four lines of
+$\alpha_N = \alpha_D$ improves both reported metrics, $0.7603$ against $0.7368$
+on contradiction $F_1$ and $0.9091$ against $0.8939$ on accuracy. Four lines of
 evidence, of which the fourth is a result the project already had and did not
 read.
 
@@ -149,18 +149,21 @@ $4 + 2 = 6$ of the $12$ confirmed contradictions.
 \textbf{Evaluation stratum} & \textbf{$n$} & \textbf{Positives} &
 \textbf{AUROC} & \textbf{Mann-Whitney $p$} \\
 \midrule
-All annotated pairs                      & 299 & 12 & 0.460  & 0.64  \\
-Rules 3 and 4 (defect-free by construction) & 135 & 6  & 0.5078 & 0.953 \\
+All annotated pairs                      & 299 & 12 & 0.5145 & 0.867 \\
+Rules 3 and 4 (defect-free by construction) & 135 & 6  & 0.5078$^{\dagger}$ & 0.953 \\
 \bottomrule
 \end{tabular}
 \caption{Ranking performance restricted to the strata that cannot exhibit the
 exemplar defect. On the clean strata the detector's AUROC is $0.5078$ with
-$p = 0.953$, which is chance to four significant figures. The objection that
-label contamination attenuated the full-set AUROC of $0.460$ toward $0.5$ is
+$p = 0.953$, which is chance to four significant figures. The full-set row is the
+decontaminated three-seed ensemble and replaces the $0.460$ at $p = 0.64$ of the
+contaminated run (\texttt{CORRECTIONS.md} C16). The objection that
+label contamination attenuated the full-set AUROC toward $0.5$ is
 therefore not available: on evidence that is correct by construction, the score
 is not merely attenuated toward chance, it is at chance. The stratum contains
 six positives, and the estimate is correspondingly imprecise; see
-Section~\ref{sec:disc-power}.}
+Section~\ref{sec:disc-power}. $\dagger$~The stratified row has not been
+recomputed under decontamination and remains a contaminated-run value.}
 \label{tab:disc-strata}
 \end{table}
 
@@ -168,7 +171,7 @@ Section~\ref{sec:disc-power}.}
 
 \paragraph{What it settles.} The most serious objection available against
 Chapter~\ref{ch:eval} was that a model with genuine signal could be measured at
-AUROC $0.460$ if enough of the labels were collected against the wrong evidence.
+AUROC $0.5145$ if enough of the labels were collected against the wrong evidence.
 Table~\ref{tab:disc-strata} removes that objection in the only way it can be
 removed, by measuring on the subset where the evidence is right by construction.
 A $p$ of $0.953$ on a Mann-Whitney comparison of the positive and negative score
@@ -177,10 +180,22 @@ distributions is not a weak signal; it is the absence of one.
 \paragraph{What it does not settle.} Six positives. The point estimate of
 $0.5078$ is not distinguishable from a wide range of alternatives and should not
 be read as evidence that the true AUROC is $0.5078$ rather than, say, $0.55$ or
-$0.45$. [TODO: report the bootstrap $95\%$ confidence interval on the
-restricted AUROC, $B = 10{,}000$ resamples, and the average precision against
-the restricted base rate. The full-set interval is $[0.287, 0.633]$ at twelve
-positives; the restricted interval will be wider.] The claim
+$0.45$. The bootstrap $95\%$ interval on the restricted AUROC, $B = 10{,}000$
+resamples, is $[0.2217, 0.7615]$, against the full-set interval of
+$[0.321, 0.703]$ at twelve positives; as expected, the restricted interval is
+wider.
+
+Two properties of that interval are reported with it rather than left implicit,
+because an interval that silently discards undefined resamples is the same class
+of omission this thesis is about. First, \textbf{$20$ of the $10{,}000$
+resamples --- $0.20\%$ --- were dropped because they contained zero positives},
+which leaves AUROC undefined; the quoted interval is over the surviving $9{,}980$.
+Second, the \textbf{stratified} interval, which preserves the $6/128$ class split
+in every resample and therefore drops nothing, is $[0.2643, 0.7344]$. The
+unstratified figure is quoted as the headline because it matches the method used
+on the full set; the stratified figure is the robustness check, and the two agree
+in every respect that matters here. [TODO: report the average precision on the
+restricted strata against the restricted base rate.] The claim
 Table~\ref{tab:disc-strata} supports is the narrow one: whatever the true value
 is, the data give no evidence of separation, and the exemplar defect cannot be
 the reason.
@@ -203,15 +218,18 @@ chance or a specified difference between two systems. The figure is recorded in
 the project's planning artifacts and its derivation is not.]
 
 The consequence is uniform across the thesis and cannot be argued away. The
-bootstrap $95\%$ confidence interval on the primary AUROC is $[0.287, 0.633]$,
+bootstrap $95\%$ confidence interval on the primary AUROC is $[0.321, 0.703]$,
 $B = 10{,}000$ resamples. That interval is consistent with a genuinely inverted
 model and with a mildly informative one. What it is not consistent with is a
 useful one, and that, rather than any point estimate, is the claim this thesis
 defends. Every per-rule precision in Chapter~\ref{ch:candidates} rests on
 between two and four positives. The defect-free stratum of
-Section~\ref{sec:disc-strata} rests on six. No comparison between systems in
-Chapter~\ref{ch:eval} or Chapter~\ref{ch:metrics} carries a reported interval on
-its Matthews correlation.
+Section~\ref{sec:disc-strata} rests on six, and $20$ of its $10{,}000$ bootstrap
+resamples contained no positive at all. Every system comparison in
+Chapter~\ref{ch:eval} and Chapter~\ref{ch:metrics} now carries an interval on its
+Matthews correlation (Chapter~\ref{ch:metrics}, Table~\ref{tab:met-mccci}), and
+all four of those intervals contain zero, so the ordering over the four systems
+is not identified.
 
 A reader should treat every interval in this thesis as wide, and should treat
 the qualitative pattern, which is that four independent measurements built on
@@ -509,8 +527,11 @@ observed behaviour is attributable to the custom components at all
 re-measuring in-domain rule $F_1$, which closes the leakage claim
 (Chapter~\ref{ch:arch}); separating the Stage 0 bottleneck hypothesis from the
 truncation hypothesis by widening the scoring bottleneck and by re-truncating
-around medication-bearing sentences (Chapter~\ref{ch:arch}); and bootstrapping
-the Matthews correlations of all compared systems (Chapter~\ref{ch:metrics}).
+around medication-bearing sentences (Chapter~\ref{ch:arch}); and rebuilding the
+system-comparison confusion matrices from the decontaminated seeds, which is what
+remains after the Matthews correlations were bootstrapped
+(Chapter~\ref{ch:metrics}, Table~\ref{tab:met-mccci}: all four intervals contain
+zero).
 
 \section{What Should Not Be Built}
 \label{sec:disc-ethics}
@@ -521,8 +542,8 @@ bias. Three points are restated here because they belong to the discussion
 rather than to the results.
 
 \paragraph{The system as measured should not be deployed, and its failure mode
-is worse than doing nothing.} At $91.7\%$ recall and $4.7\%$ precision it
-produces roughly twenty false alarms per true contradiction. Drug safety alert
+is worse than doing nothing.} At $77.8\%$ recall and $4.24\%$ precision it
+produces more than twenty false alarms per true contradiction. Drug safety alert
 override rates in computerised order entry already run between $49\%$ and $96\%$
 \citep{vandersijs2006overriding}, and alerting burden and work complexity
 degrade clinician response \citep{ancker2017alertfatigue}. A system that consumes
@@ -540,11 +561,16 @@ emitted score, costs one line.
 standard.} Four claims from an earlier submission are retracted in this thesis:
 the discovered authority hierarchy, the rule-type $F_1$ of $0.9603$, the
 internal-consistency $\kappa$ of $1.000$, and the intermediate-documentation
-prefilter finding. A fifth reporting practice is corrected, an ablation table
-described as three seeds that is two seeds plus a hardcoded reference row, and
-one configuration is withdrawn entirely because it trained on the evaluation
-set. Recording this is not a virtue; it is what allows a reader who encounters
-the earlier artifacts to know their status.
+prefilter finding. Two further reporting practices are corrected. An ablation
+table described as three seeds is two seeds plus a hardcoded reference row. And
+the earlier claim that the configuration trained on the evaluation set was
+withdrawn entirely was false: that configuration was in fact the source of every
+detection figure in Chapters~\ref{ch:eval} and~\ref{ch:metrics} and of the
+full-set row of Table~\ref{tab:disc-strata}. Those figures are replaced by the
+decontaminated retrain, which is worse on every point metric, so the negative
+conclusion is strengthened by the correction. Recording this is not a virtue; it
+is what allows a reader who encounters the earlier artifacts to know their
+status.
 
 \section{Proposed Figures}
 \label{sec:disc-figures}
@@ -553,17 +579,22 @@ the earlier artifacts to know their status.
 \centering
 \framebox[\linewidth]{\parbox[c][5.5cm][c]{0.92\linewidth}{\centering
 \textit{[Figure asset 9.1: two ROC panels side by side on identical axes.}
-\textit{Left, all 299 annotated pairs: AUROC 0.460, 12 positives, bootstrap}
-\textit{band shaded to $[0.287, 0.633]$. Right, the 135 Rule 3 and Rule 4 pairs:}
-\textit{AUROC 0.5078, 6 positives, Mann-Whitney $p = 0.953$, bootstrap band}
-\textit{[TODO: compute]. Both panels carry the chance diagonal. A caption strip}
-\textit{beneath the right panel reads ``exemplar-defect-free by construction''.]}}}
+\textit{Left, all 299 annotated pairs, decontaminated three-seed ensemble:}
+\textit{AUROC 0.5145, 12 positives, bootstrap band shaded to $[0.321, 0.703]$.}
+\textit{Right, the 135 Rule 3 and Rule 4 pairs: AUROC 0.5078, 6 positives,}
+\textit{Mann-Whitney $p = 0.953$, bootstrap band shaded to $[0.2217, 0.7615]$}
+\textit{with the stratified band $[0.2643, 0.7344]$ overlaid as a dashed}
+\textit{outline. Both panels carry the chance diagonal. A caption strip beneath}
+\textit{the right panel reads ``exemplar-defect-free by construction''; a second}
+\textit{strip records ``20 of 10,000 resamples dropped (0.20\%): zero}
+\textit{positives''.]}}}
 \caption{The measurement that closes the largest objection to
 Chapter~\ref{ch:eval}. On the strata where the annotated evidence is correct by
 construction, the detector's ranking is at chance rather than merely attenuated
 toward it. The right panel rests on six positives and its interval is wide; the
 claim it supports is that label contamination is not the explanation, not that
-the true value is $0.5078$.}
+the true value is $0.5078$. Twenty of its $10{,}000$ resamples were dropped for
+containing no positives, which is why the stratified band is shown alongside.}
 \label{fig:disc-strata}
 \end{figure}
 
@@ -611,8 +642,13 @@ audit.
 
 The central finding survives the most serious of these. On Rules 3 and 4, which
 cannot exhibit the exemplar defect, the detector's AUROC is $0.5078$ with
-Mann-Whitney $p = 0.953$. Six positives support that estimate and its width is
-stated rather than absorbed.
+Mann-Whitney $p = 0.953$ and a bootstrap $95\%$ interval of $[0.2217, 0.7615]$,
+$[0.2643, 0.7344]$ when stratified. Six positives support that estimate, $20$ of
+its $10{,}000$ resamples had to be discarded for containing none of them, and
+both facts are stated rather than absorbed. It also survives a defect in the
+reporting itself: the figures this thesis previously gave for the detector were
+the contaminated configuration's, and the decontaminated retrain that replaces
+them is worse on recall, precision, $F_1$ and $\kappa$.
 
 The work that follows should start upstream of everything this project spent its
 effort on: a better candidate generator, because $4.0\%$ precision is the binding

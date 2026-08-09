@@ -506,12 +506,20 @@ than comments are used deliberately: the reference pipeline's split was not
 wrong because the author believed row-level splitting was acceptable, it was
 wrong because nothing in the code would have complained.
 
-All results reported in Chapters~\ref{ch:arch} and~\ref{ch:eval} for the trained
-model use a held-out set that excludes the $299$ annotated pairs. An earlier
-reported configuration trained on the full $1{,}978$-pair pool, which contains
-those $299$ pairs. That configuration is training on the evaluation set, its
-results are not reported anywhere in this thesis, and the reader should treat
-any earlier project artifact quoting it as superseded.
+An earlier reported configuration trained on the full $1{,}978$-pair pool, which
+contains the $299$ annotated pairs. That configuration is training on the
+evaluation set. \textbf{Earlier versions of this section stated that its results
+are not reported anywhere in this thesis. That statement was false}: every
+detection figure in Chapters~\ref{ch:eval} and~\ref{ch:metrics}, and the full-set
+row of the stratified analysis in Chapter~\ref{ch:discussion}, was computed from
+\texttt{gold\_standard\_accord\_results.csv}, which is that contaminated
+configuration --- it records a recall of $11/12$ that no decontaminated seed
+reaches (\texttt{CORRECTIONS.md} C16). Those figures are replaced throughout by
+the decontaminated retrain on the held-out complement, evaluated over three
+seeds, which is worse on recall, precision, $F_1$ and $\kappa$; the negative
+conclusion is therefore strengthened by the correction rather than weakened by
+it. The reader should treat any earlier project artifact quoting the contaminated
+numbers, and any earlier statement that they were not reported, as superseded.
 
 \section{Proposed Figures}
 \label{sec:cand-figures}

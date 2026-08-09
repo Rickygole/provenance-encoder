@@ -38,10 +38,24 @@ at all.
       that the task is simply impossible. Section~\ref{sec:m4}.
 \end{enumerate}
 
-All four are computed on the $299$ pharmacist-annotated pairs, which are absent
-from the training set by construction (Chapter~\ref{ch:weak},
-Section~\ref{sec:weak-setup}). The single configuration that trained on those
-pairs is not reported anywhere in this thesis.
+All four are computed on the $299$ pharmacist-annotated pairs.
+
+\paragraph{A correction that governs every number in this chapter.} Earlier
+drafts of Chapters~\ref{ch:eval} to~\ref{ch:discussion} stated that the
+configuration trained on the full $1{,}978$-pair pool, which contains these $299$
+pairs, was not reported anywhere in this thesis. \textbf{That statement was
+untrue.} Every point metric, ranking statistic, threshold sweep and severity
+correlation in those drafts was computed from
+\texttt{gold\_standard\_accord\_results.csv}, and that file is the
+\emph{contaminated} run: it records $11$ true positives of $12$, a recall no
+decontaminated seed reaches (\texttt{CORRECTIONS.md} C16). The figures reported
+below replace it with the decontaminated configuration, retrained on the held-out
+complement and evaluated over three seeds. The decontaminated run is worse than
+the contaminated one on recall, precision, $F_1$ and $\kappa$, so the negative
+conclusion this chapter draws is strengthened by the correction rather than
+weakened by it. Quantities that have not been recomputed under decontamination
+are marked $\dagger$ where they appear and are listed in
+Section~\ref{sec:eval-limitations}.
 
 Section~\ref{sec:eval-scoping} then addresses the obvious objection: given the
 exemplar defect of Chapter~\ref{ch:candidates}, can any of this be believed? The
@@ -127,26 +141,32 @@ Annotated pairs                                   & 299 \\
 \quad not contradictions                          & 241 \\
 \quad ambiguous                                   & 46 \\
 \midrule
-Pairs ACCORD predicts \emph{contradiction} at $\tau = 0.5$ & 278 \\
+Pairs ACCORD predicts \emph{contradiction} at $\tau = 0.5$ & 278$^{\dagger}$ \\
 \midrule
-Precision                                         & 0.047 \\
-Recall                                            & 0.917 (11/12) \\
-Accuracy                                          & 0.115 \\
+Precision                                         & $0.0424 \pm 0.0023$ \\
+Recall                                            & $0.7778 \pm 0.0393$ (TP $9$, $10$, $9$ of $12$) \\
+Accuracy                                          & 0.115$^{\dagger}$ \\
 Pooled base rate                                  & 0.040 (12/299) \\
 \bottomrule
 \end{tabular}
-\caption{Point metrics at the default threshold. The model predicts
-\emph{contradiction} for $93\%$ of the evaluation set. Accuracy of $0.115$ on a
-task whose majority class is $80.6\%$ of the labelled pairs is the accuracy of a
-near-constant positive predictor evaluated against a heavily negative
-population. The precision of $0.047$ should be read against the base rate rather
-than in isolation.}
+\caption{Point metrics at the default threshold. Precision and recall are the
+decontaminated configuration's three-seed mean $\pm$ standard deviation; the
+recall of $0.7778$ replaces the $0.917$ ($11/12$) of the contaminated run, whose
+three decontaminated seeds recover $9$, $10$ and $9$ of the $12$ confirmed
+contradictions. Rows marked $\dagger$ are contaminated-run quantities that have
+not been recomputed under decontamination and are retained only to support the
+denominator reconstruction below. The model remains a near-constant positive
+predictor evaluated against a heavily negative population, and the precision of
+$0.0424$ should be read against the base rate rather than in isolation.}
 \label{tab:point}
 \end{table}
 
 \paragraph{On denominators.} Precision and accuracy in Table~\ref{tab:point} are
 computed on the $253$ non-ambiguous pairs, while the predicted-positive count of
-$278$ is over all $299$.\footnote{The reconstruction is as follows. The
+$278$ is over all $299$.\footnote{The reconstruction below is of the
+\emph{contaminated} run's released file, which is the only configuration for
+which the released per-pair decisions exist; it is retained because it is what
+fixes the denominators, not because its cell counts still stand. The
 threshold sweep in Section~\ref{sec:m2} reports precision $0.0474$ at a
 positive rate of $1.0$, and $12/253 = 0.0474$, which fixes the denominator at
 $253$. With $11$ true positives, a precision of $0.047$ requires $234$ predicted
@@ -157,12 +177,12 @@ directly in the audit script and report them explicitly in the results file. The
 present mixture of $n{=}253$ and $n{=}299$ denominators in a single table is a
 reporting defect, corrected here by annotation rather than by recomputation.]}
 On the $253$-pair basis the comparable base rate is $12/253 = 4.74\%$, and
-ACCORD's precision of $4.70\%$ is very slightly \emph{below} it.
+ACCORD's decontaminated precision of $4.24\% \pm 0.23$ is \emph{below} it.
 
-\paragraph{The reading.} A detector whose precision equals the base rate to
-within four hundredths of a percentage point is not a detector. It is a
-relabelling of the candidate pool. The recall of $0.917$ is real, but it is the
-recall that any near-constant positive predictor achieves: predicting
+\paragraph{The reading.} A detector whose precision sits half a percentage point
+below the base rate of the pool it is scoring is not a detector. It is a
+relabelling of the candidate pool. The recall of $0.778 \pm 0.039$ is real, but
+it is the recall that a near-constant positive predictor achieves: predicting
 \emph{contradiction} for everything yields recall $1.0$ at precision equal to
 the base rate, and ACCORD is a small perturbation of that predictor.
 
@@ -189,48 +209,72 @@ statistically independent of the label.
 \toprule
 \textbf{Score} & \textbf{Label treatment} & \textbf{$n$} & \textbf{AUROC} \\
 \midrule
-\texttt{accord\_contra\_prob} & all pairs, ambiguous excluded from positives & 299 & 0.460 \\
-\texttt{accord\_contra\_prob} & ambiguous pairs dropped                       & 253 & 0.460 \\
-\texttt{accord\_contra\_prob} & ambiguous counted as positive                 & 299 & 0.490 \\
+\texttt{accord\_contra\_prob} & all pairs, ambiguous excluded from positives & 299 & 0.5145 \\
+\texttt{accord\_contra\_prob} & ambiguous pairs dropped                       & 253 & 0.5145 \\
+\texttt{accord\_contra\_prob} & ambiguous counted as positive                 & 299 & 0.490$^{\dagger}$ \\
 \midrule
-\texttt{accord\_harm\_score}  & all pairs                                     & 299 & 0.504 \\
+\texttt{accord\_harm\_score}  & all pairs                                     & 299 & 0.504$^{\dagger}$ \\
 \bottomrule
 \end{tabular}
 \caption{Ranking performance under three treatments of the ambiguous class. The
-result is stable at approximately $0.46$ to $0.49$ regardless of how ambiguity is
-handled, which forecloses the objection that the ambiguous stratum is driving
-the finding. The harm score, which Chapter~\ref{ch:arch} established was never
-trained, sits at $0.504$: the value expected of a randomly initialised head.}
+first two rows are the decontaminated three-seed ensemble, $0.5145$, whose
+per-seed mean is $0.5211 \pm 0.0201$; they replace the $0.460$ of the
+contaminated run, which reported the same value under both treatments. The
+decontaminated recomputation exists only on the $253$-pair core, so the rows
+marked $\dagger$ remain contaminated-run values and have not been recomputed. The
+harm score, which Chapter~\ref{ch:arch} established was never trained, sits at
+$0.504$: the value expected of a randomly initialised head.}
 \label{tab:auroc}
 \end{table}
 
 \subsection{The result}
 
-Table~\ref{tab:auroc} reports AUROC of $0.460$ for the contradiction
-probability. This is below chance, and the supporting statistics establish that
-it is indistinguishable from chance rather than meaningfully inverted:
+Table~\ref{tab:auroc} reports AUROC of $0.5145$ for the contradiction
+probability, the three-seed ensemble of the decontaminated configuration, with a
+per-seed mean of $0.5211 \pm 0.0201$. This is fractionally above chance, and the
+supporting statistics establish that it is indistinguishable from chance:
 
 \begin{itemize}
-\item \textbf{Average precision} between $0.039$ and $0.046$ across the three
-      label treatments, against a base rate of $0.040$. Average precision is the
-      appropriate summary under this degree of class imbalance
-      \citep{saito2015prcurve}, and it sits exactly at the no-skill line.
+\item \textbf{Average precision} $0.0579 \pm 0.0034$ across the three
+      decontaminated seeds, against a base rate of $0.040$. Average precision is
+      the appropriate summary under this degree of class imbalance
+      \citep{saito2015prcurve}, and it sits at the no-skill line.
 \item \textbf{Mann-Whitney $U$} comparing the score distributions of positives
-      and negatives: $p = 0.64$. The two distributions are not separated.
+      and negatives: $p = 0.867$. The two distributions are not separated.
 \item \textbf{Bootstrap $95\%$ confidence interval} on AUROC, $B = 10{,}000$
-      resamples \citep{efron1994bootstrap}: $[0.287, 0.633]$. The interval
+      resamples \citep{efron1994bootstrap}: $[0.321, 0.703]$. The interval
       contains $0.5$ comfortably. It is also very wide, which is the honest
       consequence of $12$ positives.
 \end{itemize}
+
+\paragraph{Neither configuration is certified subject-disjoint.} The $0.5145$
+above is not a clean number, and the reason should be stated at the point of
+first use rather than in the limitations. The decontaminated run's own
+train/eval boundary was enforced at \emph{row} level: rows carrying the
+\texttt{pharmacist\_overlap} flag were removed, but subjects were not. A direct
+check (\texttt{CORRECTIONS.md} C18) finds that $158$ of the $266$ subjects
+spanned by the evaluated pairs --- $59.4\%$ --- also appear in the
+decontaminated training pool, under different \texttt{(drug, rule)}
+combinations. So the contaminated configuration leaked at row level and the
+decontaminated configuration leaks at subject level, and \textbf{neither is
+certified subject-disjoint from its evaluation set}. The only subject-disjoint
+measurement anywhere in this project is the plain control baseline of
+\texttt{CORRECTIONS.md} C19, which excludes the $291$ overlapping rows and
+asserts disjointness in code; it lands at AUROC $0.497 \pm 0.035$. The three
+measurements --- contaminated $0.4595$, decontaminated $0.5145$, subject-disjoint
+control $0.497$ --- agree, which is the useful outcome: leakage at either level
+did not manufacture signal, because there was none to manufacture.
 
 \subsection{The top-$k$ check}
 
 AUROC is a global summary and can obscure behaviour at the extremes, which is
 where a triage system would actually operate. \textbf{The $15$ highest-scored
-pairs in the evaluation set contain zero true contradictions.} Under the null
+pairs in the evaluation set contain one true contradiction.} Under the null
 hypothesis of random ordering, the expected count is $15 \times 12/299 = 0.6$,
-so observing zero is unremarkable in itself. That is precisely the point: the
-model's most confident predictions are indistinguishable from a random draw.
+so observing one is unremarkable in itself. That is precisely the point: the
+model's most confident predictions are indistinguishable from a random draw. The
+count of one is the decontaminated ensemble's; the contaminated run reported
+zero, and across the three decontaminated seeds the counts are $1$, $0$ and $0$.
 
 For a deployed triage system this is the operationally decisive number. The
 entire value proposition of such a system is that a clinician reviews the top of
@@ -274,7 +318,8 @@ ordering for a threshold to exploit.
 positive for \emph{every} pair. The precision of $0.0474$ is exactly $12/253$,
 the base rate: at a positive rate of $1.0$ precision is arithmetically forced to
 the base rate. The three rows are identical because no score in the evaluation
-set falls below $0.15$.}
+set falls below $0.15$. $\dagger$~This sweep is computed from the contaminated
+run's released scores and has not been recomputed under decontamination.}
 \label{tab:sweep}
 \end{table}
 
@@ -293,10 +338,15 @@ set falls below $0.15$.}
 \caption{Precision at fixed recall. Even at $50\%$ recall, precision reaches
 only $5.4\%$: roughly eighteen false alarms for every true contradiction. The
 precision-recall curve is essentially flat at the base rate, which is the
-signature of a score that does not order the labels. [TODO: the $4.1\%$ figure
-at recall $0.917$ and the $4.70\%$ reported at $\tau = 0.5$ in
-Table~\ref{tab:point} are computed on different denominators ($n = 299$ against
-$n = 253$); reconcile and report both on a single basis.]}
+signature of a score that does not order the labels. $\dagger$~The whole table is
+computed from the contaminated run's released scores and has not been recomputed
+under decontamination; the $0.917$ target-recall row is a grid point chosen
+because it was that run's achieved recall, and the decontaminated configuration
+achieves $0.778 \pm 0.039$. [TODO: recompute the curve on the decontaminated
+scores, replace the $0.917$ grid point, and reconcile the denominators, since the
+$4.1\%$ figure and the precision reported at $\tau = 0.5$ in
+Table~\ref{tab:point} are computed on different bases ($n = 299$ against
+$n = 253$).]}
 \label{tab:pr}
 \end{table}
 
@@ -334,7 +384,8 @@ correlations were computed against it:
 \end{tabular}
 \caption{Severity ranking. Both correlations are null. The harm score's
 $\rho = -0.0001$ at $p = 0.999$ is about as close to an exact null as a finite
-sample produces.}
+sample produces. $\dagger$~Both rows are computed from the contaminated run's
+released scores and have not been recomputed under decontamination.}
 \label{tab:severity}
 \end{table}
 
@@ -375,30 +426,42 @@ Chapters~\ref{ch:candidates} through~\ref{ch:arch} are beside the point.
 \toprule
 \textbf{System} & \textbf{Precision} & \textbf{Recall} & \textbf{MCC} \\
 \midrule
-GPT-4o, zero-shot        & \textbf{8.45\%} & 50.0\% & $\mathbf{+0.109}$ \\
+GPT-4o, zero-shot        & \textbf{8.45\%} & 50.0\% & $+0.109$ \\
 GPT-4o, few-shot         & 4.96\%          & 58.3\% & $+0.012$ \\
-ACCORD, $\tau = 0.5$     & 4.70\%          & 91.7\% & $-0.007$ \\
+ACCORD, $\tau = 0.5$     & 4.24\%          & 77.8\% & $-0.007^{\dagger}$ \\
 Llama 3 8B (weak labeller) & 4.55\%        & 91.7\% & $-0.044$ \\
 \bottomrule
 \end{tabular}
 \caption{System comparison on the $299$ pharmacist-annotated pairs. Matthews
 correlation coefficient \citep{matthews1975mcc} is reported because it is the
 summary statistic least distorted by extreme class imbalance; a value of $0$ is
-chance. GPT-4o zero-shot is the only system with a positive MCC. ACCORD is
-indistinguishable from chance. The weak labeller ACCORD was distilled from is
-\emph{worse} than chance.}
+chance. ACCORD's precision and recall are the decontaminated three-seed means
+($4.24\% \pm 0.23$, $77.8\% \pm 3.9$); its MCC, marked $\dagger$, is computed
+from the \emph{contaminated} confusion matrix on the $253$-pair core and has not
+been recomputed under decontamination. All four MCCs carry $95\%$ bootstrap
+intervals that contain zero (Chapter~\ref{ch:metrics},
+Table~\ref{tab:met-mccci}), so the ordering they induce over these four systems
+is not identified and no claim in this thesis rests on it. What the table
+supports is weaker and sufficient: no system here is distinguishable from chance
+on this evaluation set, and the two highest-recall systems achieve their recall
+by predicting the positive class almost everywhere.}
 \label{tab:systems}
 \end{table}
 
 \subsection{The four findings in Table~\ref{tab:systems}}
 
 \paragraph{The task is not impossible.} GPT-4o zero-shot
-\citep{openai2023gpt4} achieves $8.45\%$ precision at $50\%$ recall with a
-positive MCC. This is not a usable clinical system, and it should not be
-presented as one: eleven false alarms per true contradiction, and half the true
-contradictions missed. But it is above chance, on the same evidence, on the same
-$299$ pairs. Whatever is wrong with ACCORD is not that the evidence contains no
-signal.
+\citep{openai2023gpt4} achieves $8.45\%$ precision at $50\%$ recall with an MCC
+of $+0.109$. This is not a usable clinical system, and it should not be presented
+as one: eleven false alarms per true contradiction, and half the true
+contradictions missed. Nor is it established to be above chance: its $95\%$
+bootstrap interval is $[-0.0319, 0.2484]$ and contains zero
+(Chapter~\ref{ch:metrics}, Table~\ref{tab:met-mccci}). The claim that survives is
+the narrower one that its precision of $8.45\%$ is roughly double the base rate
+on the same evidence and the same $299$ pairs, at a predicted-positive rate far
+below one. [Correction note: the earlier text read ``it is above chance,'' which
+the interval does not support; whether the evidence contains signal is therefore
+undetermined at this sample size rather than settled in either direction.]
 
 \paragraph{Few-shot prompting made GPT-4o worse.} Precision falls from $8.45\%$
 to $4.96\%$ and MCC from $+0.109$ to $+0.012$, while recall rises from $50.0\%$
@@ -409,17 +472,24 @@ labeller's, arrived at independently. [TODO: report the exemplar class balance
 used in the few-shot prompt. If it over-represents positives relative to the
 $4\%$ base rate, the mechanism is identified rather than hypothesised.]
 
-\paragraph{ACCORD did not improve on its teacher, and the teacher was worse than
-chance.} ACCORD ($-0.007$) and Llama ($-0.044$) sit at and below zero
-respectively, with identical recall of $91.7\%$ and near-identical precision.
-This is Chapter~\ref{ch:weak}'s finding restated on the gold set: the student
-reproduced the teacher.
+\paragraph{ACCORD did not improve on its teacher.} ACCORD ($-0.007$) and Llama
+($-0.044$) both sit at or below zero, and neither interval excludes zero. Under
+decontamination ACCORD's recall falls from the teacher's $91.7\%$ to
+$77.8\% \pm 3.9$ while its precision, $4.24\%$, drops below both the teacher's
+$4.55\%$ and the $4.74\%$ base rate. Both remain near-constant positive
+predictors. This is Chapter~\ref{ch:weak}'s finding restated on the gold set: the
+student reproduced the teacher's marginal, and reproduced it slightly worse.
 
-\paragraph{The purpose-built system is the second-worst of four.} A model
-carrying roughly $7.5$M task-specific parameters over a domain-pretrained
-biomedical encoder, trained on $1{,}679$ in-domain examples, performs worse on
-the target task than a general-purpose model given a single prompt and no
-training data at all.
+\paragraph{The purpose-built system is not distinguishable from any of the
+other three.} A model carrying roughly $7.5$M task-specific parameters over a
+domain-pretrained biomedical encoder, trained on $1{,}679$ in-domain examples,
+does not beat a general-purpose model given a single prompt and no training data
+at all, and does not beat the $8$B labeller it was distilled from. What cannot be
+said is that it is ranked third or fourth of four: all four bootstrap intervals
+overlap and all four contain zero. [Correction note: the earlier heading read
+``the second-worst of four'' and the earlier text ``performs worse on the target
+task,'' both of which rely on an ordering that
+Chapter~\ref{ch:metrics}, Table~\ref{tab:met-mccci}, shows is not identified.]
 
 \section{Error Taxonomy}
 \label{sec:errors}
@@ -476,12 +546,14 @@ surface, and Section~\ref{sec:m3} established that no model score orders them.}
 \textbf{System} & \textbf{True contradictions recovered} \\
 \midrule
 Llama 3 8B          & 11 / 12 \\
-ACCORD              & 11 / 12 \\
+ACCORD              & 9.3 / 12 (seeds: 9, 10, 9) \\
 GPT-4o, zero-shot   & 6 / 12 \\
 \bottomrule
 \end{tabular}
-\caption{Recall on the twelve true contradictions. The two near-constant
-positive predictors recover eleven; the selective predictor recovers six. This
+\caption{Recall on the twelve true contradictions. The ACCORD row is the
+decontaminated configuration's three seeds; the contaminated run reported
+$11/12$, which no decontaminated seed reaches. The two near-constant positive
+predictors recover most of the twelve; the selective predictor recovers six. This
 table should not be read as evidence that the first two are better detectors,
 and Section~\ref{sec:errors-reading} explains why.}
 \label{tab:recall}
@@ -492,22 +564,26 @@ and Section~\ref{sec:errors-reading} explains why.}
 
 Recall in isolation is the most misleading metric available in this setting. A
 system that predicts \emph{contradiction} for everything achieves recall
-$1.0$. ACCORD and Llama achieve $11/12$ because they predict positive for the
-overwhelming majority of pairs: ACCORD for $278$ of $299$, and Llama at a
-comparable rate, consistent with the $84.9\%$ positive rate
-Chapter~\ref{ch:weak} measured over the full candidate pool. GPT-4o achieves
-$6/12$
-while predicting positive far less often, and consequently is the only system
-with a positive MCC.
+$1.0$. ACCORD and Llama recover most of the twelve because they predict positive
+for the overwhelming majority of pairs: ACCORD for $278$ of $299$ in the
+contaminated run$^{\dagger}$, and Llama at a comparable rate, consistent with the
+$84.9\%$ positive rate Chapter~\ref{ch:weak} measured over the full candidate
+pool. GPT-4o achieves $6/12$ while predicting positive far less often, and is the
+only system whose MCC point estimate is meaningfully positive --- though its
+interval, like the other three, contains zero.
 
 The one substantive observation available from Table~\ref{tab:recall} concerns
-ACCORD's single miss. Chapter~\ref{ch:candidates}, Section~\ref{sec:gold},
+where ACCORD's misses fall. Chapter~\ref{ch:candidates}, Section~\ref{sec:gold},
 established arithmetically that ACCORD recovers one of the two true Rule 4
 contradictions, and Rule 4 is the only rule on which the model exercises
 meaningful selectivity ($74.5\%$ positive rather than $\approx 97\%$). The one
 place the model declines to predict positive is the one place it declines
 incorrectly. There is no configuration of this model in which its selectivity
-helps.
+helps. [Correction note: the per-rule recovery arithmetic in
+Chapter~\ref{ch:candidates} was derived from the contaminated run, which missed
+one of twelve; the decontaminated seeds miss two or three. The per-rule
+attribution of those additional misses is not recorded in the decontaminated
+artifacts and is not recomputed here.]
 
 \subsection{The clinically important observation}
 
@@ -563,7 +639,7 @@ annotations of the identical input.
 
 There is a real residual risk and it should not be minimised. Label noise
 attenuates a measured AUROC towards $0.5$. In principle, a model with a true
-AUROC of, say, $0.65$ could be measured at $0.46$ under sufficient label noise.
+AUROC of, say, $0.65$ could be measured at $0.5145$ under sufficient label noise.
 Four considerations bound how much weight this deserves.
 
 \begin{enumerate}
@@ -574,12 +650,19 @@ Four considerations bound how much weight this deserves.
       $135$ pairs, are free of the defect by construction, because Rule 3
       selects the maximum-difference dose pair and Rule 4 has no discharge
       exemplar to mis-select.
-\item \textbf{The decisive experiment is available and was not run.}
-      [TODO: report AUROC, average precision, and the bootstrap interval
-      restricted to the Rule 3 and Rule 4 strata, $n = 135$, which are free of
-      the exemplar defect. If the restricted AUROC is also near $0.5$, the
-      objection is closed. This is the single highest-value remaining
-      measurement in this thesis and should be run before submission.]
+\item \textbf{The decisive experiment has since been run.}
+      Chapter~\ref{ch:discussion}, Section~\ref{sec:disc-strata}, reports the
+      evaluation restricted to the Rule 3 and Rule 4 strata, which are free of
+      the exemplar defect: AUROC $0.5078$ at Mann-Whitney $p = 0.953$, with a
+      bootstrap $95\%$ interval of $[0.2217, 0.7615]$ over $B = 10{,}000$
+      resamples. Two properties of that interval must be reported with it. Of
+      the $10{,}000$ resamples, $20$ ($0.20\%$) were dropped because they
+      contained no positives and AUROC is undefined on them; and the stratified
+      interval, which preserves the $6/128$ class split in every resample, is
+      $[0.2643, 0.7344]$. An interval that silently discards undefined
+      resamples is the same class of omission this chapter is about, so the
+      count is stated rather than absorbed. [TODO: report average precision on
+      the restricted strata against the restricted base rate.]
 \item \textbf{A near-constant predictor has no signal to attenuate.} The model
       predicts positive for $278$ of $299$ pairs and all its scores lie above
       $0.15$ in a narrow band. Label noise degrades an ordering; it does not
@@ -588,12 +671,13 @@ Four considerations bound how much weight this deserves.
       $21\times$ prevalence mismatch of the supervision.
 \item \textbf{The top-$k$ result is robust to moderate label noise.} A model
       with genuine signal concentrates true positives at the top of its ranking
-      even under substantial label corruption. Zero true contradictions in the
-      top fifteen is not what an attenuated signal looks like.
+      even under substantial label corruption. One true contradiction in the top
+      fifteen, against the $0.6$ expected under random ordering, is not what an
+      attenuated signal looks like.
 \end{enumerate}
 
-Point 2 is a genuine hole in the present work and is marked as such rather than
-argued around.
+Point 2 was a genuine hole in the earlier version of this work; it is now closed
+by measurement, at six positives and with the interval width that implies.
 
 \section{Synthesis}
 \label{sec:synthesis}
@@ -621,8 +705,8 @@ Architecture & Three claims falsified & Authority parameter moved $1.8\%$/$0.6\%
 from its initialisation; rule $F_1$ $0.96 \to 0.065$ under transfer; harm head
 absent from the loss \\
 \addlinespace
-Detection & Fails & AUROC $0.460$, CI $[0.287, 0.633]$, $p = 0.64$; zero true
-positives in the top fifteen \\
+Detection & Fails & AUROC $0.5145$, CI $[0.321, 0.703]$, $p = 0.867$; one true
+positive in the top fifteen against $0.6$ expected \\
 \addlinespace
 Severity ranking & Not tested & $\rho = -0.0001$ from an untrained head \\
 \bottomrule
@@ -681,10 +765,26 @@ would have said so earlier.
 
 \paragraph{Twelve positives.} Every confidence interval in this chapter is wide
 because the evaluation set contains twelve positive examples. The bootstrap
-interval on AUROC, $[0.287, 0.633]$, is consistent with a genuinely inverted
+interval on AUROC, $[0.321, 0.703]$, is consistent with a genuinely inverted
 model and with a mildly informative one. What it is \emph{not} consistent with
 is a useful one, and that is the claim being made. A larger annotated set is the
 single most valuable extension of this work.
+
+\paragraph{Neither configuration is subject-disjoint, and the quantities not
+recomputed.} Section~\ref{sec:m1} states the leakage position in full: the
+contaminated run leaked at row level, the decontaminated replacement leaks at
+subject level ($158$ of $266$ evaluated subjects appear in its training pool),
+and only the C19 control at $0.497 \pm 0.035$ is certified subject-disjoint. A
+second, narrower gap follows from the same correction. Several quantities in
+this chapter derive from the contaminated run and have not been recomputed under
+decontamination; they are marked $\dagger$ where they appear. They are: the
+predicted-positive count of $278$ and the accuracy of $0.115$ in
+Table~\ref{tab:point} and the denominator reconstruction that rests on them; the
+ambiguous-as-positive and harm-score rows of Table~\ref{tab:auroc}; the
+threshold sweep and the precision-at-fixed-recall table of Section~\ref{sec:m2};
+the Spearman correlations of Section~\ref{sec:m3}; and ACCORD's MCC in
+Table~\ref{tab:systems}. [TODO: recompute each of these from
+\texttt{gold\_eval\_decontam\_predictions.csv} and remove the daggers.]
 
 \paragraph{One annotator, no inter-rater reliability.}
 Chapter~\ref{ch:candidates}, Section~\ref{sec:gold}. The previously reported
@@ -729,8 +829,8 @@ under which candidate excerpts were transmitted to a hosted API, including
 whether zero-retention terms were in force. If this cannot be established, the
 GPT-4o rows should carry that caveat wherever they are reported.]
 
-\paragraph{Deployment risk of the system as measured.} A system with $91.7\%$
-recall and $4.7\%$ precision deployed as a clinical alert generates roughly
+\paragraph{Deployment risk of the system as measured.} A system with $77.8\%$
+recall and $4.24\%$ precision deployed as a clinical alert generates more than
 twenty false alarms per true contradiction. The established consequence of alert
 burdens at that ratio is desensitisation, and desensitisation degrades response
 to the alerts that matter. \textbf{This system should not be deployed in any
@@ -751,8 +851,15 @@ the empirical range of every emitted score, costs one line.
 submission of this work are retracted here: the discovered authority hierarchy,
 the rule-type $F_1$ of $0.9603$, the internal-consistency $\kappa$ of $1.000$,
 and the intermediate-documentation prefilter finding. Two further reporting
-defects are corrected: results from a configuration trained on the evaluation
-set are withdrawn, and an ablation table reporting three seeds is corrected to
+defects are corrected. First, and most seriously, the earlier version of this
+thesis stated four separate times that the configuration trained on the
+evaluation set was withdrawn and reported nowhere; in fact it was the source of
+every number in Chapters~\ref{ch:eval} and~\ref{ch:metrics} and of the
+defect-free analysis in Chapter~\ref{ch:discussion}. Those figures are replaced
+throughout by the decontaminated retrain, which is worse on recall, precision,
+$F_1$ and $\kappa$, so the correction strengthens the negative conclusion; the
+false statements of non-reporting are themselves retracted here. Second, an
+ablation table reporting three seeds is corrected to
 two seeds plus a hardcoded reference row. Retracting one's own claims in the
 document that supersedes them is the minimum standard, not a virtue, and it is
 recorded here so that any reader encountering the earlier artifacts knows their
@@ -776,25 +883,34 @@ $F_1$, inside the published range. That result is a property of the backbone and
 carries no ACCORD components; reporting it under the system's name would be the
 most misleading available framing and is avoided.
 
-On the $299$ pharmacist-annotated pairs, ACCORD predicts \emph{contradiction}
-for $278$, achieving precision $0.047$ against a base rate of $0.040$, recall
-$0.917$, and accuracy $0.115$. Four independent measurements establish that this
-is not a threshold problem:
+On the $299$ pharmacist-annotated pairs, ACCORD predicts \emph{contradiction} for
+the large majority, achieving precision $0.0424 \pm 0.0023$ against a base rate
+of $0.040$ and recall $0.7778 \pm 0.0393$. These are the decontaminated
+configuration's three-seed values; the corresponding figures in earlier drafts
+($0.047$ precision, $0.917$ recall) came from the contaminated run. Four
+independent measurements establish that this is not a threshold problem:
 
 \begin{enumerate}
-\item \textbf{Ranking.} AUROC $0.460$, stable across three treatments of the
-      ambiguous class, average precision $0.039$ to $0.046$ against a $0.040$
-      base rate, Mann-Whitney $p = 0.64$, bootstrap $95\%$ CI $[0.287, 0.633]$.
-      The fifteen highest-scored pairs contain zero true contradictions.
+\item \textbf{Ranking.} AUROC $0.5145$ for the three-seed ensemble
+      ($0.5211 \pm 0.0201$ per seed), average precision $0.0579 \pm 0.0034$
+      against a $0.040$ base rate, Mann-Whitney $p = 0.867$, bootstrap $95\%$ CI
+      $[0.321, 0.703]$. The fifteen highest-scored pairs contain one true
+      contradiction against $0.6$ expected under random ordering. Neither this
+      configuration nor the contaminated one it replaces is certified
+      subject-disjoint; the only subject-disjoint measurement in the project is
+      the plain control at $0.497 \pm 0.035$.
 \item \textbf{Operating points.} At thresholds $0.05$, $0.10$, and $0.15$ the
       model predicts positive for every pair at precision $0.0474$, exactly the
       base rate. Precision at recall $0.5$ is $5.4\%$.
 \item \textbf{Severity.} Spearman $\rho = -0.0001$ ($p = 0.999$) between harm
       score and danger rating, from a head that never received a gradient. The
       severity research question was not tested.
-\item \textbf{Comparison.} GPT-4o zero-shot is the only system with a positive
-      MCC ($+0.109$). ACCORD is at chance ($-0.007$). The weak labeller it was
-      distilled from is below chance ($-0.044$).
+\item \textbf{Comparison.} GPT-4o zero-shot is the only system whose MCC point
+      estimate is meaningfully positive ($+0.109$); ACCORD sits at $-0.007$ and
+      the weak labeller it was distilled from at $-0.044$. All four bootstrap
+      intervals contain zero (Chapter~\ref{ch:metrics},
+      Table~\ref{tab:met-mccci}), so no system in the comparison is
+      distinguishable from chance and the ordering over them is not identified.
 \end{enumerate}
 
 Omission accounts for $7$ of the $12$ true contradictions, and it is the error
@@ -802,6 +918,8 @@ type an asymmetric cross-note encoder is structurally least able to represent,
 because one side of the input is empty by construction. Four of the twelve are
 rated $4$ or $5$ for danger, and no model score orders them.
 
-The task is not impossible: a general-purpose model, zero-shot, on the same
-evidence, performs above chance. What fails is this pipeline, and it fails at
-every stage, for independent and individually diagnosable reasons.
+Whether the task is possible is not settled here: a general-purpose model,
+zero-shot, on the same evidence, reaches roughly double the base rate in
+precision while predicting positive far less often, but its MCC interval contains
+zero at this sample size. What is settled is that this pipeline fails, and that
+it fails at every stage, for independent and individually diagnosable reasons.
