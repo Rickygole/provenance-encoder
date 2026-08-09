@@ -122,9 +122,14 @@ def auroc_gap(y, score, group1):
 
 
 def bootstrap_auroc_gap_ci(y, score, group1, B=BOOTSTRAP_B, seed=0):
+    """C52: also bootstraps the signed AUROC gap (a1 - a0) from the SAME
+    draws as the existing abs() gap, returned under the 'signed' sub-key --
+    the existing ci_lo/ci_hi/n_valid_draws keys and their values are
+    untouched."""
     rng = np.random.default_rng(seed)
     n = len(y)
     draws = []
+    draws_signed = []
     for _ in range(B):
         idx = rng.integers(0, n, n)
         yi, si, gi = y[idx], score[idx], group1[idx]
@@ -135,11 +140,20 @@ def bootstrap_auroc_gap_ci(y, score, group1, B=BOOTSTRAP_B, seed=0):
         a0 = roc_auc_score(yi[~gi], si[~gi])
         a1 = roc_auc_score(yi[gi], si[gi])
         draws.append(abs(a1 - a0))
+        draws_signed.append(a1 - a0)
     arr = np.array(draws)
-    if len(arr) == 0:
-        return dict(ci_lo=float("nan"), ci_hi=float("nan"), n_valid_draws=0)
-    return dict(ci_lo=float(np.percentile(arr, 2.5)), ci_hi=float(np.percentile(arr, 97.5)),
-                n_valid_draws=int(len(arr)))
+    arr_signed = np.array(draws_signed)
+    out = dict(ci_lo=float("nan"), ci_hi=float("nan"), n_valid_draws=0)
+    if len(arr) > 0:
+        out = dict(ci_lo=float(np.percentile(arr, 2.5)), ci_hi=float(np.percentile(arr, 97.5)),
+                    n_valid_draws=int(len(arr)))
+    signed = dict(ci_lo=float("nan"), ci_hi=float("nan"), n_valid_draws=0)
+    if len(arr_signed) > 0:
+        signed = dict(ci_lo=float(np.percentile(arr_signed, 2.5)),
+                      ci_hi=float(np.percentile(arr_signed, 97.5)),
+                      n_valid_draws=int(len(arr_signed)))
+    out["signed"] = signed
+    return out
 
 
 def full_pool_report(y, pred, score, group1, tag, B=BOOTSTRAP_B, seed=0):
@@ -149,7 +163,9 @@ def full_pool_report(y, pred, score, group1, tag, B=BOOTSTRAP_B, seed=0):
     ci = audit_mod.bootstrap_audit_ci(y, pred, score, group1, B=B, seed=det_seed("ci", tag, seed))
     ag, a0, a1 = auroc_gap(y, score, group1)
     ag_ci = bootstrap_auroc_gap_ci(y, score, group1, B=B, seed=det_seed("auroc_ci", tag, seed))
-    return res, ci, dict(auroc_gap=ag, auroc_g0=a0, auroc_g1=a1, **ag_ci)
+    # C52: signed AUROC gap = a1 - a0 (a0/a1 already computed above, no new
+    # randomness, no new keys removed).
+    return res, ci, dict(auroc_gap=ag, auroc_g0=a0, auroc_g1=a1, auroc_gap_signed=a1 - a0, **ag_ci)
 
 
 def section(title):
@@ -294,6 +310,39 @@ def main():
             four_fifths_ratio_pool=res["four_fifths_ratio"],
             four_fifths_ci_lo=ci["four_fifths_ratio"]["ci_lo"], four_fifths_ci_hi=ci["four_fifths_ratio"]["ci_hi"],
             mde_demographic_parity_gap=mde_dp,
+            # ---- C52: signed + per-group quantities, added alongside the
+            # absolute ones above. Sign convention is g1 (female==1) MINUS
+            # g0 (female==0 / male) throughout.
+            demographic_parity_gap_signed=res["demographic_parity_gap_signed"],
+            dp_gap_signed_ci_lo=ci["demographic_parity_gap_signed"]["ci_lo"],
+            dp_gap_signed_ci_hi=ci["demographic_parity_gap_signed"]["ci_hi"],
+            demographic_parity_gap_g0=res["demographic_parity_gap_g0"],
+            demographic_parity_gap_g1=res["demographic_parity_gap_g1"],
+            tpr_gap_signed=res["tpr_gap_signed"],
+            tpr_gap_signed_ci_lo=ci["tpr_gap_signed"]["ci_lo"],
+            tpr_gap_signed_ci_hi=ci["tpr_gap_signed"]["ci_hi"],
+            tpr_gap_g0=res["tpr_gap_g0"], tpr_gap_g1=res["tpr_gap_g1"],
+            fpr_gap_signed=res["fpr_gap_signed"],
+            fpr_gap_signed_ci_lo=ci["fpr_gap_signed"]["ci_lo"],
+            fpr_gap_signed_ci_hi=ci["fpr_gap_signed"]["ci_hi"],
+            fpr_gap_g0=res["fpr_gap_g0"], fpr_gap_g1=res["fpr_gap_g1"],
+            auroc_gap_signed=extra["auroc_gap_signed"],
+            auroc_gap_signed_ci_lo=extra["signed"]["ci_lo"],
+            auroc_gap_signed_ci_hi=extra["signed"]["ci_hi"],
+            auroc_g0=extra["auroc_g0"], auroc_g1=extra["auroc_g1"],
+            ppv_gap_signed=res["ppv_gap_signed"],
+            ppv_gap_signed_ci_lo=ci["ppv_gap_signed"]["ci_lo"],
+            ppv_gap_signed_ci_hi=ci["ppv_gap_signed"]["ci_hi"],
+            ppv_gap_g0=res["ppv_gap_g0"], ppv_gap_g1=res["ppv_gap_g1"],
+            calibration_gap_diff_signed=res["calibration_gap_diff_signed"],
+            calib_signed_ci_lo=ci["calibration_gap_diff_signed"]["ci_lo"],
+            calib_signed_ci_hi=ci["calibration_gap_diff_signed"]["ci_hi"],
+            calibration_gap_diff_g0=res["calibration_gap_diff_g0"],
+            calibration_gap_diff_g1=res["calibration_gap_diff_g1"],
+            four_fifths_ratio_directed_numerator_group=
+                res["four_fifths_ratio_directed"]["numerator_group"],
+            four_fifths_ratio_directed_denominator_group=
+                res["four_fifths_ratio_directed"]["denominator_group"],
         )
         row["fpr_gap_matches_population"] = bool(
             row["fpr_gap_ci_lo"] <= pop_res["fpr_gap"] <= row["fpr_gap_ci_hi"])
@@ -319,7 +368,8 @@ def main():
               f"TPR_gap={row['tpr_gap']:.4f} (match={row['tpr_gap_matches_population']})  "
               f"AUROC_gap={row['auroc_gap']:.4f} (match={row['auroc_gap_matches_population']})  "
               f"PPV_gap={row['ppv_gap']:.4f} match_pop={row['ppv_gap_matches_population']}  "
-              f"4/5={row['four_fifths_ratio_pool']:.3f}")
+              f"4/5={row['four_fifths_ratio_pool']:.3f}  "
+              f"DP_SIGNED={row['demographic_parity_gap_signed']:+.4f}")
 
     # -----------------------------------------------------------------
     # STEP 5: REGIME B -- selection depends on WKHP (usual hours worked
@@ -368,6 +418,10 @@ def main():
         rep_dp = abs(rep_g1m["pred_pos_rate"] - rep_g0m["pred_pos_rate"])
         rep_tpr = abs(rep_g1m["tpr"] - rep_g0m["tpr"])
         rep_fpr = abs(rep_g1m["fpr"] - rep_g0m["fpr"])
+        # C52: signed replicate-averaged companions, same g1-minus-g0 convention.
+        rep_dp_signed = rep_g1m["pred_pos_rate"] - rep_g0m["pred_pos_rate"]
+        rep_tpr_signed = rep_g1m["tpr"] - rep_g0m["tpr"]
+        rep_fpr_signed = rep_g1m["fpr"] - rep_g0m["fpr"]
 
         row = dict(
             beta=beta, b0=b0, n_pool=int(s.sum()), n0=n0, n1=n1,
@@ -389,6 +443,46 @@ def main():
             four_fifths_ci_lo=ci["four_fifths_ratio"]["ci_lo"], four_fifths_ci_hi=ci["four_fifths_ratio"]["ci_hi"],
             mde_demographic_parity_gap=mde_dp,
             replicate_mean_dp_gap=rep_dp, replicate_mean_tpr_gap=rep_tpr, replicate_mean_fpr_gap=rep_fpr,
+            # ---- C52: signed + per-group quantities, added alongside the
+            # absolute ones above. Sign convention is g1 (female==1) MINUS
+            # g0 (female==0 / male) throughout.
+            demographic_parity_gap_signed=res["demographic_parity_gap_signed"],
+            dp_gap_signed_ci_lo=ci["demographic_parity_gap_signed"]["ci_lo"],
+            dp_gap_signed_ci_hi=ci["demographic_parity_gap_signed"]["ci_hi"],
+            demographic_parity_gap_g0=res["demographic_parity_gap_g0"],
+            demographic_parity_gap_g1=res["demographic_parity_gap_g1"],
+            tpr_gap_signed=res["tpr_gap_signed"],
+            tpr_gap_signed_ci_lo=ci["tpr_gap_signed"]["ci_lo"],
+            tpr_gap_signed_ci_hi=ci["tpr_gap_signed"]["ci_hi"],
+            tpr_gap_g0=res["tpr_gap_g0"], tpr_gap_g1=res["tpr_gap_g1"],
+            fpr_gap_signed=res["fpr_gap_signed"],
+            fpr_gap_signed_ci_lo=ci["fpr_gap_signed"]["ci_lo"],
+            fpr_gap_signed_ci_hi=ci["fpr_gap_signed"]["ci_hi"],
+            fpr_gap_g0=res["fpr_gap_g0"], fpr_gap_g1=res["fpr_gap_g1"],
+            auroc_gap_signed=extra["auroc_gap_signed"],
+            auroc_gap_signed_ci_lo=extra["signed"]["ci_lo"],
+            auroc_gap_signed_ci_hi=extra["signed"]["ci_hi"],
+            auroc_g0=extra["auroc_g0"], auroc_g1=extra["auroc_g1"],
+            ppv_gap_signed=res["ppv_gap_signed"],
+            ppv_gap_signed_ci_lo=ci["ppv_gap_signed"]["ci_lo"],
+            ppv_gap_signed_ci_hi=ci["ppv_gap_signed"]["ci_hi"],
+            ppv_gap_g0=res["ppv_gap_g0"], ppv_gap_g1=res["ppv_gap_g1"],
+            equalized_odds_gap_signed=res["equalized_odds_gap_signed"],
+            eq_odds_signed_ci_lo=ci["equalized_odds_gap_signed"]["ci_lo"],
+            eq_odds_signed_ci_hi=ci["equalized_odds_gap_signed"]["ci_hi"],
+            equalized_odds_driver=res["equalized_odds_driver"],
+            calibration_gap_diff_signed=res["calibration_gap_diff_signed"],
+            calib_signed_ci_lo=ci["calibration_gap_diff_signed"]["ci_lo"],
+            calib_signed_ci_hi=ci["calibration_gap_diff_signed"]["ci_hi"],
+            calibration_gap_diff_g0=res["calibration_gap_diff_g0"],
+            calibration_gap_diff_g1=res["calibration_gap_diff_g1"],
+            four_fifths_ratio_directed_numerator_group=
+                res["four_fifths_ratio_directed"]["numerator_group"],
+            four_fifths_ratio_directed_denominator_group=
+                res["four_fifths_ratio_directed"]["denominator_group"],
+            replicate_mean_dp_gap_signed=rep_dp_signed,
+            replicate_mean_tpr_gap_signed=rep_tpr_signed,
+            replicate_mean_fpr_gap_signed=rep_fpr_signed,
         )
         row["dp_gap_breach"] = audit_mod.breach_call(row["demographic_parity_gap"], row["dp_gap_ci_lo"],
                                                        row["dp_gap_ci_hi"], "gap")
@@ -417,7 +511,8 @@ def main():
               f"TPR_gap={row['tpr_gap']:.4f} match_pop={row['tpr_gap_matches_population']}  "
               f"AUROC_gap={row['auroc_gap']:.4f} match_pop={row['auroc_gap_matches_population']}  "
               f"pool_4/5={row['four_fifths_ratio_pool']:.3f} "
-              f"call={row['four_fifths_breach']:<12}  MDE={mde_dp:.4f}  powered={row['adequately_powered']}")
+              f"call={row['four_fifths_breach']:<12}  MDE={mde_dp:.4f}  powered={row['adequately_powered']}  "
+              f"DP_SIGNED={row['demographic_parity_gap_signed']:+.4f}")
 
     # -----------------------------------------------------------------
     # STEP 5b: secondary group axis (RAC1P: Black vs White subset) at
@@ -607,7 +702,12 @@ def main():
     # SAVE
     # -----------------------------------------------------------------
     out = dict(
-        seed=SEED, state=data_prep.STATE, survey_year=data_prep.SURVEY_YEAR,
+        seed=SEED,
+        # C52: explicit group labels, so every *_g0/_g1/_signed field above
+        # can be read back to a named group without guessing.
+        group_definition=dict(g0="female == 0 (male)", g1="female == 1 (female)",
+                               signed_convention="g1 minus g0"),
+        state=data_prep.STATE, survey_year=data_prep.SURVEY_YEAR,
         task_n=int(len(y)), task_positive_rate=float(y.mean()),
         split_sizes=dict(train=len(tr["y"]), val=len(va["y"]), test=len(te["y"])),
         classifier_info=clf_info, classifier_non_degeneracy=dict(ok=ok, failures=failures),
@@ -621,6 +721,9 @@ def main():
             logit_shift=POSITIVE_CONTROL_LOGIT_SHIFT, demographic_parity_gap=dp_point,
             dp_gap_ci=[dp_ci["ci_lo"], dp_ci["ci_hi"]], four_fifths_ratio=ff_point,
             four_fifths_ci=[ff_ci["ci_lo"], ff_ci["ci_hi"]], passed=pc_pass,
+            demographic_parity_gap_signed=pc_audit["demographic_parity_gap_signed"],
+            demographic_parity_gap_g0=pc_audit["demographic_parity_gap_g0"],
+            demographic_parity_gap_g1=pc_audit["demographic_parity_gap_g1"],
         ),
         regimeA_sweep=regimeA_rows, regimeA_drift=drift_A, regimeA_verdict=regimeA_verdict,
         regimeA_invariant_metric_evidence=A_mismatch,
@@ -637,11 +740,15 @@ def main():
         clinical_finding_replicates=clinical_replicates,
         runtime_seconds=round(time.time() - t_start, 1),
     )
-    with (OUT_DIR / "pums_replication_results.json").open("w") as f:
+    # C52: NEW filenames (distinct from the pre-existing
+    # pums_replication_results.json / regimeA_sweep.csv / regimeB_sweep.csv)
+    # so this re-run with the extended, signed audit does not overwrite the
+    # committed unsigned results.
+    with (OUT_DIR / "pums_replication_results_signed.json").open("w") as f:
         json.dump(out, f, indent=2)
 
-    pd.DataFrame(regimeA_rows).to_csv(OUT_DIR / "regimeA_sweep.csv", index=False)
-    pd.DataFrame(regimeB_rows).to_csv(OUT_DIR / "regimeB_sweep.csv", index=False)
+    pd.DataFrame(regimeA_rows).to_csv(OUT_DIR / "regimeA_sweep_signed.csv", index=False)
+    pd.DataFrame(regimeB_rows).to_csv(OUT_DIR / "regimeB_sweep_signed.csv", index=False)
 
     print(f"\nSaved results to {OUT_DIR}. Total runtime: {out['runtime_seconds']}s")
     print("ALL_DONE")

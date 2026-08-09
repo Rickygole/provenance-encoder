@@ -220,6 +220,10 @@ def main():
         rep_dp_gap = abs(rep_g1_mean["pred_pos_rate"] - rep_g0_mean["pred_pos_rate"])
         rep_tpr_gap = abs(rep_g1_mean["tpr"] - rep_g0_mean["tpr"])
         rep_fpr_gap = abs(rep_g1_mean["fpr"] - rep_g0_mean["fpr"])
+        # C52: signed replicate-averaged companions, same g1-minus-g0 convention.
+        rep_dp_gap_signed = rep_g1_mean["pred_pos_rate"] - rep_g0_mean["pred_pos_rate"]
+        rep_tpr_gap_signed = rep_g1_mean["tpr"] - rep_g0_mean["tpr"]
+        rep_fpr_gap_signed = rep_g1_mean["fpr"] - rep_g0_mean["fpr"]
 
         row = dict(
             beta=beta, b0=b0,
@@ -251,6 +255,42 @@ def main():
             replicate_mean_dp_gap=rep_dp_gap,
             replicate_mean_tpr_gap=rep_tpr_gap,
             replicate_mean_fpr_gap=rep_fpr_gap,
+            # ---- C52: signed + per-group quantities, added alongside the
+            # absolute ones above. Sign convention is g1 (lang_missing==1)
+            # MINUS g0 (lang_missing==0) throughout.
+            demographic_parity_gap_signed=pool_audit["demographic_parity_gap_signed"],
+            dp_gap_signed_ci_lo=pool_ci["demographic_parity_gap_signed"]["ci_lo"],
+            dp_gap_signed_ci_hi=pool_ci["demographic_parity_gap_signed"]["ci_hi"],
+            demographic_parity_gap_g0=pool_audit["demographic_parity_gap_g0"],
+            demographic_parity_gap_g1=pool_audit["demographic_parity_gap_g1"],
+            tpr_gap_signed=pool_audit["tpr_gap_signed"],
+            tpr_gap_signed_ci_lo=pool_ci["tpr_gap_signed"]["ci_lo"],
+            tpr_gap_signed_ci_hi=pool_ci["tpr_gap_signed"]["ci_hi"],
+            tpr_gap_g0=pool_audit["tpr_gap_g0"], tpr_gap_g1=pool_audit["tpr_gap_g1"],
+            fpr_gap_signed=pool_audit["fpr_gap_signed"],
+            fpr_gap_signed_ci_lo=pool_ci["fpr_gap_signed"]["ci_lo"],
+            fpr_gap_signed_ci_hi=pool_ci["fpr_gap_signed"]["ci_hi"],
+            fpr_gap_g0=pool_audit["fpr_gap_g0"], fpr_gap_g1=pool_audit["fpr_gap_g1"],
+            ppv_gap_signed=pool_audit["ppv_gap_signed"],
+            ppv_gap_signed_ci_lo=pool_ci["ppv_gap_signed"]["ci_lo"],
+            ppv_gap_signed_ci_hi=pool_ci["ppv_gap_signed"]["ci_hi"],
+            ppv_gap_g0=pool_audit["ppv_gap_g0"], ppv_gap_g1=pool_audit["ppv_gap_g1"],
+            equalized_odds_gap_signed=pool_audit["equalized_odds_gap_signed"],
+            eq_odds_signed_ci_lo=pool_ci["equalized_odds_gap_signed"]["ci_lo"],
+            eq_odds_signed_ci_hi=pool_ci["equalized_odds_gap_signed"]["ci_hi"],
+            equalized_odds_driver=pool_audit["equalized_odds_driver"],
+            calibration_gap_diff_signed=pool_audit["calibration_gap_diff_signed"],
+            calib_gap_signed_ci_lo=pool_ci["calibration_gap_diff_signed"]["ci_lo"],
+            calib_gap_signed_ci_hi=pool_ci["calibration_gap_diff_signed"]["ci_hi"],
+            calibration_gap_diff_g0=pool_audit["calibration_gap_diff_g0"],
+            calibration_gap_diff_g1=pool_audit["calibration_gap_diff_g1"],
+            four_fifths_ratio_directed_numerator_group=
+                pool_audit["four_fifths_ratio_directed"]["numerator_group"],
+            four_fifths_ratio_directed_denominator_group=
+                pool_audit["four_fifths_ratio_directed"]["denominator_group"],
+            replicate_mean_dp_gap_signed=rep_dp_gap_signed,
+            replicate_mean_tpr_gap_signed=rep_tpr_gap_signed,
+            replicate_mean_fpr_gap_signed=rep_fpr_gap_signed,
         )
         row["dp_gap_breach"] = audit_mod.breach_call(
             row["demographic_parity_gap"], row["dp_gap_ci_lo"], row["dp_gap_ci_hi"], "gap")
@@ -268,7 +308,9 @@ def main():
               f"pool_4/5={row['four_fifths_ratio_pool']:.3f} "
               f"[{row['four_fifths_ci_lo']:.3f},{row['four_fifths_ci_hi']:.3f}] "
               f"call={row['four_fifths_breach']:<12}  "
-              f"MDE={mde_dp:.4f}  powered={row['adequately_powered']}")
+              f"MDE={mde_dp:.4f}  powered={row['adequately_powered']}  "
+              f"DP_gap_SIGNED={row['demographic_parity_gap_signed']:+.4f} "
+              f"(g0={row['demographic_parity_gap_g0']:.4f},g1={row['demographic_parity_gap_g1']:.4f})")
 
     # -----------------------------------------------------------------
     # STEP 4b: SECONDARY AXES (ETHNICITY-unknown, INSURANCE) at three
@@ -405,6 +447,10 @@ def main():
     # -----------------------------------------------------------------
     out = dict(
         seed=SEED,
+        # C52: explicit group labels, so every *_g0/_g1/_signed field above
+        # can be read back to a named group without guessing.
+        group_definition=dict(g0="lang_missing == 0", g1="lang_missing == 1",
+                               signed_convention="g1 minus g0"),
         task_lineage=lineage,
         classifier_info=clf_info,
         classifier_non_degeneracy=dict(ok=ok, failures=failures),
@@ -418,6 +464,9 @@ def main():
             demographic_parity_gap=dp_point, dp_gap_ci=[dp_ci["ci_lo"], dp_ci["ci_hi"]],
             four_fifths_ratio=ff_point, four_fifths_ci=[ff_ci["ci_lo"], ff_ci["ci_hi"]],
             passed=pc_pass,
+            demographic_parity_gap_signed=pc_audit["demographic_parity_gap_signed"],
+            demographic_parity_gap_g0=pc_audit["demographic_parity_gap_g0"],
+            demographic_parity_gap_g1=pc_audit["demographic_parity_gap_g1"],
         ),
         sweep=sweep_rows,
         secondary_axes=secondary_axes,
@@ -427,11 +476,15 @@ def main():
         verdict_reason=reason,
         runtime_seconds=round(time.time() - t_start, 1),
     )
-    with (OUT_DIR / "selection_experiment_results.json").open("w") as f:
+    # C52: NEW filenames (distinct from the pre-existing
+    # selection_experiment_results.json / sweep_summary.csv) so this re-run
+    # with the extended, signed audit does not overwrite the committed
+    # unsigned results.
+    with (OUT_DIR / "selection_experiment_results_signed.json").open("w") as f:
         json.dump(out, f, indent=2)
 
     import csv
-    with (OUT_DIR / "sweep_summary.csv").open("w", newline="") as f:
+    with (OUT_DIR / "sweep_summary_signed.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(sweep_rows[0].keys()))
         w.writeheader()
         w.writerows(sweep_rows)

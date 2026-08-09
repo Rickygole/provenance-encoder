@@ -40,7 +40,11 @@ def group_rates(y: np.ndarray, pred: np.ndarray, score: np.ndarray) -> dict:
 
 def audit_pool(y, pred, score, group1_mask) -> dict:
     """Full per-group audit on one realized pool. group1_mask selects the
-    "1" group (e.g. lang_missing==1); its complement is "0"."""
+    "1" group (e.g. lang_missing==1 in E9, female==1 in E10); its complement
+    is "0". EVERY *_signed quantity below uses the SAME sign convention:
+    g1 minus g0. Nothing about the existing abs()-valued keys is changed --
+    they are computed first, unmodified, and the signed/per-group keys are
+    added alongside them (C52)."""
     g0 = group_rates(y[~group1_mask], pred[~group1_mask], score[~group1_mask])
     g1 = group_rates(y[group1_mask], pred[group1_mask], score[group1_mask])
     out = dict(g0=g0, g1=g1)
@@ -52,12 +56,66 @@ def audit_pool(y, pred, score, group1_mask) -> dict:
     out["calibration_gap_diff"] = abs(g1["calibration_gap"] - g0["calibration_gap"])
     p0, p1 = g0["pred_pos_rate"], g1["pred_pos_rate"]
     out["four_fifths_ratio"] = (min(p0, p1) / max(p0, p1)) if max(p0, p1) > 0 else float("nan")
+
+    # --- C52: signed + per-group quantities, added alongside the absolute
+    # ones above. Sign convention throughout is g1 MINUS g0 -- e.g. a
+    # positive demographic_parity_gap_signed means g1's predicted-positive
+    # rate is higher than g0's; a negative value means the reverse. Report
+    # the two group values themselves too, so a sign can always be checked
+    # directly against the numbers it was computed from.
+    out["demographic_parity_gap_signed"] = g1["pred_pos_rate"] - g0["pred_pos_rate"]
+    out["demographic_parity_gap_g0"] = p0
+    out["demographic_parity_gap_g1"] = p1
+    out["tpr_gap_signed"] = g1["tpr"] - g0["tpr"]
+    out["tpr_gap_g0"] = g0["tpr"]
+    out["tpr_gap_g1"] = g1["tpr"]
+    out["fpr_gap_signed"] = g1["fpr"] - g0["fpr"]
+    out["fpr_gap_g0"] = g0["fpr"]
+    out["fpr_gap_g1"] = g1["fpr"]
+    out["ppv_gap_signed"] = g1["ppv"] - g0["ppv"]
+    out["ppv_gap_g0"] = g0["ppv"]
+    out["ppv_gap_g1"] = g1["ppv"]
+    # equalized_odds_gap is max(|tpr_gap|, |fpr_gap|) -- a max of two
+    # magnitudes has no single natural sign. Record which of the two
+    # components it is currently tracking (its "driver") and use THAT
+    # component's own signed value, rather than inventing a sign for a
+    # max(). tpr_gap_signed / fpr_gap_signed above already give the full
+    # signed picture of both components independently.
+    out["equalized_odds_driver"] = "tpr" if out["tpr_gap"] >= out["fpr_gap"] else "fpr"
+    out["equalized_odds_gap_signed"] = (
+        out["tpr_gap_signed"] if out["equalized_odds_driver"] == "tpr" else out["fpr_gap_signed"]
+    )
+    out["calibration_gap_diff_signed"] = g1["calibration_gap"] - g0["calibration_gap"]
+    out["calibration_gap_diff_g0"] = g0["calibration_gap"]
+    out["calibration_gap_diff_g1"] = g1["calibration_gap"]
+    # four_fifths_ratio is min/max and so is direction-blind by construction
+    # (ratio<1 could be either group in the denominator). Record which group
+    # is which so a ratio below FOUR_FIFTHS can be attributed to a group.
+    if p1 >= p0:
+        numerator_group, denominator_group = "g0", "g1"
+    else:
+        numerator_group, denominator_group = "g1", "g0"
+    out["four_fifths_ratio_directed"] = dict(
+        ratio=out["four_fifths_ratio"],
+        numerator_group=numerator_group,
+        denominator_group=denominator_group,
+        note="ratio = pred_pos_rate[numerator_group] / pred_pos_rate[denominator_group]; "
+             "numerator_group is whichever of g0/g1 has the LOWER pred_pos_rate.",
+    )
     return out
 
 
 AUDIT_SCALAR_KEYS = [
     "demographic_parity_gap", "tpr_gap", "fpr_gap", "ppv_gap",
     "equalized_odds_gap", "calibration_gap_diff", "four_fifths_ratio",
+]
+
+# Signed companions to AUDIT_SCALAR_KEYS, bootstrapped the same way (C52).
+# Kept as a SEPARATE list rather than merged into AUDIT_SCALAR_KEYS so the
+# existing key produces byte-identical bootstrap output to before this patch.
+AUDIT_SIGNED_SCALAR_KEYS = [
+    "demographic_parity_gap_signed", "tpr_gap_signed", "fpr_gap_signed",
+    "ppv_gap_signed", "equalized_odds_gap_signed", "calibration_gap_diff_signed",
 ]
 
 
@@ -67,17 +125,22 @@ def bootstrap_audit_ci(y, pred, score, group1_mask, B: int = BOOTSTRAP_B, seed: 
     convention as accord/stats/intervals.py)."""
     rng = np.random.default_rng(seed)
     n = len(y)
-    draws = {k: [] for k in AUDIT_SCALAR_KEYS}
+    # C52: also bootstrap the signed companions (AUDIT_SIGNED_SCALAR_KEYS),
+    # from the SAME resample draws as the existing absolute keys -- kept in
+    # one combined `all_keys` loop below purely so the RNG consumption order
+    # (and hence every existing key's bootstrap output) is untouched.
+    all_keys = AUDIT_SCALAR_KEYS + AUDIT_SIGNED_SCALAR_KEYS
+    draws = {k: [] for k in all_keys}
     for _ in range(B):
         idx = rng.integers(0, n, n)
         yi, pi, si, gi = y[idx], pred[idx], score[idx], group1_mask[idx]
         if gi.sum() == 0 or (~gi).sum() == 0:
             continue
         res = audit_pool(yi, pi, si, gi)
-        for k in AUDIT_SCALAR_KEYS:
+        for k in all_keys:
             draws[k].append(res[k])
     out = {}
-    for k in AUDIT_SCALAR_KEYS:
+    for k in all_keys:
         arr = np.array([v for v in draws[k] if not np.isnan(v)])
         if len(arr) == 0:
             out[k] = dict(ci_lo=float("nan"), ci_hi=float("nan"), n_valid_draws=0)

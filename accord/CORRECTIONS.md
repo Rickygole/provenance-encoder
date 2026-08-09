@@ -2235,6 +2235,11 @@ was incorrect, but the index it read was in fact incomplete.
 
 ## C50. The C47 mechanism is refuted by its own pre-registered kill condition; the sign is set by the selection channel, not the baseline
 
+> **SUBSTANTIALLY CORRECTED by C56 (2026-08-09).** The refutation of C47 stands. But C50's own
+> supporting comparison — E9 against E10 Regime B — was itself built on absolute values, and in
+> signed terms those two sweeps drift in the SAME direction. The "opposite directions" that C41,
+> C47 and C50 were each built on does not exist. What survives is narrower. See C56.
+
 C47 explained the E9/E10 sign difference by baseline disparity: *"on a population with no disparity
 the audit invents one; on a population that has a real one it erases it."* That rested on **two
 points**, one per dataset, and MIMIC and PUMS differ in far more than baseline disparity.
@@ -2516,3 +2521,67 @@ verified clean at 35/35. Documented in `protocol.md` §5.
 the four, adjudicated on the page, under both readings" rather than "no paper does this." That is a
 weaker headline and a much harder one to attack, and it comes with 75 rows and 502 verified quotes
 that anyone can recompute — which the previous version did not have at any point.
+
+
+---
+
+## C56. The "opposite directions" that three corrections were built on is an artifact of `abs()`, and the simulator does not corroborate the real data
+
+The C52 re-run is complete. Reproduction is exact — **max discrepancy 0.0** across every row of
+every sweep (E9 15×6, E10 Regime A 12×6, E10 Regime B 15×7), with every pre-existing key
+reproducing bit-for-bit. Only wall-clock timing fields differ. This is the same experiment with
+more recorded, and the signed values can be read.
+
+**The premise of C41, C47 and C50 is gone.**
+
+| sweep | channel | signed DP gap | OLS slope | higher group |
+|---|---|---|---|---|
+| E9 (MIMIC) | selection on `doc_feature` | +0.0084 → **+0.1894** | **+0.02238** | g1 throughout |
+| E10 Regime B (PUMS) | selection on `WKHP` | −0.1181 → **−0.0410** | **+0.01177** | g0 throughout |
+| E10 Regime A (PUMS) | group + outcome, not covariates | −0.1356 → **−0.1944** | **−0.00780** | g0 throughout |
+
+**E9 and E10 Regime B have the same signed slope.** Both positive. They were only ever "opposite"
+because their baseline gaps have opposite signs — E9's favours g1, E10's favours g0 — and under
+`abs()` a positive-baseline gap moving positive reads as *growing* while a negative-baseline gap
+moving positive reads as *shrinking*. **It is the same movement recorded twice with a sign
+discarded.** No demographic-parity gap crosses zero anywhere in either sweep.
+
+That single fact retracts the observational core of three corrections:
+
+- **C41's** "the clinical finding replicates" was accidentally *closer to right* than C47's
+  retraction of it — the two sweeps do behave alike — but for none of the reasons C41 gave, and its
+  Regime A table remains wrong per C51.
+- **C47's** "opposite directions" observation, which I verified and reported as confirmed, was
+  verified against absolute values I did not check the construction of.
+- **C50's** real-data leg, the E9-vs-Regime-B contrast, is withdrawn.
+
+**What survives, and it is one sentence.** On a single population, with everything else held fixed,
+two different selection channels produce signed DP drifts of **opposite sign**: Regime A −0.00780
+[CI excludes zero], Regime B +0.01177 [CI excludes zero]. That is a genuine channel effect on real
+data and it is all that is left.
+
+**The simulator does not corroborate it — it anti-correlates.** Re-running the C47 baseline sweep
+capturing signed values (all gaps positive throughout, so `abs()` was not distorting it there):
+
+| simulator channel | signed slope, baseline 0 → 0.31 |
+|---|---|
+| `leak_gamma` (outcome-leakage) | +0.00028 → +0.02820, **positive throughout** |
+| `sx_coef` (feature-driven) | −0.00058 → −0.04117, **negative throughout** |
+
+The real data has feature-driven selection **positive** (E9 +0.0224, Regime B +0.0118) and
+group/outcome selection **negative** (Regime A −0.0078). The simulator has feature-driven
+**negative** and outcome-driven **positive**. **The mapping is inverted.** So the simulator sweep
+establishes that a channel effect exists in a controlled setting; it does **not** validate the
+direction observed in the real experiments, and C50 should not have presented it as confirmation.
+Why they disagree is unknown and I am not going to guess — that is how C47 happened.
+
+**Fifth mechanism claim in two weeks, and the first one caught before it was written down.** C14,
+C42/C43, C47, C50's real-data leg, and now this. The difference is that C52 was a *measurement*
+fix, not a mechanism, and it is what exposed all of it. The lesson for the thesis is not "be more
+careful" — it is that **the instrument recorded `abs()` for the entire life of the project, and
+every directional reading taken from it, including four of my own corrections, was unlicensed.**
+That is the thesis's own argument, demonstrated on the thesis's own record.
+
+**Standing rule.** No directional claim from any experiment in this project unless the artifact
+stores the signed quantity and the per-group values it was computed from. Retrofitted here for the
+selection experiments; the same audit must be run on every other metric before it is written up.
