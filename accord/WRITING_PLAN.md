@@ -15,10 +15,13 @@ proposed and validated"* — not built, n=1, and the telescoping identity proves
 
 **The replacement:**
 
-> **[Revised by C47 — the audit clause below understates the finding. The pool audit is not
-> insensitive; its reading moves in a direction determined by the population's pre-existing
-> disparity, inventing a gap where there is none and erasing one where there is. Rewrite this
-> clause before Chapter 1.]**
+> **[Revised again — C50/C51/C52. The audit's response direction is set by the CHANNEL selection
+> operates through: outcome-leakage amplifies the measured gap, feature-driven selection erodes it.
+> Baseline disparity only scales magnitude. C47's baseline explanation was refuted by its own
+> pre-registered kill condition and by two rows of a committed log. **Per C52, every gap on disk is
+> absolute-valued and no per-group rates were stored, so NO directional claim is licensed at all
+> until both sweeps are re-run with signed per-group predicted-positive rates. Write magnitude
+> only until then.**]**
 
 > Five instruments routinely used to certify clinical NLP pipelines — the pool-level fairness
 > audit, pretraining loss as a proxy for downstream utility, the LLM weak labeller, the
@@ -31,7 +34,7 @@ proposed and validated"* — not built, n=1, and the telescoping identity proves
 
 | instrument | insensitive where | positive control that located the boundary |
 |---|---|---|
-| pool fairness audit | **sign set by baseline disparity, not by selection (C47)** — MIMIC baseline 0.0084, gap *rises* to 0.0895; PUMS baseline 0.1181, gap *falls* to 0.0988. C29's 5.9e-16 invariance is the zero-baseline special case | planted-gap control DP 0.2797 (C30); absent from the original sweep (C24) |
+| pool fairness audit | **sign set by the selection CHANNEL, not the baseline (C50/C51)** — same PUMS population, baseline 0.118: Regime A rises +0.0078, Regime B falls −0.0118. Confirmed by a pre-registered 7×6×40 simulator sweep. **Magnitude only until both sweeps are re-run with signed per-group rates (C52)** | planted-gap control DP 0.2797 (C30); absent from the original sweep (C24) |
 | pretraining loss | the clinical task — 1.320 nats → 0.002–0.004 AUROC; gap +0.0031, p=0.690 (C37) | **AG News: 5.2 points at 99M params, 38 pooled sd, p<0.0001 (C44)** |
 | LLM weak labeller | magnitude is task-specific — 15.8–23.6× clinical (C20), floor ≥7× (C23) | public-text sweep: max 3.5×, under-calls by 25% (C42). Mechanism *does* generalize (C43) |
 | architectural ablation | when the semantic feature is unnecessary | **A5: an arbitrary ordinal recovers 114% of true role labels' gain** |
@@ -168,9 +171,14 @@ recompute from the run records rather than from literals (C48).
 ## 6. Risks
 
 1. **The frame is an analogy with no fallback.** The system frame is dead (C1/C2/C4/C16/C19) and
-   the fairness frame is dead (C24/C25/C28/C38). Mitigation: lead with **Chapter 4**, the AG News
-   control, because it is the only case where the instrument demonstrably works elsewhere — that is
-   what converts "things failed" into "failure is regime-dependent."
+   the fairness frame is dead (C24/C25/C28/C38). **Correction: AG News is NOT "the only case where
+   the instrument demonstrably works elsewhere."** `DESIGN.md` §6d is a 7-arm × 3-seed comparison,
+   seed spreads ≤0.03 against effects of 0.25–1.08, with an *internal* positive control — misaligned
+   blocks recover 47% where aligned recover 100%, which excludes "any coarse blocking" as the
+   explanation. It is the best-powered, most-controlled experiment in the project and it needs no
+   GPU. **Lead with Instrument IV, not Instrument II**, and stop treating the C44 convergence sweep
+   as the load-bearing beam. Instrument IV currently gets no chapter at all while Instrument V, the
+   weakest, gets 330 lines — an allocation inherited from a dead frame and never re-derived.
 2. **BLOCKER — the survey has no per-paper coding table on disk at all (C49).** This is not
    "publish the table," it is "the table does not exist." The 31 papers are not named anywhere in
    the repository; the 25/4 cross-tab, the κ range and the 21 quotes have no rows behind them. The
