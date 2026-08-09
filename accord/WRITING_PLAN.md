@@ -149,9 +149,19 @@ reader to mistake it for a finding about clinical severity — system comparison
 no ordering** (50), MedNLI (30), error taxonomy (50), exemplar contamination using E5's measured
 65 of 137 (40), synthesis (40).
 
-**Figures 20 → 15.** Rebuild `fig-intro-headline` — it encodes contaminated numbers and the
-withdrawn "above chance" claim. `fig-threshold-surface` and `fig-spec-curve` become load-bearing in
-Ch 3; `fig-scaling` and `fig-gap-trajectory` in Ch 4.
+**Figures: 20 rendered, 13 placed, 7 awaiting their chapters.**
+
+`fig-intro-headline` does **not** need rebuilding — checked 2026-08-09, it already plots the
+decontaminated 0.5145 with its CI and carries the C16 note. The earlier instruction here was stale.
+
+The seven unplaced figures are unplaced because their chapters do not exist yet, which is expected
+and not a defect: `fig-threshold-surface` and `fig-spec-curve` are load-bearing in Ch 3;
+`fig-scaling`, `fig-gap-trajectory` and `fig-power` in Ch 4; `fig-forest` and
+`fig-prevalence-response` in Ch 8. **Place them as those chapters are written — do not place them
+early to make a count.**
+
+`fig-forest` currently reports 7 of 8 intervals crossing zero, and both C37 and C44 rows now
+recompute from the run records rather than from literals (C48).
 
 ---
 
