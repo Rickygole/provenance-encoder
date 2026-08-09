@@ -34,7 +34,7 @@ proposed and validated"* — not built, n=1, and the telescoping identity proves
 
 | instrument | insensitive where | positive control that located the boundary |
 |---|---|---|
-| pool fairness audit | **sign set by the selection CHANNEL, not the baseline (C50/C51)** — same PUMS population, baseline 0.118: Regime A rises +0.0078, Regime B falls −0.0118. Confirmed by a pre-registered 7×6×40 simulator sweep. **Magnitude only until both sweeps are re-run with signed per-group rates (C52)** | planted-gap control DP 0.2797 (C30); absent from the original sweep (C24) |
+| pool fairness audit | **One sentence survives (C56):** on a single population, two selection channels give opposite *signed* DP drift — Regime A −0.00780, Regime B +0.01177, both CIs excluding zero. E9 and E10 Regime B are **not** opposite; that was an `abs()` artifact of opposite baseline signs. The simulator anti-correlates and is **not** corroboration | planted-gap control DP 0.2797 (C30); absent from the original sweep (C24) |
 | pretraining loss | the clinical task — 1.320 nats → 0.002–0.004 AUROC; gap +0.0031, p=0.690 (C37) | **AG News: 5.2 points at 99M params, 38 pooled sd, p<0.0001 (C44)** |
 | LLM weak labeller | magnitude is task-specific — 15.8–23.6× clinical (C20), floor ≥7× (C23) | public-text sweep: max 3.5×, under-calls by 25% (C42). Mechanism *does* generalize (C43) |
 | architectural ablation | when the semantic feature is unnecessary | **A5: an arbitrary ordinal recovers 114% of true role labels' gain** |
