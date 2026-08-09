@@ -1658,3 +1658,53 @@ already documents and avoids this.
 3,396 (314), test 6,776 (**570** pos). The larger figures are pre-rebuild — the same Aug 4 rebuild
 as C32. I briefed the E9 agent with the stale numbers and it correctly reported the measured ones
 instead. Both documents must be corrected, and every claim of "734 test positives" becomes **570**.
+
+---
+
+## C40. E9 is threshold-robust in the region where it can be tested, and never inverts
+
+C38 was established at a single operating point. C28 had shown that an earlier real-data audit read
+**flipped** across thresholds, so a one-threshold verdict was not established. Re-run across
+18 thresholds × the original 15-point β grid = **270 cells**, classifier fitted once and scores
+frozen so only the decision threshold varies, with the pre-registered rule from
+`accord/selection_experiment/PREREGISTRATION.md` applied verbatim at each threshold.
+
+| predicted-positive rate | verdict | n thresholds |
+|---|---|---|
+| 0.090 – 0.210 | **REFUTES** — confirmed breaches | 5 |
+| 0.240 – 0.360 | **REFUTES** — credible monotonic drift, no individual breach | 5 |
+| 0.390 – 0.600 | **INCONCLUSIVE** — underpowered, MDE ≥ 0.05 throughout | 8 |
+| **any** | **SUPPORTS** | **0 — never occurs** |
+
+**REFUTES holds at 10 of 18 operating points (55.6%); breaches are confirmed at 36 of 270 cells
+(13.3%), all at predicted-positive rates ≤ 21%.**
+
+**The two things that matter more than the fraction.**
+
+**There is no inversion.** Where the verdict is not REFUTES it degrades to INCONCLUSIVE — the audit
+loses power as the predicted-positive rate approaches 0.5 — and never to a clean pass. This is the
+opposite of C28's finding for the earlier claim, where the read genuinely flipped. Here the effect
+does not disappear or reverse; it becomes unmeasurable.
+
+**The original E9 point reproduces.** The threshold nearest E9's operating point (population
+predicted-positive rate 19.94%) gives first breach at β = 2.5, DP gap **0.0965 [0.0615, 0.1326]**,
+selection four-fifths 0.587 — matching C38's 0.090 [0.055, 0.125]. The sweep is a faithful
+re-run, not a different setup.
+
+**Correction to C38's wording.** It stands, narrowed: *the pool-level audit is not blind under
+selection through outcome-predictive text features, for predicted-positive rates from roughly 9% to
+36% — including the operating point at which the original experiment was run. Above ~39% the test
+is underpowered rather than passing; the audit is never observed to be cleanly blind at any
+threshold in the swept range.*
+
+### The `simulate.py` seeding bug is fixed
+
+`accord/denominator/simulate.py` now seeds replicates with a deterministic
+`zlib.crc32` scheme matching `simulate_v2.py`'s `stable_seed`, with a comment recording that the
+original `hash()`-based seeding was salted per process and that the old outputs are preserved
+unchanged because C24 and C26 cite them. The script was **not** re-run and
+`accord/denominator/results/` is untouched.
+
+**One imprecision of mine corrected in passing:** I described `simulate_v2.py`'s scheme as
+sha256-based. It uses `zlib.crc32`; sha256 is what `run_experiment.py`'s `det_seed` uses. The fix
+matches the code that exists rather than the description I gave.
