@@ -1489,3 +1489,62 @@ averaged away.
 Bibliographic facts came from NCBI E-utilities and are solid, but **the CARE-CPM signaling questions
 and the Haghighathoseini chi-squared sentence are load-bearing and must be re-verified against the
 PDFs before appearing in quotation marks.**
+
+---
+
+## C36. E2–E5: the intervals the thesis reported point estimates for
+
+Four computations run in sequence. Code: `accord/stats/intervals.py`. Results:
+`results/accord/stats/{intervals,cohort_icd_counts}.json`. B = 10,000, seed 42.
+
+### E2 — MCC confidence intervals: **all four systems include zero**
+
+| system | n | MCC | 95% CI | excludes 0 |
+|---|---|---|---|---|
+| GPT-4o zero-shot | 253 | **+0.1089** | **[−0.0319, 0.2484]** | **no** |
+| GPT-4o few-shot | 253 | +0.0117 | [−0.1120, 0.1319] | no |
+| ACCORD @ 0.5 | 253 | −0.0070 | [−0.1626, 0.0753] | no |
+| Llama baseline | 253 | −0.0436 | [−0.2337, 0.0563] | no |
+
+`ch8:329-331` states that *"three members are noise."* **Four are.** This closes the open TODO at
+`ch8:442` and independently confirms C15 by a second route — the interval, not just the p-value.
+The ordering over these four systems is not identified and no sentence may rely on it.
+
+### E3 — defect-free stratum: the degeneracy is real and small
+
+n = 134, 6 positives, AUROC 0.5078.
+
+| | interval |
+|---|---|
+| unstratified (as reported) | [0.2217, 0.7615] |
+| **draws dropped for zero positives** | **20 of 10,000 (0.20%)** |
+| stratified, preserving 6/128 | [0.2643, 0.7344] |
+
+Report the unstratified interval to match the full-set method, **state the 20 dropped draws**, and
+give the stratified interval as a robustness check. An interval that silently discards
+undefined resamples is the same class of omission this thesis is about.
+
+### E4 — sepsis/AKI ICD counts: **false alarm, the thesis is correct**
+
+| cohort | prefix | pre-LOS | post-LOS | removed |
+|---|---|---|---|---|
+| heart failure | 428 | **13,608** | 13,597 | 11 |
+| sepsis | 038 | **6,265** | 6,253 | 12 |
+| AKI | 584 | **11,422** | 11,408 | 14 |
+
+`ch3:115` quotes the pre-LOS counts and they reproduce exactly. The phase-1 artifacts record the
+post-LOS counts. Both are right; they are different filters. **No numeric change** — add a clause
+naming which filter each column reflects.
+
+### E5 — exemplar-affected pairs: use the measurement, not the estimate
+
+`ch7:572` applied a pooled 41.4% rate to reach "approximately 68 affected pairs." The direct
+measurement on the evaluated pairs
+(`results/accord/exemplar/exemplar_correctness_recomputed.json`) is **65 wrong of 137 resolved**
+rule-1 and rule-2 pairs — rule 1: 60 correct of 108; rule 2: 12 of 29. Replaced in the text. An
+estimate standing in front of an available measurement is exactly what this chapter criticises
+elsewhere.
+
+**Running tally of "untraceable/mismatched" items that turned out correct: E4 joins U5, U6, U7, M4,
+M6 and M7.** The audit's false-positive rate is high because the reference artifacts were
+unindexed until the Drive quarantine made them local.
