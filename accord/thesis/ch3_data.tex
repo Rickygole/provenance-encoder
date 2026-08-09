@@ -226,7 +226,7 @@ Under this partition $9{,}825$ of $13{,}608$ heart-failure admissions
 
 \subsection{Note selection within an admission}
 
-An admission may contain dozens of nursing notes and, in roughly one in nine
+An admission may contain dozens of nursing notes and, in roughly one in seven
 cases, more than one discharge-summary row (a Report and one or more Addenda).
 One note per role per admission is selected:
 
@@ -270,9 +270,9 @@ The reference implementation selects the discharge summary with
 casually, this is ``the first note charted.'' Because \texttt{CHARTTIME} is
 null, it is in fact ``whichever row happened to appear first in the
 concatenation order of the chunked read,'' which is a function of file layout
-and chunk size. Roughly $11\%$ of heart-failure admissions have more than one
+and chunk size. $14.8\%$ of the final $9{,}783$ admissions ($1{,}448$) have more than one
 discharge-summary row, so this is not a corner case: for about one admission in
-nine, the note the pipeline treated as the governing discharge order was
+seven, the note the pipeline treated as the governing discharge order was
 selected arbitrarily between a Report and its Addendum.
 
 The rebuilt implementation sorts on \texttt{CHARTDATE}, the field that
@@ -343,14 +343,14 @@ The extractor is built on four hand-written resources, reproduced verbatim in
 \texttt{accord/dictionaries.py}:
 
 \begin{enumerate}
-\item \textbf{\texttt{HF\_DRUGS}}: 76 heart-failure-relevant generic drug
+\item \textbf{\texttt{HF\_DRUGS}}: 77 heart-failure-relevant generic drug
       names.\footnote{A recount of the committed dictionary enumerates 77
       string literals. The figure 76 appears in the original run log. The
       discrepancy is one entry and is [TODO: reconcile against the exact
       dictionary state at the time of the production run]. It does not affect
       any reported count, since all extraction counts are measured rather than
       derived from the dictionary size.}
-\item \textbf{\texttt{ABBREV}}: 22 abbreviation and brand-name expansions
+\item \textbf{\texttt{ABBREV}}: 21 abbreviation and brand-name expansions
       (\texttt{lasix} $\rightarrow$ \texttt{furosemide}, \texttt{coreg}
       $\rightarrow$ \texttt{carvedilol}, and so on).
 \item \textbf{\texttt{VARIANTS}}: 6 spelling and formulation normalisations
@@ -362,7 +362,7 @@ The extractor is built on four hand-written resources, reproduced verbatim in
       \texttt{NEGATION} alternation.
 \end{enumerate}
 
-The union of these sources is approximately 90 matchable strings. Matching is
+The union of these sources is 105 matchable strings collapsing to 79 distinct normalised targets. Matching is
 case-insensitive with regular-expression word boundaries on both sides, applied after
 abbreviation and variant expansion of the note text.
 

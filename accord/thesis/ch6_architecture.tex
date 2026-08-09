@@ -132,7 +132,7 @@ $1.54$M new parameters
 & Describes v1. v2 adds an \texttt{AsymmetricCrossNoteEncoder}: two $8$-head,
   $768$-dimensional multi-head attention blocks plus two $768 \times 768$
   projections, $\approx 5.9$M parameters, and removes PPC's $2{,}496$. The model
-  that produced every reported result carries $\approx 7.5$M new parameters, not
+  that produced every reported result carries $\approx 7.44$M new parameters, not
   $1.54$M. \\
 \bottomrule
 \end{tabular}
@@ -208,7 +208,7 @@ asymmetric model:
 \toprule
  & \textbf{Contradiction $F_1$} & \textbf{Accuracy} \\
 \midrule
-Symmetric (constrained $\alpha_N = \alpha_D$) & \textbf{0.7775} & \textbf{0.9192} \\
+Symmetric (constrained $\alpha_N = \alpha_D$) & \textbf{0.7603} & \textbf{0.9091} \\
 Full asymmetric model                          & 0.7368 & 0.8939 \\
 \bottomrule
 \end{tabular}
@@ -217,7 +217,7 @@ contribution improves both reported metrics. Both rows are measured against
 \emph{weak} labels on the held-out split, not against pharmacist labels, so they
 describe agreement with an $84.9\%$-positive teacher rather than clinical
 correctness. [TODO: report the majority-class baseline on this exact split.
-Without it, an $F_1$ of $0.7775$ against supervision that is $84.9\%$ positive
+Without it, an $F_1$ of $0.7603$ against supervision that is $84.9\%$ positive
 cannot be interpreted, because a constant-positive predictor achieves a high
 $F_1$ by construction under that marginal.]}
 \label{tab:acne}
@@ -247,7 +247,7 @@ displacement from that initialisation.
 \subsection{The claim}
 
 A multi-task auxiliary head predicts which of the four rules generated a
-candidate, reaching $F_1 = 0.9603$ (reported as $0.953 \pm 0.006$ in the
+candidate, reaching $F_1 = 0.9603$ (an earlier writeup reported $0.953 \pm 0.006$; no such interval exists in the
 project's ablation table). This was offered as evidence that the model learns
 pharmacologically grounded structure rather than surface cues.
 
