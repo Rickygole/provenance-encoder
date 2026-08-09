@@ -185,8 +185,8 @@ by the diagnostic that would have produced it earlier.
 \item \textbf{The trained detector carries no rank signal, and the finding
       survives the one defect that could plausibly have manufactured it.} On the
       $299$ annotated pairs the contradiction probability achieves AUROC
-      $0.460$, average precision at the no-skill line, Mann-Whitney $p = 0.64$,
-      and a bootstrap $95\%$ confidence interval of $[0.287, 0.633]$. The
+      $0.5145$, average precision at the no-skill line, Mann-Whitney $p = 0.867$,
+      and a bootstrap $95\%$ confidence interval of $[0.321, 0.703]$. The
       fifteen highest-scored pairs contain zero true contradictions. Restricted
       to Rules 3 and 4, the strata that are free of the exemplar defect by
       construction, AUROC is $0.5078$ with Mann-Whitney $p = 0.953$, which is
@@ -237,7 +237,7 @@ reads as a reveal.
 
 On the $299$ pharmacist-annotated pairs, the trained detector predicts
 \emph{contradiction} for $278$, achieving precision $0.047$ against a base rate
-of $0.040$, recall $0.917$, and accuracy $0.115$. At thresholds of $0.05$,
+of $0.0424 \pm 0.0023$, recall $0.7778 \pm 0.0393$, and accuracy $0.115$$^{\dagger}$. At thresholds of $0.05$,
 $0.10$, and $0.15$ it predicts positive for every pair, because no score in the
 evaluation set falls below $0.15$. Its Matthews correlation is $-0.007$. The
 weak labeller it was distilled from scores $-0.044$, which is worse than
@@ -334,15 +334,7 @@ Chapter~\ref{ch:conclusion} is short.
 
 \begin{figure}[t]
 \centering
-\framebox[\linewidth]{\parbox[c][6cm][c]{0.92\linewidth}{\centering
-\textit{[Figure asset 1.1: the pipeline as a left-to-right chain with a status}
-\textit{badge under each stage. Stages: cohort construction; medication}
-\textit{extraction; rule-based candidate generation; LLM weak supervision;}
-\textit{detector training; evaluation. Badges, in order: WORKS; UNVALIDATED;}
-\textit{ENRICHES BUT MIS-ATTRIBUTES EVIDENCE (41.4\%); FAILS (21x prevalence}
-\textit{mismatch); THREE CLAIMS FALSIFIED; FAILS (AUROC 0.460). Beneath each}
-\textit{badge, in small type, the single diagnostic that would have caught the}
-\textit{failure at that stage. No clinical text.]}}}
+\includegraphics[width=0.92\linewidth]{figures/fig-pipeline-status.pdf}
 \caption{The thesis in one view. The reader should notice that the failures are
 at different stages, have different mechanisms, and each have a cheap detector,
 and that a project fixing any one of them in isolation would still have produced
@@ -352,14 +344,7 @@ a system with no ranking signal.}
 
 \begin{figure}[t]
 \centering
-\framebox[\linewidth]{\parbox[c][5cm][c]{0.92\linewidth}{\centering
-\textit{[Figure asset 1.2: three horizontal bars on a shared 0--100\% axis.}
-\textit{Bar 1, weak labeller positive rate: 84.9\%. Bar 2, detector}
-\textit{predicted-positive rate on the gold set: 278/299. Bar 3,}
-\textit{pharmacist-measured true rate: 4.0\%. A bracket spans bars 1 and 3}
-\textit{annotated ``21x''. Inset: MCC for four systems, GPT-4o zero-shot}
-\textit{+0.109, GPT-4o few-shot +0.012, ACCORD -0.007, Llama 3 8B -0.044,}
-\textit{with a zero line marked ``chance''.]}}}
+\includegraphics[width=0.92\linewidth]{figures/fig-intro-headline.pdf}
 \caption{The single number that determines the rest of the thesis, and its
 consequence. A labeller whose marginal is inverted relative to the truth
 produces a student that reproduces the marginal, and a system whose Matthews
@@ -385,7 +370,7 @@ positive at $84.9\%$ against a $4.0\%$ base rate and the detector inherits that
 marginal rather than any judgement. Three architectural contributions do not
 survive an audit of the code that produced their numbers, and a fourth research
 question was never tested because the component that would answer it received no
-gradient. The resulting detector has AUROC $0.460$ on the full evaluation set
+gradient. The resulting detector has AUROC $0.5145$ on the full evaluation set
 and $0.5078$ on the strata that are free of the evidence-selection defect by
 construction.
 

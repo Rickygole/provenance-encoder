@@ -1,0 +1,120 @@
+{
+  "built": [
+    {
+      "file": "figures/fig-pipeline-status.pdf",
+      "label": "fig:pipeline-status",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step0_1_join_and_calibration.json",
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json",
+        "/Users/rickygole/provenance-encoder/results/accord/decontam/corrected_gold_metrics.json"
+      ],
+      "note": "Stage badges are categorical narrative (two, marked *, cite CORRECTIONS.md for a claim with no committed numeric source); the three parenthetical numbers (41.4%, ~21x, AUROC 0.5145 with CI) are computed from the cited JSON files. AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated 3-seed ensemble 0.5145)."
+    },
+    {
+      "file": "figures/fig-intro-headline.pdf",
+      "label": "fig:intro-headline",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step0_1_join_and_calibration.json",
+        "/Users/rickygole/provenance-encoder/results/accord/differential/exp1a_gold_error_rates_by_group.json",
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json",
+        "/Users/rickygole/provenance-encoder/results/accord/stats/intervals.json"
+      ],
+      "note": "MCC panel uses stats/intervals.json E2 (all four CIs contain zero, per CORRECTIONS.md C36). Left-panel predicted-positive count uses the C28-flagged 261/299 reading with the discrepancy noted on the figure."
+    },
+    {
+      "file": "figures/fig-funnel.pdf",
+      "label": "fig:funnel",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/stats/cohort_icd_counts.json",
+        "/Users/rickygole/provenance-encoder/results/accord/era/era_confound_closed.json"
+      ],
+      "note": "Simplified from the 5-stage spec to the 3 stages traceable to committed files; see in-figure footnote."
+    },
+    {
+      "file": "figures/fig-exemplar.pdf",
+      "label": "fig:exemplar",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/exemplar/exemplar_correctness_recomputed.json"
+      ],
+      "note": "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes), no clinical text. Only numeric content (41.4%) is sourced."
+    },
+    {
+      "file": "figures/fig-rule-precision.pdf",
+      "label": "fig:rule-precision",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/defect_free_strata.json",
+        "/Users/rickygole/provenance-encoder/results/accord/stats/intervals.json"
+      ],
+      "note": "MODIFIED from spec: shows per-rule AUROC (sourced) rather than per-rule precision (pharmacist side sourced, ACCORD side not committed per-rule anywhere in results/accord)."
+    },
+    {
+      "file": "figures/fig-prevalence.pdf",
+      "label": "fig:prevalence",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step0_1_join_and_calibration.json",
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json"
+      ],
+      "note": "Weak-label counts from diag/step0_1 weak_confidence crosstab; gold counts (12 contradiction / 241 not / 46 ambiguous) reconstructed from diag/step2_signal_check ambiguous-included vs ambiguous-excluded base rates."
+    },
+    {
+      "file": "figures/fig-tracking.pdf",
+      "label": "fig:tracking",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step0_1_join_and_calibration.json"
+      ],
+      "note": "Wilson score 95% CIs added per point (n from n_gold per rule: 134/31/79/55); not in the original spec, added per the CI non-negotiable."
+    },
+    {
+      "file": "figures/fig-met-exchange.pdf",
+      "label": "fig:met-exchange",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step3_baselines.json"
+      ],
+      "note": "Indifference lines are closed-form (PABAK, balanced accuracy) or numerically root-solved (MCC, scipy.optimize.brentq) from the confusion-matrix class counts in diag/step3_baselines.json; not fabricated curve shapes."
+    },
+    {
+      "file": "figures/fig-met-sharpened.pdf",
+      "label": "fig:met-sharpened",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step3_baselines.json",
+        "/Users/rickygole/provenance-encoder/results/accord/stats/intervals.json"
+      ],
+      "note": "Recall CIs are Wilson score on (tp, 12) -- not in the original spec, added per the CI non-negotiable. MCC CIs from stats/intervals.json E2 (all four contain zero, per CORRECTIONS.md C36)."
+    },
+    {
+      "file": "figures/fig-disc-strata.pdf",
+      "label": "fig:disc-strata",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/decontam/corrected_gold_metrics.json",
+        "/Users/rickygole/provenance-encoder/results/accord/stats/intervals.json"
+      ],
+      "note": "MODIFIED from spec (ROC panels) to point-estimate+CI panels because per-pair scores are not committed. Full-set row uses the decontaminated ensemble AUROC 0.5145 / CI [0.321, 0.703] / p=0.867 per CORRECTIONS.md C16, replacing the withdrawn 0.460/p=0.64."
+    },
+    {
+      "file": "figures/fig-disc-actionability.pdf",
+      "label": "fig:disc-actionability",
+      "sources": [
+        "accord/CORRECTIONS.md (C6)"
+      ],
+      "note": "Structural/schema diagram, not derived from a numeric result file; documents a MIMIC-III field-availability fact. No CI applies (no estimate is plotted)."
+    }
+  ],
+  "skipped": [
+    {
+      "label": "fig:asymmetry",
+      "chapter": "ch3_data.tex",
+      "reason": "Spec requires classified/unclassified mention counts (219,683 / 88,336 / 131,347) and a discharge-vs-nursing note-role split (79,385 / 8,951) for the heart-failure cohort. No committed file under results/accord contains this breakdown for the heart-failure cohort: aki/sepsis have phase2 summaries with total_mentions/classified_mentions, but the primary heart-failure cohort does not, and no file anywhere gives a discharge-vs-nursing split for any cohort. mention_count_crosscheck.json gives only a single crosscheck total (218,544 official vs 227,363 simplified), which is insufficient to reconstruct either panel. Left as \\figspec."
+    },
+    {
+      "label": "fig:arch",
+      "chapter": "ch6_architecture.tex",
+      "reason": "Spec requires the model's parameter budget and per-module status (PPC deleted, GGHE randn(20,256) bank, 1.54M vs ~7.5M total params, which heads receive gradient). These facts are documented only in accord/CORRECTIONS.md (C4) as prose describing source files (accord_phase3_v2_ablations.py) that are not committed anywhere in this repository -- not in results/accord, not elsewhere. There is no JSON to point \\includegraphics-adjacent code at. Left as \\figspec."
+    },
+    {
+      "label": "fig:falsification",
+      "chapter": "ch6_architecture.tex",
+      "reason": "Spec requires the authority-parameter init/final values (0.5,1.0) vs (0.509,1.006) and per-cohort rule-type F1 (HF 0.9603, sepsis 0.0654, AKI 0.0595, held-out 45.2%). None of these numbers appear in any file under results/accord/. They are documented only as prose in accord/CORRECTIONS.md (C1, C2), which cites transfer_results_correct.json and accord_phase3_v2_ablations.py -- neither file exists in this repository. Left as \\figspec."
+    }
+  ]
+}

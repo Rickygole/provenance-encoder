@@ -353,13 +353,27 @@ def main():
                                                             row["four_fifths_ci_lo"], row["four_fifths_ci_hi"],
                                                             "four_fifths")
         row["adequately_powered"] = bool(mde_dp < audit_mod.GAP_TOLERANCE)
+        # The decisive test for THIS regime: does the pool's FPR/TPR/AUROC
+        # gap -- which theory (C29/C31) says must equal the population value
+        # under S _||_ X|A but need NOT under selection-on-X -- actually
+        # diverge from the population-truth value? (Same "matches_population"
+        # check as Regime A, applied here where it is NOT guaranteed to hold.)
+        row["fpr_gap_matches_population"] = bool(
+            row["fpr_gap_ci_lo"] <= pop_res["fpr_gap"] <= row["fpr_gap_ci_hi"])
+        row["tpr_gap_matches_population"] = bool(
+            row["tpr_gap_ci_lo"] <= pop_res["tpr_gap"] <= row["tpr_gap_ci_hi"])
+        row["auroc_gap_matches_population"] = bool(
+            row["auroc_gap_ci_lo"] <= pop_extra["auroc_gap"] <= row["auroc_gap_ci_hi"])
         regimeB_rows.append(row)
 
         print(f"beta={beta:4.1f}  n_pool={row['n_pool']:5d} (m={n0},f={n1})  "
               f"sel_4/5={row['selection_four_fifths']:.3f}  "
               f"DP={row['demographic_parity_gap']:.4f} [{row['dp_gap_ci_lo']:.4f},{row['dp_gap_ci_hi']:.4f}] "
-              f"call={row['dp_gap_breach']:<12}  FPR_gap={row['fpr_gap']:.4f}  TPR_gap={row['tpr_gap']:.4f}  "
-              f"AUROC_gap={row['auroc_gap']:.4f}  pool_4/5={row['four_fifths_ratio_pool']:.3f} "
+              f"call={row['dp_gap_breach']:<12}  "
+              f"FPR_gap={row['fpr_gap']:.4f} match_pop={row['fpr_gap_matches_population']}  "
+              f"TPR_gap={row['tpr_gap']:.4f} match_pop={row['tpr_gap_matches_population']}  "
+              f"AUROC_gap={row['auroc_gap']:.4f} match_pop={row['auroc_gap_matches_population']}  "
+              f"pool_4/5={row['four_fifths_ratio_pool']:.3f} "
               f"call={row['four_fifths_breach']:<12}  MDE={mde_dp:.4f}  powered={row['adequately_powered']}")
 
     # -----------------------------------------------------------------
@@ -456,34 +470,55 @@ def main():
     regimeA_verdict = "SUPPORTS" if (A_invariant_metrics_flat and A_matches_population
                                       and A_contaminated_metrics_move) else "REFUTES"
 
-    # Regime B: REFUTES blindness (i.e. replicates the clinical finding) iff
-    # a breach occurs at an adequately-powered point at or before the beta
-    # nearest the clinical reference selection-4/5, OR credible monotonic
-    # drift in FPR/TPR/AUROC/DP gaps.
+    # Regime B: the DECISIVE test mirrors C29/C31's actual mechanism -- FPR,
+    # TPR and AUROC gaps are the metrics theory says MUST equal the
+    # population value when S _||_ X | A (as in Regime A) but need NOT when
+    # S depends on X (as here). So the primary evidence for "replicates the
+    # clinical finding" is whether those three gaps (a) stop matching the
+    # population-truth value at some point in the sweep, and/or (b) show a
+    # credible monotonic slope vs beta.
+    #
+    # NOTE ON THE ABSOLUTE DP-GAP TOLERANCE: ACSIncome's population already
+    # has a large, REAL sex gap in predicted-positive rate (DP_gap ~0.12,
+    # see population_reference_audit above) that exceeds the 0.05 MIMIC-style
+    # tolerance with ZERO selection at all (beta=0 is just an unbiased
+    # subsample). So an absolute-tolerance "breach" call on DP gap, ported
+    # unmodified from the clinical protocol, would fire even in the absence
+    # of any selection effect -- it is contaminated by intrinsic population
+    # disparity, not evidence of selection corrupting the audit. It is
+    # reported below for completeness (mirrors the clinical protocol
+    # literally) but is NOT used as the primary criterion.
     up_to_target = [r for r in regimeB_rows if r["beta"] <= target_row["beta"]]
-    any_breach = any(
+    B_core_pointwise_divergence = any(
+        not (r["fpr_gap_matches_population"] and r["tpr_gap_matches_population"]
+             and r["auroc_gap_matches_population"])
+        for r in up_to_target)
+    B_core_credible_drift = any(drift_B[k]["credible_drift"] for k in
+                                 ["fpr_gap", "tpr_gap", "auroc_gap"])
+    B_core_evidence = B_core_pointwise_divergence or B_core_credible_drift
+
+    any_absolute_breach = any(
         (r["dp_gap_breach"] == "breach" or r["four_fifths_breach"] == "breach") and r["adequately_powered"]
         for r in up_to_target)
-    any_credible_drift_B = any(drift_B[k]["credible_drift"] for k in
-                                ["demographic_parity_gap", "tpr_gap", "fpr_gap", "auroc_gap"])
     region_powered = any(r["adequately_powered"] for r in up_to_target)
 
-    if any_breach:
-        regimeB_verdict = "REFUTES (breach)"
+    if B_core_evidence:
+        regimeB_verdict = "REFUTES (FPR/TPR/AUROC gap diverges from population under feature-based selection)"
     elif not region_powered:
         regimeB_verdict = "INCONCLUSIVE (underpowered)"
-    elif any_credible_drift_B:
-        regimeB_verdict = "REFUTES (drift, no discrete breach yet)"
     else:
-        regimeB_verdict = "SUPPORTS (flat/blind)"
+        regimeB_verdict = "SUPPORTS (FPR/TPR/AUROC gap stays pinned to population value across the sweep)"
 
     clinical_replicates = (regimeA_verdict == "SUPPORTS") and regimeB_verdict.startswith("REFUTES")
     print(f"Regime A (group-only selection) verdict: {regimeA_verdict}")
     print(f"  FPR/TPR/AUROC gap flat & CI-covers-population: {A_invariant_metrics_flat and A_matches_population}")
     print(f"  DP/PPV/calibration move: {A_contaminated_metrics_move}")
     print(f"Regime B (feature-driven selection) verdict: {regimeB_verdict}")
-    print(f"  Any breach at/below target beta ({target_row['beta']}): {any_breach}")
-    print(f"  Any credible monotone drift: {any_credible_drift_B}")
+    print(f"  FPR/TPR/AUROC pointwise divergence from population at any beta<=target: "
+          f"{B_core_pointwise_divergence}")
+    print(f"  FPR/TPR/AUROC credible OLS drift vs beta: {B_core_credible_drift}")
+    print(f"  [secondary, literal MIMIC-protocol absolute DP-gap/4-5 breach call "
+          f"(confounded by intrinsic population gap, see note above)]: {any_absolute_breach}")
     print(f"\nOVERALL: clinical MIMIC finding {'REPLICATES' if clinical_replicates else 'DOES NOT REPLICATE'} "
           f"on ACS PUMS (ACSIncome, {data_prep.STATE} {data_prep.SURVEY_YEAR}).")
 
@@ -508,6 +543,9 @@ def main():
         ),
         regimeA_sweep=regimeA_rows, regimeA_drift=drift_A, regimeA_verdict=regimeA_verdict,
         regimeB_sweep=regimeB_rows, regimeB_drift=drift_B, regimeB_verdict=regimeB_verdict,
+        regimeB_core_pointwise_divergence=B_core_pointwise_divergence,
+        regimeB_core_credible_drift=B_core_credible_drift,
+        regimeB_secondary_absolute_dp_breach=any_absolute_breach,
         regimeB_target_beta=target_row["beta"],
         regimeB_target_selection_four_fifths=target_row["selection_four_fifths"],
         secondary_axis_black_v_white=secondary_axis,
