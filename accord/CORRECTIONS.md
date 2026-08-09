@@ -2446,3 +2446,73 @@ Live-parameter ratio is **36.88×**, not the 37.9× claimed at ch6:427/635/681 a
 caption, not a footnote**, as a specification with no surviving run record. The Stage 0 collapse
 argument can be made from the four re-diagnosis configurations in `mimic_local_only/accord_stage0/`,
 which are real runs with recorded losses and dev accuracies.
+
+
+---
+
+## C55. The survey recode does not reproduce 0/25 and 0/4. Per C49 it governs, and the headline claim changes
+
+C49 required the survey to be re-coded with rows persisted, blinded to the prior counts, and
+established that the recode governs whatever it returned. It returned something different.
+
+**New corpus: 1,596 records screened, 75 included**, coded against written field definitions with
+machine-verified quotes. All five artifacts are on disk (`results/accord/survey/`): 75-row
+`coding_table.csv`, `quotes.json` (225 quoted fields, **502/502 verified by exact string match, 0
+rejected**), `screening_log.csv`, `protocol.md`, and `coding_summary.json` produced by
+`tabulate.py`. Counts regenerate independently from the CSV.
+
+| | audits the selection step | does not |
+|---|---|---|
+| **strict reading** | **4 / 75 (5.3%)** | 71 |
+| **permissive reading** | **14 / 75 (18.7%)** | 61 |
+
+**The old claim is withdrawn.** "Of 25 papers auditing a model on a filtered pool, **0** audit the
+filter" is false as stated: **four do**, under a rule I can show, with quotes. Ten more do under a
+deliberately generous reading. The honest ambiguity lives in that 10-paper gap, and both readings
+must be reported side by side rather than the one that sounds better — the failure C52 records.
+
+The four strict cases: subgroup retention compared across six sepsis criteria against the source
+cohort; an included-vs-excluded sensitivity analysis; chi-square tests that LLM refusals were
+independent of race and sex; and a Table 1 profiling the excluded race-unknown group beside the
+retained ones.
+
+**A design limitation that kills the cross-tab framing entirely.** Inclusion criterion (ii)
+*requires* a disaggregated metric, so `audits_model_on_pool = yes` holds for all 75 **by
+construction**. The 2×2 degenerates to a single row. The original "25 vs 4" framing implied papers
+distributed across both cells; **this design cannot produce that table, and neither could the
+original one if it used the same inclusion rule.** The dissociation claim as previously written is
+not recoverable from a corpus built this way.
+
+**What replaces it, and it is cleaner:**
+
+> **All 75 papers computed their fairness metrics on a cohort they had themselves filtered**, and
+> 4 checked whether the filtering was differential. Auditing the selection step is rare — not
+> absent, rare — and the rate is 5.3% strictly or 18.7% generously.
+
+`null_attribute_handling` across 75: not_mentioned 23, drops 17, separate_category 13, unclear 9,
+imputes 7, reports_only 6. **40 of 75 either drop the records or never mention them.**
+
+**No inter-rater reliability is claimed.** Each paper was coded once by one coder under shared
+written rules. The prior κ of 0.737–1.000 has no successor and must not be carried forward. If a
+reliability figure is wanted in the thesis, a second coder has to code a subsample — that is real
+remaining work, not a number already in hand.
+
+**Three limitations that bound the claim, stated because the thesis is about instruments:** the
+full-text set is the top of a keyword-density ranking, which over-samples fairness-forward work;
+coverage is PMC open access plus arXiv and ACL Anthology, not the full literature; and 459 papers
+passed title/abstract screening but fell below the full-text retrieval quota — **logged, not
+silently dropped**. This is not a prevalence estimate for clinical ML as a field and must never be
+written as one.
+
+**The recode caught its own corpus bug, which is worth recording.** The first PubMed extraction used
+the XPath `.//ArticleId`, which also matches identifiers inside each record's *reference list* — so
+papers were assigned a cited reference's PMC ID and DOI and the wrong full text was downloaded.
+**731 of 1,052 PMC IDs and 635 DOIs were wrong.** It was caught by an independent title-match check,
+the selector was fixed, 35 affected codings were quarantined, and all 45 PubMed papers were re-coded
+from scratch behind an automated title-match gate. arXiv and ACL used a different code path and
+verified clean at 35/35. Documented in `protocol.md` §5.
+
+**Consequence for the plan.** Chapter 3 is unblocked, but it is a different chapter: "rare, here are
+the four, adjudicated on the page, under both readings" rather than "no paper does this." That is a
+weaker headline and a much harder one to attack, and it comes with 75 rows and 502 verified quotes
+that anyone can recompute — which the previous version did not have at any point.
