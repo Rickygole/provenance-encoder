@@ -2282,11 +2282,24 @@ directional prediction that can be checked against any new selection mechanism, 
 about direction from the population. This says they cannot reason about it from anything the audit
 gives them.
 
-**Consequence for E9 and E10.** The observed sign difference is now most likely a difference in
-*which channel each sweep implemented*, not a difference in their populations. **That must be
-verified in the two sweep implementations before any of this is written**, and it is exactly the
-question the red team was asked to check. Until it is verified, C50 is a simulator result and the
-E9/E10 attribution is a hypothesis.
+**Confirmed on real data, same day.** The simulator result reproduces in the committed PUMS run,
+on one population, with baseline held fixed at 0.118:
+
+| PUMS regime | selection channel | DP drift slope |
+|---|---|---|
+| Regime A | selection on the group label only | **+0.007805** [0.00495, 0.01066] — rises |
+| Regime B | selection through an outcome-predictive feature | **−0.011765** [−0.01359, −0.00994] — falls |
+
+Same population, same baseline disparity, opposite signs, determined entirely by the channel. The
+red team independently reached this from `full_run.log:86-111` while I reached it from the
+simulator sweep. C50 is no longer a simulator result — it is the mechanism, and C47's is dead.
+
+**And the two sweeps do NOT differ in mechanism.** I had assumed E9 and E10 might be running unlike
+procedures. They are near-twins: both use `logit P(S=1) = b0(beta) + beta*z(feature)`, both bisect
+`b0` to pin the marginal selection rate at 0.30, both use the same beta grid, the same `audit.py`
+with `GAP_TOLERANCE=0.05` / `FOUR_FIFTHS=0.80` / `B=5000`, and one classifier fit on train only.
+Design correlations are near-identical: corr(feature, group) −0.204 vs −0.209. So the E9/E10 sign
+difference is real and interpretable, and the explanation is the channel, not the population.
 
 **Fourth time.** C14, C42/C43, C47, and now the C47 mechanism. The pattern is no longer "I misread
 a flag" — it is that I reach for a mechanism as soon as two numbers differ, and the mechanism
@@ -2294,3 +2307,142 @@ survives exactly until someone sweeps the parameter it was supposed to depend on
 pre-registration is what caught it this time, one day after the claim was made rather than at a
 viva. **Every future mechanism claim in this project gets a pre-registered parameter sweep before
 it is written down, not after.**
+
+
+---
+
+## C51. C41's Regime A table does not match the run it reports, and the "correction to C29" it motivated was unnecessary
+
+C41 reports PUMS Regime A as **"nothing moves at all"** — every audit metric stable across the
+sweep. Checked against the committed `accord/pums_replication/full_run.log:86-92`:
+
+| metric | C41 reports | the committed run |
+|---|---|---|
+| FPR gap | −0.00048, no drift | −0.000473, no drift, R² 0.010 — **correct** |
+| TPR gap | +0.00032, no drift | +0.000084, no drift, R² 0.002 — **correct** |
+| AUROC gap | −0.00045, no drift | −0.000395, no drift, R² 0.033 — **correct** |
+| demographic parity | +0.00078, **no drift** | **+0.007805** [0.00495, 0.01066], **credible_drift TRUE**, R² 0.788 |
+| PPV gap | +0.00130, **no drift** | **+0.007822** [0.00482, 0.01082], **credible_drift TRUE**, R² 0.771 |
+| calibration | +0.00100, **no drift** | **+0.008147** [0.00576, 0.01053], **credible_drift TRUE**, R² 0.853 |
+
+The three metrics C41 got right are exactly the three that genuinely do not drift. The three it got
+wrong are exactly the three that do — each off by **a factor of ten with the boolean inverted**.
+The run's own verdict line reads `DP/PPV/calibration move: True` and `regimeA_verdict: SUPPORTS`
+**because** they move. C41's numbers appear to come from a superseded first attempt that
+`run_experiment.py:81-96` documents and replaced.
+
+**Three consequences.**
+
+1. **"Regime A: nothing moves at all" is false.** The DP gap climbs 0.1356 → 0.1944 across the
+   sweep. Every sentence built on Regime A invariance is withdrawn.
+2. **C41's "correction to C29" was reverse-engineered from a misread log.** PUMS Regime A satisfies
+   S ⊥ X | (A,Y) — *C29's own condition* — and reproduces C29's taxonomy. **C29 needed no
+   correction.** The three-regime taxonomy C41 introduced to fix it is withdrawn.
+3. It is the cleanest disconfirmation of C47 available, and it was in a committed log the whole
+   time: Regime A and Regime B share a population and a baseline and drift in opposite directions.
+
+---
+
+## C52. Every gap in these experiments is absolute-valued, so no directional claim was ever licensed
+
+`accord/selection_experiment/audit.py:47`:
+
+```python
+out["demographic_parity_gap"] = abs(g1["pred_pos_rate"] - g0["pred_pos_rate"])
+```
+
+`four_fifths_ratio` is `min/max`. **Both statistics destroy the sign.** E9's saved rows store no
+per-group `pred_pos_rate` at all, so the artifact never records which group has the higher
+predicted-positive rate at any β.
+
+**What this means for everything written above C50.** What C47 called "opposite signs" is the sign
+of an **OLS slope fitted to an absolute value**. That is not the sign of a disparity. A sweep whose
+signed gap runs +0.12 → −0.19 — a complete reversal of which group is disadvantaged — is recorded
+identically to one that widens in place. "The audit invents a disparity" cannot even name *against
+whom*.
+
+C29 already documented that this matters: its signed DP row runs population **+0.1456** → pool
+**−0.0707**. The gap crossed zero and reversed. I had a documented sign inversion in a signed table
+and then built a directional claim on two unsigned ones.
+
+**Binding: both sweeps must be re-run storing signed per-group `pred_pos_rate` before any
+directional statement is written.** Until then, the only licensed claim is about magnitude.
+
+**The four-fifths `breach → pass` flip is withdrawn entirely.** Four independent problems:
+
+- **There is no breach→pass edge.** `breach` last appears at β=0.5; β=1.0–2.0 are `inconclusive`;
+  β=2.5 is `pass`. The transition C47 describes does not exist in the column.
+- **It is 0.41 selection-draw SD from the boundary.** The whole flip is `ci_lo = 0.80443` clearing
+  0.80 by 0.0044. `run_experiment.py:359-365` computes 30 replicate draws and stores **no replicate
+  four-fifths and no replicate SD** — the measurement that would settle it was run and discarded.
+- **`dp_gap_breach` reads `breach` in the identical row**, and never reads `pass` at any β. The
+  audit's two disparate-impact statistics disagree and C47 quoted the one that fit.
+- **`adequately_powered` is not a flag on the four-fifths call.** `run_experiment.py:398` sets it
+  from `mde_dp < GAP_TOLERANCE` — a power statement about the DP gap. It is `True` at β=0.0 where
+  there is no selection at all. Citing it to support the flip is, verbatim, reading a significance
+  flag without reading the quantity behind it — **in the correction whose stated lesson was not to
+  do that.**
+
+The script that produced it left the warning in place at `run_experiment.py:562-571`: the
+absolute-tolerance breach call is *"contaminated by intrinsic population disparity, not evidence of
+selection corrupting the audit ... NOT used as the primary criterion."* β=0.0, with no selection at
+all, already reads `breach`. C47 promoted to headline the one statistic its own script flags as
+unusable.
+
+---
+
+## C53. C28's premise was wrong — but the investigation found a real error that flips a sign in six places
+
+**C28 does not exist as a discrepancy.** 278 and 261 count **different systems**: 278 is
+`accord_pred == "contradiction"` (ACCORD v2's released decision); 261 is
+`weak_label == "contradiction"` (the Llama 3 8B weak labeller). `exp1a` is titled "Llama weak-label
+error rates by group" and never reads `accord_pred`. The cross-tab is 243 both / 35 ACCORD-only /
+18 labeller-only / 3 neither — a **net** of 17, not a filter. The `ambiguous` hypothesis is
+arithmetically impossible: 278 − 15 ambiguous = 263, and `weak_label` has no ambiguous level.
+**261 appears in no `.tex` chapter**, so C28's claim that both are in the draft is false of the
+source. 278 is correct at ch1:239 and ch7:165/590/690/804.
+
+**But the audit found something worse.** Every row and sentence labelled *"Llama 3 8B (weak
+labeller)"* actually carries the cells of `llama_baseline` in `results/accord/step3_baselines.json`
+— the Llama **evaluation-baseline prompt run**, not the weak labeller. On the same 253 pairs the
+weak labeller's own labels give TP 11 / FN 1 / FP 212 / TN 29:
+
+| | as written | the weak labeller's actual labels |
+|---|---|---|
+| predicted positive | 242 | **223** |
+| precision | 4.55% | **4.93%** |
+| MCC | **−0.044** | **+0.024** |
+
+**The sign flips.** The sentence *"the weak labeller it was distilled from scores −0.044, which is
+worse than chance"* — ch1:243, ch7:453, ch7:933, ch8:226/266/346/359 — is not supported by the weak
+labeller's labels. The fix is relabelling the row, not deleting it: the ACCORD row in the same
+tables reproduces exactly.
+
+---
+
+## C54. The 22,446,855-parameter configuration was never built, and 590,592 of it could never have received a gradient
+
+The reconstruction is sound and **unique**: exhaustive search over 104 configurations returns
+exactly one hit — 3 unfrozen BERT layers (3 × 7,087,872) + pooler (590,592) + `ATCGPretrainer` head
+(592,647) = 22,446,855, embeddings excluded.
+
+Arithmetic that reproduces is not evidence a run happened:
+
+- The literal figure appears in **zero artifacts**, in the repo and in the quarantine.
+- **No ACCORD or Stage 0 checkpoint exists on disk at all.** The three checkpoints that exist are
+  the provenance encoder (35,313,024) and two copies of the stock BiomedBERT backbone.
+- **No code can produce the configuration.** `accord/stage0/train.py` freezes the backbone
+  unconditionally; nothing anywhere slices `encoder.layer[...]` or has an unfreeze path. The only
+  evidenced Stage 0 trainable counts are 592,647 and 460,033.
+- **590,592 of the total is dead.** `ATCGPretrainer.encode` reads `last_hidden_state[:, 0, :]`; the
+  pooler is never on the forward path. Verified with a real forward+backward:
+  `n_requires_grad = 590,592`, `n_with_nonnull_grad = 0`, while the top encoder layer and
+  `node_projection` both get full gradient. **The reconstruction only closes because a module that
+  can never be updated is counted as trainable** — the harm_head / PPC defect again.
+
+Live-parameter ratio is **36.88×**, not the 37.9× claimed at ch6:427/635/681 and ch2:354.
+
+**Action: delete the "partially unfrozen backbone" row**, or demote it to prose flagged **in the
+caption, not a footnote**, as a specification with no surviving run record. The Stage 0 collapse
+argument can be made from the four re-diagnosis configurations in `mimic_local_only/accord_stage0/`,
+which are real runs with recorded losses and dev accuracies.

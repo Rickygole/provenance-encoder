@@ -1,0 +1,289 @@
+{
+  "correction": "C28, item 2 (predicted-positive count does not reconcile)",
+  "generated_utc": "2026-08-09T23:14:15.703498+00:00",
+  "script": "accord/stats/reconcile_c28.py",
+  "method": "Both numbers were recomputed from the files on disk rather than read out of prose. (1) 278 was recomputed as the count of accord_pred == 'contradiction' in the released per-pair file gold_standard_accord_results.csv (299 rows). (2) 261 was recomputed by re-running the exact join that accord/differential/run_experiments.py performs -- gold_standard_accord_results.csv -> annotation_sample_300.csv (pair_id -> HADM_ID/drug/rule/sentences) -> accord_decontamination_audit.csv (weak_label) -- and counting weak_label == 'contradiction'; it was independently cross-checked by summing TP+FP over the per-group cells stored in results/accord/differential/exp1a_gold_error_rates_by_group.json, which is the operation that 'implies 261'. (3) The hypothesis in C28 -- that the gap is a difference in how the value 'ambiguous' is handled -- was tested by enumerating every filter and every threshold rule on accord_pred and accord_contra_prob and checking whether any of them yields 261. (4) The two columns were cross-tabulated to give the exact per-cell disagreement. (5) The measured weak-labeller and ACCORD confusion matrices were compared against the reconstructed ones printed in ch7 and ch8. No note text, HADM_ID, SUBJECT_ID or pair_id is written by this script.",
+  "inputs": {
+    "released_per_pair_file": "/Users/rickygole/Downloads/gold_standard_accord_results.csv",
+    "pair_id_bridge": "/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv",
+    "weak_label_carrier": "/Users/rickygole/mimic_local_only/accord_supp/accord_decontamination_audit.csv",
+    "exp1a_artifact": "/Users/rickygole/provenance-encoder/results/accord/differential/exp1a_gold_error_rates_by_group.json",
+    "note_on_bridge_path": "run_experiments.py hard-codes the Google Drive copy of annotation_sample_300.csv; that mount no longer exists, so the identical local copy under mimic_local_only/from_drive_2026-08-08/outputs was used."
+  },
+  "a_what_each_number_counts": {
+    "278": {
+      "column": "accord_pred",
+      "file": "gold_standard_accord_results.csv",
+      "system": "ACCORD v2, contaminated run, released per-pair decision",
+      "rule": "accord_pred == 'contradiction'",
+      "denominator": 299,
+      "value": 278,
+      "value_counts_of_column": {
+        "contradiction": 278,
+        "ambiguous": 15,
+        "not_contradiction": 6
+      }
+    },
+    "261": {
+      "column": "weak_label",
+      "file": "accord_decontamination_audit.csv (joined to the 299 gold pairs)",
+      "system": "Llama 3 8B weak labeller -- NOT ACCORD",
+      "rule": "weak_label == 'contradiction'",
+      "denominator": 299,
+      "value": 261,
+      "value_counts_of_column": {
+        "contradiction": 261,
+        "not_contradiction": 38
+      }
+    },
+    "pharm_label_value_counts": {
+      "not_contradiction": 241,
+      "ambiguous": 46,
+      "contradiction": 12
+    }
+  },
+  "b_the_rule_that_produces_the_17_row_difference": {
+    "c28_hypothesis": "C28 hypothesised the gap is a difference in how the three-valued accord_pred column's 'ambiguous' level is handled.",
+    "c28_hypothesis_holds": false,
+    "actual_rule": "There is no rule. The two numbers are counts of two different columns produced by two different systems on the same 299 rows. 278 is ACCORD's predicted-positive count; 261 is the Llama 3 8B weak labeller's predicted-positive count. exp1a is titled 'Llama weak-label error rates by group' and never touches accord_pred.",
+    "ambiguous_arithmetic_that_rules_the_hypothesis_out": {
+      "accord_pred_ambiguous_rows": 15,
+      "278_minus_accord_ambiguous": 263,
+      "gap_to_explain": 17,
+      "weak_label_has_an_ambiguous_level": false
+    },
+    "every_rule_tried_on_the_accord_columns": {
+      "accord_pred == contradiction (all 299)": 278,
+      "accord_pred != not_contradiction (ambiguous counted positive, all 299)": 293,
+      "accord_pred == contradiction, pharm-ambiguous rows dropped (n=253)": 234,
+      "accord_pred != not_contradiction, pharm-ambiguous rows dropped (n=253)": 247,
+      "accord_pred == contradiction, accord-ambiguous rows dropped (n=284)": 278,
+      "accord_contra_prob >= 0.5 (all 299)": 25,
+      "accord_contra_prob >= 0.5, pharm-ambiguous dropped (n=253)": 23,
+      "_any_threshold_on_contra_prob_can_yield_261_on_299": true,
+      "_any_threshold_on_contra_prob_can_yield_261_on_253": false,
+      "_min_accord_contra_prob": 0.306068480014801,
+      "_max_accord_contra_prob": 0.5528034567832947,
+      "_n_distinct_scores": 297,
+      "_threshold_result_is_vacuous": false,
+      "_threshold_note": "The scores are near-perfectly distinct (see _n_distinct_scores), so sweeping the threshold attains almost every integer count from 0 to 299 and 'some threshold gives 261' carries no information. The substantive result is that no *named* rule -- the released decision, either handling of ambiguous, the 0.5 threshold, or any of these restricted to the 253 non-ambiguous pairs -- gives 261."
+    },
+    "cross_tabulation_accord_pred_by_weak_label": {
+      "ambiguous": {
+        "contradiction": 12,
+        "not_contradiction": 3
+      },
+      "contradiction": {
+        "contradiction": 243,
+        "not_contradiction": 35
+      },
+      "not_contradiction": {
+        "contradiction": 6,
+        "not_contradiction": 0
+      }
+    },
+    "set_difference_on_the_same_299_rows": {
+      "both_call_contradiction": 243,
+      "accord_only": 35,
+      "weak_labeller_only": 18,
+      "neither": 3,
+      "net": 17
+    },
+    "accord_ambiguous_rows_by_weak_label": {
+      "contradiction": 12,
+      "not_contradiction": 3
+    },
+    "exp1a_implied_totals_by_stratification": {
+      "language_group3": {
+        "n": 299,
+        "predicted_positive_TP_plus_FP": 261,
+        "TP": 11,
+        "FP": 250,
+        "FN": 1,
+        "TN": 37
+      },
+      "ethnicity_group3": {
+        "n": 299,
+        "predicted_positive_TP_plus_FP": 261,
+        "TP": 11,
+        "FP": 250,
+        "FN": 1,
+        "TN": 37
+      },
+      "GENDER": {
+        "n": 299,
+        "predicted_positive_TP_plus_FP": 261,
+        "TP": 11,
+        "FP": 250,
+        "FN": 1,
+        "TN": 37
+      },
+      "age_bucket": {
+        "n": 299,
+        "predicted_positive_TP_plus_FP": 261,
+        "TP": 11,
+        "FP": 250,
+        "FN": 1,
+        "TN": 37
+      },
+      "language_group3_no_ambiguous": {
+        "n": 253,
+        "predicted_positive_TP_plus_FP": 223,
+        "TP": 11,
+        "FP": 212,
+        "FN": 1,
+        "TN": 29
+      }
+    }
+  },
+  "c_which_number_belongs_where": {
+    "278": "Belongs in any sentence about ACCORD's predicted-positive count on the 299 annotated pairs. It is correct as used in ch1:239, ch7:165, ch7:590, ch7:690 and ch7:804.",
+    "261": "Belongs only in sentences about the Llama 3 8B weak labeller's positive rate on the 299 gold pairs. It is not an ACCORD quantity and must never be written as an alternative reading of 278.",
+    "they_are_not_alternatives": true
+  },
+  "d_measured_vs_what_the_tex_says": {
+    "measured": {
+      "accord_pred_on_299": {
+        "n": 299,
+        "TP": 11,
+        "FN": 1,
+        "FP": 267,
+        "TN": 20,
+        "predicted_positive": 278,
+        "precision": 0.039568345323741004,
+        "recall": 0.9166666666666666,
+        "accuracy": 0.10367892976588629,
+        "MCC": -0.010481760717867725
+      },
+      "accord_pred_on_253_non_ambiguous": {
+        "n": 253,
+        "TP": 11,
+        "FN": 1,
+        "FP": 223,
+        "TN": 18,
+        "predicted_positive": 234,
+        "precision": 0.04700854700854701,
+        "recall": 0.9166666666666666,
+        "accuracy": 0.11462450592885376,
+        "MCC": -0.006971980041222569
+      },
+      "weak_label_on_299": {
+        "n": 299,
+        "TP": 11,
+        "FN": 1,
+        "FP": 250,
+        "TN": 37,
+        "predicted_positive": 261,
+        "precision": 0.0421455938697318,
+        "recall": 0.9166666666666666,
+        "accuracy": 0.1605351170568562,
+        "MCC": 0.02686309383069346
+      },
+      "weak_label_on_253_non_ambiguous": {
+        "n": 253,
+        "TP": 11,
+        "FN": 1,
+        "FP": 212,
+        "TN": 29,
+        "predicted_positive": 223,
+        "precision": 0.04932735426008968,
+        "recall": 0.9166666666666666,
+        "accuracy": 0.15810276679841898,
+        "MCC": 0.02432604884780849
+      }
+    },
+    "row_printed_as_Llama_3_8B_weak_labeller_source": {
+      "artifact_key": "llama_baseline",
+      "n": 253,
+      "TP": 11,
+      "FN": 1,
+      "FP": 231,
+      "TN": 10,
+      "predicted_positive": 242,
+      "precision": 0.045454545454545456,
+      "recall": 0.9166666666666666,
+      "accuracy": 0.08300395256916997,
+      "MCC": -0.043609609762342405
+    },
+    "row_printed_as_ACCORD_tau_0.5_source": {
+      "artifact_key": "accord_binary_at_0.5_253core",
+      "n": 253,
+      "TP": 11,
+      "FN": 1,
+      "FP": 223,
+      "TN": 18,
+      "predicted_positive": 234,
+      "precision": 0.04700854700854701,
+      "recall": 0.9166666666666666,
+      "accuracy": 0.11462450592885376,
+      "MCC": -0.006971980041222569
+    },
+    "note": "The row the thesis prints as 'Llama 3 8B (weak labeller)' in ch7 Table tab:systems, ch8 tab:met-confusion, tab:met-selection and tab:met-mccci is the artifact key 'llama_baseline' in results/accord/step3_baselines.json, i.e. the Llama 3 8B *evaluation baseline* prompt run whose per-pair calls are archived in predictions_253_core.csv. It is not the weak labeller. The weak labeller's own calls live in weak_label in accord_decontamination_audit.csv and are measured above.",
+    "findings": {
+      "llama_row_FP_printed_minus_measured": 19,
+      "llama_row_TN_printed_minus_measured": -19,
+      "llama_predicted_positive_printed": 242,
+      "llama_predicted_positive_measured": 223,
+      "llama_precision_printed": 0.045454545454545456,
+      "llama_precision_measured": 0.04932735426008968,
+      "llama_MCC_printed": -0.043609609762342405,
+      "llama_MCC_measured": 0.02432604884780849,
+      "accord_row_FP_printed_minus_measured": 0,
+      "accord_predicted_positive_printed": 234,
+      "accord_predicted_positive_measured": 234,
+      "accord_MCC_printed": -0.006971980041222569,
+      "accord_MCC_measured": -0.006971980041222569,
+      "ch7_footnote_claim_44_of_46_ambiguous_predicted_positive": {
+        "claimed": 44,
+        "measured_ambiguous_pharm_rows_predicted_positive_by_accord": 44,
+        "measured_ambiguous_pharm_rows": 46
+      }
+    }
+  },
+  "e_tex_verdict": {
+    "278_as_written": {
+      "locations": [
+        "ch1_introduction.tex:239",
+        "ch7_evaluation.tex:165",
+        "ch7_evaluation.tex:590",
+        "ch7_evaluation.tex:690",
+        "ch7_evaluation.tex:804"
+      ],
+      "status": "CORRECT",
+      "reason": "reproduces exactly from the released per-pair file"
+    },
+    "261_as_written": {
+      "locations": [],
+      "status": "NOT PRESENT IN ANY .tex CHAPTER",
+      "reason": "grep over the ten chapters finds no occurrence of 261. Only 278 appears. C28's statement that 'both numbers currently appear in the draft' is not true of the .tex source; 261 lives only in the exp1a artifact and run log, where it is correctly the weak labeller's count."
+    },
+    "ch7_footnote_open_TODO_at_lines_187_195": {
+      "status": "RESOLVED BY THIS SCRIPT -- no numeric change needed",
+      "denominator_253_confirmed": true,
+      "accord_accuracy_on_253_measured": 0.11462450592885376,
+      "44_of_46_ambiguous_predicted_positive_confirmed": true
+    },
+    "weak_labeller_row_as_written": {
+      "locations": [
+        "ch1_introduction.tex:243",
+        "ch7_evaluation.tex:453",
+        "ch7_evaluation.tex:933",
+        "ch8_metrics.tex:226",
+        "ch8_metrics.tex:266",
+        "ch8_metrics.tex:346",
+        "ch8_metrics.tex:359"
+      ],
+      "status": "MISLABELLED",
+      "reason": "Every row and sentence labelled 'Llama 3 8B (weak labeller)' carries the cells of the artifact key 'llama_baseline' -- the Llama 3 8B evaluation baseline prompt run. The system that actually produced the weak supervision is a different Llama 3 8B run with different calls on the same pairs.",
+      "printed_predicted_positive": 242,
+      "measured_weak_labeller_predicted_positive": 223,
+      "rows_of_253_on_which_the_two_disagree": 19,
+      "printed_precision": 0.045454545454545456,
+      "measured_weak_labeller_precision": 0.04932735426008968,
+      "printed_MCC": -0.043609609762342405,
+      "measured_weak_labeller_MCC": 0.02432604884780849,
+      "sign_flips": true,
+      "consequence": "The claim 'the weak labeller it was distilled from scores -0.044, which is worse than chance' is not supported by the weak labeller's own labels; on the same 253 pairs the weak labeller's MCC point estimate is positive. The -0.044 sentence is true of the Llama baseline and should be relabelled rather than deleted."
+    }
+  }
+}
