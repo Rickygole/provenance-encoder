@@ -1,5 +1,9 @@
-"""F5 prevalence response, F6 scaling with clinical overlay, F7 forest of every
-claim, F10 power landscape. All from committed aggregates."""
+"""F5 prevalence, F6 scaling, F7 forest, F10 power landscape.
+
+Every value is READ from a committed result file. An earlier version typed the
+C37 and C44 numbers as literals and drew the power curve from an ad-hoc formula
+that did not reproduce the one real MDE it plotted -- the exact defect
+corrections C7 and C10 retract elsewhere in this project. See C48."""
 import json, pathlib, glob, math, statistics as st
 import numpy as np
 from style import setup, ACCENT, MUTED, LIGHT, DEAD
@@ -62,12 +66,20 @@ ax.set_xscale("log"); ax.set_xlabel("non-embedding parameters (log scale)")
 ax.set_ylabel("accuracy, AG News"); ax.set_ylim(0.865, 0.952)
 ax.set_title("Pretraining is worth five points here — and more parameters do not close it",
              loc="left", fontsize=9.5, pad=8)
+# C37 clinical comparison, read from the run records -- never typed
+_pb = [json.loads((ROOT/f"local_only/task_runs/concat_s{s}.json").read_text())["auroc"] for s in (1,2,3)]
+_ou = [json.loads(pathlib.Path(f).read_text())["auroc"]
+       for f in sorted(glob.glob(str(ROOT/"local_only/task_runs/ours_current_s*.json")))]
+_pbm, _pbs = st.mean(_pb), st.stdev(_pb)
+_oum, _ous = st.mean(_ou), st.stdev(_ou)
+_gap = _pbm - _oum
+_pooled = math.sqrt((_pbs**2 + _ous**2)/2)
 ins = fig.add_axes([0.60, 0.24, 0.28, 0.24])
-ins.axhspan(0.7693-0.0102, 0.7693+0.0102, color=LIGHT)
-ins.axhline(0.7693, color=MUTED, lw=1.0)
-ins.errorbar([1.06e7], [0.7662], yerr=[0.0073], fmt="o", color=ACCENT, ms=4, capsize=2.5)
-ins.set_xscale("log"); ins.set_xlim(5e6, 2e8); ins.set_ylim(0.745, 0.792)
-ins.set_title("clinical task: gap $+0.0031$, $p=0.69$", fontsize=6.5, pad=3)
+ins.axhspan(_pbm-_pbs, _pbm+_pbs, color=LIGHT)
+ins.axhline(_pbm, color=MUTED, lw=1.0)
+ins.errorbar([1.06e7], [_oum], yerr=[_ous], fmt="o", color=ACCENT, ms=4, capsize=2.5)
+ins.set_xscale("log"); ins.set_xlim(5e6, 2e8); ins.set_ylim(_oum-0.025, _pbm+0.025)
+ins.set_title(f"clinical task: gap ${_gap:+.4f}$", fontsize=6.5, pad=3)
 ins.tick_params(labelsize=5.5); ins.set_yticks([0.75, 0.77, 0.79])
 fig.savefig(HERE/"fig-scaling.pdf"); plt.close(fig); print("wrote fig-scaling.pdf")
 
@@ -78,8 +90,18 @@ for k, v in iv.items():
     rows.append((f"MCC — {k.replace('_',' ')}", v["mcc"], v["ci95"][0], v["ci95"][1]))
 rows.append(("AUROC $-$ 0.5 (decontaminated)", 0.5145-0.5, 0.321-0.5, 0.703-0.5))
 rows.append(("AUROC $-$ 0.5 (defect-free stratum)", 0.5078-0.5, 0.2217-0.5, 0.7615-0.5))
-rows.append(("C37 gap: PubMedBERT $-$ scratch", 0.0031, -0.0128, 0.0190))
-rows.append(("C44 gap at 100M (AG News)", 0.0518, 0.0478, 0.0558))
+_pb2 = [json.loads((ROOT/f"local_only/task_runs/concat_s{s}.json").read_text())["auroc"] for s in (1,2,3)]
+_ou2 = [json.loads(pathlib.Path(f).read_text())["auroc"]
+        for f in sorted(glob.glob(str(ROOT/"local_only/task_runs/ours_current_s*.json")))]
+_g = st.mean(_pb2) - st.mean(_ou2)
+_se = math.sqrt(st.stdev(_pb2)**2/3 + st.stdev(_ou2)**2/3)
+rows.append(("C37 gap: PubMedBERT $-$ scratch", _g, _g-1.96*_se, _g+1.96*_se))
+_sc = json.loads((ROOT/"results/accord/scaling/scaling_results.json").read_text())
+_p100 = [x["accuracy"] for x in _sc if x["tag"]=="scratch_100M"]
+_pbert = [x["accuracy"] for x in _sc if x["tag"]=="pretrained_bert"]
+_g44 = st.mean(_pbert) - st.mean(_p100)
+_se44 = math.sqrt(st.stdev(_pbert)**2/3 + st.stdev(_p100)**2/3)
+rows.append(("C44 gap at 100M (AG News)", _g44, _g44-1.96*_se44, _g44+1.96*_se44))
 rows.sort(key=lambda r: r[1])
 
 fig, ax = plt.subplots(figsize=(6.6, 3.6))
@@ -102,8 +124,27 @@ print(f"wrote fig-forest.pdf ({n_cross}/{len(rows)} cross zero)")
 # ---------- F10: power landscape ---------------------------------------------
 pw = json.loads((ROOT/"results/accord/section6_auroc_power.json").read_text())
 mda = pw.get("minimum_detectable_auc", 0.7382)
-n_pos = np.logspace(np.log10(5), np.log10(3000), 200)
-mde = 0.5 + 0.5*np.sqrt(1/np.maximum(n_pos, 1))*2.8/np.sqrt(2)
+def hanley_mde(n_pos, n_neg, alpha=0.05, power=0.80):
+    """Smallest AUROC distinguishable from 0.5 at the given power, Hanley-McNeil
+    variance. Uses BOTH class counts -- the earlier version ignored n_neg and did
+    not reproduce the one properly computed value it plotted."""
+    from scipy.stats import norm
+    z = norm.ppf(1-alpha/2) + norm.ppf(power)
+    out = []
+    for m, n in zip(np.atleast_1d(n_pos), np.atleast_1d(n_neg)):
+        lo, hi = 0.5, 0.9999
+        for _ in range(80):
+            a = (lo+hi)/2
+            q1, q2 = a/(2-a), 2*a*a/(1+a)
+            v = (a*(1-a) + (m-1)*(q1-a*a) + (n-1)*(q2-a*a)) / (m*n)
+            if (a-0.5)/math.sqrt(max(v,1e-12)) < z: lo = a
+            else: hi = a
+        out.append((lo+hi)/2)
+    return np.array(out)
+
+n_pos = np.logspace(np.log10(5), np.log10(3000), 60)
+n_neg = n_pos * (241/12)          # the evaluation set's own positive:negative ratio
+mde = hanley_mde(n_pos, n_neg)
 fig, ax = plt.subplots(figsize=(6.2, 3.7))
 ax.plot(n_pos, np.clip(mde, 0.5, 1.0), color=ACCENT, lw=1.4)
 ax.fill_between(n_pos, np.clip(mde, .5, 1), 1.0, color=LIGHT, alpha=.55, lw=0)
@@ -113,8 +154,8 @@ ax.plot([12], [mda], "o", color="#b03030", ms=6, zorder=5)
 ax.annotate(f"this study\n12 positives, MDE {mda:.3f}", (12, mda), xytext=(28, 0.86),
             fontsize=7.5, color="#b03030",
             arrowprops=dict(arrowstyle="-", lw=.6, color="#b03030"))
-ax.plot([570], [0.5+0.5*np.sqrt(1/570)*2.8/np.sqrt(2)], "o", color=MUTED, ms=5)
-ax.annotate("mortality task\n570 test positives", (570, 0.5+0.5*np.sqrt(1/570)*2.8/np.sqrt(2)),
+ax.plot([570], [hanley_mde([570],[6206])[0]], "o", color=MUTED, ms=5)
+ax.annotate("mortality task\n570 test positives", (570, hanley_mde([570],[6206])[0]),
             xytext=(230, 0.60), fontsize=7.5, color="0.3",
             arrowprops=dict(arrowstyle="-", lw=.6, color="0.5"))
 ax.set_xscale("log"); ax.set_xlabel("positive examples in the evaluation set (log scale)")

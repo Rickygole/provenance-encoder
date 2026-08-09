@@ -1713,6 +1713,12 @@ matches the code that exists rather than the description I gave.
 
 ## C41. The PUMS replication confirms the clinical finding, and corrects my own taxonomy
 
+> **PARTIALLY RETRACTED by C47 (2026-08-09).** The claim below that "the clinical finding
+> replicates" is wrong. E9 and E10 drift in **opposite directions**. I read the drift table for
+> whether each slope CI excluded zero and discarded the sign. The corrected reading is in C47 and
+> is a stronger finding than the one retracted here. Everything else in C41 — Regime A's total
+> invariance, the taxonomy correction — stands.
+
 E10 ran both selection regimes on ACS PUMS (ACSIncome, Texas 2018) — public data, no
 credentialing, the same source Pfohl et al. use. Positive control passed (planted DP gap 0.0746
 [0.0662, 0.0828]); classifier non-degeneracy passed.
@@ -2104,3 +2110,117 @@ document.
 The 17-row discrepancy between `accord_pred` (278 of 299) and `exp1a`'s implied 261 (C28), and the
 `22,446,855` parameter count that reconstructs exactly but appears in no artifact (C36). Both are
 computations on existing files. Neither reopens the record.
+
+
+---
+
+## C47. E9 and E10 drift in opposite directions; I fused them by discarding the sign
+
+C41 states the PUMS Regime B result is "the same result as E9/C38 on MIMIC" and that "the clinical
+finding replicates." Recomputed from the committed sweeps:
+
+| β | E9 demographic-parity gap (MIMIC) | E10 Regime B demographic-parity gap (PUMS) |
+|---|---|---|
+| 0.0 | 0.0084 | 0.1181 |
+| 0.5 | 0.0419 | 0.1203 |
+| 1.0 | 0.0224 | 0.1135 |
+| 1.5 | 0.0590 | 0.1139 |
+| 2.0 | 0.0754 | 0.1061 |
+| 2.5 | **0.0895** — increasing | **0.0988** — decreasing |
+
+Both slope CIs exclude zero, both were coded `DRIFTS`, and I reported them as one result. They are
+opposite. **The sign was in the table I was reading.**
+
+**The mechanism, which the two datasets differ on:** PUMS's population demographic-parity gap
+*before any selection* is **0.1181**. MIMIC's is **0.0084**. Selection does not have one effect on
+an audit; it moves the measured gap toward the value induced by the selection itself, and whether
+that raises or lowers the reading depends entirely on where the population started.
+
+**The corrected claim, which is stronger than the retracted one:**
+
+> The sign of a pool-level fairness audit's response to upstream selection is determined by the
+> population's pre-existing disparity, not by the selection. On a population with no disparity the
+> audit **invents** one; on a population that has a real one the audit **erases** it. The audit is
+> not merely insensitive to upstream selection — it is misleading, in a direction that cannot be
+> predicted from anything the audit reports.
+
+The second half is the worse case for practice and is directly visible in the committed sweep: in
+PUMS Regime B, `four_fifths_breach` flips from `breach` to **`pass`** at β = 2.5 and stays `pass`
+through β = 8.0, with `adequately_powered: True` at every row. **The audit certifies the model as
+fairer exactly as the upstream filter becomes more severe.** An analyst applying the four-fifths
+rule at the model stage, on a real population with a real disparity, is rewarded for filtering
+harder.
+
+**Requires no new runs.** Both sweeps are already committed. The error was in reading them.
+
+**Consequence for the write-up.** WRITING_PLAN §1 row 1 must be rewritten: the pool fairness audit
+is not characterised by "insensitive where S ⊥ X | A." It is characterised by *sign determined by
+baseline disparity*, with C29's 5.9e-16 invariance as the special case where baseline disparity is
+zero and there is nothing to move. This makes Chapter 3 a stronger chapter and it does not cost a
+single additional experiment.
+
+**Third time.** C14, C42/C43, and now C47 are the same error: reading a significance flag and not
+reading the quantity it flags.
+
+---
+
+## C48. My own figure code hardcoded the values it claimed to read, and drew a power curve from an invented formula
+
+`accord/thesis/figures/fig_batch2.py` carried the docstring *"All from committed aggregates."* It
+did not.
+
+- **Lines 66–68, 81–82** typed the C37 and C44 numbers as literals — `0.7693`, `0.7662`, `0.0102`,
+  `0.0073`, `0.0031`, `0.0518` and their interval bounds — rather than reading the run records.
+- **Line 106** drew the statistical-power curve from `0.5 + 0.5*sqrt(1/n_pos)*2.8/sqrt(2)`, an
+  ad-hoc expression that ignores the negative count entirely. At the evaluation's twelve positives
+  it returns **0.7858**; the committed minimum detectable AUROC is **0.7382**. The marker sat
+  **0.048 off its own curve**, in a figure whose subject is that underpowered evaluations are
+  reported as if they were informative.
+
+This is the defect C7 and C10 retract elsewhere in this project, committed by me, in the figures for
+the chapter that documents it.
+
+**Fixed.** Every value now reads from `local_only/task_runs/*.json` and
+`results/accord/scaling/scaling_results.json`; intervals are computed from the seed spread rather
+than typed. The power curve is now the Hanley–McNeil variance solved numerically over **both** class
+counts at the evaluation's own 12:241 ratio, giving **0.7355** against the committed 0.7382 — the
+residual is exact-vs-approximate variance, not a different quantity. All four figures re-rendered.
+
+**The general lesson, which belongs in the thesis and not only here:** a docstring asserting
+provenance is not provenance. The assertion was written in the same commit as the literals it
+described.
+
+---
+
+## C49. The survey — the thesis's strongest claim — has no per-paper coding table on disk
+
+`THESIS_STATUS.md` rates the survey **"strongest — survived a falsifier and a blind reliability
+check."** WRITING_PLAN allocates it Chapter 3, ~600 lines and two weeks, the largest block of new
+writing in the thesis. The claim is that of 31 coded papers, **0 of 25** auditing a model on a
+filtered pool audit the filter, and **0 of 4** auditing selection audit a model.
+
+**The complete evidence on disk is one 976-byte file**,
+`results/accord/survey/second_coder_reliability.json`. It contains summary counts. It contains:
+
+- no paper identifiers — the 31 papers are not named anywhere in the repository
+- no per-paper field values — nothing that produces the 25/4 cross-tab
+- none of the 21 verbatim quotes it reports counting
+- no coding instrument, no field definitions, no adjudication log
+
+The κ values 0.737–1.000 have no rows to compute from. **The cross-tab that is the thesis's headline
+number cannot be checked, recomputed, or challenged by anyone including me.**
+
+This is the exact defect the thesis exists to document, sitting under the thesis's own primary
+claim. It is worse than the C48 hardcoding: there the underlying runs existed and the figure merely
+bypassed them; here the primary data was never persisted.
+
+**No number from the survey may appear in any chapter until the coding table exists as an artifact.**
+Recoding produces a *new* survey, not a certification of the old one — and if the recode does not
+reproduce 0/25 and 0/4, that result governs. That is the correct test and it must be run before
+Chapter 3 is written, not after.
+
+**Related but not the same, and much smaller:** `results/task_runs.json` indexed only 12 of the 17
+runs in `local_only/task_runs/`, omitting `concat_s2`, `concat_s3` and all three `ours_current`
+seeds — the C37 comparison. **The runs themselves are on disk and always were**; the published index
+was stale. Regenerated from the per-run records; the red team's reading that the runs were absent
+was incorrect, but the index it read was in fact incomplete.

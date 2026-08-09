@@ -39,8 +39,8 @@ benchmark, not theory. "We built a system" is not available.
 
 | finding | evidence | strength |
 |---|---|---|
-| **Survey: audits are disjoint** | 31 papers coded at methods level; of 25 auditing a model on a filtered pool, **0** audit the filter; of 4 auditing selection against a population denominator, **0** audit a model | **strongest — survived a falsifier and a blind reliability check** |
-| **Survey reliability** | blind second coder, 10 papers, all retrieved, 21 verbatim quotes; **Cohen's κ 0.737–1.000**; decisive cell 0/10 strict, 2/10 literal (both flagged weak by the coder unprompted) | high |
+| **Survey: audits are disjoint** | 31 papers coded at methods level; of 25 auditing a model on a filtered pool, **0** audit the filter; of 4 auditing selection against a population denominator, **0** audit a model | **UNVERIFIABLE — C49. No per-paper coding table exists on disk. Re-code before use; the recode governs** |
+| **Survey reliability** | blind second coder, 10 papers, all retrieved, 21 verbatim quotes; **Cohen's κ 0.737–1.000**; decisive cell 0/10 strict, 2/10 literal (both flagged weak by the coder unprompted) | **UNVERIFIABLE — C49. The κ values have no rows to compute from** |
 | **Null-attribute handling** | 13 of 31 papers report nothing about records with a missing stratifying attribute; those that do mostly **drop** them | cleanest novelty delta |
 | **Rule-transfer collapse** | auxiliary rule-head F1 **0.9603** in domain → **0.0654** sepsis / **0.0595** AKI, because the rule id is both an input feature and the target | high; gold-independent |
 | **LLM over-calling** | 3 local 8B models, 1,679 pairs, 0% unparseable: **15.8×–23.6×** vs a 4.0% expert base rate. GPT-4o: **7.0×**. Floor across everything tested: **≥7×** | moderate — see C23 |
