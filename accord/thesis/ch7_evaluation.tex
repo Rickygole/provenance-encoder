@@ -76,6 +76,18 @@ established performance range.
 
 \subsection{Result}
 
+Table~\ref{tab:mednli} reports the two configurations.\footnote{Provenance
+note. The four accuracy and macro-$F_1$ figures in Table~\ref{tab:mednli}
+($83.90$, $83.91$, $72.93$, $72.74$) are carried forward from a run log that is
+not among this project's surviving artifacts: no run log, no metrics file, and
+no checkpoint for either configuration could be located. They are the only
+numbers in this thesis whose producing artifact could not be found, and they are
+retained rather than deleted so that a reader encountering them elsewhere knows
+their status. The qualitative claim they support --- that the backbone,
+tokenisation, training loop, and evaluation harness are sound, and that the LoRA
+configuration carries a material accuracy cost --- does not carry any of this
+chapter's conclusions, every one of which rests on artifacts that are present.}
+
 \begin{table}[t]
 \centering
 \small
@@ -119,7 +131,16 @@ that have nothing to do with the backbone's capability.
 The eleven-point gap between full fine-tuning and LoRA is worth recording. LoRA
 is often described as approximately loss-free relative to full fine-tuning
 \citep{hu2022lora}, and on many tasks it is. Here, at $r = 16$ with $592{,}131$
-trainable parameters and a shorter schedule, it is not. ACCORD used the LoRA
+trainable parameters\footnote{Unlike the accuracies, this count is retained
+because it derives exactly. LoRA at $r = 16$ on the query and value projections
+of all twelve BERT-base layers contributes
+$12 \times 2 \times (768 \times 16 + 16 \times 768) = 589{,}824$ parameters, and
+a three-class classification head contributes $768 \times 3 + 3 = 2{,}307$, for a
+total of $592{,}131$. It is independently corroborated by
+\texttt{results/accord/stage0/config1\_baseline\_bottleneck\_head.json}, which
+reports $110{,}074{,}887$ trainable parameters, that is, BERT-base's
+$109{,}482{,}240$ plus a $592{,}647$-parameter head.} and a shorter schedule, it
+is not. ACCORD used the LoRA
 configuration. Whether the gap reflects rank, schedule length, or the specific
 demands of clinical inference is untested here. [TODO: run a rank sweep
 $r \in \{8, 16, 64, 256\}$ at matched epochs on MedNLI and report the
@@ -432,7 +453,8 @@ ACCORD, $\tau = 0.5$     & 4.24\%          & 77.8\% & $-0.007^{\dagger}$ \\
 Llama 3 8B (weak labeller) & 4.55\%        & 91.7\% & $-0.044$ \\
 \bottomrule
 \end{tabular}
-\caption{System comparison on the $299$ pharmacist-annotated pairs. Matthews
+\caption{System comparison on the $253$ non-ambiguous pharmacist-annotated
+pairs ($12$ positive, $241$ negative). Matthews
 correlation coefficient \citep{matthews1975mcc} is reported because it is the
 summary statistic least distorted by extreme class imbalance; a value of $0$ is
 chance. ACCORD's precision and recall are the decontaminated three-seed means
@@ -458,7 +480,7 @@ contradictions missed. Nor is it established to be above chance: its $95\%$
 bootstrap interval is $[-0.0319, 0.2484]$ and contains zero
 (Chapter~\ref{ch:metrics}, Table~\ref{tab:met-mccci}). The claim that survives is
 the narrower one that its precision of $8.45\%$ is roughly double the base rate
-on the same evidence and the same $299$ pairs, at a predicted-positive rate far
+on the same evidence and the same $253$ pairs, at a predicted-positive rate far
 below one. [Correction note: the earlier text read ``it is above chance,'' which
 the interval does not support; whether the evidence contains signal is therefore
 undetermined at this sample size rather than settled in either direction.]
@@ -647,7 +669,8 @@ Four considerations bound how much weight this deserves.
       to action-conflict candidates, Rules 1 and 2, which are $165$ of the $300$
       sampled pairs. The direct measurement on these pairs (\texttt{exemplar\_correctness\_recomputed.json}) gives $65$ of $137$ resolved rule-1 and rule-2 pairs wrong, rather than the $68$ an applied pooled rate would estimate;
       affected pairs, under a quarter of the evaluation set. Rules 3 and 4,
-      $135$ pairs, are free of the defect by construction, because Rule 3
+      $134$ of the $299$ annotated pairs, are free of the defect by
+      construction, because Rule 3
       selects the maximum-difference dose pair and Rule 4 has no discharge
       exemplar to mis-select.
 \item \textbf{The decisive experiment has since been run.}

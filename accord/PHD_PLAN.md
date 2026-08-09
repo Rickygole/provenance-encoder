@@ -57,8 +57,8 @@ Every number independently recomputed, traceable to a committed script.
 |---|---|---|
 | Audits are disjoint literatures | 31 papers; of 25 auditing a model on a filtered pool, **0** audit the filter; of 4 auditing selection against a population denominator, **0** audit a model | survived a falsifier designed to kill it (C21) and blind second coding, **κ 0.737–1.000** (C27) |
 | Null-attribute handling | **13 of 31** report nothing; those that do mostly **drop** the records | cleanest novelty delta |
-| Proxy-metric decoupling | 7 arms × 3 seeds; **1.320 ± 0.015 nats** of pretraining separation → **0.002–0.004** AUROC; between-arm spread 0.0051 vs within-arm seed std up to 0.0079 | well-powered, 734 test positives |
-| Small-encoder competitiveness | **10.6M params, random init, AUROC 0.8003 ± 0.0031** vs PubMedBERT **109M params / 3.1B words → 0.8223** | 36,504 examples, 3,730 positives |
+| Proxy-metric decoupling | 7 arms × 3 seeds; **1.320 ± 0.015 nats** of pretraining separation → **0.002–0.004** AUROC; between-arm spread 0.0051 vs within-arm seed std up to 0.0079 | well-powered, 570 test positives |
+| Small-encoder competitiveness | **10.6M params, random init, AUROC 0.7662 ± 0.0073** vs PubMedBERT **109M / 3.1B words → 0.7693 ± 0.0102**; gap +0.0031, Welch p = 0.690 | 34,018 examples, 2,975 positives |
 | Rule-transfer collapse | F1 **0.9603** in-domain → **0.0654** sepsis / **0.0595** AKI | gold-independent, implementation-independent |
 | LLM over-call floor | 3 local 8B models **15.8×–23.6×**; GPT-4o **7.0×**; floor **≥7×** vs a 4.0% base rate | 1,679 pairs, 0% unparseable |
 | Two models at chance | ACCORD decontaminated **0.5145** [0.321, 0.703]; subject-disjoint control **0.497 ± 0.035**; DeLong **p = 0.930** | the failure is not the implementation |
@@ -240,7 +240,7 @@ the per-paper coding table and quotes; a bare "0 of 25" would be the failure mod
 about. Disclose the breached recall gap (0.25 at n_pos=4) in the table, not the appendix.
 
 ### Paper B → ML4H Findings (4pp, non-archival)
-**C4, not the clinical negative result.** C4 has 734 test positives and a positive finding; the
+**C4, not the clinical negative result.** C4 has 570 test positives and a positive finding; the
 clinical negative has 12 and is underpowered by its own admission (MDE 0.739). For a PhD applicant,
 leading with something that works matters.
 
@@ -491,7 +491,7 @@ second axis. Grid density was never the missing thing — the positive control a
 ### One positioning note
 
 **No cluster access is a strength for C4 and a liability elsewhere.** A 10.6M-parameter
-from-scratch encoder reaching 0.8003 against PubMedBERT's 0.8223 is *more* impressive without a
+from-scratch encoder statistically indistinguishable from PubMedBERT (0.7662 vs 0.7693, p = 0.690) is *more* impressive without a
 cluster. Saphra, Agrawal and McDermott will read it that way; Ghassemi's group published
 *"The Role of Computing Resources in Publishing Foundation Model Research"* analyzing 6,517 papers
 on exactly this axis.

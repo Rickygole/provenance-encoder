@@ -37,6 +37,7 @@ Outputs (JSON + CSV, aggregated across replicates) are written to
 """
 import json
 import os
+import zlib
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_curve
@@ -285,7 +286,24 @@ def run_sweep(param_values, tag, n_replicates=N_REPLICATES, fixed_or=None, fixed
         gamma = v if fixed_or is not None else fixed_gamma
         reps = []
         for r in range(n_replicates):
-            rng = np.random.default_rng(hash((tag, or_sel, gamma, r)) % (2**32))
+            # NOTE (C39 / stable_seed fix): this used to be
+            #   np.random.default_rng(hash((tag, or_sel, gamma, r)) % (2**32))
+            # Python's builtin hash() is salted per-process for str/tuple-of-str
+            # (PYTHONHASHSEED randomization is on by default) -- confirmed
+            # empirically, the identical tuple gave 507250177 in one process
+            # and 2915194920 in the next. That means every number this script
+            # ever produced under the old scheme is NOT reproducible run to
+            # run, only self-consistent within a single run. Replaced with the
+            # same deterministic, cross-process-stable zlib.crc32-based scheme
+            # `simulate_v2.py` already uses (its `stable_seed`), which has no
+            # such salting. The original sweep outputs already on disk
+            # (cited in CORRECTIONS.md C24 and C26) were produced under the
+            # old, unreproducible scheme and are NOT re-run here -- they stand
+            # as the historical record of what was originally produced, not
+            # as a reproducible result.
+            rng = np.random.default_rng(
+                zlib.crc32(f"{tag}|{or_sel}|{gamma}|{r}".encode("utf-8")) & 0xFFFFFFFF
+            )
             draw = simulate_once(N_POP, or_sel, gamma, rng)
             reps.append(audit_one_draw(draw))
         agg = aggregate_group_level(reps)

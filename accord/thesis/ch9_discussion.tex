@@ -57,8 +57,11 @@ has no guideline corpus; its bank is twenty randomly initialised vectors. Its
 harm head appears in no term of the objective, which is
 $\mathcal{L} = 1.0\,\mathcal{L}_{\text{contra}} +
 0.3\,\mathcal{L}_{\text{rule}}$. Its outputs across the $299$ gold pairs span
-$0.398$ to $0.610$, the range of an untrained sigmoid, and its derived high-risk
-rate is $0.0$ in all three cohorts. The Spearman correlation of $-0.0001$ at
+$0.398$ to $0.610$, the range of an untrained sigmoid; because the observed
+maximum is $0.6096$, no pair crosses any high-risk threshold above that value and
+every derived high-risk rate is zero \emph{by construction}, so the earlier claim
+of a measured per-cohort high-risk rate --- which no results file records --- is
+withdrawn in favour of the range. The Spearman correlation of $-0.0001$ at
 $p = 0.999$ against the pharmacist's danger rating is a measurement of an
 untrained module. A reader who encountered that correlation without
 Chapter~\ref{ch:arch} would reasonably conclude that clinical severity is not
@@ -137,7 +140,9 @@ percentage dose difference, so it necessarily carries the conflict that fired
 the rule. Rule 4 has no discharge exemplar to mis-select, because the drug is
 absent from the discharge summary by construction. Within the $300$-row
 sampling frame these two strata comprise $79 + 56 = 135$ pairs and contain
-$4 + 2 = 6$ of the $12$ confirmed contradictions.
+$4 + 2 = 6$ of the $12$ confirmed contradictions. Of those $300$ sampled rows,
+$299$ were annotated; the unreturned pair, \texttt{PAIR\_0076}, is a Rule 4
+candidate, so the evaluated defect-free stratum is $79 + 55 = 134$.
 
 \subsection{The result}
 
@@ -150,7 +155,7 @@ $4 + 2 = 6$ of the $12$ confirmed contradictions.
 \textbf{AUROC} & \textbf{Mann-Whitney $p$} \\
 \midrule
 All annotated pairs                      & 299 & 12 & 0.5145 & 0.867 \\
-Rules 3 and 4 (defect-free by construction) & 135 & 6  & 0.5078$^{\dagger}$ & 0.953 \\
+Rules 3 and 4 (defect-free by construction) & 134 & 6  & 0.5078$^{\dagger}$ & 0.953 \\
 \bottomrule
 \end{tabular}
 \caption{Ranking performance restricted to the strata that cannot exhibit the
@@ -210,12 +215,32 @@ work, and where that is so it is said.
 \subsection{Statistical power}
 \label{sec:disc-power}
 
-The evaluation set contains $12$ positives. The project's own prospectively
-stated power requirement was $548$. [TODO: reproduce the power calculation that
-yields $548$, including the assumed effect size, significance level, and target
-power, and state whether the target was detection of a specified AUROC above
-chance or a specified difference between two systems. The figure is recorded in
-the project's planning artifacts and its derivation is not.]
+The evaluation set contains $299$ annotated pairs, $12$ of them positive. The
+project's own prospectively stated requirement was $548$, and the unit matters.
+\textbf{$548$ is a number of annotated \emph{pairs}, not a number of positives.}
+It is recorded in \texttt{full\_metric\_suite\_results.json} as the sample size
+required to detect a Cohen's $\kappa$ of $0.4$ at $\alpha = 0.05$ with $80\%$
+power at a prevalence of $0.047$. It is not a positives count, and it is not a
+detection-power figure for contradiction ranking. Earlier statements of this
+limitation set twelve positives against $548$, which compares positives to pairs
+and is not a valid comparison. On the correct unit the study achieved $299$ of
+$548$ annotated pairs, that is, $55\%$ of the stated requirement.
+
+The requirement is also somewhat too large. Reproducing the ladder
+(\texttt{results/accord/fairness/section5\_kappa\_power\_reproduction.csv}) shows
+that every rung satisfies $N = 87.7/\kappa^2$, whereas the standard
+single-variance formula for this design gives $N = 79.9/\kappa^2$. Every rung is
+therefore inflated by a factor of $1.099$, and the correct requirement at
+$\kappa = 0.4$ is $499$ annotated pairs rather than $548$.
+
+Neither correction rescues the study. The binding constraint on every AUROC
+reported in this thesis is not the number of annotated pairs but the $12$
+positives among them, and the prospective statement that actually governs a
+ranking claim is the one in
+\texttt{results/accord/section6\_auroc\_power.json}: at this positive count, the
+minimum AUROC detectable at $80\%$ power is $0.7382$. No measurement reported
+here approaches that value, so the ranking evaluation was never powered to detect
+anything short of a strong effect.
 
 The consequence is uniform across the thesis and cannot be argued away. The
 bootstrap $95\%$ confidence interval on the primary AUROC is $[0.321, 0.703]$,
@@ -377,7 +402,7 @@ did not notice.
 \toprule
 \textbf{Threat} & \textbf{Severity} & \textbf{Status in this thesis} \\
 \midrule
-Twelve positives against a stated requirement of $548$
+$299$ annotated pairs against a stated requirement of $548$
 & Severe; every interval is wide
 & Stated; all intervals reported at achieved width; no significance claim
   attached to any ablation \\
@@ -581,7 +606,7 @@ status.
 \textit{[Figure asset 9.1: two ROC panels side by side on identical axes.}
 \textit{Left, all 299 annotated pairs, decontaminated three-seed ensemble:}
 \textit{AUROC 0.5145, 12 positives, bootstrap band shaded to $[0.321, 0.703]$.}
-\textit{Right, the 135 Rule 3 and Rule 4 pairs: AUROC 0.5078, 6 positives,}
+\textit{Right, the 134 Rule 3 and Rule 4 pairs: AUROC 0.5078, 6 positives,}
 \textit{Mann-Whitney $p = 0.953$, bootstrap band shaded to $[0.2217, 0.7615]$}
 \textit{with the stratified band $[0.2643, 0.7344]$ overlaid as a dashed}
 \textit{outline. Both panels carry the chance diagonal. A caption strip beneath}
@@ -628,8 +653,8 @@ conditioning, whose parameter was initialised at the values reported as
 discovered and sits where a normalisation erases it; and severity ranking, whose
 component received no gradient).
 
-The limitations are severe and are stated as such. Twelve positives against a
-stated requirement of $548$. One annotator with no established inter-rater
+The limitations are severe and are stated as such. $299$ annotated pairs against
+a stated requirement of $548$. One annotator with no established inter-rater
 reliability and a previously reported $\kappa$ of $1.000$ that is circular and
 retracted. An exemplar selection defect affecting $41.4\%$ of action-conflict
 candidates, which makes the measured $4.0\%$ precision an upper bound on

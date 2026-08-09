@@ -87,11 +87,16 @@ GGHE & Guideline-Grounded Harm Estimation: retrieval-augmented & 614,916 \\
 \bottomrule
 \end{tabular}
 \caption{The specified architecture, as described in the project's own
-documentation. Two acronym expansions are not recoverable from surviving
-artifacts and are marked [TODO] rather than reconstructed. The total,
-$\approx 1.54$M, is the figure quoted throughout the project's writeups.
-Section~\ref{sec:actual} establishes that this table describes v1 and that no
-reported result was produced by v1.}
+documentation. \textbf{The four component parameter counts are reproduced here
+as claims rather than as measurements.} No code implementing CDE, ATCG, PPC or
+GGHE survives on disk, so none of the four could be checked against a running
+implementation; what can be checked is their arithmetic, and they sum exactly to
+the quoted total of $1{,}539{,}785$ ($\approx 1.54$M), the figure quoted
+throughout the project's writeups. Two acronym expansions are likewise not
+recoverable from surviving artifacts and are marked [TODO] rather than
+reconstructed. Section~\ref{sec:actual} establishes that this table describes v1
+and that no result reported in this thesis was produced by v1, so the
+unverifiability of these four counts costs the thesis nothing.}
 \label{tab:spec}
 \end{table}
 
@@ -281,8 +286,8 @@ transfer test.
 \textbf{Setting} & \textbf{Rule-type $F_1$} \\
 \midrule
 Heart failure (in domain) & 0.9603 \\
-Sepsis (transfer)         & 0.0654 \\
-AKI (transfer)            & 0.0595 \\
+Sepsis (transfer)         & 0.0654$^{\dagger}$ \\
+AKI (transfer)            & 0.0595$^{\dagger}$ \\
 \midrule
 Rule-prediction accuracy on the held-out pharmacist set & 45.2\% \\
 \bottomrule
@@ -292,7 +297,15 @@ $0.96$ in domain collapses to $0.065$ and $0.060$ on two other ICD-9 cohorts
 drawn from the same institution, the same note types, the same extractor, and
 the same four rules. A drop of that magnitude between populations that differ
 only in index diagnosis is not distribution shift in any ordinary sense. It is
-the removal of whatever the head was actually using.}
+the removal of whatever the head was actually using. $\dagger$~\textbf{Provenance
+note.} The two transfer values are carried forward from
+\texttt{transfer\_results\_correct.json}, which is not among this project's
+surviving artifacts and could not be located on disk. They are reported here as
+claims whose producing file is missing, marked rather than deleted, on the same
+footing as the MedNLI accuracies of Chapter~\ref{ch:eval}. The companion figure
+in the last row does verify: the $45.2\%$ held-out rule-prediction accuracy
+recomputes to $0.4515$ directly from the gold-standard CSV, and it is the
+surviving evidence for the same conclusion.}
 \label{tab:transfer}
 \end{table}
 
@@ -343,9 +356,14 @@ recorded, and reported, and whose weights never move.
 
 \paragraph{The outputs are consistent with an untrained sigmoid.} Across the
 $299$ gold pairs, harm scores span $0.398$ to $0.610$: a narrow band centred on
-$0.5$, which is what a randomly initialised head produces. The derived
-high-risk rate is $0.0$ in all three cohorts, because no score ever crosses the
-threshold.
+$0.5$, which is what a randomly initialised head produces. The observed maximum
+over those pairs is $0.6096$
+(\texttt{results/accord/step5\_ranking.json}), so no pair crosses any high-risk
+threshold set above that value and every high-risk rate derived from these scores
+is zero \emph{by construction} rather than by measurement. An earlier writeup of
+this project stated that zero as a measured per-cohort rate; no results file
+records such a rate for any cohort, and that claim is withdrawn here in favour of
+the observed range.
 
 \subsection{Consequence}
 
@@ -381,7 +399,18 @@ $0.5000$ at every epoch. This is the constant-prediction solution: binary
 cross-entropy at $p = 0.5$ for every example. The model learned to emit a
 constant.
 
-Critically, this held in \emph{both} training configurations:
+Critically, this held in \emph{both} training configurations:\footnote{The
+$22{,}446{,}855$ trainable parameters of the partially unfrozen configuration are
+reported as logged, but the figure appears in no surviving artifact of this
+project and has been \emph{reconstructed} rather than retrieved. It is exactly
+the three top BERT-base encoder layers
+($3 \times 7{,}087{,}872 = 21{,}263{,}616$), plus the pooler
+($768 \times 768 + 768 = 590{,}592$), plus the verified $592{,}647$-parameter
+head, which sums to $22{,}446{,}855$; and
+$22{,}446{,}855 / 592{,}647 = 37.876$, the reported $37.9\times$. No other
+plausible unfreezing depth reproduces the number, so the reconstruction is
+unique, but the reader should know that the $37.9\times$ ratio rests on one
+logged quantity and one derived one.}
 
 \begin{table}[h]
 \centering
