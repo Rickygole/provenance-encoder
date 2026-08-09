@@ -1548,3 +1548,50 @@ elsewhere.
 **Running tally of "untraceable/mismatched" items that turned out correct: E4 joins U5, U6, U7, M4,
 M6 and M7.** The audit's false-positive rate is high because the reference artifacts were
 unindexed until the Drive quarantine made them local.
+
+---
+
+## C37. E1 complete: the small encoder is not distinguishable from PubMedBERT
+
+Three seeds per arm on the current split (prevalence 0.09246 on all six runs, so C32's
+dataset confound is closed on both sides).
+
+| arm | params | pretraining | AUROC | AUPRC | min/seed |
+|---|---|---|---|---|---|
+| PubMedBERT | 109,482,240 | 3.1B words | **0.7693 ± 0.0102** | 0.2554 | 125 |
+| **ours, random init** | **10,638,720** | **none** | **0.7662 ± 0.0073** | 0.2372 | **17.4** |
+
+**Gap +0.0031 — 0.35 pooled seed standard deviations. Welch t = 0.429, p = 0.690.**
+
+The from-scratch encoder reaches **99.6%** of PubMedBERT's AUROC at **9.7%** of the parameters,
+with **no pretraining at all**, in **1/7th** the wall clock.
+
+**How this must be worded.** p = 0.690 with three seeds per arm is a *failure to reject*, not a
+demonstration of equivalence — the design has low power against small differences. The entitled
+claim is: **at three seeds per arm the two are not distinguishable, and the difference between them
+is smaller than the variation between seeds of either one.** PubMedBERT's own seeds span 0.0183
+(0.7628 to 0.7811), which is six times the gap between the models.
+
+**The trajectory across corrections is worth recording**, because it shows what the dataset
+confound was doing:
+
+| | gap | basis |
+|---|---|---|
+| C32 (old data, 1 PubMedBERT seed) | +0.0220 | not comparable — different datasets |
+| C34 (current data, 1 PubMedBERT seed) | +0.0149 | measured against one arm's variance only |
+| **C37 (current data, 3 seeds each)** | **+0.0031** | **pooled variance, both arms** |
+
+Each time the comparison was made more honest, the gap shrank. That is the signature of a
+difference that was an artifact of measurement rather than of the models.
+
+**Why this matters beyond the number.** The project's other well-powered result is that 1.320 nats
+of pretraining-loss separation produced 0.002–0.004 downstream AUROC. C37 is the same finding from
+the other direction: 3.1 billion words of domain pretraining and ten times the parameters produce
+a difference smaller than seed noise. Both say the pretraining proxy does not predict downstream
+utility on this task.
+
+**Caveat carried forward.** This is one task (in-hospital mortality from 48-hour note bundles),
+one architecture family, and one scale point. Whether the gap opens at 30M or 100M parameters is
+untested and needs a GPU. Do not state this as a general claim about clinical encoders.
+
+Runs carry the C32 lineage stamp, so the split they used is verifiable.
