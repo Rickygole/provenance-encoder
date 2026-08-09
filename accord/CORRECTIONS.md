@@ -1289,3 +1289,47 @@ decoupling). The taxonomy becomes a table inside C2, not a chapter.
 **This is the right outcome to have found in an afternoon rather than in month four.** The
 verification work is not wasted — it is what licenses the protocol and it is now checked to machine
 precision.
+
+---
+
+## C32. The C4 headline comparison is on a dataset that no longer exists
+
+**Discovered while adding seeds to the PubMedBERT comparator.** `local_only/task/*.jsonl` were
+**rebuilt on Aug 4 at 16:54**. Every run in `results/task_runs.json` predates that rebuild:
+
+| run | written | n_train | AUROC | dataset |
+|---|---|---|---|---|
+| concat_s0 (PubMedBERT) | Aug 4 11:02 | **25,527** | 0.8223 | **old** |
+| ours_blockpre_s0/s1/s2 | Aug 4 12:40–15:23 | not recorded | 0.8014 / 0.7865 / 0.7988 | **old** |
+| ours_vanillapre_s0/s1/s2 | Aug 4 12:56–15:34 | not recorded | 0.7937 / 0.7899 / 0.8020 | **old** |
+| ours_randinit_s0/s1/s2 | Aug 4 13:13–15:45 | not recorded | 0.7998 / 0.7974 / 0.8037 | **old** |
+| **concat_s1** | **Aug 7 23:21** | **23,846** | **0.7811** | **current** |
+
+Current `local_only/task/meta.json` gives train n = 23,846, matching `concat_s1` and **not**
+`concat_s0`.
+
+**Two consequences.**
+
+1. **The new seed is not comparable to the old one.** `concat_s0` = 0.8223 and `concat_s1` = 0.7811
+   differ by 0.041, but they were trained on different datasets with different validation
+   prevalences (0.1025 vs 0.0925). **That gap is a dataset change, not seed variance**, and it
+   cannot be used to estimate either.
+2. **The existing four-arm comparison is internally consistent but no longer reproducible.** All
+   twelve pre-rebuild runs used the same old data, so *"10.6M random-init at 0.8003 ± 0.0031 versus
+   PubMedBERT at 0.8223"* is a valid comparison — on a dataset that has since been overwritten.
+
+**Why this was not caught earlier.** The `ours_*` runs record `n_train` as 0, so the dataset
+fingerprint that exposed the mismatch is missing from exactly the arms that carry the claim. The
+lineage machinery in `src/data/lineage.py` exists for the pretraining corpus but was never applied
+to the task split.
+
+**Correction and the cheap fix.** The C4 comparison must be re-run end to end on the current data
+before it is reported. The good news is that it is not expensive: the `ours_*` arms are 10.6M
+parameters and take roughly 11–17 minutes each, so three seeds is about an hour even under current
+memory pressure. PubMedBERT is the slow arm and two current-data seeds (s1 done, s2 running) are
+already in hand. **Required: `ours_randinit` × 3 seeds on current data.** Then the comparison is
+like-for-like with seed variance on both sides.
+
+**Also required going forward:** stamp the task-split content hash into every run record, the way
+`train_tokenizer.py` already stamps `bundles_content_hash` and `task_split_hash`. A run that does
+not record what it trained on cannot be compared to anything later.
