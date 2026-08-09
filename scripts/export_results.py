@@ -44,6 +44,12 @@ SCALAR_KEYS = {
     "metadata_auroc", "tfidf_auroc", "ours_random_auroc_mean", "ours_random_auroc_std",
     "ours_pretrained_auroc_mean", "ours_pretrained_auroc_std", "pretrain_minus_random",
     "subsample_train", "target_n", "before_n", "achieved_n", "achieved_prevalence",
+    # Downstream-task-split lineage (accord/CORRECTIONS.md C32; see
+    # src/data/lineage.py's task_dir_lineage / check_task_lineage). A dict
+    # value needs its key allow-listed here; everything inside it is
+    # scalarish (hashes, counts, an mtime string) and passes through on its
+    # own.
+    "data_lineage", "n_test",
 }
 
 

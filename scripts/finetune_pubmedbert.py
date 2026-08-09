@@ -33,17 +33,27 @@ import torch.nn.functional as F
 from sklearn.metrics import average_precision_score, roc_auc_score
 from transformers import AutoModel, AutoTokenizer
 
+import sys
+
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+from src.data.lineage import check_task_lineage, task_dir_lineage  # noqa: E402
+
 LOCAL = ROOT / "local_only"
 TASK = LOCAL / "task"
+DEFAULT_LINEAGE_PIN = ROOT / "results" / "task_lineage_pin.json"
 MODEL_ID = "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext"
 
 
 class BundleDS(torch.utils.data.Dataset):
     def __init__(self, path, tok, max_len=512, per_seg=110, limit=0):
-        self.rows = [json.loads(l) for l in Path(path).open()]
-        if limit:
-            self.rows = self.rows[:limit]
+        rows = []
+        with Path(path).open() as f:
+            for line in f:
+                rows.append(json.loads(line))
+                if limit and len(rows) >= limit:
+                    break
+        self.rows = rows
         self.tok, self.max_len, self.per_seg = tok, max_len, per_seg
 
     def __len__(self):
@@ -131,7 +141,22 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--limit-train", type=int, default=0)
     ap.add_argument("--limit-eval", type=int, default=0)
+    ap.add_argument("--task-dir", default=str(TASK),
+                    help="downstream task split to train on (lineage guard checks "
+                         "this dir); override only for smoke-testing")
+    ap.add_argument("--lineage-pin", default=str(DEFAULT_LINEAGE_PIN),
+                    help="pinned task-split reference the lineage guard compares "
+                         "against; override only for smoke-testing")
+    ap.add_argument("--repin-task-lineage", action="store_true",
+                    help="accept the current local_only/task split as the new "
+                         "pinned reference if it disagrees with the stored one "
+                         "(use after an intentional rebuild; see "
+                         "accord/CORRECTIONS.md C32)")
     args = ap.parse_args()
+
+    task_dir = Path(args.task_dir)
+    data_lineage = task_dir_lineage(task_dir)
+    check_task_lineage(data_lineage, Path(args.lineage_pin), repin=args.repin_task_lineage)
 
     torch.manual_seed(args.seed)
     dev = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
@@ -139,8 +164,8 @@ def main() -> None:
     tok = AutoTokenizer.from_pretrained(MODEL_ID)
     model = Classifier(AutoModel.from_pretrained(MODEL_ID)).to(dev)
 
-    tr = BundleDS(TASK / "train.jsonl", tok, args.max_len, limit=args.limit_train)
-    va = BundleDS(TASK / "val.jsonl", tok, args.max_len, limit=args.limit_eval)
+    tr = BundleDS(task_dir / "train.jsonl", tok, args.max_len, limit=args.limit_train)
+    va = BundleDS(task_dir / "val.jsonl", tok, args.max_len, limit=args.limit_eval)
     g = torch.Generator().manual_seed(args.seed)
     dtr = torch.utils.data.DataLoader(tr, batch_size=args.batch, shuffle=True, generator=g)
     dva = torch.utils.data.DataLoader(va, batch_size=args.batch)
@@ -175,7 +200,9 @@ def main() -> None:
     auroc, auprc, prev = evaluate(model, dva, dev, args.block)
     out = {"arm": arm, "auroc": auroc, "auprc": auprc, "prevalence": prev,
            "seed": args.seed, "epochs": args.epochs, "max_len": args.max_len,
-           "n_train": len(tr), "n_val": len(va), "minutes": (time.time()-t0)/60}
+           "n_train": len(tr), "n_val": len(va),
+           "n_test": data_lineage["test_n"], "data_lineage": data_lineage,
+           "minutes": (time.time()-t0)/60}
     d = LOCAL / "task_runs"; d.mkdir(exist_ok=True)
     (d / f"{arm}_s{args.seed}.json").write_text(json.dumps(out, indent=2))
     print(f"\nFINAL arm={arm} AUROC={auroc:.4f} AUPRC={auprc:.4f} "

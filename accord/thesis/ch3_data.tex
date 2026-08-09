@@ -591,24 +591,42 @@ it was never revisited.
 \section{Ethical Considerations for the Data Layer}
 \label{sec:data-ethics}
 
-MIMIC-III is credentialed data governed by a data use agreement. This work
-complies with it in three respects worth stating explicitly. Note text is never
-reproduced, in any form, in this document or in any artifact derived from it.
-All intermediate files containing note-derived text are confined to a gitignored
-local directory and were never transmitted to a third-party service. No
-re-identification was attempted and no auxiliary dataset was joined against
-MIMIC-III at the patient level.
+MIMIC-III is credentialed data governed by a data use agreement. The compliance
+posture of this work is stated here in full, including where it is imperfect.
 
-One tension deserves naming rather than resolving. Chapter~\ref{ch:weak} uses a
-locally hosted open-weights model to label candidate pairs, and
-Chapter~\ref{ch:eval} compares against a hosted commercial API. Sending
-de-identified MIMIC-III note excerpts to a hosted API is a decision with a
-non-trivial governance surface, even under a data use agreement that permits
-de-identified use. [TODO: state the exact governance basis under which the
-GPT-4o comparison in Chapter~\ref{ch:eval} was run, including whether excerpts
-or only derived features were transmitted, and whether zero-retention terms were
-in force. If this cannot be established, the GPT-4o rows should be reported with
-that caveat attached.]
+\paragraph{Note text.} No clinical note text appears in this document, in any
+figure, table or appendix, or in any released artifact. Files containing
+note-derived text are confined to a gitignored local directory outside the
+version-controlled tree, and the export script that publishes results scans every
+file for note-text markers and aborts rather than filtering on a hit. Released
+artifacts are aggregate counts, rates, model scores and pair-level labels.
+
+\paragraph{Third-party services.} The weak labeller in Chapter~\ref{ch:weak} is
+an open-weights model run locally; no note text left the analysis machine for
+that stage. The GPT-4o comparison reported in Chapter~\ref{ch:eval} was run
+against a hosted commercial API, and note excerpts were transmitted to that API
+as part of the prompt. Guidance issued during this project's lifetime identifies
+transmission of credentialed data to general-purpose hosted APIs as inconsistent
+with the data use agreement, and specifies compliant alternatives with
+zero-retention and no-human-review terms. The GPT-4o rows are reported with that
+caveat attached, and are retained because removing them would misrepresent the
+comparison actually performed. No further transmission to hosted services has
+occurred and none will occur in follow-on work.
+
+\paragraph{Re-identification and disaggregation.} No re-identification was
+attempted and no auxiliary dataset was joined against MIMIC-III at the patient
+level. Subgroup analyses are reported as one-way marginals only; no multi-way
+disaggregation is published. Cells below approximately ten observations are
+reported without suppression, because the source data is de-identified under
+HIPAA Safe Harbor and no identifier crosswalk is released. Such cells are
+reported for transparency and are not powered to support inference; every claim
+resting on them is qualified accordingly in Chapter~\ref{ch:eval}.
+
+\paragraph{Clinical status.} Nothing in this work has been validated for
+clinical use. The system is a research artifact evaluated on retrospective
+de-identified data, it is not a clinical decision support tool, and its measured
+performance --- reported in Chapter~\ref{ch:eval} --- does not support deployment
+in any care setting.
 
 \section{Summary}
 \label{sec:data-summary}

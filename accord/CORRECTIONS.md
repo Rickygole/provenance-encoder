@@ -1333,3 +1333,44 @@ like-for-like with seed variance on both sides.
 **Also required going forward:** stamp the task-split content hash into every run record, the way
 `train_tokenizer.py` already stamps `bundles_content_hash` and `task_split_hash`. A run that does
 not record what it trained on cannot be compared to anything later.
+
+---
+
+## C33. Drive compliance remediated
+
+**Action taken 2026-08-08**, with the user's explicit go-ahead. A scan of the Drive `thesis/`
+tree for note-text markers and known credentialed filenames returned **33 files**, roughly 370 MB:
+
+| location | files | what they were |
+|---|---|---|
+| `accord_neurips2026_supplemental_CORRECTED/` | 2 | `accord_weak_supervision_labels_decontam.csv` (7,184 rows) and `accord_decontamination_audit.csv` (1,321 rows) — `HADM_ID` joined to verbatim `nursing_sentence` / `discharge_sentence`, staged inside a folder prepared for publication |
+| `data/` | 7 | raw PhysioNet distributions `ADMISSIONS`, `PATIENTS`, `DIAGNOSES_ICD`, `D_ICD_DIAGNOSES`, plus MedNLI `mli_{train,dev,test}_v1.jsonl` — separately credentialed |
+| `outputs/` | 22 | note-pair and mention tables for all three cohorts (`hf_note_pairs.csv` alone is 124 MB), candidate pools, the pharmacist annotation sheets, and `annotation_pharmacist_complete.xlsx` |
+| `email/` | 1 | `annotation_sheet_for_pharmacist_clean.xlsx` |
+
+**Method.** Copied to `mimic_local_only/from_drive_2026-08-08/` preserving relative paths, verified
+by **sha256 on every file** (33/33 matched), then removed from Drive only where a verified local
+copy existed. A `MANIFEST.txt` records exactly what moved. A rescan returns clean.
+
+**Left in place deliberately:** `acc_aha_2022.pdf` and `esc_2021.pdf` (published guidelines, not
+MIMIC), and the finance/legal/cybersecurity expert-validation spreadsheets, which belong to a
+different study and contain no credentialed data.
+
+**Structural hardening.** The supplemental folder's `.gitignore` covered `.DS_Store` and `*.key`
+but not `*.csv` — one `git add -A` would have published both note-text files. It now blocks
+`*.csv`, `*.jsonl`, `*.xlsx` and `*.parquet` by extension, with explicit allowances only for the
+three pair-level artifacts that carry neither note text nor admission identifiers and that the
+already-published supplemental already contains. Extension blocking rather than content filtering,
+for the reason `scripts/sync_results.sh` gives: a note sentence with no de-identification surrogate
+passes a content scan.
+
+**Thesis text corrected.** `ch3_data.tex` previously asserted that note-derived files *"were never
+transmitted to a third-party service"* seven lines above a paragraph acknowledging a hosted-API
+comparison. That self-contradiction is replaced with a four-paragraph statement that discloses the
+GPT-4o transmission directly, states the disaggregation and small-cell policy, and adds a clinical-
+status disclaimer. A reviewer who already raised a DUA concern would have found the contradiction
+in one pass, and a self-refuting compliance claim reads worse than the underlying conduct.
+
+**Still open, and the author's call:** whether the pharmacist held PhysioNet credentialing at
+annotation time. If not, that is a Clause 3 disclosure question, and voluntary notification is
+treated far better than a third-party complaint.
