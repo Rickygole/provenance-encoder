@@ -2116,6 +2116,11 @@ computations on existing files. Neither reopens the record.
 
 ## C47. E9 and E10 drift in opposite directions; I fused them by discarding the sign
 
+> **MECHANISM RETRACTED by C50 (2026-08-09).** The observation below — that E9 and E10 drift in
+> opposite directions — stands and is verified. The *explanation* offered for it, that baseline
+> disparity sets the sign, was tested against a pre-registered kill condition and refuted. The sign
+> is set by the selection channel, not by the baseline. See C50.
+
 C41 states the PUMS Regime B result is "the same result as E9/C38 on MIMIC" and that "the clinical
 finding replicates." Recomputed from the committed sweeps:
 
@@ -2224,3 +2229,68 @@ runs in `local_only/task_runs/`, omitting `concat_s2`, `concat_s3` and all three
 seeds — the C37 comparison. **The runs themselves are on disk and always were**; the published index
 was stale. Regenerated from the per-run records; the red team's reading that the runs were absent
 was incorrect, but the index it read was in fact incomplete.
+
+
+---
+
+## C50. The C47 mechanism is refuted by its own pre-registered kill condition; the sign is set by the selection channel, not the baseline
+
+C47 explained the E9/E10 sign difference by baseline disparity: *"on a population with no disparity
+the audit invents one; on a population that has a real one it erases it."* That rested on **two
+points**, one per dataset, and MIMIC and PUMS differ in far more than baseline disparity.
+
+`accord/denominator/c47_baseline_sweep.py` sweeps baseline disparity as a free parameter in the
+committed simulator, over 7 baselines × 6 selection strengths × 40 replicates. The kill condition
+was written and **committed at 966c87e before any number was produced**: *no sign change across
+rho in [0, 0.9] means the mechanism is unsupported.*
+
+**Regime 1 — selection through outcome leakage (`leak_gamma`). Kill condition met.**
+
+| baseline population DP gap | pool gap, min → max selection | drift slope |
+|---|---|---|
+| −0.0009 | 0.0003 → 0.0002 | +0.00035 |
+| 0.0400 | 0.0411 → 0.0536 | +0.00539 |
+| 0.0859 | 0.0889 → 0.1178 | +0.01123 |
+| 0.1380 | 0.1424 → 0.1801 | +0.01495 |
+| 0.1928 | 0.1908 → 0.2463 | +0.02146 |
+| 0.2509 | 0.2491 → 0.3113 | +0.02493 |
+| 0.3109 | 0.3053 → 0.3748 | +0.02937 |
+
+**Zero sign changes.** The slope is positive at every baseline, and its relationship to baseline is
+**+0.0925 — increasing**, the exact opposite of C47's prediction. A population that already has a
+large disparity does not have it eroded; it is amplified *harder*.
+
+**Regime 2 — selection acting directly through the feature (`sx_coef`). Slope negative throughout.**
+
+Same grid: slopes −0.0021, −0.0053, −0.0103, −0.0207, −0.0347, −0.0450 as baseline rises, with
+slope-vs-baseline **−0.1495**. The one nominal sign change sits between baseline −0.0009 and
++0.0400, where the "positive" slope is +0.00010 — indistinguishable from zero. There is no
+crossover in the sense C47 required; there is "nothing moves at zero baseline, and erosion at every
+positive one."
+
+**What actually determines the sign: the channel selection operates through.**
+
+> Outcome-leakage selection **amplifies** the measured disparity gap; feature-driven selection
+> **erodes** it. Baseline disparity scales the magnitude of both — strongly, by a factor of ~80
+> across the swept range — but it does not set the direction. An audit reading that moved cannot be
+> inverted back to a statement about the population without knowing the channel, and the channel is
+> not something the audit reports or the analyst typically knows.
+
+This is identified over 84 simulated conditions rather than inferred from two datasets, it makes a
+directional prediction that can be checked against any new selection mechanism, and it is a
+**worse** situation for practice than C47 described: C47 at least implied the analyst could reason
+about direction from the population. This says they cannot reason about it from anything the audit
+gives them.
+
+**Consequence for E9 and E10.** The observed sign difference is now most likely a difference in
+*which channel each sweep implemented*, not a difference in their populations. **That must be
+verified in the two sweep implementations before any of this is written**, and it is exactly the
+question the red team was asked to check. Until it is verified, C50 is a simulator result and the
+E9/E10 attribution is a hypothesis.
+
+**Fourth time.** C14, C42/C43, C47, and now the C47 mechanism. The pattern is no longer "I misread
+a flag" — it is that I reach for a mechanism as soon as two numbers differ, and the mechanism
+survives exactly until someone sweeps the parameter it was supposed to depend on. The
+pre-registration is what caught it this time, one day after the claim was made rather than at a
+viva. **Every future mechanism claim in this project gets a pre-registered parameter sweep before
+it is written down, not after.**
