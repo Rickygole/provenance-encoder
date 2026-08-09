@@ -1420,3 +1420,72 @@ part of the efficiency result and should be reported: the comparator is ~15× th
 
 Runs recorded via the C32 lineage stamp, so this comparison can be verified against the exact
 split hash it used.
+
+---
+
+## C35. The PubMed/ACL pass: Part A survives narrowed, Part B loses "disjoint"
+
+The last kill condition on the surviving claim. Prior novelty checks reached only arXiv and
+OpenReview; this pass reached PubMed, PubMed Central, and part of the ACL Anthology.
+
+### Part A — null-attribute handling: **ALIVE, narrowed**
+
+No reporting-practice review, systematic review, or reporting guideline documents null-attribute
+handling across a comparable sample of clinical fairness studies. The most precise query for the
+construct returned **zero PubMed records**.
+
+But one guideline must now be engaged rather than discovered by a reviewer. **CARE-CPM** (Siddique
+et al., *Health Equity* 2023, PMC10698767) asks *"Was differential missingness of predictor data in
+racial and ethnic groups reported?"* and reasons that *"Exclusion of participants with missing data
+provides a selective sample."* That is one inferential step from this thesis's argument — but the
+step is not taken: CARE-CPM governs missingness **of predictors within known groups**, never
+missingness **of the group label itself**. TRIPOD+AI (Item 14, Item 23a) and MI-CLAIM require
+subgroup performance and have **no** null-attribute provision at all.
+
+**Correction to the wording.** Do not write "nobody has considered missingness here." Write:
+*existing equity-appraisal tools regulate differential predictor missingness within known groups
+and cohort representativeness, while leaving the null-stratifier group itself ungoverned and
+unreported.*
+
+Adjacent work to cite rather than be caught by: Fong et al. (*Anaesth Crit Care Pain Med* 2023,
+PMID 37211215) reviews whether **databases** carry the demographic fields — unit is databases, not
+audit studies. Lu et al. (*JAMA Netw Open* 2022, PMID 35984654) is the nearest *genre* precedent,
+documenting non-reporting of fairness items, but audits whether subgroup analysis happened at all.
+
+### Part B — "disjoint" is too strong: **one counterexample**
+
+**Haghighathoseini et al., AMIA Annu Symp Proc 2024;2024:473-482 (PMC12099332)** does both in one
+study: a selection audit (*"The distribution of races significantly differs among the cohorts, as
+indicated by the low p-values from the Chi-squared test"*) and a downstream subgroup audit (AUC by
+gender, ethnicity and race in Tables 3–5).
+
+Two qualifications preserve a narrower claim: it compares four filtered cohorts **against each
+other**, not against a source-population denominator, so the "0 of 4 selection-audit papers use a
+population denominator" sub-claim is untouched; and it reports subgroup AUC only, not disparity
+metrics.
+
+**Correction.** Replace *"the two audits occur in disjoint literatures"* with *"the two audits are
+almost never co-located; we found a single exception, and it compares cohorts to one another rather
+than to a source population."* Cite Haghighathoseini directly. **Pre-empting the reviewer who finds
+it is worth more than the stronger claim.**
+
+**Note a coding disagreement inside our own survey.** This paper is row #22 of the 31, coded
+"Partial" on stage decomposition and NO on auditing both. An independent reader reached the
+opposite conclusion. That is exactly the ambiguity the blind second-coder exercise (C27) was built
+to surface, and it must be adjudicated explicitly in the paper with the quotes on the page — not
+averaged away.
+
+### Two open risks
+
+1. **Colacci et al., *J Clin Epidemiol* 2025 (PMID 39532254)** — 91 studies, extraction table
+   inaccessible (ScienceDirect 403). The one remaining paper whose extraction fields could still
+   kill Part A. **Obtain through institutional access.**
+2. **ACL Anthology coverage is incomplete and cannot be certified.** Only ClinicalNLP 2024 and 2025
+   were reachable; **BioNLP, LOUHI and the main \*ACL venues were not searched.** Low residual risk
+   — the kill condition is far likelier to live in PubMed venues — but the gap must be closed
+   before the survey is pre-registered as a systematic review.
+
+**Also flagged:** some abstracts returned paraphrased rather than verbatim through the fetch layer.
+Bibliographic facts came from NCBI E-utilities and are solid, but **the CARE-CPM signaling questions
+and the Haghighathoseini chi-squared sentence are load-bearing and must be re-verified against the
+PDFs before appearing in quotation marks.**
