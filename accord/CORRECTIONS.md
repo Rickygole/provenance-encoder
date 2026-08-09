@@ -1374,3 +1374,49 @@ in one pass, and a self-refuting compliance claim reads worse than the underlyin
 **Still open, and the author's call:** whether the pharmacist held PhysioNet credentialing at
 annotation time. If not, that is a Clause 3 disclosure question, and voluntary notification is
 treated far better than a third-party complaint.
+
+---
+
+## C34. The C4 comparison re-run on current data: the efficiency claim holds
+
+C32 established that the headline comparison was on a dataset overwritten on 2026-08-04. Re-run on
+the current split, with the prevalence check confirming both arms saw the same data (0.09246 on
+every run):
+
+| arm | params | pretraining | AUROC | AUPRC |
+|---|---|---|---|---|
+| `ours_randinit` seed 0 | 10,638,720 | **none** | 0.7578 | 0.2204 |
+| `ours_randinit` seed 1 | " | " | 0.7698 | 0.2433 |
+| `ours_randinit` seed 2 | " | " | 0.7709 | 0.2479 |
+| **mean ± sd** | | | **0.7662 ± 0.0073** | |
+| **PubMedBERT** (`concat_s1`) | 109,482,240 | 3.1B words | **0.7811** | 0.2678 |
+
+**Gap +0.0149**, which is **2.1×** the small model's seed standard deviation. The from-scratch
+10.6M-parameter encoder reaches **98.1% of PubMedBERT's AUROC at 9.7% of the parameters and with
+no pretraining at all.**
+
+**Against the old-data figures**, which C32 showed were not comparable to anything current:
+
+| | old data | current data |
+|---|---|---|
+| `ours_randinit` | 0.8003 ± 0.0031 | 0.7662 ± 0.0073 |
+| PubMedBERT | 0.8223 | 0.7811 |
+| **gap** | **+0.0220** | **+0.0149** |
+
+Both arms drop on the rebuilt split — the task is harder — but the **relative position is stable
+and the gap narrows**. The efficiency claim was not an artifact of the stale dataset.
+
+**The remaining weakness, and it is real.** PubMedBERT has **one** current-data seed. Its own seed
+variance is unmeasured, so the +0.0149 gap is expressed against the small model's variance only.
+If PubMedBERT's seed sd is comparable (~0.007), the gap is roughly 1.5 pooled standard deviations
+— suggestive, not decisive. **Two more PubMedBERT seeds are required before the gap is
+characterised**, and until then the claim should be stated as *"within roughly two seed standard
+deviations of a model with ten times the parameters"* rather than as a point difference.
+
+**Cost note.** The small arm runs in 16–18 minutes per seed; PubMedBERT took 252 minutes for one,
+and 22 hours for an attempt that had to be killed under swap pressure. That asymmetry is itself
+part of the efficiency result and should be reported: the comparator is ~15× the wall-clock at
+~10× the parameters.
+
+Runs recorded via the C32 lineage stamp, so this comparison can be verified against the exact
+split hash it used.
