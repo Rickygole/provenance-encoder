@@ -1900,3 +1900,51 @@ off a JSON file by hand rather than run through the protocol.
 That is the argument for making the precondition an executable gate rather than a checklist item,
 and it belongs in the C2 protocol chapter as a worked example — including the fact that its author
 tripped the same wire twice.
+
+---
+
+## C44. The scaling study refutes C37's generalization — and reframes it into a better claim
+
+E12, run on Colab A100. Public data only (AG News), three seeds per arm, twelve runs.
+`results/accord/scaling/scaling_results.json`.
+
+| arm | non-emb params | accuracy | gap vs pretrained | pooled sd | Welch p |
+|---|---|---|---|---|---|
+| scratch 10M | 10,649,092 | 0.8790 ± 0.0040 | +0.0606 | 20.9 | <0.0001 |
+| scratch 30M | 31,913,860 | 0.8833 ± 0.0009 | +0.0563 | 58.9 | <0.0001 |
+| scratch 100M | 99,234,820 | 0.8878 ± 0.0016 | **+0.0518** | 38.1 | <0.0001 |
+| **pretrained BERT** | 85,648,132 | **0.9396 ± 0.0010** | — | — | — |
+
+**On this task, pretraining is worth about five accuracy points and more parameters do not close
+it.** The scratch model at **99.2M non-embedding parameters — more than BERT's 85.6M — is still
+5.2 points behind at 38 pooled standard deviations.** The gap narrows with scale (0.0606 → 0.0563
+→ 0.0518) but at that rate it would take orders of magnitude more capacity to vanish, if it ever
+did.
+
+**So C37 does not generalize, and its wording must change.** C37 found a 10.6M from-scratch encoder
+statistically indistinguishable from PubMedBERT on the clinical mortality task (gap +0.0031,
+Welch p = 0.690). That cannot be stated as *"small from-scratch encoders are competitive with large
+pretrained ones."* Here, at ten times the parameters, from-scratch loses decisively.
+
+**The correct claim is about the task, not the model.** On the clinical mortality task, 3.1 billion
+words of domain pretraining and ten times the parameters buy **nothing measurable**. On AG News the
+same comparison buys **five points at p < 0.0001**. The pretraining is not weak; the clinical task
+is one where it does not pay.
+
+**This makes the finding stronger, not weaker**, and it is the thesis's own argument again.
+Pretraining is an instrument believed to measure "how much this model will help downstream." On
+the clinical task it measures nothing — 1.320 nats of pretraining-loss separation produced
+0.002–0.004 AUROC, and now 3.1B words produce no detectable gain. The AG News arm is the positive
+control that makes that claim safe: **the instrument works elsewhere, so its failure on the
+clinical task is a property of the task rather than of the measurement.** Without this control,
+C37 was indistinguishable from an experiment too insensitive to see anything.
+
+**Caveats.** One public task, one architecture family, 3 epochs, 40k training examples, no
+hyperparameter search per arm. The scratch arms may be under-trained relative to their capacity —
+the 100M arm reaching only +0.009 over the 10M arm hints at that, and a longer schedule could
+change the slope. This establishes that the clinical null does not transfer; it does not establish
+a scaling law.
+
+**Also confirmed:** the `non_emb` fix works — BERT reports 85.6M non-embedding against its ~109M
+total, so both arms are measured on the same basis. Had that not been fixed, the 100M scratch arm
+would have looked smaller than BERT rather than larger.
