@@ -1595,3 +1595,66 @@ one architecture family, and one scale point. Whether the gap opens at 30M or 10
 untested and needs a GPU. Do not state this as a general claim about clinical encoders.
 
 Runs carry the C32 lineage stamp, so the split they used is verifiable.
+
+---
+
+## C38. E9 REFUTES the invariance claim in the realistic regime
+
+The experiment C24 and C28 both failed to run properly: a semi-synthetic test on real data, at
+power, with selection acting through **outcome-predictive text features** rather than through the
+group label. Pre-registered decision rule written before any audit number was computed
+(`accord/selection_experiment/PREREGISTRATION.md`).
+
+**The instrument passed its own checks first, which is what the prior attempts lacked.**
+
+| check | result |
+|---|---|
+| lineage | `task_split_hash=9a9fe073f4ea9544`, matches the pin |
+| classifier non-degeneracy | val AUROC **0.8775**, held-out test **0.8588**, predicted-positive rate **20.2%** against an 8.7–9.2% base rate, PPV lift **3.55×**. Nothing like C22's 87.3%-positive model |
+| **positive control, run first** | planted gap recovered: DP gap **0.2797** [0.262, 0.298], four-fifths **0.415** [0.391, 0.441] |
+| sweep contrast | **0.008 → 0.189** across β. C24's simulation could not separate its null from its extreme (0.00112 vs 0.00129) |
+
+**The result.** The first adequately-powered, CI-confirmed breach occurs at **β = 2.5**, where the
+selection-stage four-fifths ratio is still **0.587** — *well before* the 0.47 target the real cohort
+sits at. DP gap **0.090** [0.055, 0.125], MDE 0.048. Every point from there to β = 8.0 breaches.
+OLS drift of the DP gap on β: slope **0.0224 [0.0185, 0.0263]**, excluding zero — credible
+monotonic drift.
+
+**Verdict: REFUTES.** The audit is *not* blind when selection acts through features that predict
+the outcome. Blindness holds in the pure group-dependent regime (S ⊥ X | A) — which C29 proved and
+C31 showed is elementary — and **does not extend to the mechanism real pipelines actually use**.
+Documentation volume, the real selection driver per C17, is exactly such a feature.
+
+**What this does to C1.** The claim narrows to: *a pool-level audit is invariant to selection that
+is independent of the features given group; under selection through outcome-predictive features it
+is not invariant, and it drifts in a direction that partially reveals the selection.* That is a
+smaller and more precise claim, and it is the one the evidence supports. Combined with C28 (the
+audit fails at 33/35 operating points on the real cohort), **the "audits are blind" framing cannot
+carry a paper.** What survives is the survey and the null-attribute finding.
+
+**Secondary axes.** ETHNICITY-unknown shows the same pattern (0.006 → 0.12). **INSURANCE does not**
+— DP gap stays ~0.02–0.025 with CIs touching zero and four-fifths ≥ 0.88 throughout. A real
+boundary condition, reported as measured.
+
+**Not yet tested, and it matters:** threshold robustness. One operating point was used
+(val ROC at FPR = 0.15). C28 found the earlier real-data audit read flipped at 33 of 35 thresholds.
+**This REFUTES verdict is not established as threshold-robust and must be before it is reported.**
+
+---
+
+## C39. Two errors this experiment surfaced in my own record
+
+**1. `hash()` seeding was never reproducible.** `accord/denominator/simulate.py:288` seeds replicate
+RNGs with `hash((tag, or_sel, gamma, r)) % 2**32`. Python salts `hash()` on strings per process:
+verified, the same tuple gives 507250177 in one process and 2915194920 in the next. **Every number
+from the original `simulate.py` is unreproducible run to run.** C24's specific values (0.00112 vs
+0.00129) are therefore not recoverable — though its *conclusion* stands, because the no-contrast
+finding follows structurally from the missing X term, not from the seeding. `simulate_v2.py`
+already documents and avoids this.
+
+**2. The mortality-task figures in my own summaries are stale.** `THESIS_STATUS.md` and
+`PHD_PLAN.md` quote **36,504 examples, 3,730 positives, 734 test positives**. Current
+`local_only/task/meta.json` records **34,018 / 2,975**, with splits train 23,846 (2,091 pos), val
+3,396 (314), test 6,776 (**570** pos). The larger figures are pre-rebuild — the same Aug 4 rebuild
+as C32. I briefed the E9 agent with the stale numbers and it correctly reported the measured ones
+instead. Both documents must be corrected, and every claim of "734 test positives" becomes **570**.
