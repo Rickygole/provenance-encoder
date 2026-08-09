@@ -1760,3 +1760,53 @@ on its own.
 **What this buys the thesis.** One fully reproducible artifact on public data that any reader can
 rerun — `accord/pums_replication/`, committed, no credentialing required. It answers the "n=1
 dataset" objection directly.
+
+---
+
+## C42. The prevalence replication REFUTES the generality of the clinical over-calling result
+
+E11 did what the clinical data structurally could not: swept **true** prevalence across 2%, 5%,
+10% and 25% on public non-clinical text, three local Ollama models, two prompt framings, 0%
+unparseable throughout.
+
+**Predicted-positive rate, with over-call ratio against the true rate:**
+
+| model | true 2% | true 5% | true 10% | true 25% |
+|---|---|---|---|---|
+| llama3:8b | 0.07 (**3.5×**) | 0.17 (3.4×) | 0.06 (0.6×) | 0.12 (**0.5×**) |
+| granite3.3:8b | 0.05 (2.5×) | 0.07 (1.4×) | 0.10 (1.0×) | 0.16 (0.6×) |
+| qwen3:8b | 0.02 (1.0×) | 0.03 (0.6×) | 0.05 (0.5×) | 0.09 (0.4×) |
+
+**The clinical result does not generalize.** On MIMIC candidate pairs at a 4.0% base rate these
+same three families over-called by **15.8× to 23.6×** (C20). On non-clinical text at a comparable
+base rate the maximum is **3.5×**, and by 25% prevalence every model **under**-calls (ratios 0.4–0.6).
+
+**The labeller partially tracks truth.** granite3.3 moves 0.05 → 0.07 → 0.10 → 0.16 as truth moves
+0.02 → 0.05 → 0.10 → 0.25 — compressed but monotone. Predicted-rate spans are 0.027–0.139 against
+a true span of 0.23, so there is regression toward a prior, but the prior is **not** the near-
+saturated one the clinical setting produced.
+
+**Correction.** The claim that LLM weak labellers over-call rare classes by roughly an order of
+magnitude is **specific to the clinical adjudication task**, not a general property of
+instruction-tuned models on low-prevalence text. C20 and C23 must be scoped accordingly. Something
+about the clinical setup — plausibly that the prompt asserts the conclusion (`ch5:252` already
+flags this as the likely dominant cause and it remains unrun), or that the candidate pairs are
+genuinely ambiguous — produces a 21× shift that ordinary rare-class text classification does not.
+
+**Prompting matters as much as the domain.** Permitting abstention and stating the base rate moved
+llama3's abstain rate to **0.32** and qwen3's to 0.25, and drove qwen3's positive rate to zero at
+both low-prevalence levels. Consistent with C23: prompt moves the quantity by as much as model
+choice does.
+
+**The distillation half is also negative.** Across the granite3.3 pools the student's marginal came
+out **closer to the true prevalence than to the teacher's** at 2% and 5%, and tied at 10% — the
+opposite of the clinical prevalence-inheritance finding. Student out-of-fold accuracy against true
+gold (0.98, 0.95, 0.90) exceeds accuracy against the teacher label at every level, so the student
+is not simply reproducing its teacher.
+
+**What this means for the thesis.** The clinical over-calling result stands as measured — it is
+real, it replicates across three model families *in that setting*, and C20's repair of C10 holds.
+What is withdrawn is the extrapolation. This is the fourth claim in this project to survive as a
+measurement and fail as a generalization, and the pattern is worth stating explicitly in the
+discussion: nothing here transferred out of the setting it was measured in without being tested,
+and every time it was tested, it shrank.

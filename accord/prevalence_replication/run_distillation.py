@@ -81,26 +81,38 @@ def fit_student(df):
     clf = LogisticRegression(max_iter=1000, random_state=SEED)
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=SEED)
     oof_pred = cross_val_predict(clf, X, y, cv=skf, method="predict")
+    oof_proba = cross_val_predict(clf, X, y, cv=skf, method="predict_proba")[:, 1]
 
     teacher_marginal = float(y.mean())
     true_marginal = float(decided["y_true"].mean())
-    student_marginal = float(oof_pred.mean())
+    student_marginal_hard = float(oof_pred.mean())
+    student_marginal_soft = float(oof_proba.mean())  # mean OOF P(contradiction); not
+    # threshold-dependent, so it doesn't collapse to 0 the way the hard 0.5-threshold
+    # prediction can at small n (see REPORT.md -- this happens at N=100 in this project).
 
     # accuracy of student oof preds vs teacher label (fidelity) and vs true gold
     fidelity_to_teacher = float((oof_pred == y).mean())
     fidelity_to_true = float((oof_pred == decided["y_true"].to_numpy()).mean())
+    degenerate_hard = (len(set(oof_pred.tolist())) == 1)
+
+    def closer(x, a, b):
+        if abs(x - a) < abs(x - b):
+            return "teacher"
+        if abs(x - b) < abs(x - a):
+            return "true_prevalence"
+        return "tied"
 
     return {
-        "fit": True, "k_folds": k,
+        "fit": True, "k_folds": k, "degenerate_hard_threshold": degenerate_hard,
         "n_decided": len(decided), "n_dropped_abstain_or_unparseable": n_dropped,
         "teacher_marginal": teacher_marginal,
         "true_prevalence_decided": true_marginal,
-        "student_marginal_oof": student_marginal,
-        "abs_diff_student_vs_teacher": abs(student_marginal - teacher_marginal),
-        "abs_diff_student_vs_true": abs(student_marginal - true_marginal),
-        "closer_to": "teacher" if abs(student_marginal - teacher_marginal) < abs(student_marginal - true_marginal)
-                      else ("true_prevalence" if abs(student_marginal - true_marginal) < abs(student_marginal - teacher_marginal)
-                            else "tied"),
+        "student_marginal_oof": student_marginal_hard,
+        "student_marginal_oof_soft": student_marginal_soft,
+        "abs_diff_student_vs_teacher": abs(student_marginal_hard - teacher_marginal),
+        "abs_diff_student_vs_true": abs(student_marginal_hard - true_marginal),
+        "closer_to": closer(student_marginal_hard, teacher_marginal, true_marginal),
+        "closer_to_soft": closer(student_marginal_soft, teacher_marginal, true_marginal),
         "oof_accuracy_vs_teacher_label": fidelity_to_teacher,
         "oof_accuracy_vs_true_gold": fidelity_to_true,
     }
