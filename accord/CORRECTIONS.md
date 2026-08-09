@@ -1948,3 +1948,70 @@ a scaling law.
 **Also confirmed:** the `non_emb` fix works — BERT reports 85.6M non-embedding against its ~109M
 total, so both arms are measured on the same basis. Had that not been fixed, the 100M scratch arm
 would have looked smaller than BERT rather than larger.
+
+---
+
+## C45. The DAG tests do not support my confounder lean — both readings stay live
+
+I argued the evidence leaned toward discharge-summary length being a **confounder**, which would
+mean including it and reporting the effect as null (1/3 cohorts). Three diagnostics
+(`accord/dag/dag_tests.py`, `results/accord/dag/dag_tests.json`) say otherwise.
+
+### Test 1 — is there an A → D path at all?
+
+Regressing log discharge-summary length on LANGUAGE-missingness:
+
+| adjustment | β | 95% CI | p |
+|---|---|---|---|
+| unadjusted | −0.3224 | [−0.3411, −0.3037] | 1e-237 |
+| + era | **−0.2564** | [−0.2780, −0.2348] | 1e-116 |
+| + era + admission type | −0.2565 | [−0.2779, −0.2350] | 2e-118 |
+| + era + type + LOS | −0.2725 | [−0.2933, −0.2518] | 6e-142 |
+
+**Era does not explain the association.** After conditioning on era, admission type and LOS,
+missing-LANGUAGE admissions still have discharge summaries roughly **24% shorter**. The mediator
+story requires a mechanism linking the exposure to documentation volume, and one is present. My
+timing argument — clerical field at admission, dictation days later — does not dispose of it,
+because a common cause spanning the stay produces exactly this.
+
+### Test 2 — does the yield effect survive within era?
+
+| stratum | specification | OR | 95% CI | p |
+|---|---|---|---|---|
+| CareVue (n=7,485) | raw | 0.723 | [0.624, 0.838] | 1.6e-5 |
+| CareVue | **+ nursing and discharge volume** | **0.847** | [0.724, 0.992] | **0.040** |
+| MetaVision | — | skipped: only **11** missing-LANGUAGE of 2,271 | | |
+
+**This is the most consequential number here.** Pooled across eras with volume adjusted, the effect
+is null (OR 0.894, p = 0.13). **Within CareVue alone, the same volume-adjusted specification is
+significant** (OR 0.847, p = 0.040). So the pooled null was partly era, and the effect does not
+vanish when era is held fixed. C25's "era largely explains it" is too strong and is narrowed here.
+
+MetaVision cannot serve as a replication: with 11 exposed admissions there is no test to run. That
+is a real limit, not an omission.
+
+### Test 3 — negative control
+
+Missing-LANGUAGE admissions have **longer** stays: **+53.0 h** unadjusted, **+35.6 h** after era and
+admission type (p = 2.7e-8). This complicates the "administratively thin encounter" story rather
+than supporting it — those admissions stay *longer* while having *shorter* discharge summaries. It
+also means missingness marks a genuinely different kind of encounter, so residual confounding by
+whatever produces that difference cannot be excluded.
+
+### What this changes
+
+**My lean was wrong and is withdrawn.** The tests do not settle confounder versus mediator; they
+remove the grounds I had for preferring confounder. Association after era adjustment is not
+direction — an unmeasured common cause still produces Test 1's result — so the mediator reading is
+not established either.
+
+**What the thesis should do.** Report the specification curve as the result, designate the
+volume-adjusted estimate as primary with the DAG stated, give the nursing-stratified estimate equal
+prominence as a pre-specified sensitivity analysis, and add the within-era result, which is new and
+belongs on the page: **the effect is null pooled and significant within CareVue at the same
+specification.** Then say plainly that the data cannot distinguish the two causal structures, and
+that the honest envelope is **OR 0.65–1.00**.
+
+This is the fourth time in this project that a claim I expected to hold one way went the other
+under a test I designed. That the tests were run before the writing rather than after is the only
+reason it is a paragraph and not a retraction.
