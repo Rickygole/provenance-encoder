@@ -196,6 +196,42 @@ def main():
                 four_fifths_ci_lo=pool_ci["four_fifths_ratio"]["ci_lo"],
                 four_fifths_ci_hi=pool_ci["four_fifths_ratio"]["ci_hi"],
                 mde_demographic_parity_gap=mde_dp,
+                # ---- C57/F3: signed + per-group quantities, added alongside
+                # the absolute ones above -- the same fields run_experiment.py
+                # already persists (C52), which audit_pool()/bootstrap_audit_ci()
+                # compute at every cell here too but this script previously
+                # discarded before saving. Sign convention is g1
+                # (lang_missing==1) MINUS g0 (lang_missing==0) throughout.
+                demographic_parity_gap_signed=pool_audit["demographic_parity_gap_signed"],
+                dp_gap_signed_ci_lo=pool_ci["demographic_parity_gap_signed"]["ci_lo"],
+                dp_gap_signed_ci_hi=pool_ci["demographic_parity_gap_signed"]["ci_hi"],
+                demographic_parity_gap_g0=pool_audit["demographic_parity_gap_g0"],
+                demographic_parity_gap_g1=pool_audit["demographic_parity_gap_g1"],
+                tpr_gap_signed=pool_audit["tpr_gap_signed"],
+                tpr_gap_signed_ci_lo=pool_ci["tpr_gap_signed"]["ci_lo"],
+                tpr_gap_signed_ci_hi=pool_ci["tpr_gap_signed"]["ci_hi"],
+                tpr_gap_g0=pool_audit["tpr_gap_g0"], tpr_gap_g1=pool_audit["tpr_gap_g1"],
+                fpr_gap_signed=pool_audit["fpr_gap_signed"],
+                fpr_gap_signed_ci_lo=pool_ci["fpr_gap_signed"]["ci_lo"],
+                fpr_gap_signed_ci_hi=pool_ci["fpr_gap_signed"]["ci_hi"],
+                fpr_gap_g0=pool_audit["fpr_gap_g0"], fpr_gap_g1=pool_audit["fpr_gap_g1"],
+                ppv_gap_signed=pool_audit["ppv_gap_signed"],
+                ppv_gap_signed_ci_lo=pool_ci["ppv_gap_signed"]["ci_lo"],
+                ppv_gap_signed_ci_hi=pool_ci["ppv_gap_signed"]["ci_hi"],
+                ppv_gap_g0=pool_audit["ppv_gap_g0"], ppv_gap_g1=pool_audit["ppv_gap_g1"],
+                equalized_odds_gap_signed=pool_audit["equalized_odds_gap_signed"],
+                eq_odds_signed_ci_lo=pool_ci["equalized_odds_gap_signed"]["ci_lo"],
+                eq_odds_signed_ci_hi=pool_ci["equalized_odds_gap_signed"]["ci_hi"],
+                equalized_odds_driver=pool_audit["equalized_odds_driver"],
+                calibration_gap_diff_signed=pool_audit["calibration_gap_diff_signed"],
+                calib_gap_signed_ci_lo=pool_ci["calibration_gap_diff_signed"]["ci_lo"],
+                calib_gap_signed_ci_hi=pool_ci["calibration_gap_diff_signed"]["ci_hi"],
+                calibration_gap_diff_g0=pool_audit["calibration_gap_diff_g0"],
+                calibration_gap_diff_g1=pool_audit["calibration_gap_diff_g1"],
+                four_fifths_ratio_directed_numerator_group=
+                    pool_audit["four_fifths_ratio_directed"]["numerator_group"],
+                four_fifths_ratio_directed_denominator_group=
+                    pool_audit["four_fifths_ratio_directed"]["denominator_group"],
             )
             row["dp_gap_breach"] = audit_mod.breach_call(
                 row["demographic_parity_gap"], row["dp_gap_ci_lo"], row["dp_gap_ci_hi"], "gap")
@@ -315,10 +351,16 @@ def main():
         cells=all_cells,
         runtime_seconds=round(time.time() - t_start, 1),
     )
-    with (OUT_DIR / "threshold_robustness_results.json").open("w") as f:
+    # C57/F3: this script previously discarded the signed/per-group keys
+    # audit_pool() already returns at every cell. Now that they are persisted
+    # (see the per-cell `row` construction above), write to NEW filenames so
+    # the committed threshold_robustness_results.json /
+    # threshold_robustness_cells.csv (which never had a signed variant) are
+    # not overwritten.
+    with (OUT_DIR / "threshold_robustness_results_signed.json").open("w") as f:
         json.dump(out, f, indent=2)
 
-    with (OUT_DIR / "threshold_robustness_cells.csv").open("w", newline="") as f:
+    with (OUT_DIR / "threshold_robustness_cells_signed.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(all_cells[0].keys()))
         w.writeheader()
         w.writerows(all_cells)
