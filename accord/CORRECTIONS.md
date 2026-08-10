@@ -2770,3 +2770,49 @@ preprints surfaced in listings but not fetched.
 **This correction does not itself choose a frame.** It records that the two candidate frames are
 prior art, that one uncovered claim exists, and that the evidence for it is already on disk and
 required no experiment. The choice is the author's.
+
+
+## C61. C40 survives the signed reading; and I swept an agent's in-flight edits into an unrelated commit for the second time
+
+**The substantive result first.** The two remaining sign-provenance gaps from C57 are closed. The
+drift regressions now fit signed columns alongside unsigned, every drift record carries an explicit
+`fit_basis: "absolute" | "signed"`, and `threshold_robustness_sweep.py` now persists the signed and
+per-group keys `audit_pool()` had been returning and it had been discarding.
+
+**Reproduction: max discrepancy 0.0** across every pre-existing numeric field in all three re-runs,
+including **9,177 fields** in the threshold sweep. The signed slopes agree with the independent
+recomputation in `sign_provenance_drift_recomputation.json` to **0.00e+00 on all 14 metrics** — two
+implementations, written separately, identical to full float precision. C57's seven flips reproduce
+exactly.
+
+**C40 holds under the signed reading.** The verdict logic reads unsigned columns, which are
+bit-for-bit unchanged, so the per-threshold table is identical: **REFUTES at 10/18 operating points,
+SUPPORTS at 0/18, no inversion.** Read on signed values, all **36 confirmed-breach cells are
+credible-positive** and zero are credible-negative. `demographic_parity_gap_signed` does cross zero
+across the 270-cell grid (246 positive, 24 negative), and three metrics have credible cells of both
+signs somewhere — but the 15 credible-negative DP cells sit at β = 0.0–0.5 with target
+predicted-positive rates ≥33%, the region C40's own table already calls INCONCLUSIVE or
+REFUTES-by-drift-only, not REFUTES-by-breach. **No credibly-signed cell contradicts a REFUTES call
+anywhere in the sweep.** C40 is the first major result to survive a signed re-reading intact.
+
+**Now the error.** Committing C59/C60 I ran `git add -A`, which swept an agent's in-progress edits
+to `accord/pums_replication/run_experiment.py` and `accord/selection_experiment/run_experiment.py`
+into commit `bff5180`, whose message is entirely about survey reliability and the novelty check and
+does not mention them. The agent flagged it unprompted, having made no commit itself. Verified:
+`bff5180` touches `CORRECTIONS.md` plus 101 lines across those two scripts.
+
+**This is the second occurrence.** `d137a9f` did the same thing to a different agent's lineage
+edits, under a commit titled for Drive compliance. That was recorded as a note and no rule was put
+in place, so it happened again. Corrected here by committing the remainder under an accurate message
+that names `bff5180`; history is not rewritten, because a wrong message that is corrected in the
+record is more honest than a clean history that conceals the mistake.
+
+**Why this belongs in the record rather than in a stray note.** It is the same shape as the finding
+in C60: **a defect class enforced by intention recurs; one enforced by a gate does not.** The
+degeneracy precondition fired correctly where it was executable and failed where it was a checklist
+item read by hand. `git add -A` was a checklist item — "be careful what you stage" — and being
+careful worked once and failed twice.
+
+**Standing rule, executable rather than intended:** never `git add -A` or `git add .` while any
+agent is running. Stage explicit paths only. If this recurs a third time it is evidence that the
+rule needs to be a pre-commit hook, and that fact is itself data for the thesis.
