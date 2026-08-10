@@ -2816,3 +2816,50 @@ careful worked once and failed twice.
 **Standing rule, executable rather than intended:** never `git add -A` or `git add .` while any
 agent is running. Stage explicit paths only. If this recurs a third time it is evidence that the
 rule needs to be a pre-commit hook, and that fact is itself data for the thesis.
+
+
+## C62. The C44 convergence sweep returns OUTCOME A under the pre-registered rule: the arms were converged and the control holds
+
+The sweep ran to completion — 48 runs, 4 arms × 4 budgets × 3 seeds, 9.2 GPU-hours. Adjudicated by
+the rule committed at `b048829` **before the sweep existed**, applied automatically by the notebook
+rather than by eye.
+
+| arm | E=3 | E=6 | E=12 | E=24 | gain for 8× compute |
+|---|---|---|---|---|---|
+| scratch_10M | 0.8784 | 0.8795 | 0.8822 | 0.8838 | **+0.54 pts** |
+| scratch_30M | 0.8833 | 0.8856 | 0.8845 | 0.8886 | **+0.52 pts** |
+| scratch_100M | 0.8885 | 0.8903 | 0.8888 | **0.8925 ± 0.0004** | **+0.41 pts** |
+| pretrained_bert | 0.9392 | 0.9369 | 0.9375 | **0.9379 ± 0.0029** | **−0.13 pts** |
+
+> **VERDICT: OUTCOME A.** Gap at 24 epochs **4.53 accuracy points**, ±1 SD bands disjoint.
+> Threshold was ≥3.0 and seed-resolved.
+
+**The under-training hypothesis is refuted, and not narrowly.** Eight times the training budget
+bought the 100M scratch arm **0.41 accuracy points**. Every scratch arm shows the same pattern, and
+BERT actually *declines* 0.13 points with more epochs — mild overfitting, which is the expected
+behaviour of an already-converged model. The 3-epoch arms were not stopped early; they were done.
+
+**Honest detail that must be reported, not buried:** the gap does narrow slightly with budget, 5.07
+→ 4.67 → 4.86 → 4.53 points. It is non-monotone and the movement is small relative to the gap, but
+the correct statement is *"the gap narrows by roughly half a point under an eightfold budget
+increase and remains 4.53 points, seed-resolved"* — **not** "the gap is unchanged."
+
+**What this licenses.** Instrument II now has a **verified positive control**: the instrument
+detects a 4.53-point pretraining benefit on AG News where one exists, at 3 seeds with SD ≤ 0.003.
+C37's clinical result — gap +0.0031, Welch p = 0.690 — is therefore reportable as a **genuine null**
+rather than as an experiment too insensitive to see anything. C44 stands.
+
+**Consequences for the plan.** Under the pre-registered rule this is the nine-chapter branch: the
+pretraining-proxy chapter stands at ~320 lines rather than collapsing to ~140 and merging.
+`WRITING_PLAN` risk #3 — *"the one remaining experiment with a real argument for running it"* — is
+closed, and closed in the direction that keeps a chapter rather than losing one.
+
+**The scaling picture at convergence, which is a separate and weaker claim.** At 24 epochs the
+from-scratch curve reads 0.8838 → 0.8886 → 0.8925 for 10M → 30M → 100M: **+0.87 points for a 10×
+parameter increase**, still gentle, still far short of closing a 4.53-point gap. Nothing here
+supports a claim that scale alone would close it, and the thesis must not imply one.
+
+**First OUTCOME-A result in the record.** Fifty-plus corrections have moved claims down. This one
+was pre-registered, ran against its own kill condition, and the kill condition did not fire. That is
+worth stating plainly in the thesis, because a record in which nothing ever survives is not a record
+of rigour — it is a record of a project with no findings.

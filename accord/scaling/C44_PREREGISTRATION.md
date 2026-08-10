@@ -1,5 +1,9 @@
 # C44 convergence sweep — pre-registered decision rule
 
+> **OUTCOME RECORDED 2026-08-10: OUTCOME A.** Gap 4.53 points at 24 epochs, ±1 SD bands disjoint.
+> The rule below was applied automatically by the notebook and was not edited after the result.
+> Full result in CORRECTIONS.md C62.
+
 **Written 2026-08-09, BEFORE the sweep was run.** Committed before any result exists. Do not edit
 after the first number lands; if the rule turns out to be badly specified, record that as a
 correction rather than revising this file.
