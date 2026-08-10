@@ -349,7 +349,7 @@ hours, input = a bundle of notes from several authors. Discharge summaries
 excluded (they state the outcome), posthumous notes excluded, splits
 group-disjoint by `SUBJECT_ID`.
 
-**36,504 examples, 3,730 positives, 734 in the test set** — against ACCORD's 253
+**34,018 examples, 2,975 positives, 570 in the test set** (corrected per CORRECTIONS.md C39; the earlier 36,504 / 3,730 / 734 describe a superseded dataset build) — against ACCORD's 253
 and 12, and 6.8× the 548 positives ACCORD's own power analysis said it needed.
 
 | Model | non-emb params | pretraining | AUROC | AUPRC |

@@ -55,15 +55,18 @@ a limitation rather than reported as 100%.
 *Evidence:* `results/accord/survey/` (protocol, 75-row coding table, screening log, second-coder
 table), CORRECTIONS.md C55/C59.
 
-**4. An executable precondition library for research metrics, evaluated against a real record.**
-*Known:* automated enforcement beats documented convention — the entire CI/linter literature.
-*New here:* a small library that **refuses to emit a metric when its own preconditions fail** —
-degenerate predicted-positive rate, directional claim from an `abs()`-valued artifact, agreement
-statistic where one variable is a deterministic function of the other, ordering asserted from
-intervals containing zero, "learned" claimed for a parameter with no gradient. Evaluated
-retrospectively against this project's own correction record with the boundary stated: **N of 62
-would have been caught at the point of emission; M could not have been, and why.**
-*Evidence:* to be built — one week, all artifacts already on disk. See "what remains" below.
+**4. Sign provenance: a metric stored as a magnitude licenses no directional claim.**
+*Known:* nothing directly; adjacent to measurement-provenance and reproducibility practice.
+*New here:* every disparity gap in this project was stored as `abs()` and four-fifths as `min/max`,
+with no per-group values persisted. Retrofitting signed storage **reproduced every prior value
+bit-for-bit — max discrepancy 0.0 across 9,177 fields — while flipping seven of fourteen drift
+slopes and changing one credibility call.** Two independently written implementations agree to
+**0.00e+00**. The rule is transferable and it has a demonstrated true positive: it invalidated four
+of this project's own directional readings, three of which were themselves corrections of
+corrections.
+*Evidence:* `results/accord/sign_provenance_audit.json`,
+`results/accord/sign_provenance_drift_recomputation.json`, REVISION_LOG R2, CORRECTIONS.md
+C52/C56/C57.
 
 **5. What the controls cost.**
 *Known:* nobody reports this.
@@ -82,8 +85,16 @@ logged before 2026-08-09 and are not reconstructed. The cost claim is compute-on
   open access plus arXiv and ACL, and 459 screened-in papers were never full-text retrieved.
 - No subgroup harm is demonstrated anywhere in this work.
 - The self-audit record (`CORRECTIONS.md`, 62 entries) is **Appendix A and one chapter, not the
-  spine**. It has one coder, no protocol, and an author-controlled denominator — a standard below
-  the one this thesis applied to 75 strangers' papers, and it is not load-bearing.
+  spine**. **No rate is claimed from it.** An attempt to compute one was retracted (REVISION_LOG R1):
+  the generating script was never saved, the denominator advanced without the numerator, the most
+  consequential retraction was missing from it, and an independent hand-code intersected it on only
+  12 of a 30-member union. What the record supports is a **demonstration, not a statistic** — four
+  named instances of a correcting analysis committing the error it was correcting, and one unlogged
+  `abs()` that invalidated four directional readings.
+- **No claim that executable gates beat prose checklists.** That comparison was retracted
+  (REVISION_LOG R2): the gate has no recorded failure in 6 of 6 runs, so its catch rate is 0/0,
+  while the "checklist" arm computed the defect, wrote it to disk, and was misread. The evidence
+  argues executability was not the binding constraint.
 
 ---
 
