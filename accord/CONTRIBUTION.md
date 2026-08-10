@@ -105,7 +105,6 @@ logged before 2026-08-09 and are not reconstructed. The cost claim is compute-on
 
 | | cost |
 |---|---|
-| Build and retrospectively evaluate the precondition library (contribution 4) | ~1 week |
 | Delete: 7 proposed-figure blocks, the unbuilt architecture spec, duplicated ethics statement | ~1 day |
 | Merge ch3+ch4+ch6+ch7 → one pipeline chapter, 2,890 → ~430 lines | ~5 days |
 | Write chapters 5, 7, 4; then 6, 8, 9; introduction and title last | ~4 weeks |
