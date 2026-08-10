@@ -25,7 +25,10 @@ is new is the measurement on this pipeline, and the fact that the controls were 
 
 **1. A measured null, not an underpowered one, on clinical pretraining transfer.**
 *Known:* pretraining loss is an unreliable proxy for downstream performance — Lourie, Hu & Cho,
-EMNLP Findings 2025; predictable downstream scaling holds ~39% of the time.
+EMNLP Findings 2025 (~39% of the time), and **TESSERA v2, arXiv:2607.03949, July 2026: 395
+controlled runs, 15 tasks, |Pearson r| < 0.2.** The general finding is settled and this project's
+48-run sweep is a small replication of it — **the sweep is a positive control, not a contribution,
+and the chapter must not be written as one** (REVISION_LOG R5).
 *New here:* the same instrument resolves a **4.53-point** pretraining benefit on AG News at 24
 epochs with SD ≤ 0.003 and disjoint bands, and returns **+0.0031 (Welch p = 0.690)** on the clinical
 task. The positive control was adjudicated by a rule committed **before the sweep was run**; eight

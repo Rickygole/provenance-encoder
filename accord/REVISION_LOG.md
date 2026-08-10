@@ -112,3 +112,61 @@ corrected these to **34,018 / 2,975 / 570**. C39 named only `THESIS_STATUS.md` a
 C46 claimed to have audited *"every numeric claim in the ten thesis chapters"* — `DESIGN.md` is not
 a chapter, so it was never in scope. `WRITING_PLAN.md:127` budgets a week of Chapter 4 against
 `DESIGN.md:234-442` calling it *"restructuring not discovery."* It is discovery. Corrected below.
+
+### R4 (2026-08-10) — the round-two novelty pass closes the self-audit frame; the general proposition is occupied in five literatures
+
+Round one reported that one clause "searched clean." That was an artifact of searching four
+ML-adjacent indexes. Round two reached psychometrics, metascience, patient safety and software
+engineering, and the proposition **"error-detection procedures are themselves instruments and fail
+in the regime they audit"** is stated — and in several cases *measured* — in all of them:
+
+| | |
+|---|---|
+| Ioannidis, *Why Science Is Not Necessarily Self-Correcting*, Perspect Psychol Sci 2012 (PMID 26168125) | the thesis sentence, in metascience, fourteen years old |
+| Huang et al., *LLMs Cannot Self-Correct Reasoning Yet*, ICLR 2024 (arXiv:2310.01798) | the second clause, in ML, with two years of follow-on work |
+| Shebl, Franklin & Barber, *Is failure mode and effect analysis reliable?*, J Patient Saf 2009 (PMID 19920447) | an error-detection method tested as an instrument and found unreliable, seventeen years ago |
+| Yin et al., *How do fixes become bugs?*, ESEC/FSE 2011 | the rate at which corrections are themselves incorrect, at scale, many codebases |
+| Nuijten et al. 2016 (PMID 26497820) + arXiv:1610.01010 + arXiv:2408.07948 | the statcheck line: an error detector's own false-positive and miss rates, including first-person validation |
+| DeMillo, Lipton & Sayward 1978 | mutation testing — measuring your own detector's miss rate by planting known defects. Forty-eight years old |
+
+**What remains genuinely unfound:** no single researcher releasing their own correction log and
+computing a recurrence rate over it. But that is a **sampling-frame difference, not a conceptual
+one**, and "nobody has done it on themselves" will not be accepted as a substitute for "nobody has
+done it." **Honest rating: 3/10, and 3 only because of the released artifact, not the claim.**
+
+**R2's retraction is independently confirmed and out-measured.** Nuijten & Wicherts, PsyArXiv 2023
+(DOI 10.31234/osf.io/bxau9): preregistered, two implementing journals against matched controls,
+7,000+ articles — journals with the automated tool *in the workflow* show a considerably steeper
+decrease in reporting inconsistencies. That is "executable enforcement works where prose does not,"
+controlled and preregistered, on an error-detection procedure. Also Sadowski et al., CACM 2018
+(Google static analysis: the lesson is workflow blocking, not analysis quality); Urbach et al.,
+NEJM 2014 (population-scale null for surgical checklists); and arXiv:2606.16974, which finds
+documentation improvements across five conferences **predate** the formal checklist requirements.
+**No novelty remains here, not even in the measurement.** One paragraph with citations, not a
+chapter.
+
+**A proposal considered and declined.** The pass suggested a *matched first-person / field-wide
+prevalence comparison* — the 4/75 survey rate placed beside a rate computed on the author's own
+record — as the one unoccupied claim. **Declined, because it requires exactly the statistic R1 just
+retracted.** Rebuilding it to survey standard means a written instrument, persisted rows and a blind
+second coder: two to four more weeks of auditing, which is the activity that has produced zero
+chapters in six weeks. Recording the option here so the decision is visible rather than silently
+dropped; it can be revisited only if an advisor says novelty is required.
+
+**Coverage still open after two passes, stated so it is not mistaken for a clean result:** Semantic
+Scholar returned HTTP 429 on every attempt in *both* sessions. FAccT and AIES were enumerated via
+DBLP, which indexes **titles only** — a relevant paper whose title lacks the search terms is
+invisible. Messick remains unverified. General web search was unavailable in both passes.
+
+### R5 (2026-08-10) — C62 is a positive control, not a contribution
+
+`arXiv:2607.03949` (TESSERA v2, July 2026), verified directly: **395 controlled training runs across
+15 downstream tasks**, headline *"pretraining loss barely predicts downstream performance
+(|Pearson r| < 0.2), so selecting models by loss wastes a large share of the compute."* Two further
+2026 preprints agree — arXiv:2602.11618 (chemical language models; loss-landscape alternatives also
+fail to predict) and arXiv:2604.22348 (medical claims model, task-dependent saturation).
+
+**C62's 48-run sweep is a small replication of a 395-run result published a month earlier.** It
+remains a valid positive control — it licenses reading C37's clinical null as a measured null rather
+than an underpowered one — but it is **not a contribution and the chapter must not be written as
+one.** `CONTRIBUTION.md` item 1 is amended accordingly.
