@@ -2658,3 +2658,115 @@ The interval contains zero. The corrected reading is therefore *indistinguishabl
 which is what the chapters now say — and the point estimate being positive rather than negative
 changes nothing about that conclusion, only about the false claim that it was **worse** than
 chance.
+
+
+---
+
+## C59. The survey now has a reliability figure, and it does not cover the decisive cell
+
+A blind second coder re-coded a deterministic subsample — `sorted(ids)[0::4][:20]`, giving 19 of the
+75 papers. All 19 retrieved independently, **90/90 quotes verified as exact substrings**, no first-
+coder value seen. Computed across the 19-paper overlap:
+
+| field | agreement | Cohen's κ | disagreements |
+|---|---|---|---|
+| `audits_selection` (strict) | 100% | **undefined — no variance** | 0 |
+| `audits_selection_literal` | 94.7% | **0.855** | 1 |
+| `null_attribute_handling` | 78.9% | **0.730** | 4 |
+| `cohort_is_filtered` | 100% | undefined — no variance | 0 |
+
+**The caveat is the important part and it must not be smoothed over.** The strict field shows
+perfect agreement, but κ is **undefined, not 1.0**: both coders returned "no" on all 19 papers, so
+there is no variance to compute against chance. The subsample happened to contain **none of the 4
+strict-yes papers** — with 4 of 75, the expected count in 19 draws is about 1, so this is unlucky
+rather than anomalous, but the consequence is exact:
+
+> **Reliability is established for the permissive reading (κ 0.855) and for null-attribute handling
+> (κ 0.730). It is NOT established for the strict decisive cell.** 100% agreement across 19
+> unanimous negatives says almost nothing about whether the two coders would agree on a positive.
+
+To establish it, a second coder must code a subsample **enriched for the 4 strict-yes papers** —
+those are exactly the calls the survey's headline rests on. That is outstanding work and the
+chapter must say so rather than quoting 100%.
+
+The second coder flagged 9 hard cases and named `AX2603.14631` as the most contestable call in the
+subsample: it reports per-attribute cohort sizes against a pre-filter N = 7,166 with a `Missing` row
+(race 86.9% missing), which is formally an inclusion rate against a pre-selection denominator, but
+missingness is never disaggregated *within* an attribute, so group-differential retention is
+untestable. Coded strict-no / permissive-yes by both coders independently. **That paper belongs in
+the chapter, adjudicated on the page.**
+
+The one strict/permissive disagreement is `PM42243352` (coder 1 yes, coder 2 no). Both coders'
+permissive counts on the overlap are close — 5/19 and 4/19.
+
+Two contamination items disclosed unprompted by the second coder: identifying "the included papers"
+required reading the screening log's `included` column, and while reading field definitions they
+read one paragraph stating that `audits_model_on_pool` is yes for all included papers by
+construction. Neither touches a coded value; both are recorded because the disclosure standard
+matters more than the cleanliness of the claim.
+
+---
+
+## C60. The novelty check the frame never had: both candidate framings are prior art, and the uncovered claim is one the project has been treating as an appendix
+
+Two previous framings died to novelty checks run *after* adoption (C26, C31). The current frame had
+never been checked. It has now been, across arXiv, DBLP, OpenReview, PubMed and the ACL Anthology.
+
+**Frame A — "five instruments are insensitive over an unidentified regime": 2/10. Four of the five
+have decisive standalone prior art, and the fifth is dead by this project's own C56.**
+
+| instrument | closest prior work |
+|---|---|
+| I — pool fairness audit | Biswas & Rajan, ESEC/FSE 2021 — fairness measured stage-by-stage across a pipeline *including preprocessing filters*. Plus Pfohl NeurIPS 2025, Fogliato AISTATS 2020 |
+| II — pretraining loss as proxy | Lourie, Hu & Cho, EMNLP Findings 2025 — predictable downstream scaling holds ~39% of the time, at meta-analytic scale. Plus Christodoulou et al. J Clin Epidemiol 2019 |
+| III — LLM weak labeller | Egami et al., NeurIPS 2023 — surrogate labels bias downstream inference **even at 80–90% accuracy**. C43's "student reproduces the teacher's marginal" is a special case |
+| IV — architectural ablation | **Hewitt & Liang, EMNLP 2019, Best Paper Runner-Up** — pair a component with an *arbitrary* substitute; if the arbitrary version recovers the gain, the instrument was not measuring the claimed structure. This is A5's design and A5's conclusion |
+| V — low-prevalence metric | Feinstein & Cicchetti 1990; Byrt, Bishop & Carlin 1993. **36 years old in this project's own literature** |
+
+Instrument IV is the one `WRITING_PLAN` risk #1 and the architect both propose to **lead with**. It
+is the most crowded of the five. Leading with it puts the project's strongest experiment directly
+against the strongest prior art in the set.
+
+**Frame B — "retrofit the omitted control across a pipeline": 3/10.** The proposition *"an
+instrument's reading is only interpretable relative to a control that reporting routinely omits"*
+is **Lipsitch, Tchetgen Tchetgen & Cohen, Epidemiology 2010** on negative controls, and
+**Adebayo et al., NeurIPS 2018**, *Sanity Checks for Saliency Maps* — verified directly: it proposes
+tests of whether an instrument depends on the model and data at all, and finds some saliency methods
+are independent of both. That is this thesis's argument, eight years old, in its canonical form.
+
+**The viva opener, named:** Liao, Taori, Raji & Schmidt, *"Are We Learning Yet? A Meta Review of
+Evaluation Failures Across Machine Learning"*, NeurIPS 2021 Datasets & Benchmarks — 107 surveys, a
+taxonomy of evaluation failures split by internal and external validity. *"Your five instruments map
+onto their categories. What is your delta?"* Second question, sixteen years old and inside this
+project's own methodological tradition: Lipsitch 2010.
+
+**The one clause that searched clean.** Across four independent indexes, nothing was found where a
+researcher measures the failure rate of **their own** error-detection procedure. Everything in the
+genre audits others: Kapoor & Narayanan audit 329 papers; Liao et al. review 107 surveys; Musgrave
+and Dacrema audit competitors; Chuang & Keiser and Freiesleben & Zezulka prescribe. **Not one
+measures whether the prescriber can apply their own prescription.**
+
+**What this project has, computed from its own record** (`results/accord/self_audit_statistics.json`):
+
+- **20 of 58 corrections retract or refute an earlier correction.**
+- **4 explicitly record the correcting analysis committing the error it was correcting** — C11, C15,
+  C47, C52. C43 commits C22's exact failure mode two days after C22 documented it.
+- **5 mechanism claims in two weeks; 0 of 5 survived** a parameter sweep or a signed re-run.
+- **C56: one unlogged `abs()` invalidated four directional readings, three of which were themselves
+  corrections of corrections.**
+- **A controlled comparison already on disk:** the degeneracy precondition fired correctly where it
+  was an *executable gate* and failed to fire where it was a *checklist item read by hand* — same
+  author, same week, same defect class.
+
+**Coverage gaps, stated because absence of evidence is not evidence of absence.** Semantic Scholar
+was rate-limited for the entire session. FAccT and AIES proceedings were not enumerated directly —
+the largest gap, since much of the closest prior art is FAccT-adjacent. CHIL and ML4H proceedings
+were not enumerated. Web search was unavailable. **Psychometrics is unsearched** — Cronbach & Meehl
+1955 and Messick are the primary sources behind every ML construct-validity paper cited above, and
+an examiner from a measurement background will open with Messick rather than Liao. Two citations
+are flagged unverified: Forman's quantification papers, and three 2026 arXiv pretraining-loss
+preprints surfaced in listings but not fetched.
+
+**This correction does not itself choose a frame.** It records that the two candidate frames are
+prior art, that one uncovered claim exists, and that the evidence for it is already on disk and
+required no experiment. The choice is the author's.

@@ -382,8 +382,33 @@ def main():
         tcrit = t_dist.ppf(0.975, df)
         slope_ci = (res.slope - tcrit * res.stderr, res.slope + tcrit * res.stderr)
         credible_drift = not (slope_ci[0] <= 0 <= slope_ci[1])
+        # C57: fit_basis is required on every drift record ("absolute" or
+        # "signed") so a slope can never again be quoted without saying which
+        # quantity it was fit to -- see CORRECTIONS.md C51 vs C56.
         drift[key] = dict(slope=float(res.slope), slope_ci=list(map(float, slope_ci)),
-                           credible_monotonic_drift=bool(credible_drift), r2=float(res.rvalue**2))
+                           credible_monotonic_drift=bool(credible_drift), r2=float(res.rvalue**2),
+                           fit_basis="absolute")
+        print(f"  {key}: slope={res.slope:.5f} 95% CI=[{slope_ci[0]:.5f},{slope_ci[1]:.5f}] "
+              f"credible_drift={credible_drift}  R^2={res.rvalue**2:.3f}")
+
+    # ---- C57: the C52 retrofit added *_signed per-row companions to `sweep`
+    # in this same commit but never re-fit this drift step on them. Fit the
+    # identical OLS regression on the signed columns, under a distinct
+    # top-level key (drift_signed), leaving `drift` above completely
+    # unchanged in value.
+    print("SIGNED companions (x = beta):")
+    drift_signed = {}
+    for key in ["demographic_parity_gap", "tpr_gap", "fpr_gap", "ppv_gap", "equalized_odds_gap"]:
+        skey = key + "_signed"
+        vals = np.array([r[skey] for r in sweep_rows])
+        res = linregress(betas, vals)
+        df = len(betas) - 2
+        tcrit = t_dist.ppf(0.975, df)
+        slope_ci = (res.slope - tcrit * res.stderr, res.slope + tcrit * res.stderr)
+        credible_drift = not (slope_ci[0] <= 0 <= slope_ci[1])
+        drift_signed[key] = dict(slope=float(res.slope), slope_ci=list(map(float, slope_ci)),
+                                  credible_monotonic_drift=bool(credible_drift), r2=float(res.rvalue**2),
+                                  fit_basis="signed")
         print(f"  {key}: slope={res.slope:.5f} 95% CI=[{slope_ci[0]:.5f},{slope_ci[1]:.5f}] "
               f"credible_drift={credible_drift}  R^2={res.rvalue**2:.3f}")
 
@@ -471,6 +496,9 @@ def main():
         sweep=sweep_rows,
         secondary_axes=secondary_axes,
         drift_check=drift,
+        # C57: signed companion to drift_check, distinct key, same metrics,
+        # fit on the *_signed per-row columns instead of the abs()-valued ones.
+        drift_check_signed=drift_signed,
         target_beta_for_selection_47=target_row["beta"],
         verdict=verdict,
         verdict_reason=reason,
@@ -480,11 +508,17 @@ def main():
     # selection_experiment_results.json / sweep_summary.csv) so this re-run
     # with the extended, signed audit does not overwrite the committed
     # unsigned results.
-    with (OUT_DIR / "selection_experiment_results_signed.json").open("w") as f:
+    # C57: this run additionally patches STEP 5's drift regression to fit the
+    # signed columns too (drift_check_signed, fit_basis-labelled). To avoid
+    # overwriting the already-committed selection_experiment_results_signed.json
+    # / sweep_summary_signed.csv (which do not have this fix and are cited by
+    # results/accord/sign_provenance_audit.json F2), this C57 re-run is
+    # written to distinct "_v2" filenames instead.
+    with (OUT_DIR / "selection_experiment_results_signed_v2.json").open("w") as f:
         json.dump(out, f, indent=2)
 
     import csv
-    with (OUT_DIR / "sweep_summary_signed.csv").open("w", newline="") as f:
+    with (OUT_DIR / "sweep_summary_signed_v2.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(sweep_rows[0].keys()))
         w.writeheader()
         w.writerows(sweep_rows)

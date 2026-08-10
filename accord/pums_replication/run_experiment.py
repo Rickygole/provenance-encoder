@@ -560,13 +560,17 @@ def main():
     # -----------------------------------------------------------------
     section("STEP 6: drift checks (OLS slope of gap point-estimates vs selection strength)")
 
-    def slope_ci(xvals, yvals):
+    def slope_ci(xvals, yvals, fit_basis):
+        # C57: fit_basis is required on every drift record ("absolute" or
+        # "signed") so a slope can never again be quoted without saying which
+        # quantity it was fit to -- see CORRECTIONS.md C51 vs C56.
         res = linregress(xvals, yvals)
         df = len(xvals) - 2
         tcrit = t_dist.ppf(0.975, df)
         lo, hi = res.slope - tcrit * res.stderr, res.slope + tcrit * res.stderr
         return dict(slope=float(res.slope), slope_ci=[float(lo), float(hi)],
-                    credible_drift=bool(not (lo <= 0 <= hi)), r2=float(res.rvalue ** 2))
+                    credible_drift=bool(not (lo <= 0 <= hi)), r2=float(res.rvalue ** 2),
+                    fit_basis=fit_basis)
 
     ors = np.array([r["OR"] for r in regimeA_rows])
     print("Regime A (selection depends only on group; x = odds ratio):")
@@ -574,7 +578,7 @@ def main():
     for key in ["fpr_gap", "tpr_gap", "auroc_gap", "demographic_parity_gap", "ppv_gap",
                 "calibration_gap_diff"]:
         vals = np.array([r[key] for r in regimeA_rows])
-        d = slope_ci(ors, vals)
+        d = slope_ci(ors, vals, "absolute")
         drift_A[key] = d
         print(f"  {key}: slope={d['slope']:.6f} CI={d['slope_ci']} credible_drift={d['credible_drift']} "
               f"R^2={d['r2']:.3f}")
@@ -585,8 +589,36 @@ def main():
     for key in ["demographic_parity_gap", "tpr_gap", "fpr_gap", "auroc_gap", "ppv_gap",
                 "equalized_odds_gap", "calibration_gap_diff"]:
         vals = np.array([r[key] for r in regimeB_rows])
-        d = slope_ci(betas, vals)
+        d = slope_ci(betas, vals, "absolute")
         drift_B[key] = d
+        print(f"  {key}: slope={d['slope']:.6f} CI={d['slope_ci']} credible_drift={d['credible_drift']} "
+              f"R^2={d['r2']:.3f}")
+
+    # ---- C57: the C52 retrofit added *_signed per-row companions to
+    # regimeA_sweep / regimeB_sweep in this same commit but never re-fit this
+    # drift step on them. Fit the identical OLS regression on the signed
+    # columns, under distinct top-level keys (regimeA_drift_signed /
+    # regimeB_drift_signed), leaving drift_A / drift_B above completely
+    # unchanged in value.
+    print("Regime A, SIGNED companions (x = odds ratio):")
+    drift_A_signed = {}
+    for key in ["fpr_gap", "tpr_gap", "auroc_gap", "demographic_parity_gap", "ppv_gap",
+                "calibration_gap_diff"]:
+        skey = key + "_signed"
+        vals = np.array([r[skey] for r in regimeA_rows])
+        d = slope_ci(ors, vals, "signed")
+        drift_A_signed[key] = d
+        print(f"  {key}: slope={d['slope']:.6f} CI={d['slope_ci']} credible_drift={d['credible_drift']} "
+              f"R^2={d['r2']:.3f}")
+
+    print("Regime B, SIGNED companions (x = beta):")
+    drift_B_signed = {}
+    for key in ["demographic_parity_gap", "tpr_gap", "fpr_gap", "auroc_gap", "ppv_gap",
+                "equalized_odds_gap", "calibration_gap_diff"]:
+        skey = key + "_signed"
+        vals = np.array([r[skey] for r in regimeB_rows])
+        d = slope_ci(betas, vals, "signed")
+        drift_B_signed[key] = d
         print(f"  {key}: slope={d['slope']:.6f} CI={d['slope_ci']} credible_drift={d['credible_drift']} "
               f"R^2={d['r2']:.3f}")
 
@@ -726,10 +758,16 @@ def main():
             demographic_parity_gap_g1=pc_audit["demographic_parity_gap_g1"],
         ),
         regimeA_sweep=regimeA_rows, regimeA_drift=drift_A, regimeA_verdict=regimeA_verdict,
+        # C57: signed companion to regimeA_drift, distinct key, same metrics,
+        # fit on the *_signed per-row columns instead of the abs()-valued ones.
+        regimeA_drift_signed=drift_A_signed,
         regimeA_invariant_metric_evidence=A_mismatch,
         regimeA_contaminated_metric_evidence=A_contam_majority_mismatch,
         regimeA_y_odds_ratio=REGIME_A_Y_ODDS_RATIO,
-        regimeB_sweep=regimeB_rows, regimeB_drift=drift_B, regimeB_verdict=regimeB_verdict,
+        regimeB_sweep=regimeB_rows, regimeB_drift=drift_B,
+        # C57: signed companion to regimeB_drift.
+        regimeB_drift_signed=drift_B_signed,
+        regimeB_verdict=regimeB_verdict,
         regimeB_core_pointwise_divergence=B_core_pointwise_divergence,
         regimeB_core_credible_drift=B_core_credible_drift,
         regimeB_secondary_absolute_dp_breach=any_absolute_breach,
@@ -744,11 +782,18 @@ def main():
     # pums_replication_results.json / regimeA_sweep.csv / regimeB_sweep.csv)
     # so this re-run with the extended, signed audit does not overwrite the
     # committed unsigned results.
-    with (OUT_DIR / "pums_replication_results_signed.json").open("w") as f:
+    # C57: this run additionally patches the STEP 6 drift regressions to fit
+    # the signed columns (regimeA_drift_signed / regimeB_drift_signed,
+    # fit_basis-labelled). To avoid overwriting the already-committed
+    # pums_replication_results_signed.json / regimeA_sweep_signed.csv /
+    # regimeB_sweep_signed.csv (which do not have this fix and are cited by
+    # results/accord/sign_provenance_audit.json F1), this C57 re-run is
+    # written to distinct "_v2" filenames instead.
+    with (OUT_DIR / "pums_replication_results_signed_v2.json").open("w") as f:
         json.dump(out, f, indent=2)
 
-    pd.DataFrame(regimeA_rows).to_csv(OUT_DIR / "regimeA_sweep_signed.csv", index=False)
-    pd.DataFrame(regimeB_rows).to_csv(OUT_DIR / "regimeB_sweep_signed.csv", index=False)
+    pd.DataFrame(regimeA_rows).to_csv(OUT_DIR / "regimeA_sweep_signed_v2.csv", index=False)
+    pd.DataFrame(regimeB_rows).to_csv(OUT_DIR / "regimeB_sweep_signed_v2.csv", index=False)
 
     print(f"\nSaved results to {OUT_DIR}. Total runtime: {out['runtime_seconds']}s")
     print("ALL_DONE")
