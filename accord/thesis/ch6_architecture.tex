@@ -399,18 +399,37 @@ $0.5000$ at every epoch. This is the constant-prediction solution: binary
 cross-entropy at $p = 0.5$ for every example. The model learned to emit a
 constant.
 
-Critically, this held in \emph{both} training configurations:\footnote{The
-$22{,}446{,}855$ trainable parameters of the partially unfrozen configuration are
-reported as logged, but the figure appears in no surviving artifact of this
-project and has been \emph{reconstructed} rather than retrieved. It is exactly
-the three top BERT-base encoder layers
-($3 \times 7{,}087{,}872 = 21{,}263{,}616$), plus the pooler
-($768 \times 768 + 768 = 590{,}592$), plus the verified $592{,}647$-parameter
-head, which sums to $22{,}446{,}855$; and
-$22{,}446{,}855 / 592{,}647 = 37.876$, the reported $37.9\times$. No other
-plausible unfreezing depth reproduces the number, so the reconstruction is
-unique, but the reader should know that the $37.9\times$ ratio rests on one
-logged quantity and one derived one.}
+This is the only Stage 0 training configuration with a surviving run record.
+A wider configuration was specified to test whether trainable capacity, and
+not architecture, was the constraint, but it was never actually trained:
+\texttt{accord/stage0/train.py} freezes the backbone unconditionally and
+contains no code path that unfreezes any encoder layer, and the only Stage 0
+trainable-parameter counts with a recorded run are $592{,}647$ and
+$460{,}033$. The figure once reported for that wider configuration,
+$22{,}446{,}855$ trainable parameters, appears in no artifact of this
+project, in the repository or in the MIMIC-III quarantine, and no checkpoint
+with this parameter count exists anywhere on disk. It is nonetheless
+arithmetically reconstructible, and uniquely so: an exhaustive search over
+$104$ configurations of unfrozen-layer count, pooler inclusion, embedding
+inclusion, and head architecture returns exactly one hit --- three unfrozen
+BERT-base encoder layers ($3 \times 7{,}087{,}872 = 21{,}263{,}616$) plus the
+pooler ($768 \times 768 + 768 = 590{,}592$) plus the verified
+$592{,}647$-parameter head, summing to $22{,}446{,}855$. Arithmetic that
+reproduces uniquely is not evidence a run happened. It is also, on
+inspection, evidence of a second problem: $590{,}592$ of that total is the
+BERT pooler, and the pooler is not on the Stage 0 forward path.
+\texttt{ATCGPretrainer.encode} reads \texttt{last\_hidden\_state[:, 0, :]},
+not \texttt{pooler\_output}; a real forward-and-backward pass through the
+module confirms $590{,}592$ pooler parameters with
+\texttt{requires\_grad=True} and zero of them with a non-null gradient, while
+the top encoder layer and \texttt{node\_projection} both receive full
+gradient. The reconstruction closes only because a module that could never
+have been updated is counted as trainable --- the same defect class as the
+harm head and PPC (Section~\ref{sec:c3}, Section~\ref{sec:actual}), and, here,
+an instance of this thesis's own argument occurring inside its own audit. The
+capacity ratio computed over parameters that could actually train,
+$21{,}263{,}616 + 592{,}647$ against $592{,}647$, is $36.88\times$, not the
+$37.9\times$ obtained by counting the dead pooler.
 
 \begin{table}[h]
 \centering
@@ -420,14 +439,16 @@ logged quantity and one derived one.}
 \textbf{Configuration} & \textbf{Trainable params} & \textbf{Final loss} & \textbf{Dev acc.} \\
 \midrule
 Frozen backbone             & 592,647    & 0.693 ($=\ln 2$) & 0.5000 \\
-Partially unfrozen backbone & 22,446,855 & 0.693 ($=\ln 2$) & 0.5000 \\
 \bottomrule
 \end{tabular}
-\caption{Stage 0 coherence pretraining. Increasing trainable capacity by a
-factor of $37.9$ changes nothing. Identical collapse under wildly different
-capacity is strong evidence that the constraint is architectural or
-representational, not a matter of insufficient parameters or optimisation
-budget.}
+\caption{Stage 0 coherence pretraining: the only configuration with a
+surviving run record. \textbf{A partially unfrozen configuration
+($22{,}446{,}855$ trainable parameters, $36.88\times$ this row's live
+capacity) was specified to test capacity as an explanation but was never
+actually trained; no checkpoint, log or code path evidences it (see
+discussion above).} No capacity-invariance claim can be drawn from this
+table; the single surviving configuration converges to the
+constant-prediction solution.}
 \label{tab:stage0}
 \end{table}
 
@@ -458,8 +479,9 @@ function of one scalar, so any structure requiring two or more directions is
 unrepresentable. The sigmoid sits between the representation and the loss, so
 whenever the scalar drifts into a saturated region the gradient reaching
 everything upstream is attenuated. And a scalar that collapses to a constant
-produces a constant output regardless of how much capacity sits behind it, which
-is exactly the invariance observed in Table~\ref{tab:stage0}.
+would produce a constant output regardless of how much capacity sits behind
+it, which is the reasoning a capacity-invariance experiment was designed to
+demonstrate; no such experiment was actually run (Table~\ref{tab:stage0}).
 
 \paragraph{Head truncation into the de-identification header.} Each note is
 truncated to its first $256$ WordPiece tokens, taken from the head. As
@@ -631,9 +653,15 @@ and this thesis makes no claim about that.
 
 \paragraph{The Stage 0 mechanisms are hypotheses supported by code reading, not
 by ablation.} Section~\ref{sec:stage0} is explicit about this and lists the
-experiments that would separate them. The strongest evidence available is the
-invariance across a $37.9\times$ capacity change, which rules out capacity but
-does not adjudicate between the bottleneck and the truncation.
+experiments that would separate them. The claimed evidence from a large
+capacity change is not available: the only reported wider configuration was
+never trained (Section~\ref{sec:stage0}). What is real is narrower: four
+matched re-diagnosis configurations, frozen backbone throughout
+(\texttt{mimic\_local\_only/accord\_stage0/}), vary head architecture and
+truncation window at the much smaller $592{,}647$-versus-$460{,}033$ scale.
+Neither this nor the withdrawn capacity comparison was isolated
+experimentally in a way that adjudicates between the bottleneck and the
+truncation hypotheses.
 
 \paragraph{The transfer collapse has an alternative reading.} A drop from $0.96$
 to $0.065$ is consistent with leakage plus genuine cohort shift, and the two are
@@ -677,11 +705,13 @@ absent from the loss, so its output range of $0.398$ to $0.610$ is the range of
 an untrained sigmoid and the associated research question was not tested.
 
 Self-supervised pretraining converged to the constant-prediction solution, at
-$\ln 2$ with development accuracy exactly $0.5000$, identically under a
-$37.9\times$ change in trainable capacity. The explanation originally given for
-this, that clinical notes are too homogeneous, is withdrawn as untested. Two
-mechanisms are visible in the code: a one-dimensional scoring bottleneck and
-head truncation into the de-identification block.
+$\ln 2$ with development accuracy exactly $0.5000$, in the one Stage 0
+configuration with a surviving run record. A $36.88\times$-larger
+configuration was specified to test capacity invariance but was never
+trained, so no claim rests on that comparison. The explanation originally
+given for the collapse, that clinical notes are too homogeneous, is withdrawn
+as untested. Two mechanisms are visible in the code: a one-dimensional
+scoring bottleneck and head truncation into the de-identification block.
 
 Chapter~\ref{ch:eval} measures what this model does on the pharmacist-annotated
 set, four independent ways, and finds that its scores contain no information

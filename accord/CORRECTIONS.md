@@ -2585,3 +2585,76 @@ That is the thesis's own argument, demonstrated on the thesis's own record.
 **Standing rule.** No directional claim from any experiment in this project unless the artifact
 stores the signed quantity and the per-group values it was computed from. Retrofitted here for the
 selection experiments; the same audit must be run on every other metric before it is written up.
+
+
+---
+
+## C57. The drift regressions were still fitted to unsigned columns after the C52 retrofit; seven slopes flip
+
+The C52 retrofit added signed and per-group fields to the sweep rows. It did **not** touch the
+drift-regression block — `accord/pums_replication/run_experiment.py:557-591` and
+`accord/selection_experiment/run_experiment.py:373-386` still fit their OLS slope to the
+**unsigned** gap column, one function away from the signed companions added in the same commit.
+Confirmed from the diff of `def441c`: lines ~417–607 were never modified.
+
+Refitting on the signed columns already on disk (`accord/stats/sign_provenance_drift_recheck.py`):
+
+| sweep / metric | abs-fit slope | signed slope | |
+|---|---|---|---|
+| E9 MIMIC / demographic parity | +0.02238 | +0.02238 | — |
+| E9 MIMIC / TPR | +0.00147 | +0.00852 | magnitude ×5.8 |
+| E9 MIMIC / FPR | +0.01790 | +0.01986 | — |
+| E9 MIMIC / PPV | −0.00593 | −0.00593 | — |
+| E9 MIMIC / equalized odds | +0.00708 | +0.01413 | magnitude ×2 |
+| PUMS A / demographic parity | +0.00780 | **−0.00780** | **FLIP** |
+| PUMS A / PPV | +0.00782 | **−0.00782** | **FLIP** |
+| PUMS A / calibration | +0.00815 | +0.00815 | — |
+| PUMS B / demographic parity | −0.01177 | **+0.01177** | **FLIP** |
+| PUMS B / TPR | −0.00557 | **+0.00569** | **FLIP** |
+| PUMS B / FPR | −0.00262 | **+0.00703** | **FLIP + credibility call changes** |
+| PUMS B / PPV | −0.00342 | **+0.00342** | **FLIP** |
+| PUMS B / equalized odds | −0.00443 | **+0.00884** | **FLIP** |
+
+**Seven sign flips. One metric changes whether its drift is credible at all.** E9 shows no flips —
+but only because its signed gap happens to stay same-signed across the whole sweep, not because the
+code checks. Two E9 magnitudes are still wrong by factors of 2 and 5.8.
+
+**An ambiguity this creates inside this record, which must be fixed before either number is
+quoted.** C51 reports PUMS Regime A demographic parity as **+0.007805** and calls it "the committed
+run"; C56 reports the same quantity as **−0.00780**. Both are correct and they are not the same
+statistic — C51 quotes the **abs-fit** slope printed in `full_run.log`, C56 quotes the **signed**
+slope. C51 did not say which it was, because when C51 was written the distinction had not yet been
+discovered. **Every slope in this project must from now on be labelled abs-fit or signed at the
+point of use.** C51's substantive finding — that the run's own drift flags contradict C41's table —
+is unaffected.
+
+**Five of these flips are metrics C56 never checked.** C56 examined demographic parity because that
+was the metric under dispute, and generalized from it. The correct move was to check every metric
+the same artifact reports, which is what this sweep did.
+
+**Still unpatched, and requiring a re-run:** `accord/selection_experiment/threshold_robustness_sweep.py`
+(the C40 evidence) calls the patched `audit_pool()` but discards the signed keys before saving. No
+signed variant exists anywhere on disk and it cannot be recovered by recomputation.
+
+**Current thesis exposure: none.** No chapter cites PUMS, ACSIncome, Regime A/B, four-fifths or
+demographic parity — verified by grep across ch1–ch10. This is entirely a pre-write correction,
+which is the first time in this project that a defect of this class has been caught before it
+reached the draft rather than after.
+
+---
+
+## C58. The weak labeller's MCC interval is now computed rather than asserted
+
+C53's chapter edits stated that the corrected weak-labeller MCC of +0.024 "certainly includes zero"
+without computing an interval — flagged honestly by the editor as asserted, not computed. In a
+thesis about numbers that cannot be checked, that could not stand.
+
+Computed from the weak labeller's own cells (TP 11, FN 1, FP 212, TN 29 on n = 253), 10,000
+bootstrap resamples, **0 degenerate draws**:
+
+> **MCC = +0.0243, 95% CI [−0.1040, +0.0966].**
+
+The interval contains zero. The corrected reading is therefore *indistinguishable from chance*,
+which is what the chapters now say — and the point estimate being positive rather than negative
+changes nothing about that conclusion, only about the false claim that it was **worse** than
+chance.

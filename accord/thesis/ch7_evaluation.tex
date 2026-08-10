@@ -450,7 +450,7 @@ Chapters~\ref{ch:candidates} through~\ref{ch:arch} are beside the point.
 GPT-4o, zero-shot        & \textbf{8.45\%} & 50.0\% & $+0.109$ \\
 GPT-4o, few-shot         & 4.96\%          & 58.3\% & $+0.012$ \\
 ACCORD, $\tau = 0.5$     & 4.24\%          & 77.8\% & $-0.007^{\dagger}$ \\
-Llama 3 8B (weak labeller) & 4.55\%        & 91.7\% & $-0.044$ \\
+Llama 3 8B (evaluation baseline) & 4.55\%        & 91.7\% & $-0.044$ \\
 \bottomrule
 \end{tabular}
 \caption{System comparison on the $253$ non-ambiguous pharmacist-annotated
@@ -460,7 +460,12 @@ summary statistic least distorted by extreme class imbalance; a value of $0$ is
 chance. ACCORD's precision and recall are the decontaminated three-seed means
 ($4.24\% \pm 0.23$, $77.8\% \pm 3.9$); its MCC, marked $\dagger$, is computed
 from the \emph{contaminated} confusion matrix on the $253$-pair core and has not
-been recomputed under decontamination. All four MCCs carry $95\%$ bootstrap
+been recomputed under decontamination. \textbf{The Llama row is a separately
+prompted Llama 3\,8B evaluation run on these pairs, using the original
+labeller's prompt, and is not the weak-supervision training labels
+themselves}; measured directly against its own labels, the weak labeller
+scores MCC $+0.024$, precision $4.93\%$, recall $91.7\%$ (Chapter~\ref{ch:weak}).
+All four MCCs carry $95\%$ bootstrap
 intervals that contain zero (Chapter~\ref{ch:metrics},
 Table~\ref{tab:met-mccci}), so the ordering they induce over these four systems
 is not identified and no claim in this thesis rests on it. What the table
@@ -494,11 +499,16 @@ labeller's, arrived at independently. [TODO: report the exemplar class balance
 used in the few-shot prompt. If it over-represents positives relative to the
 $4\%$ base rate, the mechanism is identified rather than hypothesised.]
 
-\paragraph{ACCORD did not improve on its teacher.} ACCORD ($-0.007$) and Llama
-($-0.044$) both sit at or below zero, and neither interval excludes zero. Under
+\paragraph{ACCORD did not improve on its teacher.} ACCORD ($-0.007$) sits below
+the weak labeller's own MCC on these pairs, $+0.024$ (TP~$11$, FN~$1$,
+FP~$212$, TN~$29$) --- both are point estimates indistinguishable from chance,
+not evidence that either scores below it. [Correction note: an earlier draft
+put the teacher's MCC at $-0.044$ here, which is the score of a separately
+prompted Llama 3\,8B evaluation run (the Llama row of
+Table~\ref{tab:systems}), not the weak labeller's own calls.] Under
 decontamination ACCORD's recall falls from the teacher's $91.7\%$ to
 $77.8\% \pm 3.9$ while its precision, $4.24\%$, drops below both the teacher's
-$4.55\%$ and the $4.74\%$ base rate. Both remain near-constant positive
+$4.93\%$ and the $4.74\%$ base rate. Both remain near-constant positive
 predictors. This is Chapter~\ref{ch:weak}'s finding restated on the gold set: the
 student reproduced the teacher's marginal, and reproduced it slightly worse.
 
@@ -930,10 +940,14 @@ independent measurements establish that this is not a threshold problem:
       severity research question was not tested.
 \item \textbf{Comparison.} GPT-4o zero-shot is the only system whose MCC point
       estimate is meaningfully positive ($+0.109$); ACCORD sits at $-0.007$ and
-      the weak labeller it was distilled from at $-0.044$. All four bootstrap
-      intervals contain zero (Chapter~\ref{ch:metrics},
-      Table~\ref{tab:met-mccci}), so no system in the comparison is
-      distinguishable from chance and the ordering over them is not identified.
+      the weak labeller it was distilled from at $+0.024$, both indistinguishable
+      from chance. [Correction note: an earlier draft put the weak labeller's
+      score at $-0.044$ here, which is the score of a separately prompted Llama
+      3\,8B evaluation run, not the weak labeller's own calls; that run, not the
+      weak labeller, is the fourth row of Table~\ref{tab:met-mccci}.] All four
+      bootstrap intervals in that table contain zero (Chapter~\ref{ch:metrics}),
+      so no system in the comparison is distinguishable from chance and the
+      ordering over them is not identified.
 \end{enumerate}
 
 Omission accounts for $7$ of the $12$ true contradictions, and it is the error

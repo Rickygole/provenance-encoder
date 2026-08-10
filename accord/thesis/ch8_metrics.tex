@@ -223,14 +223,17 @@ Table~\ref{tab:met-confusion} reports both.
 GPT-4o, zero-shot          & 6  & 6 & 65  & 176 & $+0.109$ & $+0.109$ \\
 GPT-4o, few-shot           & 7  & 5 & 134 & 107 & $+0.012$ & $+0.012$ \\
 ACCORD, $\tau = 0.5$$^{\dagger}$ & 11 & 1 & 223 & 18  & $-0.007$ & $-0.007$ \\
-Llama 3 8B (weak labeller) & 11 & 1 & 231 & 10  & $-0.044$ & $-0.044$ \\
+Llama 3 8B (evaluation baseline) & 11 & 1 & 231 & 10  & $-0.044$ & $-0.044$ \\
 \bottomrule
 \end{tabular}
 \caption{Confusion matrices reconstructed from the precision and recall reported
 in Chapter~\ref{ch:eval}, Table~\ref{tab:systems}, on the $253$ non-ambiguous
 pairs ($P = 12$, $Q = 241$). The final two columns are the check: MCC computed
 from the reconstructed cells agrees with the independently reported MCC to three
-decimal places for all four systems. The ACCORD row is independently
+decimal places for all four systems. \textbf{The Llama row is a separately
+prompted Llama 3\,8B evaluation run, not the weak-supervision training
+labels}; measured directly, the weak labeller's own calls give TP~$11$,
+FN~$1$, FP~$212$, TN~$29$, MCC $+0.024$ (Chapter~\ref{ch:weak}). The ACCORD row is independently
 corroborated by Chapter~\ref{ch:eval}'s reported accuracy of $0.115$, which is
 $(11 + 18)/253$. $\dagger$~The ACCORD row is the \emph{contaminated}
 configuration's confusion matrix; its $\mathrm{TP} = 11$ is a recall no
@@ -263,7 +266,7 @@ state that they cannot be reproduced and restrict the chapter to four.]}
 GPT-4o, zero-shot          & 6  & \textbf{0.615} & $\mathbf{+0.439}$ & $\mathbf{+0.109}$ \\
 GPT-4o, few-shot           & 7  & 0.514          & $-0.099$          & $+0.012$ \\
 ACCORD, $\tau = 0.5$$^{\dagger}$ & 11 & 0.496    & $-0.771$          & $-0.007$ \\
-Llama 3 8B (weak labeller) & 11 & 0.479          & $-0.834$          & $-0.044$ \\
+Llama 3 8B (evaluation baseline) & 11 & 0.479          & $-0.834$          & $-0.044$ \\
 \bottomrule
 \end{tabular}
 \caption{All three statistics induce the same ordering, and all three place the
@@ -343,7 +346,7 @@ Table~\ref{tab:met-mccci}.
 GPT-4o, zero-shot          & 253 & $+0.1089$ & $[-0.0319, 0.2484]$ \\
 GPT-4o, few-shot           & 253 & $+0.0117$ & $[-0.1120, 0.1319]$ \\
 ACCORD, $\tau = 0.5$$^{\dagger}$ & 253 & $-0.0070$ & $[-0.1626, 0.0753]$ \\
-Llama 3 8B (weak labeller) & 253 & $-0.0436$ & $[-0.2337, 0.0563]$ \\
+Llama 3 8B (evaluation baseline) & 253 & $-0.0436$ & $[-0.2337, 0.0563]$ \\
 \bottomrule
 \end{tabular}
 \caption{Bootstrap $95\%$ confidence intervals on Matthews correlation for all
@@ -352,13 +355,21 @@ non-ambiguous evaluation set. \textbf{All four intervals contain zero.} No syste
 in this comparison is distinguishable from chance, the ordering the point
 estimates induce is not identified, and no claim in this thesis may rest on it.
 $\dagger$~ACCORD's row is computed from the contaminated confusion matrix of
-Table~\ref{tab:met-confusion}; see the note there.}
+Table~\ref{tab:met-confusion}; see the note there. \textbf{The Llama row is a
+separately prompted evaluation run, not the weak-supervision training
+labels}; no bootstrap interval has been computed for the weak labeller's own
+calls.}
 \label{tab:met-mccci}
 \end{table}
 
 ACCORD sits at $-0.0070$, indistinguishable from chance. The weak labeller it was
-distilled from sits at $-0.0436$, and its interval also spans zero, so it is not
-established to be worse than chance either. GPT-4o zero-shot at $+0.1089$, with
+distilled from sits at $+0.0243$ on these pairs, measured directly against its
+own labels, also indistinguishable from chance --- a point estimate this small
+from $12$ positives carries a confidence interval that certainly includes
+zero, and it is not established to be below chance either. [Correction note: an
+earlier draft put this figure at $-0.0436$, which is the fourth row of
+Table~\ref{tab:met-mccci}, a separately prompted Llama 3\,8B evaluation run
+rather than the weak labeller's own calls.] GPT-4o zero-shot at $+0.1089$, with
 $8.45\%$ precision against a base rate of $4.74\%$, has the only point estimate
 that is meaningfully positive and the only one whose interval nearly excludes
 zero --- but it does not exclude it. Balanced accuracy, PABAK, and MCC all put it
