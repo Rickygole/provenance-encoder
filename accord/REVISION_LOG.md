@@ -170,3 +170,86 @@ fail to predict) and arXiv:2604.22348 (medical claims model, task-dependent satu
 remains a valid positive control — it licenses reading C37's clinical null as a measured null rather
 than an underpowered one — but it is **not a contribution and the chapter must not be written as
 one.** `CONTRIBUTION.md` item 1 is amended accordingly.
+
+### R6 (2026-08-10) — C54's checkpoint premise is false; 23 checkpoints exist on the Drive mount
+
+C54 states: *"No ACCORD or Stage 0 checkpoint exists on disk at all."* **That is wrong.**
+`My Drive/thesis/outputs/` contains **23 `.pt` files**, including `accord_stage1_best.pt`,
+`accord_stage2_best.pt`, `accord_v2_best.pt`, `atcg_pretrained.pt`, the three
+`accord_v2_decontam_seed{0,1,2}.pt`, and seven ablation checkpoints. Verified by listing the mount.
+
+The audit that produced the claim searched the repository and the MIMIC quarantine and **did not
+search the Drive mount** — the same mount this project has been syncing to all week. I relayed
+"no checkpoint exists anywhere" as verified fact without checking the one location most likely to
+hold model weights.
+
+**What survives in C54, and it is the load-bearing part:** the argument that the 22,446,855
+configuration was never trained rests on two things independent of the checkpoint inventory — no
+code path anywhere unfreezes encoder layers (`accord/stage0/train.py` freezes the backbone
+unconditionally), and 590,592 of the reconstructed total is a pooler that is off the Stage 0
+forward path and receives zero gradient, verified by a real forward+backward. Both stand. The
+36.88× live-parameter ratio stands and is correctly propagated.
+
+**What must change:** every sentence in C54 and in any chapter asserting that no checkpoint exists
+must be rewritten before printing, and the 23 checkpoints must be inventoried for parameter counts
+— one of them may match a configuration the draft describes. Until that is done, **no claim of the
+form "X was never trained" may rest on checkpoint absence.**
+
+**Second occurrence of the same error class.** C36 recorded ~30 "untraceable" numbers; the figures
+agent later found two of them were in the Drive quarantine it never searched. An artifact is not
+absent because the search did not reach where it lives.
+
+### R7 (2026-08-10) — the number audit: 15 mismatches, 9 of them abstract-level; the introduction inverts the central claim
+
+`results/accord/number_provenance_audit.json` — 72 adjudicated claims, 1,791 numeric literals
+extracted, 96 quantities independently recomputed by re-runnable scripts under `accord/stats/`.
+
+| verdict | total | abstract-level |
+|---|---|---|
+| VERIFIED | 48 | 21 |
+| MISMATCH | 15 | **9** |
+| SUPERSEDED | 3 | 2 |
+| UNTRACEABLE | 6 | 2 |
+
+**The worst one, now fixed.** `ch1:240` read *"precision $0.047$ against a base rate of
+$0.0424 \pm 0.0023$"* — in the paragraph headed "The headline is stated once, plainly." But
+$0.0424$ **is ACCORD's decontaminated precision**, not a base rate, and the sentence also reverted
+precision to the contaminated $0.047$ mid-clause. Because $0.047 > 0.0424$, the introduction read
+as *the detector beats the pool's base rate* — the exact inverse of `ch7:201` (*"ACCORD's
+decontaminated precision of 4.24% ± 0.23 is below it"*) and of the thesis's central negative
+result. Corrected to state precision $0.0424 \pm 0.0023$ against the base rate $0.0474$
+(12 of 253), with the direction named explicitly. **This is C53's failure class — a cell carrying
+another quantity's value — in the most-read paragraph of the document.**
+
+**Five more blocking items, all edits, none requiring an experiment:**
+
+1. **"Above chance" was formally retracted at `ch7:484-491`** (CI [−0.0319, 0.2484] contains zero)
+   and the retraction never reached `ch1:254`, `ch10:83`, `ch10:110` — where it carries the claim
+   "the task is not the problem" — and `ch7:791` contradicts `ch7:484` **inside the same chapter**.
+2. **Top-15 contradictions: "zero" in the framing chapters, "one" in the body.** `ch1:190` and
+   `ch10:73` say zero; `ch7:293`, `ch7:930`, `ch8:321` say one. **One** is correct (ensemble;
+   per-seed 1, 0, 0). Zero is the contaminated count.
+3. **Denominator: 0.5145 and the GPT-4o comparison are attributed to n=299; the artifact is n=253**
+   — `ch1:377`, `ch7:233`, `ch10:70`, `ch1:249`, `ch10:107`. `ch7`'s own caption concedes n=253 and
+   contradicts the table it captions.
+4. **C16-superseded in seven places:** α "moved by 1.8% and 0.6%" is a *contaminated single seed*.
+   The 3-seed decontaminated values give **1.5% and 0.4%**. `ch6:189` additionally describes that
+   single seed as "across three seeds".
+5. **Two provenance notes are false and cost the draft real evidence.** `ch6:301-306` says
+   `transfer_results_correct.json` "could not be located on disk" — **it exists**, and 0.0654 /
+   0.0595 / 0.9603 reproduce exactly. `ch7:85` claims the MedNLI figures are "the only numbers in
+   this thesis whose producing artifact could not be found", which `ch6:305` contradicts. Fixing
+   these **strengthens** the negative result by restoring artifacts the draft had written off.
+
+**Also logged:** the C58 bootstrap CI [−0.1040, +0.0966] has no artifact — it exists only in the
+correction and the .tex, and an independent re-run gives [−0.1016, +0.0970]. Right in substance,
+not reproducible to the printed digits because the seed was never recorded. **That is the C48
+pattern and it is mine, from this morning.** Mixed `ddof` conventions inside one comparison
+(`ch7:242/259` vs `ch7:284`), `±` never defined, and no multiple-comparison accounting across ~20
+tests are logged in the JSON.
+
+**Neither the survey nor C62 has any thesis exposure** — grep finds no chapter citing either. Both
+are verified and unused, which is consistent with the finding that the audit has decoupled from the
+document.
+
+**Verdict: not submittable until items 1–5 and R6 are fixed. All are edits.**
