@@ -1,3 +1,12 @@
+# Corrections
+
+> **CLOSED 2026-08-10 at C62. This time the closure is enforced rather than intended.**
+> C46 declared this record closed and sixteen corrections followed it. New findings now go to
+> `REVISION_LOG.md`, which by written rule cannot change the thesis statement, the contribution
+> list, or the chapter structure. This file is Appendix A and is not the thesis's spine — it has
+> one coder, no coding protocol, and an author-controlled denominator, which is a lower standard
+> than this project applied to 75 strangers' papers. It is evidence of process, not a finding.
+
 # ACCORD — corrections to the record
 
 Every claim below appeared in the NeurIPS 2026 submission, its supplemental, or the
