@@ -11,13 +11,16 @@ what happened the last three times.
 
 ## The thesis
 
-> Known evaluation-validity failures are diagnosed one instrument at a time, in isolation, usually
-> by authors auditing other people's work. This thesis applies those diagnoses end to end to a
-> single clinical NLP pipeline — including to its own prior published claims — and reports what the
-> controls change, what they cost, and which conclusions do not survive them.
+> Detecting dangerous medication contradictions between nursing notes and discharge summaries is a
+> real patient-safety problem, and the standard pipeline for it — rule-based candidate mining, LLM
+> weak supervision, and a purpose-built neural detector — fails. This thesis establishes **where it
+> fails and why**, by running at each stage the control that would distinguish a real finding from
+> an artifact of the measurement. Every stage failed a control. The controls cost hours. None of
+> them is novel, and none of them was run before this work.
 
-The claims below are **not** novel as mechanisms. Each is attributed to the work that owns it. What
-is new is the measurement on this pipeline, and the fact that the controls were actually run.
+The methods below are **not** novel, and each is attributed to the work that owns it. What is new is
+the measurement on this pipeline, and the fact that the controls were actually run. Full frame in
+`FRAMING.md`.
 
 ---
 
@@ -105,9 +108,11 @@ logged before 2026-08-09 and are not reconstructed. The cost claim is compute-on
 
 | | cost |
 |---|---|
+| **Blocking:** the six R7 mismatches — un-propagated "above chance" retraction, top-15 zero/one split, n=299 vs n=253 denominators, C16-superseded α in 7 places, re-verify C54 against the Drive mount (R6). The `ch1:240` inversion is already fixed | ~2 days |
 | Delete: 7 proposed-figure blocks, the unbuilt architecture spec, duplicated ethics statement | ~1 day |
-| Merge ch3+ch4+ch6+ch7 → one pipeline chapter, 2,890 → ~430 lines | ~5 days |
-| Write chapters 5, 7, 4; then 6, 8, 9; introduction and title last | ~4 weeks |
+| Merge ch3+ch4 and ch6+ch7 | ~5 days |
+| Propagate corrections on the merged surface | ~3 days |
+| Write Ch 7 first, then 4, 5, 6, 8, 9; Ch 2, then Ch 1 + abstract + title last | ~5 weeks |
 | Second coder on a subsample **enriched for the 4 strict-yes papers** (C59) | ~1 day |
 
 **Zero experiments remain.** 62 corrections, all resolved. The draft compiles at 129 pages with
