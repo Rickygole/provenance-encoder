@@ -75,13 +75,21 @@ cohorts were built for a transfer test, sepsis under \texttt{038} and acute kidn
 study would use, since it over-includes admissions where heart failure is a comorbidity and
 under-includes admissions where the condition was present but uncoded.
 
-The only further clinical filter is a positive length of stay. In the reference implementation that
-filter was computed, printed, and assigned to a copy of the frame that was never used again, so the
-note joins ran against the unfiltered set; the rebuild applies it to the frame actually joined. The
-difference is immaterial to any conclusion, and it is recorded because it is the first instance of
-a pattern recurring at every stage: a quantity is computed and reported as though it constrained
-the pipeline, while the code path that would have applied it does not exist
-\citep{sculley2015debt}.
+The only further clinical filter is a positive length of stay. Applying the prefix match alone
+returns 13,608 heart failure admissions; after the length-of-stay filter 13,597 remain, of which
+10,143 belong to distinct subjects. The two secondary cohorts move by the same filter from 6,265 to
+6,253 admissions for sepsis and from 11,422 to 11,408 for acute kidney injury, removing 12 and 14
+admissions respectively against 11 for heart failure, in every case under one percent of the cohort
+(\texttt{cohort.heart\_failure.pre\_los}, \texttt{cohort.heart\_failure.post\_los},
+\texttt{cohort\_chain.hf\_admissions\_los\_filtered\_unique\_subjects},
+\texttt{cohort.sepsis.pre\_los}, \texttt{cohort.sepsis.post\_los}, \texttt{cohort.sepsis.removed},
+\texttt{cohort.aki.pre\_los}, \texttt{cohort.aki.post\_los}, \texttt{cohort.aki.removed}). In the
+reference implementation that filter was computed, printed, and assigned to a copy of the frame
+that was never used again, so the note joins ran against the unfiltered set; the rebuild applies it
+to the frame actually joined. The difference is immaterial to any conclusion, and it is recorded
+because it is the first instance of a pattern recurring at every stage: a quantity is computed and
+reported as though it constrained the pipeline, while the code path that would have applied it does
+not exist \citep{sculley2015debt}.
 
 \subsection{Note roles, and the retreat from three to two}
 
@@ -101,7 +109,14 @@ localises the constraint: physician note types in MIMIC-III are unevenly populat
 covered period, and requiring three roles at once intersects three sparse conditions. Coverage
 under every partition tried, the original three-role split, the broadened admission-note
 definition, and the temporal window, fell well short of the coverage achieved once the design
-retreated to two roles, and no attempt at three roles was judged usable.
+retreated to two roles, and no attempt at three roles was judged usable. The adopted two-role
+partition finds 13,321 of the 13,608 heart failure admissions with a discharge summary and 10,012
+with a nursing note; the recomputed intersection carrying both roles is 9,820 admissions, while the
+reference implementation's own count for that same intersection is 9,825, five higher for reasons
+the recovered artifact does not resolve. The funnel figure quoted elsewhere in this thesis is the
+reference count, 9,825 of 13,608 (\texttt{cohort\_chain.has\_discharge\_summary},
+\texttt{cohort\_chain.has\_nursing\_note}, \texttt{cohort\_chain.has\_both\_roles},
+\texttt{cohort\_chain.reference\_has\_both\_roles}, \texttt{cohort\_chain.hf\_admissions\_icd\_only}).
 
 Dropping the third role is a design cost rather than a nuisance. With three roles the pipeline
 could have separated a nursing-to-physician disagreement, a within-stay communication failure, from
@@ -125,6 +140,12 @@ rule rather than on a measured comparison, and any filter searching for document
 between the two notes has an empty interval to search, which makes the intermediate-documentation
 hypothesis untestable in this resource rather than tested and rejected.
 
+This selection returns 9,783 admissions with a selected nursing note and 9,783 with a selected
+discharge summary, the same 9,783 admissions counted both ways, for 19,566 note-pair rows in total
+(\texttt{cohort\_chain.nursing\_notes\_selected}, \texttt{cohort\_chain.discharge\_notes\_selected},
+\texttt{cohort\_chain.valid\_admissions\_both\_selected}, \texttt{cohort\_chain.total\_note\_pair\_rows}).
+That is the cohort the mining rules of Section~\ref{sec:m-candidates} run against.
+
 \subsection{Medication mention extraction and splitting}
 
 Medication extraction is a mature task with strong published systems
@@ -144,6 +165,16 @@ next: the negation alternation produces a boolean over that window, the four act
 are applied in a fixed order and the first match determines the raw action, and negation then
 rewrites the result, mapping continuation and initiation to cessation and cessation to
 continuation.
+
+Run over the 9,783 admissions the extractor returns 219,683 mentions across 9,732 unique admissions
+and 70 distinct drugs; 88,336 of those mentions receive an action classification and 131,347 do
+not, since $88{,}336 + 131{,}347 = 219{,}683$
+(\texttt{extraction.medication\_extraction.total\_mentions},
+\texttt{extraction.medication\_extraction.classified\_mentions},
+\texttt{extraction.medication\_extraction.unique\_admissions},
+\texttt{extraction.medication\_extraction.unique\_drugs}). Fewer than half of all mentions carry an
+action at all, which bounds how much of the corpus Rules 1 and 2 can ever reach, since both rules
+are defined entirely over the classified subset.
 
 Three properties propagate downstream, and they matter because Rules 1 and 2 are defined entirely
 over these labels. The action is a property of the window and not of the drug mention, so every
@@ -261,6 +292,27 @@ Rules 3 and 4 exist only in the rebuild, because the reference extractor stored 
 parsing them and recorded no positional information. Any comparison between rebuild and reference
 behaviour is therefore restricted to Rules 1 and 2, and that restriction is what defines the
 defect-free stratum used in Section~\ref{sec:m-control-rq1}.
+
+Applied to the classified mentions, the four rules return a raw pool of 1,980 candidates before any
+temporal check, split 886 from Rule 1, 203 from Rule 2, 521 from Rule 3 and 370 from Rule 4
+(\texttt{mining.total\_candidates}, \texttt{mining.by\_rule.rule1\_direct\_action\_conflicts},
+\texttt{mining.by\_rule.rule2\_drug\_class\_conflicts},
+\texttt{mining.by\_rule.rule3\_dosage\_conflicts},
+\texttt{mining.by\_rule.rule4\_omission\_conflicts}), covering 1,205 distinct admissions
+(\texttt{mining.unique\_admissions\_with\_candidates}). A temporal prefilter that requires a
+resolvable ordering between the two notes then drops the pool to 1,978 candidates, split 886, 202,
+520 and 370 (\texttt{extraction.temporal\_prefilter.final\_candidates},
+\texttt{extraction.contradiction\_mining.rule1\_direct\_action},
+\texttt{extraction.contradiction\_mining.rule2\_drug\_class},
+\texttt{extraction.contradiction\_mining.rule3\_dosage},
+\texttt{extraction.contradiction\_mining.rule4\_omission}). These are two different splits, raw and
+post-prefilter, and the two are reported separately here rather than conflated, as an earlier draft
+did: the prefilter removes two candidates in total, one each from Rule 2 and Rule 3, out of 1,068
+admissions carrying a usable date window and 643 admissions carrying an intermediate note between
+the two selected notes (\texttt{extraction.temporal\_prefilter.resolved\_removed},
+\texttt{extraction.temporal\_prefilter.admissions\_with\_window},
+\texttt{extraction.temporal\_prefilter.admissions\_with\_intermediate\_notes}). Every candidate count
+elsewhere in this thesis is the post-prefilter figure, 1,978, unless stated otherwise.
 
 \subsection{Exemplar selection, and the defect in it}
 \label{sec:m-exemplar}
@@ -454,9 +506,18 @@ makes it the correct reference point for reading any AUROC near chance.
 
 A stratified sample was drawn from the candidate pool, allocated across the four rules with Rules 2
 and 4 oversampled relative to their share of the pool, on the reasoning that these were the rules
-whose behaviour was least understood. The frame was fixed before annotation began. The returned
-annotation set has $n = 299$ pairs (\texttt{gold.n\_total}), one fewer than the frame, and the
-missing row's stratum is not recoverable from the reported rates alone.
+whose behaviour was least understood. The frame draws 134 pairs from Rule 1, 31 from Rule 2, 79
+from Rule 3 and 56 from Rule 4, for 300 pairs total (\texttt{extraction.annotation\_sample.rule1},
+\texttt{extraction.annotation\_sample.rule2}, \texttt{extraction.annotation\_sample.rule3},
+\texttt{extraction.annotation\_sample.rule4}, \texttt{extraction.annotation\_sample.total\_sampled}).
+The frame was fixed before annotation began. The returned annotation set has $n = 299$ pairs
+(\texttt{gold.n\_total}), one fewer than the frame, and the per-rule breakdown of what was returned,
+134, 31, 79 and 55, shows the missing row belongs to Rule 4
+(\texttt{goldstrata.join\_feasibility.gold\_rule\_counts.1},
+\texttt{goldstrata.join\_feasibility.gold\_rule\_counts.2},
+\texttt{goldstrata.join\_feasibility.gold\_rule\_counts.3},
+\texttt{goldstrata.join\_feasibility.gold\_rule\_counts.4}): Rules 1 through 3 returned every
+sampled pair and Rule 4 returned one fewer than it was sent.
 
 A single board-certified pharmacist annotated the sampled pairs, recording for each a three-way
 label, contradiction, not a contradiction, or ambiguous; a free-text justification; a confidence
@@ -570,6 +631,7 @@ materially smaller while the direction persists. This governs what may be claime
 mechanism may be described as general and the magnitude may not.
 
 \subsection{RQ3: do the architectural components contribute what they are credited with?}
+\label{sec:m-control-rq3}
 
 \textbf{Condition.} A component credited with exploiting a semantic property must beat an arbitrary
 substitute that carries no such property. If the arbitrary substitute matches or exceeds the

@@ -69,23 +69,57 @@ expected output. What fails is what the precision figure is then used to justify
 
 \subsection{Per-rule yield and precision}
 
-Per-rule candidate counts and per-rule pharmacist precision are not in
-\texttt{VERIFIED\_FACTS.json} and are not stated here. The one per-rule quantity
-carried into this chapter is the size and positive count of the Rule 3 plus
-Rule 4 stratum, $n = 134$ with 6 positives.
+The candidate pool itself is dominated by one rule: of the 1,978 post-prefilter candidates,
+886 come from Rule 1, 202 from Rule 2, 520 from Rule 3 and 370 from Rule 4
+(Section~\ref{sec:m-candidates}), so Rule 1 alone supplies close to half the pool. Pharmacist
+precision, measured on the 299-pair gold sample, does not track that share. Table~\ref{tab:rule-precision}
+gives the size of each rule's gold stratum, the pharmacist's true-positive rate on it, and ACCORD's
+predicted-positive rate on the same rows.
 
-That stratum carries the structural point on its own. Rules 3 and 4 account for
-134 of the 299 pairs and 6 of the 12 confirmed contradictions, so the positives
-are spread across the rule set rather than concentrated in one rule, and no rule
-is doing the work. Figure~\ref{fig:rule-precision} reports per-rule ranking
-performance in place of the per-rule precision panel, which no artifact supports.
+\begin{table}[H]
+\caption{Per-rule gold stratum size, pharmacist precision, and ACCORD's predicted-positive rate}
+\label{tab:rule-precision}
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Rule} & \textbf{$n$} & \textbf{Pharmacist precision} & \textbf{ACCORD predicted positive} \\
+\midrule
+1, direct action conflict & 134 & 2.24\% & 97.01\% \\
+2, drug class conflict    & 31  & 9.68\% & 96.77\% \\
+3, dosage conflict        & 79  & 5.06\% & 97.47\% \\
+4, omission                & 55  & 3.64\% & 74.55\% \\
+\bottomrule
+\end{tabular}
+\apanote{From \texttt{results/accord/step0\_1\_join\_and\_calibration.json}, block
+\texttt{rule\_stratified\_calibration}, keys \texttt{n\_gold},
+\texttt{pharmacist\_true\_pos\_rate\_gold} and \texttt{accord\_predicted\_pos\_rate\_gold} for rules 1
+through 4. The four strata sum to 299, the full annotated set.}
+\end{table}
+
+Rule 2 has the highest pharmacist precision, 9.68 percent, despite supplying the smallest gold
+stratum and the smallest share of the candidate pool. Rule 1 has the lowest, 2.24 percent, despite
+supplying the largest stratum and the largest pool share, so pool volume and hit rate move in
+opposite directions across the four rules and no single rule accounts for the pool's overall base
+rate. ACCORD's predicted-positive rate sits between 96.77 and 97.47 percent for Rules 1 through 3
+regardless of their true precision, which differs across those three rules by more than a factor of
+four, and drops only for Rule 4, to 74.55 percent, the rule with no discharge-side mention to score.
+A predicted-positive rate this close to uniform across rules whose true precision varies this much
+is consistent with the calibration failure documented in Section~\ref{sec:res-rq2} rather than with
+rule-sensitive discrimination.
+
+The Rule 3 plus Rule 4 stratum carries a further structural point on its own, distinct from either
+rule's individual precision. Combined, Rules 3 and 4 account for 134 of the 299 pairs and 6 of the
+12 confirmed contradictions, so the positives are spread across the rule set rather than
+concentrated in one rule, and no rule is doing the work. Figure~\ref{fig:rule-precision} reports
+per-rule ranking performance alongside the precision panel above.
 
 \begin{figure}[H]
 \caption{Per-rule ranking performance on the annotated pairs}
 \centering
 \includegraphics[width=0.92\linewidth]{figures/fig-rule-precision.pdf}
-\apanote{The substitution of ranking performance for precision is recorded in
-\texttt{figures/manifest.json}.}
+\apanote{Ranking performance per rule, drawn from \texttt{figures/manifest.json}, in addition to
+the pharmacist precision panel in Table~\ref{tab:rule-precision}.}
 \label{fig:rule-precision}
 \end{figure}
 
@@ -233,10 +267,15 @@ varied and its marginal recorded at each setting. It under-responds to prevalenc
 everywhere, and the mismatch on public text is far smaller than the mismatch
 here.
 
-The maximum over-calling ratio measured on the public-text sweep is not
-registered, so no magnitude is quoted here and no numeric comparison between
-the two settings is made; the qualitative reading below rests on the shape of
-the response curve in Figure~\ref{fig:prevalence-response}, not on a number.
+The maximum over-calling ratio measured across the full sweep, three models, two prompts and four
+prevalence levels on SNLI, is $3.5000$, reached by \texttt{llama3:8b} under the bare prompt at 2
+percent true prevalence; the next highest is $3.4000$, the same model and prompt at 5 percent
+prevalence (\texttt{publicsweep.results.llama3:8b.A\_bare.0.02.over\_call\_ratio},
+\texttt{publicsweep.results.llama3:8b.A\_bare.0.05.over\_call\_ratio}). Both sit well below the
+$15.8196$ to $23.5959$ range of pool over-calling ratios measured on the clinical task in
+Section~\ref{sec:res-rq2}. The magnitude of the failure is therefore not a general property of an
+instruction-tuned labeller asked for a rare positive class; what survives the change of domain is
+the direction, over-calling that does not track the true rate, not the size of it.
 
 \begin{figure}[H]
 \caption{Labeller response to prevalence on public text}
@@ -292,12 +331,15 @@ the diagnostic that separates a copy from learned structure, because the leaked
 feature survives transfer and the surface correlations do not. This belongs to
 the documented family of shortcut learning \citep{geirhos2020shortcut,
 zech2018generalization}; the checkable point is narrower, that an auxiliary head
-whose target is derivable from its inputs is not an auxiliary task. The
-in-domain and transfer rule-type $F_1$ values are not registered, so no
-magnitude is quoted; qualitatively, the in-domain score is high and both
-transfer scores collapse toward the score a copy of an unavailable input would
-produce, which is the pattern the shortcut-learning account predicts and a
-learned auxiliary task would not.
+whose target is derivable from its inputs is not an auxiliary task. In domain the
+rule-type head reaches a macro $F_1$ of $0.9603$
+(\texttt{rulehead.test\_rule\_type\_macro\_f1}). Transferred without retraining
+to the sepsis cohort it falls to $0.0654$ and to the acute kidney injury cohort
+to $0.0595$ (\texttt{transfer.sepsis.rule\_type\_f1},
+\texttt{transfer.aki.rule\_type\_f1}), a collapse of more than an order of
+magnitude on both cohorts. That is the pattern a copy of an input feature
+produces once the feature stops correlating with the label distribution of the
+new domain, and it is not the pattern a learned auxiliary task would produce.
 
 \paragraph{Harm estimation was never trained.} The guideline bank is one randomly
 initialised parameter matrix, there is no corpus and no retrieval step, and the
@@ -319,31 +361,74 @@ question.
 \centering
 \includegraphics[width=0.92\linewidth]{figures/fig-falsification.pdf}
 \apanote{Left panel: a parameter reported as learned, drawn against its
-initialisation. Right panel: an auxiliary head's in-domain score against its
-transfer scores, drawn with an unverified marker because the transfer file is not
-on disk; no value from that panel is quoted in the text.}
+initialisation. Right panel: the rule-type head's in-domain macro $F_1$ of
+$0.9603$ against its transfer scores of $0.0654$ on sepsis and $0.0595$ on acute
+kidney injury, all three measured and registered.}
 \label{fig:falsification}
 \end{figure}
 
 \subsection{Three controls that fired positively}
 
-\paragraph{The arbitrary substitute.} Replace the semantically meaningful
-conditioning signal with an arbitrary one of matched form. If the arbitrary
-signal recovers the gain credited to the meaningful one, the gain was not
-carried by meaning. The control was run and the substitute recovered the
-claimed gain; neither the meaningful gain nor the arbitrary gain is registered,
-so no magnitude or recovery percentage is quoted, and the finding rests on the
-qualitative fact that a signal carrying no clinical meaning reproduced the
-effect.
+\paragraph{The arbitrary substitute, the misaligned block, and locality alone.} These three
+controls share one instrument: seven arms of a shared additive attention bias, trained at three
+seeds each on masked language modelling over packed multi-document bundles with segment order
+shuffled so role is decorrelated from position (Section~\ref{sec:m-control-rq3}).
+Table~\ref{tab:ablation} reports the mean validation loss, its seed spread, and the loss reduction
+against the no-bias arm for all seven.
 
-\paragraph{The misaligned block.} Hold the mechanism fixed and destroy only the
-alignment between the structure it encodes and the structure in the input. A
-mechanism that works because of the alignment loses its effect; one that works
-for another reason does not. The misaligned condition recovered part of the
-aligned condition's effect rather than none, which is a positive reading and a
-partial one; the aligned and misaligned recovery figures are not registered,
-so neither is quoted, and the reading rests on the partial, non-zero recovery
-rather than on a magnitude.
+\begin{table}[H]
+\caption{Seven-arm architecture ablation, mean validation loss at three seeds}
+\label{tab:ablation}
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Arm} & \textbf{Mean val.\ loss} & \textbf{SD} & \textbf{$\Delta$ vs.\ vanilla} &
+\textbf{\% of segment-index gain} \\
+\midrule
+Vanilla, no bias           & 4.3554 & 0.0085 & 0       & 0\% \\
+T5 relative position bias  & 4.1035 & 0.0029 & -0.2520 & 26.6\% \\
+Misaligned block bias      & 3.9109 & 0.0293 & -0.4445 & 46.9\% \\
+ALiBi distance bias        & 3.7435 & 0.0023 & -0.6119 & 64.6\% \\
+True role labels           & 3.5310 & 0.0076 & -0.8244 & 87.0\% \\
+Segment-index bias         & 3.4078 & 0.0225 & -0.9476 & 100\% \\
+Hard block mask, fixed     & 3.2772 & 0.0124 & -1.0782 & 113.8\% \\
+\bottomrule
+\end{tabular}
+\apanote{Three seeds per arm, from \texttt{results/pretraining\_runs.json}
+(\texttt{ablation.*.val\_loss\_mean}, \texttt{ablation.*.val\_loss\_sd},
+\texttt{ablation.*.delta\_vs\_vanilla}, \texttt{ablation.*.pct\_of\_segment\_index}). The share
+column is each arm's loss reduction expressed as a percentage of the segment-index arm's reduction,
+the largest gain among the additive-bias arms. Seed spreads run from $0.0023$ to $0.0293$ nats
+against effects from $0.2520$ to $1.0782$ nats, so every ordering in the table is resolved well
+outside seed noise.}
+\end{table}
+
+An arbitrary segment ordinal, a label carrying no provenance meaning at all, reduces the loss by
+$0.9476$ nats, the largest reduction of any arm. True role labels, the semantically meaningful
+signal the mechanism was built to exploit, reduce it by only $0.8244$ nats, 87.0 percent of the
+ordinal's reduction (\texttt{ablation.true\_role\_labels.pct\_of\_segment\_index}). The arbitrary
+substitute does not merely match the meaningful signal, it beats it, so whatever the segment-index
+bias is exploiting is not role semantics.
+
+The misaligned-block arm holds the number of blocks fixed at the same count as the aligned
+segment-index arm and destroys only their alignment with the note boundaries they were built to
+mark. It reduces the loss by $0.4445$ nats, 46.9 percent of the aligned arm's reduction
+(\texttt{ablation.misaligned\_block.pct\_of\_segment\_index}), so alignment on its own is worth
+$0.5031$ nats (\texttt{ablation.alignment\_worth\_nats}), just over half of the aligned arm's total
+effect. Coarse blocking with the correct block count but the wrong boundaries recovers under half
+of what aligned blocking recovers, which closes the alternative reading that any coarse partition of
+the attention matrix would do as well.
+
+The ALiBi arm carries no segment information whatsoever, only a monotonic penalty on token
+distance, and still reduces the loss by $0.6119$ nats, 64.6 percent of the segment-index arm's
+reduction (\texttt{ablation.alibi.pct\_of\_segment\_index}). Locality alone, with no representation
+of which document a token belongs to, accounts for close to two thirds of the effect credited to
+provenance-aware conditioning. And the fixed hard block mask, which learns nothing and only blocks
+attention across the announced document boundary, reduces the loss by $1.0782$ nats, beating every
+learned arm including the segment-index bias by $0.1306$ nats
+(\texttt{ablation.learned\_vs\_fixed\_nats}): a mechanism with zero trainable parameters outperforms
+the one credited with learning where the boundary is.
 
 \paragraph{The anisotropy control.} The third control targets the proposed
 explanation rather than the effect: if the behaviour follows from
@@ -402,13 +487,15 @@ Contaminated run, same 253 pairs & 0.4595 & & & \\
 \texttt{results/accord/decontam/corrected\_gold\_metrics.json}; bootstrap
 resampling there uses $B = 10{,}000$ at seed 42. Average precision is the
 appropriate summary at this imbalance \citep{saito2015prcurve} and its no-skill
-line is $12/253$. The percentile bootstrap interval endpoints for the ensemble
-AUROC on $G_{253}$ are not registered; the register carries the resample count
-and seed but not the endpoints, so no interval is quoted here.}
+line is $12/253$. The percentile bootstrap interval for the ensemble AUROC on
+$G_{253}$ is $0.3210$ to $0.7034$
+(\texttt{decontam.aggregate.ensemble\_ci95\_lo},
+\texttt{decontam.aggregate.ensemble\_ci95\_hi}).}
 \label{tab:decontam}
 \end{table}
 
-The ensemble sits at $0.5145$ with a Mann-Whitney $p$ of $0.8668$, so the
+The ensemble sits at $0.5145$ with a Mann-Whitney $p$ of $0.8668$ and a 95 percent bootstrap
+interval of $0.3210$ to $0.7034$, wide enough at 12 positives to sit on both sides of chance, so the
 positive and negative score distributions are not separated, and the per-seed
 spread is $0.5211 \pm 0.0201$. The contaminated run, trained on the pairs it
 scores, lands at $0.4595$, below chance on the same 253 pairs: leakage did not
@@ -640,7 +727,11 @@ not a capacity difference, and the manipulation worth $4.53$ points there is
 worth $0.0031$ of AUROC here. No significance test for the clinical gap is
 registered; the register carries the means, the standard deviations and the
 difference, but no $p$ value, so none is quoted and the gap is reported as a
-descriptive difference only.}
+descriptive difference only. The notebook cell that would compute one calls
+\texttt{scipy.stats.ttest\_ind} without \texttt{equal\_var=False}, so any $p$ value it returned
+would be a Student test, not the Welch test earlier drafts of this material labelled it as
+(\texttt{stats.clinical\_gap\_test\_note}); none is computed or quoted here, and the comparison
+rests on the means and seed spreads in the table.}
 \label{tab:scaling}
 \end{table}
 
@@ -687,34 +778,37 @@ done here is to apply it to these class counts.
 \caption{Matthews correlation on the 253 non-ambiguous pairs}
 \centering
 \small
-\begin{tabular}{lrr}
+\begin{tabular}{lrrr}
 \toprule
-\textbf{System} & \textbf{Predicted positive} & \textbf{MCC} \\
+\textbf{System} & \textbf{Predicted positive} & \textbf{MCC} & \textbf{95\% bootstrap CI} \\
 \midrule
-GPT-4o, zero-shot              & $6 + 65 = 71$    & $+0.1089$ \\
-GPT-4o, few-shot               & $7 + 134 = 141$  & $+0.0117$ \\
-ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ \\
-Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ \\
+GPT-4o, zero-shot              & $6 + 65 = 71$    & $+0.1089$ & $-0.0319$ to $0.2484$ \\
+GPT-4o, few-shot               & $7 + 134 = 141$  & $+0.0117$ & $-0.1120$ to $0.1319$ \\
+ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ & $-0.1626$ to $0.0753$ \\
+Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ & $-0.2337$ to $0.0563$ \\
 \bottomrule
 \end{tabular}
 \apanote{Cells from Table~\ref{tab:systems253}; the predicted-positive column is
 shown as the sum of the two registered cells. MCC is the statistic most often
 recommended for imbalanced binary evaluation
-\citep{chicco2020mcc,powers2011evaluation} and zero is chance. The four
-bootstrap interval endpoints are not registered, so none is quoted here and no
-claim is made about whether any interval contains zero; without them the
-ordering above is a point estimate only and is not usable to rank the four
-systems.}
+\citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are
+percentile bootstraps at $B = 10{,}000$ and seed 42
+(\texttt{mccint.bootstrap\_B}, \texttt{mccint.seed}), from
+\texttt{results/accord/stats/intervals.json}, block \texttt{E2\_mcc\_intervals}.
+All four contain zero.}
 \label{tab:mcc}
 \end{table}
 
 The point estimates induce an ordering over four systems whose predicted-positive
 counts run from 71 to 242 against 12 true positives, three of which differ from
-zero by less than $0.05$. The recorded interval analysis for this project is that
-its headline estimates cross zero, and Figure~\ref{fig:forest} is that analysis
-in one view. Until the endpoints are registered, the safe statement is this one:
-no claim in this thesis rests on the ordering in Table~\ref{tab:mcc}, and a
-reader who wants to use it needs the intervals first.
+zero by less than $0.05$. All four 95 percent bootstrap intervals in
+Table~\ref{tab:mcc} contain zero, including the widest-separated pair, GPT-4o
+zero-shot at $+0.1089$ against the Llama 3 8B evaluation baseline at $-0.0436$,
+whose intervals, $-0.0319$ to $0.2484$ and $-0.2337$ to $0.0563$, overlap by more
+than half their width. Figure~\ref{fig:forest} is that analysis in one view. The
+safe statement is this one: no claim in this thesis rests on the ordering in
+Table~\ref{tab:mcc}, because at 12 positives none of the four systems is
+distinguishable from chance, and none is distinguishable from any other.
 
 \begin{figure}[H]
 \caption{Headline estimates against zero}
