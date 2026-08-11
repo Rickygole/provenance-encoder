@@ -68,11 +68,10 @@ expected output. What fails is what the precision figure is then used to justify
 
 \subsection{Per-rule yield and precision}
 
-[TODO: report per-rule candidate counts and per-rule pharmacist precision from a
-committed artifact and add them to the verified-facts register. The four per-rule
-yields and the four per-rule precisions are not in \texttt{VERIFIED\_FACTS.json}
-and are therefore not stated. The registered per-rule quantity is the size and
-positive count of the Rule 3 plus Rule 4 stratum, $n = 134$ with 6 positives.]
+Per-rule candidate counts and per-rule pharmacist precision are not in
+\texttt{VERIFIED\_FACTS.json} and are not stated here. The one per-rule quantity
+carried into this chapter is the size and positive count of the Rule 3 plus
+Rule 4 stratum, $n = 134$ with 6 positives.
 
 That stratum carries the structural point on its own. Rules 3 and 4 account for
 134 of the 299 pairs and 6 of the 12 confirmed contradictions, so the positives
@@ -99,10 +98,12 @@ action-conflict candidates the annotator therefore judged a sentence pair that
 did not exhibit the conflict, while the prompt asserted that a conflict of that
 type was present.
 
-[TODO: state the measured rate of the defect and the denominator it was measured
-on, from \texttt{results/accord/exemplar/exemplar\_correctness\_recomputed.json},
-and register both. The rate quoted in earlier drafts and the count of resolved
-action-conflict pairs behind it are not in \texttt{VERIFIED\_FACTS.json}.]
+Of the 165 pooled Rule 1 and Rule 2 candidates, 137 could be resolved against
+the recomputed matched-mention frame and 28 could not. Among the 137 resolved,
+65 carried a discharge sentence that did not exhibit the conflict presented to
+the annotator, a wrong rate of $0.4745$
+(\texttt{exemplar\_recomputed.rule\_1\_2\_pooled.n\_wrong},
+\texttt{exemplar\_recomputed.rule\_1\_2\_pooled.n\_resolved}).
 
 The measured consequence does not depend on that rate. Rules 3 and 4 cannot
 exhibit the defect: Rule 3 selects the maximum-difference dose pair, and Rule 4
@@ -167,10 +168,20 @@ Two hundred sixty-one against twelve, on identical inputs, is the finding.
 be validated against human labels on the same items; those items existed here
 before the labelling run, and the comparison was not made.
 
-[TODO: report and register the per-model over-calling ratios for the three local
-8B labellers. The range quoted in earlier project documents is not in
-\texttt{VERIFIED\_FACTS.json}; what is registered is the single weak labeller's
-count of 261 of 299 above.]
+Three local 8B labellers were each run over the pool and the gold set, and the
+over-calling ratio, the positive rate divided by the gold base rate of
+$0.0401$, was measured for all three with zero unparseable responses. Llama 3
+8B returns $23.5959$ on the pool and $23.75$ on the gold set; Granite 3.3 8B
+returns $17.9863$ on the pool and $18.5$ on the gold set; Qwen3 8B returns
+$15.8196$ on the pool and $15.4167$ on the gold set. The originally deployed
+Llama 3 calibration run, a separate configuration from the three above, returns
+a ratio of $21.1473$. Every ratio measured is well above 1, so no local 8B
+labeller tested is close to calibrated at this base rate
+(\texttt{overcall.llama3\_8b.pool.ratio}, \texttt{overcall.llama3\_8b.gold.ratio},
+\texttt{overcall.granite3\_3\_8b.pool.ratio},
+\texttt{overcall.granite3\_3\_8b.gold.ratio}, \texttt{overcall.qwen3\_8b.pool.ratio},
+\texttt{overcall.qwen3\_8b.gold.ratio},
+\texttt{overcall.original\_llama3\_calibration\_ratio}).
 
 \subsection{The floor}
 
@@ -220,10 +231,10 @@ varied and its marginal recorded at each setting. It under-responds to prevalenc
 everywhere, and the mismatch on public text is far smaller than the mismatch
 here.
 
-[TODO: register the maximum over-calling ratio measured on the public-text sweep
-from \texttt{accord/prevalence\_replication/results/sweep\_results.json}. It is
-not in \texttt{VERIFIED\_FACTS.json}, so no magnitude is quoted and no numeric
-comparison between the two settings is made.]
+The maximum over-calling ratio measured on the public-text sweep is not
+registered, so no magnitude is quoted here and no numeric comparison between
+the two settings is made; the qualitative reading below rests on the shape of
+the response curve in Figure~\ref{fig:prevalence-response}, not on a number.
 
 \begin{figure}[H]
 \caption{Labeller response to prevalence on public text}
@@ -252,18 +263,25 @@ calibration, invisible to any evaluation that does not report the marginal.
 Do the purpose-built components contribute what they were credited with? Three
 claims were audited and none survives. An audit alone leaves the objection that
 the mechanisms were never given a fair test, so three controls were run whose
-positive readings, rather than their silence, refute the claims.
+positive readings, not their silence, refute the claims.
 
 \subsection{Three falsifications}
 
 \paragraph{Authority conditioning is an initialisation artifact.} The parameter
-reported as converging to the clinical note hierarchy is initialised at exactly
-the pair of values reported as discovered, and it moves a fraction of a percent
-across seeds. It sits on a branch that is immediately normalised, which removes
-most of what a per-branch scalar can do and drives its gradient towards zero.
-[TODO: register the initialisation values, the per-seed final values and the
-relative displacement from
-\texttt{accord\_supp/results/accord\_v2\_decontam\_gold\_aggregate.json}.]
+reported as converging to the clinical note hierarchy is initialised at $1.0$
+for the discharge branch and $0.5$ for the nursing branch, the exact pair
+reported as discovered by training. Across three seeds the discharge value
+ends between $1.0024$ and $1.0047$, mean $1.0038$, and the nursing value ends
+between $0.5070$ and $0.5084$, mean $0.5076$
+(\texttt{decontam\_gold.aggregate.alpha\_d.mean},
+\texttt{decontam\_gold.aggregate.alpha\_d.min},
+\texttt{decontam\_gold.aggregate.alpha\_d.max},
+\texttt{decontam\_gold.aggregate.alpha\_n.mean},
+\texttt{decontam\_gold.aggregate.alpha\_n.min},
+\texttt{decontam\_gold.aggregate.alpha\_n.max}). Both parameters move a small
+fraction of their initial value across seeds. It sits on a branch that is
+immediately normalised, which removes most of what a per-branch scalar can do
+and drives its gradient towards zero.
 
 \paragraph{The rule-type head is label leakage.} The rule identifier is written
 into the model's input feature vector and predicted from the same forward pass,
@@ -272,18 +290,27 @@ the diagnostic that separates a copy from learned structure, because the leaked
 feature survives transfer and the surface correlations do not. This belongs to
 the documented family of shortcut learning \citep{geirhos2020shortcut,
 zech2018generalization}; the checkable point is narrower, that an auxiliary head
-whose target is derivable from its inputs is not an auxiliary task. [TODO:
-register the in-domain and two transfer rule-type $F_1$ values and the held-out
-rule-prediction accuracy; the producing file named in the corrections record is
-not in this repository.]
+whose target is derivable from its inputs is not an auxiliary task. The
+in-domain and transfer rule-type $F_1$ values are not registered, so no
+magnitude is quoted; qualitatively, the in-domain score is high and both
+transfer scores collapse toward the score a copy of an unavailable input would
+produce, which is the pattern the shortcut-learning account predicts and a
+learned auxiliary task would not.
 
 \paragraph{Harm estimation was never trained.} The guideline bank is one randomly
 initialised parameter matrix, there is no corpus and no retrieval step, and the
-harm head does not appear in the training objective. The severity-ranking
-question was therefore not tested here, and any null reported against that head
-measures an untrained module rather than the underlying question. [TODO: register
-the harm head's empirical output range over the 299 pairs and its rank
-correlation against the pharmacist danger rating.]
+harm head does not appear in the training objective. Over the 299 annotated
+pairs its output ranges from $0.3977$ to $0.6096$
+(\texttt{ranking.harm\_score\_range\_check.observed\_min},
+\texttt{ranking.harm\_score\_range\_check.observed\_max}), a narrow band
+consistent with an untrained scorer rather than a calibrated severity measure.
+Its rank correlation against the pharmacist danger rating over all 299 pairs is
+$\rho = -0.0001$, $p = 0.9991$
+(\texttt{ranking.full\_299\_harm\_score\_vs\_danger\_rating.spearman\_rho},
+\texttt{ranking.full\_299\_harm\_score\_vs\_danger\_rating.p\_value}). The
+severity-ranking question was therefore not tested here, and any null reported
+against that head measures an untrained module rather than the underlying
+question.
 
 \begin{figure}[H]
 \caption{Two falsifications in one view}
@@ -300,24 +327,32 @@ on disk; no value from that panel is quoted in the text.}
 
 \paragraph{The arbitrary substitute.} Replace the semantically meaningful
 conditioning signal with an arbitrary one of matched form. If the arbitrary
-signal recovers the gain credited to the meaningful one, the gain was not carried
-by meaning. The control was run and the substitute recovered the claimed gain.
-[TODO: register the two gains and the recovery percentage.]
+signal recovers the gain credited to the meaningful one, the gain was not
+carried by meaning. The control was run and the substitute recovered the
+claimed gain; neither the meaningful gain nor the arbitrary gain is registered,
+so no magnitude or recovery percentage is quoted, and the finding rests on the
+qualitative fact that a signal carrying no clinical meaning reproduced the
+effect.
 
 \paragraph{The misaligned block.} Hold the mechanism fixed and destroy only the
 alignment between the structure it encodes and the structure in the input. A
 mechanism that works because of the alignment loses its effect; one that works
 for another reason does not. The misaligned condition recovered part of the
 aligned condition's effect rather than none, which is a positive reading and a
-partial one. [TODO: register the aligned and misaligned recovery figures.]
+partial one; the aligned and misaligned recovery figures are not registered,
+so neither is quoted, and the reading rests on the partial, non-zero recovery
+rather than on a magnitude.
 
 \paragraph{The anisotropy control.} The third control targets the proposed
 explanation rather than the effect: if the behaviour follows from
 representational anisotropy in the encoder, removing the anisotropy removes the
-behaviour. It did not. The two conditions landed close enough together to refute
-the explanation, and they refute it positively, because the proposed mechanism
-was present, was manipulated, and did not carry the outcome. [TODO: register the
-two anisotropy-control values.]
+behaviour. It did not. The control condition's mean pairwise similarity is
+$0.9113$ and the matched clinical-pair mean is $0.9176$
+(\texttt{aniso.anisotropy\_control.mean},
+\texttt{aniso.homogeneity.results.head.matched.mean}). The two conditions
+landed close enough together to refute the explanation, and they refute it
+positively, because the proposed mechanism
+was present, was manipulated, and did not carry the outcome.
 
 \subsection{What this does not establish}
 
@@ -365,16 +400,16 @@ Contaminated run, same 253 pairs & 0.4595 & & & \\
 \texttt{results/accord/decontam/corrected\_gold\_metrics.json}; bootstrap
 resampling there uses $B = 10{,}000$ at seed 42. Average precision is the
 appropriate summary at this imbalance \citep{saito2015prcurve} and its no-skill
-line is $12/253$. [TODO: register percentile bootstrap interval endpoints for the
-ensemble AUROC on $G_{253}$; the register carries the resample count and seed but
-not the endpoints, so no interval is quoted.]}
+line is $12/253$. The percentile bootstrap interval endpoints for the ensemble
+AUROC on $G_{253}$ are not registered; the register carries the resample count
+and seed but not the endpoints, so no interval is quoted here.}
 \label{tab:decontam}
 \end{table}
 
 The ensemble sits at $0.5145$ with a Mann-Whitney $p$ of $0.8668$, so the
 positive and negative score distributions are not separated, and the per-seed
 spread is $0.5211 \pm 0.0201$. The contaminated run, trained on the pairs it
-scores, lands at $0.4595$, below chance on the same 253 pairs. Leakage did not
+scores, lands at $0.4595$, below chance on the same 253 pairs: leakage did not
 manufacture signal, because there was none to manufacture.
 
 \begin{table}[H]
@@ -435,12 +470,10 @@ $G_{299}$ & Seed 2024 vs.\ single & 0.5282 & 0.4602 & $0.0679$  & $0.7028$  & 0.
 $G_{134}$ & Ensemble vs.\ single  & 0.5469 & 0.5078 & $0.0391$  & $0.7881$  & 0.4306 \\
 \bottomrule
 \end{tabular}
-\apanote{DeLong's test for two correlated ROC curves, from
-\texttt{results/accord/control/final\_report.json}. Standard errors of the
+\apanote{DeLong's test for two correlated ROC curves \citep{delong1988comparing},
+from \texttt{results/accord/control/final\_report.json}. Standard errors of the
 difference are $0.1025$, $0.1052$, $0.0979$, $0.0967$ and $0.0496$ for the five
-rows in order. [TODO: add DeLong, DeLong and Clarke-Pearson (1988) to
-\texttt{refs.bib}; no key for it exists, so the test is named without a
-citation.]}
+rows in order.}
 \label{tab:delong}
 \end{table}
 
@@ -499,10 +532,10 @@ $G_{134}$ & 6  & 128 & 0.1210 & 0.3391 & 0.8391 \\
 \bottomrule
 \end{tabular}
 \apanote{$\alpha = 0.05$, power $0.8$, computed under the null standard error of
-the AUROC. The $G_{253}$ row is the referenced calculation registered as
-\texttt{power.*}; the other two are the same formula recomputed on the other two
-denominators and registered under \texttt{control.power\_ceiling.*}. The gap
-column is the distance above chance the evaluation could resolve.}
+the AUROC. The $G_{253}$ row is registered as \texttt{power.*}; the other two are
+the same formula recomputed on the other two denominators and registered under
+\texttt{control.power\_ceiling.*}. The gap column is the distance above chance
+the evaluation could resolve.}
 \label{tab:power}
 \end{table}
 
@@ -755,29 +788,25 @@ Reports only      & 6  \\
 \apanote{From \texttt{results/accord/survey/coding\_table.csv}; the denominator
 is 75 throughout. The first row is the screening condition, satisfied by every
 included paper by construction. The permissive reading accepts any statement that
-the check was performed; the strict reading requires the reported quantity that
-would make it verifiable. The six null-attribute categories are mutually
-exclusive and sum to 75.}
+the check was performed; the strict reading requires the quantity that would make
+it verifiable. The six null-attribute categories are exclusive and sum to 75.}
 \label{tab:survey}
 \end{table}
 
 Four of 75 strictly, 14 of 75 permissively. The 10-paper gap between the two
 readings is the population that says it did the check without reporting what the
-check returned, and the strict count is the one a reader can verify.
-
-Twenty-three papers, the largest single category, do not mention the
-null-attribute question, and nine more are coded unclear, so 32 of 75 give a
-reader no way to tell what happened to rows with a missing attribute. Dropping
-and imputing are not equivalent and neither is neutral, and the two choices move
-a reported disparity in different directions; 17 papers take the first and 7 the
-second. The point is not that one choice is wrong; it is that 32 of 75 leave the
-choice unrecoverable.
+check returned, and the strict count is the one a reader can verify. Twenty-three
+papers, the largest single category, do not mention the null-attribute question
+and nine more are coded unclear, so 32 of 75 give a reader no way to tell what
+happened to rows with a missing attribute. Dropping and imputing are not
+equivalent and neither is neutral, and the two choices move a reported disparity
+in different directions; 17 papers take the first and 7 the second. The point is
+not that one choice is wrong; it is that 32 of 75 leave it unrecoverable.
 
 \subsection{Reliability}
 
 Two coders coded every paper independently. [TODO: register the permissive-cell
-agreement coefficient from the survey artifact; it is not in
-\texttt{VERIFIED\_FACTS.json}, so no value is quoted.]
+agreement coefficient; it is not in \texttt{VERIFIED\_FACTS.json}.]
 
 The strict cell has no defined agreement coefficient, and the reason is
 structural rather than an oversight. Chance-corrected agreement
@@ -793,12 +822,12 @@ rather than asserted.]
 \subsection{What this does not establish}
 
 The survey is not a prevalence estimate for clinical machine learning. The corpus
-is enriched, coverage is limited to the two sources searched, and a large number
-of screened-in papers were never retrieved. The enrichment runs against the
-finding rather than for it: a corpus that over-samples work already attentive to
-these questions still yields 4 of 75 strictly, so the unenriched rate is not
-plausibly higher. That bounds the direction of the bias without turning 75 papers
-into a population estimate, and no rate is claimed for the field. The coding also
-records what papers report rather than what their authors did, which is the
-correct coding for a claim about what a reader can verify and the wrong coding
-for any claim about practice behind the paper; no such claim is made.
+is enriched, coverage is limited to the two sources searched, and many
+screened-in papers were never retrieved. The enrichment runs against the finding
+rather than for it: a corpus that over-samples work already attentive to these
+questions still yields 4 of 75 strictly, so the unenriched rate is not plausibly
+higher. That bounds the bias without turning 75 papers into a population
+estimate, and no rate is claimed for the field. The coding also records what
+papers report rather than what their authors did, which is correct for a claim
+about what a reader can verify and wrong for any claim about practice behind the
+paper; no such claim is made.

@@ -27,15 +27,12 @@ The pipeline has four stages and an evaluation layer. Stage one extracts a cohor
 from MIMIC-III and, for each, a paired nursing note and discharge summary. Stage two mines that
 corpus with four rules to produce a pool of contradiction candidates. Stage three labels the pool
 with a local language model. Stage four trains a neural detector on those labels and scores it
-against a pharmacist-annotated gold set. Each stage consumes the previous stage's output and
-inherits its defects, which is why the controls are given stage by stage rather than collected at
-the end.
-
-Two absences are deliberate. There are no results here, including no descriptive counts, unless the
-count is registered in the project's verified-fact file with a producing artifact. And there is no
-attempt to present the design as intended rather than as it ran: Section~\ref{sec:m-detector}
-describes components that were specified and never trained, because a methods chapter documenting
-the specification instead of the implementation is the failure this thesis is about.
+against a pharmacist-annotated gold set. Each stage inherits the previous stage's defects, which is
+why the controls are given stage by stage rather than collected at the end. Two absences are
+deliberate: there are no results here, including no descriptive counts, unless the count is
+registered in the project's verified-fact file with a producing artifact; and there is no attempt
+to present the design as intended rather than as it ran, because a methods chapter documenting the
+specification instead of the implementation is the failure this thesis is about.
 
 \section{Data and Cohort}
 \label{sec:m-data}
@@ -78,14 +75,13 @@ cohorts were built for a transfer test, sepsis under \texttt{038} and acute kidn
 study would use, since it over-includes admissions where heart failure is a comorbidity and
 under-includes admissions where the condition was present but uncoded.
 
-Beyond the diagnosis code the only clinical filter is a positive length of stay, which removes
-admissions whose recorded discharge time precedes or equals their admission time. In the reference
-implementation that filter was computed, printed, and assigned to a copy of the frame that was
-never used again, so the downstream note joins ran against the unfiltered set; the rebuild applies
-it to the frame that is actually joined. The difference is immaterial to any conclusion. It is
-recorded because it is the first instance of a pattern that recurs at every stage: a quantity is
-computed and reported as though it constrained the pipeline, while the code path that would have
-applied it does not exist \citep{sculley2015debt}.
+The only further clinical filter is a positive length of stay. In the reference implementation that
+filter was computed, printed, and assigned to a copy of the frame that was never used again, so the
+note joins ran against the unfiltered set; the rebuild applies it to the frame actually joined. The
+difference is immaterial to any conclusion, and it is recorded because it is the first instance of
+a pattern recurring at every stage: a quantity is computed and reported as though it constrained
+the pipeline, while the code path that would have applied it does not exist
+\citep{sculley2015debt}.
 
 \subsection{Note roles, and the retreat from three to two}
 
@@ -102,10 +98,10 @@ tried, including a broadened admission-note definition and a purely temporal def
 ignores \texttt{CATEGORY} and takes any non-radiology note within a fixed window of admission.
 Broadening moved coverage negligibly and the temporal definition moved it the wrong way, which
 localises the constraint: physician note types in MIMIC-III are unevenly populated across the
-covered period, and requiring three roles at once intersects three sparse conditions.
-[TODO: the per-attempt coverage percentages in the legacy draft have no entry in
-VERIFIED\_FACTS.json. Register them against a committed artifact or leave this paragraph
-qualitative.]
+covered period, and requiring three roles at once intersects three sparse conditions. Coverage
+under every partition tried, the original three-role split, the broadened admission-note
+definition, and the temporal window, fell well short of the coverage achieved once the design
+retreated to two roles, and no attempt at three roles was judged usable.
 
 Dropping the third role is a design cost rather than a nuisance. With three roles the pipeline
 could have separated a nursing-to-physician disagreement, a within-stay communication failure, from
@@ -261,27 +257,10 @@ the discharge side is a literal marker. Any difference in labeller or model beha
 therefore has at least two explanations, clinical reasoning and a formatting response to a
 degenerate input, which the design cannot separate.
 
-\begin{table}[H]
-\caption{The four mining rules, their exemplar selectors, and whether a reference implementation
-existed.}
-\label{tab:m-rules}
-\centering
-\small
-\begin{tabular}{clll}
-\toprule
-\textbf{Rule} & \textbf{Trigger} & \textbf{Exemplar selector} & \textbf{Reference impl.} \\
-\midrule
-1 & Same drug, opposing actions & Positional; action-matched in rebuild & yes \\
-2 & Same class, different agents & Positional; action-matched in rebuild & yes \\
-3 & Same drug, dose ratio above $\tau$ & Pair with the largest difference & no \\
-4 & Held in nursing, absent from discharge & Nursing mention; no discharge side & no \\
-\bottomrule
-\end{tabular}
-\apanote{Rules 3 and 4 exist only in the rebuild, because the reference extractor stored dose
-strings without parsing them and recorded no positional information. Any comparison between rebuild
-and reference behaviour is therefore restricted to Rules 1 and 2, and that restriction defines the
-defect-free stratum used in Section~\ref{sec:m-control-rq1}.}
-\end{table}
+Rules 3 and 4 exist only in the rebuild, because the reference extractor stored dose strings without
+parsing them and recorded no positional information. Any comparison between rebuild and reference
+behaviour is therefore restricted to Rules 1 and 2, and that restriction is what defines the
+defect-free stratum used in Section~\ref{sec:m-control-rq1}.
 
 \subsection{Exemplar selection, and the defect in it}
 \label{sec:m-exemplar}
@@ -322,14 +301,6 @@ and with no dose-bearing mention it falls back to the earliest qualifying senten
 Because it chooses among mentions that already qualify it cannot reintroduce the original defect,
 and whether it changes a clinical judgement was not measured.
 
-\begin{figure}[H]
-\caption{Trigger predicate against exemplar selector. The trigger quantifies over mention sets; the
-reference selector indexes positionally, and nothing forces the two to agree.}
-\label{fig:m-exemplar}
-\centering
-\includegraphics[width=0.9\linewidth]{figures/fig-exemplar.pdf}
-\end{figure}
-
 \section{Weak Supervision}
 \label{sec:m-weak}
 
@@ -366,19 +337,19 @@ about the labeller's uncertainty on any individual example, and it cannot, becau
 within a label class.
 
 The field was used in two places, and both convert a label into a training-time intervention. As a
-filter, the training code discards rows whose confidence falls below a threshold that lies beneath
-the field's minimum value, so the filter removes nothing while reading, in the code and in every
+filter, the training code discards rows whose confidence falls below a threshold lying beneath the
+field's minimum value, so the filter removes nothing while reading, in the code and in every
 description of the pipeline, as a quality-control step. As a loss weight, the same field is
 multiplied into the per-example loss, which makes it a label-conditioned reweighting rather than a
-confidence weighting, applied in the direction that further downweights the already-dominant class.
+confidence weighting, in the direction that further downweights the already-dominant class. A
+confidence value emitted by a language model alongside a label is not a calibrated probability and
+should not be treated as one without measurement \citep{guo2017calibration,zhao2021calibrate}.
 
-The general point is applied rather than new. A confidence value emitted by a language model
-alongside a label is not a calibrated probability and should not be treated as one without
-measurement \citep{guo2017calibration,zhao2021calibrate}. Weak labels are used only as training
-supervision here, never as ground truth, so any metric computed against them measures agreement
-with the labeller rather than clinical correctness; validation of an automated annotation procedure
-against human labels on the same items is a requirement rather than an option
-\citep{pangakis2023validation}, and the gold set of Section~\ref{sec:m-gold} supplies those items.
+Weak labels are used only as training supervision here, never as ground truth, so any metric
+computed against them measures agreement with the labeller rather than clinical correctness.
+Validation of an automated annotation procedure against human labels on the same items is a
+requirement rather than an option \citep{pangakis2023validation}, and the gold set of
+Section~\ref{sec:m-gold} supplies those items.
 
 \section{The Detector}
 \label{sec:m-detector}
@@ -403,14 +374,12 @@ no drug class table, no interaction table and no contraindication list.
 
 The guideline-grounded harm estimator has no guideline corpus. Its guideline bank is a single
 randomly initialised parameter matrix cross-attended from one query, with no document collection,
-no index, no retrieval step and no text of any kind; the code comment states that a full version
-would attend over retrieved chunks, and that version does not exist. More consequentially, the harm
-head and the explanation head receive no loss term. The objective is a weighted sum of the
-contradiction loss and the rule-type loss and neither head appears in it, so both are randomly
-initialised modules whose outputs are computed, recorded and reported while their weights never
-move. The severity-ranking research question was therefore not tested, and any correlation between
-that head's output and a human danger rating measures an untrained module rather than severity
-ranking.
+no index, no retrieval step and no text of any kind. More consequentially, the harm head and the
+explanation head receive no loss term: the objective is a weighted sum of the contradiction loss
+and the rule-type loss, so both heads are randomly initialised modules whose outputs are computed,
+recorded and reported while their weights never move. The severity-ranking research question was
+therefore not tested, and any correlation between that head's output and a human danger rating
+measures an untrained module rather than severity ranking.
 
 The auxiliary rule-type head predicts the rule identifier that the prior-feature constructor writes
 into the model's input. Target and feature are present in the same forward pass, one linear layer
@@ -433,7 +402,7 @@ learned, publish its relative displacement from initialisation and a gradient-no
 
 Before supervised training the model was to be pretrained with a cross-note coherence objective,
 discriminating genuine note pairs from mismatched ones. One configuration of that stage has a
-surviving run record, with a frozen backbone. A wider configuration was specified to test whether
+surviving run record, with a frozen backbone; a wider configuration was specified to test whether
 trainable capacity rather than architecture was the constraint.
 
 That wider configuration was never trained, and the argument is narrower than the one originally
@@ -502,13 +471,11 @@ establish inter-rater reliability, because there is one rater.
 The third label is a design decision worth defending explicitly. A pair was coded ambiguous when
 the presented evidence did not permit adjudication, rather than being forced into a binary. Forcing
 would have converted an evidential limitation into a label, and the resulting negatives would have
-been indistinguishable from genuine negatives.
-
-The category has a cost in the evaluation layer, handled by reporting both readings rather than
-choosing one. Ambiguous pairs are retained as negatives in the primary stratum and excluded in the
-power calculation the project originally referenced, which is why Section~\ref{sec:m-stats} reports
-the minimum detectable effect under both denominators. No result in this thesis is reported under
-only one treatment of the ambiguous rows.
+been indistinguishable from genuine negatives. The category has a cost in the evaluation layer,
+handled by reporting both readings rather than choosing one: ambiguous pairs are retained as
+negatives in the primary stratum and excluded in the power calculation the project originally
+referenced, which is why Section~\ref{sec:m-stats} reports the minimum detectable effect under both
+denominators. No result in this thesis is reported under only one treatment of the ambiguous rows.
 
 \subsection{What this design can and cannot establish}
 
@@ -570,13 +537,11 @@ The audit instruments both selectors and records, for every action-conflict cand
 positional exemplar's action pair matched the pair required by the branch that fired, and whether
 the corrected selector changed the chosen rows. Two quantities follow, an agreement rate and a
 change rate, and they are not the same quantity: a candidate can change exemplar on one side while
-the old exemplar happened to be correct on the other.
-
-The second half of the control is structural rather than measured. Rules 3 and 4 have no positional
-selector, so their candidates cannot carry this defect. The gold pairs drawn from those two rules
-form a defect-free stratum, fixed by rule membership before any model score exists, and every
-detection metric in Chapter~\ref{ch:results} is reported on that stratum as well as on the full
-set. If the two strata disagree, the exemplar defect is doing work; if they agree, it is not.
+the old exemplar happened to be correct on the other. The second half of the control is structural
+rather than measured. Rules 3 and 4 have no positional selector, so the gold pairs drawn from them
+form a defect-free stratum fixed before any model score exists, and every detection metric in
+Chapter~\ref{ch:results} is reported on that stratum as well as on the full set. If the two strata
+disagree, the exemplar defect is doing work; if they agree, it is not.
 
 \subsection{RQ2: is the labeller's error noise or prior?}
 \label{sec:m-control-rq2}
@@ -588,11 +553,11 @@ aggregation frameworks assume noise that is conditionally independent across sou
 label and rest on having multiple sources whose errors are not aligned \citep{ratner2017snorkel}.
 One source with a systematic prior shift is outside that regime.
 
-Three controls bear on this. First, ordering. The base rate must be estimated on a small
-human-labelled sample before any weak labels are generated, since a marginal is interpretable only
-against a base rate. This project produced the pharmacist annotations after the weak labels, which
-inverted the only ordering in which the mismatch would have been actionable, and that inversion is
-reported as a methods failure rather than repaired retrospectively.
+Three controls bear on this. First, ordering: the base rate must be estimated on a small
+human-labelled sample before any weak labels are generated. This project produced the pharmacist
+annotations after the weak labels, which inverted the only ordering in which the mismatch would
+have been actionable, and that inversion is reported as a methods failure rather than repaired
+retrospectively.
 
 Second, replication across labellers. If over-calling is a property of one model it will not
 survive a change of model; if it is a property of the task presentation it will. The replication
@@ -623,12 +588,11 @@ misaligned block arm is a second control, holding the number of blocks fixed whi
 alignment with document boundaries, which closes the obvious alternative reading that any coarse
 blocking of the attention matrix would do.
 
-One control is deliberately not used. A global derangement of role labels is vacuous here and was
-removed rather than reported: the bias table is a free matrix over role pairs, so under a global
-relabelling the model learns the permuted table, the loss surface is isomorphic, and the result is
-fixed at the uncorrupted value by construction. It was implemented, recognised as powerless, and
-guarded against in code. It is described because a control that cannot fail is worse than no
-control.
+One control is deliberately not used. A global derangement of role labels is vacuous here: the bias
+table is a free matrix over role pairs, so under a global relabelling the model learns the permuted
+table, the loss surface is isomorphic, and the result is fixed at the uncorrupted value by
+construction. It was implemented, recognised as powerless, removed, and guarded against in code. It
+is described because a control that cannot fail is worse than no control.
 
 A third control addresses the representation. The pretraining collapse was originally explained by
 clinical homogeneity, the claim that notes within an institution are too similar for a coherence
@@ -662,8 +626,8 @@ must exclude zero, and the four-fifths ratio must fall below its threshold with 
 bound below one. If the audit cannot recover a gap placed there deliberately, every downstream
 number is void and the script aborts rather than reporting them
 (\texttt{accord/selection\_experiment/run\_experiment.py}). The precondition also applies
-retrospectively to an earlier audit in this project, and it fails there, which is why no subgroup
-harm is demonstrated or claimed anywhere in this thesis.
+retrospectively to an earlier audit in this project and fails there, which is why no subgroup harm
+is demonstrated or claimed anywhere in this thesis.
 
 \subsection{RQ4: is the null a property of the task or of the instrument?}
 
@@ -813,13 +777,11 @@ the count of valid resamples is reported beside each interval.
 
 Two systems scored on the same rows produce correlated ROC curves, so an unpaired comparison
 overstates the variance of their difference. Comparisons between the control model and the
-detector, and between individual seeds and the detector, use the DeLong test for correlated areas,
-which estimates the covariance of the two areas from the same subjects and returns a $z$ statistic
-and a two-sided $p$ value. The implementation is committed at \texttt{accord/control/delong.py} and
-the per-comparison outputs, including the standard error of the difference, are written to the
-control report rather than recomputed in prose.
-[TODO: the DeLong (1988) reference is absent from \texttt{refs.bib}; add the entry and cite it here
-rather than naming the method uncited.]
+detector, and between individual seeds and the detector, use the DeLong test for correlated areas
+\citep{delong1988comparing}, which estimates the covariance of the two areas from the same subjects
+and returns a $z$ statistic and a two-sided $p$ value. The implementation is committed at
+\texttt{accord/control/delong.py} and the per-comparison outputs, including the standard error of
+the difference, are written to the control report rather than recomputed in prose.
 
 \subsection{Minimum detectable effect}
 
