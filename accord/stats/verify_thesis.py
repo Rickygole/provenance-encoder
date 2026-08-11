@@ -107,7 +107,18 @@ def main():
             if re.search(r"(?<!\-)\-\-(?!\-)", line) and "%" not in line[:2]:
                 print(f"   {f.name}:{i}  latex en dash (--): {line.strip()[:90]}")
                 bad += 1
-    print(f"   {'FAIL' if bad else 'pass'}: {bad} dash violations\n")
+    # Figures are drawn from scripts, and a dash inside a rendered PDF is
+    # invisible to a scan of the .tex. Check the generating source too.
+    figsrc = 0
+    for f in sorted((THESIS / "figures").glob("*.py")):
+        for i, line in enumerate(f.read_text(errors="ignore").splitlines(), 1):
+            for ch, name in (("\u2014", "em dash"), ("\u2013", "en dash"), ("\u2212", "minus sign")):
+                if ch in line:
+                    print(f"   figures/{f.name}:{i}  {name} in figure source: {line.strip()[:80]}")
+                    figsrc += 1
+    bad += figsrc
+    print(f"   {'FAIL' if bad else 'pass'}: {bad} dash violations "
+          f"({figsrc} in figure source)\n")
     failures += bad > 0
 
     # ---------------- pass 2: numbers ----------------

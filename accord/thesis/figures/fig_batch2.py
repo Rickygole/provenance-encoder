@@ -38,7 +38,7 @@ for r, pr in enumerate(prompts):
         ax.tick_params(labelsize=7)
 fig.supxlabel("true prevalence", fontsize=9, y=0.015)
 fig.supylabel("labeller predicted-positive rate", fontsize=9, x=0.005)
-fig.suptitle("The labeller under-responds to prevalence — but nowhere near the clinical shift",
+fig.suptitle("The labeller under-responds to prevalence, but nowhere near the clinical shift",
              fontsize=9.5, x=0.02, ha="left", y=0.99)
 fig.text(0.02, 0.925, "dashed: perfect calibration", fontsize=6.8, color="0.4")
 fig.tight_layout(rect=[0.02, 0.03, 1, 0.93])
@@ -64,7 +64,7 @@ for x, m, s, t in zip(xs, mu, sd, tags):
                 ha="center", fontsize=7.5, color=ACCENT)
 ax.set_xscale("log"); ax.set_xlabel("non-embedding parameters (log scale)")
 ax.set_ylabel("accuracy, AG News"); ax.set_ylim(0.865, 0.952)
-ax.set_title("Pretraining is worth five points here — and more parameters do not close it",
+ax.set_title("Pretraining is worth five points here, and more parameters do not close it",
              loc="left", fontsize=9.5, pad=8)
 # C37 clinical comparison, read from the run records -- never typed
 _pb = [json.loads((ROOT/f"local_only/task_runs/concat_s{s}.json").read_text())["auroc"] for s in (1,2,3)]
@@ -87,7 +87,7 @@ fig.savefig(HERE/"fig-scaling.pdf"); plt.close(fig); print("wrote fig-scaling.pd
 iv = json.loads((ROOT/"results/accord/stats/intervals.json").read_text())["E2_mcc_intervals"]
 rows = []
 for k, v in iv.items():
-    rows.append((f"MCC — {k.replace('_',' ')}", v["mcc"], v["ci95"][0], v["ci95"][1]))
+    rows.append((f"MCC, {k.replace('_',' ')}", v["mcc"], v["ci95"][0], v["ci95"][1]))
 rows.append(("AUROC $-$ 0.5 (decontaminated)", 0.5145-0.5, 0.321-0.5, 0.703-0.5))
 rows.append(("AUROC $-$ 0.5 (defect-free stratum)", 0.5078-0.5, 0.2217-0.5, 0.7615-0.5))
 _pb2 = [json.loads((ROOT/f"local_only/task_runs/concat_s{s}.json").read_text())["auroc"] for s in (1,2,3)]

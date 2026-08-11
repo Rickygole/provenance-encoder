@@ -267,7 +267,11 @@ Balanced accuracy, the unweighted mean of sensitivity and specificity
 summary is wanted, and the one whose implicit weighting is least often written down. Under
 heavy negative skew the ROC curve is dominated by the majority class and can look acceptable
 while precision-recall behaviour sits at the no-skill line, which is why
-\citet{saito2015prcurve} recommend reporting both. That a choice of measure can manufacture
+\citet{saito2015prcurve} recommend reporting both. Two areas under the curve computed on the
+same cases are correlated, so the difference between them cannot be tested as though the two
+samples were independent; \citet{delong1988comparing} give the standard nonparametric
+treatment, and this thesis uses it once, to compare a seed ensemble against a single model on
+one set of pairs. That a choice of measure can manufacture
 or dissolve an apparent effect has been argued most visibly by \citet{schaeffer2023mirage},
 who attribute emergent abilities in large language models to nonlinear or discontinuous
 metric choices rather than to a change in underlying model behaviour. That concerns scale
@@ -470,7 +474,12 @@ a dataset faithfully reflects a population already containing disparities, equal
 across groups does not indicate the absence of a problem, and that when data are
 unrepresentative because of selection bias, both disaggregated evaluation and alternative
 approaches based on conditional independence testing may be invalid without explicit
-assumptions about the selection mechanism.
+assumptions about the selection mechanism. \citet{fogliato2020fairness} make the parallel
+point about the label rather than the sample: when the observed outcome is a biased proxy for
+the outcome of interest, group-wise performance differences measured against the proxy need
+not track the differences that would be measured against the target, and they give a
+sensitivity analysis rather than a correction. Both results constrain what a measured
+disparity is allowed to be read as.
 
 That result is why a selection-channel finding cannot be reported as a fairness result
 without an accompanying mechanism. The Discussion chapter reports an unexplained anomaly in

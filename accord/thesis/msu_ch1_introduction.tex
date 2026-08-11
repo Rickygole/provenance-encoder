@@ -8,10 +8,14 @@
 %  Every number in this chapter is keyed to results/accord/VERIFIED_FACTS.json.
 %  Nothing is carried over from an earlier draft without a key.
 %
-%  PENDING: the control-literature attributions in Section "Contributions" are
-%  written in prose because refs.bib does not yet carry the keys. Once the
-%  bibliography pass lands, wire in Lipsitch, Adebayo, Hewitt & Liang, Egami,
-%  Lourie, TESSERA, Pfohl, Fogliato, Biswas & Rajan and DeLong as \citep{}.
+%  The control-literature attributions are now wired to refs.bib: Lipsitch,
+%  Adebayo, Hewitt & Liang, Egami, Forman, Feinstein, Byrt, Lourie, TESSERA,
+%  Pfohl, Fogliato, Biswas & Rajan, Jacobs and DeLong.
+%
+%  Figures: fig:pipeline-status (Section "The Pipeline the Field Would Build")
+%  and fig:intro-headline (Section "The Finding"). Both are rendered by
+%  accord/thesis/figures/make_figures.py from committed result files; see
+%  figures/manifest.json for the per-panel source list.
 % ============================================================================
 
 \chapter{Introduction}
@@ -95,14 +99,39 @@ every step, and this project executed it end to end.
 
 What the construction does not come with is a control at each stage. A candidate
 miner reports a precision without reporting whether the evidence attached to
-each candidate is the evidence that triggered it. A weak labeller reports an
-agreement rate without reporting its own marginal against a measured base rate.
-An architectural component reports an ablation delta without a version of itself
-that could not possibly work, run under the same conditions. An evaluation
-reports a null without a positive control establishing that the same instrument
-would have resolved an effect if one had been present. Each of these checks is
-old, cheap, and owned by someone else. None was run on this pipeline before this
+each candidate is the evidence that triggered it, which is a question about
+whether the quantity measured is the quantity named
+\citep{jacobs2021measurement}. A weak labeller reports an agreement rate
+without reporting its own marginal against a measured base rate, although
+surrogate labels are known to bias what is computed from them even at high
+annotator accuracy \citep{egami2023surrogates}, and a classifier whose true
+positive and false positive rates differ is a biased prevalence estimator by
+construction \citep{forman2008quantifying}. An architectural component reports
+an ablation delta without a version of itself that could not possibly work, run
+under the same conditions \citep{adebayo2018sanity,hewitt2019control}. An
+evaluation reports a null without a positive control establishing that the same
+instrument would have resolved an effect if one had been present, which is the
+logic negative and positive controls carry in observational research
+\citep{lipsitch2010negative}. Auditing a pipeline stage by stage rather than
+end to end is itself an established move, demonstrated for fairness in tabular
+preprocessing \citep{biswas2021fairpreprocessing}. Each of these checks is old,
+cheap, and owned by someone else. None was run on this pipeline before this
 work.
+
+Figure~\ref{fig:pipeline-status} is the whole project in one view: the six
+stages as they were built, the verdict each stage received, and the diagnostic
+that produced the verdict. The failures sit at different stages, have different
+mechanisms, and each has a cheap detector. A project that fixed any one of them
+in isolation would still have produced a system with no ranking signal.
+
+\begin{figure}[H]
+\caption{The pipeline as run, stage by stage, with the verdict each stage
+received and the diagnostic that produced it. Two verdicts are categorical
+rather than numeric, because no committed result file carries the underlying
+values.}
+\label{fig:pipeline-status}
+\includegraphics[width=0.9\linewidth]{figures/fig-pipeline-status.pdf}
+\end{figure}
 
 \section{The Finding}
 \label{sec:intro-finding}
@@ -137,7 +166,8 @@ $253$ pairs the decontaminated ensemble AUROC is $0.5145$ with a Mann-Whitney
 $p$ of $0.867$, and the per seed mean is $0.5211$ with a standard deviation of
 $0.0201$. On the $299$ annotated pairs under subject disjoint splits the three
 seed mean AUROC is $0.4967$ with a standard deviation of $0.0350$, and a DeLong
-test between the seed ensemble and the single model returns $p = 0.930$. The
+test between the seed ensemble and the single model
+\citep{delong1988comparing} returns $p = 0.930$. The
 score distributions overlap almost exactly: the $12$ positives have mean
 contradiction probability $0.4198$ and the $241$ negatives $0.4282$, with
 Mann-Whitney $p = 0.6418$, so the positives score marginally lower than the
@@ -145,6 +175,21 @@ negatives. A TF-IDF logistic regression on the same $299$ pairs reaches AUROC
 $0.5761$ and average precision $0.1571$, above both neural configurations;
 whether that reflects surface form signal or small sample noise is not
 established here and is reported as found.
+
+Figure~\ref{fig:intro-headline} puts the two halves of that failure beside each
+other. On the left, the weak labeller's positive rate against the pharmacist's,
+which is the number the rest of the thesis follows. On the right, Matthews
+correlation with bootstrap intervals for the four systems compared on the same
+$253$ pairs; every interval contains zero, so the ordering those numbers appear
+to give is an ordering over noise.
+
+\begin{figure}[H]
+\caption{The marginal of the weak labeller against the pharmacist's measured
+base rate on the same pairs (left), and Matthews correlation with $95\%$
+bootstrap intervals for four systems on the $253$ non ambiguous pairs (right).}
+\label{fig:intro-headline}
+\includegraphics[width=0.9\linewidth]{figures/fig-intro-headline.pdf}
+\end{figure}
 
 A null on twelve positives invites one obvious reading, which is that the
 experiment was too small to see anything. The control that answers it is a
@@ -228,11 +273,15 @@ measurements with a stated resolution limit.
 
 The methods applied in this thesis are not novel and the thesis does not claim
 them. Positive and negative controls come from epidemiology, where that
-literature is decades old. Randomization based sanity checks on learned
-components come from the saliency map literature. Control tasks for probing
-classifiers come from work that owns both the design and its conclusion. The
-prevalence dependence of agreement statistics was described thirty six years
-ago. Chapter~\ref{ch:lit} attributes each of these to the work that owns it, and
+literature is decades old \citep{lipsitch2010negative}. Randomization based
+sanity checks on learned components come from the saliency map literature
+\citep{adebayo2018sanity}. Control tasks for probing classifiers come from work
+that owns both the design and its conclusion \citep{hewitt2019control}. The
+prevalence dependence of agreement statistics was described thirty six years ago
+\citep{feinstein1990paradoxes,cicchetti1990resolving}, and the adjusted
+coefficient proposed in response removes the marginal sensitivity by removing
+the marginal information \citep{byrt1993pabak}.
+Chapter~\ref{ch:lit} attributes each of these to the work that owns it, and
 this chapter's claim is about what they revealed when pointed at this pipeline.
 
 What is new is the measurement on this pipeline and the fact that the controls
@@ -243,7 +292,8 @@ evidence supports.
 
 \item \textbf{A measured null on clinical pretraining transfer, rather than an
 underpowered one.} The general result that pretraining loss is an unreliable
-proxy for downstream performance is settled elsewhere, and this project's $48$
+proxy for downstream performance is settled elsewhere and at far larger scale
+\citep{lourie2025scaling,feng2026tessera}, and this project's $48$
 run sweep is a small replication of it rather than a discovery. What the sweep
 contributes is the positive control: the same harness resolves $4.53$ points on
 AG News at $24$ epochs with seed standard deviations at or below $0.0029$, and
@@ -255,7 +305,10 @@ upstream selection.} On one population with baseline disparity held fixed, two
 selection channels produce demographic parity drift slopes of opposite sign,
 $-0.0078$ under one regime and $+0.0118$ under the other, and a controlled
 simulator sweep inverts the mapping rather than reproducing it. No mechanism is
-offered. The anomaly is reported as unexplained in Chapter~\ref{ch:discussion},
+offered, and none can be read off the pattern, because interpreting a
+selection dependent result requires assumptions about the selection mechanism
+that are not available here \citep{pfohl2025disaggregated,fogliato2020fairness}.
+The anomaly is reported as unexplained in Chapter~\ref{ch:discussion},
 because five mechanism claims were proposed and refuted inside this project and
 a sixth is not being added.
 
@@ -299,9 +352,11 @@ appear in these measurements. What is established is that \emph{this} pipeline
 does not solve the task, and that the instrument used to say so could have
 resolved a $4.53$ point effect where one existed.
 
-\textbf{It does not claim any of the controls as methods.} Positive controls,
-randomization checks, control tasks, degeneracy preconditions and the prevalence
-critique of agreement metrics all belong to prior work. Applying a thirty six
+\textbf{It does not claim any of the controls as methods.} Positive controls
+\citep{lipsitch2010negative}, randomization checks \citep{adebayo2018sanity},
+control tasks \citep{hewitt2019control}, surrogate label corrections
+\citep{egami2023surrogates} and the prevalence critique of agreement metrics
+\citep{feinstein1990paradoxes} all belong to prior work. Applying a thirty six
 year old critique is not the same as making it.
 
 \textbf{The survey is not a prevalence estimate for clinical machine learning.}

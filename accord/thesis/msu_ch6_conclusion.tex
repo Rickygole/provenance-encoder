@@ -7,6 +7,13 @@
 %
 %  Every number restated here is derived in Chapters 3 to 5 and keyed to
 %  results/accord/VERIFIED_FACTS.json. No new claim and no new number.
+%
+%  Citations here are attribution only: each borrowed control is named against
+%  its owner at least once, because the frame depends on the borrowing being
+%  explicit. No citation supports a finding of this thesis.
+%
+%  Figure: fig:exemplar in Section "Things to Check If You Are Building This",
+%  where it illustrates the check rather than a result.
 % ============================================================================
 
 \chapter{Summary and Conclusion}
@@ -22,7 +29,8 @@ leaves the hospital with the patient, and it is not the one containing the
 reason the instruction is wrong.
 
 This thesis asked whether that disagreement can be detected automatically from
-paired clinical notes, and built the pipeline the field would naturally build to
+paired clinical notes in MIMIC-III \citep{johnson2016mimic}, and built the
+pipeline the field would naturally build to
 answer it: rule based candidate mining, language model weak supervision, and a
 purpose built neural detector over a domain pretrained clinical encoder. Five
 questions were posed, four about the stages and one about the field that
@@ -61,7 +69,12 @@ same set. The detector distilled from those labels predicts contradiction for
 $278$ of the $299$. A labeller positive on the large majority of a pool whose
 true positive rate is $0.0401$ carries almost no information about which pairs
 are contradictions, and the student inherited the marginal rather than the
-judgment. The failure has a floor: the strongest labeller tested, on the $253$
+judgment. Neither of the two standard corrections was available: the adjusted
+count that would fix a biased prevalence estimate needs the labeller's error
+rates on the same distribution \citep{forman2008quantifying}, and the
+doubly robust correction for surrogate label bias needs a gold-labelled
+subsample \citep{egami2023surrogates}, which is the resource the workflow
+existed to avoid spending. The failure has a floor: the strongest labeller tested, on the $253$
 non ambiguous pairs, flagged $71$ zero shot and was right about $6$, and flagged
 $141$ few shot and was right about $7$. Better prompting moves the multiplier
 without removing it, and the magnitude belongs to this pool's base rate rather
@@ -79,15 +92,19 @@ rating over the $299$ pairs is $-0.0001$ at $p = 0.9991$. That null measures an
 untrained module and says nothing about whether clinical severity is
 predictable. Randomized substitutes for the remaining components recover most of
 what the real components are credited with, which is the condition under which
-an ablation delta stops being evidence about a component.
+an ablation delta stops being evidence about a component. The substitution is
+the randomisation sanity check \citep{adebayo2018sanity} and the control task
+\citep{hewitt2019control}, applied without modification to a different kind of
+component; neither design is claimed here.
 
 \textbf{RQ4, evaluation.} Three configurations sit at chance. On the $253$ non
 ambiguous pairs with $12$ positives, the decontaminated three seed ensemble
 reaches AUROC $0.5145$ with Mann-Whitney $p = 0.867$, and the per seed mean is
 $0.5211 \pm 0.0201$. On the $299$ annotated pairs with the same $12$ positives,
 under subject disjoint splits, the three seed mean AUROC is $0.4967 \pm 0.0350$,
-and a DeLong test between the seed ensemble and the single model gives
-$p = 0.930$. The score distributions overlap: positives average $0.4198$ and
+and a DeLong test between the seed ensemble and the single model, which is the
+correlated comparison the two share their cases with
+\citep{delong1988comparing}, gives $p = 0.930$. The score distributions overlap: positives average $0.4198$ and
 negatives $0.4282$, with Mann-Whitney $p = 0.6418$, so the positives score
 marginally lower. A TF-IDF logistic regression on the same $299$ pairs reaches
 AUROC $0.5761$ and average precision $0.1571$, above both neural
@@ -112,7 +129,11 @@ $\kappa = 0.730$ at $0.7895$ on null attribute handling. On the strict field
 both coders returned the same value on all $19$ papers, so agreement is $1.0$
 and $\kappa$ is undefined; it is reported as undefined, not as perfect. The
 enrichment runs against the finding: a corpus over sampling careful work still
-yields $4$ of $75$.
+yields $4$ of $75$. The check being counted is not an unreasonable one to ask
+for. Stage level auditing has been demonstrated for fairness in tabular
+preprocessing pipelines \citep{biswas2021fairpreprocessing}, and the reason a
+selection step needs auditing before its outputs are interpreted has been argued
+directly \citep{pfohl2025disaggregated}.
 
 \section{What the Controls Changed}
 \label{sec:conc-controls}
@@ -121,15 +142,23 @@ Without controls, everything above reads as a small underpowered study that
 found nothing. The controls convert the same results into measurements with a
 stated resolution.
 
-The positive control carries the most weight. Run on AG News with the identical
-training harness and an adjudication rule committed before any run, the
+The positive control carries the most weight. The device is the one
+observational epidemiology formalised decades ago
+\citep{lipsitch2010negative}: run the analysis where the answer is known, and
+read the result as a statement about the instrument. Run on AG News with the
+identical training harness and an adjudication rule committed before any run,
+the
 pretraining benefit is $4.53$ accuracy points at $24$ epochs, with seed standard
 deviations at or below $0.0029$ and non overlapping bands. The same instrument
 on the clinical task returns $0.0031$, between $0.7693 \pm 0.0102$ and
 $0.7662 \pm 0.0073$. Eight times the training budget bought the scratch arm
 $0.41$ points, so the arms were converged rather than starved. An instrument
 that resolves $4.53$ points and returns $0.0031$ is reporting a null, not
-failing to look.
+failing to look. The general proposition that a pretraining objective predicts
+downstream utility poorly is not established here; it is established elsewhere
+and at a scale this project cannot approach
+\citep{lourie2025scaling,feng2026tessera}. The sweep is a control, not a
+contribution.
 
 The decontamination control changed the headline. Excluding the evaluation
 identifiers at load time moved AUROC on the same $253$ pairs from $0.4595$ to an
@@ -165,17 +194,33 @@ issue any. These are the checks that, had they been run when they were
 available, would each have changed what was reported here.
 
 Check that the evidence a candidate is displayed with is the evidence that
-triggered it. That is an assertion over two data structures, and at $0.586$
+triggered it. Figure~\ref{fig:exemplar} shows the failure mode in the abstract:
+a rule that quantifies over a set of medication mentions, an exemplar selector
+that indexes into that set positionally, and nothing in between forcing the two
+to agree. The check is an assertion over two data structures, and at $0.586$
 agreement across the pool it is the check that would have caught the largest
 upstream defect in this project before any annotation was commissioned.
+
+\begin{figure}[H]
+\caption{The check that was not run, drawn as a schematic. The rule fires on a
+conflict between two sets of medication mentions; the exemplar shown to the
+annotator, the weak labeller and the model is chosen by position instead. Slots
+are abstract and no clinical text appears.}
+\label{fig:exemplar}
+\includegraphics[width=0.9\linewidth]{figures/fig-exemplar.pdf}
+\end{figure}
 
 Estimate the base rate on a human labelled sample before generating weak labels,
 and print the labeller's marginal beside it. A labeller positive on $261$ of
 $299$ pairs against a base rate of $0.0401$ is diagnosable in one line when the
-labels are produced, not after a detector has been trained on them.
+labels are produced, not after a detector has been trained on them, and the
+dependence of agreement statistics on the marginals has been documented since
+1990 \citep{feinstein1990paradoxes,byrt1993pabak}.
 
 Report precision against the base rate of the pool the system ran on, with the
-denominator stated. Precision of $0.0424$ is a different object depending on
+denominator stated, and prefer a coefficient that uses all four confusion matrix
+cells when the classes are this skewed \citep{chicco2020mcc}. Precision of
+$0.0424$ is a different object depending on
 whether the pool's base rate is $0.005$ or $0.0474$, and here it is the latter,
 which makes the flag worse than no flag.
 
@@ -247,6 +292,8 @@ artifact by a control that fired.
 
 A negative result that has been diagnosed is worth more than one that has not.
 The difference between the two, in this project, was a set of controls that
-belong to other people's papers, cost $661.4$ GPU minutes in total, and had not
+belong to other people's papers
+\citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,egami2023surrogates,feinstein1990paradoxes},
+cost $661.4$ GPU minutes in total, and had not
 been run on this pipeline before this work. That is the contribution, and it is
 offered so the next attempt starts further along than this one did.

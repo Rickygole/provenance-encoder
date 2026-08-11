@@ -707,7 +707,7 @@ def make_fig_disc_strata():
 
     agg = decontam["aggregate"]
     rows = [
-        ("All 299 annotated pairs\n(decontaminated 3-seed ensemble)",
+        ("All annotated pairs\n(decontaminated 3-seed ensemble)",
          agg["ensemble_auroc"], agg["ensemble_ci95"], decontam["n"], decontam["n_positives"],
          agg["ensemble_mannwhitney_p"], None),
         ("Rules 3+4 only\n(exemplar-defect-free by construction)",

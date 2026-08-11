@@ -6,6 +6,11 @@
 %  Numeric provenance: every quantity is from results/accord/VERIFIED_FACTS.json.
 %  Compute figures come from results/accord/control_cost_log.json, the source
 %  named for that item alone. No open markers remain in this chapter.
+%
+%  Figures: fig:disc-strata (evaluation survived), fig:scaling (the null is a
+%  measurement), fig:threshold-surface (the anomaly), fig:disc-actionability
+%  (limitations), fig:met-exchange (construct validity). Sources for each are
+%  in figures/manifest.json and the generating scripts beside it.
 % ============================================================================
 
 \chapter{Discussion}
@@ -24,8 +29,14 @@ proposing one.
 
 The pipeline has four stages and a reporting layer. Each produced a number a
 competent paper could have reported, and each was then subjected to a control a
-competent paper could have run. The controls are not new; what is new is that
-they were run here, and what they returned.
+competent paper could have run. The controls are not new: negative and positive
+controls come from observational epidemiology \citep{lipsitch2010negative},
+randomisation sanity checks from the interpretability literature
+\citep{adebayo2018sanity}, control tasks and selectivity from probing
+\citep{hewitt2019control}, and auditing a pipeline stage by stage has been
+demonstrated for fairness in tabular preprocessing
+\citep{biswas2021fairpreprocessing}. What is new is that they were run here, and
+what they returned.
 
 \begin{table}[H]
 \centering
@@ -66,6 +77,12 @@ forced the two to agree. Of the Rule 1 and Rule 2 candidates whose
 exemplar could be resolved, $65$ of $137$ were justified by the wrong sentence, a
 rate of $0.4745$. A further $28$ could not be resolved at all.
 
+That is a construct problem before it is a precision problem. The quantity the
+annotation exercise was supposed to measure is whether a mined pair is a
+contradiction; the quantity it did measure is whether a heuristically chosen
+sentence pair looks like one, and the gap between the two is where an invalid
+conclusion enters \citep{jacobs2021measurement}.
+
 The consequence is a bound whose direction is unknown. A board-certified
 pharmacist judged correctly the material placed in front of them; how the same
 pharmacist would rule on corrected material was not measured, and both a higher
@@ -85,7 +102,15 @@ compare the marginal against a human-established base rate before believing
 anything about agreement. Against the $299$ annotated pairs the labeller assigned
 the positive class to $261$. The pharmacist assigned it to $12$. A labeller that
 says yes to $87\%$ of a pool whose true positive rate is $4\%$ is not making a
-decision, it is reporting a prior with a text prompt attached. The reversal
+decision, it is reporting a prior with a text prompt attached. Read as a
+prevalence estimator rather than as a classifier, it is biased in exactly the
+way classify-and-count is biased whenever the true positive and false positive
+rates differ, and correcting it needs estimates of those rates on the same
+distribution, which means gold labels \citep{forman2008quantifying}. The same
+dependency defeats the correction for surrogate label bias, which is doubly
+robust but requires a gold-labelled subsample \citep{egami2023surrogates}. A
+workflow that used a language model to avoid annotation entirely cannot pay for
+either fix. The reversal
 matters because the student inherits the marginal rather than the task, which is
 what data programming's guarantees were never designed to survive with a single
 source \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}.
@@ -105,12 +130,18 @@ rate \citep{pangakis2023validation}.
 The architectural controls did the most damage because they fired positively. A
 component that fails to beat its ablation has produced an absence of evidence. A
 component whose credited mechanism is reproduced by a deliberately meaningless
-substitute has been falsified.
+substitute has been falsified. That is the randomisation logic
+\citet{adebayo2018sanity} apply to saliency maps, moved to a different kind of
+component: replace what the component consumes with something that cannot carry
+the credited signal, hold the training conditions fixed, and see whether the
+credited contribution survives.
 
 Chapter~\ref{ch:results} reports three. The authority parameter described as
 discovered was initialised at the value reported as discovered and sits behind a
 normalisation that removes its gradient. An auxiliary rule label was readable
-from the input features, so the rule head measured leakage rather than learning.
+from the input features, so the rule head measured leakage rather than learning,
+which is the textbook symptom \citet{kaufman2012leakage} describe: a target that
+is not independent of what the model already has.
 Constraining the note-role weighting to be symmetric improved both reported
 metrics instead of degrading them. The supporting values reported in an
 earlier draft of this work are not traceable to any artifact retained on disk, so
@@ -141,14 +172,28 @@ $0.4602$ with a bootstrap standard deviation of $0.0870$ over $10{,}000$
 resamples. Across three seeds the mean is $0.4967$ (SD $0.0350$). On the
 decontaminated $253$-pair set with $12$ positives the three-seed ensemble is
 $0.5145$ at Mann-Whitney $p = 0.8668$, against $0.4595$ for the contaminated run
-on the same pairs. A DeLong comparison of ensemble against single model returns
-$p = 0.9300$ on an AUC difference of $0.0090$. Removing the exemplar defect does
+on the same pairs. The two areas are computed on the same pairs, so the
+comparison of ensemble against single model is a correlated one and is tested as
+such \citep{delong1988comparing}; it returns $p = 0.9300$ on an AUC difference of
+$0.0090$. Removing the exemplar defect does
 not rescue it: on the $134$ Rule 3 and Rule 4 pairs, holding $6$ positives, AUROC
 is $0.5078$ with a bootstrap standard deviation of $0.1368$, and the three-seed
 mean on that stratum is $0.5295$ (SD $0.0158$). The strongest objection available
 against Chapter~\ref{ch:results} is that real signal was attenuated by labels
 collected against the wrong evidence, and it is answered the only way it can be,
 by measuring where the evidence is right by construction.
+Figure~\ref{fig:disc-strata} puts the full set and the defect-free stratum side
+by side. Both intervals straddle chance, and the stratum's is wider because it
+holds half the positives.
+
+\begin{figure}[H]
+\caption{Ranking performance on the full decontaminated evaluation set and on
+the stratum where the displayed evidence is correct by construction, each with
+its bootstrap interval. No ROC curve is drawn because per-pair scores are not
+released; the panel row labels carry the sample sizes that apply.}
+\label{fig:disc-strata}
+\includegraphics[width=0.9\linewidth]{figures/fig-disc-strata.pdf}
+\end{figure}
 
 Two baselines finish the picture and one is uncomfortable. A majority-class
 predictor gives AUROC $0.5$ and average precision $0.0401$, the base rate. A
@@ -177,7 +222,10 @@ is hard.
 A negative result in a small clinical sample invites one objection above all
 others: the experiment was too small to see anything, so it saw nothing. That
 objection is correct about most such results, and would be correct about this one
-if no positive control existed. One does.
+if no positive control existed. One does. The device is the one
+\citet{lipsitch2010negative} formalise for observational research: run the
+analysis on a case where the answer is known in advance, and let the result
+speak about the instrument rather than about the substantive question.
 
 The instrument is a comparison of a domain-pretrained encoder against an
 identically sized encoder trained from scratch, evaluated by a convergence sweep
@@ -193,6 +241,21 @@ at $24$; the pretrained arm moved $-0.13$ points over the same range. Both arms
 are converged. A gap that persists at convergence is not a gap in optimisation,
 and an instrument reporting a $4.53$-point difference at standard deviations of
 $0.003$ or less is not an instrument that cannot see effects.
+
+Parameters do not close it either. Figure~\ref{fig:scaling} plots the from-scratch
+arms at three sizes against the pretrained band on the public task, and the
+inset carries the clinical comparison on the same axis convention. The
+from-scratch curve rises with size and does not approach the band, so the public
+gap is a pretraining effect rather than a capacity effect, and the clinical gap
+is the same instrument returning almost nothing.
+
+\begin{figure}[H]
+\caption{From-scratch encoders at three parameter scales against a pretrained
+encoder on the public classification task, with the clinical comparison inset.
+The shaded band is the pretrained arm's seed standard deviation.}
+\label{fig:scaling}
+\includegraphics[width=0.9\linewidth]{figures/fig-scaling.pdf}
+\end{figure}
 
 The decision rule was committed before the sweep ran
 (\texttt{accord/scaling/C44\_PREREGISTRATION.md}), and the outcome it adjudicated
@@ -249,6 +312,28 @@ $+0.01177$ under the second
 A third selection experiment on a different pool gives a
 gap running from $+0.00841$ to $+0.18939$, again without a sign change.
 
+That third experiment was also swept across operating points, and
+Figure~\ref{fig:threshold-surface} shows what the sweep returned. The audited
+gap is not a property of the system on its own. It moves with the operating
+point and with the strength of the upstream selection, so any single audited
+number describes one cell of that surface rather than the system that produced
+it, and the operating point actually used crosses the tolerance contour partway
+along the sweep. Over a large part of the surface the audit also stops being
+able to answer at all: where the minimum detectable gap exceeds the tolerance
+the audit was written against, a cell that reads as passing is reporting a
+sample size rather than a system, and the two cases are not distinguishable from
+the recorded pass alone.
+
+\begin{figure}[H]
+\caption{The audited demographic-parity gap across operating points and
+selection strengths for one selection experiment. The solid contour is the
+tolerance the audit was written against; the pale region is where the minimum
+detectable gap exceeds that tolerance, so a pass is underpowered rather than
+clean.}
+\label{fig:threshold-surface}
+\includegraphics[width=0.9\linewidth]{figures/fig-threshold-surface.pdf}
+\end{figure}
+
 The behaviour does not survive a controlled sweep of the same construct. A
 simulator sweep over baselines, channel strengths and replicates inverts the
 mapping between channel and drift direction; the grid's dimensions are not
@@ -273,8 +358,10 @@ something whose direction was not stable where it was checked. No subgroup harm
 is demonstrated; none is demonstrated anywhere in this work, and these
 populations are simulated. No general claim is made that disaggregated fairness
 evaluation is uninterpretable under selection; that argument belongs to others
-and predates this work \citep{pfohl2025disaggregated,fogliato2020fairness}. And
-no boundary for the effect is
+and predates this work \citep{pfohl2025disaggregated,fogliato2020fairness}, as
+does the observation that the design choices inside a disaggregated evaluation
+are consequential enough to need documenting \citep{barocas2021disaggregated}.
+And no boundary for the effect is
 claimed, because the sweep that inverts the mapping is one simulator with one
 functional form.
 
@@ -318,7 +405,10 @@ elsewhere.
 \subsection{What practice does with the upstream check}
 
 The survey speaks to whether the check that would have caught the upstream defect
-is run at all. On a $75$-paper corpus, $4$ papers audit the selection step under
+is run at all. Auditing a pipeline one stage at a time is not an exotic ask:
+\citet{biswas2021fairpreprocessing} do it for tabular preprocessing operators,
+and show that the local behaviour of each stage composes into the behaviour of
+the pipeline. On a $75$-paper corpus, $4$ papers audit the selection step under
 the strict reading and $14$ under the permissive one.
 Table~\ref{tab:disc-survey} gives the disposition of the rest.
 
@@ -399,7 +489,11 @@ comparison was retracted: the gate recorded no failure in any run, so its catch
 rate is undefined, while the checklist arm computed the relevant defect, wrote it
 to disk, and was misread by a human. Executability was not the binding
 constraint, and no claim is made that executable gates outperform prose
-checklists.
+checklists. The nearest thing to evidence on that question comes from journal
+peer review rather than from here, where introducing an automated statistical
+consistency check is associated with a steep decline in reporting
+inconsistencies \citep{nuijten2023statcheck}, measured over a corpus this
+project cannot approach.
 
 \section{Limitations}
 \label{sec:disc-limits}
@@ -428,6 +522,28 @@ nothing speaks to cross-institutional generalisation
 \citep{zech2018generalization}. MIMIC-III is a credentialed PhysioNet resource;
 all analysis reports aggregates only, and no clinical note text and no
 identifiers appear in this document or in any released artifact.
+
+\paragraph{The trigger fires late, and the record cannot say how late.} The
+system compares a nursing note against a discharge summary, so it produces
+nothing until the discharge summary exists, and that document closes the
+admission rather than preceding it. Figure~\ref{fig:disc-actionability} lays the
+sequence out. The data model compounds the problem: nursing notes carry a
+charting timestamp and discharge summaries carry only a charting date, so the
+summary cannot be placed in time relative to the discharge itself. That same
+field absence is what invalidated an earlier prefilter result in this project,
+retracted in Appendix~\ref{app:corrections}. A contradiction detected at that
+point is a documentation finding rather than an intervention, and a deployment
+claim would have to move the trigger earlier, to the discharge order rather than
+to the finished summary. Nothing here measures whether the task is tractable at
+that earlier point, and nothing here should be read as a claim that it is.
+
+\begin{figure}[H]
+\caption{When the system can fire, relative to when the patient leaves. Nursing
+notes carry a charting time; discharge summaries carry only a charting date, so
+the document the system triggers on is finalised at or after discharge.}
+\label{fig:disc-actionability}
+\includegraphics[width=0.9\linewidth]{figures/fig-disc-actionability.pdf}
+\end{figure}
 
 \paragraph{The exemplar defect bounds annotation validity, and re-annotation was
 not performed.} This is the limitation most likely to be read as smaller than it
@@ -527,7 +643,9 @@ and says nothing about whether the clinical result would reproduce elsewhere.
 
 \subsection{Construct validity}
 
-Four constructs are named more confidently than they are measured.
+Four constructs are named more confidently than they are measured, which is the
+gap between a construct and its operationalisation that
+\citet{jacobs2021measurement} argue is where invalid conclusions originate.
 ``Dangerous medication contradiction'' is operationalised by four rules and one
 pharmacist's judgement; a different reading of what counts as a conflict yields a
 different pool and plausibly a different base rate, and the construct is not
@@ -541,7 +659,29 @@ are subject to the documented paradoxes
 \citep{feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}. Matthews
 correlation is used as the better-behaved default
 \citep{chicco2020mcc,delgado2019kappa} rather than as a solution, and applying
-that critique is not contributing it; it is thirty-six years old. Finally, the
+that critique is not contributing it; it is thirty-six years old.
+
+The part of that critique this evaluation set makes concrete is the exchange
+rate. Each summary statistic implies a rate at which a forgone true positive is
+worth some number of gained true negatives, and the rate is fixed by the class
+counts rather than by anything clinical.
+Figure~\ref{fig:met-exchange} draws the three indifference lines through this
+set's own confusion matrices. The prevalence-adjusted bias-adjusted kappa
+\citep{byrt1993pabak} has the shallowest exchange of the three, which makes it
+the most majority-dominated of them despite the name, and none of the three was
+chosen here by asking what a missed contradiction costs relative to a false
+alarm. That question is clinical and it was never posed.
+
+\begin{figure}[H]
+\caption{What each summary statistic trades on this evaluation set: forgone true
+positives against gained true negatives, with the four compared systems plotted
+in the same coordinates. The indifference slopes follow from the class counts
+alone.}
+\label{fig:met-exchange}
+\includegraphics[width=0.9\linewidth]{figures/fig-met-exchange.pdf}
+\end{figure}
+
+Finally, the
 survey's coded construct admits two defensible readings, and the gap between the
 strict and permissive counts is the size of that ambiguity.
 

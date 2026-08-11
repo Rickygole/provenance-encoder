@@ -18,7 +18,7 @@ ours_old = [old[f"ours_randinit_s{i}"]["auroc"] for i in range(3)]
 
 STAGES = [
     ("C32\nold data\n1 comparator seed", 0.0220, st.stdev(ours_old), None,
-     "not comparable —\ndifferent datasets"),
+     "not comparable,\ndifferent datasets"),
     ("C34\ncurrent data\n1 comparator seed", 0.0149, st.stdev(ours_cur), None,
      "one arm's variance only"),
     ("C37\ncurrent data\n3 seeds each", st.mean(pb_cur)-st.mean(ours_cur),

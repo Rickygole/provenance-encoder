@@ -48,7 +48,7 @@ ax.text(len(pts)-0.4, 1.005, "no effect", fontsize=7, color="0.35", va="bottom",
 ax.set_ylabel("odds ratio, unrecorded LANGUAGE\n(reference: English)")
 ax.set_xlim(-0.8, len(pts)-0.2); ax.set_xticks([])
 ax.set_ylim(0.28, 1.35)
-ax.set_title("Every specification, every cohort — sorted by effect size",
+ax.set_title("Every specification, every cohort, sorted by effect size",
              loc="left", fontsize=9.5, pad=8)
 
 n_sig = sum(1 for r in pts if r["hi"] < 1.0)

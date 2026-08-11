@@ -37,7 +37,7 @@ b.bar(["discharge", "nursing"], [disch, nurs], color=["0.35", "0.6"], width=.55)
 for x, v in enumerate([disch, nurs]):
     b.text(x, v + n_clf * .02, f"{v:,}", ha="center", fontsize=8)
 b.set_ylabel("action-classified mentions")
-b.set_title(f"by note role — {disch/nurs:.1f} : 1", fontsize=9)
+b.set_title(f"by note role, {disch/nurs:.1f} : 1", fontsize=9)
 b.set_ylim(0, disch * 1.18)
 fig.tight_layout(); fig.savefig(HERE / "fig-asymmetry.pdf"); plt.close(fig)
 man["fig:asymmetry"] = {"file": "fig-asymmetry.pdf",
@@ -72,7 +72,7 @@ for r, v in zip(bars, f1):
     b.text(r.get_x() + r.get_width()/2, v + .03, f"{v:.4f}", ha="center", fontsize=8)
 b.set_ylim(0, 1.12); b.set_ylabel(r"rule-type $F_1$")
 b.set_title("out-of-domain collapse", fontsize=9)
-b.text(.5, 1.05, "transfer values unverified — see C36", fontsize=6.5,
+b.text(.5, 1.05, "transfer values recovered; see Appendix C", fontsize=6.5,
        style="italic", ha="center", color="0.35")
 fig.tight_layout(); fig.savefig(HERE / "fig-falsification.pdf"); plt.close(fig)
 man["fig:falsification"] = {"file": "fig-falsification.pdf",

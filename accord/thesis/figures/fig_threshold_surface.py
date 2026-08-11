@@ -41,7 +41,7 @@ ax.annotate("original E9 operating point", xy=(B[1], 0.1994), xytext=(B[1], 0.13
 
 ax.set_xlabel(r"selection strength through documentation volume  ($\beta$)")
 ax.set_ylabel("predicted-positive rate")
-ax.set_title("The audit never becomes cleanly blind — it becomes unmeasurable",
+ax.set_title("The audit never becomes cleanly blind; it becomes unmeasurable",
              loc="left", fontsize=9.5, pad=16)
 ax.text(0, 1.02, "solid line: 0.05 tolerance      shaded pale: minimum detectable gap "
         "exceeds tolerance (underpowered, not passing)",
