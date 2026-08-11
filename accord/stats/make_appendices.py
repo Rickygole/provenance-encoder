@@ -36,6 +36,35 @@ def esc(s):
     return re.sub(r"[^\x00-\x7f]", "", s)
 
 
+def esc_breakable(s):
+    """Like esc(), but for source-file paths: insert \\allowbreak after every '.'
+    and '/' so the longtable column can wrap them instead of overrunning the
+    margin (this project has no xurl installed)."""
+    s = esc(s)
+    s = s.replace(".", r".\allowbreak{}")
+    s = s.replace("/", r"/\allowbreak{}")
+    return s
+
+
+# The two absolute local filesystem paths long enough, and space-free enough,
+# to risk overrunning the page in both outputs -- \allowbreak fixes pdflatex,
+# but pandoc drops it, so a plain-text table cell in Word is one long unbroken
+# run. Abbreviate the shared, uninformative directory prefix; the full path is
+# spelled out once, in a note under the table, so nothing is actually lost.
+PATH_ABBREV = [
+    ("/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu"
+     "/My Drive/thesis/outputs/", "[GDRIVE]/"),
+    ("/Users/rickygole/mimic_local_only/", "[MIMIC]/"),
+]
+
+
+def abbreviate_path(s):
+    for full, short in PATH_ABBREV:
+        if s.startswith(full):
+            return short + s[len(full):]
+    return s
+
+
 def main():
     corr = (ROOT / "accord" / "CORRECTIONS.md").read_text()
     entries = re.findall(r"^## (C\d+)\.\s*(.+)$", corr, re.M)
@@ -77,11 +106,20 @@ def main():
          "grouped below by the experiment that produced it, with the file each group was read from.", "",
          r"\singlespacing", r"\begin{longtable}{@{}p{1.9in}p{0.7in}p{2.6in}@{}}",
          r"\textbf{Group} & \textbf{Values} & \textbf{Source file}\\", r"\midrule", r"\endhead"]
+    abbreviated = False
     for g, items in sorted(groups.items()):
         arts = sorted({i["artifact"] for i in items})
+        shown = abbreviate_path(arts[0])
+        abbreviated = abbreviated or (shown != arts[0])
         extra = f" and {len(arts) - 1} more" if len(arts) > 1 else ""
-        b.append(f"{esc(g)} & {len(items)} & {esc(arts[0])}{extra}\\\\")
-    b += [r"\end{longtable}", r"\doublespacing", ""]
+        b.append(f"{esc(g)} & {len(items)} & {esc_breakable(shown)}{extra}\\\\")
+    b += [r"\end{longtable}"]
+    if abbreviated:
+        prefixes = "; ".join(f"{short} is {esc_breakable(full)}"
+                              for full, short in PATH_ABBREV)
+        b.append(r"\apanote{Two source paths are absolute paths on the machine the analysis "
+                  f"was run on and are abbreviated above so the column fits the page: {prefixes}.}}")
+    b += [r"\doublespacing", ""]
     (THESIS / "msu_appB_provenance.tex").write_text("\n".join(b) + "\n")
 
     print(f"Appendix A: {len(entries)} corrections, {len(revs)} revisions")
