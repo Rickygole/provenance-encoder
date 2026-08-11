@@ -1,0 +1,804 @@
+% ============================================================================
+%  Chapter 4. Results. \input file for main_msu.tex; requires booktabs, float,
+%  graphicx, amsmath, natbib and \apanote. Bibliography: accord/thesis/refs.bib
+%
+%  PROVENANCE RULE: every numeric value below is registered in
+%  results/accord/VERIFIED_FACTS.json, reported at the precision of that
+%  register or rounded to four decimal places. Quantities the register does not
+%  contain are marked [TODO]. Nothing is carried forward from an earlier draft.
+% ============================================================================
+
+\chapter{Results}
+\label{ch:results}
+
+This chapter reports the measurements taken at each stage of the pipeline, one
+section per research question, in the order the stages run. Each section gives
+the reading a competent evaluation would produce, then the control designed to
+separate that reading from an artifact of measurement, then what the control
+returned, and closes by stating what its result does not establish.
+
+Three evaluation sets appear throughout and they are not interchangeable.
+Table~\ref{tab:denoms} fixes them. An earlier version of this work reported a
+precision on one of them and a ranking statistic on another inside a single
+table, which is a reporting defect rather than a disagreement about the data.
+Every metric below carries its denominator, and a quantity that is a ratio of
+two registered counts is written as that ratio, for example $12/253$.
+
+\begin{table}[H]
+\caption{The three evaluation sets used in this chapter}
+\centering
+\small
+\begin{tabular}{lrrrl}
+\toprule
+\textbf{Set} & \textbf{$n$} & \textbf{Positives} & \textbf{Negatives} &
+\textbf{Definition} \\
+\midrule
+$G_{299}$ & 299 & 12 & 287 & all annotated pairs, ambiguous counted negative \\
+$G_{253}$ & 253 & 12 & 241 & non-ambiguous pairs, ambiguous dropped \\
+$G_{134}$ & 134 & 6  & 128 & Rule 3 and Rule 4 stratum, defect free \\
+\bottomrule
+\end{tabular}
+\apanote{$G_{299}$ from \texttt{gold.n\_total} and the recomputed power ceiling;
+$G_{253}$ from \texttt{decontam.n}, \texttt{power.n\_positives} and
+\texttt{power.n\_negatives}; $G_{134}$ from the defect-free stratum in the
+control report. The 46 ambiguous pairs are the difference between the two
+negative counts, $287 - 241$. $G_{134}$ is a subset of $G_{299}$ and holds half
+of the 12 confirmed contradictions.}
+\label{tab:denoms}
+\end{table}
+
+\section{Candidate Generation}
+\label{sec:res-rq1}
+
+Can rule-based mining over paired notes yield a candidate pool with usable
+precision? No. The more useful part of the answer is that the pool's measured
+precision bounds the validity of the annotation exercise rather than estimating
+the quality of the pipeline.
+
+\subsection{The pool and its base rate}
+
+A board-certified pharmacist annotated 299 candidate pairs: 12 contradictions,
+241 not contradictions, 46 ambiguous. The base rate is $12/299$ on $G_{299}$,
+$12/253$ on $G_{253}$ and $6/134$ on $G_{134}$. The majority-class baseline has
+average precision $0.0401$ on $G_{299}$ and $0.0448$ on $G_{134}$, which are
+those base rates restated and are the no-skill lines for every average precision
+in this chapter. A pool at a base rate near four percent is not itself a failure,
+because rule-based mining is a recall device and a low-precision pool is its
+expected output. What fails is what the precision figure is then used to justify.
+
+\subsection{Per-rule yield and precision}
+
+[TODO: report per-rule candidate counts and per-rule pharmacist precision from a
+committed artifact and add them to the verified-facts register. The four per-rule
+yields and the four per-rule precisions are not in \texttt{VERIFIED\_FACTS.json}
+and are therefore not stated. The registered per-rule quantity is the size and
+positive count of the Rule 3 plus Rule 4 stratum, $n = 134$ with 6 positives.]
+
+That stratum carries the structural point on its own. Rules 3 and 4 account for
+134 of the 299 pairs and 6 of the 12 confirmed contradictions, so the positives
+are spread across the rule set rather than concentrated in one rule, and no rule
+is doing the work. Figure~\ref{fig:rule-precision} reports per-rule ranking
+performance in place of the per-rule precision panel, which no artifact supports.
+
+\begin{figure}[H]
+\caption{Per-rule ranking performance on the annotated pairs}
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-rule-precision.pdf}
+\apanote{The substitution of ranking performance for precision is recorded in
+\texttt{figures/manifest.json}.}
+\label{fig:rule-precision}
+\end{figure}
+
+\subsection{The exemplar selection defect}
+
+Each candidate reached the annotator as one nursing sentence paired with one
+discharge sentence. For the two action-conflict rules the discharge sentence was
+taken from the first row of the matched-mention frame rather than the row
+carrying the conflict that triggered the candidate. For a large minority of
+action-conflict candidates the annotator therefore judged a sentence pair that
+did not exhibit the conflict, while the prompt asserted that a conflict of that
+type was present.
+
+[TODO: state the measured rate of the defect and the denominator it was measured
+on, from \texttt{results/accord/exemplar/exemplar\_correctness\_recomputed.json},
+and register both. The rate quoted in earlier drafts and the count of resolved
+action-conflict pairs behind it are not in \texttt{VERIFIED\_FACTS.json}.]
+
+The measured consequence does not depend on that rate. Rules 3 and 4 cannot
+exhibit the defect: Rule 3 selects the maximum-difference dose pair, and Rule 4
+has no discharge sentence to select, because the drug is absent from the
+discharge summary by construction. That yields $G_{134}$, on which every
+evaluation in this chapter can be repeated, and
+Section~\ref{sec:res-rq4} reports the repeat: the restriction does not move the
+conclusion and it widens the intervals, as a stratification down to 6 positives
+has to.
+
+\subsection{What this does not establish}
+
+The defect does not show that the pool's measured precision is wrong. It shows
+that what was measured is the annotator's judgement of the evidence presented,
+and that for a subset of candidates that evidence was not the evidence the rule
+found. The figure is an upper bound on annotation validity, not an estimate of
+pipeline quality, and the direction of the bias is unknown. What the annotator
+would have decided on corrected exemplars was never collected, and the rules'
+recall against contradictions outside the pool was never measured.
+
+\section{Weak Supervision}
+\label{sec:res-rq2}
+
+Can an LLM weak labeller substitute for expert annotation at this base rate? No,
+and the failure has a floor. The cheapest available labeller and the strongest
+available labeller both over-call on the same pairs.
+
+\subsection{The marginal}
+
+On the 299 annotated pairs the weak labeller called 261 pairs contradictions and
+the pharmacist called 12. Table~\ref{tab:marginal} puts the three marginals on
+the one denominator where all three were recorded. Weak supervision of this kind
+is defended on the grounds that the noise averages out \citep{ratner2017snorkel},
+and that defence assumes noise conditionally independent across sources given the
+label; one source whose error is a shifted marginal falls outside the regime.
+
+\begin{table}[H]
+\caption{Predicted-positive counts on the 299 annotated pairs}
+\centering
+\small
+\begin{tabular}{lrl}
+\toprule
+\textbf{Source} & \textbf{Called contradiction} & \textbf{Denominator} \\
+\midrule
+Pharmacist (gold)                  & 12  & 299 \\
+Llama 3 8B weak labeller           & 261 & 299 \\
+ACCORD, released per-pair decision & 278 & 299 \\
+\bottomrule
+\end{tabular}
+\apanote{Registered as \texttt{gold.n\_total},
+\texttt{gold.weaklabel\_contradiction} and
+\texttt{gold.accord\_pred\_contradiction}. The ACCORD decision column is
+three-valued; 15 rows carry the value \emph{ambiguous}. The 261 and the 278 count
+two different columns produced by two different systems on the same 299 rows and
+are not two readings of one quantity. The ACCORD row is the contaminated released
+run; the decontaminated retrain appears in Section~\ref{sec:res-rq4}.}
+\label{tab:marginal}
+\end{table}
+
+Two hundred sixty-one against twelve, on identical inputs, is the finding.
+\citet{pangakis2023validation} argue that an automated annotation procedure must
+be validated against human labels on the same items; those items existed here
+before the labelling run, and the comparison was not made.
+
+[TODO: report and register the per-model over-calling ratios for the three local
+8B labellers. The range quoted in earlier project documents is not in
+\texttt{VERIFIED\_FACTS.json}; what is registered is the single weak labeller's
+count of 261 of 299 above.]
+
+\subsection{The floor}
+
+If the over-calling were an artifact of a small open-weights model, a stronger
+labeller would remove it. GPT-4o zero-shot \citep{openai2023gpt4} is the most
+selective system in Table~\ref{tab:systems253} and still returns $6 + 65 = 71$
+positive calls against 12 true contradictions. Few-shot prompting made it less
+selective rather than more, at $7 + 134 = 141$ positive calls, which is the
+class-prior sensitivity documented for in-context learning
+\citep{zhao2021calibrate}.
+
+\begin{table}[H]
+\caption{Per-pair calls on the 253 non-ambiguous pairs}
+\centering
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{System} & \textbf{TP} & \textbf{FN} & \textbf{FP} & \textbf{TN} &
+\textbf{Precision} & \textbf{Recall} \\
+\midrule
+GPT-4o, zero-shot              & 6  & 6 & 65  & 176 & 0.0845 & 0.5000 \\
+GPT-4o, few-shot               & 7  & 5 & 134 & 107 & 0.0496 & 0.5833 \\
+ACCORD at $\tau = 0.5$         & 11 & 1 & 223 & 18  & 0.0470 & 0.9167 \\
+Llama 3 8B evaluation baseline & 11 & 1 & 231 & 10  & 0.0455 & 0.9167 \\
+\bottomrule
+\end{tabular}
+\apanote{All four rows from \texttt{results/accord/step3\_baselines.json} on
+$G_{253}$, 12 positives and 241 negatives. The last row is a separately prompted
+Llama 3 8B evaluation run and is \emph{not} the weak-supervision labeller of
+Table~\ref{tab:marginal}; the two disagree on 19 of these pairs, and conflating
+them flips the sign of the resulting correlation coefficient. The ACCORD row is
+the contaminated released run, whose recall of 11 of 12 no decontaminated seed
+reaches; it is kept only because its per-pair calls are the committed ones.}
+\label{tab:systems253}
+\end{table}
+
+The three systems at recall $0.9167$ reach it the same way, by predicting the
+positive class for almost every pair. Recall alone is the least informative
+statistic here, because a constant-positive predictor attains recall $1.0$ by
+construction at precision exactly equal to the base rate.
+
+\subsection{The public-text replication}
+
+The magnitude is task specific and the mechanism is not. The same labeller was
+run over a public-text classification sweep in which the true positive rate was
+varied and its marginal recorded at each setting. It under-responds to prevalence
+everywhere, and the mismatch on public text is far smaller than the mismatch
+here.
+
+[TODO: register the maximum over-calling ratio measured on the public-text sweep
+from \texttt{accord/prevalence\_replication/results/sweep\_results.json}. It is
+not in \texttt{VERIFIED\_FACTS.json}, so no magnitude is quoted and no numeric
+comparison between the two settings is made.]
+
+\begin{figure}[H]
+\caption{Labeller response to prevalence on public text}
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-prevalence-response.pdf}
+\apanote{Built from the prevalence replication sweep. Each panel varies the true
+positive rate and records the labeller's marginal at that setting.}
+\label{fig:prevalence-response}
+\end{figure}
+
+\subsection{What this does not establish}
+
+The magnitude does not generalise, and the public-text sweep is the control that
+says so: a mismatch measured on this task at this base rate is not evidence about
+what a language labeller does at a base rate ten times higher. What generalises
+is the mechanism, that an instruction-tuned labeller carries a class prior which
+does not track the task's base rate, and the prescription that follows, which is
+to measure the marginal against a human-labelled sample first. Nothing here shows
+the labeller reasons badly about medication conflict; its recall on the 12
+confirmed contradictions is high in every configuration measured. The failure is
+calibration, invisible to any evaluation that does not report the marginal.
+
+\section{Architecture}
+\label{sec:res-rq3}
+
+Do the purpose-built components contribute what they were credited with? Three
+claims were audited and none survives. An audit alone leaves the objection that
+the mechanisms were never given a fair test, so three controls were run whose
+positive readings, rather than their silence, refute the claims.
+
+\subsection{Three falsifications}
+
+\paragraph{Authority conditioning is an initialisation artifact.} The parameter
+reported as converging to the clinical note hierarchy is initialised at exactly
+the pair of values reported as discovered, and it moves a fraction of a percent
+across seeds. It sits on a branch that is immediately normalised, which removes
+most of what a per-branch scalar can do and drives its gradient towards zero.
+[TODO: register the initialisation values, the per-seed final values and the
+relative displacement from
+\texttt{accord\_supp/results/accord\_v2\_decontam\_gold\_aggregate.json}.]
+
+\paragraph{The rule-type head is label leakage.} The rule identifier is written
+into the model's input feature vector and predicted from the same forward pass,
+one linear layer away, so the auxiliary task is a copy. Out-of-domain transfer is
+the diagnostic that separates a copy from learned structure, because the leaked
+feature survives transfer and the surface correlations do not. This belongs to
+the documented family of shortcut learning \citep{geirhos2020shortcut,
+zech2018generalization}; the checkable point is narrower, that an auxiliary head
+whose target is derivable from its inputs is not an auxiliary task. [TODO:
+register the in-domain and two transfer rule-type $F_1$ values and the held-out
+rule-prediction accuracy; the producing file named in the corrections record is
+not in this repository.]
+
+\paragraph{Harm estimation was never trained.} The guideline bank is one randomly
+initialised parameter matrix, there is no corpus and no retrieval step, and the
+harm head does not appear in the training objective. The severity-ranking
+question was therefore not tested here, and any null reported against that head
+measures an untrained module rather than the underlying question. [TODO: register
+the harm head's empirical output range over the 299 pairs and its rank
+correlation against the pharmacist danger rating.]
+
+\begin{figure}[H]
+\caption{Two falsifications in one view}
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-falsification.pdf}
+\apanote{Left panel: a parameter reported as learned, drawn against its
+initialisation. Right panel: an auxiliary head's in-domain score against its
+transfer scores, drawn with an unverified marker because the transfer file is not
+on disk; no value from that panel is quoted in the text.}
+\label{fig:falsification}
+\end{figure}
+
+\subsection{Three controls that fired positively}
+
+\paragraph{The arbitrary substitute.} Replace the semantically meaningful
+conditioning signal with an arbitrary one of matched form. If the arbitrary
+signal recovers the gain credited to the meaningful one, the gain was not carried
+by meaning. The control was run and the substitute recovered the claimed gain.
+[TODO: register the two gains and the recovery percentage.]
+
+\paragraph{The misaligned block.} Hold the mechanism fixed and destroy only the
+alignment between the structure it encodes and the structure in the input. A
+mechanism that works because of the alignment loses its effect; one that works
+for another reason does not. The misaligned condition recovered part of the
+aligned condition's effect rather than none, which is a positive reading and a
+partial one. [TODO: register the aligned and misaligned recovery figures.]
+
+\paragraph{The anisotropy control.} The third control targets the proposed
+explanation rather than the effect: if the behaviour follows from
+representational anisotropy in the encoder, removing the anisotropy removes the
+behaviour. It did not. The two conditions landed close enough together to refute
+the explanation, and they refute it positively, because the proposed mechanism
+was present, was manipulated, and did not carry the outcome. [TODO: register the
+two anisotropy-control values.]
+
+\subsection{What this does not establish}
+
+None of this establishes what a correct implementation of any specified component
+would do. The audit shows the claims were unsupported by the code that produced
+the reported numbers, and the controls show the mechanisms as run do not carry
+the effects attributed to them. Whether asymmetric authority conditioning, an
+auxiliary rule head or guideline-grounded harm scoring is a good idea remains
+open. The controls are not novel either: control tasks, arbitrary-substitute
+designs and misalignment ablations are established instruments whose conclusions
+here are the conclusions their owners already published, and what is new is only
+the measurement on this system.
+
+\section{Is the Null Real}
+\label{sec:res-rq4}
+
+Every negative result above reduces to ``the experiment was too small'' unless
+the instrument can be shown to resolve an effect of the size at issue. Three
+configurations of the detector sit at chance, a paired comparison cannot separate
+two of them, a bag-of-words baseline outranks all of them, and the minimum
+detectable effect here is large. Then a positive control, adjudicated by a rule
+committed before the sweep ran, shows the same apparatus resolving a real effect.
+
+\subsection{Three configurations at chance}
+
+\begin{table}[H]
+\caption{Decontaminated detector on the 253 non-ambiguous pairs}
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Configuration} & \textbf{AUROC} & \textbf{AP} &
+\textbf{Mann-Whitney $p$} & \textbf{Top-15 TP} \\
+\midrule
+Seed 0              & 0.5494 & 0.0613 & 0.5646 & 1 \\
+Seed 1              & 0.5090 & 0.0592 & 0.9179 & 0 \\
+Seed 2              & 0.5048 & 0.0533 & 0.9565 & 0 \\
+Per-seed mean (SD)  & 0.5211 (0.0201) & & & \\
+Three-seed ensemble & 0.5145 & & 0.8668 & \\
+\midrule
+Contaminated run, same 253 pairs & 0.4595 & & & \\
+\bottomrule
+\end{tabular}
+\apanote{$G_{253}$, 12 positives and 241 negatives, from
+\texttt{results/accord/decontam/corrected\_gold\_metrics.json}; bootstrap
+resampling there uses $B = 10{,}000$ at seed 42. Average precision is the
+appropriate summary at this imbalance \citep{saito2015prcurve} and its no-skill
+line is $12/253$. [TODO: register percentile bootstrap interval endpoints for the
+ensemble AUROC on $G_{253}$; the register carries the resample count and seed but
+not the endpoints, so no interval is quoted.]}
+\label{tab:decontam}
+\end{table}
+
+The ensemble sits at $0.5145$ with a Mann-Whitney $p$ of $0.8668$, so the
+positive and negative score distributions are not separated, and the per-seed
+spread is $0.5211 \pm 0.0201$. The contaminated run, trained on the pairs it
+scores, lands at $0.4595$, below chance on the same 253 pairs. Leakage did not
+manufacture signal, because there was none to manufacture.
+
+\begin{table}[H]
+\caption{Control configurations on the full annotated set and the defect-free
+stratum}
+\centering
+\small
+\begin{tabular}{llrrrr}
+\toprule
+\textbf{Set} & \textbf{Configuration} & \textbf{AUROC} & \textbf{AP} &
+\textbf{Boot.\ mean} & \textbf{Boot.\ SD} \\
+\midrule
+$G_{299}$ & Single configuration   & 0.4602 & 0.0394 & 0.4606 & 0.0870 \\
+$G_{299}$ & Three-seed ensemble    & 0.4692 & 0.0512 & 0.4699 & 0.0937 \\
+$G_{299}$ & Per-seed mean $\pm$ SD & \multicolumn{4}{l}{$0.4967 \pm 0.0350$ (AP $0.0491 \pm 0.0024$)} \\
+$G_{134}$ & Single configuration   & 0.5078 & 0.0555 & 0.5092 & 0.1368 \\
+$G_{134}$ & Three-seed ensemble    & 0.5469 & 0.0784 & 0.5479 & 0.1481 \\
+$G_{134}$ & Per-seed mean $\pm$ SD & \multicolumn{4}{l}{$0.5295 \pm 0.0158$ (AP $0.0707 \pm 0.0108$)} \\
+\bottomrule
+\end{tabular}
+\apanote{From \texttt{results/accord/control/final\_report.json}. Bootstrap
+columns are the mean and standard deviation over $B = 10{,}000$ resamples at seed
+$20{,}260{,}806$ \citep{efron1994bootstrap}. The $G_{299}$ per-seed mean of
+$0.4967 \pm 0.0350$ is the only measurement in this project taken under an
+asserted subject-disjoint split.}
+\label{tab:control299}
+\end{table}
+
+The three configurations agree. A row-level split, a subject-level split and a
+stratum free of the exemplar defect all return a ranking statistic within a few
+points of chance. Restricting to $G_{134}$ raises the ensemble to $0.5469$ and
+raises the bootstrap standard deviation from $0.0937$ to $0.1481$, so halving the
+positive count buys a higher point estimate and a wider spread, and resolves
+nothing either way.
+
+Among the fifteen highest-scored pairs, the decontaminated seeds recover 1, 0 and
+0 true contradictions on $G_{253}$; on $G_{299}$ the single control configuration
+recovers 0 and the ensemble recovers 1, against expected counts of
+$15 \times 12/253$ and $15 \times 12/299$ under random ordering. A count of one
+is unremarkable, and that is the point: the model's most confident predictions
+are indistinguishable from a random draw. For a ranked worklist that is decisive.
+
+\subsection{The paired comparison}
+
+\begin{table}[H]
+\caption{Paired ROC comparisons on the same pairs}
+\centering
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+\textbf{Set} & \textbf{Comparison} & \textbf{AUC A} & \textbf{AUC B} &
+\textbf{Diff.} & \textbf{$z$} & \textbf{$p$} \\
+\midrule
+$G_{299}$ & Ensemble vs.\ single  & 0.4692 & 0.4602 & $0.0090$  & $0.0878$  & 0.9300 \\
+$G_{299}$ & Seed 42 vs.\ single   & 0.4591 & 0.4602 & $-0.0012$ & $-0.0110$ & 0.9912 \\
+$G_{299}$ & Seed 123 vs.\ single  & 0.5029 & 0.4602 & $0.0427$  & $0.4358$  & 0.6630 \\
+$G_{299}$ & Seed 2024 vs.\ single & 0.5282 & 0.4602 & $0.0679$  & $0.7028$  & 0.4822 \\
+$G_{134}$ & Ensemble vs.\ single  & 0.5469 & 0.5078 & $0.0391$  & $0.7881$  & 0.4306 \\
+\bottomrule
+\end{tabular}
+\apanote{DeLong's test for two correlated ROC curves, from
+\texttt{results/accord/control/final\_report.json}. Standard errors of the
+difference are $0.1025$, $0.1052$, $0.0979$, $0.0967$ and $0.0496$ for the five
+rows in order. [TODO: add DeLong, DeLong and Clarke-Pearson (1988) to
+\texttt{refs.bib}; no key for it exists, so the test is named without a
+citation.]}
+\label{tab:delong}
+\end{table}
+
+The seeds and the ensemble are correlated predictors scored on the same pairs, so
+the comparison has to be paired, and the first row carries the section. An
+ensemble $0.0090$ above a single configuration, with a standard error on the
+difference of $0.1025$, gives $p = 0.9300$: the standard error is eleven times
+the difference. Every row has that shape, and at 12 positives none could have
+another.
+
+\subsection{A bag-of-words baseline}
+
+\begin{table}[H]
+\caption{Reference baselines on the annotated pairs}
+\centering
+\small
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Set} & \textbf{Baseline} & \textbf{AUROC} & \textbf{AP} &
+\textbf{Top-15 TP} \\
+\midrule
+$G_{299}$ & TF-IDF plus logistic regression & 0.5761 & 0.1571 & 2 \\
+$G_{299}$ & Majority class                  & 0.5000 & 0.0401 & 0 \\
+$G_{134}$ & TF-IDF plus logistic regression & 0.5729 & 0.2768 & 2 \\
+$G_{134}$ & Majority class                  & 0.5000 & 0.0448 & 1 \\
+\bottomrule
+\end{tabular}
+\apanote{Both baselines are fitted on 1,183 training rows at a positive rate of
+$0.8521$, the same weak supervision the detector consumed; TF-IDF is capped at
+5,000 features. The majority-class average precisions are the base rates of the
+two sets and fix the no-skill line for that column.}
+\label{tab:baselines}
+\end{table}
+
+TF-IDF plus logistic regression reaches $0.5761$ on $G_{299}$ and $0.5729$ on
+$G_{134}$, above every neural configuration in Tables~\ref{tab:decontam}
+and~\ref{tab:control299}, and puts two true contradictions in its top fifteen on
+both sets. No significance is claimed for that ordering. It does establish that a
+domain-pretrained encoder \citep{gu2021biomedbert} with low-rank adaptation
+\citep{hu2022lora} does not clear a linear model over 5,000 n-gram counts.
+
+\subsection{What the instrument could have seen}
+
+\begin{table}[H]
+\caption{Minimum detectable AUROC at 80\% power}
+\centering
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Set} & \textbf{Positives} & \textbf{Negatives} &
+\textbf{SE under null} & \textbf{Gap} & \textbf{Min.\ detectable} \\
+\midrule
+$G_{253}$ & 12 & 241 & 0.0856 & 0.2382 & 0.7382 \\
+$G_{299}$ & 12 & 287 & 0.0852 & 0.2387 & 0.7387 \\
+$G_{134}$ & 6  & 128 & 0.1210 & 0.3391 & 0.8391 \\
+\bottomrule
+\end{tabular}
+\apanote{$\alpha = 0.05$, power $0.8$, computed under the null standard error of
+the AUROC. The $G_{253}$ row is the referenced calculation registered as
+\texttt{power.*}; the other two are the same formula recomputed on the other two
+denominators and registered under \texttt{control.power\_ceiling.*}. The gap
+column is the distance above chance the evaluation could resolve.}
+\label{tab:power}
+\end{table}
+
+On $G_{253}$ nothing below an AUROC of $0.7382$ was detectable at $80\%$ power,
+and the measured $0.5145$ is far inside that. Figure~\ref{fig:power} draws the
+same ceiling for every evaluation in this thesis. This cuts both ways and the
+second way has to be said: at 12 positives the evaluation could not have detected
+a useful detector unless it was very good, so the null does not establish that
+the task is unsolvable. What it does establish is that this pipeline produced
+nothing near the detectable range, and it fixes the size of the annotation effort
+a future attempt needs.
+
+\begin{figure}[H]
+\caption{What each evaluation in this thesis could have seen}
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-power.pdf}
+\apanote{Built from \texttt{results/accord/section6\_auroc\_power.json}.}
+\label{fig:power}
+\end{figure}
+
+\subsection{The positive control}
+
+The remaining objection is that the apparatus itself, the training loop, the
+splits, the seeds and the evaluation harness, cannot resolve any effect, and that
+is answerable only by running the same apparatus where an effect is known to
+exist. Four arms, a pretrained encoder and three from-scratch encoders at
+different pretraining scales, were each trained at 3, 6, 12 and 24 epochs, three
+seeds per cell, for 48 runs and 555 minutes of compute. The adjudication rule was
+committed before the sweep ran: if the gap between the pretrained arm and the
+best from-scratch arm closed as the budget grew, the clinical null would be
+attributable to under-training, and if it did not, it would not.
+
+\begin{table}[H]
+\caption{Convergence sweep: four arms at four training budgets}
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Arm} & \textbf{3 epochs} & \textbf{6 epochs} & \textbf{12 epochs} &
+\textbf{24 epochs} \\
+\midrule
+Pretrained encoder & 0.9392 (0.0012) & 0.9369 (0.0004) & 0.9375 (0.0012) & 0.9379 (0.0029) \\
+Scratch, 100M      & 0.8885 (0.0012) & 0.8903 (0.0034) & 0.8888 (0.0011) & 0.8925 (0.0004) \\
+Scratch, 30M       & 0.8833 (0.0009) & 0.8856 (0.0035) & 0.8845 (0.0022) & 0.8886 (0.0015) \\
+Scratch, 10M       & 0.8784 (0.0022) & 0.8795 (0.0013) & 0.8822 (0.0011) & 0.8838 (0.0036) \\
+\bottomrule
+\end{tabular}
+\apanote{Accuracy, three seeds per cell, standard deviation in parentheses; 48
+runs and 555 minutes in total, from
+\texttt{results/accord/scaling/convergence\_results.json}. The pretrained arm
+gained $-0.13$ points from 3 epochs to 24 and the 100M from-scratch arm gained
+$0.41$. [TODO: name and version the benchmark; the results file carries no
+dataset field and \texttt{FRAMING.md} records it as a public news-topic set.]
+[TODO: quote the pre-committed adjudication rule and give its commit.]}
+\label{tab:conv}
+\end{table}
+
+The gap between the pretrained arm and the best from-scratch arm is $5.07$ points
+at 3 epochs and $4.53$ points at 24. Eight times the budget moved the pretrained
+arm by $-0.13$ points and the 100M from-scratch arm by $0.41$. The gap did not
+close, the arms had converged by the smallest budget in the sweep, and every cell
+has a seed-to-seed standard deviation at or below $0.0036$. That is the
+instrument resolving a real effect, from the same code that returns $0.5145$ on
+the clinical task.
+
+\begin{table}[H]
+\caption{Pretraining against parameter count, and the same contrast on the
+clinical task}
+\centering
+\small
+\begin{tabular}{llrr}
+\toprule
+\textbf{Task} & \textbf{Arm} & \textbf{Parameters} & \textbf{Score} \\
+\midrule
+Public benchmark & Pretrained encoder & 85,648,132 & $0.9396 \pm 0.0010$ \\
+Public benchmark & Scratch, 100M      & 99,234,820 & $0.8878 \pm 0.0016$ \\
+Public benchmark & Scratch, 30M       & 31,913,860 & $0.8833 \pm 0.0009$ \\
+Public benchmark & Scratch, 10M       & 10,649,092 & $0.8790 \pm 0.0040$ \\
+Clinical task    & PubMedBERT         &            & $0.7693 \pm 0.0102$ \\
+Clinical task    & From scratch       & 10,638,720 & $0.7662 \pm 0.0073$ \\
+Clinical task    & Gap                &            & $0.0031$ \\
+\bottomrule
+\end{tabular}
+\apanote{Public-benchmark rows are accuracy at a single budget from
+\texttt{results/accord/scaling/scaling\_results.json} with non-embedding
+parameter counts; clinical rows are AUROC on the identical split from
+\texttt{results/task\_runs.json}. The from-scratch arm with more parameters than
+the pretrained encoder does not reach it, so the public-benchmark difference is
+not a capacity difference, and the manipulation worth $4.53$ points there is
+worth $0.0031$ of AUROC here. [TODO: register a significance test for the
+clinical gap; the register carries the means, the standard deviations and the
+difference, but no $p$ value.]}
+\label{tab:scaling}
+\end{table}
+
+\subsection{What this does not establish}
+
+The null is a measurement, not a proof of impossibility. Table~\ref{tab:power}
+puts the minimum detectable AUROC on the 253-pair core at $0.7382$, so a genuine
+effect below that would have been missed and nothing here rules one out. The
+claim that survives is narrower and sufficient: this pipeline produced no effect
+inside the detectable range, and the instrument that measured it resolves a
+$4.53$-point effect with seed-to-seed variation at or below $0.0036$. The
+positive control is a control and not a contribution, since pretraining's effect
+on downstream accuracy is established at far greater scale elsewhere and the
+sweep is run only to license the interpretation of a null on a different task
+with the same code. The bag-of-words baseline outranking the neural
+configurations is not a real ordering either: Table~\ref{tab:delong} cannot
+separate configurations four points apart, and an eight-point gap measured on the
+same 12 positives sits inside the same noise.
+
+\section{Metrics Near the Base Rate}
+\label{sec:res-metrics}
+
+At 12 positives against 241 negatives the standard summary statistics do
+something mechanical, and it is worth reporting apart from the system because it
+is arithmetic and survives any change of system.
+
+\subsection{The exchange rate}
+
+Balanced accuracy \citep{brodersen2010balanced} is the unweighted mean of
+sensitivity and specificity, so a classifier that forgoes one true positive is
+preferred whenever it avoids more than $Q/P$ false positives, which on $G_{253}$
+is $241/12$. Prevalence-adjusted bias-adjusted kappa \citep{byrt1993pabak} is an
+affine transform of raw accuracy, so its rate is one avoided false positive per
+forgone true positive, which at this base rate is more hostile to the minority
+class than balanced accuracy rather than less, despite the name. Matthews
+correlation \citep{matthews1975mcc} is not affine in the confusion cells and has
+to be checked numerically. None of this is new
+\citep{feinstein1990paradoxes,cicchetti1990resolving,delgado2019kappa}; what is
+done here is to apply it to these class counts.
+
+\subsection{The ordering and its intervals}
+
+\begin{table}[H]
+\caption{Matthews correlation on the 253 non-ambiguous pairs}
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{System} & \textbf{Predicted positive} & \textbf{MCC} \\
+\midrule
+GPT-4o, zero-shot              & $6 + 65 = 71$    & $+0.1089$ \\
+GPT-4o, few-shot               & $7 + 134 = 141$  & $+0.0117$ \\
+ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ \\
+Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ \\
+\bottomrule
+\end{tabular}
+\apanote{Cells from Table~\ref{tab:systems253}; the predicted-positive column is
+shown as the sum of the two registered cells. MCC is the statistic most often
+recommended for imbalanced binary evaluation
+\citep{chicco2020mcc,powers2011evaluation} and zero is chance. [TODO: register
+the four bootstrap interval endpoints from
+\texttt{results/accord/stats/intervals.json}; they are not in
+\texttt{VERIFIED\_FACTS.json}, so no endpoint is quoted and the statement that
+all four intervals contain zero is not made numerically here.]}
+\label{tab:mcc}
+\end{table}
+
+The point estimates induce an ordering over four systems whose predicted-positive
+counts run from 71 to 242 against 12 true positives, three of which differ from
+zero by less than $0.05$. The recorded interval analysis for this project is that
+its headline estimates cross zero, and Figure~\ref{fig:forest} is that analysis
+in one view. Until the endpoints are registered, the safe statement is this one:
+no claim in this thesis rests on the ordering in Table~\ref{tab:mcc}, and a
+reader who wants to use it needs the intervals first.
+
+\begin{figure}[H]
+\caption{Headline estimates against zero}
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-forest.pdf}
+\apanote{Each row is a headline estimate from this project with its interval, and
+the figure title reports how many of the plotted intervals cross zero. Built from
+the committed intervals file.}
+\label{fig:forest}
+\end{figure}
+
+\subsection{Sign provenance}
+
+A second defect concerns direction rather than magnitude. Where a gap statistic
+is stored as an absolute value, no directional claim can be recovered afterwards,
+and a reader cannot tell which group a reported disparity favours. The signed
+re-analysis reproduced the stored values exactly, at a maximum discrepancy of
+$0.0$, which establishes that it is a faithful reproduction rather than a
+different computation.
+
+\begin{table}[H]
+\caption{Signed demographic parity endpoints in three experiments}
+\centering
+\small
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Experiment} & \textbf{Endpoint 1} & \textbf{Endpoint 2} &
+\textbf{Sign changes} \\
+\midrule
+Selection experiment & $0.00841$  & $0.18939$  & none \\
+PUMS, regime A       & $-0.13556$ & $-0.19435$ & none \\
+PUMS, regime B       & $-0.11807$ & $-0.04101$ & none \\
+\bottomrule
+\end{tabular}
+\apanote{From \texttt{results/accord/signed\_gap\_analysis.json}. Endpoints 1 and
+2 are the values stored under the minimum and maximum keys; in the two PUMS rows
+the value stored as the maximum is the more negative, which is what an
+absolute-value convention upstream produces, and both are reported as recorded.}
+\label{tab:signed}
+\end{table}
+
+\subsection{What this does not establish}
+
+The metric arithmetic is 36 years old \citep{feinstein1990paradoxes} and this
+chapter applies it rather than claiming it. No descriptive claim is made about
+how the field selects models; that claim was asserted without evidence in an
+earlier submission of this material and it is withdrawn here. The sign analysis
+demonstrates no harm to any subgroup: it establishes that absolute-value storage
+destroys the information a directional claim needs, and that the three
+experiments re-examined do not change sign inside their own sweeps. With 12
+positives no subgroup performance claim is supportable, and none is made.
+
+\section{Practice}
+\label{sec:res-rq5}
+
+Does the field run the checks that would have caught the failures above? A
+systematic coding of 75 papers says: rarely on the strict reading, and not much
+more often on the permissive one. Both are reported side by side because the
+choice between them is a judgement call the reader should make independently.
+
+\subsection{Both readings, and the null-attribute distribution}
+
+\begin{table}[H]
+\caption{Coded outcomes across 75 included papers}
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+\textbf{Coded outcome} & \textbf{Papers} \\
+\midrule
+Runs a model over the candidate pool  & 75 \\
+Reports the check, permissive reading & 14 \\
+Reports the check, strict reading     & 4  \\
+\midrule
+\multicolumn{2}{l}{\textit{Handling of null attribute values}} \\
+Not mentioned     & 23 \\
+Drops the rows    & 17 \\
+Separate category & 13 \\
+Unclear           & 9  \\
+Imputes           & 7  \\
+Reports only      & 6  \\
+\bottomrule
+\end{tabular}
+\apanote{From \texttt{results/accord/survey/coding\_table.csv}; the denominator
+is 75 throughout. The first row is the screening condition, satisfied by every
+included paper by construction. The permissive reading accepts any statement that
+the check was performed; the strict reading requires the reported quantity that
+would make it verifiable. The six null-attribute categories are mutually
+exclusive and sum to 75.}
+\label{tab:survey}
+\end{table}
+
+Four of 75 strictly, 14 of 75 permissively. The 10-paper gap between the two
+readings is the population that says it did the check without reporting what the
+check returned, and the strict count is the one a reader can verify.
+
+Twenty-three papers, the largest single category, do not mention the
+null-attribute question, and nine more are coded unclear, so 32 of 75 give a
+reader no way to tell what happened to rows with a missing attribute. Dropping
+and imputing are not equivalent and neither is neutral, and the two choices move
+a reported disparity in different directions; 17 papers take the first and 7 the
+second. The point is not that one choice is wrong; it is that 32 of 75 leave the
+choice unrecoverable.
+
+\subsection{Reliability}
+
+Two coders coded every paper independently. [TODO: register the permissive-cell
+agreement coefficient from the survey artifact; it is not in
+\texttt{VERIFIED\_FACTS.json}, so no value is quoted.]
+
+The strict cell has no defined agreement coefficient, and the reason is
+structural rather than an oversight. Chance-corrected agreement
+\citep{cohen1960kappa} is a ratio whose denominator is one minus expected
+agreement, and when a coder's marginal on a category is degenerate that
+denominator goes to zero and the coefficient is undefined rather than perfect. At
+4 positive codes in 75 the strict cell is close enough to degenerate for this to
+bite, so the coefficient is reported as undefined; reporting perfect agreement
+there is exactly the error the statistic exists to prevent. [TODO: register the
+strict-cell contingency table so the undefinedness can be read off the marginals
+rather than asserted.]
+
+\subsection{What this does not establish}
+
+The survey is not a prevalence estimate for clinical machine learning. The corpus
+is enriched, coverage is limited to the two sources searched, and a large number
+of screened-in papers were never retrieved. The enrichment runs against the
+finding rather than for it: a corpus that over-samples work already attentive to
+these questions still yields 4 of 75 strictly, so the unenriched rate is not
+plausibly higher. That bounds the direction of the bias without turning 75 papers
+into a population estimate, and no rate is claimed for the field. The coding also
+records what papers report rather than what their authors did, which is the
+correct coding for a claim about what a reader can verify and the wrong coding
+for any claim about practice behind the paper; no such claim is made.

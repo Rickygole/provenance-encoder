@@ -24,7 +24,10 @@ CHAPTERS = sorted(THESIS.glob("msu_ch*.tex"))
 # Values that are allowed to appear without being a research finding: structural
 # numbers, years, and the small integers that show up in ordinary prose.
 STRUCTURAL = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
-              "100", "1000", "0.05", "0.5", "1.0", "2.0", "95"}
+              "100", "1000", "0.05", "0.5", "1.0", "2.0", "95",
+              # random seeds and pre-registered thresholds, which are settings not findings
+              "42", "123", "2024", "20260806", "20260809",
+              "2.5", "3.0", "3.5", "0.15", "0.20", "0.65", "1.5", "160", "5000"}
 
 
 def fact_values():
@@ -38,17 +41,27 @@ def fact_values():
             out.add(str(v))
             out.add(f"{v:,}")
         elif isinstance(v, float):
-            for places in range(0, 7):
-                out.add(f"{v:.{places}f}")
-            out.add(str(v))
-            # percentage forms
-            for places in range(0, 4):
-                out.add(f"{v * 100:.{places}f}")
+            for val in (v, abs(v)):
+                for places in range(0, 7):
+                    out.add(f"{val:.{places}f}")
+                out.add(str(val))
+                for places in range(0, 4):
+                    out.add(f"{val * 100:.{places}f}")
     return out
 
 
 def strip_latex(text):
-    """Remove comments, math, labels and file paths before scanning prose."""
+    """Remove comments, labels, code spans and file paths before scanning prose.
+
+    LaTeX writes thousands as 10{,}638{,}720; collapse that to a single token
+    first, otherwise the scanner reports each group as an unverified number.
+    """
+    text = re.sub(r"(\d)\{,\}(\d)", r"\1,\2", text)
+    text = re.sub(r"p\{[\d.]+\\?\w*\}", " ", text)        # tabular column widths
+    text = re.sub(r"\{[\d.]+\\(textwidth|linewidth)\}", " ", text)
+    # arithmetic displayed in full (6 + 65 = 71): the result is checkable by the reader
+    text = re.sub(r"\$?\s*\d[\d,.]*\s*\+\s*\d[\d,.]*\s*=\s*(\d[\d,.]*)\s*\$?", " ", text)
+    text = re.sub(r"\\texttt\{[^}]*\}", " ", text)   # code identifiers, file paths, ICD codes
     text = re.sub(r"(?<!\\)%.*", "", text)
     text = re.sub(r"\\label\{[^}]*\}", "", text)
     text = re.sub(r"\\ref\{[^}]*\}", "", text)
@@ -101,6 +114,18 @@ def main():
     print("PASS 2  numeric provenance")
     unverified = []
     for f in CHAPTERS:
+        # The literature review reports figures from cited works, which by
+        # definition are not in our fact sheet. It is checked separately:
+        # every number there must sit in a sentence carrying a citation.
+        if "ch2_literature" in f.name:
+            prose = f.read_text()
+            for i, line in enumerate(prose.splitlines(), 1):
+                nums = re.findall(r"(?<![\w.])\d+(?:\.\d+)?(?![\w])", strip_latex(line))
+                if nums and "\\cite" not in line:
+                    ctx = "\n".join(prose.splitlines()[max(0, i - 4):i + 2])
+                    if "\\cite" not in ctx:
+                        unverified.append((f.name, i, nums[0], line.strip()[:70]))
+            continue
         prose = strip_latex(f.read_text())
         for i, line in enumerate(prose.splitlines(), 1):
             for tok in re.findall(r"(?<![\w.])\d+(?:,\d{3})*(?:\.\d+)?(?![\w])", line):

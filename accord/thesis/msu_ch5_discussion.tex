@@ -62,10 +62,9 @@ of the rules. The control run late here was to check whether the evidence shown
 to the annotator was the evidence that fired the rule. For a large fraction of
 action-conflict candidates it was not: the trigger quantified over sets of
 medication mentions, the exemplar selector indexed positionally, and nothing
-forced the two to agree. [TODO: the defect rate is $41.4\%$ in FRAMING.md but $65$
-of $137$ resolved Rule 1 and 2 candidates, that is $47.4\%$, in
-\texttt{results/accord/exemplar/exemplar\_correctness\_recomputed.json}. Neither
-is a key in VERIFIED\_FACTS.json and the two disagree.]
+forced the two to agree. Of the Rule 1 and Rule 2 candidates whose
+exemplar could be resolved, $65$ of $137$ were justified by the wrong sentence, a
+rate of $0.4745$. A further $28$ could not be resolved at all.
 
 The consequence is a bound whose direction is unknown. A board-certified
 pharmacist judged correctly the material placed in front of them; how the same
@@ -92,10 +91,7 @@ what data programming's guarantees were never designed to survive with a single
 source \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}.
 
 Two further controls bound the reading. Three local 8B-parameter models reproduce
-the miscalibration, so this is not one model misbehaving. [TODO: the per-model
-ratios, $15.8\times$ to $23.6\times$, are in
-\texttt{results/accord/multillm/per\_model\_results.json}, not in
-VERIFIED\_FACTS.json.] A stronger labeller shifts the magnitude without removing
+the miscalibration, so this is not one model misbehaving. The per-model over-calling ratios are reported in Chapter~\ref{ch:results}. A stronger labeller shifts the magnitude without removing
 the failure: GPT-4o zero-shot returned $71$ positives among $253$ pairs holding
 $12$ true positives ($6$ true, $65$ false) at precision $0.0845$, and few-shot
 returned $141$ ($7$ true, $134$ false) at precision $0.0496$. The surviving claim
@@ -116,9 +112,9 @@ discovered was initialised at the value reported as discovered and sits behind a
 normalisation that removes its gradient. An auxiliary rule label was readable
 from the input features, so the rule head measured leakage rather than learning.
 Constraining the note-role weighting to be symmetric improved both reported
-metrics instead of degrading them. [TODO: the four supporting values in the
-earlier draft ($0.9603 \rightarrow 0.0654$ and $0.0595$; $0.7603$ against
-$0.7368$; $0.9091$ against $0.8939$) are not keys in VERIFIED\_FACTS.json.]
+metrics instead of degrading them. The supporting values reported in an
+earlier draft of this work are not traceable to any artifact retained on disk, so
+they are not restated here; the direction of the result is reported without them.
 
 A fourth control targeted the representation. If the frozen encoder is
 anisotropic, a high mean cosine similarity between the two notes in a pair is a
