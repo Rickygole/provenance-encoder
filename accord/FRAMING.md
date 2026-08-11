@@ -1,8 +1,16 @@
 # The frame — diagnostic case study
 
-**Chosen 2026-08-10.** This supersedes the five-instrument frame (dead: C60), the retroactive-control
-frame (dead: R4), and the self-audit frame (dead: R4). It is frozen once the advisor signs
-`CONTRIBUTION.md`. Changes require an external signature — see `REVISION_LOG.md`.
+**Chosen 2026-08-10. Re-scoped 2026-08-11 to the Morgan State MS format.** This supersedes the
+five-instrument frame (dead: C60), the retroactive-control frame (dead: R4), and the self-audit
+frame (dead: R4). Frozen once the advisor signs `CONTRIBUTION.md`; changes require an external
+signature — see `REVISION_LOG.md`.
+
+> **This is a Master of Science thesis at Morgan State University, not a doctoral dissertation.**
+> That materially lowers the bar this frame has to clear, and it retires the question that consumed
+> two days of novelty checking. **At MS level, execution and rigour ARE the contribution** — a
+> novel mechanism is not required, and the fact that four framings died to literature searches is
+> not a problem to solve but a section of the Discussion. The diagnostic frame is comfortably above
+> bar rather than borderline. Format spec: `FORMAT.md`.
 
 ---
 
@@ -55,9 +63,32 @@ With it, the nulls are measurements.
 
 ---
 
-## 3. The chapter map
+## 3. The chapter map — six chapters, per the MSU template
 
-**Nine chapters, ~3,300 lines.** Current draft is 5,810 across 10 chapters with 46 TODO markers.
+**Six chapters.** The official template mandates five (Introduction, Literature Review,
+Methodology, Results, Summary & Conclusion); the local CS precedent splits Discussion out to make
+six, and both colleague theses do this. **The nine-chapter plan below is retired** — the five
+research questions become *sections* of Methodology and Results, not chapters. The argument is
+unchanged; only the container is.
+
+**Scale target: ~1,200–1,600 lines of chapter LaTeX, double-spaced.** The colleague comparator is
+481 lines. The current draft is 5,810 single-spaced. **Deletion is now the dominant task by a wide
+margin**, and the earlier ~3,300-line target was set against the wrong norm.
+
+| MSU chapter | absorbs | RQ |
+|---|---|---|
+| **1. Introduction** | problem, four RQs, contributions, thesis structure | — |
+| **2. Literature Review** | contradiction detection, clinical NLP evaluation, class imbalance, **and the control literature this thesis applies** (Lipsitch, Adebayo, Hewitt & Liang, Feinstein & Cicchetti, Egami, Lourie, TESSERA) | — |
+| **3. Methodology** | MIMIC-III cohort, the 3-role→2-role retreat, four mining rules, gold standard, subject-disjoint splits, the detector, **and the control designed for each stage — stated as conditions before any result** | all |
+| **4. Results** | candidate precision + exemplar defect (RQ1); over-calling and the ≥7× floor (RQ2); the three falsifications and the anisotropy control (RQ3); three configurations at chance + the AG News positive control (RQ4); the 75-paper survey (RQ5); the base-rate metrics | all |
+| **5. Discussion** | what each control changed; the unexplained selection-channel anomaly reported *as* unexplained; sign provenance; limitations; threats to validity | — |
+| **6. Summary & Conclusion** | findings restated, future work | — |
+| References | APA 7, hanging indent | — |
+| Appendix A | `CORRECTIONS.md` | — |
+| Appendix B | `REVISION_LOG.md` | — |
+| Appendix C | per-number provenance table | — |
+
+### Retired nine-chapter map, kept for the section-level content it specifies
 
 Every substantive section follows one shape, and the shape is the thesis:
 

@@ -1,0 +1,196 @@
+% ============================================================================
+%  Master's thesis -- Morgan State University format
+%
+%  Built to the MSU Thesis Template (October 2024) as extracted in
+%  accord/FORMAT.md. Differences from the reference skeleton are ONLY where a
+%  package is missing from this BasicTeX install; each is marked SUBSTITUTE and
+%  listed at the end of this comment block.
+%
+%  For exact compliance, install the three missing packages:
+%      sudo tlmgr install tocloft apacite newtx chngcntr needspace placeins xurl
+%  then swap the SUBSTITUTE lines for the ones commented beside them.
+%
+%  SUBSTITUTES currently in force:
+%    newtx      -> mathptmx   (both are Times; metrics differ very slightly)
+%    tocloft    -> manual TOC titles; dot leaders and "Chapter N:" TOC prefixes
+%                  are NOT yet applied
+%    apacite    -> apalike    (close to APA but NOT APA 7)
+%    chngcntr   -> \makeatletter counter surgery, same effect
+%    needspace, placeins, xurl -> omitted; cosmetic only
+% ============================================================================
+
+\documentclass[12pt]{report}
+
+\usepackage[left=1.5in,right=1in,top=1in,bottom=1in,includefoot]{geometry}
+\usepackage{mathptmx}                 % SUBSTITUTE for newtxtext/newtxmath
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{etoolbox}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\usepackage{microtype}
+\usepackage[round]{natbib}
+\usepackage[hidelinks]{hyperref}
+
+% Paragraph formatting -- MSU: 0.5in first-line indent, no paragraph skip.
+\setlength{\parindent}{0.5in}
+\setlength{\parskip}{0pt}
+\frenchspacing
+
+% Widow/orphan control.
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+
+% Front-matter titles.
+\renewcommand{\contentsname}{Table of Contents}
+\renewcommand{\listfigurename}{List of Figures}
+\renewcommand{\listtablename}{List of Tables}
+\renewcommand{\bibname}{References}
+
+% Figures, tables and equations number consecutively across the whole thesis,
+% not per chapter. (SUBSTITUTE for chngcntr's \counterwithout.)
+\makeatletter
+\@removefromreset{figure}{chapter}
+\@removefromreset{table}{chapter}
+\@removefromreset{equation}{chapter}
+\makeatother
+\renewcommand{\thefigure}{\arabic{figure}}
+\renewcommand{\thetable}{\arabic{table}}
+\renewcommand{\theequation}{\arabic{equation}}
+
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+
+% Headings: chapter centred, bold, normal size, "Chapter N:" on the same line.
+\titleformat{\chapter}[block]
+  {\normalfont\centering\bfseries\normalsize}
+  {Chapter \thechapter:}{0.5em}{}
+\titlespacing*{\chapter}{0pt}{0pt}{0pt}
+
+\titleformat{\section}{\normalfont\bfseries\normalsize}{}{0pt}{}
+\titlespacing*{\section}{0pt}{\baselineskip}{0.4\baselineskip}
+
+\titleformat{\subsection}{\normalfont\bfseries\itshape\normalsize}{}{0pt}{}
+\titlespacing*{\subsection}{0pt}{0.75\baselineskip}{0.35\baselineskip}
+
+% APA captions: label on its own line, bold label, italic text, ABOVE the float.
+\captionsetup{font={normalsize,stretch=2}}
+\captionsetup[figure]{labelsep=newline,labelfont=bf,textfont=it,
+  justification=raggedright,singlelinecheck=false,position=top,skip=0.5\baselineskip}
+\captionsetup[table]{labelsep=newline,labelfont=bf,textfont=it,
+  justification=raggedright,singlelinecheck=false,position=top,skip=0.5\baselineskip}
+\newcommand{\apanote}[1]{%
+  \par\vspace{0.25\baselineskip}%
+  \begingroup\raggedright\noindent\textit{Note.} #1\par\endgroup}
+
+\setlist[itemize]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip}
+\setlist[enumerate]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip,label=\arabic*.}
+
+% Front-matter page environment that does not reset the page counter.
+\newenvironment{frontmatterpage}{\clearpage\begingroup}{\endgroup\clearpage}
+\newcommand{\frontmatterheading}[2][\bfseries]{%
+  {\centering\normalsize #1 #2\par}\vspace{\baselineskip}}
+
+% Placeholder for figures that exist as written specs rather than assets.
+\newcommand{\figspec}[1]{%
+  \begin{center}\fcolorbox{black!40}{black!5}{%
+    \parbox{0.9\linewidth}{\vspace{0.5em}\small\textbf{[FIGURE SPEC --- asset not yet rendered]}\\[0.3em]#1\vspace{0.5em}}}%
+  \end{center}}
+
+\hypersetup{
+  pdfauthor={Ricky Gole},
+  pdftitle={Why Cross-Note Medication Contradiction Detection Fails: A Controlled Failure Analysis of a Clinical NLP Pipeline}}
+
+\begin{document}
+
+% Declaration and Abstract: unnumbered, excluded from the page count.
+\hypersetup{pageanchor=false}
+\pagenumbering{gobble}
+\doublespacing
+\input{frontmatter/declaration}
+\input{frontmatter/abstract}
+
+% Front matter: Roman numerals.
+\clearpage
+\hypersetup{pageanchor=true}
+\pagenumbering{roman}
+\setcounter{page}{1}
+\pagestyle{plain}
+\doublespacing
+\input{frontmatter/titlepage}
+\input{frontmatter/approval}
+\input{frontmatter/acknowledgements}
+
+\clearpage
+\begingroup\doublespacing
+{\centering\normalsize\contentsname\par}\vspace{\baselineskip}
+\makeatletter\@starttoc{toc}\makeatother
+\endgroup\clearpage
+
+\begingroup\doublespacing
+\phantomsection\addcontentsline{toc}{chapter}{List of Tables}
+{\centering\normalsize\bfseries\listtablename\par}\vspace{\baselineskip}
+\makeatletter\@starttoc{lot}\makeatother
+\endgroup\clearpage
+
+\begingroup\doublespacing
+\phantomsection\addcontentsline{toc}{chapter}{List of Figures}
+{\centering\normalsize\bfseries\listfigurename\par}\vspace{\baselineskip}
+\makeatletter\@starttoc{lof}\makeatother
+\endgroup\clearpage
+
+\input{frontmatter/abbreviations}
+\clearpage
+
+% Main matter: Arabic numerals, double-spaced.
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\pagestyle{plain}
+\doublespacing
+
+% ---------------------------------------------------------------------------
+% CHAPTER MAPPING -- see accord/FRAMING.md
+%
+% The six MSU chapters are being assembled from the ten legacy chapter files.
+% Until the merge is done, the legacy files are included in their current order
+% so the document keeps compiling and nothing is lost. The target mapping is:
+%
+%   1. Introduction        <- ch1_introduction
+%   2. Literature Review   <- ch2_background
+%   3. Methodology         <- ch3_data + ch4_candidates + ch6_architecture (method parts)
+%   4. Results             <- ch5_weak_supervision + ch7_evaluation + ch8_metrics
+%                             + the results halves of ch4/ch6
+%   5. Discussion          <- ch9_discussion
+%   6. Summary & Conclusion<- ch10_conclusion
+% ---------------------------------------------------------------------------
+\input{ch1_introduction}
+\input{ch2_background}
+\input{ch3_data}
+\input{ch4_candidates}
+\input{ch5_weak_supervision}
+\input{ch6_architecture}
+\input{ch7_evaluation}
+\input{ch8_metrics}
+\input{ch9_discussion}
+\input{ch10_conclusion}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{\bibname}
+\bibliographystyle{apalike}   % SUBSTITUTE for apacite / APA 7
+\bibliography{refs}
+
+\end{document}

@@ -123,8 +123,11 @@ logged before 2026-08-09 and are not reconstructed. The cost claim is compute-on
 ## The one question for the advisor
 
 The claim novelty of items 1–3 is low by conference standards — each is a known failure mode applied
-to a new pipeline. Items 4 and 5 are new but small. **Is execution-at-this-standard an acceptable
-doctoral contribution, or is a novel mechanism required?**
+to a new pipeline, and each is attributed to the work that owns it. Items 4 and 5 are new but small.
 
-If a novel mechanism is required, the honest answer is that this project does not have one, and the
-plan changes.
+**For an MS thesis, is this scope and standard a pass? If not, what is missing?**
+
+Two specific things worth confirming: (a) six chapters rather than the template's five, following
+the local CS precedent of splitting Discussion from Conclusion; (b) the Declaration of Authorship
+wording — the October 2024 template declares no AI use, and that needs the department's current
+position (see `FORMAT.md` §9).
