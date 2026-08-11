@@ -640,17 +640,17 @@ positively rather than by absence of evidence. This is the control-task logic de
 probing literature by Hewitt and Liang (2019), applied here rather than proposed.
 
 The arbitrary-substitute control operates on a second system in this project that conditions a
-shared additive attention bias on document provenance. Seven arms were trained at three seeds each
+shared additive attention bias on document provenance. Seven arms were trained at three seeds each, and three further arms at a single seed
 on masked language modelling over packed multi-document bundles, with segment order shuffled so
 role is decorrelated from position within the bundle. The arms are: no bias; a relative position
 bias in the style of T5; a misaligned block bias; a distance bias in the style of ALiBi; true role
 labels; an arbitrary segment ordinal carrying no provenance meaning; and a fixed hard block mask.
-The comparison of interest is fixed in advance, true role labels against the arbitrary ordinal. The
+Two comparisons are fixed in advance: true role labels against a randomised relabelling drawn from the same alphabet, which is the control task in the sense of Hewitt and Liang, and true role labels against an arbitrary positional ordinal, which is a competing hypothesis rather than a control. The
 misaligned block arm is a second control, holding the number of blocks fixed while destroying their
 alignment with document boundaries, which closes the obvious alternative reading that any coarse
 blocking of the attention matrix would do.
 
-One control is deliberately not used. A global derangement of role labels is vacuous here: the bias
+One control is deliberately not used, and it must not be confused with the randomised relabelling reported in Chapter~\ref{ch:results}. A single global derangement, in which one fixed permutation is applied to every bundle, is vacuous here: the bias
 table is a free matrix over role pairs, so under a global relabelling the model learns the permuted
 table, the loss surface is isomorphic, and the result is fixed at the uncorrupted value by
 construction. It was implemented, recognised as powerless, removed, and guarded against in code. It

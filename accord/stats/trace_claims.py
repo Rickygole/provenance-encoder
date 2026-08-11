@@ -96,9 +96,23 @@ def main():
             rec = {"chapter": f.name, "value": tok,
                    "sentence": sentence_around(text, m.start())}
             if keys:
-                k = sorted(keys, key=len)[0]
+                # A value can be shared by several registered quantities. Prefer the
+                # key whose name shares a word with the surrounding sentence; if
+                # nothing matches, record the ambiguity rather than guessing, because
+                # a confidently wrong attribution is worse than a declared uncertain
+                # one in an appendix whose whole purpose is provenance.
+                ctx = rec["sentence"].lower()
+                scored = sorted(keys, key=lambda k: (
+                    -sum(1 for tok in re.split(r"[._]", k.lower()) if len(tok) > 3 and tok in ctx),
+                    len(k)))
+                k = scored[0]
+                hits = sum(1 for tok in re.split(r"[._]", k.lower()) if len(tok) > 3 and tok in ctx)
                 rec["register_key"] = k
                 rec["artifact"] = FACTS[k]["artifact"]
+                rec["n_candidate_keys"] = len(keys)
+                rec["attribution"] = "matched" if hits else ("unique" if len(keys) == 1 else "ambiguous")
+                if len(keys) > 1:
+                    rec["other_candidates"] = [x for x in scored[1:6]]
                 records.append(rec)
             else:
                 untraced.append(rec)
@@ -121,6 +135,15 @@ def main():
             s = s.replace(a, b)
         return re.sub(r"[^\x00-\x7f]", "", s)
 
+    def esc_breakable(s):
+        """Like esc(), but for the long dotted register keys and file paths: insert
+        \\allowbreak after every '.' and '/' so the longtable columns can wrap them
+        instead of overrunning the margin (this project has no xurl installed)."""
+        s = esc(s)
+        s = s.replace(".", r".\allowbreak{}")
+        s = s.replace("/", r"/\allowbreak{}")
+        return s
+
     tex = [r"\chapter{Claim and Evidence Trace}", r"\label{app:trace}", "",
            f"Every quantity printed in this thesis is listed below with the file it was read from.",
            f"The trace covers {len(records)} occurrences resolving to {len(rows)} distinct registered",
@@ -131,8 +154,16 @@ def main():
            r"\textbf{Value} & \textbf{Register key} & \textbf{Source file}\\", r"\midrule",
            r"\endhead"]
     for r in rows:
-        tex.append(f"{esc(r['value'])} & {esc(r['register_key'])} & {esc(r['artifact'])}\\\\")
-    tex += [r"\end{longtable}", r"\doublespacing", ""]
+        mark = "" if r.get("attribution") != "ambiguous" else r" \textsuperscript{a}"
+        tex.append(f"{esc(r['value'])}{mark} & {esc_breakable(r['register_key'])} & "
+                    f"{esc_breakable(r['artifact'])}\\\\")
+    n_amb = sum(1 for r in rows if r.get("attribution") == "ambiguous")
+    tex += [r"\end{longtable}",
+            "", f"Rows marked \\textsuperscript{{a}} ({n_amb} of {len(rows)}) carry a value that more "
+            "than one registered quantity shares, and the surrounding sentence did not disambiguate "
+            "them. The value is verified; the key shown is the most likely of several and should be "
+            "read as indicative rather than definitive.",
+            r"\doublespacing", ""]
     (THESIS / "msu_appC_trace.tex").write_text("\n".join(tex) + "\n")
 
     # ---- overclaim scan ----

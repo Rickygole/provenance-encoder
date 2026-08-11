@@ -126,7 +126,10 @@ def mcc_from_counts(tp, tn, fp, fn):
 # ============================================================================
 def make_fig_pipeline_status():
     exemplar, p_exemplar = load("exemplar", "exemplar_correctness_recomputed.json")
-    defect_rate = 1 - exemplar["rule_1_2_pooled"]["reference_full_2296_candidate_pool_rate_from_task_description"]
+    # The former reference rate was supplied by a task description, never measured
+    # (REVISION_LOG R8). Use the measured wrong rate on the resolved candidates.
+    _ex = json.load(open(os.path.join(RESULTS, "exemplar", "exemplar_correctness_recomputed.json")))["rule_1_2_pooled"]
+    defect_rate = _ex["n_wrong"] / _ex["n_resolved"]
 
     step01, p_step01 = load("diag", "step0_1_join_and_calibration.json")
     xtab = step01["weak_confidence_is_degenerate"]["crosstab_label_x_confidence"]
@@ -199,7 +202,7 @@ def make_fig_pipeline_status():
              [p_exemplar, p_step01, p_step2, p_decontam],
              "Stage badges are categorical narrative (two, marked *, cite CORRECTIONS.md "
              "for a claim with no committed numeric source); the three parenthetical numbers "
-             "(41.4%, ~21x, AUROC 0.5145 with CI) are computed from the cited JSON files. "
+             "(47.45% wrong of resolved, ~21x, AUROC 0.5145 with CI) are computed from the cited JSON files. "
              "AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated "
              "3-seed ensemble 0.5145).")
 
@@ -334,7 +337,10 @@ def make_fig_funnel():
 # ============================================================================
 def make_fig_exemplar():
     exemplar, p_exemplar = load("exemplar", "exemplar_correctness_recomputed.json")
-    defect_rate = 1 - exemplar["rule_1_2_pooled"]["reference_full_2296_candidate_pool_rate_from_task_description"]
+    # The former reference rate was supplied by a task description, never measured
+    # (REVISION_LOG R8). Use the measured wrong rate on the resolved candidates.
+    _ex = json.load(open(os.path.join(RESULTS, "exemplar", "exemplar_correctness_recomputed.json")))["rule_1_2_pooled"]
+    defect_rate = _ex["n_wrong"] / _ex["n_resolved"]
 
     fig, ax = plt.subplots(figsize=(6.2, 3.2))
     ax.set_xlim(0, 10)
