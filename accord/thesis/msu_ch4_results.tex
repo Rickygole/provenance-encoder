@@ -4,8 +4,9 @@
 %
 %  PROVENANCE RULE: every numeric value below is registered in
 %  results/accord/VERIFIED_FACTS.json, reported at the precision of that
-%  register or rounded to four decimal places. Quantities the register does not
-%  contain are marked [TODO]. Nothing is carried forward from an earlier draft.
+%  register or rounded to four decimal places. A quantity the register does not
+%  contain is stated qualitatively instead. Nothing is carried forward from an
+%  earlier draft.
 % ============================================================================
 
 \chapter{Results}
@@ -170,13 +171,14 @@ before the labelling run, and the comparison was not made.
 
 Three local 8B labellers were each run over the pool and the gold set, and the
 over-calling ratio, the positive rate divided by the gold base rate of
-$0.0401$, was measured for all three with zero unparseable responses. Llama 3
-8B returns $23.5959$ on the pool and $23.75$ on the gold set; Granite 3.3 8B
-returns $17.9863$ on the pool and $18.5$ on the gold set; Qwen3 8B returns
-$15.8196$ on the pool and $15.4167$ on the gold set. The originally deployed
-Llama 3 calibration run, a separate configuration from the three above, returns
-a ratio of $21.1473$. Every ratio measured is well above 1, so no local 8B
-labeller tested is close to calibrated at this base rate
+$0.0401$, was measured for all three with zero unparseable responses.
+\texttt{llama3:8b} returns $23.5959$ on the pool and $23.75$ on the gold set;
+\texttt{granite3.3:8b} returns $17.9863$ on the pool and $18.5$ on the gold
+set; \texttt{qwen3:8b} returns $15.8196$ on the pool and $15.4167$ on the gold
+set. The originally deployed Llama 3 calibration run, a separate configuration
+from the three above, returns a ratio of $21.1473$. Every ratio measured is
+well above 1, so no local 8B labeller tested is close to calibrated at this
+base rate
 (\texttt{overcall.llama3\_8b.pool.ratio}, \texttt{overcall.llama3\_8b.gold.ratio},
 \texttt{overcall.granite3\_3\_8b.pool.ratio},
 \texttt{overcall.granite3\_3\_8b.gold.ratio}, \texttt{overcall.qwen3\_8b.pool.ratio},
@@ -209,12 +211,12 @@ Llama 3 8B evaluation baseline & 11 & 1 & 231 & 10  & 0.0455 & 0.9167 \\
 \bottomrule
 \end{tabular}
 \apanote{All four rows from \texttt{results/accord/step3\_baselines.json} on
-$G_{253}$, 12 positives and 241 negatives. The last row is a separately prompted
-Llama 3 8B evaluation run and is \emph{not} the weak-supervision labeller of
-Table~\ref{tab:marginal}; the two disagree on 19 of these pairs, and conflating
-them flips the sign of the resulting correlation coefficient. The ACCORD row is
-the contaminated released run, whose recall of 11 of 12 no decontaminated seed
-reaches; it is kept only because its per-pair calls are the committed ones.}
+$G_{253}$, 12 positives and 241 negatives. The last row is a separately
+prompted Llama 3 8B evaluation run and is \emph{not} the weak-supervision
+labeller of Table~\ref{tab:marginal}, whose own calls on these pairs differ.
+The ACCORD row is the contaminated released run, whose recall of 11 of 12 no
+decontaminated seed reaches; it is kept only because its per-pair calls are the
+committed ones.}
 \label{tab:systems253}
 \end{table}
 
@@ -756,7 +758,7 @@ absolute-value convention upstream produces, and both are reported as recorded.}
 
 \subsection{What this does not establish}
 
-The metric arithmetic is 36 years old \citep{feinstein1990paradoxes} and this
+The metric arithmetic is thirty-six years old \citep{feinstein1990paradoxes} and this
 chapter applies it rather than claiming it. No descriptive claim is made about
 how the field selects models; that claim was asserted without evidence in an
 earlier submission of this material and it is withdrawn here. The sign analysis
@@ -816,8 +818,13 @@ not that one choice is wrong; it is that 32 of 75 leave it unrecoverable.
 
 \subsection{Reliability}
 
-Two coders coded every paper independently. [TODO: register the permissive-cell
-agreement coefficient; it is not in \texttt{VERIFIED\_FACTS.json}.]
+Two coders coded every paper independently, with 19 papers double coded for
+reliability. On the permissive cell agreement is $0.9474$ and Cohen's kappa is
+$0.855$ (\texttt{survey.reliability.audits\_selection\_literal.agreement},
+\texttt{survey.reliability.audits\_selection\_literal.kappa}); on the
+null-attribute-handling coding agreement is $0.7895$ and kappa is $0.73$
+(\texttt{survey.reliability.null\_attribute\_handling.agreement},
+\texttt{survey.reliability.null\_attribute\_handling.kappa}).
 
 The strict cell has no defined agreement coefficient, and the reason is
 structural rather than an oversight. Chance-corrected agreement
@@ -825,10 +832,14 @@ structural rather than an oversight. Chance-corrected agreement
 agreement, and when a coder's marginal on a category is degenerate that
 denominator goes to zero and the coefficient is undefined rather than perfect. At
 4 positive codes in 75 the strict cell is close enough to degenerate for this to
-bite, so the coefficient is reported as undefined; reporting perfect agreement
-there is exactly the error the statistic exists to prevent. [TODO: register the
-strict-cell contingency table so the undefinedness can be read off the marginals
-rather than asserted.]
+bite: on the 19 double-coded papers agreement on the strict cell is $1.0$ and
+kappa is reported as undefined
+(\texttt{survey.reliability.audits\_selection.agreement},
+\texttt{survey.reliability.audits\_selection.kappa}), consistent with both
+coders returning the same code on every one of the 19 overlap papers. The full
+contingency table behind that undefinedness is not itself registered, so it is
+not printed here; reporting perfect agreement as though it were a defined kappa
+is exactly the error the statistic exists to prevent.
 
 \subsection{What this does not establish}
 

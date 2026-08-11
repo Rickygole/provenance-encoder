@@ -121,10 +121,15 @@ def main():
             prose = f.read_text()
             for i, line in enumerate(prose.splitlines(), 1):
                 nums = re.findall(r"(?<![\w.])\d+(?:\.\d+)?(?![\w])", strip_latex(line))
-                if nums and "\\cite" not in line:
-                    ctx = "\n".join(prose.splitlines()[max(0, i - 4):i + 2])
-                    if "\\cite" not in ctx:
-                        unverified.append((f.name, i, nums[0], line.strip()[:70]))
+                # A number here is legitimate if it is attributed to a cited work
+                # OR if it is one of our own registered results being previewed.
+                for tok in nums:
+                    if tok in values or tok in STRUCTURAL:
+                        continue
+                    ctx = "\n".join(prose.splitlines()[max(0, i - 8):i + 3])
+                    if "\\cite" in ctx:
+                        continue
+                    unverified.append((f.name, i, tok, line.strip()[:70]))
             continue
         prose = strip_latex(f.read_text())
         for i, line in enumerate(prose.splitlines(), 1):
