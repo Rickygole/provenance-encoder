@@ -585,11 +585,21 @@ Scratch, 10M       & 0.8784 (0.0022) & 0.8795 (0.0013) & 0.8822 (0.0011) & 0.883
 \end{tabular}
 \apanote{Accuracy, three seeds per cell, standard deviation in parentheses; 48
 runs and 555 minutes in total, from
-\texttt{results/accord/scaling/convergence\_results.json}. The pretrained arm
-gained $-0.13$ points from 3 epochs to 24 and the 100M from-scratch arm gained
-$0.41$. [TODO: name and version the benchmark; the results file carries no
-dataset field and \texttt{FRAMING.md} records it as a public news-topic set.]
-[TODO: quote the pre-committed adjudication rule and give its commit.]}
+\texttt{results/accord/scaling/convergence\_results.json}. The task is topic
+classification on AG News (\texttt{fancyzhx/ag\_news}), tokenised with
+\texttt{bert-base-uncased} at 40,000 training rows, 5,000 validation rows and a
+maximum length of 256 tokens (\texttt{conv.dataset}, \texttt{conv.tokenizer},
+\texttt{conv.n\_train}, \texttt{conv.n\_val}, \texttt{conv.maxlen}), from the
+committed notebook \texttt{accord/scaling/C44\_convergence\_check.ipynb}. The
+pretrained arm gained $-0.13$ points from 3 epochs to 24 and the 100M
+from-scratch arm gained $0.41$. The adjudication rule is committed at
+\texttt{accord/scaling/C44\_PREREGISTRATION.md}, commit \texttt{b048829}
+(\texttt{conv.preregistration\_commit}), before the sweep ran: Outcome A is a gap
+of at least 3.0 accuracy points between the pretrained and best from-scratch
+arm with the standard deviation bands disjoint; Outcome B is a gap below 3.0
+points or an ordering not resolved across seeds; the range 2.5 to 3.5 points is
+declared inconclusive in advance, and the rule itself forbids resolving an
+inconclusive result by adding seeds.}
 \label{tab:conv}
 \end{table}
 
@@ -625,9 +635,10 @@ parameter counts; clinical rows are AUROC on the identical split from
 \texttt{results/task\_runs.json}. The from-scratch arm with more parameters than
 the pretrained encoder does not reach it, so the public-benchmark difference is
 not a capacity difference, and the manipulation worth $4.53$ points there is
-worth $0.0031$ of AUROC here. [TODO: register a significance test for the
-clinical gap; the register carries the means, the standard deviations and the
-difference, but no $p$ value.]}
+worth $0.0031$ of AUROC here. No significance test for the clinical gap is
+registered; the register carries the means, the standard deviations and the
+difference, but no $p$ value, so none is quoted and the gap is reported as a
+descriptive difference only.}
 \label{tab:scaling}
 \end{table}
 
@@ -687,11 +698,11 @@ Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ \\
 \apanote{Cells from Table~\ref{tab:systems253}; the predicted-positive column is
 shown as the sum of the two registered cells. MCC is the statistic most often
 recommended for imbalanced binary evaluation
-\citep{chicco2020mcc,powers2011evaluation} and zero is chance. [TODO: register
-the four bootstrap interval endpoints from
-\texttt{results/accord/stats/intervals.json}; they are not in
-\texttt{VERIFIED\_FACTS.json}, so no endpoint is quoted and the statement that
-all four intervals contain zero is not made numerically here.]}
+\citep{chicco2020mcc,powers2011evaluation} and zero is chance. The four
+bootstrap interval endpoints are not registered, so none is quoted here and no
+claim is made about whether any interval contains zero; without them the
+ordering above is a point estimate only and is not usable to rank the four
+systems.}
 \label{tab:mcc}
 \end{table}
 

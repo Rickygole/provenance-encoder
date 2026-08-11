@@ -652,8 +652,8 @@ pretrained and from-scratch arms could measure training budget rather than pretr
 convergence sweep gives every arm four budgets, each with its own complete schedule and
 validation-based selection, at three seeds per cell, for $48$ runs (\texttt{conv.n\_runs}) and
 $555$ minutes of compute (\texttt{conv.total\_minutes}). The decision rule in
-Table~\ref{tab:m-prereg} was written and committed before the sweep started and applied by the
-analysis notebook without being edited after the first result landed
+Table~\ref{tab:m-prereg} was committed before the sweep started and applied by the analysis
+notebook without being edited after the first result landed
 (\texttt{accord/scaling/C44\_PREREGISTRATION.md}).
 
 \begin{table}[H]
@@ -702,13 +702,9 @@ prevalence-adjusted correction by \citet{byrt1993pabak}, and the case for MCC ov
 imbalance by \citet{chicco2020mcc}; the dependence of $\kappa$ on marginals is treated by
 \citet{delgado2019kappa} and the balanced-accuracy case by \citet{brodersen2010balanced}.
 Precision-recall summaries are preferred to ROC summaries where the positive class is very rare
-\citep{saito2015prcurve}, and both are reported.
-
-A second condition concerns sign. Where a quantity was stored as an absolute value, no directional
-claim may be made from it, whatever the magnitudes, because the storage discards the sign the claim
-would need. The re-analysis that recovers signs is reported in Chapter~\ref{ch:results}; the
-commitment made here is that a directional claim requires a signed artifact rather than a plausible
-reconstruction.
+\citep{saito2015prcurve}, and both are reported. A second condition concerns sign: where a quantity
+was stored as an absolute value, no directional claim may be made from it, whatever the magnitudes,
+because the storage discards the sign the claim would need.
 
 \subsection{RQ5: the survey coding instrument}
 
@@ -729,13 +725,12 @@ too thin to identify the cohort, or when the full text is not retrievable.
 
 Queries were issued against machine-readable interfaces, NCBI E-utilities for PubMed and PubMed
 Central, the arXiv Atom API, and ACL Anthology volume indexes, so the search is reproducible by
-re-running the recorded query strings. Screening runs in three stages: an automated rule-based
-title and abstract screen that writes its exact exclusion rule for each record into a screening
-log; a full-text retrieval quota in which records passing stage one are ranked by a pre-specified
+re-running the recorded query strings. Screening runs in three stages: an automated title and
+abstract screen that writes its exact exclusion rule for each record into a screening log; a
+full-text retrieval quota in which records passing stage one are ranked by a pre-specified
 keyword-density score and advanced until the budget is met, with records below the quota logged as
 screened rather than silently dropped; and a full-text screen read against the three inclusion
-criteria. The corpus reaching coding contains $n = 75$ included papers
-(\texttt{survey.n\_included}).
+criteria. The corpus reaching coding contains $n = 75$ papers (\texttt{survey.n\_included}).
 
 The primary coding of a selection audit is strict: a paper counts only if it compares the group
 composition, or the retention rate, of the retained cohort against a denominator existing prior to
