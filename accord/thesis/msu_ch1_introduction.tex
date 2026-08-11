@@ -160,15 +160,17 @@ already contain.
 One consequence of that operating point is worth stating precisely, because an
 earlier draft of this document over-read it. Precision is $0.0424$ with a
 standard deviation of $0.0023$ across three seeds and recall is $0.7778$ with a
-standard deviation of $0.0393$; precision of $0.0424$ sits below the pool's
+standard deviation of $0.0393$, both computed at $\mathrm{ddof} = 0$
+(Chapter~\ref{ch:method}); precision of $0.0424$ sits below the pool's
 base rate of $0.0474$
 (\texttt{precision\_below\_base\_rate}). That direction is forced by the
 operating point rather than evidence of a mechanism working against the label:
 a detector that predicts positive for most of a pool has precision below base
 rate exactly when its recall is below its own predicted-positive rate, and here
 recall of $0.7778$ sits below a predicted-positive rate of $216 + 9 = 225$ of
-$253$ pairs. The margin between precision and base rate,
-$0.0424 + 0.0050 = 0.0474$, is smaller than either source of noise measured on
+$253$ pairs. The margin between precision and base rate is $0.0051$
+(\texttt{stats.precision\_vs\_base\_rate\_margin\_253}), smaller than either
+source of noise measured on
 these same $253$ pairs: the seed standard deviation on precision alone is
 $0.0023$, and the binomial standard error on $12$ positives in $253$ pairs is
 $0.0134$ (\texttt{stats.binomial\_se\_12\_of\_253}), more than double the
@@ -181,7 +183,7 @@ thesis's headline finding.
 
 Ranking behavior agrees with operating behavior. Across three seeds on the same
 $253$ pairs the decontaminated ensemble AUROC is $0.5145$ with a Mann-Whitney
-$p$ of $0.867$, and the per seed mean is $0.5211$ with a standard deviation of
+$p$ of $0.8668$, and the per seed mean is $0.5211$ with a standard deviation of
 $0.0201$, computed at $\mathrm{ddof} = 0$. On the $299$ annotated pairs under
 subject disjoint splits the three
 seed mean AUROC is $0.4967$ with a standard deviation of $0.0350$, computed at
@@ -217,7 +219,7 @@ experiment was too small to see anything. The control that answers it is a
 positive control on the same instrument. Run on AG News with an identical
 training harness and an adjudication rule committed before the sweep, the
 pretraining benefit is $4.53$ accuracy points at $24$ epochs, with seed standard
-deviations at or below $0.0029$ and non overlapping bands. The same instrument
+deviations at or below $0.0036$ and non overlapping bands. The same instrument
 on the clinical task returns a gap of $0.0031$, between a domain pretrained
 encoder at $0.7693 \pm 0.0102$ and a from scratch encoder at $0.7662 \pm
 0.0073$. Eight times the training budget bought the scratch arm $0.41$ points,
@@ -319,7 +321,7 @@ proxy for downstream performance is settled elsewhere and at far larger scale
 \citep{lourie2025scaling,feng2026tessera}, and this project's $48$
 run sweep is a small replication of it rather than a discovery. What the sweep
 contributes is the positive control: the same harness resolves $4.53$ points on
-AG News at $24$ epochs with seed standard deviations at or below $0.0029$, and
+AG News at $24$ epochs with seed standard deviations at or below $0.0036$, and
 returns $0.0031$ on the clinical task, under an adjudication rule committed
 before the runs.
 
@@ -353,9 +355,12 @@ already been written down. The rule transfers, and it has a demonstrated true
 positive against this project's own record.
 
 \item \textbf{What the controls cost.} Nobody reports this, so it is reported
-here. The logged control compute totals $661.4$ GPU minutes, of which the AG
-News positive control accounts for $34.9$ minutes over $12$ runs, the clinical
-pretraining comparison $612.3$ minutes over $17$ runs, and the two signed
+here. The control cost log totals $661.4$ GPU minutes, of which it records the
+AG News positive control as $34.9$ minutes over $12$ runs, a $3$-epoch subset
+of the full convergence sweep behind that control; the full sweep is $555$
+minutes over $48$ runs, and Chapter~\ref{ch:discussion} reconciles the total to
+that figure. The clinical
+pretraining comparison costs $612.3$ minutes over $17$ runs, and the two signed
 storage re-runs $0.7$ and $13.5$ minutes. The honest limitation is that person
 hours were never logged, so the cost claim is compute only.
 

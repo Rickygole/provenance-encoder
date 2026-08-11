@@ -51,7 +51,7 @@ fired and the original reading held.}
 \textbf{Stage} & \textbf{Before control} & \textbf{After control}
 & \textbf{Verdict} \\
 \midrule
-Candidate mining & Pool precision $0.047$ read as a property of the mining rules & $0.047$ is an upper bound on annotation validity, not an estimate of pool quality & Narrowed \\
+Candidate mining & Pool base rate $0.0474$ read as a property of the mining rules & $0.0474$ is an upper bound on annotation validity, not an estimate of pool quality & Narrowed \\
 \addlinespace
 Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ gold pairs labelled positive against $12$ true positives; a prior, not a decision & Reversed \\
 \addlinespace
@@ -66,10 +66,15 @@ Reporting & Drift slopes read directionally from stored gap magnitudes & Same ma
 
 \subsection{Candidate mining: narrowed}
 
-The miner produced a pool whose precision against pharmacist annotation is
-$0.047$, measured on the $253$-pair core at a threshold of $0.5$, with $11$ true
-positives against $223$ false positives. A paper could report that as a property
-of the rules. The control run late here was to check whether the evidence shown
+The miner produced a pool whose base rate against pharmacist annotation is
+$0.0474$, $12$ true contradictions in the $253$-pair non-ambiguous core. A pool
+has no threshold; that figure is a property of the candidates the rules
+selected, not of any classifier run over them. A paper could report it as a
+property of the rules. A separate quantity belongs to the detector, not the
+pool: ACCORD thresholded at $0.5$ on the same $253$-pair core returns $11$ true
+positives against $223$ false positives, a precision of $0.047$ that happens to
+round to the pool base rate but is the detector's confusion matrix, not the
+mining rules' property. The control run late here was to check whether the evidence shown
 to the annotator was the evidence that fired the rule. For a large fraction of
 action-conflict candidates it was not: the trigger quantified over sets of
 medication mentions, the exemplar selector indexed positionally, and nothing
@@ -136,18 +141,14 @@ component: replace what the component consumes with something that cannot carry
 the credited signal, hold the training conditions fixed, and see whether the
 credited contribution survives.
 
-Chapter~\ref{ch:results} reports three. The authority parameter described as
+Chapter~\ref{ch:results} reports two. The authority parameter described as
 discovered was initialised at the value reported as discovered and sits behind a
 normalisation that removes its gradient. An auxiliary rule label was readable
 from the input features, so the rule head measured leakage rather than learning,
 which is the textbook symptom \citet{kaufman2012leakage} describe: a target that
 is not independent of what the model already has.
-Constraining the note-role weighting to be symmetric improved both reported
-metrics instead of degrading them. The supporting values reported in an
-earlier draft of this work are not traceable to any artifact retained on disk, so
-they are not restated here; the direction of the result is reported without them.
 
-A fourth control targeted the representation. If the frozen encoder is
+A third control targeted the representation. If the frozen encoder is
 anisotropic, a high mean cosine similarity between the two notes in a pair is a
 property of the encoder rather than a signal about the pair. On unrelated
 non-clinical sentence pairs through the same frozen extraction path, mean
@@ -288,20 +289,32 @@ seen a substantial effect had one been present. Only the second statement is
 made.
 
 A bootstrap standard deviation of $0.0870$ on the primary AUROC is consistent
-with a mildly informative model and with a mildly inverted one. What it is not
-consistent with is a useful one, and that, rather than any point estimate, is the
-claim defended. Four estimators built on different assumptions all fail to find
-separation, which is the strongest evidence a sample this small can produce.
+with a mildly informative model and with a mildly inverted one. The three-seed
+ensemble's own $95\%$ bootstrap interval on the $253$-pair set,
+$[0.3210, 0.7034]$, is wide enough that its upper bound,
+$0.7034 + 0.0348 = 0.7382$
+(\texttt{stats.auroc\_ci\_hi\_vs\_min\_detectable\_margin}), sits within a small margin of the minimum detectable
+AUROC established above, so interval width on its own does not rule out a
+modestly useful model. Three of the four estimators compared here, the single
+model, the three-seed ensemble and the TF-IDF baseline, could in principle have
+found separation and did not; the fourth, a majority-class predictor, returns
+AUROC $0.5$ by construction and was never in a position to look, so it is a
+reference point rather than a fourth line of evidence. What the three estimators
+that could fail and did not agree on is the evidence a sample this size can
+produce, not proof that no separation exists.
 
 \section{An Anomaly, Reported as an Anomaly}
 \label{sec:disc-anomaly}
 
 One result here is not explained, and this section reports it without explaining
-it.
+it. The population audited below is simulated, not the clinical pipeline; the
+anomaly is retained because the two experiments that surface it are the same
+ones the sign-provenance rule in Chapter~\ref{ch:results} was built from and
+then applied to the clinical numbers.
 
 On one simulated population, with baseline disparity held fixed, two upstream
 selection channels were swept and the pool-level demographic parity gap audited
-at each step. Under the first the signed gap runs from $-0.19435$ to $-0.13556$;
+at each step. Under the first the signed gap runs from $-0.13556$ to $-0.19435$;
 under the second, from $-0.11807$ to $-0.04101$. Neither series changes sign, but
 they move in opposite directions as channel strength increases: the first becomes
 more negative, the second less. Fitted as drift slopes, the two channels produce
@@ -454,29 +467,36 @@ would be an invented number in a thesis about invented numbers.
 
 \begin{table}[H]
 \centering
-\caption{Recorded compute for the controls, from
-\texttt{results/accord/control\_cost\_log.json}. Person-hours are excluded and
-were not logged. The convergence sweep's $555$ minutes is the figure carried in
-VERIFIED\_FACTS.json for that episode.}
+\caption{Recorded compute for the controls. Person-hours are excluded and were
+not logged. \texttt{results/accord/control\_cost\_log.json} logs the public-task
+positive control episode as a $12$-run, $34.9$-minute subset, the $3$-epoch
+decision point alone; reconciled here to the full convergence sweep behind that
+episode, $48$ runs and $555$ minutes
+(\texttt{conv.n\_runs}, \texttt{conv.total\_minutes}), which is the figure the
+argument in Section~\ref{sec:disc-null} actually rests on. The reconciled total
+is registered as \texttt{stats.control\_cost\_reconciled.total\_runs} and
+\texttt{stats.control\_cost\_reconciled.total\_minutes}.}
 \label{tab:disc-cost}
 \begin{tabular}{lrr}
 \toprule
 \textbf{Control episode} & \textbf{Runs} & \textbf{GPU-minutes} \\
 \midrule
-Public-task positive control, 3 epochs    & 12 & 34.9 \\
+Public-task convergence sweep             & 48 & 555 \\
 Clinical task, pretrained against scratch & 17 & 612.3 \\
 Signed re-run, selection experiment       & 1  & 0.7 \\
 Signed re-run, PUMS replication           & 1  & 13.5 \\
 \midrule
-Total recorded                            & 31 & 661.4 \\
+Total, reconciled                         & 67 & 1181.5 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The control that retracted the directional core of three corrections cost
-$0.7 + 13.5 = 14.2$ GPU-minutes across both experiments. The convergence sweep that licenses the
-whole argument of Section~\ref{sec:disc-null} cost $555$ minutes, roughly nine
-GPU-hours, a single overnight job on one consumer card. The claim is not that
+$0.7 + 13.5 = 14.2$ GPU-minutes (\texttt{stats.signed\_rerun\_total\_minutes}) across both experiments. The convergence sweep that licenses the
+whole argument of Section~\ref{sec:disc-null} cost $555$ minutes on its own. Together with the
+clinical-task comparison the two larger sweeps cost $555 + 612.3 = 1167.3$
+GPU-minutes (\texttt{stats.control\_cost\_reconciled.two\_sweeps\_minutes}), and all four episodes cost $1167.3 + 14.2 = 1181.5$ GPU-minutes and
+$67$ runs in total, roughly twenty GPU-hours. The claim is not that
 controls are always cheap: re-annotation is not, a second annotator is not, and
 the one control here that cannot be recomputed from disk requires re-running the
 experiment that produced it. The claim is narrower. In this project the controls
@@ -549,7 +569,7 @@ the document the system triggers on is finalised at or after discharge.}
 not performed.} This is the limitation most likely to be read as smaller than it
 is. The rebuild that corrects the selector exists; the re-annotation that would
 convert the bound of Section~\ref{sec:disc-spine} into an estimate was not run.
-So $0.047$ cannot be cited as a property of the mining rules by anyone, this
+So $0.0474$ cannot be cited as a property of the mining rules by anyone, this
 thesis included, and a reader who wants that quantity should treat it as
 unmeasured rather than as measured with error. What the defect does not touch is
 the central evaluation result, which reproduces on the $134$-pair stratum.
@@ -564,10 +584,13 @@ field is high. On the 19 double-coded papers, the registered permissive
 agreement is $0.9474$ with kappa $0.855$
 (\texttt{survey.reliability.audits\_selection\_literal.agreement},
 \texttt{survey.reliability.audits\_selection\_literal.kappa}). On the strict cell the reliability coefficient is
-\textbf{undefined}, because the subsample contained no positive cases in that
-cell, and it is reported as undefined rather than as the perfect agreement the
-raw table superficially permits, which is the same class of error as reporting
-a coefficient guaranteed by construction.
+\textbf{undefined}: both coders returned the same code on all 19 overlap
+papers, which drives a coder's marginal on the category toward degenerate and
+the denominator of a chance-corrected coefficient toward zero. The full
+contingency table behind the undefinedness is not registered and is not
+claimed here beyond that. It is reported as undefined rather than as the
+perfect agreement the raw agreement rate superficially permits, which is the
+same class of error as reporting a coefficient guaranteed by construction.
 
 \paragraph{One annotator.} Every gold label came from a single board-certified
 pharmacist in two passes separated by a washout. The washout controls
@@ -636,7 +659,10 @@ fourth axis is the task, and there the bound is measured rather than assumed: th
 over-calling magnitude does not generalise, because a control on public text
 returned a much smaller factor for the same labellers, and the part that
 transfers is the mechanism, a labeller reporting a prior when the base rate is
-low; the public-text maximum is not registered, so no factor is quoted here.
+low; the public-text maximum over-calling ratio, measured on SNLI across three
+models, two prompts and four prevalence levels, is $3.5000$
+(\texttt{publicsweep.results.llama3:8b.A\_bare.0.02.over\_call\_ratio}), well
+below the $15.8196$ to $23.5959$ range measured on the clinical pool.
 The positive control is external evidence of a
 limited kind: it shows the instrument behaves as expected on a public benchmark,
 and says nothing about whether the clinical result would reproduce elsewhere.

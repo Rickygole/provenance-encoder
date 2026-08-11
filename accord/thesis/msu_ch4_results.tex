@@ -48,6 +48,16 @@ of the 12 confirmed contradictions.}
 \label{tab:denoms}
 \end{table}
 
+A spread reported as $\pm$ or as SD in this chapter is a standard deviation
+across three seeds, not a standard error and not a confidence interval
+(Section~\ref{sec:m-stats}). Two conventions for that standard deviation are in
+use because the underlying artifacts use two conventions: the decontamination
+sources compute it at $\mathrm{ddof} = 0$, the population convention, and the
+control, convergence and ablation sources compute it at $\mathrm{ddof} = 1$,
+the sample convention. Each table below states which convention its own spreads
+use, and no spread computed under one convention is compared against a spread
+computed under the other.
+
 \section{Candidate Generation}
 \label{sec:res-rq1}
 
@@ -94,7 +104,11 @@ predicted-positive rate on the same rows.
 \apanote{From \texttt{results/accord/step0\_1\_join\_and\_calibration.json}, block
 \texttt{rule\_stratified\_calibration}, keys \texttt{n\_gold},
 \texttt{pharmacist\_true\_pos\_rate\_gold} and \texttt{accord\_predicted\_pos\_rate\_gold} for rules 1
-through 4. The four strata sum to 299, the full annotated set.}
+through 4. The four strata sum to 299, the full annotated set. The ACCORD column is the
+contaminated released run, the same run reported as \texttt{gold.accord\_pred\_contradiction}
+in Table~\ref{tab:marginal}: $134 \times 0.9701 + 31 \times 0.9677 + 79 \times 0.9747 +
+55 \times 0.7455 \approx 278$, the contaminated marginal. The decontaminated retrain appears
+in Section~\ref{sec:res-rq4} and is not restratified by rule here.}
 \end{table}
 
 Rule 2 has the highest pharmacist precision, 9.68 percent, despite supplying the smallest gold
@@ -369,49 +383,80 @@ kidney injury, all three measured and registered.}
 
 \subsection{Three controls that fired positively}
 
-\paragraph{The arbitrary substitute, the misaligned block, and locality alone.} These three
-controls share one instrument: seven arms of a shared additive attention bias, trained at three
-seeds each on masked language modelling over packed multi-document bundles with segment order
-shuffled so role is decorrelated from position (Section~\ref{sec:m-control-rq3}).
-Table~\ref{tab:ablation} reports the mean validation loss, its seed spread, and the loss reduction
-against the no-bias arm for all seven.
+These controls run on a second system: a provenance-conditioned encoder trained with masked
+language modelling, not the clinical contradiction detector whose numbers appear elsewhere in this
+chapter.
+
+\paragraph{A control task, a thesis-original alignment control, and locality alone.} Ten arms of a
+shared additive attention bias were trained on masked language modelling over packed multi-document
+bundles with segment order shuffled so role is decorrelated from position
+(Section~\ref{sec:m-control-rq3}). Seven ran at three seeds each and are the matched comparison the
+condition specifies; three ran at a single seed each and are reported for completeness, not as
+matched comparisons against the three-seed rows. Table~\ref{tab:ablation} reports the mean
+validation loss, its seed spread where more than one seed exists, and the loss reduction against the
+no-bias arm for all ten.
 
 \begin{table}[H]
-\caption{Seven-arm architecture ablation, mean validation loss at three seeds}
+\caption{Ten-arm architecture ablation, mean validation loss}
 \label{tab:ablation}
 \centering
 \small
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrr}
 \toprule
 \textbf{Arm} & \textbf{Mean val.\ loss} & \textbf{SD} & \textbf{$\Delta$ vs.\ vanilla} &
-\textbf{\% of segment-index gain} \\
+\textbf{\% of segment-index gain} & \textbf{Seeds} \\
 \midrule
-Vanilla, no bias           & 4.3554 & 0.0085 & 0       & 0\% \\
-T5 relative position bias  & 4.1035 & 0.0029 & -0.2520 & 26.6\% \\
-Misaligned block bias      & 3.9109 & 0.0293 & -0.4445 & 46.9\% \\
-ALiBi distance bias        & 3.7435 & 0.0023 & -0.6119 & 64.6\% \\
-True role labels           & 3.5310 & 0.0076 & -0.8244 & 87.0\% \\
-Segment-index bias         & 3.4078 & 0.0225 & -0.9476 & 100\% \\
-Hard block mask, fixed     & 3.2772 & 0.0124 & -1.0782 & 113.8\% \\
+Global positions restored  & 4.5122 & n/a & +0.1567 & n/a     & 1 \\
+Vanilla, no bias           & 4.3554 & 0.0085 & 0       & 0\%     & 3 \\
+T5 relative position bias  & 4.1035 & 0.0029 & -0.2520 & 26.6\%  & 3 \\
+Length-bucket roles        & 4.0174 & n/a & -0.3380 & 35.7\%  & 1 \\
+Misaligned block bias      & 3.9109 & 0.0293 & -0.4445 & 46.9\%  & 3 \\
+Random roles (shuffled)    & 3.8587 & n/a & -0.4967 & 52.4\%  & 1 \\
+ALiBi distance bias        & 3.7435 & 0.0023 & -0.6119 & 64.6\%  & 3 \\
+True role labels           & 3.5310 & 0.0076 & -0.8244 & 87.0\%  & 3 \\
+Segment-index bias         & 3.4078 & 0.0225 & -0.9476 & 100\%   & 3 \\
+Hard block mask, fixed     & 3.2772 & 0.0124 & -1.0782 & 113.8\% & 3 \\
 \bottomrule
 \end{tabular}
-\apanote{Three seeds per arm, from \texttt{results/pretraining\_runs.json}
-(\texttt{ablation.*.val\_loss\_mean}, \texttt{ablation.*.val\_loss\_sd},
-\texttt{ablation.*.delta\_vs\_vanilla}, \texttt{ablation.*.pct\_of\_segment\_index}). The share
-column is each arm's loss reduction expressed as a percentage of the segment-index arm's reduction,
-the largest gain among the additive-bias arms. Seed spreads run from $0.0023$ to $0.0293$ nats
-against effects from $0.2520$ to $1.0782$ nats, so every ordering in the table is resolved well
-outside seed noise.}
+\apanote{Source artifact \texttt{results/pretraining\_runs.json}, registered
+under the keys \texttt{ablation.*.val\_loss\_mean}, \texttt{ablation.*.val\_loss\_sd} or
+\texttt{ablation.*.val\_loss}, \texttt{ablation.*.delta\_vs\_vanilla},
+\texttt{ablation.*.pct\_of\_segment\_index} and \texttt{ablation.*.n\_seeds} in
+\texttt{VERIFIED\_FACTS.json}; the dotted names are register keys, not a node
+inside the source file. The share column is each
+arm's loss reduction expressed as a percentage of the segment-index arm's reduction, the largest
+gain among the three-seed additive-bias arms; it is not defined for the global-positions row, which
+increases loss relative to vanilla rather than reducing it. Seed spreads on the seven three-seed
+rows run from $0.0023$ to $0.0293$ nats against effects from $0.2520$ to $1.0782$ nats, so every
+ordering among those seven is resolved well outside seed noise. The three single-seed rows carry no
+seed spread and are shown for completeness rather than as matched comparisons.}
 \end{table}
 
-An arbitrary segment ordinal, a label carrying no provenance meaning at all, reduces the loss by
-$0.9476$ nats, the largest reduction of any arm. True role labels, the semantically meaningful
-signal the mechanism was built to exploit, reduce it by only $0.8244$ nats, 87.0 percent of the
-ordinal's reduction (\texttt{ablation.true\_role\_labels.pct\_of\_segment\_index}). The arbitrary
-substitute does not merely match the meaningful signal, it beats it, so whatever the segment-index
-bias is exploiting is not role semantics.
+The control task in the sense Hewitt and Liang (2019) define it holds the label alphabet fixed and
+randomises the mapping from tokens to roles. That arm is random roles, not the segment ordinal.
+Randomised roles reduce the loss by $0.4967$ nats, 52.4 percent of the segment-index arm's reduction
+(\texttt{ablation.random\_roles.pct\_of\_segment\_index}), against $0.8244$ nats for true role
+labels, a gap of $0.3277$ nats favouring the true labels
+(\texttt{ablation.random\_roles\_vs\_true\_roles\_nats}), more than eleven times the largest seed
+standard deviation among the three-seed rows, $0.0293$ nats. Role semantics contribute something
+real: a randomised assignment over the same label alphabet loses to the true one. A second
+single-seed arm, roles collapsed to length buckets rather than shuffled, reduces the loss by
+$0.3380$ nats, 35.7 percent of the segment-index arm's reduction
+(\texttt{ablation.length\_roles.pct\_of\_segment\_index}), consistent with the same reading: some of
+what true role labels carry is role-specific rather than positional.
 
-The misaligned-block arm holds the number of blocks fixed at the same count as the aligned
+The segment-index arm changes the feature rather than randomising it: an arbitrary ordinal position
+within the bundle, carrying no provenance meaning at all, in place of role identity. A win for it is
+a competing hypothesis about what the mechanism exploits, not a control task in the Hewitt and Liang
+sense, and not evidence that role semantics contribute nothing. It reduces the loss by $0.9476$
+nats, the largest reduction of any arm, ahead of true role labels' $0.8244$ nats
+(\texttt{ablation.true\_role\_labels.pct\_of\_segment\_index}). Read beside the random-roles result,
+the two findings do not contradict each other; they dissociate. Role semantics are worth $0.3277$
+nats over a randomised label drawn from the same alphabet, and a provenance-free positional ordinal
+is worth more still.
+
+The misaligned-block arm is this thesis's own addition to that design, not part of the control-task
+literature it borrows from. It holds the number of blocks fixed at the same count as the aligned
 segment-index arm and destroys only their alignment with the note boundaries they were built to
 mark. It reduces the loss by $0.4445$ nats, 46.9 percent of the aligned arm's reduction
 (\texttt{ablation.misaligned\_block.pct\_of\_segment\_index}), so alignment on its own is worth
@@ -430,16 +475,35 @@ learned arm including the segment-index bias by $0.1306$ nats
 (\texttt{ablation.learned\_vs\_fixed\_nats}): a mechanism with zero trainable parameters outperforms
 the one credited with learning where the boundary is.
 
+A fourth single-seed arm checks a standing confound directly. Every other arm in this table trains
+without global position information, so the segmentation gain could in principle be a positionally
+handicapped baseline buying position back rather than a genuine effect of provenance conditioning.
+Restoring global positions on top of the shuffled-segment setup raises the loss to $4.5122$ nats,
+$0.1567$ nats worse than the no-bias arm
+(\texttt{ablation.global\_positions\_control.delta\_vs\_vanilla}), recovering none of the
+segment-index gain. The confound this control was built to rule out does not hold.
+
 \paragraph{The anisotropy control.} The third control targets the proposed
 explanation rather than the effect: if the behaviour follows from
 representational anisotropy in the encoder, removing the anisotropy removes the
-behaviour. It did not. The control condition's mean pairwise similarity is
+behaviour. The control condition's mean pairwise similarity is
 $0.9113$ and the matched clinical-pair mean is $0.9176$
 (\texttt{aniso.anisotropy\_control.mean},
-\texttt{aniso.homogeneity.results.head.matched.mean}). The two conditions
-landed close enough together to refute the explanation, and they refute it
-positively, because the proposed mechanism
-was present, was manipulated, and did not carry the outcome.
+\texttt{aniso.homogeneity.results.head.matched.mean}), a difference of
+$0.0063$ (\texttt{stats.anisotropy\_welch.diff}). A Welch two-sample $t$-test on
+the two conditions' registered means, standard deviations and counts gives
+$t = 4.0001$ on $235.84$ degrees of freedom
+(\texttt{stats.anisotropy\_welch.t}, \texttt{stats.anisotropy\_welch.df}),
+which rejects exact equality at conventional significance thresholds; with
+$190$ pairs in the control condition and $1{,}956$ in the clinical one, a
+difference this small is still detectable. Equality is therefore not claimed.
+What is claimed is that the difference is small against the spread the same
+extraction path produces on unrelated text, which ranges from $0.8528$ to
+$0.9565$ (\texttt{aniso.anisotropy\_control.min},
+\texttt{aniso.anisotropy\_control.max}): unrelated non-clinical sentence pairs
+land within a few hundredths of matched clinical pairs, close enough that the
+proposed mechanism, present and manipulated, does not carry the outcome it was
+credited with.
 
 \subsection{What this does not establish}
 
@@ -448,10 +512,15 @@ would do. The audit shows the claims were unsupported by the code that produced
 the reported numbers, and the controls show the mechanisms as run do not carry
 the effects attributed to them. Whether asymmetric authority conditioning, an
 auxiliary rule head or guideline-grounded harm scoring is a good idea remains
-open. The controls are not novel either: control tasks, arbitrary-substitute
-designs and misalignment ablations are established instruments whose conclusions
-here are the conclusions their owners already published, and what is new is only
-the measurement on this system.
+open. The control-task logic and the arbitrary-substitute design belong to Hewitt
+and Liang; that attribution covers the design of the comparison, not what running
+it here found. The misaligned-block arm and the global-positions confound check
+are this thesis's own additions to that design. What the ten-arm table
+establishes is the cleanest quantitative result in this thesis: a dissociation
+between role semantics, worth $0.3277$ nats over a randomised control drawn from
+the same label alphabet, and a provenance-free positional ordinal, which is worth
+more still, with every ordering among the three-seed rows resolved well outside
+seed noise.
 
 \section{Is the Null Real}
 \label{sec:res-rq4}
@@ -490,7 +559,10 @@ appropriate summary at this imbalance \citep{saito2015prcurve} and its no-skill
 line is $12/253$. The percentile bootstrap interval for the ensemble AUROC on
 $G_{253}$ is $0.3210$ to $0.7034$
 (\texttt{decontam.aggregate.ensemble\_ci95\_lo},
-\texttt{decontam.aggregate.ensemble\_ci95\_hi}).}
+\texttt{decontam.aggregate.ensemble\_ci95\_hi}). The per-seed standard deviation
+is computed at $\mathrm{ddof} = 0$, the population convention
+(Section~\ref{sec:m-stats}), and is not compared against a spread computed
+under the sample convention.}
 \label{tab:decontam}
 \end{table}
 
@@ -521,9 +593,12 @@ $G_{134}$ & Per-seed mean $\pm$ SD & \multicolumn{4}{l}{$0.5295 \pm 0.0158$ (AP 
 \end{tabular}
 \apanote{From \texttt{results/accord/control/final\_report.json}. Bootstrap
 columns are the mean and standard deviation over $B = 10{,}000$ resamples at seed
-$20{,}260{,}806$ \citep{efron1994bootstrap}. The $G_{299}$ per-seed mean of
-$0.4967 \pm 0.0350$ is the only measurement in this project taken under an
-asserted subject-disjoint split.}
+$20{,}260{,}806$ \citep{efron1994bootstrap}. All six rows in this table, the
+$G_{299}$ per-seed mean of $0.4967 \pm 0.0350$ included, come from runs taken
+under an asserted subject-disjoint split. The per-seed standard deviation is
+computed at $\mathrm{ddof} = 1$, the sample convention (Section~\ref{sec:m-stats}),
+which differs from the $\mathrm{ddof} = 0$ convention used for
+Table~\ref{tab:decontam}; the two are not compared against each other.}
 \label{tab:control299}
 \end{table}
 
@@ -598,8 +673,10 @@ two sets and fix the no-skill line for that column.}
 \end{table}
 
 TF-IDF plus logistic regression reaches $0.5761$ on $G_{299}$ and $0.5729$ on
-$G_{134}$, above every neural configuration in Tables~\ref{tab:decontam}
-and~\ref{tab:control299}, and puts two true contradictions in its top fifteen on
+$G_{134}$, above every $G_{299}$ and $G_{134}$ neural configuration in
+Table~\ref{tab:control299}, the matched sets it was evaluated on; it was not run
+on $G_{253}$, so no comparison is drawn here against Table~\ref{tab:decontam}.
+It puts two true contradictions in its top fifteen on
 both sets. No significance is claimed for that ordering. It does establish that a
 domain-pretrained encoder \citep{gu2021biomedbert} with low-rank adaptation
 \citep{hu2022lora} does not clear a linear model over 5,000 n-gram counts.
@@ -727,11 +804,14 @@ not a capacity difference, and the manipulation worth $4.53$ points there is
 worth $0.0031$ of AUROC here. No significance test for the clinical gap is
 registered; the register carries the means, the standard deviations and the
 difference, but no $p$ value, so none is quoted and the gap is reported as a
-descriptive difference only. The notebook cell that would compute one calls
-\texttt{scipy.stats.ttest\_ind} without \texttt{equal\_var=False}, so any $p$ value it returned
-would be a Student test, not the Welch test earlier drafts of this material labelled it as
-(\texttt{stats.clinical\_gap\_test\_note}); none is computed or quoted here, and the comparison
-rests on the means and seed spreads in the table.}
+descriptive difference only. A related defect belongs to the public-benchmark
+gap above, not this one: the notebook cell that would test the $4.53$-point
+convergence gap, in \texttt{accord/scaling/C4\_scaling\_study.ipynb}, calls
+\texttt{scipy.stats.ttest\_ind} without \texttt{equal\_var=False}, so any $p$
+value it returned would be a Student test, not the Welch test earlier drafts of
+this material labelled it as (\texttt{stats.clinical\_gap\_test\_note}); none is
+computed or quoted for either gap, and both comparisons rest on the means and
+seed spreads already reported in the tables above.}
 \label{tab:scaling}
 \end{table}
 
@@ -804,8 +884,8 @@ counts run from 71 to 242 against 12 true positives, three of which differ from
 zero by less than $0.05$. All four 95 percent bootstrap intervals in
 Table~\ref{tab:mcc} contain zero, including the widest-separated pair, GPT-4o
 zero-shot at $+0.1089$ against the Llama 3 8B evaluation baseline at $-0.0436$,
-whose intervals, $-0.0319$ to $0.2484$ and $-0.2337$ to $0.0563$, overlap by more
-than half their width. Figure~\ref{fig:forest} is that analysis in one view. The
+whose intervals, $-0.0319$ to $0.2484$ and $-0.2337$ to $0.0563$, overlap over
+the range $-0.0319$ to $0.0563$. Figure~\ref{fig:forest} is that analysis in one view. The
 safe statement is this one: no claim in this thesis rests on the ordering in
 Table~\ref{tab:mcc}, because at 12 positives none of the four systems is
 distinguishable from chance, and none is distinguishable from any other.
@@ -821,6 +901,11 @@ the committed intervals file.}
 \end{figure}
 
 \subsection{Sign provenance}
+
+The three experiments in this subsection, the selection experiment and the two
+PUMS regimes, run on simulated populations rather than the clinical pipeline,
+and are retained here because the sign-provenance rule they establish was then
+applied to the clinical numbers reported elsewhere in this thesis.
 
 A second defect concerns direction rather than magnitude. Where a gap statistic
 is stored as an absolute value, no directional claim can be recovered afterwards,
@@ -843,10 +928,15 @@ PUMS, regime A       & $-0.13556$ & $-0.19435$ & none \\
 PUMS, regime B       & $-0.11807$ & $-0.04101$ & none \\
 \bottomrule
 \end{tabular}
-\apanote{From \texttt{results/accord/signed\_gap\_analysis.json}. Endpoints 1 and
-2 are the values stored under the minimum and maximum keys; in the two PUMS rows
-the value stored as the maximum is the more negative, which is what an
-absolute-value convention upstream produces, and both are reported as recorded.}
+\apanote{From \texttt{results/accord/signed\_gap\_analysis.json}. Endpoint 1 is
+the signed gap at the weakest selection strength swept and Endpoint 2 is the
+signed gap at the strongest; these are sweep endpoints, not the extrema the
+series attains in between. On PUMS regime A the sweep's true minimum is
+$-0.20733$ and true maximum is $-0.12761$
+(\texttt{signed.E10\_pums\_regimeA.dp\_true\_min},
+\texttt{signed.E10\_pums\_regimeA.dp\_true\_max}), both more extreme than
+either printed endpoint, so the endpoints in this table describe where the
+sweep starts and ends, not its range. Both endpoints are reported as recorded.}
 \label{tab:signed}
 \end{table}
 

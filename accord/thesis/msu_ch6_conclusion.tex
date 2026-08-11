@@ -101,7 +101,7 @@ component; neither design is claimed here.
 
 \textbf{RQ4, evaluation.} Three configurations sit at chance. On the $253$ non
 ambiguous pairs with $12$ positives, the decontaminated three seed ensemble
-reaches AUROC $0.5145$ with Mann-Whitney $p = 0.867$, and the per seed mean is
+reaches AUROC $0.5145$ with Mann-Whitney $p = 0.8668$, and the per seed mean is
 $0.5211 \pm 0.0201$. On the $299$ annotated pairs with the same $12$ positives,
 under subject disjoint splits, the three seed mean AUROC is $0.4967 \pm 0.0350$,
 and a DeLong test between the seed ensemble and the single model, which is the
@@ -122,7 +122,8 @@ chance: Cohen $\kappa$ across seeds is $-0.0105$, expected calibration error is
 $0.8015$, and the ensemble AUROC's bootstrap interval is $[0.3210, 0.7034]$.
 One consequence of that operating point is that precision, $0.0424 \pm 0.0023$,
 sits below the pool base rate of $0.0474$ while recall is
-$0.7778 \pm 0.0393$; the margin, $0.0424 + 0.0050 = 0.0474$, is smaller than
+$0.7778 \pm 0.0393$; the margin is $0.0051$
+(\texttt{stats.precision\_vs\_base\_rate\_margin\_253}), smaller than
 the binomial standard error on $12$ of $253$ pairs, $0.0134$
 (\texttt{stats.binomial\_se\_12\_of\_253}), so it is read as an illustration of
 the operating point rather than as evidence on its own.
@@ -189,9 +190,11 @@ Chapter~\ref{ch:results} reports the latter, which is why RQ3 is answered
 negatively rather than left open.
 
 The controls were cheap. Logged control compute totals $661.4$ GPU minutes: AG
-News $34.9$ minutes over $12$ runs, the clinical comparison $612.3$ minutes over
-$17$ runs, and the two signed storage re-runs $0.7$ and $13.5$ minutes. Person
-hours were never logged, so this is a compute only claim.
+News $34.9$ minutes over $12$ runs, a $3$-epoch subset of the full $48$-run,
+$555$-minute convergence sweep, the clinical comparison $612.3$ minutes over
+$17$ runs, and the two signed storage re-runs $0.7$ and $13.5$ minutes.
+Chapter~\ref{ch:discussion} reconciles the AG News figure to the full sweep.
+Person hours were never logged, so this is a compute only claim.
 
 \section{Things to Check If You Are Building This}
 \label{sec:conc-practice}

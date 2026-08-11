@@ -2,7 +2,7 @@
 \label{app:trace}
 
 Every quantity printed in this thesis is listed below with the file it was read from.
-The trace covers 863 occurrences resolving to 278 distinct registered
+The trace covers 1055 occurrences resolving to 341 distinct registered
 values. Numbers are not transcribed from notes or from earlier drafts; each is extracted
 from a stored result file by script, and the register is reproduced in Appendix B.
 
@@ -12,23 +12,26 @@ from a stored result file by script, and the register is reproduced in Appendix 
 \midrule
 \endhead
 0.0023 & ablation.alibi.val\_loss\_sd & results/pretraining\_runs.json\\
+0.4967 & ablation.random\_roles.delta\_vs\_vanilla & results/pretraining\_runs.json, derived\\
+0.3277 & ablation.random\_roles\_vs\_true\_roles\_nats & results/pretraining\_runs.json, derived: random roles minus true role labels; positive means randomization is WORSE\\
 25 & ablation.t5\_rpe.delta\_vs\_vanilla & results/pretraining\_runs.json\\
-0.0029 & ablation.t5\_rpe.val\_loss\_sd & results/pretraining\_runs.json\\
 0.930 & aniso.homogeneity.results.tail.matched.mean & results/accord/stage0/homogeneity.json\\
+65 & baselines.gpt4o\_zeroshot.fp & results/accord/step3\_baselines.json\\
 0.0031 & c37.gap & results/task\_runs.json\\
 0.7693 & c37.pubmedbert.mean & results/task\_runs.json\\
 0.0102 & c37.pubmedbert.sd & results/task\_runs.json\\
 0.7662 & c37.scratch.mean & results/task\_runs.json\\
 0.0073 & c37.scratch.sd & results/task\_runs.json\\
 14 & cohort.aki.removed & results/accord/stats/cohort\_icd\_counts.json\\
-0.4967 & control.auroc\_mean\_std\_across\_seeds.gold\_all.mean & results/accord/control/final\_report.json\\
 0.0350 & control.auroc\_mean\_std\_across\_seeds.gold\_all.std & results/accord/control/final\_report.json\\
 0.1571 & control.baselines.tfidf\_logreg.gold\_all.ap & results/accord/control/final\_report.json\\
 0.5761 & control.baselines.tfidf\_logreg.gold\_all.auroc & results/accord/control/final\_report.json\\
 4.53 & conv.gap\_E24\_pts & results/accord/scaling/convergence\_results.json\\
 48 & conv.n\_runs & results/accord/scaling/convergence\_results.json\\
 0.41 & conv.scratch100M\_gain\_3to24\_pts & results/accord/scaling/convergence\_results.json\\
+0.0036 & conv.scratch\_10M.E24.sd & results/accord/scaling/convergence\_results.json\\
 0.9 & conv.scratch\_10M.E3.mean & results/accord/scaling/convergence\_results.json\\
+555 & conv.total\_minutes & results/accord/scaling/convergence\_results.json\\
 612.3 & cost.c37\_clinical\_task\_pubmedbert\_vs\_scratch.minutes & results/accord/control\_cost\_log.json\\
 34.9 & cost.c44\_ag\_news\_positive\_control.minutes & results/accord/control\_cost\_log.json\\
 13.5 & cost.c52\_signed\_re-run\_e10.minutes & results/accord/control\_cost\_log.json\\
@@ -36,7 +39,9 @@ from a stored result file by script, and the register is reproduced in Appendix 
 0.5211 & decontam.aggregate.auroc\_mean & results/accord/decontam/corrected\_gold\_metrics.json\\
 0.0201 & decontam.aggregate.auroc\_std & results/accord/decontam/corrected\_gold\_metrics.json\\
 0.5145 & decontam.aggregate.ensemble\_auroc & results/accord/decontam/corrected\_gold\_metrics.json\\
-0.867 & decontam.aggregate.ensemble\_mannwhitney\_p & results/accord/decontam/corrected\_gold\_metrics.json\\
+0.7034 & decontam.aggregate.ensemble\_ci95\_hi & results/accord/decontam/corrected\_gold\_metrics.json\\
+0.3210 & decontam.aggregate.ensemble\_ci95\_lo & results/accord/decontam/corrected\_gold\_metrics.json\\
+0.8668 & decontam.aggregate.ensemble\_mannwhitney\_p & results/accord/decontam/corrected\_gold\_metrics.json\\
 253 & decontam.n & results/accord/decontam/corrected\_gold\_metrics.json\\
 1.0038 & decontam\_gold.aggregate.alpha\_d.mean & /Users/rickygole/mimic\_local\_only/accord\_supp/results/accord\_v2\_decontam\_gold\_aggregate.json\\
 0.5076 & decontam\_gold.aggregate.alpha\_n.mean & /Users/rickygole/mimic\_local\_only/accord\_supp/results/accord\_v2\_decontam\_gold\_aggregate.json\\
@@ -50,6 +55,7 @@ from a stored result file by script, and the register is reproduced in Appendix 
 141 & derived.gpt4o\_fewshot.n\_flagged & results/accord/step3\_baselines.json\\
 0.0078 & drift.PUMS\_RegimeA\_drift\_vs\_OR.ppv\_gap.abs\_slope & results/accord/sign\_provenance\_drift\_recomputation.json\\
 0.0118 & drift.PUMS\_RegimeB\_drift\_vs\_beta.demographic\_parity\_gap.abs\_slope & results/accord/sign\_provenance\_drift\_recomputation.json\\
+137 & exemplar\_recomputed.rule\_1\_2\_pooled.n\_resolved & results/accord/exemplar/exemplar\_correctness\_recomputed.json\\
 0.0474 & gold.base\_rate\_253 & derived: decontam.n\_positives / decontam.n\\
 0.0401 & gold.base\_rate\_299 & derived: 12 positives / gold.n\_total\\
 299 & gold.n\_total & results/accord/reconciliation\_c28.json\\
@@ -64,6 +70,8 @@ from a stored result file by script, and the register is reproduced in Appendix 
 0.4282 & signal.accord\_contra\_prob\_distribution\_by\_group.gold\_negative\_not\_contradiction\_n241.mean & results/accord/step2\_signal\_check.json\\
 0.4198 & signal.accord\_contra\_prob\_distribution\_by\_group.gold\_positive\_contradiction\_n12.mean & results/accord/step2\_signal\_check.json\\
 0.6418 & signal.accord\_contra\_prob\_distribution\_by\_group.mann\_whitney\_u\_p\_value\_pos\_vs\_neg & results/accord/step2\_signal\_check.json\\
+0.0134 & stats.binomial\_se\_12\_of\_253 & derived: sqrt(gold.base\_rate\_253 * (1 - gold.base\_rate\_253) / 253), the binomial standard error on 12 positives in 253 pairs\\
+0.0051 & stats.precision\_vs\_base\_rate\_margin\_253 & derived: 12/253 minus decontam\_gold.aggregate.precision.mean (0.047430830... - 0.042373737...)\\
 75 & survey.n\_included & results/accord/survey/coding\_table.csv\\
 225 & survey.n\_quoted\_fields & results/accord/survey/quotes.json\\
 17 & survey.null\_attr.drops & results/accord/survey/coding\_table.csv\\
@@ -117,7 +125,6 @@ from a stored result file by script, and the register is reproduced in Appendix 
 287 & control.power\_ceiling.recomputed\_same\_formula\_gold\_all\_ambiguous\_included\_n299.n\_neg & results/accord/control/final\_report.json\\
 0.0852 & control.power\_ceiling.recomputed\_same\_formula\_gold\_all\_ambiguous\_included\_n299.se\_auc\_under\_null & results/accord/control/final\_report.json\\
 5,000 & conv.n\_val & accord/scaling/C44\_convergence\_check.ipynb (N\_VAL)\\
-555 & conv.total\_minutes & results/accord/scaling/convergence\_results.json\\
 70 & cost.c52\_signed\_re-run\_e9.minutes & results/accord/control\_cost\_log.json\\
 55 & decontam.per\_seed.seed0.auroc & results/accord/decontam/corrected\_gold\_metrics.json\\
 0.38 & decontam\_gold.aggregate.f4\_pos.mean & /Users/rickygole/mimic\_local\_only/accord\_supp/results/accord\_v2\_decontam\_gold\_aggregate.json\\
@@ -145,8 +152,41 @@ from a stored result file by script, and the register is reproduced in Appendix 
 10,649,092 & scaling.scratch\_10M.params & results/accord/scaling/scaling\_results.json\\
 0.40 & scaling.scratch\_10M.sd & results/accord/scaling/scaling\_results.json\\
 31,913,860 & scaling.scratch\_30M.params & results/accord/scaling/scaling\_results.json\\
-0.14 & signed.E10\_pums\_regimeA.dp\_min & results/accord/signed\_gap\_analysis.json\\
+0.14 & signed.E10\_pums\_regimeA.dp\_at\_min\_selection & results/accord/signed\_gap\_analysis.json, the sweep endpoint (NOT an extremum)\\
+0.6119 & ablation.alibi.delta\_vs\_vanilla & results/pretraining\_runs.json\\
+64.6 & ablation.alibi.pct\_of\_segment\_index & results/pretraining\_runs.json, derived: arm delta divided by the segment-index delta\\
+3.7435 & ablation.alibi.val\_loss\_mean & results/pretraining\_runs.json\\
+0.1567 & ablation.global\_positions\_control.delta\_vs\_vanilla & results/pretraining\_runs.json, derived\\
+4.5122 & ablation.global\_positions\_control.val\_loss & results/pretraining\_runs.json, key A1\_10M\_st1000\_s0\_globalpos\_shuf, SINGLE SEED\\
+1.0782 & ablation.hard\_block\_mask.delta\_vs\_vanilla & results/pretraining\_runs.json\\
+113.8 & ablation.hard\_block\_mask.pct\_of\_segment\_index & results/pretraining\_runs.json, derived: arm delta divided by the segment-index delta\\
+3.2772 & ablation.hard\_block\_mask.val\_loss\_mean & results/pretraining\_runs.json\\
+0.0124 & ablation.hard\_block\_mask.val\_loss\_sd & results/pretraining\_runs.json\\
+0.1306 & ablation.learned\_vs\_fixed\_nats & results/pretraining\_runs.json, derived: fixed hard block mask minus learned segment-index bias\\
+0.3380 & ablation.length\_roles.delta\_vs\_vanilla & results/pretraining\_runs.json, derived\\
+35.7 & ablation.length\_roles.pct\_of\_segment\_index & results/pretraining\_runs.json, derived\\
+4.0174 & ablation.length\_roles.val\_loss & results/pretraining\_runs.json, key A4\_10M\_st1000\_s0\_lenroles\_shuf, SINGLE SEED\\
+0.4445 & ablation.misaligned\_block.delta\_vs\_vanilla & results/pretraining\_runs.json\\
+46.9 & ablation.misaligned\_block.pct\_of\_segment\_index & results/pretraining\_runs.json, derived: arm delta divided by the segment-index delta\\
+3.9109 & ablation.misaligned\_block.val\_loss\_mean & results/pretraining\_runs.json\\
+0.0293 & ablation.misaligned\_block.val\_loss\_sd & results/pretraining\_runs.json\\
+52.4 & ablation.random\_roles.pct\_of\_segment\_index & results/pretraining\_runs.json, derived\\
+3.8587 & ablation.random\_roles.val\_loss & results/pretraining\_runs.json, key A4\_10M\_st1000\_s0\_randroles\_shuf, SINGLE SEED\\
+0.9476 & ablation.segment\_index.delta\_vs\_vanilla & results/pretraining\_runs.json\\
+3.4078 & ablation.segment\_index.val\_loss\_mean & results/pretraining\_runs.json\\
+0.0225 & ablation.segment\_index.val\_loss\_sd & results/pretraining\_runs.json\\
+26.6 & ablation.t5\_rpe.pct\_of\_segment\_index & results/pretraining\_runs.json, derived: arm delta divided by the segment-index delta\\
+4.1035 & ablation.t5\_rpe.val\_loss\_mean & results/pretraining\_runs.json\\
+0.0029 & ablation.t5\_rpe.val\_loss\_sd & results/pretraining\_runs.json\\
+0.8244 & ablation.true\_role\_labels.delta\_vs\_vanilla & results/pretraining\_runs.json\\
+87.0 & ablation.true\_role\_labels.pct\_of\_segment\_index & results/pretraining\_runs.json, derived: arm delta divided by the segment-index delta\\
+3.5310 & ablation.true\_role\_labels.val\_loss\_mean & results/pretraining\_runs.json\\
+0.0076 & ablation.true\_role\_labels.val\_loss\_sd & results/pretraining\_runs.json\\
+4.3554 & ablation.vanilla.val\_loss\_mean & results/pretraining\_runs.json\\
+0.0085 & ablation.vanilla.val\_loss\_sd & results/pretraining\_runs.json\\
 0.9113 & aniso.anisotropy\_control.mean & results/accord/stage0/anisotropy\_control.json\\
+0.8528 & aniso.anisotropy\_control.min & results/accord/stage0/anisotropy\_control.json\\
+190 & aniso.anisotropy\_control.n\_pairs & results/accord/stage0/anisotropy\_control.json\\
 0.9176 & aniso.homogeneity.results.head.matched.mean & results/accord/stage0/homogeneity.json\\
 223 & baselines.accord\_binary\_at\_0.5\_253core.fp & results/accord/step3\_baselines.json\\
 0.0070 & baselines.accord\_binary\_at\_0.5\_253core.mcc & results/accord/step3\_baselines.json\\
@@ -155,7 +195,6 @@ from a stored result file by script, and the register is reproduced in Appendix 
 0.0496 & baselines.gpt4o\_fewshot.precision & results/accord/step3\_baselines.json\\
 0.5833 & baselines.gpt4o\_fewshot.recall & results/accord/step3\_baselines.json\\
 107 & baselines.gpt4o\_fewshot.tn & results/accord/step3\_baselines.json\\
-65 & baselines.gpt4o\_zeroshot.fp & results/accord/step3\_baselines.json\\
 0.1089 & baselines.gpt4o\_zeroshot.mcc & results/accord/step3\_baselines.json\\
 0.0845 & baselines.gpt4o\_zeroshot.precision & results/accord/step3\_baselines.json\\
 0.5000 & baselines.gpt4o\_zeroshot.recall & results/accord/step3\_baselines.json\\
@@ -227,7 +266,6 @@ from a stored result file by script, and the register is reproduced in Appendix 
 0.8822 & conv.scratch\_10M.E12.mean & results/accord/scaling/convergence\_results.json\\
 0.0011 & conv.scratch\_10M.E12.sd & results/accord/scaling/convergence\_results.json\\
 0.8838 & conv.scratch\_10M.E24.mean & results/accord/scaling/convergence\_results.json\\
-0.0036 & conv.scratch\_10M.E24.sd & results/accord/scaling/convergence\_results.json\\
 0.8795 & conv.scratch\_10M.E6.mean & results/accord/scaling/convergence\_results.json\\
 0.0013 & conv.scratch\_10M.E6.sd & results/accord/scaling/convergence\_results.json\\
 0.8845 & conv.scratch\_30M.E12.mean & results/accord/scaling/convergence\_results.json\\
@@ -237,7 +275,6 @@ from a stored result file by script, and the register is reproduced in Appendix 
 0.0009 & conv.scratch\_30M.E3.sd & results/accord/scaling/convergence\_results.json\\
 0.8856 & conv.scratch\_30M.E6.mean & results/accord/scaling/convergence\_results.json\\
 0.0035 & conv.scratch\_30M.E6.sd & results/accord/scaling/convergence\_results.json\\
-32 & decontam.aggregate.ensemble\_ci95\_lo & results/accord/decontam/corrected\_gold\_metrics.json\\
 46 & decontam.contaminated\_same\_253\_pairs.auroc & results/accord/decontam/corrected\_gold\_metrics.json\\
 0.0613 & decontam.per\_seed.seed0.ap & results/accord/decontam/corrected\_gold\_metrics.json\\
 0.5646 & decontam.per\_seed.seed0.mannwhitney\_p & results/accord/decontam/corrected\_gold\_metrics.json\\
@@ -252,12 +289,26 @@ from a stored result file by script, and the register is reproduced in Appendix 
 0.5070 & decontam\_gold.aggregate.alpha\_n.min & /Users/rickygole/mimic\_local\_only/accord\_supp/results/accord\_v2\_decontam\_gold\_aggregate.json\\
 234 & derived.accord\_at\_0.5.n\_flagged & results/accord/step3\_baselines.json\\
 242 & derived.llama\_baseline.n\_flagged & results/accord/step3\_baselines.json\\
+2.24 & drift.E9\_MIMIC\_drift\_vs\_beta.demographic\_parity\_gap.abs\_slope & results/accord/sign\_provenance\_drift\_recomputation.json\\
+3.64 & exemplar.confounded\_proxy\_rule12\_vs\_rule34.rule\_1\_2.rate & results/accord/exemplar/step2plus\_results.json\\
 0.0448 & exemplar.confounded\_proxy\_rule12\_vs\_rule34.rule\_3\_4.rate & results/accord/exemplar/step2plus\_results.json\\
 165 & exemplar\_recomputed.rule\_1\_2\_pooled.n & results/accord/exemplar/exemplar\_correctness\_recomputed.json\\
-137 & exemplar\_recomputed.rule\_1\_2\_pooled.n\_resolved & results/accord/exemplar/exemplar\_correctness\_recomputed.json\\
 28 & exemplar\_recomputed.rule\_1\_2\_pooled.n\_unresolved & results/accord/exemplar/exemplar\_correctness\_recomputed.json\\
 0.4745 & exemplar\_recomputed.rule\_1\_2\_pooled.wrong\_rate & results/accord/exemplar/exemplar\_correctness\_recomputed.json\\
 278 & gold.accord\_pred\_contradiction & results/accord/reconciliation\_c28.json\\
+97.01 & goldstrata.rule\_stratified\_calibration.1.accord\_predicted\_pos\_rate\_gold & results/accord/step0\_1\_join\_and\_calibration.json\\
+96.77 & goldstrata.rule\_stratified\_calibration.2.accord\_predicted\_pos\_rate\_gold & results/accord/step0\_1\_join\_and\_calibration.json\\
+9.68 & goldstrata.rule\_stratified\_calibration.2.pharmacist\_true\_pos\_rate\_gold & results/accord/step0\_1\_join\_and\_calibration.json\\
+97.47 & goldstrata.rule\_stratified\_calibration.3.accord\_predicted\_pos\_rate\_gold & results/accord/step0\_1\_join\_and\_calibration.json\\
+74.55 & goldstrata.rule\_stratified\_calibration.4.accord\_predicted\_pos\_rate\_gold & results/accord/step0\_1\_join\_and\_calibration.json\\
+0.1626 & mccint.E2\_mcc\_intervals.accord\_binary\_at\_0.5\_253core.ci95[0] & results/accord/stats/intervals.json\\
+0.0753 & mccint.E2\_mcc\_intervals.accord\_binary\_at\_0.5\_253core.ci95[1] & results/accord/stats/intervals.json\\
+0.1120 & mccint.E2\_mcc\_intervals.gpt4o\_fewshot.ci95[0] & results/accord/stats/intervals.json\\
+0.1319 & mccint.E2\_mcc\_intervals.gpt4o\_fewshot.ci95[1] & results/accord/stats/intervals.json\\
+0.0319 & mccint.E2\_mcc\_intervals.gpt4o\_zeroshot.ci95[0] & results/accord/stats/intervals.json\\
+0.2484 & mccint.E2\_mcc\_intervals.gpt4o\_zeroshot.ci95[1] & results/accord/stats/intervals.json\\
+0.2337 & mccint.E2\_mcc\_intervals.llama\_baseline.ci95[0] & results/accord/stats/intervals.json\\
+0.0563 & mccint.E2\_mcc\_intervals.llama\_baseline.ci95[1] & results/accord/stats/intervals.json\\
 0.5078 & mccint.E3\_defect\_free\_stratum.auroc & results/accord/stats/intervals.json\\
 18.5 & overcall.granite3\_3\_8b.gold.ratio & results/accord/multillm/per\_model\_results.json\\
 17.9863 & overcall.granite3\_3\_8b.pool.ratio & results/accord/multillm/per\_model\_results.json\\
@@ -266,28 +317,41 @@ from a stored result file by script, and the register is reproduced in Appendix 
 21.1473 & overcall.original\_llama3\_calibration\_ratio & results/accord/multillm/per\_model\_results.json\\
 15.4167 & overcall.qwen3\_8b.gold.ratio & results/accord/multillm/per\_model\_results.json\\
 15.8196 & overcall.qwen3\_8b.pool.ratio & results/accord/multillm/per\_model\_results.json\\
+3.4000 & publicsweep.results.llama3:8b.A\_bare.0.05.over\_call\_ratio & accord/prevalence\_replication/results/sweep\_results.json\\
 0.9991 & ranking.full\_299\_harm\_score\_vs\_danger\_rating.p\_value & results/accord/step5\_ranking.json\\
 0.0001 & ranking.full\_299\_harm\_score\_vs\_danger\_rating.spearman\_rho & results/accord/step5\_ranking.json\\
+0.9603 & rulehead.test\_rule\_type\_macro\_f1 & /Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/accord\_v2\_results.json\\
 0.9396 & scaling.pretrained\_bert.mean & results/accord/scaling/scaling\_results.json\\
 0.8878 & scaling.scratch\_100M.mean & results/accord/scaling/scaling\_results.json\\
 0.0016 & scaling.scratch\_100M.sd & results/accord/scaling/scaling\_results.json\\
 0.8790 & scaling.scratch\_10M.mean & results/accord/scaling/scaling\_results.json\\
-0.19435 & signed.E10\_pums\_regimeA.dp\_max & results/accord/signed\_gap\_analysis.json\\
-0.04101 & signed.E10\_pums\_regimeB.dp\_max & results/accord/signed\_gap\_analysis.json\\
-0.11807 & signed.E10\_pums\_regimeB.dp\_min & results/accord/signed\_gap\_analysis.json\\
-0.18939 & signed.E9\_selection\_experiment.dp\_max & results/accord/signed\_gap\_analysis.json\\
-0.00841 & signed.E9\_selection\_experiment.dp\_min & results/accord/signed\_gap\_analysis.json\\
+0.19435 & signed.E10\_pums\_regimeA.dp\_at\_max\_selection & results/accord/signed\_gap\_analysis.json, the sweep endpoint (NOT an extremum)\\
+0.12761 & signed.E10\_pums\_regimeA.dp\_true\_max & results/accord/signed\_gap\_analysis.json\\
+0.20733 & signed.E10\_pums\_regimeA.dp\_true\_min & results/accord/signed\_gap\_analysis.json\\
+0.11807 & signed.E10\_pums\_regimeB.dp\_at\_min\_selection & results/accord/signed\_gap\_analysis.json, the sweep endpoint (NOT an extremum)\\
+0.04101 & signed.E10\_pums\_regimeB.dp\_true\_max & results/accord/signed\_gap\_analysis.json\\
+0.18939 & signed.E9\_selection\_experiment.dp\_true\_max & results/accord/signed\_gap\_analysis.json\\
+0.00841 & signed.E9\_selection\_experiment.dp\_true\_min & results/accord/signed\_gap\_analysis.json\\
+235.84 & stats.anisotropy\_welch.df & derived: Welch two-sample t on aniso.anisotropy\_control.mean/std/n\_pairs vs aniso.homogeneity.results.head.matched.mean/std/n, Welch-Satterthwaite formula\\
+0.0063 & stats.anisotropy\_welch.diff & derived: Welch two-sample t on aniso.anisotropy\_control.mean/std/n\_pairs vs aniso.homogeneity.results.head.matched.mean/std/n, Welch-Satterthwaite formula\\
+4.0001 & stats.anisotropy\_welch.t & derived: Welch two-sample t on aniso.anisotropy\_control.mean/std/n\_pairs vs aniso.homogeneity.results.head.matched.mean/std/n, Welch-Satterthwaite formula\\
 23 & survey.null\_attr.not\_mentioned & results/accord/survey/coding\_table.csv\\
+5.06 & threshold.harm\_score\_precision\_at\_recall\_targets\_n299.0.5 & results/accord/step4\_threshold\_fix\_test.json\\
+0.0595 & transfer.aki.rule\_type\_f1 & /Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/transfer\_results\_correct.json\\
+0.0654 & transfer.sepsis.rule\_type\_f1 & /Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/transfer\_results\_correct.json\\
 0.00780 & drift.PUMS\_RegimeA\_drift\_vs\_OR.demographic\_parity\_gap.abs\_slope & results/accord/sign\_provenance\_drift\_recomputation.json\\
 0.18 & publicsweep.results.llama3:8b.A\_bare.0.05.precision\_decided & accord/prevalence\_replication/results/sweep\_results.json\\
+0.0348 & stats.auroc\_ci\_hi\_vs\_min\_detectable\_margin & derived: power.minimum\_detectable\_auc (0.7382) minus decontam.aggregate.ensemble\_ci95\_hi (0.7034)\\
+1181.5 & stats.control\_cost\_reconciled.total\_minutes & derived: 555 (conv.total\_minutes, reconciled AG News episode) + 612.3 (cost.c37\_clinical\_task\_pubmedbert\_vs\_scratch.minutes) + 0.7 (cost.c52\_signed\_re-run\_e9.minutes) + 13.5 (cost.c52\_signed\_re-run\_e10.minutes)\\
+1167.3 & stats.control\_cost\_reconciled.two\_sweeps\_minutes & derived: conv.total\_minutes (555, reconciled AG News episode) + cost.c37\_clinical\_task\_pubmedbert\_vs\_scratch.minutes (612.3)\\
+14.2 & stats.signed\_rerun\_total\_minutes & derived: cost.c52\_signed\_re-run\_e9.minutes (0.7) + cost.c52\_signed\_re-run\_e10.minutes (13.5)\\
+67 & transfer.sepsis.contradiction\_rate & /Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/transfer\_results\_correct.json\\
+72 & cohort\_chain.two\_role\_coverage & derived: cohort\_chain.reference\_has\_both\_roles divided by cohort\_chain.reference\_hf\_admissions\_actually\_used\_for\_notes, both from the same file\\
 0.005 & decontam\_gold.aggregate.kappa.std & /Users/rickygole/mimic\_local\_only/accord\_supp/results/accord\_v2\_decontam\_gold\_aggregate.json\\
-0.1171 & exemplar.audit\_to\_candidates\_join.match\_rate & results/accord/exemplar/step2plus\_results.json\\
 0.805 & exemplar.confounded\_proxy\_rule12\_vs\_rule34.fisher\_exact.odds\_ratio & results/accord/exemplar/step2plus\_results.json\\
-0.0364 & exemplar.confounded\_proxy\_rule12\_vs\_rule34.rule\_1\_2.rate & results/accord/exemplar/step2plus\_results.json\\
 0.0576 & exemplar.power\_analysis.achieved\_power\_at\_observed\_effect\_rule12\_vs\_rule34 & results/accord/exemplar/step2plus\_results.json\\
 0.7725 & exemplar.power\_analysis.fisher\_p\_value\_rule12\_vs\_rule34 & results/accord/exemplar/step2plus\_results.json\\
 0.0895 & exemplar.power\_analysis.min\_detectable\_rate\_diff\_80pct\_power\_alpha05.min\_detectable\_abs\_diff & results/accord/exemplar/step2plus\_results.json\\
-142 & exemplar.unresolved\_rows\_rule12\_no\_match & results/accord/exemplar/step2plus\_results.json\\
 \end{longtable}
 \doublespacing
 
