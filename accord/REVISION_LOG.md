@@ -253,3 +253,36 @@ are verified and unused, which is consistent with the finding that the audit has
 document.
 
 **Verdict: not submittable until items 1–5 and R6 are fixed. All are edits.**
+
+
+### R8 (2026-08-11) — three source conflicts resolved before they reached the page
+
+The chapter agents refused to state numbers they could not reconcile, which is what the fact-sheet
+discipline is for. Each conflict is resolved below and the resolved value is now a key in
+`VERIFIED_FACTS.json`.
+
+**1. The exemplar defect rate. `FRAMING.md` was wrong.** It carried 41.4%. The number-provenance
+audit rates the underlying exemplar-correctness figures **UNTRACEABLE**: reported 0.605 / 0.504 /
+0.586 against recomputed 0.5556 / 0.4138 / 0.5255. The defensible statement comes from
+`exemplar_correctness_recomputed.json`: of the rule 1 and 2 candidates whose exemplar could be
+resolved, **65 of 137 were wrong, a rate of 0.4745**, with **28 unresolved**. `FRAMING.md` is
+corrected. No chapter may state 41.4%.
+
+**2. The sign-flip count. Three sources disagreed; the artifact settles it.** `CONTRIBUTION.md` said
+seven of fourteen, the audit summary said six of eight, its itemised list implied seven of nine.
+Recomputed directly from `sign_provenance_drift_recomputation.json`, counting every metric with both
+a stored absolute slope and a recomputed signed slope: **7 sign flips of 14 comparable metrics**.
+Two independent counts agree. Stored as `drift.n_sign_flips` and `drift.n_metrics_compared`.
+
+**3. The survey reliability coefficients. Two studies, not one number.**
+`results/accord/survey/second_coder_reliability.json` reports 0.783 / 0.737 / 1.0. That file is the
+**10-paper study C49 disqualified for having no rows on disk**, and it describes the retired 31-paper
+survey. The current figures come from the 19-paper blind recode with rows on disk, recomputed by
+script: **κ 0.855 on the permissive reading, 0.730 on null-attribute handling, and undefined on the
+strict decisive cell** where both coders returned the same value on all 19 papers. The old file is
+superseded and must not be cited.
+
+**Also added to the fact sheet**, closing gaps the agents flagged: the per-model over-calling ratios
+(pool **15.82 to 23.60**, gold **15.42 to 23.75**, zero unparseable responses across all three
+models), the anisotropy control at **0.9113** against matched clinical **0.9176**, and the
+recomputed exemplar strata. The fact sheet now carries **over 600 verified entries**.

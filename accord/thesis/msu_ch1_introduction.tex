@@ -1,0 +1,348 @@
+% ============================================================================
+%  Chapter 1. Introduction  (Morgan State MS format)
+%
+%  \input file. No preamble, no font, spacing or margin commands.
+%  Parent document supplies: 12pt report class, double spacing, Times,
+%  natbib (\citep), booktabs. Bibliography: accord/thesis/refs.bib
+%
+%  Every number in this chapter is keyed to results/accord/VERIFIED_FACTS.json.
+%  Nothing is carried over from an earlier draft without a key.
+%
+%  PENDING: the control-literature attributions in Section "Contributions" are
+%  written in prose because refs.bib does not yet carry the keys. Once the
+%  bibliography pass lands, wire in Lipsitch, Adebayo, Hewitt & Liang, Egami,
+%  Lourie, TESSERA, Pfohl, Fogliato, Biswas & Rajan and DeLong as \citep{}.
+% ============================================================================
+
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{A Patient Goes Home on a Medication That Was Held}
+\label{sec:intro-problem}
+
+A patient admitted for decompensated heart failure spends nine days on the
+service. On day four a nurse writes that the loop diuretic was held because the
+patient had become hypovolemic. On day nine the discharge summary lists that
+same diuretic among the medications to continue at the admission dose. Both
+documents are in the chart, both record what someone believed when they wrote
+it, and they disagree.
+
+The disagreement matters because the two documents do not have equal reach. The
+discharge summary is what the outpatient physician reads, what the pharmacy
+fills against, and what the patient's family is handed. The nursing note holding
+the reason the instruction is wrong is unlikely to travel with the patient. A
+contradiction of this kind is not a documentation defect that gets cleaned up
+later. It is an instruction that leaves the building.
+
+The scenario is not invented. Of the $12$ contradictions a board certified
+pharmacist confirmed in this project's annotated sample, $3$ involve a loop
+diuretic and $3$ involve an anticoagulant, $7$ are omissions rather than dose or
+class disagreements, and on a five point danger scale $1$ was rated $4$ and $3$
+were rated $5$. The category is small, and the members of it are the drugs where
+a wrong instruction does damage quickly.
+
+None of this is rare at the level of the health system. Unintended medication
+discrepancies are present in a large share of admissions
+\citep{cornish2005discrepancies} and of discharges
+\citep{wong2008reconciliation}. Adverse events in the weeks after discharge are
+common, frequently drug related, and frequently preventable
+\citep{forster2003adverse}. Errors traceable to discontinuity between inpatient
+and outpatient care affect a substantial fraction of discharged patients
+\citep{moore2003discontinuity}, and the information transfer that would prevent
+them is unreliable in both content and timing \citep{kripalani2007deficits}.
+Adverse drug events were established as a first order inpatient safety problem
+three decades ago \citep{bates1995ade}, and the transition of care component of
+that problem has not been solved since.
+
+This thesis takes one narrow, checkable instance as its object. A \emph{cross
+note medication contradiction} is a disagreement about a specific drug between a
+nursing progress note and the discharge summary of the same admission. The
+corpus is MIMIC-III \citep{johnson2016mimic}, accessed under PhysioNet
+credentialed use. No note text and no identifiers appear anywhere in this
+document, and every quantity reported is an aggregate.
+
+The phenomenon is real and it is rare. The pharmacist annotated $299$ candidate
+pairs and confirmed $12$, a base rate of $0.0401$ in a pool four hand written
+rules had already enriched. Restricting to the $253$ pairs the annotator did not
+mark ambiguous leaves the same $12$ positives, a base rate of $0.0474$. Those
+two denominators, $299$ and $253$, are different sets. They are kept apart
+everywhere in this thesis, because an earlier draft conflated them and inverted
+a central claim in the process. Rarity is not a nuisance parameter here. It is
+what breaks every stage of the pipeline described next.
+
+\section{The Pipeline the Field Would Build}
+\label{sec:intro-pipeline}
+
+Given a rare event, expensive expert labels, and a large corpus of paired notes,
+the standard construction is close to automatic. Mine candidates with cheap high
+recall rules, because exhaustive expert review of every cross note medication
+pair is infeasible. Label those candidates with an instruction tuned language
+model, because expert annotation does not scale and recent work reports such
+models matching or exceeding crowd annotators on many classification tasks
+\citep{gilardi2023chatgpt}. Distil the labels into a purpose built neural
+detector over a domain pretrained clinical encoder
+\citep{gu2021biomedbert,alsentzer2019clinicalbert}, with architectural
+components that encode the structure a generic natural language inference model
+lacks. Evaluate against the expert annotations and report.
+
+Each step has a literature behind it. Programmatic weak supervision is a mature
+line of work with a body of positive results
+\citep{ratner2016dataprogramming,ratner2017snorkel}, encoder models classify
+entailment between clinician authored sentence pairs at usable accuracy
+\citep{romanov2018mednli}, and domain pretraining is the default starting point
+for clinical text \citep{gu2021biomedbert}. The construction is defensible at
+every step, and this project executed it end to end.
+
+What the construction does not come with is a control at each stage. A candidate
+miner reports a precision without reporting whether the evidence attached to
+each candidate is the evidence that triggered it. A weak labeller reports an
+agreement rate without reporting its own marginal against a measured base rate.
+An architectural component reports an ablation delta without a version of itself
+that could not possibly work, run under the same conditions. An evaluation
+reports a null without a positive control establishing that the same instrument
+would have resolved an effect if one had been present. Each of these checks is
+old, cheap, and owned by someone else. None was run on this pipeline before this
+work.
+
+\section{The Finding}
+\label{sec:intro-finding}
+
+The pipeline does not work. This thesis establishes where it fails and why, by
+running at each stage the control that separates a real result from an artifact
+of the measurement. Every stage failed its control. The statement is made once,
+here, so that nothing later in the document reads as a reveal.
+
+The cleanest single expression of the failure is the detector's operating
+behavior after decontamination. On the $253$ non ambiguous pairs, which contain
+$12$ positives for a base rate of $0.0474$, the decontaminated detector at
+threshold $0.5$ has a precision of $0.0424$ with a standard deviation of
+$0.0023$ across three seeds, and a recall of $0.7778$ with a standard deviation
+of $0.0393$. Precision of $0.0424$ sits \emph{below} the pool's base rate of
+$0.0474$. The consequence is worth stating without softening: a pair that this
+detector flags is marginally \emph{less} likely to be a true contradiction than
+a pair drawn at random from the pool the detector was run on. The flag carries
+negative information. An earlier draft of this document reported the precision
+figure as though it were the base rate, which reversed the direction of the
+claim; the direction is settled here and does not change again.
+
+The confusion matrix makes the same point in counts. In the first seed the
+detector flagged $225$ of the $253$ pairs, $9$ of them correctly and $216$
+incorrectly, leaving $25$ true negatives and $3$ missed contradictions. Its
+Cohen $\kappa$ across seeds is $-0.0105$, and its expected calibration error is
+$0.8015$. This is not a weak detector with a threshold problem. It is a detector
+whose output is unrelated to the label.
+
+Ranking behavior agrees with operating behavior. Across three seeds on the same
+$253$ pairs the decontaminated ensemble AUROC is $0.5145$ with a Mann-Whitney
+$p$ of $0.867$, and the per seed mean is $0.5211$ with a standard deviation of
+$0.0201$. On the $299$ annotated pairs under subject disjoint splits the three
+seed mean AUROC is $0.4967$ with a standard deviation of $0.0350$, and a DeLong
+test between the seed ensemble and the single model returns $p = 0.930$. The
+score distributions overlap almost exactly: the $12$ positives have mean
+contradiction probability $0.4198$ and the $241$ negatives $0.4282$, with
+Mann-Whitney $p = 0.6418$, so the positives score marginally lower than the
+negatives. A TF-IDF logistic regression on the same $299$ pairs reaches AUROC
+$0.5761$ and average precision $0.1571$, above both neural configurations;
+whether that reflects surface form signal or small sample noise is not
+established here and is reported as found.
+
+A null on twelve positives invites one obvious reading, which is that the
+experiment was too small to see anything. The control that answers it is a
+positive control on the same instrument. Run on AG News with an identical
+training harness and an adjudication rule committed before the sweep, the
+pretraining benefit is $4.53$ accuracy points at $24$ epochs, with seed standard
+deviations at or below $0.0029$ and non overlapping bands. The same instrument
+on the clinical task returns a gap of $0.0031$, between a domain pretrained
+encoder at $0.7693 \pm 0.0102$ and a from scratch encoder at $0.7662 \pm
+0.0073$. Eight times the training budget bought the scratch arm $0.41$ points,
+so the arms were converged rather than starved. The instrument could see
+$4.53$ points. On this task it saw $0.0031$.
+
+That is what makes the nulls measurements rather than absences, and it is not
+the same as showing the task cannot be done. At $12$ positives and $241$
+negatives the minimum detectable AUROC at $80\%$ power and $\alpha = 0.05$ is
+$0.7382$. Any true effect below that is invisible to this design, and the thesis
+concedes it here rather than in a limitations section at the end.
+
+\section{Research Questions}
+\label{sec:intro-rqs}
+
+The project was organized around five questions: four about the stages of the
+pipeline and one about the field that publishes pipelines like it. Each is
+stated as it was posed, followed by the answer in one sentence. Evidence sits in
+Chapter~\ref{ch:results}; the control designed for each stage is specified in
+Chapter~\ref{ch:method} as a condition set before any result was seen.
+
+\begin{description}
+
+\item[RQ1. Candidate generation.] Can rule based mining over paired clinical
+notes yield a candidate pool with usable precision?
+\emph{No: four rules enrich the pool to $12$ true contradictions in $299$
+annotated pairs, a base rate of $0.0401$, and the mechanism selecting the
+evidence shown for each candidate was independent of the mechanism that flagged
+it, with the exemplar matching the trigger for only $0.586$ of the full
+candidate pool, which makes $0.0401$ an upper bound on the validity of the
+annotation exercise rather than a clean estimate of pool precision.}
+
+\item[RQ2. Weak supervision.] Can a language model weak labeller substitute for
+expert annotation at this base rate?
+\emph{No: the weak labeller assigned the contradiction class to $261$ of the
+$299$ annotated pairs against $12$ true positives, and the failure has a floor,
+since the strongest labeller tested still flagged $71$ of the $253$ non
+ambiguous pairs zero shot for $6$ true positives and $141$ pairs few shot for
+$7$.}
+
+\item[RQ3. Architecture.] Do the proposed architectural components contribute
+what they are credited with?
+\emph{No, and the controls fire positively rather than by absence of evidence:
+the authority parameters reported as learned finish at $0.5076 \pm 0.0006$ and
+$1.0038 \pm 0.0010$ against initialisation at $0.5$ and $1.0$, the harm head's
+outputs span $0.3977$ to $0.6096$, which is the range of an untrained sigmoid,
+and randomized substitutes for the components recover most of what the real
+components are credited with.}
+
+\item[RQ4. Evaluation.] Is the measured failure a property of the task or of the
+instruments used to measure it?
+\emph{Of the task as this pipeline poses it: three configurations sit at chance
+on the $253$ and $299$ pair evaluations, while the same instrument resolves
+$4.53$ points on a public benchmark, so the null is a measurement rather than a
+power failure, subject to the $0.7382$ minimum detectable AUROC at $12$
+positives.}
+
+\item[RQ5. Practice.] Does published work run the controls that would have
+caught these failures?
+\emph{Rarely: on a $75$ paper corpus deliberately enriched toward work that
+attends to selection, $4$ papers audit the selection step under the strict
+reading and $14$ under the permissive one, with both readings reported side by
+side and the gap between them named as a coding ambiguity rather than resolved
+in the flattering direction.}
+
+\end{description}
+
+RQ4 is the load bearing question. Without it, every negative result in this
+document reduces to a complaint about sample size. With it, the nulls are
+measurements with a stated resolution limit.
+
+\section{Contributions}
+\label{sec:intro-contributions}
+
+The methods applied in this thesis are not novel and the thesis does not claim
+them. Positive and negative controls come from epidemiology, where that
+literature is decades old. Randomization based sanity checks on learned
+components come from the saliency map literature. Control tasks for probing
+classifiers come from work that owns both the design and its conclusion. The
+prevalence dependence of agreement statistics was described thirty six years
+ago. Chapter~\ref{ch:lit} attributes each of these to the work that owns it, and
+this chapter's claim is about what they revealed when pointed at this pipeline.
+
+What is new is the measurement on this pipeline and the fact that the controls
+were actually run. Five contributions follow, each stated at the size the
+evidence supports.
+
+\begin{enumerate}
+
+\item \textbf{A measured null on clinical pretraining transfer, rather than an
+underpowered one.} The general result that pretraining loss is an unreliable
+proxy for downstream performance is settled elsewhere, and this project's $48$
+run sweep is a small replication of it rather than a discovery. What the sweep
+contributes is the positive control: the same harness resolves $4.53$ points on
+AG News at $24$ epochs with seed standard deviations at or below $0.0029$, and
+returns $0.0031$ on the clinical task, under an adjudication rule committed
+before the runs.
+
+\item \textbf{A reproducible anomaly in how pool level audits respond to
+upstream selection.} On one population with baseline disparity held fixed, two
+selection channels produce demographic parity drift slopes of opposite sign,
+$-0.0078$ under one regime and $+0.0118$ under the other, and a controlled
+simulator sweep inverts the mapping rather than reproducing it. No mechanism is
+offered. The anomaly is reported as unexplained in Chapter~\ref{ch:discussion},
+because five mechanism claims were proposed and refuted inside this project and
+a sixth is not being added.
+
+\item \textbf{A prevalence of practice measurement with released rows.} On $75$
+papers, $4$ audit the selection step under the strict reading and $14$ under the
+permissive one, across $225$ quoted fields verified against their sources. A
+blind second coder on $19$ overlapping papers gives $\kappa = 0.855$ at $0.9474$
+agreement on the permissive field and $\kappa = 0.730$ at $0.7895$ agreement on
+null attribute handling. On the strict field both coders returned the same value
+on all $19$ papers, so agreement is $1.0$ and $\kappa$ is \emph{undefined};
+Chapter~\ref{ch:results} reports it as undefined rather than as perfect.
+
+\item \textbf{Sign provenance: a quantity stored as a magnitude licenses no
+directional claim.} Every disparity gap in this project was persisted through an
+absolute value. Retrofitting signed storage reproduced every prior value exactly,
+with a maximum discrepancy of $0.0$, while reversing the sign of seven of the
+fourteen comparable drift slopes and changing directional readings that had
+already been written down. The rule transfers, and it has a demonstrated true
+positive against this project's own record.
+
+\item \textbf{What the controls cost.} Nobody reports this, so it is reported
+here. The logged control compute totals $661.4$ GPU minutes, of which the AG
+News positive control accounts for $34.9$ minutes over $12$ runs, the clinical
+pretraining comparison $612.3$ minutes over $17$ runs, and the two signed
+storage re-runs $0.7$ and $13.5$ minutes. The honest limitation is that person
+hours were never logged, so the cost claim is compute only.
+
+\end{enumerate}
+
+\section{What This Thesis Does Not Claim}
+\label{sec:intro-notclaim}
+
+This section sits in the introduction rather than only in the discussion,
+because a reader is entitled to know the boundaries of a negative result before
+reading the evidence for it.
+
+\textbf{It does not establish that the task is unsolvable.} With $12$ positives
+against $241$ negatives, the minimum detectable AUROC at $80\%$ power and
+$\alpha = 0.05$ is $0.7382$. A real effect of any size below that would not
+appear in these measurements. What is established is that \emph{this} pipeline
+does not solve the task, and that the instrument used to say so could have
+resolved a $4.53$ point effect where one existed.
+
+\textbf{It does not claim any of the controls as methods.} Positive controls,
+randomization checks, control tasks, degeneracy preconditions and the prevalence
+critique of agreement metrics all belong to prior work. Applying a thirty six
+year old critique is not the same as making it.
+
+\textbf{The survey is not a prevalence estimate for clinical machine learning.}
+The corpus is deliberately enriched, coverage is limited to open access sources,
+and a large number of screened in papers were never retrieved in full text. The
+$4$ of $75$ and $14$ of $75$ readings describe that corpus and nothing wider,
+and $\kappa$ on the strict cell is undefined rather than perfect.
+
+\textbf{No mechanism is claimed for the selection channel anomaly, and no
+subgroup harm is demonstrated anywhere in this work.} The anomaly is a stable,
+reproducible pattern with no explanation attached. Nothing here shows that any
+group was harmed by any system studied.
+
+\textbf{No rate is claimed from the project's own correction record.} That
+record is Appendix material and a demonstration, not a statistic. An attempt to
+compute an error rate from it was retracted, for reasons in the revision log,
+and is not reinstated. No claim is made that executable checks outperform prose
+checklists either; that comparison was retracted because the check in question
+had no recorded failure to compare against.
+
+\textbf{The over calling magnitude does not generalize.} The multiplier measured
+on this pool is a property of this pool's base rate. A parallel measurement on
+public text produced a far smaller one, so the mechanism transfers and the
+number does not.
+
+\textbf{The exemplar defect is not evidence that the measured base rate is
+wrong.} It is a methods finding about candidate generation pipelines, and its
+effect is to make $0.0401$ an upper bound on annotation validity rather than a
+figure to be revised upward or downward.
+
+\section{Organization of the Thesis}
+\label{sec:intro-structure}
+
+Chapter~\ref{ch:lit} reviews contradiction detection, clinical natural language
+inference, evaluation under class imbalance, and the control literature this
+thesis applies, with each control attributed to its source.
+Chapter~\ref{ch:method} builds the cohort, the mining rules, the gold standard
+and the detector, and states the control designed for each stage as a condition
+before any result appears. Chapter~\ref{ch:results} reports the five findings,
+the positive control and the survey, keeping the $299$ and $253$ denominators
+separate throughout. Chapter~\ref{ch:discussion} takes up what each control
+changed, the unexplained anomaly, sign provenance, and the threats to validity.
+Chapter~\ref{ch:conclusion} restates the findings and names the work that
+follows from the limitations.

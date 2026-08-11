@@ -41,8 +41,8 @@ Three properties make this defensible where the previous three framings were not
 ## 2. The research questions
 
 **RQ1 — Candidate generation.** Can rule-based mining over paired clinical notes yield a candidate
-pool with usable precision? *Answer: no. 4.7% base rate, and 41.4% of candidates were justified by
-the wrong sentence.*
+pool with usable precision? *Answer: no. The pool base rate is 0.0474 on the 253 non-ambiguous pairs, and of the rule 1 and
+2 candidates whose exemplar could be resolved, 65 of 137 were justified by the wrong sentence.*
 
 **RQ2 — Weak supervision.** Can an LLM weak labeller substitute for expert annotation at this base
 rate? *Answer: no, and the failure has a floor. 15.8–23.6× over-calling across three local 8B
@@ -100,7 +100,7 @@ Every substantive section follows one shape, and the shape is the thesis:
 | 1 | **The problem and the failure** | Clinical motivation, the four RQs, the headline stated once and correctly, the diagnostic shape | 300 | rewrite **last** |
 | 2 | **Background** | Contradiction detection, clinical NLP evaluation, class imbalance, and the control literature this thesis *applies* — Lipsitch, Adebayo, Hewitt & Liang, Feinstein & Cicchetti, Egami, Lourie, TESSERA | 380 | retrim + ~80 new |
 | 3 | **The pipeline and the cohort** | MIMIC-III, ICD-9 extraction, the 3-role→2-role retreat, four mining rules, gold standard, subject-disjoint splits, hygiene. **Zero evaluative claims** | 430 | merge ch3+ch4 |
-| 4 | **RQ1 — candidate generation** | Per-rule precision; the `.iloc[0]` exemplar defect (41.4%, E5's measured 65 of 137); the rebuild; why the 4% precision is an upper bound on annotation validity | 380 | reorganize |
+| 4 | **RQ1 — candidate generation** | Per-rule precision; the `.iloc[0]` exemplar defect (**65 wrong of 137 resolved, 0.4745**; 28 unresolved. The 41.4% figure previously carried here is untraceable, see REVISION_LOG R8); the rebuild; why the 4% precision is an upper bound on annotation validity | 380 | reorganize |
 | 5 | **RQ2 — weak supervision** | 15.8–23.6× over-calling, `weak_confidence` a deterministic function of the label, GPT-4o at 7.0× establishing a ≥7× floor; **C42's public-text control: max 3.5×, so the magnitude is task-specific and the mechanism generalizes (C43)** | 380 | reorganize + C42/C43 |
 | 6 | **RQ3 — architecture under control** | The three falsifications (authority-weight init artifact, rule-head leakage 0.9603→0.0654/0.0595, symmetric ACNE beating full); the anisotropy control (0.9113 vs 0.9176) refuting its target **positively**; the provenance encoder's 7-arm comparison as the same instrument in a second system | 430 | merge ch6 + `DESIGN.md` §6c–6d |
 | 7 | **RQ4 — is the null real?** | Three configurations at chance (0.5145 [0.321,0.703]; subject-disjoint 0.497±0.035; DeLong p=0.930); TF-IDF at 0.576 beating both neural models; MDE 0.7382 at 12 positives; **the positive control: 4.53 points on AG News at 24 epochs, SD ≤0.003, pre-registered rule, versus +0.0031 (p=0.690) clinically** | 400 | **write new** |
