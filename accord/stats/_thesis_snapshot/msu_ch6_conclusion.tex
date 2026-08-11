@@ -1,0 +1,305 @@
+% ============================================================================
+%  Chapter 6. Summary and Conclusion  (Morgan State MS format)
+%
+%  \input file. No preamble, no font, spacing or margin commands.
+%  Parent document supplies: 12pt report class, double spacing, Times, natbib.
+%  Bibliography: accord/thesis/refs.bib
+%
+%  Every number restated here is derived in Chapters 3 to 5 and keyed to
+%  results/accord/VERIFIED_FACTS.json. No new claim and no new number.
+%
+%  Citations here are attribution only: each borrowed control is named against
+%  its owner at least once, because the frame depends on the borrowing being
+%  explicit. No citation supports a finding of this thesis.
+%
+%  Figure: fig:exemplar in Section "Things to Check If You Are Building This",
+%  where it illustrates the check rather than a result.
+% ============================================================================
+
+\chapter{Summary and Conclusion}
+\label{ch:conclusion}
+
+\section{What Was Asked}
+\label{sec:conc-asked}
+
+A nursing note records that a loop diuretic was held because the patient had
+become hypovolemic. The discharge summary written five days later instructs that
+the same drug be continued at the admission dose. Only one of those documents
+leaves the hospital with the patient, and it is not the one containing the
+reason the instruction is wrong.
+
+This thesis asked whether that disagreement can be detected automatically from
+paired clinical notes in MIMIC-III \citep{johnson2016mimic}, and built the
+pipeline the field would naturally build to
+answer it: rule based candidate mining, language model weak supervision, and a
+purpose built neural detector over a domain pretrained clinical encoder. Five
+questions were posed, four about the stages and one about the field that
+publishes pipelines like this one. Every stage failed a control.
+
+\section{What Was Found}
+\label{sec:conc-found}
+
+\textbf{RQ1, candidate generation.} Four hand written rules enrich the candidate
+space to $12$ confirmed contradictions in $299$ pharmacist annotated pairs, a
+base rate of $0.0401$. That is a real enrichment over an unfiltered background
+rate orders of magnitude lower, and it is nowhere near usable precision. The
+finding that matters more than the rate is the exemplar defect: the mechanism
+choosing which sentence pair to display was independent of the mechanism
+deciding the candidate was a conflict, and across the full candidate pool the
+displayed exemplar did not exhibit the conflict for $65$ of the $137$ resolved candidates. The
+annotator, the weak labeller and the model all reasoned about that evidence,
+which makes $0.0401$ an upper bound on annotation validity rather than a clean
+estimate of pool precision. Of the $165$ rows from the two rules capable of
+exhibiting the defect, $28$ could not be resolved against the recomputed
+matched-mention frame at all, so the wrong rate of $0.4745$ is measured on the
+$137$ rows that could be checked, not on the full pool.
+
+Comparing exposed and unexposed strata does not settle it either. Rules 1 and 2
+account for $165$ pairs with $6$ positives, a rate of $0.0364$; rules 3 and 4
+account for $134$ pairs with $6$ positives, a rate of $0.0448$. Fisher exact
+gives an odds ratio of $0.805$ at $p = 0.7725$, achieved power at that observed
+effect is $0.0576$, and the smallest absolute rate difference detectable at
+$80\%$ power is $0.0895$, more than twice the overall base rate. The strata are
+indistinguishable at this sample size, which is not the same as equal.
+
+\textbf{RQ2, weak supervision.} The weak labeller assigned the contradiction
+class to $261$ of the $299$ annotated pairs, against $12$ true positives in the
+same set. The detector distilled from those labels predicts contradiction for
+$278$ of the $299$. A labeller positive on the large majority of a pool whose
+true positive rate is $0.0401$ carries almost no information about which pairs
+are contradictions, and the student inherited the marginal rather than the
+judgment. Neither of the two standard corrections was available: the adjusted
+count that would fix a biased prevalence estimate needs the labeller's error
+rates on the same distribution \citep{forman2008quantifying}, and the
+doubly robust correction for surrogate label bias needs a gold-labelled
+subsample \citep{egami2023surrogates}, which is the resource the workflow
+existed to avoid spending. The failure has a floor: the strongest labeller tested, on the $253$
+non ambiguous pairs, flagged $71$ zero shot and was right about $6$, and flagged
+$141$ few shot and was right about $7$. Better prompting moves the multiplier
+without removing it, and the magnitude belongs to this pool's base rate rather
+than transferring.
+
+\textbf{RQ3, architecture.} None of the proposed components contributes what it
+was credited with, and the controls establish this positively rather than by
+absence of evidence. The authority parameters reported as learned finish at
+$0.5076 \pm 0.0006$ and $1.0038 \pm 0.0010$ across seeds, against initialisation
+at exactly $0.5$ and $1.0$; a parameter agreeing to three decimals across
+independent seeds, within one percent of where it started, was not discovered by
+training. The harm head emits scores spanning $0.3977$ to $0.6096$, the range of
+an untrained sigmoid, and its Spearman correlation with the pharmacist's danger
+rating over the $299$ pairs is $-0.0001$ at $p = 0.9991$. That null measures an
+untrained module and says nothing about whether clinical severity is
+predictable. Randomized substitutes for the remaining components recover most of
+what the real components are credited with, which is the condition under which
+an ablation delta stops being evidence about a component. The substitution is
+the randomisation sanity check \citep{adebayo2018sanity} and the control task
+\citep{hewitt2019control}, applied without modification to a different kind of
+component; neither design is claimed here.
+
+\textbf{RQ4, evaluation.} Three configurations sit at chance. On the $253$ non
+ambiguous pairs with $12$ positives, the decontaminated three seed ensemble
+reaches AUROC $0.5145$ with Mann-Whitney $p = 0.867$, and the per seed mean is
+$0.5211 \pm 0.0201$. On the $299$ annotated pairs with the same $12$ positives,
+under subject disjoint splits, the three seed mean AUROC is $0.4967 \pm 0.0350$,
+and a DeLong test between the seed ensemble and the single model, which is the
+correlated comparison the two share their cases with
+\citep{delong1988comparing}, gives $p = 0.930$. The score distributions overlap: positives average $0.4198$ and
+negatives $0.4282$, with Mann-Whitney $p = 0.6418$, so the positives score
+marginally lower. A TF-IDF logistic regression on the same $299$ pairs reaches
+AUROC $0.5761$ and average precision $0.1571$, above both neural
+configurations, and whether that is surface form signal or small sample noise is
+not established.
+
+At the operating threshold the same conclusion appears as a cost, and the
+direction of it is forced by where the detector sits rather than a separate
+finding. On the $253$ pair core the decontaminated detector flags
+$216 + 9 = 225$ pairs, predicting positive for nearly the whole pool; $9$ are
+correct, $216$ wrong, $25$ true negatives and $3$ missed. Its ranking is at
+chance: Cohen $\kappa$ across seeds is $-0.0105$, expected calibration error is
+$0.8015$, and the ensemble AUROC's bootstrap interval is $[0.3210, 0.7034]$.
+One consequence of that operating point is that precision, $0.0424 \pm 0.0023$,
+sits below the pool base rate of $0.0474$ while recall is
+$0.7778 \pm 0.0393$; the margin, $0.0424 + 0.0050 = 0.0474$, is smaller than
+the binomial standard error on $12$ of $253$ pairs, $0.0134$
+(\texttt{stats.binomial\_se\_12\_of\_253}), so it is read as an illustration of
+the operating point rather than as evidence on its own.
+
+\textbf{RQ5, practice.} On a $75$ paper corpus deliberately enriched toward work
+that attends to selection, $4$ papers audit the selection step under the strict
+reading and $14$ under the permissive one, across $225$ quoted fields verified
+against their sources. A blind second coder on $19$ overlapping papers gives
+$\kappa = 0.855$ at $0.9474$ agreement on the permissive field and
+$\kappa = 0.730$ at $0.7895$ on null attribute handling. On the strict field
+both coders returned the same value on all $19$ papers, so agreement is $1.0$
+and $\kappa$ is undefined; it is reported as undefined, not as perfect. The
+enrichment runs against the finding: a corpus over sampling careful work still
+yields $4$ of $75$. The check being counted is not an unreasonable one to ask
+for. Stage level auditing has been demonstrated for fairness in tabular
+preprocessing pipelines \citep{biswas2021fairpreprocessing}, and the reason a
+selection step needs auditing before its outputs are interpreted has been argued
+directly \citep{pfohl2025disaggregated}.
+
+\section{What the Controls Changed}
+\label{sec:conc-controls}
+
+Without controls, everything above reads as a small underpowered study that
+found nothing. The controls convert the same results into measurements with a
+stated resolution.
+
+The positive control carries the most weight. The device is the one
+observational epidemiology formalised decades ago
+\citep{lipsitch2010negative}: run the analysis where the answer is known, and
+read the result as a statement about the instrument. Run on AG News with the
+identical training harness and an adjudication rule committed before any run,
+the
+pretraining benefit is $4.53$ accuracy points at $24$ epochs, with seed standard
+deviations at or below $0.0029$ and non overlapping bands. The same instrument
+on the clinical task returns $0.0031$, between $0.7693 \pm 0.0102$ and
+$0.7662 \pm 0.0073$. Eight times the training budget bought the scratch arm
+$0.41$ points, so the arms were converged rather than starved. An instrument
+that resolves $4.53$ points and returns $0.0031$ is reporting a null, not
+failing to look. The general proposition that a pretraining objective predicts
+downstream utility poorly is not established here; it is established elsewhere
+and at a scale this project cannot approach
+\citep{lourie2025scaling,feng2026tessera}. The sweep is a control, not a
+contribution.
+
+The decontamination control changed the headline. Excluding the evaluation
+identifiers at load time moved AUROC on the same $253$ pairs from $0.4595$ to an
+ensemble $0.5145$, from one side of chance to the other and nowhere useful in
+either direction. The value of the control is not that change. It is that the
+number reported before it was contaminated, and nothing in the metrics said so.
+
+The sign provenance control changed no value and several conclusions.
+Retrofitting signed storage for quantities persisted through an absolute value
+reproduced every prior figure exactly, maximum discrepancy $0.0$, while
+reversing seven of the fourteen comparable drift slopes. The demographic parity
+slope is $-0.0078$ signed under one selection regime and $+0.0118$ under the
+other, and both invert when stored as magnitudes. A quantity stored as a
+magnitude licenses no directional claim.
+
+The randomization controls changed the sign of the architecture argument. An
+ablation that removes a component and observes a drop is consistent with the
+component working and equally consistent with it absorbing capacity. A
+randomized counterpart performing comparably is not consistent with it working.
+Chapter~\ref{ch:results} reports the latter, which is why RQ3 is answered
+negatively rather than left open.
+
+The controls were cheap. Logged control compute totals $661.4$ GPU minutes: AG
+News $34.9$ minutes over $12$ runs, the clinical comparison $612.3$ minutes over
+$17$ runs, and the two signed storage re-runs $0.7$ and $13.5$ minutes. Person
+hours were never logged, so this is a compute only claim.
+
+\section{Things to Check If You Are Building This}
+\label{sec:conc-practice}
+
+None of what follows is a prescription; this thesis is in a weak position to
+issue any. These are the checks that, had they been run when they were
+available, would each have changed what was reported here.
+
+Check that the evidence a candidate is displayed with is the evidence that
+triggered it. Figure~\ref{fig:exemplar} shows the failure mode in the abstract:
+a rule that quantifies over a set of medication mentions, an exemplar selector
+that indexes into that set positionally, and nothing in between forcing the two
+to agree. The check is an assertion over two data structures, and at $65$ wrong of $137$
+agreement across the pool it is the check that would have caught the largest
+upstream defect in this project before any annotation was commissioned.
+
+\begin{figure}[H]
+\caption{The check that was not run, drawn as a schematic. The rule fires on a
+conflict between two sets of medication mentions; the exemplar shown to the
+annotator, the weak labeller and the model is chosen by position instead. Slots
+are abstract and no clinical text appears.}
+\label{fig:exemplar}
+\includegraphics[width=0.9\linewidth]{figures/fig-exemplar.pdf}
+\end{figure}
+
+Estimate the base rate on a human labelled sample before generating weak labels,
+and print the labeller's marginal beside it. A labeller positive on $261$ of
+$299$ pairs against a base rate of $0.0401$ is diagnosable in one line when the
+labels are produced, not after a detector has been trained on them, and the
+dependence of agreement statistics on the marginals has been documented since
+1990 \citep{feinstein1990paradoxes,byrt1993pabak}.
+
+Report precision against the base rate of the pool the system ran on, with the
+denominator stated, and prefer a coefficient that uses all four confusion matrix
+cells when the classes are this skewed \citep{chicco2020mcc}. Precision of
+$0.0424$ is a different object depending on
+whether the pool's base rate is $0.005$ or $0.0474$, and here it is the latter.
+At an operating point where the detector flags nearly the whole pool, precision
+falling below base rate follows from the arithmetic of that operating point and
+should be read beside kappa and the ranking metrics, not asserted alone.
+
+Run a randomized counterpart of any component reported as learned, under the
+same training conditions, and log the distance a learned parameter moved from
+its initialisation. A parameter that finishes at $0.5076$ from a start of $0.5$,
+agreeing to three decimals across seeds, is reporting its initialisation.
+
+Run a positive control on the instrument before reporting a null from it, and
+report achieved power alongside any comparison that returns no difference. The
+positive control here cost $34.9$ minutes over $12$ runs, and the strata
+comparison has $p = 0.7725$ at achieved power $0.0576$, where the first number
+without the second reads as evidence of no effect.
+
+Keep the denominators separate and state them with every metric. The $299$
+annotated pairs and the $253$ non ambiguous pairs are different sets, and
+conflating them in this project inverted a central claim that then survived
+several rounds of internal review.
+
+\section{Future Work}
+\label{sec:conc-future}
+
+Three pieces of work follow directly from the limitations, and they are named as
+work rather than as hedges.
+
+\textbf{Re-annotate against corrected exemplars.} The base rate of $0.0401$ is
+an upper bound on annotation validity because the exemplar matched the trigger
+for $72$ of the $137$ resolved candidates, and the join that would measure the defect on the
+annotated sample recovers only $35$ of $299$ rows. Rebuilding the selector so
+the displayed pair is the pair that fired the rule, then re-annotating the same
+candidate identifiers, would establish how much of the measured base rate is
+real. The rules and the pool exist and the defect is located, so this is bounded
+work.
+
+\textbf{Assemble a cohort with more positives.} Every interval here rests on
+$12$ positives. The minimum detectable AUROC at that count is $0.7382$ at
+$80\%$ power and $\alpha = 0.05$, and the smallest stratum difference the
+exemplar comparison could detect is $0.0895$ in absolute rate. A cohort large
+enough to resolve effects where a useful clinical system would operate is the
+single change that would most alter what can be concluded, and it means
+annotation budget rather than modelling effort.
+
+\textbf{Explain the selection channel anomaly.} Two selection channels on one
+population with baseline disparity held fixed produce demographic parity drift
+slopes of opposite sign, $-0.0078$ and $+0.0118$, and a controlled simulator
+sweep inverts rather than reproduces the mapping. The pattern is stable and
+reproducible and has no explanation. Five candidate mechanisms were proposed and
+refuted inside this project; the sixth is left to work that can hold more of the
+generating process fixed than this design allows.
+
+\section{Closing}
+\label{sec:conc-closing}
+
+Dangerous medication contradictions between nursing notes and discharge
+summaries are real, recurring, and worth detecting. The pipeline the field would
+naturally build for them does not detect them. Rule based mining produces a pool
+at $0.0401$, with $65$ of $137$ resolved candidates carrying the wrong exemplar,
+weak supervision produces a labeller positive on $261$ of $299$ pairs against
+$12$ true positives, the architectural components report their initialisations
+and lose to their own randomized substitutes, and the detector sits at chance on
+both evaluations while operating at precision $0.0424$ below a base rate of
+$0.0474$.
+
+None of that establishes that the task cannot be done. At $12$ positives the
+design cannot see an effect below AUROC $0.7382$, and the thesis says so in its
+introduction as well as here. What it establishes is narrower and more useful:
+each failure has a located mechanism, and each was separated from measurement
+artifact by a control that fired.
+
+A negative result that has been diagnosed is worth more than one that has not.
+The difference between the two, in this project, was a set of controls that
+belong to other people's papers
+\citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,egami2023surrogates,feinstein1990paradoxes},
+cost $661.4$ GPU minutes in total, and had not
+been run on this pipeline before this work. That is the contribution, and it is
+offered so the next attempt starts further along than this one did.

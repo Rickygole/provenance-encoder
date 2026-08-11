@@ -144,28 +144,49 @@ here, so that nothing later in the document reads as a reveal.
 The cleanest single expression of the failure is the detector's operating
 behavior after decontamination. On the $253$ non ambiguous pairs, which contain
 $12$ positives for a base rate of $0.0474$, the decontaminated detector at
-threshold $0.5$ has a precision of $0.0424$ with a standard deviation of
-$0.0023$ across three seeds, and a recall of $0.7778$ with a standard deviation
-of $0.0393$. Precision of $0.0424$ sits \emph{below} the pool's base rate of
-$0.0474$. The consequence is worth stating without softening: a pair that this
-detector flags is marginally \emph{less} likely to be a true contradiction than
-a pair drawn at random from the pool the detector was run on. The flag carries
-negative information. An earlier draft of this document reported the precision
-figure as though it were the base rate, which reversed the direction of the
-claim; the direction is settled here and does not change again.
+threshold $0.5$ predicts positive for almost the entire pool: in the first seed
+it flags $216 + 9 = 225$ of the $253$ pairs, $9$ correctly and $216$
+incorrectly, leaving only $25$ true negatives and $3$ missed contradictions.
+Its ranking is at chance rather than merely inaccurate. Cohen $\kappa$ across
+three seeds is $-0.0105$, expected calibration error is $0.8015$, and the
+three-seed ensemble AUROC on the same $253$ pairs is $0.5145$ with a $95\%$
+bootstrap interval of $[0.3210, 0.7034]$, an interval built around a point
+estimate barely above chance and wide enough to sit on either side of it. A
+detector that clears nearly nine in ten pairs in the pool and whose ranking
+interval straddles $0.5$ this widely is not weak in the sense of a threshold
+chosen badly. Its output carries no information the label distribution did not
+already contain.
 
-The confusion matrix makes the same point in counts. In the first seed the
-detector flagged $225$ of the $253$ pairs, $9$ of them correctly and $216$
-incorrectly, leaving $25$ true negatives and $3$ missed contradictions. Its
-Cohen $\kappa$ across seeds is $-0.0105$, and its expected calibration error is
-$0.8015$. This is not a weak detector with a threshold problem. It is a detector
-whose output is unrelated to the label.
+One consequence of that operating point is worth stating precisely, because an
+earlier draft of this document over-read it. Precision is $0.0424$ with a
+standard deviation of $0.0023$ across three seeds and recall is $0.7778$ with a
+standard deviation of $0.0393$; precision of $0.0424$ sits below the pool's
+base rate of $0.0474$
+(\texttt{precision\_below\_base\_rate}). That direction is forced by the
+operating point rather than evidence of a mechanism working against the label:
+a detector that predicts positive for most of a pool has precision below base
+rate exactly when its recall is below its own predicted-positive rate, and here
+recall of $0.7778$ sits below a predicted-positive rate of $216 + 9 = 225$ of
+$253$ pairs. The margin between precision and base rate,
+$0.0424 + 0.0050 = 0.0474$, is smaller than either source of noise measured on
+these same $253$ pairs: the seed standard deviation on precision alone is
+$0.0023$, and the binomial standard error on $12$ positives in $253$ pairs is
+$0.0134$ (\texttt{stats.binomial\_se\_12\_of\_253}), more than double the
+margin itself. This thesis declines a similar directional read later in this
+chapter, where four Matthews correlation values are left unranked because their
+bootstrap intervals overlap; a margin smaller than one of its own component
+standard errors does not clear that same bar. The precision comparison is read
+here as an illustration of the operating point just described, not as the
+thesis's headline finding.
 
 Ranking behavior agrees with operating behavior. Across three seeds on the same
 $253$ pairs the decontaminated ensemble AUROC is $0.5145$ with a Mann-Whitney
 $p$ of $0.867$, and the per seed mean is $0.5211$ with a standard deviation of
-$0.0201$. On the $299$ annotated pairs under subject disjoint splits the three
-seed mean AUROC is $0.4967$ with a standard deviation of $0.0350$, and a DeLong
+$0.0201$, computed at $\mathrm{ddof} = 0$. On the $299$ annotated pairs under
+subject disjoint splits the three
+seed mean AUROC is $0.4967$ with a standard deviation of $0.0350$, computed at
+$\mathrm{ddof} = 1$, a different convention, so the two spreads are not
+compared against each other (Chapter~\ref{ch:method}). A DeLong
 test between the seed ensemble and the single model
 \citep{delong1988comparing} returns $p = 0.930$. The
 score distributions overlap almost exactly: the $12$ positives have mean
@@ -225,7 +246,7 @@ notes yield a candidate pool with usable precision?
 \emph{No: four rules enrich the pool to $12$ true contradictions in $299$
 annotated pairs, a base rate of $0.0401$, and the mechanism selecting the
 evidence shown for each candidate was independent of the mechanism that flagged
-it, with the exemplar matching the trigger for only $0.586$ of the full
+it: of the action-conflict candidates whose exemplar could be resolved, $65$ of $137$
 candidate pool, which makes $0.0401$ an upper bound on the validity of the
 annotation exercise rather than a clean estimate of pool precision.}
 
@@ -243,8 +264,10 @@ what they are credited with?
 the authority parameters reported as learned finish at $0.5076 \pm 0.0006$ and
 $1.0038 \pm 0.0010$ against initialisation at $0.5$ and $1.0$, the harm head's
 outputs span $0.3977$ to $0.6096$, which is the range of an untrained sigmoid,
-and randomized substitutes for the components recover most of what the real
-components are credited with.}
+and on a second system built for this analysis, a randomised control over the
+same role-label alphabet loses to true role labels by $0.3277$ nats, while an
+arbitrary positional ordinal, a different feature rather than a randomised
+version of the same one, beats both.}
 
 \item[RQ4. Evaluation.] Is the measured failure a property of the task or of the
 instruments used to measure it?

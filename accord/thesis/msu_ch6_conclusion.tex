@@ -46,14 +46,13 @@ rate orders of magnitude lower, and it is nowhere near usable precision. The
 finding that matters more than the rate is the exemplar defect: the mechanism
 choosing which sentence pair to display was independent of the mechanism
 deciding the candidate was a conflict, and across the full candidate pool the
-displayed exemplar matched the trigger for only $0.586$ of candidates. The
+displayed exemplar did not exhibit the conflict for $65$ of the $137$ resolved candidates. The
 annotator, the weak labeller and the model all reasoned about that evidence,
 which makes $0.0401$ an upper bound on annotation validity rather than a clean
-estimate of pool precision. The defect rate cannot be recovered on the annotated
-sample itself: rebuilding the candidate table matched only $35$ of the $299$
-audited rows, a match rate of $0.1171$, and of the $165$ rows from the two rules
-capable of exhibiting the defect, $142$ are unresolved and the $23$ that resolve
-are all correct.
+estimate of pool precision. Of the $165$ rows from the two rules capable of
+exhibiting the defect, $28$ could not be resolved against the recomputed
+matched-mention frame at all, so the wrong rate of $0.4745$ is measured on the
+$137$ rows that could be checked, not on the full pool.
 
 Comparing exposed and unexposed strata does not settle it either. Rules 1 and 2
 account for $165$ pairs with $6$ positives, a rate of $0.0364$; rules 3 and 4
@@ -90,9 +89,12 @@ training. The harm head emits scores spanning $0.3977$ to $0.6096$, the range of
 an untrained sigmoid, and its Spearman correlation with the pharmacist's danger
 rating over the $299$ pairs is $-0.0001$ at $p = 0.9991$. That null measures an
 untrained module and says nothing about whether clinical severity is
-predictable. Randomized substitutes for the remaining components recover most of
-what the real components are credited with, which is the condition under which
-an ablation delta stops being evidence about a component. The substitution is
+predictable. On a second system, a provenance-conditioned encoder built for this
+analysis and not the clinical detector above, a randomised control over the same
+role-label alphabet loses to true role labels by $0.3277$ nats, while an
+arbitrary positional ordinal, a different feature rather than a randomised
+version of the same one, beats both: role semantics carry something real, and a
+provenance-free position carries more. The comparison is
 the randomisation sanity check \citep{adebayo2018sanity} and the control task
 \citep{hewitt2019control}, applied without modification to a different kind of
 component; neither design is claimed here.
@@ -111,14 +113,19 @@ AUROC $0.5761$ and average precision $0.1571$, above both neural
 configurations, and whether that is surface form signal or small sample noise is
 not established.
 
-At the operating threshold the same conclusion appears as a cost. On the $253$
-pair core the decontaminated detector's precision is $0.0424 \pm 0.0023$ and its
-recall $0.7778 \pm 0.0393$, against a pool base rate of $0.0474$. Precision
-below base rate means a flagged pair is marginally \emph{less} likely to be a
-true contradiction than a pair drawn at random from the pool the detector
-filtered. In the first seed that is $225$ pairs flagged, $9$ correct, $216$
-wrong, $25$ true negatives and $3$ missed. Cohen $\kappa$ across seeds is
-$-0.0105$ and expected calibration error is $0.8015$.
+At the operating threshold the same conclusion appears as a cost, and the
+direction of it is forced by where the detector sits rather than a separate
+finding. On the $253$ pair core the decontaminated detector flags
+$216 + 9 = 225$ pairs, predicting positive for nearly the whole pool; $9$ are
+correct, $216$ wrong, $25$ true negatives and $3$ missed. Its ranking is at
+chance: Cohen $\kappa$ across seeds is $-0.0105$, expected calibration error is
+$0.8015$, and the ensemble AUROC's bootstrap interval is $[0.3210, 0.7034]$.
+One consequence of that operating point is that precision, $0.0424 \pm 0.0023$,
+sits below the pool base rate of $0.0474$ while recall is
+$0.7778 \pm 0.0393$; the margin, $0.0424 + 0.0050 = 0.0474$, is smaller than
+the binomial standard error on $12$ of $253$ pairs, $0.0134$
+(\texttt{stats.binomial\_se\_12\_of\_253}), so it is read as an illustration of
+the operating point rather than as evidence on its own.
 
 \textbf{RQ5, practice.} On a $75$ paper corpus deliberately enriched toward work
 that attends to selection, $4$ papers audit the selection step under the strict
@@ -197,7 +204,7 @@ Check that the evidence a candidate is displayed with is the evidence that
 triggered it. Figure~\ref{fig:exemplar} shows the failure mode in the abstract:
 a rule that quantifies over a set of medication mentions, an exemplar selector
 that indexes into that set positionally, and nothing in between forcing the two
-to agree. The check is an assertion over two data structures, and at $0.586$
+to agree. The check is an assertion over two data structures, and at $65$ wrong of $137$
 agreement across the pool it is the check that would have caught the largest
 upstream defect in this project before any annotation was commissioned.
 
@@ -221,8 +228,10 @@ Report precision against the base rate of the pool the system ran on, with the
 denominator stated, and prefer a coefficient that uses all four confusion matrix
 cells when the classes are this skewed \citep{chicco2020mcc}. Precision of
 $0.0424$ is a different object depending on
-whether the pool's base rate is $0.005$ or $0.0474$, and here it is the latter,
-which makes the flag worse than no flag.
+whether the pool's base rate is $0.005$ or $0.0474$, and here it is the latter.
+At an operating point where the detector flags nearly the whole pool, precision
+falling below base rate follows from the arithmetic of that operating point and
+should be read beside kappa and the ranking metrics, not asserted alone.
 
 Run a randomized counterpart of any component reported as learned, under the
 same training conditions, and log the distance a learned parameter moved from
@@ -248,7 +257,7 @@ work rather than as hedges.
 
 \textbf{Re-annotate against corrected exemplars.} The base rate of $0.0401$ is
 an upper bound on annotation validity because the exemplar matched the trigger
-for only $0.586$ of the pool, and the join that would measure the defect on the
+for $72$ of the $137$ resolved candidates, and the join that would measure the defect on the
 annotated sample recovers only $35$ of $299$ rows. Rebuilding the selector so
 the displayed pair is the pair that fired the rule, then re-annotating the same
 candidate identifiers, would establish how much of the measured base rate is
@@ -277,12 +286,13 @@ generating process fixed than this design allows.
 Dangerous medication contradictions between nursing notes and discharge
 summaries are real, recurring, and worth detecting. The pipeline the field would
 naturally build for them does not detect them. Rule based mining produces a pool
-at $0.0401$ with the exemplar matching the trigger for $0.586$ of candidates,
+at $0.0401$, with $65$ of $137$ resolved candidates carrying the wrong exemplar,
 weak supervision produces a labeller positive on $261$ of $299$ pairs against
-$12$ true positives, the architectural components report their initialisations
-and lose to their own randomized substitutes, and the detector sits at chance on
-both evaluations while operating at precision $0.0424$ below a base rate of
-$0.0474$.
+$12$ true positives, the architectural components report their initialisations,
+a second system shows a provenance-free position beating both true role
+semantics and a randomised control drawn from the same label alphabet, and the
+detector sits at chance on both evaluations while operating at precision
+$0.0424$ below a base rate of $0.0474$.
 
 None of that establishes that the task cannot be done. At $12$ positives the
 design cannot see an effect below AUROC $0.7382$, and the thesis says so in its
