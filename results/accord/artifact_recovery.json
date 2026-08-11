@@ -1,0 +1,695 @@
+{
+  "_meta": {
+    "task": "Recovery of missing quantitative artifacts for thesis Groups 1-5",
+    "generated": "2026-08-11",
+    "rule": "FOUND requires that the value was read out of a stored result file. Markdown, LaTeX, correction notes and code comments do not count as artifacts.",
+    "locations_searched": [
+      "/Users/rickygole/provenance-encoder (all trees, incl. results/, accord/, scripts/, src/)",
+      "/Users/rickygole/mimic_local_only (PhysioNet quarantine; read-only; incl. runs/, accord*/, from_drive_2026-08-08/)",
+      "/Users/rickygole/provenance-encoder/local_only (symlink to the quarantine)",
+      "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis (outputs/, results_2026-08/, code_2026-08/, analysis_2026-08/, draft_2026-08/, figures_2026-08/, msu_draft_2026-08-11/)",
+      "/Users/rickygole/Downloads",
+      "git history: git log --all --diff-filter=D --name-only (no deleted files in history; single-commit-lineage repo)"
+    ],
+    "compliance": "MIMIC-III quarantine was read for aggregate statistics only. This file contains no clinical note text and no patient or admission identifiers of any kind.",
+    "verdict_counts": {
+      "FOUND": 27,
+      "PARTIAL": 2,
+      "ABSENT": 6,
+      "TOTAL": 35
+    },
+    "key_correction": "Two earlier audits searched only the repository and declared the cohort chain and the seven-arm ablation untraceable. Both are fully backed by artifacts: the cohort/extraction/mining chain lives in the PhysioNet quarantine and on Google Drive, and the seven-arm ablation is in results/pretraining_runs.json inside the repository itself."
+  },
+
+  "group_1_cohort_chain": [
+    {
+      "name": "hf_admissions_matching_icd9_428",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/mimic_local_only/accord/phase1_summary.json",
+      "key_path": "hf_admissions_icd_only",
+      "value": 13608,
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/provenance-encoder/results/accord/stats/cohort_icd_counts.json",
+          "key_path": "heart_failure.pre_los",
+          "value": 13608
+        },
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/cohort_summary.json",
+          "key_path": "heart_failure_admissions",
+          "value": 13608
+        }
+      ]
+    },
+    {
+      "name": "hf_admissions_after_los_gt_zero",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/mimic_local_only/accord/phase1_summary.json",
+      "key_path": "hf_admissions_los_filtered",
+      "value": 13597,
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/provenance-encoder/results/accord/stats/cohort_icd_counts.json",
+          "key_path": "heart_failure.post_los",
+          "value": 13597
+        }
+      ]
+    },
+    {
+      "name": "hf_unique_patients",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/mimic_local_only/accord/phase1_summary.json",
+      "key_path": "hf_admissions_los_filtered_unique_subjects",
+      "value": 10143,
+      "note": "results/accord/number_provenance_audit.json marks this UNTRACEABLE (entry 'median LOS 198.7 h and unique patients 10,143 (HF)'). That verdict is wrong for the 10,143 half; the artifact exists."
+    },
+    {
+      "name": "hf_admissions_with_both_note_roles",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/mimic_local_only/accord/phase1_summary.json",
+      "key_path": "reference_has_both_roles",
+      "value": 9825,
+      "note": "The recomputed value in the same file, has_both_roles = 9820, differs by five. 9,825 is the reference-implementation figure the thesis funnel quotes."
+    },
+    {
+      "name": "hf_valid_admissions_final",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/mimic_local_only/accord/phase1_summary.json",
+      "key_path": "valid_admissions_both_selected",
+      "value": 9783,
+      "also_at_key_paths": [
+        "nursing_notes_selected",
+        "discharge_notes_selected",
+        "reference_valid_admissions_final"
+      ],
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/cohort_summary.json",
+          "key_path": "hf_qualifying_pairs",
+          "value": 9783
+        }
+      ]
+    },
+    {
+      "name": "hf_total_note_pair_rows",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/mimic_local_only/accord/phase1_summary.json",
+      "key_path": "total_note_pair_rows",
+      "value": 19566,
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/cohort_summary.json",
+          "key_path": "total_note_pairs_hf",
+          "value": 19566
+        }
+      ]
+    },
+    {
+      "name": "hf_median_length_of_stay_hours",
+      "verdict": "ABSENT",
+      "target_value_in_draft": 198.7,
+      "searched": [
+        "/Users/rickygole/mimic_local_only/accord/phase1_summary.json (holds counts only; no LOS distribution field)",
+        "all of /Users/rickygole/mimic_local_only including runs/, accord*/ and from_drive_2026-08-08/",
+        "Google Drive thesis/outputs/, results_2026-08/, analysis_2026-08/, code_2026-08/",
+        "/Users/rickygole/Downloads",
+        "full-text search for 'median LOS' and for 198.6/198.7/198.8 across all roots"
+      ],
+      "finding": "phase1_cohort.py:92 prints 'Median LOS (hrs)' to stdout, but no stdout log of that run was preserved anywhere. Every surviving occurrence of 198.7 is in ch3_data.tex or in audit files that merely quote the tex. The raw per-admission LOS is reconstructible from MIMIC ADMISSIONS in the quarantine, but no stored result file contains the statistic."
+    },
+    {
+      "name": "sepsis_cohort_size",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/cohort_summary.json",
+      "key_paths_and_values": {
+        "sepsis_admissions": 6265,
+        "sepsis_qualifying_pairs": 4339
+      },
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/provenance-encoder/results/accord/stats/cohort_icd_counts.json",
+          "key_paths_and_values": {
+            "sepsis.icd_prefix": "038",
+            "sepsis.pre_los": 6265,
+            "sepsis.post_los": 6253,
+            "sepsis.removed": 12
+          }
+        }
+      ],
+      "note": "cohort_icd_counts.json supplies the post-LOS sepsis count 6,253, which fills one of the [TODO] cells in ch3 tab:cohort."
+    },
+    {
+      "name": "aki_cohort_size",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/cohort_summary.json",
+      "key_paths_and_values": {
+        "aki_admissions": 11422,
+        "aki_qualifying_pairs": 7579
+      },
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/provenance-encoder/results/accord/stats/cohort_icd_counts.json",
+          "key_paths_and_values": {
+            "aki.icd_prefix": "584",
+            "aki.pre_los": 11422,
+            "aki.post_los": 11408,
+            "aki.removed": 14
+          }
+        }
+      ],
+      "note": "cohort_icd_counts.json supplies the post-LOS AKI count 11,408, which fills the other [TODO] cell in ch3 tab:cohort."
+    },
+    {
+      "name": "three_role_partition_coverage_16.7_16.8_12.4",
+      "verdict": "ABSENT",
+      "target_values_in_draft": [16.7, 16.8, 12.4],
+      "searched": [
+        "every JSON/CSV/log/txt under /Users/rickygole/provenance-encoder",
+        "every JSON/CSV/log/txt under /Users/rickygole/mimic_local_only including the six run logs (controls.log, convergence.log, ours.log, matched.log, seeds.log, sweep.log, tier0.log, queue2.log)",
+        "Google Drive thesis/outputs/, results_2026-08/, analysis_2026-08/, code_2026-08/, draft_2026-08/, figures_2026-08/",
+        "/Users/rickygole/Downloads",
+        "searched both as percentages and as the implied admission counts (~2273, ~2286, ~1687) against the 13,608 denominator"
+      ],
+      "finding": "No artifact records any three-role configuration. phase1_summary.json records only the adopted two-role partition (has_discharge_summary 13321, has_nursing_note 10012, has_both_roles 9820). The three abandoned configurations left no stored output. This confirms the note already in accord/thesis/figures/make_figures.py:320-321."
+    },
+    {
+      "name": "two_role_partition_coverage_72.2",
+      "verdict": "PARTIAL",
+      "target_value_in_draft": 72.2,
+      "path": "/Users/rickygole/mimic_local_only/accord/phase1_summary.json",
+      "constituent_key_paths_and_values": {
+        "reference_has_both_roles": 9825,
+        "hf_admissions_icd_only": 13608
+      },
+      "finding": "The percentage itself is stored nowhere, but both of its constituents are, and they reproduce it exactly: 9825 / 13608 = 0.7220017... -> 72.2%.",
+      "correction_to_prior_audit": "results/accord/number_provenance_audit.json entry 'note-role coverage 72.2% (attempt 6, adopted)' says 72.2% does not reproduce from either denominator, having tried 9783/13608 = 71.9% and 9783/13597 = 72.0%. It used the wrong numerator. The numerator is 9,825 (admissions with both roles present), not 9,783 (admissions with a selected note pair). With the correct numerator the figure reproduces to the printed precision."
+    }
+  ],
+
+  "group_2_extraction_and_candidates": [
+    {
+      "name": "medication_mentions_total",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/phase2_summary.json",
+      "key_path": "medication_extraction.total_mentions",
+      "value": 219683,
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/mimic_local_only/accord/phase2_medication_summary.json",
+          "key_path": "reference_total_mentions",
+          "value": 219683
+        },
+        {
+          "path": "/Users/rickygole/provenance-encoder/accord/thesis/figures/manifest_extra.json",
+          "key_path": "fig:asymmetry.values.total",
+          "value": 219683
+        }
+      ],
+      "note": "The re-run in the quarantine file recomputes total_mentions = 218544 against the reference 219,683."
+    },
+    {
+      "name": "medication_mentions_classified",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/phase2_summary.json",
+      "key_path": "medication_extraction.classified_mentions",
+      "value": 88336,
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/mimic_local_only/accord/phase2_medication_summary.json",
+          "key_path": "reference_classified_mentions",
+          "value": 88336
+        },
+        {
+          "path": "/Users/rickygole/provenance-encoder/accord/thesis/figures/manifest_extra.json",
+          "key_path": "fig:asymmetry.values.classified",
+          "value": 88336
+        }
+      ]
+    },
+    {
+      "name": "classified_mentions_in_discharge_summaries",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/provenance-encoder/accord/thesis/figures/manifest_extra.json",
+      "key_path": "fig:asymmetry.values.discharge",
+      "value": 79385,
+      "source_of_record": "from_drive_2026-08-08/outputs/hf_medication_mentions.csv (declared in the manifest's own 'source' field)",
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/figures_2026-08/manifest_extra.json",
+          "key_path": "fig:asymmetry.values.discharge",
+          "value": 79385
+        }
+      ]
+    },
+    {
+      "name": "classified_mentions_in_nursing_notes",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/provenance-encoder/accord/thesis/figures/manifest_extra.json",
+      "key_path": "fig:asymmetry.values.nursing",
+      "value": 8951,
+      "related_key_path": "fig:asymmetry.values.ratio",
+      "related_value": 8.869,
+      "note": "79385 + 8951 = 88336, i.e. these are the exact role split of the classified mentions. The 8.869 asymmetry ratio is stored alongside."
+    },
+    {
+      "name": "medication_mentions_unclassified",
+      "verdict": "ABSENT",
+      "target_value_in_draft": 131347,
+      "searched": [
+        "phase2_summary.json on Drive and phase2_medication_summary.json in the quarantine (neither stores a reference unclassified count)",
+        "accord/thesis/figures/manifest_extra.json and the Drive figures_2026-08 twin",
+        "all JSON/CSV under all four roots"
+      ],
+      "finding": "No artifact stores 131,347. It is the exact complement of two stored values: 219683 - 88336 = 131347. The only occurrences in the tree are results/accord/_audit_claims_raw.json (a scrape of the LaTeX, not an artifact) and an unrelated float inside accord/denominator/results/v2_denominator_results.json. The quarantine re-run stores its own recomputed unclassified_mentions = 124168, which is not the drafted figure."
+    },
+    {
+      "name": "dictionary_sizes",
+      "verdict": "ABSENT",
+      "searched": [
+        "all results JSON under results/ and results/accord/",
+        "accord/generality/ outputs including item3_dictionary_density_kruskal.csv",
+        "Google Drive outputs/, results_2026-08/",
+        "the quarantine"
+      ],
+      "finding": "No result file records the size of the drug dictionary, the class dictionary, the abbreviation table or the variant table. The only stored drug-count aggregates are observational, not dictionary sizes: phase2_summary.json medication_extraction.unique_drugs = 70 and phase2_medication_summary.json unique_drugs_found = 70 / reference_unique_drugs = 70, which count drugs actually matched in the corpus. The dictionary sizes exist only as literals inside accord/dictionaries.py (source code) and as competing prose claims in the drafts (77 names, 'roughly 90' matchable strings, '10 classes covering 31 drugs', '34 drugs'), which are exactly the unreliable sources this project has already flagged."
+    },
+    {
+      "name": "candidates_total_raw",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/mining_summary.json",
+      "key_path": "total_candidates",
+      "value": 1980,
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/phase2_summary.json",
+          "key_path": "contradiction_mining.total_raw",
+          "value": 1980
+        },
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/prefilter_finding.json",
+          "key_path": "total_candidates",
+          "value": 1980
+        },
+        {
+          "path": "/Users/rickygole/mimic_local_only/accord/phase3_mining_summary.json",
+          "key_path": "reference_total_raw",
+          "value": 1980
+        }
+      ]
+    },
+    {
+      "name": "candidates_final_after_temporal_prefilter",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/prefilter_finding.json",
+      "key_path": "final_candidates",
+      "value": 1978,
+      "supporting_key_paths_and_values": {
+        "filterable_candidates": 1610,
+        "rule4_excluded_from_filter": 370,
+        "admissions_with_date_window": 1068,
+        "admissions_with_intermediate_notes": 643,
+        "resolved_removed": 2
+      },
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/phase2_summary.json",
+          "key_path": "temporal_prefilter.final_candidates",
+          "value": 1978
+        },
+        {
+          "path": "/Users/rickygole/mimic_local_only/accord/phase3_mining_summary.json",
+          "key_path": "reference_final_after_prefilter",
+          "value": 1978
+        }
+      ]
+    },
+    {
+      "name": "admissions_covering_the_1978_candidate_pairs",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/mimic_local_only/accord/phase3_mining_summary.json",
+      "key_path": "reference_admissions_for_1978_pairs",
+      "value": 1203,
+      "note": "The companion figure for the 1,980-candidate raw pool is 1,205, stored at mining_summary.json key 'unique_admissions_with_candidates'. The re-run in phase3_mining_summary.json recomputes 1,490 admissions over its own 2,296 candidates."
+    },
+    {
+      "name": "per_rule_candidate_split_raw_886_203_521_370",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/mining_summary.json",
+      "key_paths_and_values": {
+        "by_rule.rule1_direct_action_conflicts": 886,
+        "by_rule.rule2_drug_class_conflicts": 203,
+        "by_rule.rule3_dosage_conflicts": 521,
+        "by_rule.rule4_omission_conflicts": 370
+      },
+      "note": "This is the raw split and it sums to 1,980, matching total_candidates in the same file."
+    },
+    {
+      "name": "per_rule_candidate_split_after_prefilter_886_202_520_370",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/prefilter_finding.json",
+      "key_paths_and_values": {
+        "by_rule.1": 886,
+        "by_rule.2": 202,
+        "by_rule.3": 520,
+        "by_rule.4": 370
+      },
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/phase2_summary.json",
+          "key_path": "contradiction_mining.rule1_direct_action / rule2_drug_class / rule3_dosage / rule4_omission",
+          "value": [886, 202, 520, 370]
+        },
+        {
+          "path": "/Users/rickygole/mimic_local_only/accord/phase3_mining_summary.json",
+          "key_path": "reference_rule1 / reference_rule2 / reference_rule3 / reference_rule4",
+          "value": [886, 202, 520, 370]
+        }
+      ],
+      "note": "Sums to 1,978. The two prefiltered pairs come out of rules 2 and 3, one each. Both splits are now recoverable, so the draft can state the raw and post-prefilter splits separately instead of conflating them."
+    }
+  ],
+
+  "group_3_per_rule_gold_precision": [
+    {
+      "name": "gold_stratum_sizes_134_31_79_55",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/provenance-encoder/results/accord/step0_1_join_and_calibration.json",
+      "key_paths_and_values": {
+        "join_feasibility.gold_rule_counts.1": 134,
+        "join_feasibility.gold_rule_counts.2": 31,
+        "join_feasibility.gold_rule_counts.3": 79,
+        "join_feasibility.gold_rule_counts.4": 55,
+        "rule_stratified_calibration.1.n_gold": 134,
+        "rule_stratified_calibration.2.n_gold": 31,
+        "rule_stratified_calibration.3.n_gold": 79,
+        "rule_stratified_calibration.4.n_gold": 55
+      },
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/provenance-encoder/results/accord/defect_free_strata.json",
+          "key_path": "strata[] where name in {rule 1, rule 2, rule 3, rule 4} -> n",
+          "value": [134, 31, 79, 55],
+          "note": "The same records also carry per-rule positive counts pos = [3, 3, 4, 2] and per-rule AUROC = [0.6514, 0.2262, 0.51, 0.2358]."
+        },
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/phase2_summary.json",
+          "key_path": "annotation_sample.rule1 / rule2 / rule3 / rule4",
+          "value": [134, 31, 79, 56],
+          "note": "This is the 300-row SAMPLING frame. Rule 4 is 56 sampled and 55 annotated; one Rule 4 pair was never returned. This artifact settles the [TODO] at ch4_candidates.tex:387 asking which stratum lost a row."
+        }
+      ]
+    },
+    {
+      "name": "per_rule_rule_precision_2.2_9.7_5.1_3.6",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/provenance-encoder/results/accord/step0_1_join_and_calibration.json",
+      "key_paths_and_values": {
+        "rule_stratified_calibration.1.pharmacist_true_pos_rate_gold": 0.0224,
+        "rule_stratified_calibration.2.pharmacist_true_pos_rate_gold": 0.0968,
+        "rule_stratified_calibration.3.pharmacist_true_pos_rate_gold": 0.0506,
+        "rule_stratified_calibration.4.pharmacist_true_pos_rate_gold": 0.0364
+      },
+      "note": "This is the 'Rule precision' column of ch4 tab:gold: the fraction of each rule's annotated candidates the pharmacist judged a true contradiction. Reproduces 2.2 / 9.7 / 5.1 / 3.6 percent exactly."
+    },
+    {
+      "name": "per_rule_accord_precision_2.3_10.0_5.2_2.4",
+      "verdict": "PARTIAL",
+      "path": "/Users/rickygole/provenance-encoder/results/accord/step0_1_join_and_calibration.json",
+      "constituent_key_paths_and_values": {
+        "rule_stratified_calibration.1.accord_predicted_pos_rate_gold": 0.9701,
+        "rule_stratified_calibration.2.accord_predicted_pos_rate_gold": 0.9677,
+        "rule_stratified_calibration.3.accord_predicted_pos_rate_gold": 0.9747,
+        "rule_stratified_calibration.4.accord_predicted_pos_rate_gold": 0.7455
+      },
+      "finding": "The 'ACCORD precision' column is not stored as a precision anywhere. What is stored is the model's predicted-positive RATE per rule, which combined with the stratum sizes and per-rule true-positive counts yields the column. No artifact stores the four precision values themselves.",
+      "related_but_coarser_artifact": {
+        "path": "/Users/rickygole/provenance-encoder/results/accord/exemplar/step2plus_results.json",
+        "key_paths_and_values": {
+          "accord_model_stats_rule12_vs_rule34.rule_1_2.n": 165,
+          "accord_model_stats_rule12_vs_rule34.rule_1_2.n_pos": 6,
+          "accord_model_stats_rule12_vs_rule34.rule_1_2.precision": 0.0375,
+          "accord_model_stats_rule12_vs_rule34.rule_1_2.auroc_contra_prob": 0.4256,
+          "accord_model_stats_rule12_vs_rule34.rule_3_4.n": 134
+        },
+        "note": "Stored ACCORD precision exists only at the two-way rules-1+2 vs rules-3+4 granularity, not the four-way split."
+      }
+    }
+  ],
+
+  "group_4_architecture_ablation": [
+    {
+      "name": "seven_arm_validation_losses_three_seeds",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/provenance-encoder/results/pretraining_runs.json",
+      "key_path": "<run_id>.final_val_loss, for the 21 run ids listed below",
+      "note": "This is the artifact behind DESIGN.md section 6d. It was in the repository the whole time. Every arm mean and standard deviation reproduces the table to the printed precision.",
+      "arms": [
+        {
+          "arm": "vanilla (no bias)",
+          "run_ids": ["A1_10M_st1000_s0_shuf", "A1_10M_st1000_s1_shuf", "A1_10M_st1000_s2_shuf"],
+          "per_seed_final_val_loss": [4.346528, 4.356397, 4.363352],
+          "mean": 4.355426,
+          "sample_std": 0.008454,
+          "design_md_value": "4.3554 +/- 0.0085"
+        },
+        {
+          "arm": "T5 relative position bias",
+          "run_ids": ["A3_10M_st1000_s0_rpe_shuf", "A3_10M_st1000_s1_rpe_shuf", "A3_10M_st1000_s2_rpe_shuf"],
+          "per_seed_final_val_loss": [4.100171, 4.104625, 4.105565],
+          "mean": 4.103454,
+          "sample_std": 0.002881,
+          "design_md_value": "4.1035 +/- 0.0029"
+        },
+        {
+          "arm": "misaligned block bias",
+          "run_ids": ["A4_10M_st1000_s0_segidx_misalign_shuf", "A4_10M_st1000_s1_segidx_misalign_shuf", "A4_10M_st1000_s2_segidx_misalign_shuf"],
+          "per_seed_final_val_loss": [3.923425, 3.877463, 3.931812],
+          "mean": 3.910900,
+          "sample_std": 0.029259,
+          "design_md_value": "3.9109 +/- 0.0293"
+        },
+        {
+          "arm": "ALiBi distance bias",
+          "run_ids": ["A3_10M_st1000_s0_alibi_shuf", "A3_10M_st1000_s1_alibi_shuf", "A3_10M_st1000_s2_alibi_shuf"],
+          "per_seed_final_val_loss": [3.741196, 3.743607, 3.745842],
+          "mean": 3.743548,
+          "sample_std": 0.002324,
+          "design_md_value": "3.7435 +/- 0.0023"
+        },
+        {
+          "arm": "true role labels",
+          "run_ids": ["A4_10M_st1000_s0_shuf", "A4_10M_st1000_s1_shuf", "A4_10M_st1000_s2_shuf"],
+          "per_seed_final_val_loss": [3.532549, 3.537724, 3.522831],
+          "mean": 3.531035,
+          "sample_std": 0.007561,
+          "design_md_value": "3.5310 +/- 0.0076"
+        },
+        {
+          "arm": "segment-index bias",
+          "run_ids": ["A4_10M_st1000_s0_segidx_shuf", "A4_10M_st1000_s1_segidx_shuf", "A4_10M_st1000_s2_segidx_shuf"],
+          "per_seed_final_val_loss": [3.421612, 3.381787, 3.419941],
+          "mean": 3.407780,
+          "sample_std": 0.022526,
+          "design_md_value": "3.4078 +/- 0.0225"
+        },
+        {
+          "arm": "hard block mask (fixed)",
+          "run_ids": ["A3_10M_st1000_s0_hardblk_shuf", "A3_10M_st1000_s1_hardblk_shuf", "A3_10M_st1000_s2_hardblk_shuf"],
+          "per_seed_final_val_loss": [3.285328, 3.283304, 3.262987],
+          "mean": 3.277206,
+          "sample_std": 0.012356,
+          "design_md_value": "3.2772 +/- 0.0124"
+        }
+      ],
+      "per_run_artifacts": {
+        "path_pattern": "/Users/rickygole/mimic_local_only/runs/<run_id>/summary.json",
+        "key_path": "final_val_loss",
+        "note": "The quarantine holds the full per-run record for each of the 21 runs, including final_val_ppl, wall_seconds, non_emb_params, a two-point val_loss history, loss_by_segment_position, the controls flag block, and per-parameter provenance_params movement statistics. metrics.jsonl and provenance_report.json sit beside each summary.json."
+      }
+    },
+    {
+      "name": "authority_parameter_final_values_0.5076_and_1.0038",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/mimic_local_only/accord_supp/results/accord_v2_decontam_gold_aggregate.json",
+      "key_paths_and_values": {
+        "aggregate.alpha_n.mean": 0.5076000094413757,
+        "aggregate.alpha_n.std": 0.0005887872760934489,
+        "aggregate.alpha_n.min": 0.5070000290870667,
+        "aggregate.alpha_n.max": 0.508400022983551,
+        "aggregate.alpha_d.mean": 1.003766655921936,
+        "aggregate.alpha_d.std": 0.0009876635610230383,
+        "aggregate.alpha_d.min": 1.0024000406265259,
+        "aggregate.alpha_d.max": 1.004699945449829
+      },
+      "per_seed_key_path": "per_seed.<0|1|2>.authority_scale.alpha_nursing and .alpha_discharge",
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/accord_v2_decontam_gold_aggregate.json",
+          "note": "Identical Drive copy of the same artifact."
+        },
+        {
+          "path": "/Users/rickygole/provenance-encoder/accord/thesis/figures/manifest_extra.json",
+          "key_paths_and_values": {
+            "fig:falsification.values.alpha_n": 0.5076000094413757,
+            "fig:falsification.values.alpha_d": 1.003766655921936
+          }
+        }
+      ],
+      "note": "alpha_d = 1.003766655921936 rounds to 1.0038 at four decimal places. A nearby but different artifact, accord_v2_decontam_results.json, reports mean_authority_n = 0.5073333581288656 and mean_authority_d = 1.003666639328003 over the three training checkpoints; the gold-evaluation aggregate above is the one that yields the drafted 0.5076 / 1.0038 and is the correct source to cite."
+    },
+    {
+      "name": "authority_parameter_initialisation",
+      "verdict": "ABSENT",
+      "target_values_in_draft": [0.5, 1.0],
+      "searched": [
+        "all run artifacts in /Users/rickygole/mimic_local_only/runs/*/summary.json and provenance_report.json",
+        "accord_v2_decontam_results.json and accord_v2_decontam_gold_aggregate.json",
+        "all Drive outputs/ and results_2026-08/"
+      ],
+      "finding": "No result file stores the initial values. The initialisation appears only as the model constructor default, nn.Parameter(torch.tensor([authority_dampening, 1.0])), and as a docstring in data/roles.py stating 'authority_scale initialized at [0.5, 1.0]'. Both are source code, not artifacts. The run artifacts store only converged values and, for the pretraining encoder, aggregate movement statistics (provenance_params.authority.abs_movement, rel_movement, final_norm, mean_grad_norm) rather than the initial point."
+    },
+    {
+      "name": "rule_type_f1_in_domain_0.9603",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/accord_v2_results.json",
+      "key_path": "test_rule_type_macro_f1",
+      "value": 0.9603005883225392,
+      "corroborating_artifacts": [
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/ablation_v2_results.json",
+          "key_path": "VD_Full_ACCORDv2.test_rule_f1",
+          "value": 0.9603
+        },
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/transfer_results_correct.json",
+          "key_path": "hf_reference.rule_type_f1",
+          "value": 0.9603
+        },
+        {
+          "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/accord_v2_seed_results.json",
+          "key_path": "seeds.0.test_rule_f1 (seed 0); mean_rule_f1 over three seeds",
+          "value": {"seed0": 0.9603, "seed1": 0.9465201465201465, "seed2": 0.9527649196157483, "mean_rule_f1": 0.9531950220452982, "std_rule_f1": 0.00563381644219302}
+        }
+      ],
+      "note": "0.9603 is the single-seed (seed 0) figure. The three-seed mean is 0.9532 +/- 0.0056, which the draft can report instead if a seeded figure is wanted."
+    },
+    {
+      "name": "rule_type_f1_under_transfer_0.0654_and_0.0595",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/transfer_results_correct.json",
+      "key_paths_and_values": {
+        "sepsis.rule_type_f1": 0.06543855847829327,
+        "sepsis.rule_type_acc": 0.0567741935483871,
+        "sepsis.n_candidates": 775,
+        "sepsis.n_admissions": 345,
+        "sepsis.n_contradictions": 516,
+        "sepsis.contradiction_rate": 0.6658064516129032,
+        "aki.rule_type_f1": 0.059544945658295115,
+        "aki.rule_type_acc": 0.05950579929399899,
+        "aki.n_candidates": 1983,
+        "aki.n_admissions": 709,
+        "aki.n_contradictions": 1403,
+        "aki.contradiction_rate": 0.7075138678769541
+      },
+      "note": "accord/thesis/figures/manifest_extra.json currently records 'transfer F1 not on disk, drawn with an unverified marker (right)' for fig:falsification. That is now false: the transfer F1s are on disk in this file and the figure can be redrawn from real values."
+    },
+    {
+      "name": "harm_head_output_range_0.398_to_0.610",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/provenance-encoder/results/accord/step5_ranking.json",
+      "key_paths_and_values": {
+        "harm_score_range_check.observed_min": 0.397705,
+        "harm_score_range_check.observed_max": 0.609565,
+        "harm_score_range_check.claimed_range_in_paper": "0.398-0.610",
+        "harm_score_range_check.verified": true
+      },
+      "related_key_paths_and_values": {
+        "full_299_harm_score_vs_danger_rating.spearman_rho": -0.0001,
+        "full_299_harm_score_vs_danger_rating.p_value": 0.9991,
+        "full_299_harm_score_vs_danger_rating.n": 299
+      }
+    }
+  ],
+
+  "group_5_remaining": [
+    {
+      "name": "decontaminated_ensemble_auroc_bootstrap_ci",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/provenance-encoder/results/accord/decontam/corrected_gold_metrics.json",
+      "key_paths_and_values": {
+        "aggregate.ensemble_auroc": 0.5145228215767634,
+        "aggregate.ensemble_ci95[0]": 0.3209574856693268,
+        "aggregate.ensemble_ci95[1]": 0.7033717778609418,
+        "aggregate.ensemble_mannwhitney_p": 0.8667920078913933,
+        "aggregate.auroc_mean": 0.5210926694329184,
+        "aggregate.auroc_std": 0.020120797407989183,
+        "aggregate.bootstrap_B": 10000,
+        "aggregate.bootstrap_seed": 42,
+        "n": 253,
+        "n_positives": 12
+      },
+      "per_seed_key_paths_and_values": {
+        "per_seed.seed0.auroc": 0.5494467496542186,
+        "per_seed.seed1.auroc": 0.5089903181189488,
+        "per_seed.seed2.auroc": 0.5048409405255878
+      },
+      "note": "The file's own note records that the previously reported AUROC 0.460 was the contaminated run; contaminated_same_253_pairs.auroc = 0.4595 is stored in the same file for the comparison."
+    },
+    {
+      "name": "matthews_correlation_interval_endpoints",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/provenance-encoder/results/accord/stats/intervals.json",
+      "key_paths_and_values": {
+        "bootstrap_B": 10000,
+        "seed": 42,
+        "E2_mcc_intervals.llama_baseline.n": 253,
+        "E2_mcc_intervals.llama_baseline.mcc": -0.0436,
+        "E2_mcc_intervals.llama_baseline.ci95": [-0.2337, 0.0563],
+        "E2_mcc_intervals.gpt4o_zeroshot.n": 253,
+        "E2_mcc_intervals.gpt4o_zeroshot.mcc": 0.1089,
+        "E2_mcc_intervals.gpt4o_zeroshot.ci95": [-0.0319, 0.2484],
+        "E2_mcc_intervals.gpt4o_fewshot.n": 253,
+        "E2_mcc_intervals.gpt4o_fewshot.mcc": 0.0117,
+        "E2_mcc_intervals.gpt4o_fewshot.ci95": [-0.112, 0.1319],
+        "E2_mcc_intervals.accord_binary_at_0.5_253core.n": 253,
+        "E2_mcc_intervals.accord_binary_at_0.5_253core.mcc": -0.007,
+        "E2_mcc_intervals.accord_binary_at_0.5_253core.ci95": [-0.1626, 0.0753]
+      },
+      "note": "Four systems, each with a 95 percent bootstrap interval, and each interval's excludes_zero flag is false. The same file also stores E3_defect_free_stratum: n 134, n_pos 6, auroc 0.5078, unstratified_ci95 [0.2217, 0.7615], stratified_ci95 [0.2643, 0.7344], draws_dropped_zero_positives 20, drop_rate 0.002."
+    },
+    {
+      "name": "welch_t_test_on_clinical_pretraining_gap",
+      "verdict": "ABSENT",
+      "target_values_in_draft": {"gap": 0.0031, "welch_p": 0.690},
+      "searched": [
+        "/Users/rickygole/provenance-encoder/results/ (all files incl. matched_protocol.json, matched_final_mortality.json, FINAL_SUMMARY.json, two_task_summary.json, task_runs.json, pretraining_runs.json, RETRACTION_floor_unmatched.json)",
+        "/Users/rickygole/provenance-encoder/results/accord/scaling/scaling_results.json and convergence_results.json",
+        "stored output cells of accord/scaling/C4_scaling_study.ipynb and C44_convergence_check.ipynb (both notebooks have NO stored outputs)",
+        "Google Drive results_2026-08/, outputs/, analysis_2026-08/",
+        "the quarantine and /Users/rickygole/Downloads",
+        "full-text search for 'welch', 'ttest', 'ttest_ind', 't_test' and for the values 0.690 and 0.0031 across all roots"
+      ],
+      "finding": "No artifact stores a t statistic or p value for the from-scratch vs domain-pretrained gap on the clinical task. The figure survives only as prose in the C4 notebook's markdown header ('C37 found ... gap +0.0031, Welch p = 0.690'), in PHD_PLAN.md, CORRECTIONS.md, CONTRIBUTION.md and C44_PREREGISTRATION.md, which are exactly the unreliable source class. The C37 episode is attested in results/accord/control_cost_log.json only as a compute-cost line (compute_by_episode entry 'C37 clinical task, PubMedBERT vs scratch', gpu_minutes 612.3, runs 17), with no statistics. Two further caveats: results/accord/scaling/scaling_results.json holds the AG News public-data replication (three seeds per arm) but not the clinical comparison, and the notebook cell that computes the test calls scipy.stats.ttest_ind WITHOUT equal_var=False, so it is a Student test labelled Welch. Any recovered figure would need recomputation before it could be described as Welch."
+    },
+    {
+      "name": "public_text_over_calling_maximum_3.5",
+      "verdict": "FOUND",
+      "path": "/Users/rickygole/provenance-encoder/accord/prevalence_replication/results/sweep_results.json",
+      "key_path": "results.\"llama3:8b\".A_bare.\"0.02\".over_call_ratio",
+      "value": 3.5000000000000004,
+      "supporting_key_paths_and_values": {
+        "results.\"llama3:8b\".A_bare.\"0.02\".n": 100,
+        "results.\"llama3:8b\".A_bare.\"0.02\".n_contradiction": 7,
+        "results.\"llama3:8b\".A_bare.\"0.02\".n_not_contradiction": 93,
+        "results.\"llama3:8b\".A_bare.\"0.02\".n_abstain": 0,
+        "results.\"llama3:8b\".A_bare.\"0.02\".n_unparseable": 0,
+        "results.\"llama3:8b\".A_bare.\"0.02\".positive_rate_of_decided": 0.07,
+        "results.\"llama3:8b\".A_bare.\"0.02\".true_prevalence": 0.02,
+        "seed": 42,
+        "temperature": 0,
+        "max_tokens": 60
+      },
+      "note": "3.50x is the maximum over-call ratio across the whole 3 models x 2 prompts x 4 prevalence levels grid on SNLI (public, non-clinical, human-labelled). The runner-up is 3.40x at the same model and prompt at 5 percent prevalence. This is the figure that contrasts with the 15.8x-23.6x clinical over-calling: it bounds how much of the clinical effect is attributable to asking an instruction-tuned model for a rare-class call rather than to clinical adjudication. Corroborated by the rendered table in the sibling REPORT.md, but the JSON above is the artifact."
+    }
+  ]
+}
