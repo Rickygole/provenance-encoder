@@ -34,6 +34,25 @@ This is a re-mapping, not a re-framing: the argument survives, the container cha
 
 ## 2. Document class and page setup
 
+**Verified 2026-08-11 against the template's own XML**, not inferred from the colleague's skeleton.
+The two copies in `uploads/` and `prism-uploads/` are byte-identical (SHA-256
+`b537a9c3…4fc6d`), so there is one authoritative template, not two.
+
+| property | template value | in `main_msu.tex` |
+|---|---|---|
+| page | 8.5 × 11 in | default |
+| margins | **left 1.50 in**, right 1.00, top 1.00, bottom 1.00 | matches |
+| header / footer from edge | 0.50 in each | `includefoot` |
+| body font | **Times New Roman**, 579 explicit runs | `mathptmx` |
+| size | `w:sz 24` = **12 pt** | matches |
+| line spacing | `w:line="480"` = **exactly double** (240 = single), on 100 of the body paragraphs | `\doublespacing` |
+| paragraph skip | `w:after="0"` | `\parskip 0pt` |
+| first-line indent | `w:firstLine="720"` = **0.5 in** | matches |
+| single-spaced exceptions | `w:line="240"` on 11 paragraphs — title blocks and reference entries | front-matter pages set `\singlespacing` |
+
+Every one of these was confirmed; nothing in the current build contradicts the template.
+
+
 ```latex
 \documentclass[12pt]{report}
 \usepackage[left=1.5in,right=1in,top=1in,bottom=1in,includefoot]{geometry}
