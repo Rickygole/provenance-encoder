@@ -81,6 +81,28 @@ The construction is defensible at every step, and this thesis executed it. It
 fails at every step, and the failures are not the ones the literature would
 predict.
 
+Not every failure carries the same weight of generalisation, and the
+distinction is made here rather than left for a reader to infer. Some
+failures are properties of the construction: a rule-mined pool over a rare
+event lands near a low base rate because that is what high-recall rules do to
+a rare event, a language-model labeller asked to flag a rare class at low
+prevalence over-calls for a reason that holds for any classifier with
+imperfect specificity at that prevalence, and an evaluation resting on the
+number of expert-confirmed positives that exist is limited by that number
+regardless of who built the detector. Those findings should generalise to
+another group building a similarly shaped pipeline on a similarly rare event.
+Other failures documented in this thesis are properties of this
+implementation and are reported as such rather than folded into the same
+claim: scispaCy and medspaCy were abandoned during this project over
+dependency resolution rather than evaluated and rejected on their merits
+(Chapter~\ref{ch:data}), the candidate splits were row-level before being
+corrected to subject-level (Chapter~\ref{ch:candidates}), and one architectural
+head received no term in the training objective at all
+(Chapter~\ref{ch:arch}). Those are defects in how this build was carried out.
+Attributing them to the standard construction rather than to this
+implementation would be a claim broader than the evidence supports, and this
+thesis does not make it.
+
 \paragraph{The gap.} Prior work on clinical natural language inference
 establishes that encoder models can classify entailment relations between
 clinician-authored sentence pairs \citep{romanov2018mednli}, and prior work on
@@ -369,15 +391,19 @@ rules over one institution's notes surface $1{,}978$ candidates across $1{,}203$
 admissions, and a board-certified pharmacist confirms $12$ genuine
 contradictions in a $299$-pair sample, four of them rated $4$ or $5$ for danger.
 
-The pipeline the field would naturally build for this problem, rule-based
+A standard-shaped pipeline built for this problem, rule-based
 candidate mining followed by language model weak supervision followed by a
-purpose-built neural detector, fails at every stage. The rules attach the wrong
-evidence to $41.4\%$ of action-conflict candidates. The weak labeller is
-positive at $84.9\%$ against a $4.0\%$ base rate and the detector inherits that
-marginal rather than any judgement. Three architectural contributions do not
+purpose-built neural detector, fails at every stage. The weak labeller's
+over-calling at a $4.0\%$ base rate is a property of that construction and
+should recur wherever a similar labeller meets a similarly rare class; the
+rules attaching the wrong evidence to $41.4\%$ of action-conflict candidates
+is a property of this build's exemplar selector, and a differently written
+one need not repeat it. The detector inherits the labeller's marginal rather
+than any judgement. Three architectural contributions do not
 survive an audit of the code that produced their numbers, and a fourth research
 question was never tested because the component that would answer it received no
-gradient. The resulting detector has AUROC $0.5145$ on the full evaluation set
+gradient, both defects specific to how this system was wired rather than to
+the components in general. The resulting detector has AUROC $0.5145$ on the full evaluation set
 and $0.5078$ on the strata that are free of the evidence-selection defect by
 construction.
 

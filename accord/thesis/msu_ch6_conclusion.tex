@@ -29,12 +29,14 @@ leaves the hospital with the patient, and it is not the one containing the
 reason the instruction is wrong.
 
 This thesis asked whether that disagreement can be detected automatically from
-paired clinical notes in MIMIC-III \citep{johnson2016mimic}, and built the
-pipeline the field would naturally build to
+paired clinical notes in MIMIC-III \citep{johnson2016mimic}, and built a
+standard-shaped pipeline to
 answer it: rule based candidate mining, language model weak supervision, and a
 purpose built neural detector over a domain pretrained clinical encoder. Five
 questions were posed, four about the stages and one about the field that
-publishes pipelines like this one. Every stage failed a control.
+publishes pipelines like this one. Every stage failed a control, and not every
+failure carries the same weight, a distinction Section~\ref{sec:conc-found}
+keeps rather than collapses.
 
 \section{What Was Found}
 \label{sec:conc-found}
@@ -287,15 +289,23 @@ generating process fixed than this design allows.
 \label{sec:conc-closing}
 
 Dangerous medication contradictions between nursing notes and discharge
-summaries are real, recurring, and worth detecting. The pipeline the field would
-naturally build for them does not detect them. Rule based mining produces a pool
-at $0.0401$, with $65$ of $137$ resolved candidates carrying the wrong exemplar,
-weak supervision produces a labeller positive on $261$ of $299$ pairs against
-$12$ true positives, the architectural components report their initialisations,
-a second system shows a provenance-free position beating both true role
-semantics and a randomised control drawn from the same label alphabet, and the
-detector sits at chance on both evaluations while operating at precision
-$0.0424$ below a base rate of $0.0474$.
+summaries are real, recurring, and worth detecting. A standard-shaped
+pipeline built for them does not detect them. Rule based mining produces a
+pool at $0.0401$, a property of applying high-recall rules to an event this
+rare, and weak supervision produces a labeller positive on $261$ of $299$
+pairs against $12$ true positives, a property of asking an instruction-tuned
+model to flag a rare class at low prevalence; both should recur in a
+differently built version of this pipeline. What would not necessarily recur
+belongs to this build specifically: $65$ of $137$ resolved candidates carry
+the wrong exemplar because this project's selector indexed positionally, the
+architectural components report their initialisations because of how this
+project's parameters were wired, and a second system shows a
+provenance-free position beating both true role semantics and a randomised
+control drawn from the same label alphabet. The detector sits at chance on
+both evaluations while operating at precision
+$0.0424$ below a base rate of $0.0474$, and that result is the one finding in
+this list large enough to answer RQ4 regardless of which category the rest
+sit in.
 
 None of that establishes that the task cannot be done. At $12$ positives the
 design cannot see an effect below AUROC $0.7382$, and the thesis says so in its

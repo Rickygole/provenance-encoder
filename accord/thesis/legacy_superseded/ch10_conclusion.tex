@@ -25,8 +25,8 @@ posed four questions: whether conditioning on note-type authority beats
 symmetric inference, whether temporal metadata helps, whether published
 guidelines can rank confirmed contradictions by danger, and whether weak
 supervision from a language model can replace expert annotation at the scale a
-detector requires. It built the pipeline the field would naturally build to
-answer them: rule-based candidate mining, language model weak supervision, and a
+detector requires. It built a standard-shaped pipeline to answer them:
+rule-based candidate mining, language model weak supervision, and a
 purpose-built neural detector over a domain-pretrained clinical encoder.
 
 \section{What Was Found}
@@ -38,7 +38,15 @@ cohort of $9{,}783$, and a board-certified pharmacist confirms $12$ genuine
 contradictions in a $299$-pair stratified sample, four of them rated $4$ or $5$
 for danger. That is systematic, not anecdotal.
 
-The pipeline fails at every stage.
+The pipeline fails at every stage, and the failures are not all the same kind
+of finding. The pool's base rate, the labeller's over-calling at low
+prevalence, and the evaluation's twelve positives are properties of this
+construction and should recur in any similarly built pipeline on a similarly
+rare event. The exemplar selector's positional indexing and the severity
+head's absent gradient, described below, are properties of this particular
+build. They are implementation defects, not evidence against rule-based
+mining, weak supervision, or guideline-grounded severity scoring in general,
+and the distinction is kept throughout this chapter.
 
 Candidate mining enriches the pool to a $4.0\%$ base rate, which is a real gain
 over an unfiltered background rate orders of magnitude lower, but it attaches
@@ -172,8 +180,12 @@ another architecture.
 \label{sec:conc-closing}
 
 Dangerous medication contradictions between nursing notes and discharge
-summaries are real, recurring, and worth detecting. The pipeline the field would
-naturally build for them fails at every stage. The failures are independent of
+summaries are real, recurring, and worth detecting. A standard rule mining,
+weak supervision, and neural detection pipeline built for them fails at every
+stage. Some of that failure belongs to the construction and should recur
+wherever it is tried again on a similarly rare event; some of it belongs to
+this build, and Section~\ref{sec:conc-found} says which is which. The
+failures are independent of
 one another, each has an identifiable mechanism, each has a detector costing a
 few lines of code, and none of them was found until the project set out to
 falsify itself.

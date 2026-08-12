@@ -124,6 +124,32 @@ that produced the verdict. The failures sit at different stages, have different
 mechanisms, and each has a cheap detector. A project that fixed any one of them
 in isolation would still have produced a system with no ranking signal.
 
+Not every verdict in that figure generalises to the same degree, and the
+distinction matters because this thesis is candid elsewhere about defects in
+its own execution. Three of the verdicts are
+properties of the construction itself, not of how carefully this build carried
+it out. A pool mined by high-recall rules over a genuinely rare event lands
+near a low base rate because that is what high-recall rules do to a rare
+event, not because these four rules were written badly. A language-model
+labeller asked to flag a rare class at low prevalence over-calls for a reason
+that holds for any classifier with imperfect specificity at that prevalence,
+not for a reason specific to the three models tested here. An evaluation built
+on the number of pharmacist-confirmed positives that exist is limited by that
+number regardless of who trains the detector. Those three findings should
+generalise to another group that builds a similarly shaped pipeline on a
+similarly rare event. Two verdicts do not carry that weight, and this thesis
+says so plainly. The exemplar selector indexed candidates positionally instead of by
+the evidence the trigger actually used, an implementation choice this project
+made and a differently written selector would not have to repeat. The harm
+head received no term in the training objective, which is a defect in this
+build's loss function, not a property of guideline-grounded severity scoring
+in general. scispaCy and medspaCy were abandoned over dependency resolution
+rather than evaluated and rejected, and the candidate splits were row-level
+before being corrected to subject-level (Chapter~\ref{ch:method}). Those are
+this implementation's failures, not the standard construction's, and treating
+them as evidence against the construction would be a claim the data does not
+support.
+
 \begin{figure}[H]
 \caption{The pipeline as run, stage by stage, with the verdict each stage
 received and the diagnostic that produced it. Two verdicts are categorical
@@ -311,8 +337,9 @@ Chapter~\ref{ch:lit} attributes each of these to the work that owns it, and
 this chapter's claim is about what they revealed when pointed at this pipeline.
 
 What is new is the measurement on this pipeline and the fact that the controls
-were actually run. Five contributions follow, each stated at the size the
-evidence supports.
+were actually run. Four contributions follow, each stated at the size the
+evidence supports, and one further result is reported separately below the
+list because it does not meet the bar a contribution should meet.
 
 \begin{enumerate}
 
@@ -325,18 +352,6 @@ contributes is the positive control: the same harness resolves $4.53$ points on
 AG News at $24$ epochs with seed standard deviations at or below $0.0036$, and
 returns $0.0031$ on the clinical task, under an adjudication rule committed
 before the runs.
-
-\item \textbf{A reproducible anomaly in how pool level audits respond to
-upstream selection.} On one population with baseline disparity held fixed, two
-selection channels produce demographic parity drift slopes of opposite sign,
-$-0.0078$ under one regime and $+0.0118$ under the other, and a controlled
-simulator sweep inverts the mapping rather than reproducing it. No mechanism is
-offered, and none can be read off the pattern, because interpreting a
-selection dependent result requires assumptions about the selection mechanism
-that are not available here \citep{pfohl2025disaggregated,fogliato2020fairness}.
-The anomaly is reported as unexplained in Chapter~\ref{ch:discussion},
-because five mechanism claims were proposed and refuted inside this project and
-a sixth is not being added.
 
 \item \textbf{A prevalence of practice measurement with released rows.} On $75$
 papers, $4$ audit the selection step under the strict reading and $14$ under the
@@ -366,6 +381,23 @@ storage re-runs $0.7$ and $13.5$ minutes. The honest limitation is that person
 hours were never logged, so the cost claim is compute only.
 
 \end{enumerate}
+
+\paragraph{A reported observation, not a fifth contribution.} On one
+population with baseline disparity held fixed, two selection channels produce
+demographic parity drift slopes of opposite sign, $-0.0078$ under one regime
+and $+0.0118$ under the other, and a controlled simulator sweep inverts the
+mapping rather than reproducing it. The pattern is reproducible and verified,
+and it is retained in this thesis because it is what the sign-provenance work
+in the fourth contribution turned up and because reporting a pattern that does
+not fit is better practice than dropping it. It is not offered as a
+contribution, because a contribution earns that billing by explaining
+something, and this does not: no mechanism is offered, and none can be read
+off the pattern, because interpreting a selection-dependent result requires
+assumptions about the selection mechanism that are not available here
+\citep{pfohl2025disaggregated,fogliato2020fairness}. Five mechanism claims
+were proposed and refuted inside this project, and a sixth is deliberately
+not being added. Chapter~\ref{ch:discussion} reports the pattern in full and
+calls it what it is, an anomaly rather than a finding.
 
 \section{What This Thesis Does Not Claim}
 \label{sec:intro-notclaim}

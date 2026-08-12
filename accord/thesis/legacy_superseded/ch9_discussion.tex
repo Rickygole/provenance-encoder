@@ -285,6 +285,20 @@ is that inter-rater reliability is not established for any label in this work.
 With $12$ positives in $299$ pairs, a second annotator is the highest-value
 single addition available.
 
+Intra-rater reliability is not a fallback, and the reason is a property of the
+record rather than of the rater. The two-pass, washout-separated protocol was
+designed to reduce within-session drift in a single annotator, not to leave
+behind two comparable sets of labels, and it did not: the annotation file
+stores one final label per pair, the second pass overwrote the first, and no
+artifact retains pass-one and pass-two labels as separate columns. A kappa
+computed after the fact from this record would not be an oversight corrected.
+It would have to be re-annotation, which was not performed. Chapter~\ref{ch:candidates},
+Section~\ref{sec:gold}, states the same limit where the instrument is defined:
+no inter-rater or intra-rater agreement statistic exists for the gold standard,
+none can be recovered from the two-pass design as it was retained, and every
+result in this thesis that depends on the gold labels depends on an instrument
+whose reliability is unmeasured.
+
 \subsection{The exemplar defect bounds annotation validity}
 
 For $41.4\%$ of action-conflict candidates the sentence pair presented to the
@@ -407,9 +421,11 @@ $299$ annotated pairs against a stated requirement of $548$
 & Stated; all intervals reported at achieved width; no significance claim
   attached to any ablation \\
 \addlinespace
-One annotator, no inter-rater reliability
+One annotator, no inter-rater or intra-rater reliability
 & Severe; bounds every gold-label conclusion
-& Stated; the previously reported $\kappa = 1.000$ is retracted as circular \\
+& Stated; the previously reported $\kappa = 1.000$ is retracted as circular, and
+  the two-pass design cannot recover an intra-rater figure because the passes
+  were not retained as separate columns \\
 \addlinespace
 Exemplar defect, $41.4\%$ of action-conflict candidates
 & Severe for the $4.0\%$ precision estimate; not decisive for the central
