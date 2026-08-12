@@ -24,7 +24,7 @@ the measurement on this pipeline, and the fact that the controls were actually r
 
 ---
 
-## The five contributions
+## The four contributions
 
 **1. A measured null, not an underpowered one, on clinical pretraining transfer.**
 *Known:* pretraining loss is an unreliable proxy for downstream performance — Lourie, Hu & Cho,
@@ -40,17 +40,7 @@ null is a measurement rather than an absence of power.
 *Evidence:* `results/accord/scaling/convergence_results.json`, `accord/scaling/C44_PREREGISTRATION.md`,
 CORRECTIONS.md C37/C44/C62.
 
-**2. A reproducible anomaly in how pool-level fairness audits respond to upstream selection.**
-*Known:* disaggregated fairness evaluation is not interpretable under selection — Pfohl et al.,
-NeurIPS 2025; Fogliato et al., AISTATS 2020.
-*New here:* on **one population with baseline disparity held fixed**, two selection channels produce
-signed demographic-parity drifts of **opposite sign** (Regime A −0.00780, Regime B +0.01177, both
-CIs excluding zero) — and a controlled simulator sweep over 7 baselines × 6 strengths × 40
-replicates **inverts the mapping**. The anomaly is unexplained and is reported as unexplained.
-*Evidence:* `results/accord/signed_gap_analysis.json`, `results/accord/c47_baseline_sweep*.json`,
-CORRECTIONS.md C50/C56/C57.
-
-**3. A prevalence-of-practice measurement with released rows.**
+**2. A prevalence-of-practice measurement with released rows.**
 *Known:* fairness is measured stage-by-stage across pipelines including filters — Biswas & Rajan,
 ESEC/FSE 2021.
 *New here:* on a 75-paper corpus deliberately enriched for fairness-forward work, **4/75 strict
@@ -61,7 +51,7 @@ a limitation rather than reported as 100%.
 *Evidence:* `results/accord/survey/` (protocol, 75-row coding table, screening log, second-coder
 table), CORRECTIONS.md C55/C59.
 
-**4. Sign provenance: a metric stored as a magnitude licenses no directional claim.**
+**3. Sign provenance: a metric stored as a magnitude licenses no directional claim.**
 *Known:* nothing directly; adjacent to measurement-provenance and reproducibility practice.
 *New here:* every disparity gap in this project was stored as `abs()` and four-fifths as `min/max`,
 with no per-group values persisted. Retrofitting signed storage **reproduced every prior value
@@ -74,7 +64,7 @@ corrections.
 `results/accord/sign_provenance_drift_recomputation.json`, REVISION_LOG R2, CORRECTIONS.md
 C52/C56/C57.
 
-**5. What the controls cost.**
+**4. What the controls cost.**
 *Known:* nobody reports this.
 *New here:* the control that retracted the observational core of three corrections cost **14.2
 minutes** of compute. The convergence control that verified contribution 1 cost 9.2 GPU-hours.
@@ -83,9 +73,30 @@ logged before 2026-08-09 and are not reconstructed. The cost claim is compute-on
 
 ---
 
+## A reported observation, not a contribution
+
+**A reproducible anomaly in how pool-level fairness audits respond to upstream selection.** This
+sat as contribution 2 in an earlier draft. It is demoted here, because a contribution earns that
+billing by explaining something and this does not: five mechanism claims were proposed and refuted
+inside this project, and a sixth is deliberately not offered. What survives is retained because it
+is what the sign-provenance work in contribution 3 turned up, and reporting an unexplained pattern
+is better practice than dropping it.
+*Known:* disaggregated fairness evaluation is not interpretable under selection — Pfohl et al.,
+NeurIPS 2025; Fogliato et al., AISTATS 2020.
+*What was found:* on **one population with baseline disparity held fixed**, two selection channels
+produce signed demographic-parity drifts of **opposite sign** (Regime A −0.00780, Regime B
++0.01177, both CIs excluding zero) — and a controlled simulator sweep over 7 baselines × 6
+strengths × 40 replicates **inverts the mapping**. The pattern is reproducible and verified. No
+mechanism is claimed for it, and none is offered.
+*Evidence:* `results/accord/signed_gap_analysis.json`, `results/accord/c47_baseline_sweep*.json`,
+CORRECTIONS.md C50/C56/C57.
+
+---
+
 ## What this thesis does not claim
 
-- No mechanism is claimed for the contribution-2 anomaly. Five mechanism claims were proposed and
+- No mechanism is claimed for the selection-channel anomaly reported above, and it is not counted
+  among the contributions. Five mechanism claims were proposed and
   refuted in this project; the sixth is not being offered.
 - The survey is not a prevalence estimate for clinical ML. The corpus is enriched, coverage is PMC
   open access plus arXiv and ACL, and 459 screened-in papers were never full-text retrieved.
@@ -115,15 +126,18 @@ logged before 2026-08-09 and are not reconstructed. The cost claim is compute-on
 | Write Ch 7 first, then 4, 5, 6, 8, 9; Ch 2, then Ch 1 + abstract + title last | ~5 weeks |
 | Second coder on a subsample **enriched for the 4 strict-yes papers** (C59) | ~1 day |
 
-**Zero experiments remain.** 62 corrections, all resolved. The draft compiles at 129 pages with
+**Zero experiments remain.** 62 corrections, all resolved. The draft compiles at 199 pages with
 0 undefined references and 0 undefined citations.
 
 ---
 
 ## The one question for the advisor
 
-The claim novelty of items 1–3 is low by conference standards — each is a known failure mode applied
-to a new pipeline, and each is attributed to the work that owns it. Items 4 and 5 are new but small.
+The claim novelty of items 1–2 is low by conference standards — each is a known failure mode applied
+to a new pipeline, and each is attributed to the work that owns it. Items 3 and 4 are new but small.
+The reported observation on the selection-channel anomaly is neither a low-novelty item nor a
+small-but-new one: it is not counted toward novelty at all, because it carries no mechanism and is
+not a contribution.
 
 **For an MS thesis, is this scope and standard a pass? If not, what is missing?**
 
