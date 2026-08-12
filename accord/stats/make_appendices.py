@@ -68,8 +68,10 @@ def abbreviate_path(s):
 def main():
     corr = (ROOT / "accord" / "CORRECTIONS.md").read_text()
     entries = re.findall(r"^## (C\d+)\.\s*(.+)$", corr, re.M)
+    entries.sort(key=lambda e: int(e[0][1:]))   # C13 before C14
     rev = (ROOT / "accord" / "REVISION_LOG.md").read_text()
     revs = re.findall(r"^### (R\d+)\s*\((\d{4}-\d{2}-\d{2})\)\s*[-—]*\s*(.+)$", rev, re.M)
+    revs.sort(key=lambda e: int(e[0][1:]))
 
     a = [r"\chapter{The Correction Record}", r"\label{app:corrections}", "",
          "This appendix lists every correction issued during the work, in the order it was issued.",

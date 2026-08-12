@@ -278,7 +278,7 @@ def make_fig_intro_headline():
 
     fig.suptitle("The number that determines the rest of the thesis", fontsize=9, y=0.97)
     fig.text(0.5, 0.02,
-            "Left-panel middle bar (ACCORD predicted-positive rate): 261/299, summed from per-group counts in\n"
+            "Left-panel middle bar (weak labeller gold-set marginal): 261/299, summed from per-group counts in\n"
             "exp1a_gold_error_rates_by_group.json. CORRECTIONS.md C28 flags an unresolved 17-row discrepancy against a\n"
             "raw-file count of 278/299 in a file not committed to this repo; the value shown is the one reconstructable here.",
             ha="center", fontsize=5.5, color=GREY_MED)
@@ -288,7 +288,7 @@ def make_fig_intro_headline():
     register(fname, "fig:intro-headline",
              [p_step01, p_exp1a, p_step2, p_intervals],
              "MCC panel uses stats/intervals.json E2 (all four CIs contain zero, per CORRECTIONS.md "
-             "C36). Left-panel predicted-positive count uses the C28-flagged 261/299 reading with "
+             "C36). The left-panel middle bar is the weak labeller marginal, 261 of 299 (gold.weaklabel_contradiction); ACCORD predicts contradiction for 278 of 299 (gold.accord_pred_contradiction, reconciliation_c28.json). Earlier notes conflated the two reading with "
              "the discrepancy noted on the figure.")
 
 
