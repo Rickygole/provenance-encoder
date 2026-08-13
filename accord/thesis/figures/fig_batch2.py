@@ -10,6 +10,11 @@ from style import setup, ACCENT, MUTED, LIGHT, DEAD
 setup()
 import matplotlib.pyplot as plt
 
+# Long provenance notes belong in the LaTeX caption, not inside the plot.
+# Set True to draw them again.
+SHOW_INFIGURE_NOTES = False
+SHOW_INFIGURE_TITLES = False
+
 HERE = pathlib.Path(__file__).parent
 ROOT = pathlib.Path("/Users/rickygole/provenance-encoder")
 
@@ -30,17 +35,17 @@ for r, pr in enumerate(prompts):
         ax.plot([0.04], [0.849], "s", color="#b03030", ms=5, zorder=4)
         if r == 0 and c == 0:
             ax.annotate("clinical\n(4% → 85%)", (0.04, 0.849), xytext=(0.085, 0.72),
-                        fontsize=6.5, color="#b03030",
+                        fontsize=8.0, color="#b03030",
                         arrowprops=dict(arrowstyle="-", lw=.5, color="#b03030"))
         ax.set_xlim(0, .285); ax.set_ylim(0, .92)
         if r == 0: ax.set_title(m, fontsize=8.5)
-        if c == 0: ax.set_ylabel(PL[pr], fontsize=7)
+        if c == 0: ax.set_ylabel(PL[pr], fontsize=8.0)
         ax.tick_params(labelsize=7)
-fig.supxlabel("true prevalence", fontsize=9, y=0.015)
-fig.supylabel("labeller predicted-positive rate", fontsize=9, x=0.005)
-fig.suptitle("The labeller under-responds to prevalence, but nowhere near the clinical shift",
+fig.supxlabel("true prevalence", fontsize=9.0, y=0.015)
+fig.supylabel("labeller predicted-positive rate", fontsize=9.0, x=0.005)
+if SHOW_INFIGURE_TITLES: fig.suptitle("The labeller under-responds to prevalence, but nowhere near the clinical shift",
              fontsize=9.5, x=0.02, ha="left", y=0.99)
-fig.text(0.02, 0.925, "dashed: perfect calibration", fontsize=6.8, color="0.4")
+if SHOW_INFIGURE_NOTES: fig.text(0.02, 0.925, "dashed: perfect calibration", fontsize=8.0, color="0.4")
 fig.tight_layout(rect=[0.02, 0.03, 1, 0.93])
 fig.savefig(HERE/"fig-prevalence-response.pdf"); plt.close(fig); print("wrote fig-prevalence-response.pdf")
 
@@ -57,14 +62,14 @@ fig, ax = plt.subplots(figsize=(6.4, 3.9))
 ax.axhspan(pm-ps, pm+ps, color=LIGHT, zorder=1)
 ax.axhline(pm, color=MUTED, lw=1.1, zorder=2)
 ax.text(1.05e7, pm+0.0035, f"pretrained BERT   {pm:.4f} ± {ps:.4f}   ({pp/1e6:.0f}M)",
-        fontsize=7.5, color="0.25", va="bottom")
+        fontsize=8.0, color="0.25", va="bottom")
 ax.errorbar(xs, mu, yerr=sd, fmt="-o", color=ACCENT, ms=5, lw=1.3, capsize=3, zorder=4)
 for x, m, s, t in zip(xs, mu, sd, tags):
     ax.annotate(f"{pm-m:+.4f}", (x, m), textcoords="offset points", xytext=(0, -17),
-                ha="center", fontsize=7.5, color=ACCENT)
+                ha="center", fontsize=8.0, color=ACCENT)
 ax.set_xscale("log"); ax.set_xlabel("non-embedding parameters (log scale)")
 ax.set_ylabel("accuracy, AG News"); ax.set_ylim(0.865, 0.952)
-ax.set_title("Pretraining is worth five points here, and more parameters do not close it",
+if SHOW_INFIGURE_TITLES: ax.set_title("Pretraining is worth five points here, and more parameters do not close it",
              loc="left", fontsize=9.5, pad=8)
 # C37 clinical comparison, read from the run records -- never typed
 _pb = [json.loads((ROOT/f"local_only/task_runs/concat_s{s}.json").read_text())["auroc"] for s in (1,2,3)]
@@ -79,7 +84,7 @@ ins.axhspan(_pbm-_pbs, _pbm+_pbs, color=LIGHT)
 ins.axhline(_pbm, color=MUTED, lw=1.0)
 ins.errorbar([1.06e7], [_oum], yerr=[_ous], fmt="o", color=ACCENT, ms=4, capsize=2.5)
 ins.set_xscale("log"); ins.set_xlim(5e6, 2e8); ins.set_ylim(_oum-0.025, _pbm+0.025)
-ins.set_title(f"clinical task: gap ${_gap:+.4f}$", fontsize=6.5, pad=3)
+ins.set_title(f"clinical task: gap ${_gap:+.4f}$", fontsize=8.0, pad=3)
 ins.tick_params(labelsize=5.5); ins.set_yticks([0.75, 0.77, 0.79])
 fig.savefig(HERE/"fig-scaling.pdf"); plt.close(fig); print("wrote fig-scaling.pdf")
 
@@ -111,13 +116,13 @@ for i, (lab, e, lo, hi) in enumerate(rows):
     ax.hlines(i, lo, hi, color=c, lw=1.4)
     ax.plot(e, i, "o", color=c, ms=4.4, markeredgecolor="w", markeredgewidth=0.6)
 ax.axvline(0, color="0.25", lw=0.8, ls="--")
-ax.set_yticks(range(len(rows))); ax.set_yticklabels([r[0] for r in rows], fontsize=7.5)
+ax.set_yticks(range(len(rows))); ax.set_yticklabels([r[0] for r in rows], fontsize=8.0)
 ax.set_xlabel("effect (units differ by row; zero = no effect)")
 n_cross = sum(1 for r in rows if r[2] <= 0 <= r[3])
-ax.set_title(f"{n_cross} of {len(rows)} headline estimates cross zero",
+if SHOW_INFIGURE_TITLES: ax.set_title(f"{n_cross} of {len(rows)} headline estimates cross zero",
              loc="left", fontsize=9.5, pad=8)
 ax.text(0.99, 0.03, "grey: interval contains zero", transform=ax.transAxes,
-        ha="right", fontsize=7, color="0.45")
+        ha="right", fontsize=8.0, color="0.45")
 fig.savefig(HERE/"fig-forest.pdf"); plt.close(fig)
 print(f"wrote fig-forest.pdf ({n_cross}/{len(rows)} cross zero)")
 
@@ -148,19 +153,19 @@ mde = hanley_mde(n_pos, n_neg)
 fig, ax = plt.subplots(figsize=(6.2, 3.7))
 ax.plot(n_pos, np.clip(mde, 0.5, 1.0), color=ACCENT, lw=1.4)
 ax.fill_between(n_pos, np.clip(mde, .5, 1), 1.0, color=LIGHT, alpha=.55, lw=0)
-ax.text(700, 0.93, "detectable", fontsize=8, color="0.35")
-ax.text(9, 0.56, "not detectable\nat this sample size", fontsize=8, color="0.35")
+ax.text(700, 0.93, "detectable", fontsize=8.0, color="0.35")
+ax.text(9, 0.56, "not detectable\nat this sample size", fontsize=8.0, color="0.35")
 ax.plot([12], [mda], "o", color="#b03030", ms=6, zorder=5)
 ax.annotate(f"this study\n12 positives, MDE {mda:.3f}", (12, mda), xytext=(28, 0.86),
-            fontsize=7.5, color="#b03030",
+            fontsize=8.0, color="#b03030",
             arrowprops=dict(arrowstyle="-", lw=.6, color="#b03030"))
 ax.plot([570], [hanley_mde([570],[6206])[0]], "o", color=MUTED, ms=5)
 ax.annotate("mortality task\n570 test positives", (570, hanley_mde([570],[6206])[0]),
-            xytext=(230, 0.60), fontsize=7.5, color="0.3",
+            xytext=(230, 0.60), fontsize=8.0, color="0.3",
             arrowprops=dict(arrowstyle="-", lw=.6, color="0.5"))
 ax.set_xscale("log"); ax.set_xlabel("positive examples in the evaluation set (log scale)")
 ax.set_ylabel("minimum detectable AUROC (80% power)")
 ax.set_ylim(0.5, 1.0); ax.set_xlim(5, 3000)
-ax.set_title("What each evaluation in this thesis could have seen",
+if SHOW_INFIGURE_TITLES: ax.set_title("What each evaluation in this thesis could have seen",
              loc="left", fontsize=9.5, pad=8)
 fig.savefig(HERE/"fig-power.pdf"); plt.close(fig); print("wrote fig-power.pdf")

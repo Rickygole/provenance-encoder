@@ -41,6 +41,11 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+# Long provenance notes belong in the LaTeX caption, not inside the plot.
+# Set True to draw them again.
+SHOW_INFIGURE_NOTES = False
+SHOW_INFIGURE_TITLES = False
 import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 from scipy.stats import norm
@@ -180,25 +185,25 @@ def make_fig_pipeline_status():
                               linewidth=1.0, edgecolor=GREY_DARK,
                               facecolor="white")
         ax.add_patch(box)
-        ax.text(x, 1.60, s, ha="center", va="center", fontsize=7.3)
+        ax.text(x, 1.60, s, ha="center", va="center", fontsize=8.0)
         if i < n - 1:
             ax.annotate("", xy=(xs[i + 1] - box_w / 2, 1.60), xytext=(x + box_w / 2, 1.60),
                         arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=1.0))
-        ax.text(x, 1.10, b, ha="center", va="top", fontsize=6.6,
+        ax.text(x, 1.10, b, ha="center", va="top", fontsize=8.0,
                  bbox=dict(boxstyle="round,pad=0.25", facecolor=GREY_FILL,
                            edgecolor=GREY_MED, linewidth=0.6))
-        ax.text(x, 0.72, d, ha="center", va="center", fontsize=5.8,
+        ax.text(x, 0.72, d, ha="center", va="center", fontsize=8.0,
                  style="italic", color=GREY_MED)
 
     ax.text(3.0, 1.93, "The pipeline as run, stage by stage", ha="center",
-            fontsize=9, weight="bold")
+            fontsize=9.0, weight="bold")
 
     fig.tight_layout(rect=[0, 0.12, 1, 1])
-    fig.text(0.5, 0.02,
+    if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.02,
             "*Categorical only (not re-plotted with a number): CORRECTIONS.md C1/C2/C4 document that the\n"
             "authority-weight and rule-F1 claims did not survive re-audit; no committed result file in this\n"
             "repo carries the underlying numbers, so they are not re-typed here.",
-            ha="center", fontsize=5.6, color=GREY_MED)
+            ha="center", fontsize=8.0, color=GREY_MED)
     fname = "fig-pipeline-status.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -251,18 +256,18 @@ def make_fig_intro_headline():
     axL.barh(ypos, rates, color=GREY_FILL, edgecolor=GREY_DARK, height=0.55,
              xerr=errs, ecolor=GREY_DARK, capsize=3)
     for y, b, r in zip(ypos, bars, rates):
-        axL.text(r + 0.03, y, f"{b[1]}/{b[2]} = {r*100:.1f}%", va="center", fontsize=7)
+        axL.text(r + 0.03, y, f"{b[1]}/{b[2]} = {r*100:.1f}%", va="center", fontsize=8.0)
     axL.set_yticks(ypos)
-    axL.set_yticklabels([b[0] for b in bars], fontsize=6.8)
+    axL.set_yticklabels([b[0] for b in bars], fontsize=8.0)
     axL.set_xlim(0, 1.75)
     axL.set_ylim(-0.6, 2.6)
     axL.set_xlabel("rate")
     axL.spines[["top", "right"]].set_visible(False)
-    axL.set_title(f"Marginal, weak label vs.\\ truth ({weak_rate/pharm_rate:.0f}x)", fontsize=8.5)
+    if SHOW_INFIGURE_TITLES: axL.set_title(f"Marginal, weak label vs.\\ truth ({weak_rate/pharm_rate:.0f}x)", fontsize=8.5)
     axL.annotate("", xy=(1.48, ypos[2]), xytext=(1.48, ypos[0]),
                  arrowprops=dict(arrowstyle="-", color=GREY_MED))
     axL.text(1.56, (ypos[0] + ypos[2]) / 2, f"~{weak_rate/pharm_rate:.0f}x",
-              va="center", ha="left", fontsize=7.5, color=GREY_MED)
+              va="center", ha="left", fontsize=8.0, color=GREY_MED)
 
     xs = np.arange(4)
     vals = [mcc[k]["mcc"] for k in order]
@@ -273,19 +278,19 @@ def make_fig_intro_headline():
     axR.bar(xs, vals, yerr=err, color="white", edgecolor=GREY_DARK, capsize=3,
             hatch=None, width=0.55, linewidth=1.0, ecolor=GREY_DARK)
     axR.set_xticks(xs)
-    axR.set_xticklabels(labels, fontsize=6.8)
+    axR.set_xticklabels(labels, fontsize=8.0)
     axR.set_ylabel("Matthews correlation")
-    axR.set_title("MCC, 95% CI, n=253", fontsize=8.5)
-    axR.text(0.03, 0.03, "chance", transform=axR.transAxes, fontsize=6.5,
+    if SHOW_INFIGURE_TITLES: axR.set_title("MCC, 95% CI, n=253", fontsize=8.5)
+    axR.text(0.03, 0.03, "chance", transform=axR.transAxes, fontsize=8.0,
               color=GREY_MED, va="bottom")
     axR.spines[["top", "right"]].set_visible(False)
 
-    fig.suptitle("The number that determines the rest of the thesis", fontsize=9, y=0.97)
-    fig.text(0.5, 0.02,
+    if SHOW_INFIGURE_TITLES: fig.suptitle("The number that determines the rest of the thesis", fontsize=9.0, y=0.97)
+    if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.02,
             "Left-panel middle bar (weak labeller gold-set marginal): 261/299, summed from per-group counts in\n"
             "exp1a_gold_error_rates_by_group.json. CORRECTIONS.md C28 flags an unresolved 17-row discrepancy against a\n"
             "raw-file count of 278/299 in a file not committed to this repo; the value shown is the one reconstructable here.",
-            ha="center", fontsize=5.5, color=GREY_MED)
+            ha="center", fontsize=8.0, color=GREY_MED)
     fname = "fig-intro-headline.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -316,18 +321,18 @@ def make_fig_funnel():
     for y, (label, val) in zip(ys, stages):
         w = val / maxw
         ax.barh(y, w, height=0.5, color=GREY_FILL, edgecolor=GREY_DARK)
-        ax.text(w + 0.02, y, f"{val:,}", va="center", fontsize=8, weight="bold")
-        ax.text(-0.02, y, label, va="center", ha="right", fontsize=7.3)
+        ax.text(w + 0.02, y, f"{val:,}", va="center", fontsize=8.0, weight="bold")
+        ax.text(-0.02, y, label, va="center", ha="right", fontsize=8.0)
     ax.set_xlim(-1.05, 1.25)
     ax.set_ylim(-0.55, len(stages) - 0.15)
     ax.axis("off")
-    ax.set_title("Cohort funnel (heart failure), traceable stages only", fontsize=9)
+    if SHOW_INFIGURE_TITLES: ax.set_title("Cohort funnel (heart failure), traceable stages only", fontsize=9.0)
     fig.tight_layout(rect=[0, 0.16, 1, 1])
-    fig.text(0.5, 0.02,
+    if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.02,
             "The original spec's intermediate step (9,825 admissions with both note roles present, 72.2%) and the three\n"
             "alternative three-role configurations (16.7%, 16.8%, 12.4%) are not present in any committed result file\n"
             "(grep of results/accord/**/*.json found no match for those counts) and are omitted here rather than typed in.",
-            ha="center", fontsize=5.6, color=GREY_MED)
+            ha="center", fontsize=8.0, color=GREY_MED)
     fname = "fig-funnel.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -362,27 +367,27 @@ def make_fig_exemplar():
         y = 4.9 - i * 0.78
         ax.add_patch(mpatches.Rectangle((col_x["Nursing note"] - 0.55, y - 0.28), 1.1, 0.56,
                                           facecolor="white", edgecolor=GREY_DARK))
-        ax.text(col_x["Nursing note"], y, nurse_tags[i], ha="center", va="center", fontsize=7.5)
+        ax.text(col_x["Nursing note"], y, nurse_tags[i], ha="center", va="center", fontsize=8.0)
         fc = GREY_FILL if i == 4 else "white"
         ax.add_patch(mpatches.Rectangle((col_x["Discharge summary"] - 0.55, y - 0.28), 1.1, 0.56,
                                           facecolor=fc, edgecolor=GREY_DARK))
-        ax.text(col_x["Discharge summary"], y, disch_tags[i], ha="center", va="center", fontsize=7.5)
+        ax.text(col_x["Discharge summary"], y, disch_tags[i], ha="center", va="center", fontsize=8.0)
 
     # trigger arrow spanning both columns (top)
     ax.annotate("", xy=(col_x["Discharge summary"] - 0.6, 5.15), xytext=(col_x["Nursing note"] + 0.6, 5.15),
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=1.1))
     ax.text((col_x["Nursing note"] + col_x["Discharge summary"]) / 2, 5.3,
-            "trigger: sets conflict\n(quantifies over the set)", ha="center", fontsize=6.6, color=GREY_MED)
+            "trigger: sets conflict\n(quantifies over the set)", ha="center", fontsize=8.0, color=GREY_MED)
 
     y0 = 4.9
     y4 = 4.9 - 4 * 0.78
     ax.annotate(".iloc[0]\n(what the model,\nannotator & LLM saw)",
                 xy=(col_x["Discharge summary"] - 0.55, y0), xytext=(col_x["Discharge summary"] + 1.5, y0 + 0.5),
-                fontsize=6.3, color=GREY_DARK,
+                fontsize=8.0, color=GREY_DARK,
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=0.9))
     ax.annotate("fix: action-matched\n+ dose-adjacent\n(the CESS mention)",
                 xy=(col_x["Discharge summary"] - 0.55, y4), xytext=(col_x["Discharge summary"] + 1.5, y4 - 0.3),
-                fontsize=6.3, color=GREY_DARK,
+                fontsize=8.0, color=GREY_DARK,
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=0.9))
 
     ax.add_patch(mpatches.FancyBboxPatch((1.2, 0.15), 7.6, 0.75,
@@ -390,7 +395,7 @@ def make_fig_exemplar():
     ax.text(5.0, 0.52,
             f"For {defect_rate*100:.1f}% of action-conflict candidates, the trigger-set slot and the\n"
             ".iloc[0] slot disagreed (rule_1_2_pooled, exemplar_correctness_recomputed.json)",
-            ha="center", va="center", fontsize=7)
+            ha="center", va="center", fontsize=8.0)
 
     fig.tight_layout()
     fname = "fig-exemplar.pdf"
@@ -426,7 +431,7 @@ def make_fig_rule_precision():
     ax.axhline(0.5, **CHANCE_STYLE)
     ax.bar(xs, aurocs, color=GREY_FILL, edgecolor=GREY_DARK, width=0.55)
     for x, s in zip(xs, per_rule):
-        ax.text(x, s["auroc"] + 0.02, f"n={s['n']}\npos={s['pos']}", ha="center", fontsize=6.3)
+        ax.text(x, s["auroc"] + 0.02, f"n={s['n']}\npos={s['pos']}", ha="center", fontsize=8.0)
     # reference band: pooled rules 3+4 (defect-free) bootstrap CI from C36 --
     # shown only across the rule-3 / rule-4 bars it actually describes.
     ax.axhspan(e3["unstratified_ci95"][0], e3["unstratified_ci95"][1],
@@ -436,15 +441,15 @@ def make_fig_rule_precision():
     ax.set_xticklabels([s["name"].replace("rule ", "Rule ") for s in per_rule])
     ax.set_ylabel("ACCORD AUROC (per rule)")
     ax.set_ylim(0, 1.0)
-    ax.legend(loc="upper left", fontsize=6, frameon=False)
+    ax.legend(loc="upper left", fontsize=8.0, frameon=False)
     ax.spines[["top", "right"]].set_visible(False)
-    ax.set_title("ACCORD's own ranking performance does not exceed chance\nwithin any single rule", fontsize=8.3)
-    fig.text(0.02, 0.02,
+    if SHOW_INFIGURE_TITLES: ax.set_title("ACCORD's own ranking performance does not exceed chance\nwithin any single rule", fontsize=8.3)
+    if SHOW_INFIGURE_NOTES: fig.text(0.02, 0.02,
              "Deviation from spec: per-rule ACCORD *precision* (as in the written spec) is not in any\n"
              "committed result file; per-rule AUROC is (defect_free_strata.json) and is shown instead.\n"
              "Individual-rule CIs are not computable here (per-pair scores not committed); only the\n"
              "pooled rules-3+4 CI (stats/intervals.json E3) is available and is shown as a reference band.",
-             fontsize=5.5, color=GREY_MED)
+             fontsize=8.0, color=GREY_MED)
     fig.tight_layout(rect=[0, 0.10, 1, 1])
     fname = "fig-rule-precision.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
@@ -483,33 +488,33 @@ def make_fig_prevalence():
             centre = left + frac / 2
             if frac > 0.25:
                 ax.text(centre, y, f"{lab}\n{val}/{n}\n({frac*100:.1f}%)",
-                        ha="center", va="center", fontsize=5.9)
+                        ha="center", va="center", fontsize=8.0)
             elif frac > 0.09:
                 ax.text(centre, y, f"{lab}\n{val}/{n} ({frac*100:.1f}%)",
-                        ha="center", va="center", fontsize=5.5)
+                        ha="center", va="center", fontsize=8.0)
             else:
                 y_lab = y + small_dir * 0.62
                 ax.annotate(f"{lab}\n{val}/{n} ({frac*100:.1f}%)", xy=(centre, y + small_dir * 0.25),
                             xytext=(centre, y_lab), ha="center",
-                            va="bottom" if small_dir > 0 else "top", fontsize=6.0,
+                            va="bottom" if small_dir > 0 else "top", fontsize=8.0,
                             arrowprops=dict(arrowstyle="-", color=GREY_MED, lw=0.6))
             left += frac
 
     stacked(1, cats_weak, weak_n, [None, HATCH_A], small_dir=1)
     stacked(0, cats_gold, gold_n, [None, HATCH_A, HATCH_B], small_dir=-1)
     ax.set_yticks([1, 0])
-    ax.set_yticklabels([f"Weak labels\n(n={weak_n})", f"Pharmacist gold\n(n={gold_n})"], fontsize=7.5)
+    ax.set_yticklabels([f"Weak labels\n(n={weak_n})", f"Pharmacist gold\n(n={gold_n})"], fontsize=8.0)
     ax.set_ylim(-1.0, 1.9)
     ax.set_xlim(0, 1.02)
     ax.set_xlabel("share of labels")
     ax.spines[["top", "right"]].set_visible(False)
     ratio = (weak_pos / weak_n) / (gold_pos / gold_n)
     ax.annotate("", xy=(1.0, 0), xytext=(1.0, 1), arrowprops=dict(arrowstyle="-", color=GREY_MED))
-    ax.text(1.06, 0.5, f"~{ratio:.0f}x", rotation=90, va="center", fontsize=8, color=GREY_MED)
+    ax.text(1.06, 0.5, f"~{ratio:.0f}x", rotation=90, va="center", fontsize=8.0, color=GREY_MED)
     implied_wrong = int(np.floor(weak_pos * (1 - gold_pos / gold_n)))
-    ax.set_title(f"Marginals are close to complementary, not noisy copies\n"
+    if SHOW_INFIGURE_TITLES: ax.set_title(f"Marginals are close to complementary, not noisy copies\n"
                  f"implied floor: ≥{implied_wrong:,} of {weak_pos:,} positive weak labels wrong "
-                 f"at the measured {gold_pos/gold_n*100:.1f}% base rate", fontsize=7.6)
+                 f"at the measured {gold_pos/gold_n*100:.1f}% base rate", fontsize=8.0)
     fig.tight_layout()
     fname = "fig-prevalence.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
@@ -551,9 +556,9 @@ def make_fig_tracking():
     ax.set_xticklabels([f"Rule {r}\n(n={ns[r]})" for r in rules])
     ax.set_ylabel("positive rate")
     ax.set_ylim(-0.05, 1.15)
-    ax.legend(loc="upper right", fontsize=6.8, frameon=False)
+    ax.legend(loc="upper right", fontsize=8.0, frameon=False)
     ax.spines[["top", "right"]].set_visible(False)
-    ax.set_title("The student tracks the teacher's marginal, not the truth's",
+    if SHOW_INFIGURE_TITLES: ax.set_title("The student tracks the teacher's marginal, not the truth's",
                  fontsize=8.5)
     fig.tight_layout()
     fname = "fig-tracking.pdf"
@@ -618,7 +623,7 @@ def make_fig_met_exchange():
         ax.scatter([delta], [dtn], marker=markers[name], s=45, color=GREY_DARK,
                    facecolor="white" if name != "ACCORD" else GREY_DARK, zorder=5)
         ax.annotate(name, (delta, dtn), textcoords="offset points", xytext=label_offset[name],
-                    fontsize=6.8)
+                    fontsize=8.0)
 
     ax.axhline(0, color=GREY_LIGHT, linewidth=0.6)
     ax.axvline(0, color=GREY_LIGHT, linewidth=0.6)
@@ -626,9 +631,9 @@ def make_fig_met_exchange():
     ax.set_ylabel(r"$\Delta$TN, relative to ACCORD")
     ax.set_xlim(-1, P + 1)
     ax.set_ylim(-32, N + 10)
-    ax.legend(loc="upper left", fontsize=6.5, frameon=False)
+    ax.legend(loc="upper left", fontsize=8.0, frameon=False)
     ax.spines[["top", "right"]].set_visible(False)
-    ax.set_title(f"What each statistic trades (P={P}, N={N}, n={P+N})", fontsize=8.5)
+    if SHOW_INFIGURE_TITLES: ax.set_title(f"What each statistic trades (P={P}, N={N}, n={P+N})", fontsize=8.5)
     fig.tight_layout()
     fname = "fig-met-exchange.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
@@ -666,15 +671,15 @@ def make_fig_met_sharpened():
     axL.set_yticks([0, 3, 6, 9, 12])
     axL.set_ylabel(f"true positives (of {P})")
     axL.set_xticks(xs)
-    axL.set_xticklabels(labels, fontsize=7)
+    axL.set_xticklabels(labels, fontsize=8.0)
     axL.spines[["top", "right"]].set_visible(False)
     accord_pp = baselines["accord_binary_at_0.5_253core"]["tp"] + baselines["accord_binary_at_0.5_253core"]["fp"]
     llama_pp = baselines["llama_baseline"]["tp"] + baselines["llama_baseline"]["fp"]
     n253 = baselines["accord_binary_at_0.5_253core"]["tp"] + baselines["accord_binary_at_0.5_253core"]["fp"] + \
            baselines["accord_binary_at_0.5_253core"]["tn"] + baselines["accord_binary_at_0.5_253core"]["fn"]
-    axL.text(2, recalls[2] + 2.8, f"{accord_pp}/{n253}\npred. positive\n(contaminated run)", ha="center", fontsize=5.8, color=GREY_MED)
-    axL.text(3, recalls[3] + 2.8, f"{llama_pp}/{n253}\npred. positive", ha="center", fontsize=5.8, color=GREY_MED)
-    axL.set_title("Recall", fontsize=8.5)
+    axL.text(2, recalls[2] + 2.8, f"{accord_pp}/{n253}\npred. positive\n(contaminated run)", ha="center", fontsize=8.0, color=GREY_MED)
+    axL.text(3, recalls[3] + 2.8, f"{llama_pp}/{n253}\npred. positive", ha="center", fontsize=8.0, color=GREY_MED)
+    if SHOW_INFIGURE_TITLES: axL.set_title("Recall", fontsize=8.5)
 
     mcc = intervals["E2_mcc_intervals"]
     vals = [mcc[key_map[k]]["mcc"] for k in order]
@@ -684,16 +689,16 @@ def make_fig_met_sharpened():
     axR.axhline(0, **CHANCE_STYLE)
     axR.bar(xs, vals, yerr=err2, color="white", edgecolor=GREY_DARK, capsize=3, width=0.55, ecolor=GREY_DARK)
     axR.set_xticks(xs)
-    axR.set_xticklabels(labels, fontsize=7)
+    axR.set_xticklabels(labels, fontsize=8.0)
     axR.set_ylabel("MCC")
     axR.set_xlim(-0.85, 3.6)
-    axR.text(-0.75, 0.012, "chance", fontsize=6.3, color=GREY_MED, va="bottom", ha="left")
+    axR.text(-0.75, 0.012, "chance", fontsize=8.0, color=GREY_MED, va="bottom", ha="left")
     axR.spines[["top", "right"]].set_visible(False)
-    axR.set_title("Matthews correlation, 95% CI", fontsize=8.5)
+    if SHOW_INFIGURE_TITLES: axR.set_title("Matthews correlation, 95% CI", fontsize=8.5)
 
     fig.tight_layout(rect=[0, 0, 1, 0.86])
-    fig.suptitle("The high-recall systems predict positive almost everywhere;\n"
-                 "no MCC interval excludes chance", fontsize=8, y=0.99)
+    if SHOW_INFIGURE_TITLES: fig.suptitle("The high-recall systems predict positive almost everywhere;\n"
+                 "no MCC interval excludes chance", fontsize=8.0, y=0.99)
     fname = "fig-met-sharpened.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -732,13 +737,13 @@ def make_fig_disc_strata():
         ax.errorbar([auroc], [y], xerr=[[auroc - ci[0]], [ci[1] - auroc]], fmt="o",
                     color=GREY_DARK, capsize=4, markersize=6, linewidth=1.3)
         ax.text(auroc, y + 0.22, f"AUROC {auroc:.4f}, n={n}, pos={pos}, MWU p={p:.3f}",
-                ha="center", fontsize=6.8)
+                ha="center", fontsize=8.0)
         if strat_ci is not None:
             ax.errorbar([auroc], [y - 0.28], xerr=[[auroc - strat_ci[0]], [strat_ci[1] - auroc]],
                         fmt="D", color=GREY_MED, capsize=3, markersize=4.5, linewidth=1.0)
-            ax.text(strat_ci[1] + 0.02, y - 0.28, "stratified CI", fontsize=5.8, va="center", color=GREY_MED)
+            ax.text(strat_ci[1] + 0.02, y - 0.28, "stratified CI", fontsize=8.0, va="center", color=GREY_MED)
     ax.set_yticks(ys)
-    ax.set_yticklabels([r[0] for r in rows], fontsize=7.5)
+    ax.set_yticklabels([r[0] for r in rows], fontsize=8.0)
     ax.set_xlim(0.1, 0.9)
     ax.set_ylim(-0.95, 1.55)
     ax.set_xlabel("AUROC")
@@ -746,14 +751,14 @@ def make_fig_disc_strata():
     ax.text(0.5, ys[-1] - 0.72,
             f"E3: {intervals['E3_defect_free_stratum']['draws_dropped_zero_positives']} of "
             f"{intervals['bootstrap_B']} bootstrap resamples dropped (0 positives)",
-            ha="center", fontsize=6.2, color=GREY_MED)
+            ha="center", fontsize=8.0, color=GREY_MED)
     fig.tight_layout(rect=[0, 0.15, 1, 0.86])
-    fig.suptitle("On evidence correct by construction, ranking is at chance,\nnot merely attenuated toward it",
+    if SHOW_INFIGURE_TITLES: fig.suptitle("On evidence correct by construction, ranking is at chance,\nnot merely attenuated toward it",
                  fontsize=8.3, y=0.99)
-    fig.text(0.5, 0.03,
+    if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.03,
              "No ROC curve is drawn: per-pair prediction scores are not committed to this repository (MIMIC-III DUA\n"
              "restricts released files to aggregates). Panels show the committed point estimate and its bootstrap CI instead.",
-             ha="center", fontsize=5.6, color=GREY_MED)
+             ha="center", fontsize=8.0, color=GREY_MED)
     fname = "fig-disc-strata.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -789,31 +794,31 @@ def make_fig_disc_actionability():
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=1.2))
     for x, label, ytext in events:
         ax.plot([x], [line_y], marker="o", color=GREY_DARK, markersize=5, zorder=4)
-        ax.annotate(label, (x, line_y), xytext=(x, ytext), ha="center", va="bottom", fontsize=6.6,
+        ax.annotate(label, (x, line_y), xytext=(x, ytext), ha="center", va="bottom", fontsize=8.0,
                     arrowprops=dict(arrowstyle="-", color=GREY_MED, lw=0.6))
 
     # shaded region: no intervention possible (after DISCHTIME, before trigger)
     ax.axvspan(5.4, 8.2, ymin=(line_y - 0.28) / 4.0, ymax=(line_y + 0.28) / 4.0,
                color=GREY_LIGHT, alpha=0.45, zorder=1)
     ax.text((5.4 + 8.2) / 2, line_y, "no intervention\npossible", ha="center", va="center",
-            fontsize=6.3, style="italic", zorder=5)
+            fontsize=8.0, style="italic", zorder=5)
 
     ax.plot([8.2], [line_y], marker="X", color=GREY_DARK, markersize=7, zorder=4)
     ax.annotate("system's trigger point\n(discharge summary)", xy=(8.2, line_y - 0.15),
-                xytext=(8.2, 1.15), ha="center", va="top", fontsize=6.3,
+                xytext=(8.2, 1.15), ha="center", va="top", fontsize=8.0,
                 arrowprops=dict(arrowstyle="-", color=GREY_MED, lw=0.6))
 
     ax.annotate("proposed detection point", xy=(4.0, line_y - 0.15), xytext=(2.4, 0.55),
-                fontsize=6.3, ha="center", va="top", color=GREY_DARK,
+                fontsize=8.0, ha="center", va="top", color=GREY_DARK,
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=0.9, linestyle="--"))
 
-    ax.set_title("The actionability flaw: the trigger fires after the patient has left",
+    if SHOW_INFIGURE_TITLES: ax.set_title("The actionability flaw: the trigger fires after the patient has left",
                  fontsize=8.5, pad=8)
     fig.tight_layout(rect=[0, 0.10, 1, 1])
-    fig.text(0.5, 0.02,
+    if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.02,
              "Schematic of MIMIC-III field timing (CORRECTIONS.md C6: CHARTTIME is null for every\n"
              "discharge summary). No numeric estimate is shown; not sourced from a results JSON.",
-             ha="center", fontsize=5.6, color=GREY_MED)
+             ha="center", fontsize=8.0, color=GREY_MED)
     fname = "fig-disc-actionability.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)

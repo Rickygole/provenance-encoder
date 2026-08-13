@@ -9,6 +9,11 @@ fig-falsification -- left panel sourced; right panel's transfer F1 is not on
 import json, pathlib
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+# Long provenance notes belong in the LaTeX caption, not inside the plot.
+# Set True to draw them again.
+SHOW_INFIGURE_NOTES = False
+SHOW_INFIGURE_TITLES = False
 import pandas as pd
 
 plt.rcParams.update({"font.family": "serif", "font.size": 9,
@@ -30,14 +35,14 @@ a.bar([0], [n_clf], color="0.35", label=f"action-classified ({n_clf:,})")
 a.bar([0], [n_all - n_clf], bottom=[n_clf], color="0.8",
       label=f"unclassified ({n_all - n_clf:,})")
 a.set_xticks([]); a.set_ylabel("medication mentions")
-a.set_title(f"all mentions (n = {n_all:,})", fontsize=9)
-a.legend(fontsize=7, frameon=False, loc="upper right")
+a.set_title(f"all mentions (n = {n_all:,})", fontsize=9.0)
+a.legend(fontsize=8.0, frameon=False, loc="upper right")
 
 b.bar(["discharge", "nursing"], [disch, nurs], color=["0.35", "0.6"], width=.55)
 for x, v in enumerate([disch, nurs]):
-    b.text(x, v + n_clf * .02, f"{v:,}", ha="center", fontsize=8)
+    b.text(x, v + n_clf * .02, f"{v:,}", ha="center", fontsize=8.0)
 b.set_ylabel("action-classified mentions")
-b.set_title(f"by note role, {disch/nurs:.1f} : 1", fontsize=9)
+b.set_title(f"by note role, {disch/nurs:.1f} : 1", fontsize=9.0)
 b.set_ylim(0, disch * 1.18)
 fig.tight_layout(); fig.savefig(HERE / "fig-asymmetry.pdf"); plt.close(fig)
 man["fig:asymmetry"] = {"file": "fig-asymmetry.pdf",
@@ -57,22 +62,22 @@ a.bar([i + .18 for i in x], [aN, aD], .35, color="0.35",
       yerr=[sN, sD], capsize=3, label="after training (3 seeds)")
 for i, (init, fin) in enumerate([(0.5, aN), (1.0, aD)]):
     a.text(i, max(init, fin) + .07, f"{100*(fin-init)/init:+.1f}%",
-           ha="center", fontsize=8)
+           ha="center", fontsize=8.0)
 a.set_xticks(x); a.set_xticklabels([r"$\alpha_N$", r"$\alpha_D$"])
 a.set_ylim(0, 1.35); a.set_ylabel("authority scale")
-a.set_title("reported as learned", fontsize=9)
-a.legend(fontsize=7, frameon=False, loc="upper left")
+a.set_title("reported as learned", fontsize=9.0)
+a.legend(fontsize=8.0, frameon=False, loc="upper left")
 
 f1 = [0.9603, 0.0654, 0.0595]
 bars = b.bar(["HF\n(in domain)", "sepsis", "AKI"], f1,
              color=["0.35", "0.7", "0.7"], width=.55)
 b.axhline(0.4515, ls="--", lw=1, color="0.2")
-b.text(2.35, 0.4515, "45.2%\nheld-out\nrule acc.", fontsize=7, va="center")
+b.text(2.35, 0.4515, "45.2%\nheld-out\nrule acc.", fontsize=8.0, va="center")
 for r, v in zip(bars, f1):
-    b.text(r.get_x() + r.get_width()/2, v + .03, f"{v:.4f}", ha="center", fontsize=8)
+    b.text(r.get_x() + r.get_width()/2, v + .03, f"{v:.4f}", ha="center", fontsize=8.0)
 b.set_ylim(0, 1.12); b.set_ylabel(r"rule-type $F_1$")
-b.set_title("out-of-domain collapse", fontsize=9)
-b.text(.5, 1.05, "transfer values recovered; see Appendix C", fontsize=6.5,
+b.set_title("out-of-domain collapse", fontsize=9.0)
+b.text(.5, 1.05, "transfer values recovered; see Appendix C", fontsize=8.0,
        style="italic", ha="center", color="0.35")
 fig.tight_layout(); fig.savefig(HERE / "fig-falsification.pdf"); plt.close(fig)
 man["fig:falsification"] = {"file": "fig-falsification.pdf",
