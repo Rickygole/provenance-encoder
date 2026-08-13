@@ -1,0 +1,3522 @@
+{
+  "generated_by": "accord/stats/audit_figure_data.py",
+  "scope": "the thirteen thesis figures",
+  "method": "Every value that reaches the canvas was classified by walking the drawing code, then every LOADED value was re-read from the primary result file and every DERIVED value recomputed from scratch. VERIFIED_FACTS.json and the figure manifests were NOT used as a source of truth.",
+  "code_audited": [
+    "accord/thesis/figures/make_figures.py",
+    "accord/thesis/figures/fig_batch2.py",
+    "accord/thesis/figures/fig_threshold_surface.py",
+    "accord/thesis/figures/make_figures_extra.py",
+    "accord/thesis/figures/Thesis_Figures_PerFigure.ipynb"
+  ],
+  "summary": {
+    "by_classification": {
+      "LOADED": 142,
+      "DERIVED": 69,
+      "SETTING": 48,
+      "TYPED": 15
+    },
+    "by_verdict": {
+      "PASS": 249,
+      "FAIL": 10,
+      "PASS(caveat)": 2,
+      "FAIL(dependency)": 2,
+      "FAIL(cosmetic)": 8,
+      "FAIL(latent)": 1,
+      "FAIL(label)": 1,
+      "PASS(divergent)": 1
+    },
+    "by_figure": {
+      "fig-pipeline-status": {
+        "n_values": 16,
+        "LOADED": 7,
+        "DERIVED": 3,
+        "SETTING": 6,
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
+      },
+      "fig-intro-headline": {
+        "n_values": 28,
+        "LOADED": 14,
+        "DERIVED": 9,
+        "SETTING": 5,
+        "TYPED": 0,
+        "n_fail": 1,
+        "clean": false
+      },
+      "fig-rule-precision": {
+        "n_values": 22,
+        "LOADED": 16,
+        "DERIVED": 3,
+        "SETTING": 3,
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
+      },
+      "fig-prevalence-response": {
+        "n_values": 54,
+        "LOADED": 48,
+        "DERIVED": 2,
+        "SETTING": 2,
+        "TYPED": 2,
+        "n_fail": 2,
+        "clean": false
+      },
+      "fig-falsification": {
+        "n_values": 18,
+        "LOADED": 7,
+        "DERIVED": 2,
+        "SETTING": 4,
+        "TYPED": 5,
+        "n_fail": 7,
+        "clean": false
+      },
+      "fig-power": {
+        "n_values": 16,
+        "LOADED": 6,
+        "DERIVED": 5,
+        "SETTING": 2,
+        "TYPED": 3,
+        "n_fail": 4,
+        "clean": false
+      },
+      "fig-forest": {
+        "n_values": 22,
+        "LOADED": 11,
+        "DERIVED": 7,
+        "SETTING": 2,
+        "TYPED": 2,
+        "n_fail": 3,
+        "clean": false
+      },
+      "fig-disc-strata": {
+        "n_values": 18,
+        "LOADED": 13,
+        "DERIVED": 2,
+        "SETTING": 2,
+        "TYPED": 1,
+        "n_fail": 3,
+        "clean": false
+      },
+      "fig-scaling": {
+        "n_values": 27,
+        "LOADED": 8,
+        "DERIVED": 14,
+        "SETTING": 4,
+        "TYPED": 1,
+        "n_fail": 1,
+        "clean": false
+      },
+      "fig-threshold-surface": {
+        "n_values": 12,
+        "LOADED": 5,
+        "DERIVED": 2,
+        "SETTING": 4,
+        "TYPED": 1,
+        "n_fail": 1,
+        "clean": false
+      },
+      "fig-disc-actionability": {
+        "n_values": 9,
+        "LOADED": 0,
+        "DERIVED": 1,
+        "SETTING": 8,
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
+      },
+      "fig-met-exchange": {
+        "n_values": 24,
+        "LOADED": 4,
+        "DERIVED": 17,
+        "SETTING": 3,
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
+      },
+      "fig-exemplar": {
+        "n_values": 8,
+        "LOADED": 3,
+        "DERIVED": 2,
+        "SETTING": 3,
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
+      }
+    }
+  },
+  "figures": {
+    "fig-pipeline-status": [
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "exemplar n_wrong",
+        "classification": "LOADED",
+        "plotted_value": 65,
+        "source_file": "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "key_path": "rule_1_2_pooled.n_wrong",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "exemplar n_resolved",
+        "classification": "LOADED",
+        "plotted_value": 137,
+        "source_file": "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "key_path": "rule_1_2_pooled.n_resolved",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "badge: defect rate %",
+        "classification": "DERIVED",
+        "plotted_value": 47.4453,
+        "source_file": "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "key_path": null,
+        "expression": "n_wrong/n_resolved = 65/137",
+        "verdict": "PASS",
+        "note": "badge prints 47.4%; uses the defensible ratio, NOT the struck 0.586/0.414"
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "weak_pos",
+        "classification": "LOADED",
+        "plotted_value": 1425,
+        "source_file": "results/accord/diag/step0_1_join_and_calibration.json",
+        "key_path": "weak_confidence_is_degenerate.crosstab_label_x_confidence.0.95.contradiction",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "weak_neg",
+        "classification": "LOADED",
+        "plotted_value": 254,
+        "source_file": "results/accord/diag/step0_1_join_and_calibration.json",
+        "key_path": "weak_confidence_is_degenerate.crosstab_label_x_confidence.1.0.not_contradiction",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "weak_pos_rate",
+        "classification": "DERIVED",
+        "plotted_value": 0.848719,
+        "source_file": "results/accord/diag/step0_1_join_and_calibration.json",
+        "key_path": null,
+        "expression": "1425/(1425+254)",
+        "verdict": "PASS",
+        "note": "off-diagonal crosstab cells sum to 0; denominator 1679 is the full pool only because they are zero"
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "pharm base rate n=299",
+        "classification": "LOADED",
+        "plotted_value": 0.0401,
+        "source_file": "results/accord/diag/step2_signal_check.json",
+        "key_path": "contra_prob_vs_pharm_label__ambiguous_as_negative_n299.base_rate",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "badge: prevalence mismatch ratio",
+        "classification": "DERIVED",
+        "plotted_value": 21.1651,
+        "source_file": "results/accord/diag/step2_signal_check.json",
+        "key_path": null,
+        "expression": "0.848720/0.0401 = 21.16",
+        "verdict": "PASS",
+        "note": "badge prints 21x"
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "badge: AUROC",
+        "classification": "LOADED",
+        "plotted_value": 0.5145228215767634,
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "aggregate.ensemble_auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "badge: AUROC CI95",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.3209574856693268,
+          0.7033717778609418
+        ],
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "aggregate.ensemble_ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "xlim",
+        "classification": "SETTING",
+        "plotted_value": [
+          0,
+          6
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          0.55,
+          2
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "figsize",
+        "classification": "SETTING",
+        "plotted_value": [
+          6.5,
+          2.55
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "box_w",
+        "classification": "SETTING",
+        "plotted_value": 0.82,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "box x positions",
+        "classification": "SETTING",
+        "plotted_value": "linspace(0.5,5.5,6)",
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-pipeline-status",
+        "value_name": "6 stage names + 3 categorical badges (WORKS / UNVALIDATED / THREE CLAIMS FALSIFIED)",
+        "classification": "SETTING",
+        "plotted_value": "categorical text",
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "narrative labels, no numeric claim on canvas"
+      }
+    ],
+    "fig-intro-headline": [
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "bar1 weak labeller train pool",
+        "classification": "DERIVED",
+        "plotted_value": "1425/1679",
+        "source_file": "results/accord/diag/step0_1_join_and_calibration.json",
+        "key_path": "crosstab 0.95.contradiction / (\u2026+1.0.not_contradiction)",
+        "expression": "1425/1679 = 0.8487",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "bar2 numerator (labelled 'ACCORD pred.-positive rate (gold set)')",
+        "classification": "LOADED",
+        "plotted_value": 261,
+        "source_file": "results/accord/differential/exp1a_gold_error_rates_by_group.json",
+        "key_path": "language_group3[*].TP + language_group3[*].FP",
+        "expression": "sum(TP+FP) over 3 language groups = 261",
+        "verdict": "FAIL",
+        "note": "MISLABELLED QUANTITY. reconciliation_c28.json states exp1a 'is titled Llama weak-label error rates by group and never touches accord_pred'. 261 is the Llama 3 8B WEAK LABELLER's predicted-positive count. ACCORD's own is 278/299 (gold_standard_accord_results.csv, accord_pred=='contradiction'). Correct value for the axis label as written: 278/299 = 93.0%."
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "bar2 denominator",
+        "classification": "LOADED",
+        "plotted_value": 299,
+        "source_file": "results/accord/differential/exp1a_gold_error_rates_by_group.json",
+        "key_path": "sum(language_group3[*].n) = 299",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "c28 cross-check: ACCORD predicted-positive",
+        "classification": "LOADED",
+        "plotted_value": 278,
+        "source_file": "results/accord/reconciliation_c28.json",
+        "key_path": "a_what_each_number_counts.278.value",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "the value the axis label describes; NOT plotted"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "c28 cross-check: weak-labeller marginal",
+        "classification": "LOADED",
+        "plotted_value": 261,
+        "source_file": "results/accord/reconciliation_c28.json",
+        "key_path": "a_what_each_number_counts.261.value",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "equals the bar that is plotted"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "bar3 pharmacist n_pos",
+        "classification": "LOADED",
+        "plotted_value": 12,
+        "source_file": "results/accord/diag/step2_signal_check.json",
+        "key_path": "contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n_pos",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "bar3 pharmacist n",
+        "classification": "LOADED",
+        "plotted_value": 299,
+        "source_file": "results/accord/diag/step2_signal_check.json",
+        "key_path": "contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "bar1 Wilson 95% CI",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0.83079,
+          0.86506
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": "wilson_ci(1425,1679)",
+        "verdict": "PASS",
+        "note": "closed form, deterministic"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "bar2 Wilson 95% CI",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0.83037,
+          0.90599
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": "wilson_ci(261,299)",
+        "verdict": "PASS",
+        "note": "closed form, deterministic"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "bar3 Wilson 95% CI",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0.0231,
+          0.06883
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": "wilson_ci(12,299)",
+        "verdict": "PASS",
+        "note": "closed form, deterministic"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "annotation '~21x'",
+        "classification": "DERIVED",
+        "plotted_value": 21.147,
+        "source_file": null,
+        "key_path": null,
+        "expression": "0.848720/0.040134 = 21.15",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC gpt4o_zeroshot",
+        "classification": "LOADED",
+        "plotted_value": 0.1089,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.gpt4o_zeroshot.mcc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "cross-checks against results/accord/diag/step3_baselines.json:gpt4o_zeroshot.mcc = 0.1089"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC gpt4o_zeroshot (recomputed from confusion matrix)",
+        "classification": "DERIVED",
+        "plotted_value": 0.108946,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "gpt4o_zeroshot.tp/tn/fp/fn",
+        "expression": "mcc_from_counts",
+        "verdict": "PASS",
+        "note": "independent re-derivation"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC gpt4o_zeroshot CI95",
+        "classification": "LOADED",
+        "plotted_value": [
+          -0.0319,
+          0.2484
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.gpt4o_zeroshot.ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "bootstrap B=10000, seed=42, read not recomputed"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC gpt4o_fewshot",
+        "classification": "LOADED",
+        "plotted_value": 0.0117,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.gpt4o_fewshot.mcc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "cross-checks against results/accord/diag/step3_baselines.json:gpt4o_fewshot.mcc = 0.0117"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC gpt4o_fewshot (recomputed from confusion matrix)",
+        "classification": "DERIVED",
+        "plotted_value": 0.01169,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "gpt4o_fewshot.tp/tn/fp/fn",
+        "expression": "mcc_from_counts",
+        "verdict": "PASS",
+        "note": "independent re-derivation"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC gpt4o_fewshot CI95",
+        "classification": "LOADED",
+        "plotted_value": [
+          -0.112,
+          0.1319
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.gpt4o_fewshot.ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "bootstrap B=10000, seed=42, read not recomputed"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC accord_binary_at_0.5_253core",
+        "classification": "LOADED",
+        "plotted_value": -0.007,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.accord_binary_at_0.5_253core.mcc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "cross-checks against results/accord/diag/step3_baselines.json:accord_binary_at_0.5_253core.mcc = -0.007"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC accord_binary_at_0.5_253core (recomputed from confusion matrix)",
+        "classification": "DERIVED",
+        "plotted_value": -0.006972,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "accord_binary_at_0.5_253core.tp/tn/fp/fn",
+        "expression": "mcc_from_counts",
+        "verdict": "PASS",
+        "note": "independent re-derivation"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC accord_binary_at_0.5_253core CI95",
+        "classification": "LOADED",
+        "plotted_value": [
+          -0.1626,
+          0.0753
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.accord_binary_at_0.5_253core.ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "bootstrap B=10000, seed=42, read not recomputed"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC llama_baseline",
+        "classification": "LOADED",
+        "plotted_value": -0.0436,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.llama_baseline.mcc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "cross-checks against results/accord/diag/step3_baselines.json:llama_baseline.mcc = -0.0436"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC llama_baseline (recomputed from confusion matrix)",
+        "classification": "DERIVED",
+        "plotted_value": -0.04361,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "llama_baseline.tp/tn/fp/fn",
+        "expression": "mcc_from_counts",
+        "verdict": "PASS",
+        "note": "independent re-derivation"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "MCC llama_baseline CI95",
+        "classification": "LOADED",
+        "plotted_value": [
+          -0.2337,
+          0.0563
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.llama_baseline.ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "bootstrap B=10000, seed=42, read not recomputed"
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "axL xlim",
+        "classification": "SETTING",
+        "plotted_value": [
+          0,
+          1.75
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "axL ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          -0.6,
+          2.6
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "bar height",
+        "classification": "SETTING",
+        "plotted_value": 0.55,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "figsize",
+        "classification": "SETTING",
+        "plotted_value": [
+          7.0,
+          4.3
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-intro-headline",
+        "value_name": "annotation x=1.48/1.56",
+        "classification": "SETTING",
+        "plotted_value": [
+          1.48,
+          1.56
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      }
+    ],
+    "fig-rule-precision": [
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 1 AUROC (bar height)",
+        "classification": "LOADED",
+        "plotted_value": 0.6514,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 1].auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 1 n",
+        "classification": "LOADED",
+        "plotted_value": 134,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 1].n",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 1 pos",
+        "classification": "LOADED",
+        "plotted_value": 3,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 1].pos",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 2 AUROC (bar height)",
+        "classification": "LOADED",
+        "plotted_value": 0.2262,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 2].auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 2 n",
+        "classification": "LOADED",
+        "plotted_value": 31,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 2].n",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 2 pos",
+        "classification": "LOADED",
+        "plotted_value": 3,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 2].pos",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 3 AUROC (bar height)",
+        "classification": "LOADED",
+        "plotted_value": 0.51,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 3].auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 3 n",
+        "classification": "LOADED",
+        "plotted_value": 79,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 3].n",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 3 pos",
+        "classification": "LOADED",
+        "plotted_value": 4,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 3].pos",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 4 AUROC (bar height)",
+        "classification": "LOADED",
+        "plotted_value": 0.2358,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 4].auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 4 n",
+        "classification": "LOADED",
+        "plotted_value": 55,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 4].n",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "rule 4 pos",
+        "classification": "LOADED",
+        "plotted_value": 2,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[name==rule 4].pos",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "per-rule n sums to the gold set",
+        "classification": "DERIVED",
+        "plotted_value": 299,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": null,
+        "expression": "134+31+79+55",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "per-rule pos sums to gold positives",
+        "classification": "DERIVED",
+        "plotted_value": 12,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": null,
+        "expression": "3+3+4+2",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "pooled rules 3+4 CI band",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.2217,
+          0.7615
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.unstratified_ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "pooled rules 3+4 n",
+        "classification": "LOADED",
+        "plotted_value": 134,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.n",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "pooled rules 3+4 n_pos",
+        "classification": "LOADED",
+        "plotted_value": 6,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.n_pos",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "E3 n/pos cross-check vs defect_free_strata",
+        "classification": "DERIVED",
+        "plotted_value": [
+          134,
+          6
+        ],
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[rules 3+4 (DEFECT-FREE)].n/pos",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "which ACCORD run the per-rule AUROCs come from",
+        "classification": "LOADED",
+        "plotted_value": "contaminated",
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[ALL].auroc = 0.4602",
+        "expression": null,
+        "verdict": "PASS(caveat)",
+        "note": "All four bars and the reference band come from the SAME run, so the figure is internally consistent. But strata[ALL].auroc = 0.4602 identifies it as the contaminated released score (control/final_report.json accord_contra_prob_same_299_pairs.gold_all.auroc = 0.46022), the run CORRECTIONS.md C16 retired. The y-axis says only 'ACCORD AUROC (per rule)'. No decontaminated per-rule breakdown exists in results/, so there is nothing to substitute; the run should be named on the axis or in the caption."
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "chance line 0.5",
+        "classification": "SETTING",
+        "plotted_value": 0.5,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          0,
+          1.0
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-rule-precision",
+        "value_name": "band xmin=(2-0.4)/4",
+        "classification": "SETTING",
+        "plotted_value": 0.4,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "axes-fraction start of the band so it spans only the rule-3/rule-4 bars"
+      }
+    ],
+    "fig-prevalence-response": [
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/A_bare/0.02 y",
+        "classification": "LOADED",
+        "plotted_value": 0.07,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.A_bare.0.02.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 7/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/A_bare/0.02 x",
+        "classification": "LOADED",
+        "plotted_value": 0.02,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.A_bare.0.02.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/A_bare/0.05 y",
+        "classification": "LOADED",
+        "plotted_value": 0.17,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.A_bare.0.05.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 17/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/A_bare/0.05 x",
+        "classification": "LOADED",
+        "plotted_value": 0.05,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.A_bare.0.05.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/A_bare/0.1 y",
+        "classification": "LOADED",
+        "plotted_value": 0.06,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.A_bare.0.1.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 6/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/A_bare/0.1 x",
+        "classification": "LOADED",
+        "plotted_value": 0.1,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.A_bare.0.1.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/A_bare/0.25 y",
+        "classification": "LOADED",
+        "plotted_value": 0.12,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.A_bare.0.25.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 12/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/A_bare/0.25 x",
+        "classification": "LOADED",
+        "plotted_value": 0.25,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.A_bare.0.25.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/B_baserate_abstain/0.02 y",
+        "classification": "LOADED",
+        "plotted_value": 0.0410958904109589,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.B_baserate_abstain.0.02.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 3/73"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/B_baserate_abstain/0.02 x",
+        "classification": "LOADED",
+        "plotted_value": 0.02,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.B_baserate_abstain.0.02.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/B_baserate_abstain/0.05 y",
+        "classification": "LOADED",
+        "plotted_value": 0.10975609756097561,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.B_baserate_abstain.0.05.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 9/82"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/B_baserate_abstain/0.05 x",
+        "classification": "LOADED",
+        "plotted_value": 0.05,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.B_baserate_abstain.0.05.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/B_baserate_abstain/0.1 y",
+        "classification": "LOADED",
+        "plotted_value": 0.05405405405405406,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.B_baserate_abstain.0.1.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 4/74"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/B_baserate_abstain/0.1 x",
+        "classification": "LOADED",
+        "plotted_value": 0.1,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.B_baserate_abstain.0.1.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/B_baserate_abstain/0.25 y",
+        "classification": "LOADED",
+        "plotted_value": 0.07352941176470588,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.B_baserate_abstain.0.25.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 5/68"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "llama3:8b/B_baserate_abstain/0.25 x",
+        "classification": "LOADED",
+        "plotted_value": 0.25,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.llama3:8b.B_baserate_abstain.0.25.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/A_bare/0.02 y",
+        "classification": "LOADED",
+        "plotted_value": 0.05,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.A_bare.0.02.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 5/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/A_bare/0.02 x",
+        "classification": "LOADED",
+        "plotted_value": 0.02,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.A_bare.0.02.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/A_bare/0.05 y",
+        "classification": "LOADED",
+        "plotted_value": 0.07,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.A_bare.0.05.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 7/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/A_bare/0.05 x",
+        "classification": "LOADED",
+        "plotted_value": 0.05,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.A_bare.0.05.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/A_bare/0.1 y",
+        "classification": "LOADED",
+        "plotted_value": 0.1,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.A_bare.0.1.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 10/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/A_bare/0.1 x",
+        "classification": "LOADED",
+        "plotted_value": 0.1,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.A_bare.0.1.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/A_bare/0.25 y",
+        "classification": "LOADED",
+        "plotted_value": 0.16,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.A_bare.0.25.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 16/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/A_bare/0.25 x",
+        "classification": "LOADED",
+        "plotted_value": 0.25,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.A_bare.0.25.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/B_baserate_abstain/0.02 y",
+        "classification": "LOADED",
+        "plotted_value": 0.030612244897959183,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.B_baserate_abstain.0.02.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 3/98"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/B_baserate_abstain/0.02 x",
+        "classification": "LOADED",
+        "plotted_value": 0.02,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.B_baserate_abstain.0.02.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/B_baserate_abstain/0.05 y",
+        "classification": "LOADED",
+        "plotted_value": 0.04,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.B_baserate_abstain.0.05.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 4/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/B_baserate_abstain/0.05 x",
+        "classification": "LOADED",
+        "plotted_value": 0.05,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.B_baserate_abstain.0.05.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/B_baserate_abstain/0.1 y",
+        "classification": "LOADED",
+        "plotted_value": 0.09,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.B_baserate_abstain.0.1.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 9/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/B_baserate_abstain/0.1 x",
+        "classification": "LOADED",
+        "plotted_value": 0.1,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.B_baserate_abstain.0.1.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/B_baserate_abstain/0.25 y",
+        "classification": "LOADED",
+        "plotted_value": 0.17,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.B_baserate_abstain.0.25.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 17/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "granite3.3:8b/B_baserate_abstain/0.25 x",
+        "classification": "LOADED",
+        "plotted_value": 0.25,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.granite3.3:8b.B_baserate_abstain.0.25.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/A_bare/0.02 y",
+        "classification": "LOADED",
+        "plotted_value": 0.02,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.A_bare.0.02.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 2/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/A_bare/0.02 x",
+        "classification": "LOADED",
+        "plotted_value": 0.02,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.A_bare.0.02.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/A_bare/0.05 y",
+        "classification": "LOADED",
+        "plotted_value": 0.03,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.A_bare.0.05.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 3/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/A_bare/0.05 x",
+        "classification": "LOADED",
+        "plotted_value": 0.05,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.A_bare.0.05.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/A_bare/0.1 y",
+        "classification": "LOADED",
+        "plotted_value": 0.05,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.A_bare.0.1.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 5/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/A_bare/0.1 x",
+        "classification": "LOADED",
+        "plotted_value": 0.1,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.A_bare.0.1.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/A_bare/0.25 y",
+        "classification": "LOADED",
+        "plotted_value": 0.09,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.A_bare.0.25.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 9/100"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/A_bare/0.25 x",
+        "classification": "LOADED",
+        "plotted_value": 0.25,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.A_bare.0.25.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/B_baserate_abstain/0.02 y",
+        "classification": "LOADED",
+        "plotted_value": 0.0,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.B_baserate_abstain.0.02.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 0/83"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/B_baserate_abstain/0.02 x",
+        "classification": "LOADED",
+        "plotted_value": 0.02,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.B_baserate_abstain.0.02.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/B_baserate_abstain/0.05 y",
+        "classification": "LOADED",
+        "plotted_value": 0.0,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.B_baserate_abstain.0.05.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 0/80"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/B_baserate_abstain/0.05 x",
+        "classification": "LOADED",
+        "plotted_value": 0.05,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.B_baserate_abstain.0.05.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/B_baserate_abstain/0.1 y",
+        "classification": "LOADED",
+        "plotted_value": 0.025,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.B_baserate_abstain.0.1.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 2/80"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/B_baserate_abstain/0.1 x",
+        "classification": "LOADED",
+        "plotted_value": 0.1,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.B_baserate_abstain.0.1.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/B_baserate_abstain/0.25 y",
+        "classification": "LOADED",
+        "plotted_value": 0.02666666666666667,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.B_baserate_abstain.0.25.positive_rate_of_decided",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "re-derived n_contradiction/n_decided = 2/75"
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "qwen3:8b/B_baserate_abstain/0.25 x",
+        "classification": "LOADED",
+        "plotted_value": 0.25,
+        "source_file": "results/accord/prevalence_replication/sweep_results.json",
+        "key_path": "results.qwen3:8b.B_baserate_abstain.0.25.true_prevalence",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "clinical marker x (notebook)",
+        "classification": "DERIVED",
+        "plotted_value": 0.0401,
+        "source_file": "results/accord/diag/step2_signal_check.json",
+        "key_path": "\u2026ambiguous_as_negative_n299.base_rate",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "clinical marker y (notebook)",
+        "classification": "DERIVED",
+        "plotted_value": 0.848719,
+        "source_file": "results/accord/diag/step0_1_join_and_calibration.json",
+        "key_path": "crosstab 1425/1679",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "clinical marker (fig_batch2.py literal)",
+        "classification": "TYPED",
+        "plotted_value": [
+          0.04,
+          0.849
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": "ax.plot([0.04],[0.849],'s',...)",
+        "verdict": "FAIL",
+        "note": "fig_batch2.py:35 hard-codes the marker. True values are 0.040134 and 0.848719 (step2_signal_check.json / step0_1_join_and_calibration.json). The notebook loads them; the .py rounds them into literals."
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "clinical annotation text (fig_batch2.py literal)",
+        "classification": "TYPED",
+        "plotted_value": "clinical (4% -> 85%)",
+        "source_file": null,
+        "key_path": null,
+        "expression": "ax.annotate('clinical\\n(4% -> 85%)')",
+        "verdict": "FAIL",
+        "note": "fig_batch2.py:37. Notebook builds the same string from the loaded values (4% -> 85%), so the displayed text is correct, but in the .py it is a literal."
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "identity/perfect-calibration line",
+        "classification": "SETTING",
+        "plotted_value": [
+          [
+            0,
+            0.28
+          ],
+          [
+            0,
+            0.28
+          ]
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-prevalence-response",
+        "value_name": "xlim/ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          [
+            0,
+            0.285
+          ],
+          [
+            0,
+            0.92
+          ]
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      }
+    ],
+    "fig-falsification": [
+      {
+        "figure": "fig-falsification",
+        "value_name": "alpha_N mean",
+        "classification": "LOADED",
+        "plotted_value": 0.5076000094413757,
+        "source_file": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
+        "key_path": "aggregate.alpha_n.mean",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "alpha_D mean",
+        "classification": "LOADED",
+        "plotted_value": 1.003766655921936,
+        "source_file": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
+        "key_path": "aggregate.alpha_d.mean",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "alpha_N std (error bar)",
+        "classification": "LOADED",
+        "plotted_value": 0.0005887872760934489,
+        "source_file": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
+        "key_path": "aggregate.alpha_n.std",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "std across 3 seeds, NOT sem; n=3"
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "alpha_D std (error bar)",
+        "classification": "LOADED",
+        "plotted_value": 0.0009876635610230383,
+        "source_file": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
+        "key_path": "aggregate.alpha_d.std",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "alpha_N initialisation bar = 0.5",
+        "classification": "TYPED",
+        "plotted_value": 0.5,
+        "source_file": null,
+        "key_path": null,
+        "expression": "a.bar(...,[0.5,1.0],...)",
+        "verdict": "FAIL",
+        "note": "Initialisation values are literals in BOTH make_figures_extra.py:61 and notebook cell 16. No committed result file records alpha_n_init/alpha_d_init; CORRECTIONS.md C1 is prose. Value is plausible but UNVERIFIABLE from any stored file."
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "alpha_D initialisation bar = 1.0",
+        "classification": "TYPED",
+        "plotted_value": 1.0,
+        "source_file": null,
+        "key_path": null,
+        "expression": "a.bar(...,[0.5,1.0],...)",
+        "verdict": "FAIL",
+        "note": "same as above"
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "percent-change label alpha_N",
+        "classification": "DERIVED",
+        "plotted_value": 1.52,
+        "source_file": null,
+        "key_path": null,
+        "expression": "100*(0.5076-0.5)/0.5 = +1.5%",
+        "verdict": "FAIL(dependency)",
+        "note": "arithmetic is correct but one operand (0.5) is TYPED"
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "percent-change label alpha_D",
+        "classification": "DERIVED",
+        "plotted_value": 0.3767,
+        "source_file": null,
+        "key_path": null,
+        "expression": "100*(1.00377-1.0)/1.0 = +0.4%",
+        "verdict": "FAIL(dependency)",
+        "note": "arithmetic is correct but one operand (1.0) is TYPED"
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "rule-type F1 HF (in domain)",
+        "classification": "LOADED",
+        "plotted_value": 0.9603,
+        "source_file": "results/accord/generality/transfer_results_correct.json",
+        "key_path": "hf_reference.rule_type_f1",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "notebook cell 16 loads this; make_figures_extra.py:71 types it as a literal"
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "rule-type F1 sepsis",
+        "classification": "LOADED",
+        "plotted_value": 0.06543855847829327,
+        "source_file": "results/accord/generality/transfer_results_correct.json",
+        "key_path": "sepsis.rule_type_f1",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "notebook cell 16 loads this; make_figures_extra.py:71 types it as a literal"
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "rule-type F1 AKI",
+        "classification": "LOADED",
+        "plotted_value": 0.059544945658295115,
+        "source_file": "results/accord/generality/transfer_results_correct.json",
+        "key_path": "aki.rule_type_f1",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "notebook cell 16 loads this; make_figures_extra.py:71 types it as a literal"
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "rule-type F1 list (make_figures_extra.py literal)",
+        "classification": "TYPED",
+        "plotted_value": [
+          0.9603,
+          0.0654,
+          0.0595
+        ],
+        "source_file": "results/accord/generality/transfer_results_correct.json",
+        "key_path": "hf_reference/sepsis/aki .rule_type_f1",
+        "expression": "f1 = [0.9603, 0.0654, 0.0595]",
+        "verdict": "FAIL(cosmetic)",
+        "note": "make_figures_extra.py:71. The literals round-trip to the stored values (0.9603 / 0.065439 / 0.059545) at the 4dp the figure prints, so the canvas is not wrong, but the values are typed rather than read. Note hf_reference.rule_type_f1 is itself stored only to 4dp (0.9603) while sepsis/aki are full precision."
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "held-out rule accuracy reference line 0.4515",
+        "classification": "TYPED",
+        "plotted_value": 0.4515,
+        "source_file": null,
+        "key_path": null,
+        "expression": "b.axhline(0.4515) / UNSOURCED_held_out_rule_acc = 0.4515",
+        "verdict": "FAIL",
+        "note": "STILL DRAWN, in both make_figures_extra.py:74 and notebook cell 16. number_provenance_audit.json rates it UNTRACEABLE: \"Caption asserts it 'recomputes to 0.4515 directly from the gold-standard CSV' but no results file records 0.4515.\". No file under results/ contains 0.4515 or 0.452 as a held-out rule accuracy. There is no correct value to substitute; the line has no support and should be removed."
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "'45.2% held-out rule acc.' text label",
+        "classification": "TYPED",
+        "plotted_value": "45.2%",
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "FAIL",
+        "note": "same unsourced quantity, printed as text"
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "left ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          0,
+          1.35
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "right ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          0,
+          1.12
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "bar offsets +/-0.18, width 0.35/0.55",
+        "classification": "SETTING",
+        "plotted_value": [
+          0.18,
+          0.35,
+          0.55
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-falsification",
+        "value_name": "text x=2.35 for the held-out label",
+        "classification": "SETTING",
+        "plotted_value": 2.35,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      }
+    ],
+    "fig-power": [
+      {
+        "figure": "fig-power",
+        "value_name": "this-study n_positives (x of red marker)",
+        "classification": "LOADED",
+        "plotted_value": 12,
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": "n_positives",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "this-study n_negatives",
+        "classification": "LOADED",
+        "plotted_value": 241,
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": "n_negatives",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "alpha",
+        "classification": "LOADED",
+        "plotted_value": 0.05,
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": "alpha",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "power",
+        "classification": "LOADED",
+        "plotted_value": 0.8,
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": "power",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "this-study MDE (y of red marker)",
+        "classification": "LOADED",
+        "plotted_value": 0.7382,
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": "minimum_detectable_auc",
+        "expression": null,
+        "verdict": "FAIL",
+        "note": "The marker is drawn at the FILE value 0.7382, but the CURVE on the same axes is drawn by hanley_mde(), which at n_pos=12,n_neg=241 returns 0.7355. The marker therefore does not lie on the plotted curve (gap +0.0027). The file value is also not reproducible by the null-variance route either: 0.5 + z*se_auc_under_null = 0.7397 (se_auc_under_null=0.08555, z=2.801585). Neither method yields 0.7382."
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "se_auc_under_null cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.085551,
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": "se_auc_under_null",
+        "expression": "Hanley-McNeil null variance",
+        "verdict": "PASS",
+        "note": "file stores 0.08555"
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "gap_above_chance cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.2382,
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": "gap_above_chance",
+        "expression": "minimum_detectable_auc - 0.5",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "MDE curve (60 points)",
+        "classification": "DERIVED",
+        "plotted_value": "hanley_mde over logspace(5,3000)",
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": null,
+        "expression": "closed-form root search on the Hanley-McNeil variance",
+        "verdict": "PASS",
+        "note": "deterministic, no RNG; uses alpha/power read from the file in the notebook version"
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "mortality-task n_pos (notebook)",
+        "classification": "LOADED",
+        "plotted_value": 570,
+        "source_file": "results/task_runs.json",
+        "key_path": "concat_s1.data_lineage.test_n_pos",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "mortality-task n_neg (notebook)",
+        "classification": "DERIVED",
+        "plotted_value": 6206,
+        "source_file": "results/task_runs.json",
+        "key_path": "concat_s1.data_lineage.test_n - test_n_pos",
+        "expression": "6776-570",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "mortality-task MDE",
+        "classification": "DERIVED",
+        "plotted_value": 0.535985,
+        "source_file": null,
+        "key_path": null,
+        "expression": "hanley_mde(570,6206)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "mortality point (fig_batch2.py literals)",
+        "classification": "TYPED",
+        "plotted_value": [
+          570,
+          6206
+        ],
+        "source_file": "results/task_runs.json",
+        "key_path": "concat_s1.data_lineage",
+        "expression": "hanley_mde([570],[6206])",
+        "verdict": "FAIL(cosmetic)",
+        "note": "fig_batch2.py:162-165 types both class counts. They match task_runs.json exactly, so the canvas is right, but the numbers are typed."
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "neg:pos ratio for the curve (fig_batch2.py literal)",
+        "classification": "TYPED",
+        "plotted_value": "241/12",
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": "n_negatives/n_positives",
+        "expression": "n_neg = n_pos*(241/12)",
+        "verdict": "FAIL(cosmetic)",
+        "note": "fig_batch2.py:151. Matches the file; notebook computes n_neg_study/n_pos_study instead."
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "MDE fallback default (fig_batch2.py)",
+        "classification": "TYPED",
+        "plotted_value": 0.7382,
+        "source_file": "results/accord/section6_auroc_power.json",
+        "key_path": "minimum_detectable_auc",
+        "expression": "pw.get('minimum_detectable_auc', 0.7382)",
+        "verdict": "FAIL(latent)",
+        "note": "fig_batch2.py:131. A literal fallback that silently reproduces the file value if the key ever disappears; it would draw a number with no source and no warning."
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "xlim/ylim/log x",
+        "classification": "SETTING",
+        "plotted_value": [
+          [
+            5,
+            3000
+          ],
+          [
+            0.5,
+            1.0
+          ]
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-power",
+        "value_name": "text anchors (700,0.93) and (9,0.56)",
+        "classification": "SETTING",
+        "plotted_value": [
+          [
+            700,
+            0.93
+          ],
+          [
+            9,
+            0.56
+          ]
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      }
+    ],
+    "fig-forest": [
+      {
+        "figure": "fig-forest",
+        "value_name": "row MCC llama_baseline",
+        "classification": "LOADED",
+        "plotted_value": [
+          -0.0436,
+          [
+            -0.2337,
+            0.0563
+          ]
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.llama_baseline.mcc / .ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row MCC gpt4o_zeroshot",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.1089,
+          [
+            -0.0319,
+            0.2484
+          ]
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.gpt4o_zeroshot.mcc / .ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row MCC gpt4o_fewshot",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.0117,
+          [
+            -0.112,
+            0.1319
+          ]
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.gpt4o_fewshot.mcc / .ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row MCC accord_binary_at_0.5_253core",
+        "classification": "LOADED",
+        "plotted_value": [
+          -0.007,
+          [
+            -0.1626,
+            0.0753
+          ]
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E2_mcc_intervals.accord_binary_at_0.5_253core.mcc / .ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row AUROC-0.5 (decontaminated)",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0.014523,
+          -0.179043,
+          0.203372
+        ],
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "aggregate.ensemble_auroc / ensemble_ci95",
+        "expression": "value - 0.5 (notebook)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row AUROC-0.5 (decontaminated) \u2014 fig_batch2.py literals",
+        "classification": "TYPED",
+        "plotted_value": [
+          0.5145,
+          0.321,
+          0.703
+        ],
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "aggregate.ensemble_auroc / ensemble_ci95",
+        "expression": "rows.append(('AUROC - 0.5 (decontaminated)', 0.5145-0.5, 0.321-0.5, 0.703-0.5))",
+        "verdict": "FAIL(cosmetic)",
+        "note": "fig_batch2.py:96. Stored values are 0.5145228215767634 and [0.3209574856693268, 0.7033717778609418]; the literals are 4/3dp truncations. Effect on the plotted estimate: 0.0145 vs 0.01452282 (invisible). Notebook loads them."
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row AUROC-0.5 (defect-free stratum)",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0.0078,
+          -0.2783,
+          0.2615
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.auroc / unstratified_ci95",
+        "expression": "value - 0.5",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row AUROC-0.5 (defect-free) \u2014 fig_batch2.py literals",
+        "classification": "TYPED",
+        "plotted_value": [
+          0.5078,
+          0.2217,
+          0.7615
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.*",
+        "expression": "rows.append(... 0.5078-0.5, 0.2217-0.5, 0.7615-0.5)",
+        "verdict": "FAIL(cosmetic)",
+        "note": "fig_batch2.py:97. Literals equal the stored values exactly (the file is stored to 4dp)."
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "concat_s1 auroc",
+        "classification": "LOADED",
+        "plotted_value": 0.7810700719608825,
+        "source_file": "results/task_runs.json",
+        "key_path": "concat_s1.auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "concat_s2 auroc",
+        "classification": "LOADED",
+        "plotted_value": 0.7627595200403411,
+        "source_file": "results/task_runs.json",
+        "key_path": "concat_s2.auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "concat_s3 auroc",
+        "classification": "LOADED",
+        "plotted_value": 0.7639623125028416,
+        "source_file": "results/task_runs.json",
+        "key_path": "concat_s3.auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "ours_current_s0 auroc",
+        "classification": "LOADED",
+        "plotted_value": 0.7577964511422395,
+        "source_file": "results/task_runs.json",
+        "key_path": "ours_current_s0.auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "ours_current_s1 auroc",
+        "classification": "LOADED",
+        "plotted_value": 0.7697944092883685,
+        "source_file": "results/task_runs.json",
+        "key_path": "ours_current_s1.auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "ours_current_s2 auroc",
+        "classification": "LOADED",
+        "plotted_value": 0.7708804358159355,
+        "source_file": "results/task_runs.json",
+        "key_path": "ours_current_s2.auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row C37 gap estimate",
+        "classification": "DERIVED",
+        "plotted_value": 0.003107,
+        "source_file": "results/task_runs.json",
+        "key_path": null,
+        "expression": "mean(concat_s1..3) - mean(ours_current_s0..2)",
+        "verdict": "PASS",
+        "note": "arms use MISMATCHED seed sets (1,2,3 vs 0,1,2); treated as unpaired"
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row C37 gap CI",
+        "classification": "DERIVED",
+        "plotted_value": [
+          -0.0111,
+          0.017314
+        ],
+        "source_file": "results/task_runs.json",
+        "key_path": null,
+        "expression": "g +/- 1.96*sqrt(sd_a^2/3 + sd_b^2/3)",
+        "verdict": "PASS",
+        "note": "normal-approx CI on n=3 vs n=3; a t critical value (t_4=2.776) would widen it ~42%"
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row C44 gap estimate",
+        "classification": "DERIVED",
+        "plotted_value": 0.051798,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": "[tag==pretrained_bert].accuracy / [tag==scratch_100M].accuracy",
+        "expression": "mean(pretrained_bert) - mean(scratch_100M)",
+        "verdict": "PASS",
+        "note": "uses the test 'accuracy' key, not a val key"
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row C44 gap CI",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0.049623,
+          0.053973
+        ],
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "g44 +/- 1.96*sqrt(sd^2/3+sd^2/3)",
+        "verdict": "PASS",
+        "note": "the ONLY row that excludes zero; with t_4=2.776 the CI is [0.0487, 0.0549] and still excludes zero"
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row 'AUROC-0.5 (defect-free stratum)' model provenance",
+        "classification": "LOADED",
+        "plotted_value": 0.5078,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.auroc",
+        "expression": null,
+        "verdict": "FAIL",
+        "note": "The row directly above it is labelled '(decontaminated)'; this one is labelled only '(defect-free stratum)' and a reader will assume the same model. It is not: 0.5078 is the CONTAMINATED released score (identical to control/final_report.json accord_contra_prob_same_299_pairs.gold_defect_free_rule34.auroc). The matched decontaminated value is 0.546875 with CI [0.24184073920265783, 0.8281430288461535], i.e. the row should sit at +0.0469 CI [-0.2582, +0.3281]. It still crosses zero, so the headline '7 of 8 cross zero' survives, but the plotted point and interval are from the wrong run."
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "zero reference line",
+        "classification": "SETTING",
+        "plotted_value": 0,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "row ordering (sorted by estimate)",
+        "classification": "SETTING",
+        "plotted_value": "rows.sort(key=estimate)",
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-forest",
+        "value_name": "grey/coloured encoding (interval contains zero)",
+        "classification": "DERIVED",
+        "plotted_value": "7 of 8",
+        "source_file": null,
+        "key_path": null,
+        "expression": "lo <= 0 <= hi",
+        "verdict": "PASS",
+        "note": "7 of 8 cross zero; recomputed independently"
+      }
+    ],
+    "fig-disc-strata": [
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row1 AUROC",
+        "classification": "LOADED",
+        "plotted_value": 0.5145228215767634,
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "aggregate.ensemble_auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row1 CI95",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.3209574856693268,
+          0.7033717778609418
+        ],
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "aggregate.ensemble_ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row1 n",
+        "classification": "LOADED",
+        "plotted_value": 253,
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "n",
+        "expression": null,
+        "verdict": "FAIL(label)",
+        "note": "The row is labelled 'All annotated pairs' but n=253, which is the ambiguous-EXCLUDED core. The annotated gold set is 299 (defect_free_strata.json strata[ALL].n = 299, reconciliation_c28 pharm_label_value_counts sums to 299). 46 pharmacist-ambiguous pairs are dropped. The number printed on the canvas (n=253) is right; the words next to it are not."
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row1 n_positives",
+        "classification": "LOADED",
+        "plotted_value": 12,
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "n_positives",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row1 MWU p",
+        "classification": "LOADED",
+        "plotted_value": 0.8667920078913933,
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "aggregate.ensemble_mannwhitney_p",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "auroc_mean cross-check (not plotted)",
+        "classification": "DERIVED",
+        "plotted_value": 0.521093,
+        "source_file": "results/accord/decontam/corrected_gold_metrics.json",
+        "key_path": "aggregate.auroc_mean",
+        "expression": "mean(per_seed.seed0..2.auroc)",
+        "verdict": "PASS",
+        "note": "confirms the ensemble AUROC (0.5145) is a distinct quantity from the seed mean (0.5211); the figure plots the ensemble, matching the CI it is paired with"
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row2 AUROC",
+        "classification": "LOADED",
+        "plotted_value": 0.5078,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.auroc",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row2 unstratified CI95",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.2217,
+          0.7615
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.unstratified_ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row2 stratified CI95 (diamond)",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.2643,
+          0.7344
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.stratified_ci95",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row2 n / n_pos",
+        "classification": "LOADED",
+        "plotted_value": [
+          134,
+          6
+        ],
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.n / n_pos",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row2 MWU p (notebook)",
+        "classification": "LOADED",
+        "plotted_value": 0.953,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[rules 3+4 (DEFECT-FREE)].mwu_p",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row2 MWU p (make_figures.py literal 0.953)",
+        "classification": "TYPED",
+        "plotted_value": 0.953,
+        "source_file": "results/accord/defect_free_strata.json",
+        "key_path": "strata[rules 3+4 (DEFECT-FREE)].mwu_p",
+        "expression": "rows = [... 0.953, ...]",
+        "verdict": "FAIL(cosmetic)",
+        "note": "make_figures.py:730 types it; it equals the stored value exactly. Notebook loads it."
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "footer: draws dropped",
+        "classification": "LOADED",
+        "plotted_value": 20,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.draws_dropped_zero_positives",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "footer: bootstrap B",
+        "classification": "LOADED",
+        "plotted_value": 10000,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "bootstrap_B",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "drop_rate cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.002,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.drop_rate",
+        "expression": "20/10000 = 0.002",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "row1 vs row2 come from the same model",
+        "classification": "LOADED",
+        "plotted_value": false,
+        "source_file": "results/accord/stats/intervals.json",
+        "key_path": "E3_defect_free_stratum.auroc vs decontam/corrected_gold_metrics.json aggregate.ensemble_auroc",
+        "expression": null,
+        "verdict": "FAIL",
+        "note": "BRANCH MISMATCH. Row 1 (0.5145, n=253) is the ACCORD v2 DECONTAMINATED 3-seed ensemble (seeds 0/1/2, ambiguous pairs excluded). Row 2 (0.5078, n=134) is byte-identical to control/final_report.json accord_contra_prob_same_299_pairs.gold_defect_free_rule34.auroc = 0.5078125 -- the CONTAMINATED released per-pair score, on a 134-of-299 subset in which pharmacist-ambiguous pairs are counted as negatives. The two rows differ in BOTH the model and the denominator convention, and are drawn on one axis as one comparison with no marking. A matched-branch value exists in the same repository: control/final_report.json ensemble_mean_of_seed_scores.gold_defect_free_rule34.auroc = 0.546875, CI [0.24184073920265783, 0.8281430288461535]. number_provenance_audit.json statistical_concerns S6 flags exactly this."
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "chance line 0.5",
+        "classification": "SETTING",
+        "plotted_value": 0.5,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-disc-strata",
+        "value_name": "xlim/ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          [
+            0.1,
+            0.9
+          ],
+          [
+            -0.95,
+            1.55
+          ]
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      }
+    ],
+    "fig-scaling": [
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_10M accuracies (3 seeds)",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.8823684210526316,
+          0.8746052631578948,
+          0.88
+        ],
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": "[tag==scratch_10M].accuracy",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "scaling_results.json carries ONLY 'accuracy' (no val_accuracy), so the val/test key confusion in scaling/convergence_results.json cannot bite here"
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_10M mean (marker y)",
+        "classification": "DERIVED",
+        "plotted_value": 0.878991,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "mean of 3 seeds",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_10M stdev (error bar)",
+        "classification": "DERIVED",
+        "plotted_value": 0.003979,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "sample stdev, n=3",
+        "verdict": "PASS",
+        "note": "std NOT sem; only 3 seeds"
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_10M non_emb_params (marker x)",
+        "classification": "LOADED",
+        "plotted_value": 10649092,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": "[tag==scratch_10M].non_emb_params",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_30M accuracies (3 seeds)",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.8823684210526316,
+          0.8840789473684211,
+          0.8835526315789474
+        ],
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": "[tag==scratch_30M].accuracy",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "scaling_results.json carries ONLY 'accuracy' (no val_accuracy), so the val/test key confusion in scaling/convergence_results.json cannot bite here"
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_30M mean (marker y)",
+        "classification": "DERIVED",
+        "plotted_value": 0.883333,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "mean of 3 seeds",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_30M stdev (error bar)",
+        "classification": "DERIVED",
+        "plotted_value": 0.000876,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "sample stdev, n=3",
+        "verdict": "PASS",
+        "note": "std NOT sem; only 3 seeds"
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_30M non_emb_params (marker x)",
+        "classification": "LOADED",
+        "plotted_value": 31913860,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": "[tag==scratch_30M].non_emb_params",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_100M accuracies (3 seeds)",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.8896052631578948,
+          0.8873684210526316,
+          0.8864473684210527
+        ],
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": "[tag==scratch_100M].accuracy",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "scaling_results.json carries ONLY 'accuracy' (no val_accuracy), so the val/test key confusion in scaling/convergence_results.json cannot bite here"
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_100M mean (marker y)",
+        "classification": "DERIVED",
+        "plotted_value": 0.887807,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "mean of 3 seeds",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_100M stdev (error bar)",
+        "classification": "DERIVED",
+        "plotted_value": 0.001624,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "sample stdev, n=3",
+        "verdict": "PASS",
+        "note": "std NOT sem; only 3 seeds"
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "scratch_100M non_emb_params (marker x)",
+        "classification": "LOADED",
+        "plotted_value": 99234820,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": "[tag==scratch_100M].non_emb_params",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "pretrained_bert accuracies (3 seeds)",
+        "classification": "LOADED",
+        "plotted_value": [
+          0.939078947368421,
+          0.9407894736842105,
+          0.9389473684210526
+        ],
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": "[tag==pretrained_bert].accuracy",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "scaling_results.json carries ONLY 'accuracy' (no val_accuracy), so the val/test key confusion in scaling/convergence_results.json cannot bite here"
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "pretrained_bert mean (marker y)",
+        "classification": "DERIVED",
+        "plotted_value": 0.939605,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "mean of 3 seeds",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "pretrained_bert stdev (error bar)",
+        "classification": "DERIVED",
+        "plotted_value": 0.001028,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "sample stdev, n=3",
+        "verdict": "PASS",
+        "note": "std NOT sem; only 3 seeds"
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "pretrained_bert non_emb_params (marker x)",
+        "classification": "LOADED",
+        "plotted_value": 85648132,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": "[tag==pretrained_bert].non_emb_params",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "gap annotation scratch_10M",
+        "classification": "DERIVED",
+        "plotted_value": 0.060614,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "mean(pretrained_bert) - mean(tag)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "gap annotation scratch_30M",
+        "classification": "DERIVED",
+        "plotted_value": 0.056272,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "mean(pretrained_bert) - mean(tag)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "gap annotation scratch_100M",
+        "classification": "DERIVED",
+        "plotted_value": 0.051798,
+        "source_file": "results/accord/scaling/scaling_results.json",
+        "key_path": null,
+        "expression": "mean(pretrained_bert) - mean(tag)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "inset PubMedBERT band mean/std",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0.769264,
+          0.010242
+        ],
+        "source_file": "results/task_runs.json",
+        "key_path": "concat_s1..3.auroc",
+        "expression": "mean/stdev of 3 seeds",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "inset from-scratch point mean/std",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0.766157,
+          0.007261
+        ],
+        "source_file": "results/task_runs.json",
+        "key_path": "ours_current_s0..2.auroc",
+        "expression": "mean/stdev of 3 seeds",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "inset title gap",
+        "classification": "DERIVED",
+        "plotted_value": 0.003107,
+        "source_file": "results/task_runs.json",
+        "key_path": null,
+        "expression": "mean(concat) - mean(ours_current)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "inset x position of the from-scratch point",
+        "classification": "TYPED",
+        "plotted_value": 10600000.0,
+        "source_file": "results/task_runs.json",
+        "key_path": "ours_current_s0.non_emb_params",
+        "expression": "ins.errorbar([1.06e7], ...)",
+        "verdict": "FAIL(cosmetic)",
+        "note": "Both fig_batch2.py:85 and notebook cell 24 place the point at a typed 1.06e7. The notebook even LOADS clinical_params = 10638720, prints it, and then does not use it. The inset x axis is unlabelled and untickmarked, so nothing visible is wrong; still a typed coordinate where a loaded one was available."
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "inset yticks [0.75,0.77,0.79]",
+        "classification": "SETTING",
+        "plotted_value": [
+          0.75,
+          0.77,
+          0.79
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "main ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          0.865,
+          0.952
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "label anchor x=1.05e7",
+        "classification": "SETTING",
+        "plotted_value": 10500000.0,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-scaling",
+        "value_name": "inset axes rect / xlim",
+        "classification": "SETTING",
+        "plotted_value": [
+          [
+            0.6,
+            0.24,
+            0.28,
+            0.24
+          ],
+          [
+            5000000.0,
+            200000000.0
+          ]
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      }
+    ],
+    "fig-threshold-surface": [
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "grid: n operating points x n betas",
+        "classification": "LOADED",
+        "plotted_value": [
+          18,
+          15
+        ],
+        "source_file": "results/accord/selection/threshold_robustness_results.json",
+        "key_path": "cells[].achieved_rate / cells[].beta",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "file also asserts n_operating_points=18, total_cells=270"
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "270 demographic_parity_gap values (colour)",
+        "classification": "LOADED",
+        "plotted_value": {
+          "min": 0.002055,
+          "max": 0.200119,
+          "n": 270
+        },
+        "source_file": "results/accord/selection/threshold_robustness_results.json",
+        "key_path": "cells[].demographic_parity_gap",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "270 mde_demographic_parity_gap values (veil)",
+        "classification": "LOADED",
+        "plotted_value": {
+          "min": 0.030531,
+          "max": 0.05999,
+          "n": 270
+        },
+        "source_file": "results/accord/selection/threshold_robustness_results.json",
+        "key_path": "cells[].mde_demographic_parity_gap",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "veiled (underpowered) cell count",
+        "classification": "DERIVED",
+        "plotted_value": 195,
+        "source_file": "results/accord/selection/threshold_robustness_results.json",
+        "key_path": "cells[].mde_demographic_parity_gap > 0.05 vs cells[].adequately_powered",
+        "expression": "count(mde > 0.05)",
+        "verdict": "PASS",
+        "note": "the figure re-derives the veil from the tolerance; the file's own 'adequately_powered' flag gives 195. They agree."
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "cells above the 0.05 contour",
+        "classification": "DERIVED",
+        "plotted_value": 209,
+        "source_file": "results/accord/selection/threshold_robustness_results.json",
+        "key_path": "cells[].demographic_parity_gap",
+        "expression": "count(demographic_parity_gap > 0.05)",
+        "verdict": "PASS(caveat)",
+        "note": "The black contour is drawn on the POINT ESTIMATE, so 209 of 270 cells lie above it. The file's own formal breach count is a different quantity: n_breach_cells=36 (= cells[].cell_breach, which also requires adequate power). The figure never prints 36, so nothing on the canvas is wrong, but a reader who reads the contour as 'the audit's breach set' will be off by 173 cells."
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "E9 operating-point line y (notebook)",
+        "classification": "LOADED",
+        "plotted_value": 0.19937082186394023,
+        "source_file": "results/accord/selection/threshold_robustness_results.json",
+        "key_path": "original_e9_population_pred_pos_rate",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "E9 operating-point line y (fig_threshold_surface.py literal)",
+        "classification": "TYPED",
+        "plotted_value": 0.1994,
+        "source_file": "results/accord/selection/threshold_robustness_results.json",
+        "key_path": "original_e9_population_pred_pos_rate",
+        "expression": "ax.plot(B, [0.1994]*len(B), ...)",
+        "verdict": "FAIL(cosmetic)",
+        "note": "fig_threshold_surface.py:41-43. Stored value is 0.19937082186394023; 0.1994 is a 4dp rounding. The notebook loads it."
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "0.05 tolerance (contour + veil threshold)",
+        "classification": "SETTING",
+        "plotted_value": 0.05,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "the audit's own tolerance; named TOLERANCE in the notebook, a bare 0.05 in the .py. It is a decision rule, not a measurement, and is not stored in the results file."
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "colour scale vmin/vmax",
+        "classification": "SETTING",
+        "plotted_value": [
+          0,
+          0.2
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "veil alpha 0.62",
+        "classification": "SETTING",
+        "plotted_value": 0.62,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "annotation ytext 0.132",
+        "classification": "SETTING",
+        "plotted_value": 0.132,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-threshold-surface",
+        "value_name": "data source path",
+        "classification": "LOADED",
+        "plotted_value": "cells",
+        "source_file": "results/accord/selection/threshold_robustness_results.json",
+        "key_path": "cells",
+        "expression": null,
+        "verdict": "PASS(divergent)",
+        "note": "The notebook reads results/accord/selection/threshold_robustness_results.json (committed). fig_threshold_surface.py:20 instead reads /Users/rickygole/mimic_local_only/accord_selection/threshold_robustness_cells.csv, which is OUTSIDE the repository and not committed. Both exist on this machine; only one is auditable by anyone else."
+      }
+    ],
+    "fig-disc-actionability": [
+      {
+        "figure": "fig-disc-actionability",
+        "value_name": "timeline x positions",
+        "classification": "SETTING",
+        "plotted_value": [
+          1.0,
+          4.0,
+          5.4,
+          8.2
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "schematic layout coordinate; the x axis has no scale and no tick labels, so these encode ordering only, not durations"
+      },
+      {
+        "figure": "fig-disc-actionability",
+        "value_name": "label ytext",
+        "classification": "SETTING",
+        "plotted_value": [
+          3.35,
+          3.0,
+          3.55,
+          3.05
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "schematic layout coordinate; the x axis has no scale and no tick labels, so these encode ordering only, not durations"
+      },
+      {
+        "figure": "fig-disc-actionability",
+        "value_name": "baseline y",
+        "classification": "SETTING",
+        "plotted_value": 2.3,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "schematic layout coordinate; the x axis has no scale and no tick labels, so these encode ordering only, not durations"
+      },
+      {
+        "figure": "fig-disc-actionability",
+        "value_name": "xlim",
+        "classification": "SETTING",
+        "plotted_value": [
+          0,
+          10.5
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "schematic layout coordinate; the x axis has no scale and no tick labels, so these encode ordering only, not durations"
+      },
+      {
+        "figure": "fig-disc-actionability",
+        "value_name": "ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          0,
+          4.0
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "schematic layout coordinate; the x axis has no scale and no tick labels, so these encode ordering only, not durations"
+      },
+      {
+        "figure": "fig-disc-actionability",
+        "value_name": "shaded span",
+        "classification": "SETTING",
+        "plotted_value": [
+          5.4,
+          8.2
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "schematic layout coordinate; the x axis has no scale and no tick labels, so these encode ordering only, not durations"
+      },
+      {
+        "figure": "fig-disc-actionability",
+        "value_name": "figsize",
+        "classification": "SETTING",
+        "plotted_value": [
+          6.6,
+          3.4
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "schematic layout coordinate; the x axis has no scale and no tick labels, so these encode ordering only, not durations"
+      },
+      {
+        "figure": "fig-disc-actionability",
+        "value_name": "4 event labels + 3 annotations",
+        "classification": "SETTING",
+        "plotted_value": "categorical text",
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "asserts a MIMIC-III schema fact (CHARTTIME null on discharge summaries) sourced to accord/CORRECTIONS.md C6, which is prose, not a result file"
+      },
+      {
+        "figure": "fig-disc-actionability",
+        "value_name": "numeric estimates on canvas",
+        "classification": "DERIVED",
+        "plotted_value": 0,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "there are none; nothing to trace"
+      }
+    ],
+    "fig-met-exchange": [
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "ACCORD confusion matrix",
+        "classification": "LOADED",
+        "plotted_value": [
+          11,
+          18,
+          223,
+          1
+        ],
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "accord_binary_at_0.5_253core.tp/tn/fp/fn",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "tp+tn+fp+fn = 253, file n = 253"
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "ACCORD marker (delta_TP, delta_TN)",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0,
+          0
+        ],
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": null,
+        "expression": "(11-11, 18-18)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "ACCORD recall cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.9167,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "accord_binary_at_0.5_253core.recall",
+        "expression": "tp/(tp+fn)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "ACCORD precision cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.047,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "accord_binary_at_0.5_253core.precision",
+        "expression": "tp/(tp+fp)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "GPT-4o zero-shot confusion matrix",
+        "classification": "LOADED",
+        "plotted_value": [
+          6,
+          176,
+          65,
+          6
+        ],
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "gpt4o_zeroshot.tp/tn/fp/fn",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "tp+tn+fp+fn = 253, file n = 253"
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "GPT-4o zero-shot marker (delta_TP, delta_TN)",
+        "classification": "DERIVED",
+        "plotted_value": [
+          5,
+          158
+        ],
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": null,
+        "expression": "(11-6, 176-18)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "GPT-4o zero-shot recall cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.5,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "gpt4o_zeroshot.recall",
+        "expression": "tp/(tp+fn)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "GPT-4o zero-shot precision cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.0845,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "gpt4o_zeroshot.precision",
+        "expression": "tp/(tp+fp)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "GPT-4o few-shot confusion matrix",
+        "classification": "LOADED",
+        "plotted_value": [
+          7,
+          107,
+          134,
+          5
+        ],
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "gpt4o_fewshot.tp/tn/fp/fn",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "tp+tn+fp+fn = 253, file n = 253"
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "GPT-4o few-shot marker (delta_TP, delta_TN)",
+        "classification": "DERIVED",
+        "plotted_value": [
+          4,
+          89
+        ],
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": null,
+        "expression": "(11-7, 107-18)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "GPT-4o few-shot recall cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.5833,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "gpt4o_fewshot.recall",
+        "expression": "tp/(tp+fn)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "GPT-4o few-shot precision cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.0496,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "gpt4o_fewshot.precision",
+        "expression": "tp/(tp+fp)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "Llama 3 8B confusion matrix",
+        "classification": "LOADED",
+        "plotted_value": [
+          11,
+          10,
+          231,
+          1
+        ],
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "llama_baseline.tp/tn/fp/fn",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "tp+tn+fp+fn = 253, file n = 253"
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "Llama 3 8B marker (delta_TP, delta_TN)",
+        "classification": "DERIVED",
+        "plotted_value": [
+          0,
+          -8
+        ],
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": null,
+        "expression": "(11-11, 10-18)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "Llama 3 8B recall cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.9167,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "llama_baseline.recall",
+        "expression": "tp/(tp+fn)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "Llama 3 8B precision cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.0455,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "llama_baseline.precision",
+        "expression": "tp/(tp+fp)",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "P (positives)",
+        "classification": "DERIVED",
+        "plotted_value": 12,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": null,
+        "expression": "tp+fn = 11+1",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "N (negatives)",
+        "classification": "DERIVED",
+        "plotted_value": 241,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": null,
+        "expression": "tn+fp = 18+223",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "balanced-accuracy slope N/P",
+        "classification": "DERIVED",
+        "plotted_value": 20.083333,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": null,
+        "expression": "241/12",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "PABAK slope",
+        "classification": "SETTING",
+        "plotted_value": 1,
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "closed-form property of the statistic, not data"
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "MCC indifference level (legend)",
+        "classification": "DERIVED",
+        "plotted_value": -0.006972,
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": "accord_binary_at_0.5_253core.mcc",
+        "expression": "mcc_from_counts(11,18,223,1)",
+        "verdict": "PASS",
+        "note": "re-derived from the confusion matrix; matches the file's stored mcc"
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "MCC indifference curve (60 brentq roots)",
+        "classification": "DERIVED",
+        "plotted_value": "brentq over tn in [0,N]",
+        "source_file": "results/accord/diag/step3_baselines.json",
+        "key_path": null,
+        "expression": "solve mcc_from_counts(TP0-d, tn, N-tn, P-TP0+d) = mcc0",
+        "verdict": "PASS",
+        "note": "deterministic root-finding on loaded counts; NaN where no root exists"
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "xlim/ylim",
+        "classification": "SETTING",
+        "plotted_value": [
+          [
+            -1,
+            13
+          ],
+          [
+            -32,
+            251
+          ]
+        ],
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-met-exchange",
+        "value_name": "marker size 45, 4 marker glyphs, 4 label offsets",
+        "classification": "SETTING",
+        "plotted_value": "cosmetic",
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      }
+    ],
+    "fig-exemplar": [
+      {
+        "figure": "fig-exemplar",
+        "value_name": "caption defect rate",
+        "classification": "DERIVED",
+        "plotted_value": 47.4453,
+        "source_file": "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "key_path": "rule_1_2_pooled.n_wrong / rule_1_2_pooled.n_resolved",
+        "expression": "65/137*100 = 47.445",
+        "verdict": "PASS",
+        "note": "prints 47.4%. Uses the defensible ratio."
+      },
+      {
+        "figure": "fig-exemplar",
+        "value_name": "n_wrong",
+        "classification": "LOADED",
+        "plotted_value": 65,
+        "source_file": "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "key_path": "rule_1_2_pooled.n_wrong",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-exemplar",
+        "value_name": "n_resolved",
+        "classification": "LOADED",
+        "plotted_value": 137,
+        "source_file": "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "key_path": "rule_1_2_pooled.n_resolved",
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-exemplar",
+        "value_name": "complement cross-check",
+        "classification": "DERIVED",
+        "plotted_value": 0.525547,
+        "source_file": "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "key_path": "rule_1_2_pooled.correct_rate_among_resolved",
+        "expression": "1 - 65/137 = 0.5255",
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-exemplar",
+        "value_name": "struck supplied rate present in the same file but NOT used",
+        "classification": "LOADED",
+        "plotted_value": 0.586,
+        "source_file": "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "key_path": "rule_1_2_pooled.reference_full_2296_candidate_pool_rate_from_task_description",
+        "expression": null,
+        "verdict": "PASS",
+        "note": "neither 0.586 nor its complement 0.414 reaches the canvas in either the .py or the notebook; the caption text in make_figures.py's manifest entry still says '41.4%' but that string is in manifest.json, not on the figure"
+      },
+      {
+        "figure": "fig-exemplar",
+        "value_name": "5 slot labels M1..M5",
+        "classification": "SETTING",
+        "plotted_value": "abstract",
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      },
+      {
+        "figure": "fig-exemplar",
+        "value_name": "5 action tags CONT/CONT/CONT/CONT/CESS",
+        "classification": "SETTING",
+        "plotted_value": "abstract",
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": "illustrative schematic, no count claimed"
+      },
+      {
+        "figure": "fig-exemplar",
+        "value_name": "column x, row y, box sizes, xlim/ylim",
+        "classification": "SETTING",
+        "plotted_value": {
+          "col_x": [
+            2.2,
+            7.2
+          ],
+          "row_dy": 0.78,
+          "xlim": [
+            0,
+            10
+          ],
+          "ylim": [
+            0,
+            6
+          ]
+        },
+        "source_file": null,
+        "key_path": null,
+        "expression": null,
+        "verdict": "PASS",
+        "note": ""
+      }
+    ]
+  },
+  "renderer_provenance": {
+    "shipped_pdfs_were_produced_by": "accord/thesis/figures/Thesis_Figures_PerFigure.ipynb",
+    "evidence": "All thirteen fig-*.pdf carry mtimes 22:26:01-22:26:04 in exactly the notebook's EXPECTED[] order; the five .py-only figures (funnel, prevalence, tracking, met-sharpened, asymmetry) carry 22:25:42-22:25:47. The notebook was the last writer for all thirteen.",
+    "why_it_matters": "The notebook LOADS most of the values the .py scripts TYPE. Twelve of the fifteen TYPED literals below live only in fig_batch2.py / fig_threshold_surface.py / make_figures_extra.py / make_figures.py and are therefore NOT on the currently shipped canvases. Three are typed in the notebook too (the two alpha initialisation bars and the 0.4515 held-out line) and ARE on the shipped canvas.",
+    "live_risk": {
+      "file": "accord/thesis/figures/run_all_figures_cell.py (and Render_All_Figures.ipynb), created 2026-08-12 22:31 while this audit was running",
+      "behaviour": "Renders the same thirteen by running make_figures.py, fig_batch2.py, fig_threshold_surface.py, make_figures_extra.py -- the .py path, not the notebook. Its header asserts 'Every value is read from a stored result file. Nothing is typed in.', which is false for that path.",
+      "consequences": [
+        "All fifteen TYPED literals would reach the canvas.",
+        "It copies only results/ into the Colab repo, but fig_batch2.py's first read is ROOT/'accord/prevalence_replication/results/sweep_results.json' (under accord/, not results/) -> fig_batch2.py aborts before writing any figure, so fig-prevalence-response, fig-scaling, fig-forest and fig-power would all be MISSING.",
+        "fig_threshold_surface.py reads the absolute path /Users/rickygole/mimic_local_only/accord_selection/threshold_robustness_cells.csv, which the script's path-rewrite does not touch (it only rewrites '/Users/rickygole/provenance-encoder') -> fig-threshold-surface would also be MISSING.",
+        "make_figures.py does not build fig-falsification at all (it is in its SKIPPED list); only make_figures_extra.py does, from files outside the repository."
+      ]
+    }
+  },
+  "notes_on_traps_checked": {
+    "trap_1_supplied_0.586": "results/accord/exemplar/exemplar_correctness_recomputed.json does carry rule_1_2_pooled.reference_full_2296_candidate_pool_rate_from_task_description = 0.586, but NEITHER fig-exemplar nor fig-pipeline-status reads it in either the .py or the notebook. Both use n_wrong/n_resolved = 65/137 = 0.4745 and print 47.4%. CLEAN. Residual: make_figures.py's register() note for fig:exemplar still says 'Only numeric content (41.4%) is sourced', and that stale string is written into accord/thesis/figures/manifest.json. It is caption metadata, not canvas.",
+    "trap_2_dp_min_dp_max": "results/accord/signed_gap_analysis.json is not read by any of the thirteen. fig-threshold-surface takes its gap surface from results/accord/selection/threshold_robustness_results.json cells[] (notebook) or the equivalent CSV (.py). The dp_min/dp_max first-and-last-point keys never reach a canvas. CLEAN.",
+    "trap_3_val_accuracy_vs_accuracy": "results/accord/scaling/convergence_results.json (which carries BOTH val_accuracy and accuracy) is not read by any of the thirteen. fig-scaling and the fig-forest C44 row read results/accord/scaling/scaling_results.json, which carries only 'accuracy'. The AG News gap plotted is 0.0518 at 100M, from the test column. CLEAN.",
+    "trap_4_gold_all_vs_defect_free": "This one DID bite, in a different form. results/accord/control/final_report.json carries gold_all (n=299) and gold_defect_free_rule34 (n=134) for four different score branches. fig-disc-strata and fig-forest plot the defect-free 0.5078, which is the CONTAMINATED accord_contra_prob branch, beside a decontaminated 0.5145. See the FAIL records on those two figures.",
+    "trap_5_intro_headline_middle_bar": "CONFIRMED. It plots 261/299, the Llama weak labeller's marginal, under the axis label 'ACCORD pred.-positive rate (gold set)'. ACCORD's own is 278/299. See the FAIL record on fig-intro-headline.",
+    "trap_6_falsification_45.2": "CONFIRMED STILL DRAWN, in both make_figures_extra.py and notebook cell 16, as a dashed reference line at 0.4515 plus a '45.2%' text label. No file under results/ supports it; number_provenance_audit.json rates it UNTRACEABLE. The notebook at least names the constant UNSOURCED_held_out_rule_acc and prints the audit record, but the line is on the canvas either way."
+  }
+}

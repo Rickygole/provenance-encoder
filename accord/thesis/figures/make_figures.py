@@ -82,16 +82,38 @@ plt.rcParams.update({
     "pdf.fonttype": 42,
     "axes.linewidth": 0.8,
     "figure.dpi": 150,
+    # Matches the notebook, so a figure built here and the same figure built
+    # there have the same margins and neither clips an annotation.
+    "savefig.bbox": "tight",
+    "savefig.pad_inches": 0.02,
 })
 
-# Palette. These were pure greys; they now carry the same muted navy family the
-# newer figure scripts use, so the twenty figures look like one set. The
-# luminance ordering is preserved (dark 54, mid 138, fill 217 out of 255), so a
-# greyscale print still separates them exactly as before.
-GREY_DARK = "#1f3a5f"
-GREY_MED = "#666666"
-GREY_LIGHT = "#7f8c9b"
-GREY_FILL = "#cdd7e0"
+# Palette. Shared with style.py (ACCENT/MUTED/LIGHT/DEAD) and with the notebook
+# (DARK/MID/FILL/DEAD/RED), so the whole set looks like one document. The names
+# below are historical; the colours are no longer grey.
+#
+# Greyscale luminance, 0.299R + 0.587G + 0.114B, out of 255:
+#     GREY_DARK   #0A2795  royal blue     43
+#     GREY_LIGHT  #00817B  deep teal      90
+#     GREY_FILL   #FFD166  vivid amber   211
+#     GREY_DEAD   #8E99A6  cool grey     151
+#     ALERT       #D81E05  scarlet        83
+# The three main tones are 47 and 121 apart, so bars stay separable in a
+# black-and-white print. Under protanope and deuteranope simulation the three
+# stay far apart in CIELAB (smallest pair dE 69): the distinction is blue vs
+# teal vs yellow with a large lightness step, never red against green.
+#
+# Text checked against its background: GREY_DARK 12.1:1 on white, GREY_LIGHT
+# 4.7:1 on white, ALERT 5.1:1 on white, black 14.6:1 on a GREY_FILL badge.
+GREY_DARK = "#0A2795"
+GREY_LIGHT = "#00817B"
+GREY_FILL = "#FFD166"
+GREY_DEAD = "#8E99A6"
+ALERT = "#D81E05"
+# Historical alias: this used to be a separate neutral grey for muted text and
+# reference lines. It is now the same teal as GREY_LIGHT so that the scripts and
+# the notebook (which only ever had one mid tone, MID) draw identical figures.
+GREY_MED = GREY_LIGHT
 HATCH_A = "///"
 HATCH_B = "\\\\\\"
 CHANCE_STYLE = dict(color=GREY_MED, linestyle="--", linewidth=1.0, zorder=1)
@@ -157,48 +179,56 @@ def make_fig_pipeline_status():
     auroc = decontam["aggregate"]["ensemble_auroc"]
     ci = decontam["aggregate"]["ensemble_ci95"]
 
-    fig, ax = plt.subplots(figsize=(6.5, 2.55))
+    # Six evenly spaced columns. Every string below is wrapped to at most about
+    # twelve characters so that no badge and no diagnostic can grow wider than
+    # its column: the previous version wrapped to the natural phrase length and
+    # the long badges collided with their neighbours and with the row beneath.
+    fig, ax = plt.subplots(figsize=(7.0, 2.25))
+    fig.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
     ax.set_xlim(0, 6)
-    ax.set_ylim(0.55, 2)
+    ax.set_ylim(0.255, 1)
     ax.axis("off")
 
     stages = ["Cohort\nconstruction", "Medication\nextraction",
-              "Rule-based\ncandidate gen.", "LLM weak\nsupervision",
+              "Rule-based\ncandidate\ngeneration", "LLM weak\nsupervision",
               "Detector\ntraining", "Evaluation"]
     badges = ["WORKS", "UNVALIDATED",
               f"ENRICHES BUT\nMIS-ATTRIBUTES\nEVIDENCE\n({defect_rate*100:.1f}%)",
               f"FAILS\n({ratio:.0f}x prevalence\nmismatch)",
               "THREE CLAIMS\nFALSIFIED*",
-              f"FAILS\n(AUROC {auroc:.3f}\n95% CI [{ci[0]:.2f},{ci[1]:.2f}])"]
+              f"FAILS\n(AUROC {auroc:.3f},\n95% CI\n[{ci[0]:.2f}, {ci[1]:.2f}])"]
     diagnostics = ["--", "--",
-                   "action-set match\nvs .iloc[0] index",
-                   "weak-label marginal\nvs gold marginal",
-                   "‖θ_final-θ_init‖; OOD\ntransfer F1*",
-                   "bootstrap CI on\nAUROC before write-up"]
+                   "action-set\nmatch vs\n.iloc[0] index",
+                   "weak-label\nmarginal vs\ngold marginal",
+                   "||theta_final -\ntheta_init||;\nOOD transfer F1*",
+                   "bootstrap CI on\nAUROC before\nwrite-up"]
 
     n = len(stages)
-    box_w = 0.82
+    box_w = 0.80
+    y_box, box_h = 0.755, 0.155
+    y_badge_top, y_diag_top = 0.665, 0.395
     xs = np.linspace(0.5, 5.5, n)
     for i, (x, s, b, d) in enumerate(zip(xs, stages, badges, diagnostics)):
-        box = FancyBboxPatch((x - box_w / 2, 1.35), box_w, 0.5,
-                              boxstyle="round,pad=0.02,rounding_size=0.04",
+        box = FancyBboxPatch((x - box_w / 2, y_box), box_w, box_h,
+                              boxstyle="round,pad=0.006,rounding_size=0.012",
                               linewidth=1.0, edgecolor=GREY_DARK,
                               facecolor="white")
         ax.add_patch(box)
-        ax.text(x, 1.60, s, ha="center", va="center", fontsize=8.0)
+        ax.text(x, y_box + box_h / 2, s, ha="center", va="center", fontsize=8.0,
+                linespacing=1.25)
         if i < n - 1:
-            ax.annotate("", xy=(xs[i + 1] - box_w / 2, 1.60), xytext=(x + box_w / 2, 1.60),
+            ax.annotate("", xy=(xs[i + 1] - box_w / 2 - 0.02, y_box + box_h / 2),
+                        xytext=(x + box_w / 2 + 0.02, y_box + box_h / 2),
                         arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=1.0))
-        ax.text(x, 1.10, b, ha="center", va="top", fontsize=8.0,
-                 bbox=dict(boxstyle="round,pad=0.25", facecolor=GREY_FILL,
-                           edgecolor=GREY_MED, linewidth=0.6))
-        ax.text(x, 0.72, d, ha="center", va="center", fontsize=8.0,
-                 style="italic", color=GREY_MED)
+        ax.text(x, y_badge_top, b, ha="center", va="top", fontsize=8.0,
+                color=GREY_DARK, linespacing=1.25,
+                bbox=dict(boxstyle="round,pad=0.3", facecolor=GREY_FILL,
+                          edgecolor=GREY_DARK, linewidth=0.6))
+        ax.text(x, y_diag_top, d, ha="center", va="top", fontsize=8.0,
+                style="italic", color=GREY_MED, linespacing=1.3)
 
-    ax.text(3.0, 1.93, "The pipeline as run, stage by stage", ha="center",
-            fontsize=9.0, weight="bold")
-
-    fig.tight_layout(rect=[0, 0.12, 1, 1])
+    ax.text(3.0, 0.985, "The pipeline as run, stage by stage", ha="center",
+            va="top", fontsize=9.0, weight="bold")
     if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.02,
             "*Categorical only (not re-plotted with a number): CORRECTIONS.md C1/C2/C4 document that the\n"
             "authority-weight and rule-F1 claims did not survive re-audit; no committed result file in this\n"
@@ -242,8 +272,8 @@ def make_fig_intro_headline():
     order = ["gpt4o_zeroshot", "gpt4o_fewshot", "accord_binary_at_0.5_253core", "llama_baseline"]
     labels = ["GPT-4o\nz.s.", "GPT-4o\nf.s.", "ACCORD", "Llama 3\n8B"]
 
-    fig, (axL, axR) = plt.subplots(1, 2, figsize=(7.0, 4.3))
-    fig.subplots_adjust(left=0.20, right=0.97, top=0.80, bottom=0.30, wspace=0.55)
+    fig, (axL, axR) = plt.subplots(1, 2, figsize=(7.0, 3.5))
+    fig.subplots_adjust(left=0.155, right=0.985, top=0.97, bottom=0.155, wspace=0.62)
 
     bars = [("Weak labeller\npos. rate\n(train pool)", weak_pos, weak_n, wilson_ci(weak_pos, weak_n)),
             ("ACCORD pred.-\npositive rate\n(gold set)", pred_pos, pred_n, wilson_ci(pred_pos, pred_n)),
@@ -254,19 +284,24 @@ def make_fig_intro_headline():
     his = [b[3][1] for b in bars]
     errs = [[r - lo for r, lo in zip(rates, los)], [hi - r for r, hi in zip(rates, his)]]
     axL.barh(ypos, rates, color=GREY_FILL, edgecolor=GREY_DARK, height=0.55,
-             xerr=errs, ecolor=GREY_DARK, capsize=3)
-    for y, b, r in zip(ypos, bars, rates):
-        axL.text(r + 0.03, y, f"{b[1]}/{b[2]} = {r*100:.1f}%", va="center", fontsize=8.0)
+             xerr=errs, ecolor=GREY_DARK, capsize=3, zorder=3)
+    # Value labels clear the upper CI cap rather than starting at the bar end,
+    # and wrap to two lines so they cannot reach the ratio bracket on the right.
+    for y, b, r, hi in zip(ypos, bars, rates, his):
+        axL.text(hi + 0.045, y, f"{r*100:.1f}%\n({b[1]}/{b[2]})", va="center",
+                 ha="left", fontsize=8.0, linespacing=1.25)
     axL.set_yticks(ypos)
     axL.set_yticklabels([b[0] for b in bars], fontsize=8.0)
-    axL.set_xlim(0, 1.75)
-    axL.set_ylim(-0.6, 2.6)
+    axL.set_xlim(0, 2.05)
+    axL.set_ylim(-0.62, 2.62)
+    axL.set_xticks([0, 0.5, 1.0])
     axL.set_xlabel("rate")
     axL.spines[["top", "right"]].set_visible(False)
     if SHOW_INFIGURE_TITLES: axL.set_title(f"Marginal, weak label vs.\\ truth ({weak_rate/pharm_rate:.0f}x)", fontsize=8.5)
-    axL.annotate("", xy=(1.48, ypos[2]), xytext=(1.48, ypos[0]),
-                 arrowprops=dict(arrowstyle="-", color=GREY_MED))
-    axL.text(1.56, (ypos[0] + ypos[2]) / 2, f"~{weak_rate/pharm_rate:.0f}x",
+    x_bracket = 1.74
+    axL.annotate("", xy=(x_bracket, ypos[2]), xytext=(x_bracket, ypos[0]),
+                 arrowprops=dict(arrowstyle="-", color=GREY_MED, lw=1.0))
+    axL.text(x_bracket + 0.07, (ypos[0] + ypos[2]) / 2, f"~{weak_rate/pharm_rate:.0f}x",
               va="center", ha="left", fontsize=8.0, color=GREY_MED)
 
     xs = np.arange(4)
@@ -275,14 +310,15 @@ def make_fig_intro_headline():
     ci_hi = [mcc[k]["ci95"][1] for k in order]
     err = [[v - lo for v, lo in zip(vals, ci_lo)], [hi - v for v, hi in zip(vals, ci_hi)]]
     axR.axhline(0, **CHANCE_STYLE)
-    axR.bar(xs, vals, yerr=err, color="white", edgecolor=GREY_DARK, capsize=3,
-            hatch=None, width=0.55, linewidth=1.0, ecolor=GREY_DARK)
+    axR.bar(xs, vals, yerr=err, color=GREY_FILL, edgecolor=GREY_DARK, capsize=3,
+            hatch=None, width=0.55, linewidth=1.0, ecolor=GREY_DARK, zorder=3)
     axR.set_xticks(xs)
     axR.set_xticklabels(labels, fontsize=8.0)
+    axR.set_xlim(-1.05, 3.6)
     axR.set_ylabel("Matthews correlation")
     if SHOW_INFIGURE_TITLES: axR.set_title("MCC, 95% CI, n=253", fontsize=8.5)
-    axR.text(0.03, 0.03, "chance", transform=axR.transAxes, fontsize=8.0,
-              color=GREY_MED, va="bottom")
+    # Sits on the reference line it names, in the empty margin left of the bars.
+    axR.text(-1.0, -0.012, "chance", fontsize=8.0, color=GREY_MED, va="top", ha="left")
     axR.spines[["top", "right"]].set_visible(False)
 
     if SHOW_INFIGURE_TITLES: fig.suptitle("The number that determines the rest of the thesis", fontsize=9.0, y=0.97)
