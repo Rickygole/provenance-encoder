@@ -87,9 +87,9 @@
       "label": "fig:disc-strata",
       "sources": [
         "/Users/rickygole/provenance-encoder/results/accord/decontam/corrected_gold_metrics.json",
-        "/Users/rickygole/provenance-encoder/results/accord/stats/intervals.json"
+        "/Users/rickygole/provenance-encoder/results/accord/control/final_report.json"
       ],
-      "note": "MODIFIED from spec (ROC panels) to point-estimate+CI panels because per-pair scores are not committed. Full-set row uses the decontaminated ensemble AUROC 0.5145 / CI [0.321, 0.703] / p=0.867 per CORRECTIONS.md C16, replacing the withdrawn 0.460/p=0.64."
+      "note": "MODIFIED from spec (ROC panels) to point-estimate+CI panels because per-pair scores are not committed. Full-set row uses the decontaminated ensemble AUROC 0.5145 / CI [0.321, 0.703] / p=0.867 per CORRECTIONS.md C16, replacing the withdrawn 0.460/p=0.64. Defect-free row now reads control/final_report.json ensemble_mean_of_seed_scores.gold_defect_free_rule34 (0.5469, CI [0.242, 0.828]), the decontaminated counterpart, replacing stats/intervals.json E3 (0.5078) which is computed on the contaminated released scores; its stratified CI and its dropped-resample count belong to that superseded bootstrap and are no longer drawn."
     },
     {
       "file": "figures/fig-disc-actionability.pdf",
@@ -110,11 +110,6 @@
       "label": "fig:arch",
       "chapter": "ch6_architecture.tex",
       "reason": "Spec requires the model's parameter budget and per-module status (PPC deleted, GGHE randn(20,256) bank, 1.54M vs ~7.5M total params, which heads receive gradient). These facts are documented only in accord/CORRECTIONS.md (C4) as prose describing source files (accord_phase3_v2_ablations.py) that are not committed anywhere in this repository -- not in results/accord, not elsewhere. There is no JSON to point \\includegraphics-adjacent code at. Left as \\figspec."
-    },
-    {
-      "label": "fig:falsification",
-      "chapter": "ch6_architecture.tex",
-      "reason": "Spec requires the authority-parameter init/final values (0.5,1.0) vs (0.509,1.006) and per-cohort rule-type F1 (HF 0.9603, sepsis 0.0654, AKI 0.0595, held-out 45.2%). None of these numbers appear in any file under results/accord/. They are documented only as prose in accord/CORRECTIONS.md (C1, C2), which cites transfer_results_correct.json and accord_phase3_v2_ablations.py -- neither file exists in this repository. Left as \\figspec."
     }
   ]
 }

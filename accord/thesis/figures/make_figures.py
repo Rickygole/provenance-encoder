@@ -73,6 +73,9 @@ def load(*parts):
 # ----------------------------------------------------------------------------
 plt.rcParams.update({
     "font.family": "serif",
+    # Pinned so that this script, style.py and the notebook all draw the same
+    # text metrics. See the note in style.py.
+    "font.serif": ["DejaVu Serif"],
     "font.size": 9,
     "axes.titlesize": 9,
     "axes.labelsize": 9,
@@ -80,7 +83,14 @@ plt.rcParams.update({
     "ytick.labelsize": 8,
     "legend.fontsize": 8,
     "pdf.fonttype": 42,
+    "axes.spines.top": False,
+    "axes.spines.right": False,
     "axes.linewidth": 0.8,
+    "xtick.major.width": 0.8,
+    "ytick.major.width": 0.8,
+    "grid.linewidth": 0.3,
+    "grid.color": "#DCE0E4",
+    "lines.linewidth": 1.2,
     "figure.dpi": 150,
     # Matches the notebook, so a figure built here and the same figure built
     # there have the same margins and neither clips an annotation.
@@ -197,7 +207,9 @@ def make_fig_pipeline_status():
               f"FAILS\n({ratio:.0f}x prevalence\nmismatch)",
               "THREE CLAIMS\nFALSIFIED*",
               f"FAILS\n(AUROC {auroc:.3f},\n95% CI\n[{ci[0]:.2f}, {ci[1]:.2f}])"]
-    diagnostics = ["--", "--",
+    # Written out rather than left as a dash: the thesis bans en and em dashes,
+    # and a double hyphen renders on canvas as something a reader reads as one.
+    diagnostics = ["no diagnostic\nrun", "no diagnostic\nrun",
                    "action-set\nmatch vs\n.iloc[0] index",
                    "weak-label\nmarginal vs\ngold marginal",
                    "||theta_final -\ntheta_init||;\nOOD transfer F1*",
@@ -272,11 +284,17 @@ def make_fig_intro_headline():
     order = ["gpt4o_zeroshot", "gpt4o_fewshot", "accord_binary_at_0.5_253core", "llama_baseline"]
     labels = ["GPT-4o\nz.s.", "GPT-4o\nf.s.", "ACCORD", "Llama 3\n8B"]
 
-    fig, (axL, axR) = plt.subplots(1, 2, figsize=(7.0, 3.5))
-    fig.subplots_adjust(left=0.155, right=0.985, top=0.97, bottom=0.155, wspace=0.62)
+    # The right panel gets the wider share: its four category labels need room
+    # side by side, while the left panel's y labels live outside its axes.
+    fig, (axL, axR) = plt.subplots(1, 2, figsize=(7.0, 3.5),
+                                   gridspec_kw={"width_ratios": [1.0, 1.25]})
+    fig.subplots_adjust(left=0.155, right=0.935, top=0.97, bottom=0.155, wspace=0.50)
 
+    # Middle bar: 261/299 is the weak labeller's marginal on the gold set, not
+    # ACCORD's own predicted-positive count (that is 278/299). reconciliation_c28.json
+    # exists to settle exactly this, and the bar was previously mislabelled ACCORD.
     bars = [("Weak labeller\npos. rate\n(train pool)", weak_pos, weak_n, wilson_ci(weak_pos, weak_n)),
-            ("ACCORD pred.-\npositive rate\n(gold set)", pred_pos, pred_n, wilson_ci(pred_pos, pred_n)),
+            ("Weak labeller\npos. rate\n(gold set)", pred_pos, pred_n, wilson_ci(pred_pos, pred_n)),
             ("Pharmacist\ntrue rate\n(gold set)", pharm_pos, pharm_n, wilson_ci(pharm_pos, pharm_n))]
     ypos = np.arange(len(bars))[::-1]
     rates = [b[1] / b[2] for b in bars]
@@ -292,16 +310,20 @@ def make_fig_intro_headline():
                  ha="left", fontsize=8.0, linespacing=1.25)
     axL.set_yticks(ypos)
     axL.set_yticklabels([b[0] for b in bars], fontsize=8.0)
-    axL.set_xlim(0, 2.05)
+    axL.set_xlim(0, 2.2)
     axL.set_ylim(-0.62, 2.62)
     axL.set_xticks([0, 0.5, 1.0])
     axL.set_xlabel("rate")
     axL.spines[["top", "right"]].set_visible(False)
     if SHOW_INFIGURE_TITLES: axL.set_title(f"Marginal, weak label vs.\\ truth ({weak_rate/pharm_rate:.0f}x)", fontsize=8.5)
+    # The bracket compares the two bars measured on the same 299-pair gold set.
+    # It used to span the training-pool bar and the gold-set bar, which have
+    # different denominators.
+    gold_ratio = (pred_pos / pred_n) / (pharm_pos / pharm_n)
     x_bracket = 1.74
-    axL.annotate("", xy=(x_bracket, ypos[2]), xytext=(x_bracket, ypos[0]),
+    axL.annotate("", xy=(x_bracket, ypos[2]), xytext=(x_bracket, ypos[1]),
                  arrowprops=dict(arrowstyle="-", color=GREY_MED, lw=1.0))
-    axL.text(x_bracket + 0.07, (ypos[0] + ypos[2]) / 2, f"~{weak_rate/pharm_rate:.0f}x",
+    axL.text(x_bracket + 0.07, (ypos[1] + ypos[2]) / 2, f"~{gold_ratio:.0f}x",
               va="center", ha="left", fontsize=8.0, color=GREY_MED)
 
     xs = np.arange(4)
@@ -314,11 +336,13 @@ def make_fig_intro_headline():
             hatch=None, width=0.55, linewidth=1.0, ecolor=GREY_DARK, zorder=3)
     axR.set_xticks(xs)
     axR.set_xticklabels(labels, fontsize=8.0)
-    axR.set_xlim(-1.05, 3.6)
+    axR.set_xlim(-0.62, 3.62)
     axR.set_ylabel("Matthews correlation")
     if SHOW_INFIGURE_TITLES: axR.set_title("MCC, 95% CI, n=253", fontsize=8.5)
-    # Sits on the reference line it names, in the empty margin left of the bars.
-    axR.text(-1.0, -0.012, "chance", fontsize=8.0, color=GREY_MED, va="top", ha="left")
+    # Sits at the end of the reference line it names, outside the plotted range,
+    # so it cannot land on a bar or an interval.
+    axR.text(3.70, 0.0, "chance", fontsize=8.0, color=GREY_MED, va="center",
+             ha="left", clip_on=False)
     axR.spines[["top", "right"]].set_visible(False)
 
     if SHOW_INFIGURE_TITLES: fig.suptitle("The number that determines the rest of the thesis", fontsize=9.0, y=0.97)
@@ -387,53 +411,61 @@ def make_fig_exemplar():
     _ex = json.load(open(os.path.join(RESULTS, "exemplar", "exemplar_correctness_recomputed.json")))["rule_1_2_pooled"]
     defect_rate = _ex["n_wrong"] / _ex["n_resolved"]
 
-    fig, ax = plt.subplots(figsize=(6.2, 3.2))
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 6)
+    # Widened and re-anchored. Previously the trigger caption ran into the
+    # "Discharge summary" heading, both leader arrows crossed a slot box and
+    # struck through its label, the right-hand annotations ran off the axes, and
+    # the summary text was wider than the box drawn around it.
+    fig, ax = plt.subplots(figsize=(7.0, 3.4))
+    fig.subplots_adjust(left=0.005, right=0.995, top=0.995, bottom=0.005)
+    ax.set_xlim(0, 9.6)
+    ax.set_ylim(0, 6.4)
     ax.axis("off")
 
     # two columns of abstract mention slots (no clinical text)
-    col_x = {"Nursing note": 2.2, "Discharge summary": 7.2}
+    col_x = {"Nursing note": 2.0, "Discharge summary": 6.0}
+    half_w = 0.55
     for label, x in col_x.items():
-        ax.text(x, 5.6, label, ha="center", fontsize=8.5, weight="bold")
+        ax.text(x, 6.1, label, ha="center", va="center", fontsize=8.5, weight="bold")
 
     nurse_tags = ["M1", "M2", "M3", "M4", "M5"]
     disch_tags = ["CONT", "CONT", "CONT", "CONT", "CESS"]
-    for i in range(5):
-        y = 4.9 - i * 0.78
-        ax.add_patch(mpatches.Rectangle((col_x["Nursing note"] - 0.55, y - 0.28), 1.1, 0.56,
+    rows_y = [4.7 - i * 0.78 for i in range(5)]
+    for i, y in enumerate(rows_y):
+        ax.add_patch(mpatches.Rectangle((col_x["Nursing note"] - half_w, y - 0.28), 2 * half_w, 0.56,
                                           facecolor="white", edgecolor=GREY_DARK))
         ax.text(col_x["Nursing note"], y, nurse_tags[i], ha="center", va="center", fontsize=8.0)
         fc = GREY_FILL if i == 4 else "white"
-        ax.add_patch(mpatches.Rectangle((col_x["Discharge summary"] - 0.55, y - 0.28), 1.1, 0.56,
+        ax.add_patch(mpatches.Rectangle((col_x["Discharge summary"] - half_w, y - 0.28), 2 * half_w, 0.56,
                                           facecolor=fc, edgecolor=GREY_DARK))
         ax.text(col_x["Discharge summary"], y, disch_tags[i], ha="center", va="center", fontsize=8.0)
 
-    # trigger arrow spanning both columns (top)
-    ax.annotate("", xy=(col_x["Discharge summary"] - 0.6, 5.15), xytext=(col_x["Nursing note"] + 0.6, 5.15),
+    # trigger arrow spanning both columns, above the slots and below the headings
+    ax.annotate("", xy=(col_x["Discharge summary"] - half_w - 0.05, 5.15),
+                xytext=(col_x["Nursing note"] + half_w + 0.05, 5.15),
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=1.1))
-    ax.text((col_x["Nursing note"] + col_x["Discharge summary"]) / 2, 5.3,
-            "trigger: sets conflict\n(quantifies over the set)", ha="center", fontsize=8.0, color=GREY_MED)
+    ax.text((col_x["Nursing note"] + col_x["Discharge summary"]) / 2, 5.32,
+            "trigger: sets conflict\n(quantifies over the set)", ha="center", va="bottom",
+            fontsize=8.0, color=GREY_MED, linespacing=1.25)
 
-    y0 = 4.9
-    y4 = 4.9 - 4 * 0.78
+    # Leader arrows attach to the right edge of the slot they name, so they no
+    # longer cross the box and strike through the tag inside it.
+    x_note = col_x["Discharge summary"] + half_w + 0.9
     ax.annotate(".iloc[0]\n(what the model,\nannotator & LLM saw)",
-                xy=(col_x["Discharge summary"] - 0.55, y0), xytext=(col_x["Discharge summary"] + 1.5, y0 + 0.5),
-                fontsize=8.0, color=GREY_DARK,
+                xy=(col_x["Discharge summary"] + half_w + 0.06, rows_y[0]),
+                xytext=(x_note, rows_y[0]), va="center", ha="left",
+                fontsize=8.0, color=GREY_DARK, linespacing=1.25,
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=0.9))
     ax.annotate("fix: action-matched\n+ dose-adjacent\n(the CESS mention)",
-                xy=(col_x["Discharge summary"] - 0.55, y4), xytext=(col_x["Discharge summary"] + 1.5, y4 - 0.3),
-                fontsize=8.0, color=GREY_DARK,
+                xy=(col_x["Discharge summary"] + half_w + 0.06, rows_y[4]),
+                xytext=(x_note, rows_y[4]), va="center", ha="left",
+                fontsize=8.0, color=GREY_DARK, linespacing=1.25,
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=0.9))
 
-    ax.add_patch(mpatches.FancyBboxPatch((1.2, 0.15), 7.6, 0.75,
-                 boxstyle="round,pad=0.05", facecolor=GREY_FILL, edgecolor=GREY_MED))
-    ax.text(5.0, 0.52,
-            f"For {defect_rate*100:.1f}% of action-conflict candidates, the trigger-set slot and the\n"
-            ".iloc[0] slot disagreed (rule_1_2_pooled, exemplar_correctness_recomputed.json)",
-            ha="center", va="center", fontsize=8.0)
-
-    fig.tight_layout()
+    summary = (f"For {defect_rate*100:.1f}% of action-conflict candidates, the trigger-set slot and the\n"
+               ".iloc[0] slot disagreed (rule_1_2_pooled, exemplar_correctness_recomputed.json)")
+    ax.text(4.8, 0.52, summary, ha="center", va="center", fontsize=8.0, linespacing=1.35,
+            bbox=dict(boxstyle="round,pad=0.5", facecolor=GREY_FILL, edgecolor=GREY_DARK,
+                      linewidth=0.8))
     fname = "fig-exemplar.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -462,22 +494,28 @@ def make_fig_rule_precision():
     per_rule = sorted(per_rule, key=lambda s: s["name"])
 
     fig, ax = plt.subplots(figsize=(6.0, 3.2))
+    fig.subplots_adjust(left=0.105, right=0.985, top=0.97, bottom=0.11)
     xs = np.arange(len(per_rule))
     aurocs = [s["auroc"] for s in per_rule]
+    x_lo, x_hi = -0.55, 3.55
+    ax.set_xlim(x_lo, x_hi)
+    # Reference band: pooled rules 3+4 (defect-free) bootstrap CI from C36, drawn
+    # across the rule-3 and rule-4 bars it actually describes. It is drawn in data
+    # coordinates and behind the bars: the earlier axhspan took axes fractions,
+    # which put its left edge on Rule 2, and it painted over the Rule 3 bar.
+    ax.fill_between([2 - 0.4, x_hi], e3["unstratified_ci95"][0], e3["unstratified_ci95"][1],
+                    color=GREY_LIGHT, alpha=0.25, linewidth=0, zorder=0,
+                    label=f"pooled rules 3+4 95% CI\n[{e3['unstratified_ci95'][0]:.2f}, {e3['unstratified_ci95'][1]:.2f}] (n={e3['n']}, pos={e3['n_pos']})")
     ax.axhline(0.5, **CHANCE_STYLE)
-    ax.bar(xs, aurocs, color=GREY_FILL, edgecolor=GREY_DARK, width=0.55)
+    ax.bar(xs, aurocs, color=GREY_FILL, edgecolor=GREY_DARK, width=0.55, zorder=3)
     for x, s in zip(xs, per_rule):
-        ax.text(x, s["auroc"] + 0.02, f"n={s['n']}\npos={s['pos']}", ha="center", fontsize=8.0)
-    # reference band: pooled rules 3+4 (defect-free) bootstrap CI from C36 --
-    # shown only across the rule-3 / rule-4 bars it actually describes.
-    ax.axhspan(e3["unstratified_ci95"][0], e3["unstratified_ci95"][1],
-               xmin=(2 - 0.4) / 4, xmax=1.0, color=GREY_LIGHT, alpha=0.35,
-               label=f"pooled rules 3+4 95% CI\n[{e3['unstratified_ci95'][0]:.2f}, {e3['unstratified_ci95'][1]:.2f}] (n={e3['n']}, pos={e3['n_pos']})")
+        ax.text(x, s["auroc"] + 0.025, f"n={s['n']}\npos={s['pos']}", ha="center",
+                va="bottom", fontsize=8.0, linespacing=1.25, zorder=4)
     ax.set_xticks(xs)
     ax.set_xticklabels([s["name"].replace("rule ", "Rule ") for s in per_rule])
     ax.set_ylabel("ACCORD AUROC (per rule)")
-    ax.set_ylim(0, 1.0)
-    ax.legend(loc="upper left", fontsize=8.0, frameon=False)
+    ax.set_ylim(0, 1.06)
+    ax.legend(loc="upper left", fontsize=8.0, frameon=False, borderaxespad=0.2)
     ax.spines[["top", "right"]].set_visible(False)
     if SHOW_INFIGURE_TITLES: ax.set_title("ACCORD's own ranking performance does not exceed chance\nwithin any single rule", fontsize=8.3)
     if SHOW_INFIGURE_NOTES: fig.text(0.02, 0.02,
@@ -622,11 +660,12 @@ def make_fig_met_exchange():
     N = TN0 + FP0
     mcc0 = mcc_from_counts(TP0, TN0, FP0, FN0)
 
-    fig, ax = plt.subplots(figsize=(5.6, 4.4))
+    fig, ax = plt.subplots(figsize=(5.9, 4.2))
+    fig.subplots_adjust(left=0.115, right=0.985, top=0.98, bottom=0.115)
     d = np.linspace(0, P, 200)
-    ax.plot(d, d, color=GREY_DARK, linewidth=1.1, label="PABAK (slope 1)")
+    ax.plot(d, d, color=GREY_DARK, linewidth=1.2, zorder=3, label="PABAK (slope 1)")
     slope_ba = N / P
-    ax.plot(d, d * slope_ba, color=GREY_MED, linewidth=1.1, linestyle="--",
+    ax.plot(d, d * slope_ba, color=GREY_MED, linewidth=1.1, linestyle="--", zorder=3,
             label=f"balanced accuracy (slope {slope_ba:.2f})")
 
     # MCC indifference curve through ACCORD's own operating point, traced
@@ -647,30 +686,36 @@ def make_fig_met_exchange():
             dtn_curve.append(tn_sol - TN0)
         except ValueError:
             dtn_curve.append(np.nan)
-    ax.plot(deltas, dtn_curve, color=GREY_LIGHT, linewidth=2.2, alpha=0.9,
+    # Thick amber underneath, thin teal dashes on top: the two curves very nearly
+    # coincide, and this way both stay visible without either hiding the other.
+    ax.plot(deltas, dtn_curve, color=GREY_FILL, linewidth=3.0, zorder=2,
             label=f"MCC indifference (through ACCORD, MCC={mcc0:.3f})")
 
     markers = {"ACCORD": "o", "GPT-4o zero-shot": "s", "GPT-4o few-shot": "^", "Llama 3 8B": "D"}
-    label_offset = {"ACCORD": (8, 10), "GPT-4o zero-shot": (6, 5), "GPT-4o few-shot": (6, 5),
-                     "Llama 3 8B": (10, -10)}
+    # Every label is placed away from the two near-coincident diagonals: the
+    # GPT points are labelled up and to the left of the lines, ACCORD to the left
+    # of the origin, Llama below the flat PABAK line.
+    label_offset = {"ACCORD": (-9, 7), "GPT-4o zero-shot": (-9, 6), "GPT-4o few-shot": (-9, 6),
+                     "Llama 3 8B": (13, -3)}
+    label_align = {"ACCORD": "right", "GPT-4o zero-shot": "right", "GPT-4o few-shot": "right",
+                   "Llama 3 8B": "left"}
     for name, s in systems.items():
         delta = TP0 - s["tp"]
         dtn = s["tn"] - TN0
         ax.scatter([delta], [dtn], marker=markers[name], s=45, color=GREY_DARK,
                    facecolor="white" if name != "ACCORD" else GREY_DARK, zorder=5)
         ax.annotate(name, (delta, dtn), textcoords="offset points", xytext=label_offset[name],
-                    fontsize=8.0)
+                    ha=label_align[name], va="center", fontsize=8.0, zorder=6)
 
-    ax.axhline(0, color=GREY_LIGHT, linewidth=0.6)
-    ax.axvline(0, color=GREY_LIGHT, linewidth=0.6)
+    ax.axhline(0, color=GREY_DEAD, linewidth=0.6, zorder=0)
+    ax.axvline(0, color=GREY_DEAD, linewidth=0.6, zorder=0)
     ax.set_xlabel(r"$\delta$ = forgone true positives, relative to ACCORD")
     ax.set_ylabel(r"$\Delta$TN, relative to ACCORD")
-    ax.set_xlim(-1, P + 1)
-    ax.set_ylim(-32, N + 10)
-    ax.legend(loc="upper left", fontsize=8.0, frameon=False)
+    ax.set_xlim(-2.3, P + 1)
+    ax.set_ylim(-34, N + 22)
+    ax.legend(loc="upper left", fontsize=8.0, frameon=False, borderaxespad=0.3)
     ax.spines[["top", "right"]].set_visible(False)
     if SHOW_INFIGURE_TITLES: ax.set_title(f"What each statistic trades (P={P}, N={N}, n={P+N})", fontsize=8.5)
-    fig.tight_layout()
     fname = "fig-met-exchange.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -753,42 +798,45 @@ def make_fig_met_sharpened():
 # ============================================================================
 def make_fig_disc_strata():
     decontam, p_decontam = load("decontam", "corrected_gold_metrics.json")
-    intervals, p_intervals = load("stats", "intervals.json")
-    e3 = intervals["E3_defect_free_stratum"]
+    # Both rows now come from the decontaminated run. The defect-free stratum used
+    # to be read from stats/intervals.json E3, which is computed on the
+    # contaminated released scores, so the two rows were not comparable.
+    control, p_control = load("control", "final_report.json")
+    e3 = control["ensemble_mean_of_seed_scores"]["gold_defect_free_rule34"]
 
     agg = decontam["aggregate"]
     rows = [
-        ("All annotated pairs\n(decontaminated 3-seed ensemble)",
+        ("All non-ambiguous pairs\n(decontaminated 3-seed ensemble)",
          agg["ensemble_auroc"], agg["ensemble_ci95"], decontam["n"], decontam["n_positives"],
-         agg["ensemble_mannwhitney_p"], None),
+         agg["ensemble_mannwhitney_p"]),
         ("Rules 3+4 only\n(exemplar-defect-free by construction)",
-         e3["auroc"], e3["unstratified_ci95"], e3["n"], e3["n_pos"],
-         0.953, e3["stratified_ci95"]),
+         e3["auroc"], e3["bootstrap"]["ci95"], e3["n"], e3["pos"], None),
     ]
 
-    fig, ax = plt.subplots(figsize=(6.0, 3.0))
+    fig, ax = plt.subplots(figsize=(6.4, 2.7))
+    fig.subplots_adjust(left=0.315, right=0.985, top=0.93, bottom=0.30)
     ys = np.arange(len(rows))[::-1]
     ax.axvline(0.5, **CHANCE_STYLE)
-    for y, (label, auroc, ci, n, pos, p, strat_ci) in zip(ys, rows):
+    for y, (label, auroc, ci, n, pos, p) in zip(ys, rows):
         ax.errorbar([auroc], [y], xerr=[[auroc - ci[0]], [ci[1] - auroc]], fmt="o",
-                    color=GREY_DARK, capsize=4, markersize=6, linewidth=1.3)
-        ax.text(auroc, y + 0.22, f"AUROC {auroc:.4f}, n={n}, pos={pos}, MWU p={p:.3f}",
-                ha="center", fontsize=8.0)
-        if strat_ci is not None:
-            ax.errorbar([auroc], [y - 0.28], xerr=[[auroc - strat_ci[0]], [strat_ci[1] - auroc]],
-                        fmt="D", color=GREY_MED, capsize=3, markersize=4.5, linewidth=1.0)
-            ax.text(strat_ci[1] + 0.02, y - 0.28, "stratified CI", fontsize=8.0, va="center", color=GREY_MED)
+                    color=GREY_DARK, capsize=4, markersize=6, linewidth=1.3, zorder=3)
+        txt = f"AUROC {auroc:.4f}, n={n}, pos={pos}"
+        if p is not None:
+            txt += f", MWU p={p:.3f}"
+        # White backing so the chance rule at 0.5 does not run through the digits.
+        ax.text(auroc, y + 0.20, txt, ha="center", va="bottom", fontsize=8.0, zorder=4,
+                bbox=dict(boxstyle="square,pad=0.15", facecolor="white", edgecolor="none"))
     ax.set_yticks(ys)
-    ax.set_yticklabels([r[0] for r in rows], fontsize=8.0)
+    ax.set_yticklabels([r[0] for r in rows], fontsize=8.0, linespacing=1.3)
     ax.set_xlim(0.1, 0.9)
-    ax.set_ylim(-0.95, 1.55)
+    ax.set_ylim(-0.55, 1.5)
     ax.set_xlabel("AUROC")
     ax.spines[["top", "right"]].set_visible(False)
-    ax.text(0.5, ys[-1] - 0.72,
-            f"E3: {intervals['E3_defect_free_stratum']['draws_dropped_zero_positives']} of "
-            f"{intervals['bootstrap_B']} bootstrap resamples dropped (0 positives)",
-            ha="center", fontsize=8.0, color=GREY_MED)
-    fig.tight_layout(rect=[0, 0.15, 1, 0.86])
+    # Note sits below the axes, clear of both intervals.
+    fig.text(0.5, 0.035,
+             f"bootstrap: {control['bootstrap_n_resamples']:,} resamples, "
+             f"{e3['bootstrap']['n_boot_valid']:,} valid on the defect-free stratum",
+             ha="center", fontsize=8.0, color=GREY_MED)
     if SHOW_INFIGURE_TITLES: fig.suptitle("On evidence correct by construction, ranking is at chance,\nnot merely attenuated toward it",
                  fontsize=8.3, y=0.99)
     if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.03,
@@ -798,10 +846,15 @@ def make_fig_disc_strata():
     fname = "fig-disc-strata.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
-    register(fname, "fig:disc-strata", [p_decontam, p_intervals],
+    register(fname, "fig:disc-strata", [p_decontam, p_control],
              "MODIFIED from spec (ROC panels) to point-estimate+CI panels because per-pair scores "
              "are not committed. Full-set row uses the decontaminated ensemble AUROC 0.5145 / CI "
-             "[0.321, 0.703] / p=0.867 per CORRECTIONS.md C16, replacing the withdrawn 0.460/p=0.64.")
+             "[0.321, 0.703] / p=0.867 per CORRECTIONS.md C16, replacing the withdrawn 0.460/p=0.64. "
+             "Defect-free row now reads control/final_report.json "
+             "ensemble_mean_of_seed_scores.gold_defect_free_rule34 (0.5469, CI [0.242, 0.828]), the "
+             "decontaminated counterpart, replacing stats/intervals.json E3 (0.5078) which is "
+             "computed on the contaminated released scores; its stratified CI and its "
+             "dropped-resample count belong to that superseded bootstrap and are no longer drawn.")
 
 
 # ============================================================================
@@ -814,43 +867,52 @@ def make_fig_disc_strata():
 #   this figure.
 # ============================================================================
 def make_fig_disc_actionability():
-    fig, ax = plt.subplots(figsize=(6.6, 3.4))
-    ax.set_xlim(0, 10.5)
-    ax.set_ylim(0, 4.0)
+    # Widened from 10.5 to 11.6 units so the longest event label no longer runs
+    # off the right-hand edge, and every leader now starts outside the shaded
+    # band instead of crossing it.
+    fig, ax = plt.subplots(figsize=(7.0, 2.7))
+    fig.subplots_adjust(left=0.005, right=0.995, top=0.995, bottom=0.005)
+    y_lo, y_hi = 0.85, 4.05
+    ax.set_xlim(0, 11.6)
+    ax.set_ylim(y_lo, y_hi)
     ax.axis("off")
 
     line_y = 2.3
+    band_lo, band_hi = line_y - 0.42, line_y + 0.42
     events = [
-        (1.0, "last nursing note\n(CHARTTIME present)", 3.35),
-        (4.0, "discharge order", 3.0),
-        (5.4, "DISCHTIME\n(\"patient leaves\")", 3.55),
-        (8.2, "discharge summary finalised\n(CHARTDATE only, no CHARTTIME)", 3.05),
+        (1.0, "last nursing note\n(CHARTTIME present)", 3.05, "o"),
+        (4.0, "discharge order", 3.05, "o"),
+        (5.4, "DISCHTIME\n(\"patient leaves\")", 3.55, "o"),
+        (9.0, "discharge summary finalised\n(CHARTDATE only, no CHARTTIME)", 3.05, "X"),
     ]
-    ax.annotate("", xy=(9.7, line_y), xytext=(0.4, line_y),
+    ax.annotate("", xy=(10.9, line_y), xytext=(0.4, line_y),
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=1.2))
-    for x, label, ytext in events:
-        ax.plot([x], [line_y], marker="o", color=GREY_DARK, markersize=5, zorder=4)
-        ax.annotate(label, (x, line_y), xytext=(x, ytext), ha="center", va="bottom", fontsize=8.0,
+    for x, label, ytext, marker in events:
+        ax.plot([x], [line_y], marker=marker, color=GREY_DARK,
+                markersize=5 if marker == "o" else 8, zorder=4)
+        ax.annotate(label, (x, band_hi + 0.04), xytext=(x, ytext), ha="center", va="bottom",
+                    fontsize=8.0, linespacing=1.3,
                     arrowprops=dict(arrowstyle="-", color=GREY_MED, lw=0.6))
 
     # shaded region: no intervention possible (after DISCHTIME, before trigger)
-    ax.axvspan(5.4, 8.2, ymin=(line_y - 0.28) / 4.0, ymax=(line_y + 0.28) / 4.0,
-               color=GREY_LIGHT, alpha=0.45, zorder=1)
-    ax.text((5.4 + 8.2) / 2, line_y, "no intervention\npossible", ha="center", va="center",
-            fontsize=8.0, style="italic", zorder=5)
+    ax.axvspan(5.4, 9.0, ymin=(band_lo - y_lo) / (y_hi - y_lo),
+               ymax=(band_hi - y_lo) / (y_hi - y_lo),
+               color=GREY_FILL, alpha=0.9, zorder=1)
+    # Sits above the timeline rather than straddling it, so the arrow does not
+    # run between the two lines of the label.
+    ax.text((5.4 + 9.0) / 2, line_y + 0.07, "no intervention\npossible", ha="center",
+            va="bottom", fontsize=8.0, style="italic", zorder=5, linespacing=1.25)
 
-    ax.plot([8.2], [line_y], marker="X", color=GREY_DARK, markersize=7, zorder=4)
-    ax.annotate("system's trigger point\n(discharge summary)", xy=(8.2, line_y - 0.15),
-                xytext=(8.2, 1.15), ha="center", va="top", fontsize=8.0,
+    ax.annotate("system's trigger point\n(discharge summary)", xy=(9.0, band_lo - 0.04),
+                xytext=(9.0, 1.25), ha="center", va="top", fontsize=8.0, linespacing=1.3,
                 arrowprops=dict(arrowstyle="-", color=GREY_MED, lw=0.6))
 
-    ax.annotate("proposed detection point", xy=(4.0, line_y - 0.15), xytext=(2.4, 0.55),
+    ax.annotate("proposed detection point", xy=(4.0, band_lo - 0.04), xytext=(3.4, 1.25),
                 fontsize=8.0, ha="center", va="top", color=GREY_DARK,
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=0.9, linestyle="--"))
 
     if SHOW_INFIGURE_TITLES: ax.set_title("The actionability flaw: the trigger fires after the patient has left",
                  fontsize=8.5, pad=8)
-    fig.tight_layout(rect=[0, 0.10, 1, 1])
     if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.02,
              "Schematic of MIMIC-III field timing (CORRECTIONS.md C6: CHARTTIME is null for every\n"
              "discharge summary). No numeric estimate is shown; not sourced from a results JSON.",
@@ -895,20 +957,14 @@ SKIPPED = [
             "Left as \\figspec."
         ),
     },
-    {
-        "label": "fig:falsification",
-        "chapter": "ch6_architecture.tex",
-        "reason": (
-            "Spec requires the authority-parameter init/final values (0.5,1.0) vs "
-            "(0.509,1.006) and per-cohort rule-type F1 (HF 0.9603, sepsis 0.0654, AKI "
-            "0.0595, held-out 45.2%). None of these numbers appear in any file under "
-            "results/accord/. They are documented only as prose in accord/CORRECTIONS.md "
-            "(C1, C2), which cites transfer_results_correct.json and "
-            "accord_phase3_v2_ablations.py -- neither file exists in this repository. "
-            "Left as \\figspec."
-        ),
-    },
 ]
+
+# fig:falsification used to be listed above as unbuildable, on the grounds that
+# transfer_results_correct.json did not exist here. It does exist, at
+# results/accord/generality/, and make_figures_extra.py builds the figure from
+# it. The one number that entry was right about is the held-out 45.2%: 0.4515
+# appears in no result file anywhere, so that reference line was removed from
+# the figure rather than sourced.
 
 
 def main():

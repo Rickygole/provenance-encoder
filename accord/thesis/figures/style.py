@@ -30,13 +30,24 @@ ACCENT, MUTED, LIGHT, DEAD = "#0A2795", "#00817B", "#FFD166", "#8E99A6"
 ALERT = "#D81E05"
 
 def setup():
+    # Identical to the rcParams block in make_figures.py and to the notebook's
+    # setup cell, so the same figure drawn from any of the three is the same
+    # figure. legend.fontsize was 7.5; nothing in the thesis figures may go
+    # below 8 point.
     plt.rcParams.update({
         "font.family": "serif",
-        "font.serif": ["Times New Roman", "DejaVu Serif"],
+        # Pinned. The notebook is the path that ships these figures and it runs
+        # in Colab, where Times New Roman is not installed, so it has always
+        # drawn DejaVu Serif; these scripts were drawing Times locally, which
+        # gave the same figure two different sets of text metrics. DejaVu Serif
+        # ships with matplotlib, so this renders identically everywhere. It is
+        # also the wider of the two, so the spacing checked here is the safe case.
+        "font.serif": ["DejaVu Serif"],
         "font.size": 9, "axes.labelsize": 9, "axes.titlesize": 9,
-        "xtick.labelsize": 8, "ytick.labelsize": 8, "legend.fontsize": 7.5,
+        "xtick.labelsize": 8, "ytick.labelsize": 8, "legend.fontsize": 8,
+        "pdf.fonttype": 42,
         "axes.spines.top": False, "axes.spines.right": False,
-        "axes.linewidth": 0.6, "xtick.major.width": 0.6, "ytick.major.width": 0.6,
+        "axes.linewidth": 0.8, "xtick.major.width": 0.8, "ytick.major.width": 0.8,
         "grid.linewidth": 0.3, "grid.color": "#DCE0E4", "lines.linewidth": 1.2,
         "figure.dpi": 150, "savefig.bbox": "tight", "savefig.pad_inches": 0.02,
     })
