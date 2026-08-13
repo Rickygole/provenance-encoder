@@ -462,7 +462,7 @@ def make_fig_exemplar():
                 arrowprops=dict(arrowstyle="-|>", color=GREY_DARK, lw=0.9))
 
     summary = (f"For {defect_rate*100:.1f}% of action-conflict candidates, the trigger-set slot and the\n"
-               ".iloc[0] slot disagreed (rule_1_2_pooled, exemplar_correctness_recomputed.json)")
+               ".iloc[0] slot disagreed.")
     ax.text(4.8, 0.52, summary, ha="center", va="center", fontsize=8.0, linespacing=1.35,
             bbox=dict(boxstyle="round,pad=0.5", facecolor=GREY_FILL, edgecolor=GREY_DARK,
                       linewidth=0.8))

@@ -129,7 +129,13 @@ concentrated in one rule, and no rule is doing the work. Figure~\ref{fig:rule-pr
 per-rule ranking performance alongside the precision panel above.
 
 \begin{figure}[H]
-\caption{Per-rule ranking performance on the annotated pairs}
+\caption{Per-rule ranking performance on the annotated pairs. Bars give the
+area under the ROC curve for the detector's contradiction probability within each
+mining rule, evaluated against the pharmacist's binary label; the count of pairs
+and of confirmed positives is printed above each bar. The dashed line marks
+chance. The shaded band is the 95\% bootstrap interval for Rules 3 and 4 pooled,
+the stratum whose exemplars are correct by construction, and it is drawn across
+those two rules only.}
 \centering
 \includegraphics[width=0.92\linewidth]{figures/fig-rule-precision.pdf}
 \apanote{Ranking performance per rule, drawn from \texttt{figures/manifest.json}, in addition to
@@ -292,7 +298,14 @@ instruction-tuned labeller asked for a rare positive class; what survives the ch
 the direction, over-calling that does not track the true rate, not the size of it.
 
 \begin{figure}[H]
-\caption{Labeller response to prevalence on public text}
+\caption{Labeller response to prevalence on public text. Each panel plots the
+rate at which a weak labeller returns a positive against the true prevalence of
+the sample it was shown, for three locally run open-weight models (columns) under
+two prompt conditions (rows): a bare instruction, and one that states the base
+rate and permits abstention. The dashed diagonal is perfect calibration, where
+predicted rate equals true rate. The square in the upper left of each panel marks
+the clinical operating point measured in this thesis, a true rate near 4\% read as
+positive at roughly 85\%.}
 \centering
 \includegraphics[width=0.92\linewidth]{figures/fig-prevalence-response.pdf}
 \apanote{Built from the prevalence replication sweep. Each panel varies the true
@@ -371,7 +384,13 @@ against that head measures an untrained module rather than the underlying
 question.
 
 \begin{figure}[H]
-\caption{Two falsifications in one view}
+\caption{Two falsifications in one view. Left: the two authority scale
+parameters, $\alpha_N$ on the nursing side and $\alpha_D$ on the discharge side,
+at their stated initialisation and after training, averaged over three seeds. Both
+finish within about one percent of where they began, so the values reported as
+learned are indistinguishable from the constants they were set to. Right: macro
+$F_1$ of the rule-type head in the domain it was fitted on and on two cohorts it
+was not, sepsis and acute kidney injury.}
 \centering
 \includegraphics[width=0.92\linewidth]{figures/fig-falsification.pdf}
 \apanote{Left panel: a parameter reported as learned, drawn against its
@@ -715,7 +734,14 @@ nothing near the detectable range, and it fixes the size of the annotation effor
 a future attempt needs.
 
 \begin{figure}[H]
-\caption{What each evaluation in this thesis could have seen}
+\caption{What each evaluation in this thesis could have seen. The curve gives
+the minimum detectable area under the ROC curve at 80\% power and a two-sided
+$\alpha$ of 0.05, by the method of Hanley and McNeil, as a function of the number
+of positive cases in the evaluation set. The circle marks the contradiction
+evaluation reported in this chapter, which holds 12 positives among 253 pairs. The
+square marks the in-hospital mortality task used elsewhere as a positive control,
+which holds 570 positives among 6{,}776 held-out admissions and is a different
+task on a different cohort.}
 \centering
 \includegraphics[width=0.92\linewidth]{figures/fig-power.pdf}
 \apanote{Built from \texttt{results/accord/section6\_auroc\_power.json}.}
@@ -891,7 +917,11 @@ Table~\ref{tab:mcc}, because at 12 positives none of the four systems is
 distinguishable from chance, and none is distinguishable from any other.
 
 \begin{figure}[H]
-\caption{Headline estimates against zero}
+\caption{Headline estimates against zero. Each row gives one effect reported in
+this thesis with its 95\% interval; units differ by row and are named in the row
+label, so the rows are not comparable to one another and only each interval's
+position relative to zero is being read. Rows whose interval contains zero are
+drawn in grey.}
 \centering
 \includegraphics[width=0.92\linewidth]{figures/fig-forest.pdf}
 \apanote{Each row is a headline estimate from this project with its interval, and
