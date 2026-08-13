@@ -75,15 +75,28 @@ for f in files:
                 for r in d:
                     label = r.get('tag') or r.get('arm') or r.get('model') or 'all'
                     grp.setdefault(label, []).append(r)
+                # Show the outcome metrics, not whatever numeric field happens to come
+                # first. A record can carry both a validation and a test score, and the
+                # thesis reports the test one; showing only the validation score here
+                # would quietly point a figure at the wrong column.
+                PREFER = ("accuracy", "val_accuracy", "macro_f1", "final_val_loss",
+                          "auroc", "mcc", "precision", "recall", "minutes")
                 for label, rs in sorted(grp.items()):
-                    nums = [k for k in keys if isinstance(rs[0].get(k), (int, float))
+                    nums = [k for k in PREFER if isinstance(rs[0].get(k), (int, float))
                             and not isinstance(rs[0].get(k), bool)]
+                    nums += [k for k in keys if k not in nums and k not in ("seed", "budget")
+                             and isinstance(rs[0].get(k), (int, float))
+                             and not isinstance(rs[0].get(k), bool)]
                     parts = []
                     for k in nums[:4]:
                         v = [r[k] for r in rs if isinstance(r.get(k), (int, float))]
                         if v:
                             parts.append(f"{k}={st.mean(v):.4g}" + (f" sd {st.stdev(v):.3g}" if len(v) > 1 else ""))
                     print(f"     {label:22s} n={len(rs):<3} {'  '.join(parts)}")
+                if any("val_" in k for k in keys) and any(
+                        k in keys for k in ("accuracy", "auroc")):
+                    print("     NOTE: this file carries both a validation and a test score.")
+                    print("           The thesis reports the test column. Check which you are reading.")
                 print()
                 continue
             kv = flat(d)
