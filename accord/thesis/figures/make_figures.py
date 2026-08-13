@@ -671,7 +671,11 @@ def make_fig_met_exchange():
     # MCC indifference curve through ACCORD's own operating point, traced
     # numerically: for each delta (forgone TPs), solve for the TN that holds
     # MCC constant at mcc0.
-    deltas = np.linspace(0, P, 60)
+    # Sweep to TP0, not to P. A system cannot forgo more true positives than it
+    # found, and ACCORD found 11 of the 12. Running to P made tp negative at the
+    # last step, which put a negative product under the sqrt in mcc_from_counts,
+    # returned NaN, and silently truncated the curve while printing a warning.
+    deltas = np.linspace(0, TP0, 60)
     dtn_curve = []
     for delta in deltas:
         tp = TP0 - delta
