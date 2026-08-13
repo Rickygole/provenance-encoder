@@ -67,6 +67,25 @@ for f in files:
                           (f"  {uniq[:5]}" if len(uniq) <= 8 else ""))
         else:
             d = json.load(open(f))
+            if isinstance(d, list) and d and isinstance(d[0], dict):
+                # A file that is a list of run records: summarise the runs, not the file.
+                keys = list(d[0])
+                print(f"   {len(d)} records, fields: {', '.join(keys[:9])}")
+                grp = {}
+                for r in d:
+                    label = r.get('tag') or r.get('arm') or r.get('model') or 'all'
+                    grp.setdefault(label, []).append(r)
+                for label, rs in sorted(grp.items()):
+                    nums = [k for k in keys if isinstance(rs[0].get(k), (int, float))
+                            and not isinstance(rs[0].get(k), bool)]
+                    parts = []
+                    for k in nums[:4]:
+                        v = [r[k] for r in rs if isinstance(r.get(k), (int, float))]
+                        if v:
+                            parts.append(f"{k}={st.mean(v):.4g}" + (f" sd {st.stdev(v):.3g}" if len(v) > 1 else ""))
+                    print(f"     {label:22s} n={len(rs):<3} {'  '.join(parts)}")
+                print()
+                continue
             kv = flat(d)
             print(f"   {len(kv)} values")
             for k, v in list(kv.items())[:28]:
@@ -80,3 +99,37 @@ for f in files:
 
 print("=" * 92)
 print("Set SHOW_ALL = True above to dump every file, including the ones no figure uses.")
+
+# ---------------------------------------------------------------------------
+# Values that are present in the data but must not be plotted.
+# ---------------------------------------------------------------------------
+LANDMINES = {
+ "reference_full_2296_candidate_pool_rate_from_task_description":
+   "0.586 was supplied by a task description, never measured, over a 2,296 pool "
+   "that appears nowhere in this work. Struck from the thesis. Use n_wrong divided "
+   "by n_resolved, which is 65 of 137.",
+ "dp_min":  "named for a minimum but holds the sweep's FIRST point; for PUMS regime A "
+            "that is not the minimum. Read the points, not the key name.",
+ "dp_max":  "named for a maximum but holds the sweep's LAST point. Same caution.",
+}
+print()
+print("=" * 92)
+print("KEYS PRESENT IN THE DATA THAT MUST NOT BE PLOTTED")
+print("=" * 92)
+found = 0
+for f in files:
+    if f.suffix != ".json":
+        continue
+    try:
+        raw = f.read_text()
+    except Exception:
+        continue
+    for key, why in LANDMINES.items():
+        if key in raw:
+            print(f"  {f.relative_to(R)}")
+            print(f"    key : {key}")
+            print(f"    why : {why}")
+            print()
+            found += 1
+if not found:
+    print("  none present")
