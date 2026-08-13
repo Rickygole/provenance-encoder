@@ -79,10 +79,14 @@ plt.rcParams.update({
     "figure.dpi": 150,
 })
 
-GREY_DARK = "#1a1a1a"
+# Palette. These were pure greys; they now carry the same muted navy family the
+# newer figure scripts use, so the twenty figures look like one set. The
+# luminance ordering is preserved (dark 54, mid 138, fill 217 out of 255), so a
+# greyscale print still separates them exactly as before.
+GREY_DARK = "#1f3a5f"
 GREY_MED = "#666666"
-GREY_LIGHT = "#aaaaaa"
-GREY_FILL = "#d9d9d9"
+GREY_LIGHT = "#7f8c9b"
+GREY_FILL = "#cdd7e0"
 HATCH_A = "///"
 HATCH_B = "\\\\\\"
 CHANCE_STYLE = dict(color=GREY_MED, linestyle="--", linewidth=1.0, zorder=1)
