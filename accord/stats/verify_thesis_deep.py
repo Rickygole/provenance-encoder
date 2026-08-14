@@ -191,12 +191,18 @@ def pass9_template():
     ab = THESIS / "frontmatter" / "abstract.tex"
     if ab.exists():
         text = strip_comments(ab.read_text())
-        # Body: everything after the header block's last placeholder line.
-        body = text
-        for marker in ("Thesis Chair", "CHAIR NAME"):
-            k = body.rfind(marker)
-            if k != -1:
-                body = body[body.find("\n", k) + 1:]
+        # Body: the actual abstract paragraph, not the header block above it.
+        # The template's own spacing commands mark both ends precisely: the
+        # text starts right after the last \parindent=0pt (the paragraph
+        # formatting reset that opens the abstract's typesetting group) and
+        # ends at the final \par} immediately before \end{frontmatterpage}.
+        # The previous heuristic (everything after the last "CHAIR NAME" or
+        # "Thesis Chair" marker) swept in the department line and the
+        # vspace/comment lines between the header block and the abstract
+        # text, inflating both the word and paragraph counts.
+        m = re.search(r"\\parindent=0pt\s*(.*?)\\par\}\s*\\end\{frontmatterpage\}",
+                       text, re.S)
+        body = m.group(1) if m else text
         body_words = re.findall(r"[A-Za-z][A-Za-z'-]*", re.sub(r"\\[a-zA-Z]+", " ", body))
         n_words = len(body_words)
         if n_words > 250:

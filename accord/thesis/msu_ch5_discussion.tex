@@ -19,10 +19,12 @@
 Chapter~\ref{ch:results} reported what each stage of the pipeline measured, and
 what the control attached to that stage measured afterwards. This chapter argues
 about the difference. Three claims are defended: the controls changed the reading
-at every stage and reversed it at several; the null on the clinical task is a
-measurement rather than a failure of power; and one result here is unexplained
-and should stay unexplained until somebody tests a mechanism rather than
-proposing one.
+at every stage and reversed it at several; the training and evaluation harness
+resolves real differences at the sample sizes it was given, and the
+twelve-positive contradiction evaluation's own sensitivity, checked directly by
+injection, is a separate and narrower question the harness result does not by
+itself answer; and one result here is unexplained and should stay unexplained
+until somebody tests a mechanism rather than proposing one.
 
 \section{What Each Control Changed}
 \label{sec:disc-spine}
@@ -51,7 +53,7 @@ fired and the original reading held.}
 \textbf{Stage} & \textbf{Before control} & \textbf{After control}
 & \textbf{Verdict} \\
 \midrule
-Candidate mining & Pool base rate $0.0474$ read as a property of the mining rules & $0.0474$ is an upper bound on annotation validity, not an estimate of pool quality & Narrowed \\
+Candidate mining & Pool base rate $0.0401$ read as a property of the mining rules & $0.0401$ is an upper bound on annotation validity, not an estimate of pool quality & Narrowed \\
 \addlinespace
 Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ gold pairs labelled positive against $12$ true positives; a prior, not a decision & Reversed \\
 \addlinespace
@@ -67,20 +69,30 @@ Reporting & Drift slopes read directionally from stored gap magnitudes & Same ma
 \subsection{Candidate mining: narrowed}
 
 The miner produced a pool whose base rate against pharmacist annotation is
-$0.0474$, $12$ true contradictions in the $253$-pair non-ambiguous core. A pool
+$0.0401$, $12$ true contradictions in the $299$-pair full annotated set. A pool
 has no threshold; that figure is a property of the candidates the rules
 selected, not of any classifier run over them. A paper could report it as a
-property of the rules. A separate quantity belongs to the detector, not the
-pool: ACCORD thresholded at $0.5$ on the same $253$-pair core returns $11$ true
-positives against $223$ false positives, a precision of $0.047$ that happens to
-round to the pool base rate but is the detector's confusion matrix, not the
+property of the rules. A related but distinct quantity belongs to the
+decontaminated evaluation set rather than the pool itself: on the $253$-pair
+non-ambiguous core, the same $12$ positives sit against $241$ negatives for a
+base rate of $0.0474$, the denominator behind the minimum detectable AUROC of
+Chapter~\ref{ch:results} rather than a second reading of pool precision. A
+further, separate quantity belongs to the detector, not the pool: ACCORD
+thresholded at $0.5$ on the $253$-pair core returns $11$ true positives
+against $223$ false positives, a precision of $0.047$ that happens to round
+to that core's base rate but is the detector's confusion matrix, not the
 mining rules' property. The control run late here was to check whether the evidence shown
 to the annotator was the evidence that fired the rule. For a large fraction of
 action-conflict candidates it was not: the trigger quantified over sets of
 medication mentions, the exemplar selector indexed positionally, and nothing
-forced the two to agree. Of the Rule 1 and Rule 2 candidates whose
-exemplar could be resolved, $65$ of $137$ were justified by the wrong sentence, a
-rate of $0.4745$. A further $28$ could not be resolved at all.
+forced the two to agree. Two measurements of how often disagree. A
+reconstruction of the exemplar, calibrated against the pharmacist's actual
+evidence at $0.8934$ to $0.9508$ fidelity because the original row order
+cannot be recovered exactly, resolves 137 of the 165 Rule 1 and Rule 2
+candidates and finds 65 of them justified by the wrong sentence, a rate of
+$0.4745$, with a further 28 unresolved. A true key join, exact where it
+applies, applies to only 23 of the 165 rows, and finds all 23 correct. The
+honest range for the wrong rate is 0 to $0.4745$, not a single figure.
 
 That is a construct problem before it is a precision problem. The quantity the
 annotation exercise was supposed to measure is whether a mined pair is a
@@ -168,30 +180,34 @@ The detector's ranking is at chance and stays there under every control applied
 to it. This is the row where nothing reversed, and it is why the thesis has a
 finding rather than a list of retractions.
 
-Three configurations agree. On all $299$ annotated pairs the single-model AUROC is
-$0.4602$ with a bootstrap standard deviation of $0.0870$ over $10{,}000$
-resamples. Across three seeds the mean is $0.4967$ (SD $0.0350$). On the
-decontaminated $253$-pair set with $12$ positives the three-seed ensemble is
-$0.5145$ at Mann-Whitney $p = 0.8668$, against $0.4595$ for the contaminated run
-on the same pairs. The two areas are computed on the same pairs, so the
-comparison of ensemble against single model is a correlated one and is tested as
-such \citep{delong1988comparing}; it returns $p = 0.9300$ on an AUC difference of
-$0.0090$. Removing the exemplar defect does
-not rescue it: on the $134$ Rule 3 and Rule 4 pairs, holding $6$ positives, AUROC
-is $0.5078$ with a bootstrap standard deviation of $0.1368$, and the three-seed
-mean on that stratum is $0.5295$ (SD $0.0158$). The strongest objection available
-against Chapter~\ref{ch:results} is that real signal was attenuated by labels
-collected against the wrong evidence, and it is answered the only way it can be,
-by measuring where the evidence is right by construction.
+Two systems agree, named separately here rather than folded into one word,
+``the detector.'' The decontaminated ACCORD ensemble, on the decontaminated
+$253$-pair set, reaches AUROC $0.5145$ ($p = 0.8668$) against $0.4595$
+contaminated on the same pairs, correlated areas tested as such
+\citep{delong1988comparing}, $p = 0.9300$ on a difference of $0.0090$. The
+separate defect-free control model of Section~\ref{sec:m-control-model}, a
+plain BioMedBERT with one linear layer and none of ACCORD's authority
+parameters, rule head or harm head, reaches AUROC $0.4602$ on all $299$ pairs
+(three-seed mean $0.4967$) and, on the $134$ Rule 3 and Rule 4 pairs where
+the exemplar is correct by construction, AUROC $0.5078$ (mean $0.5295$,
+ensemble $0.5469$). The strongest objection here is that real signal in
+ACCORD's own architecture was attenuated by wrong-evidence labels. This
+result does not answer that directly: it is the separate control model, not
+ACCORD's own architecture, which was never scored on that stratum, whose $6$
+positives put the minimum detectable AUROC at $0.8058$, so the check has
+almost no power to begin with.
 Figure~\ref{fig:disc-strata} puts the full set and the defect-free stratum side
 by side. Both intervals straddle chance, and the stratum's is wider because it
 holds half the positives.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{Ranking performance on the full decontaminated evaluation set and on
 the stratum where the displayed evidence is correct by construction, each with
 its bootstrap interval. No ROC curve is drawn because per-pair scores are not
-released; the panel row labels carry the sample sizes that apply.}
+released; the panel row labels carry the sample sizes that apply. The
+$253$-pair row is the decontaminated ACCORD ensemble; the $134$-pair row is
+the separate defect-free control model of Section~\ref{sec:m-control-model},
+not a rescoring of ACCORD's own architecture on that stratum.}
 \label{fig:disc-strata}
 \includegraphics[width=0.9\linewidth]{figures/fig-disc-strata.pdf}
 \end{figure}
@@ -217,7 +233,7 @@ did not survive is a set of claims about mechanism, which governs how this work
 should be read: a measurement of a pipeline, not an account of why clinical text
 is hard.
 
-\section{The Null Is a Measurement, Not an Absence of Power}
+\section{What the Positive Control Licenses, and What It Does Not}
 \label{sec:disc-null}
 
 A negative result in a small clinical sample invites one objection above all
@@ -245,15 +261,16 @@ $0.003$ or less is not an instrument that cannot see effects.
 
 Parameters do not close it either. Figure~\ref{fig:scaling} plots the from-scratch
 arms at three sizes against the pretrained band on the public task, and the
-inset carries the clinical comparison on the same axis convention. The
+inset carries the mortality-control comparison on the same axis convention. The
 from-scratch curve rises with size and does not approach the band, so the public
-gap is a pretraining effect rather than a capacity effect, and the clinical gap
+gap is a pretraining effect rather than a capacity effect, and the mortality gap
 is the same instrument returning almost nothing.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{From-scratch encoders at three parameter scales against a pretrained
-encoder on the public classification task, with the clinical comparison inset.
-The shaded band is the pretrained arm's seed standard deviation.}
+encoder on the public classification task, with the mortality-control
+comparison inset. The shaded band is the pretrained arm's seed standard
+deviation.}
 \label{fig:scaling}
 \includegraphics[width=0.9\linewidth]{figures/fig-scaling.pdf}
 \end{figure}
@@ -263,10 +280,12 @@ The decision rule was committed before the sweep ran
 is the one that keeps the claim rather than the one that discards it. That
 ordering is the whole value of pre-registration, and it could have gone the other
 way: arms that had not converged would have retired the positive control and with
-it the licence to call the clinical result a measurement. On the clinical task
-the same instrument returns $+0.0031$, with the pretrained arm at $0.7693$ (SD
-$0.0102$) against $0.7662$ (SD $0.0073$). No significance test for that
-difference is registered, so no $p$ value is quoted; the two standard
+it the licence to call the mortality-control result a measurement. On the
+mortality control task, in-hospital mortality predicted from a patient's first
+$48$ hours of notes on $6{,}776$ held-out admissions holding $570$ positives, the
+same instrument, harness and protocol return $+0.0031$, with the pretrained arm
+at $0.7693$ (SD $0.0102$) against $0.7662$ (SD $0.0073$). No significance test
+for that difference is registered, so no $p$ value is quoted; the two standard
 deviations alone make the gap look like noise around a shared value rather than
 a resolved difference. Same instrument, same protocol, two tasks, one
 showing $4.53$ points and the other showing nothing.
@@ -274,25 +293,26 @@ showing $4.53$ points and the other showing nothing.
 The general result is not this thesis's. Pretraining loss is a poor proxy for
 downstream performance, and that is settled at far larger scale than $48$ runs
 \citep{lourie2025scaling,feng2026tessera}. The
-sweep here is a positive control for the clinical measurement, and writing it up
-as a contribution would misrepresent what it is for.
+sweep here is a positive control for the mortality-task measurement, and writing
+it up as a contribution would misrepresent what it is for.
 
-Sensitivity is not unlimited, and the limit is severe. At $12$ positives against
-$241$ negatives, $\alpha = 0.05$, $80\%$ power, the minimum detectable AUROC is
-$0.7382$, a gap above chance of $0.2382$ with a standard error under the null of
-$0.08555$. The same formula on the $299$-pair set ($12$ positives, $287$
-negatives) gives $0.7387$; on the defect-free stratum ($6$ positives, $128$
-negatives) it gives $0.8391$. This work therefore cannot establish that cross-note
-medication contradiction detection is unsolvable. It establishes that this
-pipeline does not solve it, and that the instrument was sensitive enough to have
-seen a substantial effect had one been present. Only the second statement is
-made.
+What this control licenses is narrower than it can sound: that the harness
+resolves a real difference at the sample sizes it was given, not the
+sensitivity of the twelve-positive contradiction evaluation, a different
+instrument with its own minimum detectable AUROC, $0.7355$ at $12$ positives
+against $241$ negatives ($0.7350$ on the $299$-pair set, $0.8058$ on the
+$6$-positive defect-free stratum), checked directly by injection in
+Chapter~\ref{ch:results} rather than resting on the formula alone. This work
+therefore cannot establish that cross-note medication contradiction detection
+is unsolvable; it establishes that this pipeline does not solve it, and that
+the evaluation, on its own checked sensitivity, could have seen a substantial
+effect had one been present. Only the second statement is made.
 
 A bootstrap standard deviation of $0.0870$ on the primary AUROC is consistent
 with a mildly informative model and with a mildly inverted one. The three-seed
 ensemble's own $95\%$ bootstrap interval on the $253$-pair set,
 $[0.3210, 0.7034]$, is wide enough that its upper bound,
-$0.7034 + 0.0348 = 0.7382$
+$0.7034 + 0.0321 = 0.7355$
 (\texttt{stats.auroc\_ci\_hi\_vs\_min\_detectable\_margin}), sits within a small margin of the minimum detectable
 AUROC established above, so interval width on its own does not rule out a
 modestly useful model. Three of the four estimators compared here, the single
@@ -341,7 +361,7 @@ the audit was written against, a cell that reads as passing is reporting a
 sample size rather than a system, and the two cases are not distinguishable from
 the recorded pass alone.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{The audited demographic-parity gap across operating points and
 selection strengths for one selection experiment. The solid contour is the
 tolerance the audit was written against; the pale region is where the minimum
@@ -528,11 +548,27 @@ and where that is so it is said.
 
 \paragraph{Twelve positives.} Every ranking measurement rests on $12$ positive
 cases, and the defect-free stratum on $6$. The minimum detectable AUROC at $80\%$
-power is $0.7382$ on the primary set and $0.8391$ on the stratum. Every interval
+power is $0.7355$ on the primary set and $0.8058$ on the stratum. Every interval
 is wide, every ordering between systems is unidentified, and the Matthews
 correlations of the compared systems span $-0.0436$ to $0.1089$ across
 configurations a reader might be tempted to rank. No ablation carries a
 significance claim.
+
+\paragraph{Deployment risk, and automation bias.} A system with recall
+$0.7778$ and precision $0.0424$ generates a large number of false alarms per
+true contradiction: the decontaminated detector's first seed alone raises
+$216$ false alarms against $9$ true contradictions. Alert burdens at that
+ratio cause desensitisation, so this system should not be deployed in any
+form; its failure mode is worse than doing nothing, since it consumes
+clinician attention while providing no information. A second, more specific
+hazard sits inside the architecture: the harm head of
+Section~\ref{sec:m-detector} received no loss term and its outputs span
+$0.3977$ to $0.6096$, an untrained sigmoid's range, yet an earlier version of
+this work presented that output as a severity score, a plausible danger
+score derived from random initialisation, the specific and most serious
+instance of automation bias this project produced. The diagnostic that
+catches it, printing the empirical range of every emitted score, costs one
+line.
 
 \paragraph{One institution, one corpus, one era.} MIMIC-III covers admissions to
 a single United States academic medical centre \citep{johnson2016mimic}. The
@@ -561,7 +597,7 @@ claim would have to move the trigger earlier, to the discharge order rather than
 to the finished summary. Nothing here measures whether the task is tractable at
 that earlier point, and nothing here should be read as a claim that it is.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{When the system can fire, relative to when the patient leaves. Nursing
 notes carry a charting time; discharge summaries carry only a charting date, so
 the document the system triggers on is finalised at or after discharge.}
@@ -573,7 +609,7 @@ the document the system triggers on is finalised at or after discharge.}
 not performed.} This is the limitation most likely to be read as smaller than it
 is. The rebuild that corrects the selector exists; the re-annotation that would
 convert the bound of Section~\ref{sec:disc-spine} into an estimate was not run.
-So $0.0474$ cannot be cited as a property of the mining rules by anyone, this
+So $0.0401$ cannot be cited as a property of the mining rules by anyone, this
 thesis included, and a reader who wants that quantity should treat it as
 unmeasured rather than as measured with error. What the defect does not touch is
 the central evaluation result, which reproduces on the $134$-pair stratum.
@@ -651,11 +687,11 @@ measurement; the rest are stated rather than argued away.}
 \toprule
 \textbf{Threat} & \textbf{Severity} & \textbf{Status} \\
 \midrule
-Twelve positives; every interval wide & Severe & Stated; MDE $0.7382$ reported with every null; no significance claim on any ablation \\
+Twelve positives; every interval wide & Severe & Stated; MDE $0.7355$ reported with every null; no significance claim on any ablation \\
 \addlinespace
 Training contamination of the evaluation set & Severe if unaddressed & Measured and corrected; the decontaminated ensemble is $0.5145$ against $0.4595$ contaminated, so the correction does not favour the conclusion \\
 \addlinespace
-Exemplar defect on action-conflict candidates & Severe for pool precision, not decisive for the central result & Bounded by the defect-free stratum: $n = 134$, $6$ positives, AUROC $0.5078$ \\
+Exemplar defect on action-conflict candidates & Severe for pool precision, not decisive for the central result & Checked on the defect-free stratum by a separate control model, not a rescoring of ACCORD: $n = 134$, $6$ positives, AUROC $0.5078$, MDE $0.8058$ \\
 \addlinespace
 Single annotator, no inter-rater or intra-rater reliability & Severe; bounds every gold-label conclusion & Stated; the earlier circular coefficient is retracted, and the two-pass design cannot recover an intra-rater figure because the passes were not retained separately \\
 \addlinespace
@@ -721,7 +757,7 @@ the most majority-dominated of them despite the name, and none of the three was
 chosen here by asking what a missed contradiction costs relative to a false
 alarm. That question is clinical and it was never posed.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{What each summary statistic trades on this evaluation set: forgone true
 positives against gained true negatives, with the four compared systems plotted
 in the same coordinates. The indifference slopes follow from the class counts

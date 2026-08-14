@@ -128,6 +128,16 @@
 \makeatother
 \renewcommand{\thefigure}{\arabic{figure}}
 \renewcommand{\thetable}{\arabic{table}}
+
+% Float tuning. With double-spaced text the default fractions (topfraction 0.7,
+% floatpagefraction 0.5) push any large figure onto a float page that is then
+% left half empty. These let a figure share a page with text whenever it fits.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.85}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{4}
 \renewcommand{\theequation}{\arabic{equation}}
 
 \setcounter{secnumdepth}{2}
@@ -171,7 +181,7 @@
 
 \hypersetup{
   pdfauthor={Ricky Gole},
-  pdftitle={Why Cross-Note Medication Contradiction Detection Fails: A Controlled Failure Analysis of a Clinical NLP Pipeline}}
+  pdftitle={Why a Cross-Note Medication Contradiction Detection Pipeline Fails: A Controlled Failure Analysis}}
 
 \begin{document}
 
@@ -240,7 +250,15 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{\bibname}
 \bibliographystyle{apalike}   % SUBSTITUTE for apacite / APA 7
+% The template's own XML single-spaces reference entries (FORMAT.md section 2,
+% w:line="240" on reference paragraphs) with a 0.5in hanging indent (section 8).
+% The body's \doublespacing does not extend here; doing so was a deviation.
+\begingroup
+\singlespacing
+\setlength{\bibsep}{0.6\baselineskip}
+\setlength{\bibhang}{0.5in}
 \bibliography{refs}
+\endgroup
 
 % Appendices, generated from the project records by
 % accord/stats/make_appendices.py so they cannot drift from the source.

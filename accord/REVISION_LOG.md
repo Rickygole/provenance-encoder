@@ -286,3 +286,16 @@ superseded and must not be cited.
 (pool **15.82 to 23.60**, gold **15.42 to 23.75**, zero unparseable responses across all three
 models), the anisotropy control at **0.9113** against matched clinical **0.9176**, and the
 recomputed exemplar strata. The fact sheet now carries **over 600 verified entries**.
+
+### R9 (2026-08-13) — the minimum detectable AUROC is unreproducible; the full Hanley and McNeil procedure supersedes it
+
+The stored minimum detectable AUROC for the primary evaluation set, 0.7382, does not reproduce under
+either procedure actually in this project: not the null-standard-error approximation written out in
+the methods chapter (which gives 0.7397 at four-decimal precision, not 0.7382), and not the full Hanley and
+McNeil (1982) sampling-variance procedure already implemented in the fig-power figure script (which
+gives 0.7355). `accord/stats/recompute_mde.py` implements the full procedure for all three ambiguity
+treatments in Table 4 and writes `results/accord/mde_recomputed.json`. The recomputed values,
+0.7355 for the ambiguity-excluded primary set, 0.7350 for the ambiguity-retained set and 0.8058 for the
+defect-free stratum, are adopted throughout the thesis, replacing every instance of the old value.
+Text and figure now agree, because both read the same procedure: the fig-power marker was already
+computed this way and the text had not caught up to it.

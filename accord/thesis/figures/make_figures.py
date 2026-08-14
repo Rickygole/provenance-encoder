@@ -204,7 +204,7 @@ def make_fig_pipeline_status():
               "Detector\ntraining", "Evaluation"]
     badges = ["WORKS", "UNVALIDATED",
               f"ENRICHES BUT\nMIS-ATTRIBUTES\nEVIDENCE\n({defect_rate*100:.1f}%)",
-              f"FAILS\n({ratio:.0f}x prevalence\nmismatch)",
+              f"FAILS\n({ratio:.0f}x train pool\nvs.\\ gold rate)",
               "THREE CLAIMS\nFALSIFIED*",
               f"FAILS\n(AUROC {auroc:.3f},\n95% CI\n[{ci[0]:.2f}, {ci[1]:.2f}])"]
     # Written out rather than left as a dash: the thesis bans en and em dashes,
@@ -282,7 +282,7 @@ def make_fig_intro_headline():
     intervals, p_intervals = load("stats", "intervals.json")
     mcc = intervals["E2_mcc_intervals"]
     order = ["gpt4o_zeroshot", "gpt4o_fewshot", "accord_binary_at_0.5_253core", "llama_baseline"]
-    labels = ["GPT-4o\nz.s.", "GPT-4o\nf.s.", "ACCORD", "Llama 3\n8B"]
+    labels = ["GPT-4o\nz.s.", "GPT-4o\nf.s.", "ACCORD\n(contam.)", "Llama 3\n8B"]
 
     # The right panel gets the wider share: its four category labels need room
     # side by side, while the left panel's y labels live outside its axes.
@@ -323,8 +323,8 @@ def make_fig_intro_headline():
     x_bracket = 1.74
     axL.annotate("", xy=(x_bracket, ypos[2]), xytext=(x_bracket, ypos[1]),
                  arrowprops=dict(arrowstyle="-", color=GREY_MED, lw=1.0))
-    axL.text(x_bracket + 0.07, (ypos[1] + ypos[2]) / 2, f"~{gold_ratio:.0f}x",
-              va="center", ha="left", fontsize=8.0, color=GREY_MED)
+    axL.text(x_bracket + 0.07, (ypos[1] + ypos[2]) / 2, f"~{gold_ratio:.0f}x\n(gold set)",
+              va="center", ha="left", fontsize=8.0, color=GREY_MED, linespacing=1.2)
 
     xs = np.arange(4)
     vals = [mcc[k]["mcc"] for k in order]

@@ -38,8 +38,10 @@ the reason the instruction is wrong is unlikely to travel with the patient. A
 contradiction of this kind is not a documentation defect that gets cleaned up
 later. It is an instruction that leaves the building.
 
-The scenario is not invented. Of the $12$ contradictions a board certified
-pharmacist confirmed in this project's annotated sample, $3$ involve a loop
+The scenario above is a constructed composite, drawn from no single record in
+this project's corpus; the pattern it illustrates is real. Of the $12$
+contradictions a board certified pharmacist confirmed in this project's
+annotated sample, $3$ involve a loop
 diuretic and $3$ involve an anticoagulant, $7$ are omissions rather than dose or
 class disagreements, and on a five point danger scale $1$ was rated $4$ and $3$
 were rated $5$. The category is small, and the members of it are the drugs where
@@ -150,11 +152,16 @@ this implementation's failures, not the standard construction's, and treating
 them as evidence against the construction would be a claim the data does not
 support.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{The pipeline as run, stage by stage, with the verdict each stage
 received and the diagnostic that produced it. Two verdicts are categorical
 rather than numeric, because no committed result file carries the underlying
-values.}
+values. The weak-supervision badge's multiplier is the positive rate on the
+$1{,}679$-row weak-labelled candidate pool from the calibration join (before
+subject-disjoint exclusion narrows it to the $1{,}183$-row training pool of
+Chapter~\ref{ch:method}) over the pharmacist's base rate on the $299$-pair
+gold set; Figure~\ref{fig:intro-headline} reports a different, gold-set-only
+multiplier on the same rows, not the same ratio.}
 \label{fig:pipeline-status}
 \includegraphics[width=0.9\linewidth]{figures/fig-pipeline-status.pdf}
 \end{figure}
@@ -232,31 +239,42 @@ correlation with bootstrap intervals for the four systems compared on the same
 $253$ pairs; every interval contains zero, so the ordering those numbers appear
 to give is an ordering over noise.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{The marginal of the weak labeller against the pharmacist's measured
 base rate on the same pairs (left), and Matthews correlation with $95\%$
-bootstrap intervals for four systems on the $253$ non ambiguous pairs (right).}
+bootstrap intervals for four systems on the $253$ non ambiguous pairs (right).
+The top bar on the left is the positive rate on the full $1{,}679$-row
+weak-labelled pool, not the $1{,}183$-row training pool; the bracketed
+multiplier is a different, gold-set-only ratio from
+Figure~\ref{fig:pipeline-status}'s badge. The right panel's ACCORD bar is
+the contaminated released run flagged in Chapter~\ref{ch:results}'s
+per-pair calls table.}
 \label{fig:intro-headline}
 \includegraphics[width=0.9\linewidth]{figures/fig-intro-headline.pdf}
 \end{figure}
 
 A null on twelve positives invites one obvious reading, which is that the
 experiment was too small to see anything. The control that answers it is a
-positive control on the same instrument. Run on AG News with an identical
-training harness and an adjudication rule committed before the sweep, the
-pretraining benefit is $4.53$ accuracy points at $24$ epochs, with seed standard
-deviations at or below $0.0036$ and non overlapping bands. The same instrument
-on the clinical task returns a gap of $0.0031$, between a domain pretrained
-encoder at $0.7693 \pm 0.0102$ and a from scratch encoder at $0.7662 \pm
-0.0073$. Eight times the training budget bought the scratch arm $0.41$ points,
-so the arms were converged rather than starved. The instrument could see
-$4.53$ points. On this task it saw $0.0031$.
-
-That is what makes the nulls measurements rather than absences, and it is not
-the same as showing the task cannot be done. At $12$ positives and $241$
-negatives the minimum detectable AUROC at $80\%$ power and $\alpha = 0.05$ is
-$0.7382$. Any true effect below that is invisible to this design, and the thesis
-concedes it here rather than in a limitations section at the end.
+positive control on the same training and evaluation harness. Run on AG News
+with an identical harness and an adjudication rule committed before the
+sweep, the pretraining benefit is $4.53$ accuracy points at $24$ epochs, with
+seed standard deviations at or below $0.0036$ and non overlapping bands;
+eight times the training budget bought the from scratch arm $0.41$ points on
+that public task, so the AG News arms were converged rather than starved. The
+same harness, applied to a second task built for this purpose, in hospital
+mortality predicted from a patient's first $48$ hours of notes on $6,776$
+held out admissions holding $570$ positives, a different task on a different
+cohort from the $253$-pair contradiction evaluation, returns a gap of
+$0.0031$, between a domain pretrained encoder at $0.7693 \pm 0.0102$ and a
+from scratch encoder at $0.7662 \pm 0.0073$. What this control establishes is
+that the harness resolves a real difference at the sample sizes it was
+given; it says nothing about the sensitivity of the twelve-positive
+contradiction evaluation itself, a separate instrument checked directly by
+injection in Chapter~\ref{ch:results}, which is not the same as showing the
+contradiction task cannot be done. At $12$ positives and $241$ negatives the
+minimum detectable AUROC at $80\%$ power and $\alpha = 0.05$ is $0.7355$. Any true
+effect below that is invisible to this design, and the thesis concedes it
+here rather than in a limitations section at the end.
 
 \section{Research Questions}
 \label{sec:intro-rqs}
@@ -274,8 +292,10 @@ notes yield a candidate pool with usable precision?
 \emph{No: four rules enrich the pool to $12$ true contradictions in $299$
 annotated pairs, a base rate of $0.0401$, and the mechanism selecting the
 evidence shown for each candidate was independent of the mechanism that flagged
-it: of the action-conflict candidates whose exemplar could be resolved, $65$ of
-$137$ were justified by a sentence that did not contain the conflict. That makes
+it: by reconstruction, $65$ of $137$ resolvable action-conflict candidates were
+justified by a sentence that did not contain the conflict, a rate of $0.4745$,
+while a smaller subset resolvable by an exact join shows none were, and the
+honest range is $0$ to $0.4745$. That makes
 $0.0401$ an upper bound on the validity of the annotation exercise rather than a
 clean estimate of pool precision.}
 
@@ -293,18 +313,20 @@ what they are credited with?
 the authority parameters reported as learned finish at $0.5076 \pm 0.0006$ and
 $1.0038 \pm 0.0010$ against initialisation at $0.5$ and $1.0$, the harm head's
 outputs span $0.3977$ to $0.6096$, which is the range of an untrained sigmoid,
-and on a second system built for this analysis, a randomised control over the
-same role-label alphabet loses to true role labels by $0.3277$ nats, while an
+and on a second system built for this analysis, a single-seed randomised
+control over the same role-label alphabet directionally loses to true role
+labels by $0.3277$ nats with no significance claim attached, while an
 arbitrary positional ordinal, a different feature rather than a randomised
 version of the same one, beats both.}
 
 \item[RQ4. Evaluation.] Is the measured failure a property of the task or of the
 instruments used to measure it?
 \emph{Of the task as this pipeline poses it: three configurations sit at chance
-on the $253$ and $299$ pair evaluations, while the same instrument resolves
-$4.53$ points on a public benchmark, so the null is a measurement rather than a
-power failure, subject to the $0.7382$ minimum detectable AUROC at $12$
-positives.}
+on the $253$ and $299$ pair evaluations, the training and evaluation harness
+resolves $4.53$ points on a public benchmark at the sample sizes it was given,
+and an injection check of the twelve-positive instrument itself agrees with
+the analytic minimum detectable AUROC of $0.7355$, so the null is informative
+above that line and silent below it.}
 
 \item[RQ5. Practice.] Does published work run the controls that would have
 caught these failures?
@@ -371,14 +393,15 @@ already been written down. The rule transfers, and it has a demonstrated true
 positive against this project's own record.
 
 \item \textbf{What the controls cost.} Nobody reports this, so it is reported
-here. The control cost log totals $661.4$ GPU minutes, of which it records the
-AG News positive control as $34.9$ minutes over $12$ runs, a $3$-epoch subset
-of the full convergence sweep behind that control; the full sweep is $555$
-minutes over $48$ runs, and Chapter~\ref{ch:discussion} reconciles the total to
-that figure. The clinical
-pretraining comparison costs $612.3$ minutes over $17$ runs, and the two signed
-storage re-runs $0.7$ and $13.5$ minutes. The honest limitation is that person
-hours were never logged, so the cost claim is compute only.
+here. The reconciled total across every control is $1181.5$ GPU minutes over
+$67$ runs (Chapter~\ref{ch:discussion}), the figure this thesis leads with;
+the raw control cost log sums to a smaller $661.4$ minutes because it
+records the AG News positive control as only its $34.9$-minute, $12$-run,
+$3$-epoch subset rather than the full $555$-minute, $48$-run convergence
+sweep behind it, which the reconciled total uses instead. The clinical
+pretraining comparison costs $612.3$ minutes over $17$ runs, and the two
+signed storage re-runs $0.7$ and $13.5$ minutes. Person hours were never
+logged, so the cost claim is compute only.
 
 \end{enumerate}
 
@@ -408,7 +431,7 @@ reading the evidence for it.
 
 \textbf{It does not establish that the task is unsolvable.} With $12$ positives
 against $241$ negatives, the minimum detectable AUROC at $80\%$ power and
-$\alpha = 0.05$ is $0.7382$. A real effect of any size below that would not
+$\alpha = 0.05$ is $0.7355$. A real effect of any size below that would not
 appear in these measurements. What is established is that \emph{this} pipeline
 does not solve the task, and that the instrument used to say so could have
 resolved a $4.53$ point effect where one existed.

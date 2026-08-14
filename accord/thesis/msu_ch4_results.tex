@@ -128,7 +128,7 @@ rule's individual precision. Combined, Rules 3 and 4 account for 134 of the 299 
 concentrated in one rule, and no rule is doing the work. Figure~\ref{fig:rule-precision} reports
 per-rule ranking performance alongside the precision panel above.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{Per-rule ranking performance on the annotated pairs. Bars give the
 area under the ROC curve for the detector's contradiction probability within each
 mining rule, evaluated against the pharmacist's binary label; the count of pairs
@@ -153,21 +153,33 @@ action-conflict candidates the annotator therefore judged a sentence pair that
 did not exhibit the conflict, while the prompt asserted that a conflict of that
 type was present.
 
-Of the 165 pooled Rule 1 and Rule 2 candidates, 137 could be resolved against
-the recomputed matched-mention frame and 28 could not. Among the 137 resolved,
-65 carried a discharge sentence that did not exhibit the conflict presented to
-the annotator, a wrong rate of $0.4745$
-(\texttt{exemplar\_recomputed.rule\_1\_2\_pooled.n\_wrong},
-\texttt{exemplar\_recomputed.rule\_1\_2\_pooled.n\_resolved}).
+Two measurements of how often the defect fired exist on the $165$ pooled Rule 1
+and Rule 2 candidates, and they disagree, so both are reported. The first
+reconstructs the exemplar from a mentions-table snapshot, calibrated against
+what the pharmacist actually saw at $0.8934$ nursing-side and $0.9508$
+discharge-side fidelity, not perfectly, because Section~\ref{sec:m-exemplar}
+establishes that the exact original row order cannot be recovered in
+principle: 137 of the 165 candidates resolve, 28 do not, and among the 137, 65
+carried a discharge sentence that did not exhibit the conflict, a wrong rate
+of $0.4745$ (\texttt{exemplar\_recomputed.rule\_1\_2\_pooled.n\_wrong},
+\texttt{exemplar\_recomputed.rule\_1\_2\_pooled.n\_resolved}). The second uses
+a true key join instead of a reconstruction, exact where it applies but
+applying to far fewer rows: only 23 of the 165 candidates carry a usable join
+key, and on that subset the exemplar is correct on all 23, a wrong rate of 0
+(\texttt{exemplar.rule\_1\_2\_pooled\_exemplar\_correct\_rate\_in\_299.n\_known},
+\texttt{exemplar.rule\_1\_2\_pooled\_exemplar\_correct\_rate\_in\_299.n\_correct}).
+The honest range is therefore 0 to $0.4745$: exact but thin on the join, broad
+but imperfectly calibrated on the reconstruction, and neither is discarded.
 
 The measured consequence does not depend on that rate. Rules 3 and 4 cannot
 exhibit the defect: Rule 3 selects the maximum-difference dose pair, and Rule 4
 has no discharge sentence to select, because the drug is absent from the
-discharge summary by construction. That yields $G_{134}$, on which every
-evaluation in this chapter can be repeated, and
-Section~\ref{sec:res-rq4} reports the repeat: the restriction does not move the
-conclusion and it widens the intervals, as a stratification down to 6 positives
-has to.
+discharge summary by construction. That yields $G_{134}$, and
+Section~\ref{sec:res-rq4} reports the defect-free control model's score on
+that stratum, not a rescoring of the decontaminated ACCORD ensemble, since no
+per-pair ACCORD score on $G_{134}$ was retained: the restriction does not move
+the conclusion and it widens the intervals, as a stratification down to 6
+positives at a minimum detectable AUROC of $0.8058$ has to.
 
 \subsection{What this does not establish}
 
@@ -297,7 +309,7 @@ Section~\ref{sec:res-rq2}. The magnitude of the failure is therefore not a gener
 instruction-tuned labeller asked for a rare positive class; what survives the change of domain is
 the direction, over-calling that does not track the true rate, not the size of it.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{Labeller response to prevalence on public text. Each panel plots the
 rate at which a weak labeller returns a positive against the true prevalence of
 the sample it was shown, for three locally run open-weight models (columns) under
@@ -364,9 +376,14 @@ rule-type head reaches a macro $F_1$ of $0.9603$
 to the sepsis cohort it falls to $0.0654$ and to the acute kidney injury cohort
 to $0.0595$ (\texttt{transfer.sepsis.rule\_type\_f1},
 \texttt{transfer.aki.rule\_type\_f1}), a collapse of more than an order of
-magnitude on both cohorts. That is the pattern a copy of an input feature
-produces once the feature stops correlating with the label distribution of the
-new domain, and it is not the pattern a learned auxiliary task would produce.
+magnitude on both cohorts, reported here as a descriptive non-portability
+result rather than further evidence of leakage: the code-level argument above
+is dispositive on its own, and a literal copy of the rule-identifier feature
+would in fact transfer perfectly, since the feature and the target stay
+identical in any domain. The collapse instead shows that the in-domain macro
+$F_1$ of $0.9603$ reflects the correlation between that feature and this
+cohort's label distribution rather than a verbatim copy of it, a correlation
+that does not hold in the transfer cohorts.
 
 \paragraph{Harm estimation was never trained.} The guideline bank is one randomly
 initialised parameter matrix, there is no corpus and no retrieval step, and the
@@ -383,7 +400,7 @@ severity-ranking question was therefore not tested here, and any null reported
 against that head measures an untrained module rather than the underlying
 question.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{Two falsifications in one view. Left: the two authority scale
 parameters, $\alpha_N$ on the nursing side and $\alpha_D$ on the discharge side,
 at their stated initialisation and after training, averaged over three seeds. Both
@@ -452,17 +469,19 @@ seed spread and are shown for completeness rather than as matched comparisons.}
 \end{table}
 
 The control task in the sense Hewitt and Liang (2019) define it holds the label alphabet fixed and
-randomises the mapping from tokens to roles. That arm is random roles, not the segment ordinal.
-Randomised roles reduce the loss by $0.4967$ nats, 52.4 percent of the segment-index arm's reduction
+randomises the mapping from tokens to roles. That arm is random roles, not the segment ordinal, and
+it ran at a single seed (\texttt{ablation.random\_roles.n\_seeds}), not one of the seven matched
+three-seed arms, so no significance claim attaches to it. Randomised roles reduce the loss by
+$0.4967$ nats, 52.4 percent of the segment-index arm's reduction
 (\texttt{ablation.random\_roles.pct\_of\_segment\_index}), against $0.8244$ nats for true role
-labels, a gap of $0.3277$ nats favouring the true labels
-(\texttt{ablation.random\_roles\_vs\_true\_roles\_nats}), more than eleven times the largest seed
-standard deviation among the three-seed rows, $0.0293$ nats. Role semantics contribute something
-real: a randomised assignment over the same label alphabet loses to the true one. A second
-single-seed arm, roles collapsed to length buckets rather than shuffled, reduces the loss by
-$0.3380$ nats, 35.7 percent of the segment-index arm's reduction
-(\texttt{ablation.length\_roles.pct\_of\_segment\_index}), consistent with the same reading: some of
-what true role labels carry is role-specific rather than positional.
+labels, a directional gap of $0.3277$ nats favouring the true labels
+(\texttt{ablation.random\_roles\_vs\_true\_roles\_nats}), reported without a significance claim
+because Section~\ref{sec:m-stats} rules out calibrating a single-seed result against a standard
+deviation measured on a different arm, which an earlier reading of this comparison did. Read as a
+direction rather than a resolved effect, it is consistent with role semantics contributing
+something real on this seed. A second single-seed arm, roles collapsed to length buckets, reduces
+the loss by $0.3380$ nats, 35.7 percent of the segment-index arm's reduction
+(\texttt{ablation.length\_roles.pct\_of\_segment\_index}), the same direction on the seed available.
 
 The segment-index arm changes the feature rather than randomising it: an arbitrary ordinal position
 within the bundle, carrying no provenance meaning at all, in place of role identity. A win for it is
@@ -470,9 +489,10 @@ a competing hypothesis about what the mechanism exploits, not a control task in 
 sense, and not evidence that role semantics contribute nothing. It reduces the loss by $0.9476$
 nats, the largest reduction of any arm, ahead of true role labels' $0.8244$ nats
 (\texttt{ablation.true\_role\_labels.pct\_of\_segment\_index}). Read beside the random-roles result,
-the two findings do not contradict each other; they dissociate. Role semantics are worth $0.3277$
-nats over a randomised label drawn from the same alphabet, and a provenance-free positional ordinal
-is worth more still.
+the two findings do not contradict each other; they point the same direction rather than opposite
+ones. On the single seed the random-roles arm ran at, role semantics look worth $0.3277$ nats over
+a randomised label drawn from the same alphabet, and a provenance-free positional ordinal looks
+worth more still; neither comparison carries a significance claim.
 
 The misaligned-block arm is this thesis's own addition to that design, not part of the control-task
 literature it borrows from. It holds the number of blocks fixed at the same count as the aligned
@@ -488,9 +508,11 @@ The ALiBi arm carries no segment information whatsoever, only a monotonic penalt
 distance, and still reduces the loss by $0.6119$ nats, 64.6 percent of the segment-index arm's
 reduction (\texttt{ablation.alibi.pct\_of\_segment\_index}). Locality alone, with no representation
 of which document a token belongs to, accounts for close to two thirds of the effect credited to
-provenance-aware conditioning. And the fixed hard block mask, which learns nothing and only blocks
-attention across the announced document boundary, reduces the loss by $1.0782$ nats, beating every
-learned arm including the segment-index bias by $0.1306$ nats
+provenance-aware conditioning. And the fixed hard block mask, the encoder analogue of the
+intra-document mask \citet{zhao2024seqcomposition} apply during causal decoder pretraining, adapted
+here to masked language modelling rather than the causal objective they study, which learns nothing
+and only blocks attention across the announced document boundary, reduces the loss by $1.0782$
+nats, beating every learned arm including the segment-index bias by $0.1306$ nats
 (\texttt{ablation.learned\_vs\_fixed\_nats}): a mechanism with zero trainable parameters outperforms
 the one credited with learning where the boundary is.
 
@@ -515,7 +537,11 @@ $t = 4.0001$ on $235.84$ degrees of freedom
 (\texttt{stats.anisotropy\_welch.t}, \texttt{stats.anisotropy\_welch.df}),
 which rejects exact equality at conventional significance thresholds; with
 $190$ pairs in the control condition and $1{,}956$ in the clinical one, a
-difference this small is still detectable. Equality is therefore not claimed.
+difference this small is still detectable, and $t$ alone reflects that
+sample size as much as the size of the difference. The pooled-standard-deviation
+Cohen's $d$ is $0.2808$ (\texttt{stats.anisotropy\_welch.cohens\_d}), a small
+effect by conventional benchmarks, consistent with the reading below.
+Equality is therefore not claimed.
 What is claimed is that the difference is small against the spread the same
 extraction path produces on unrelated text, which ranges from $0.8528$ to
 $0.9565$ (\texttt{aniso.anisotropy\_control.min},
@@ -535,11 +561,12 @@ open. The control-task logic and the arbitrary-substitute design belong to Hewit
 and Liang; that attribution covers the design of the comparison, not what running
 it here found. The misaligned-block arm and the global-positions confound check
 are this thesis's own additions to that design. What the ten-arm table
-establishes is the cleanest quantitative result in this thesis: a dissociation
-between role semantics, worth $0.3277$ nats over a randomised control drawn from
-the same label alphabet, and a provenance-free positional ordinal, which is worth
-more still, with every ordering among the three-seed rows resolved well outside
-seed noise.
+establishes divides by seed count. Among the seven three-seed arms, every
+ordering is resolved well outside seed noise, and that part carries a
+significance claim. The random-roles control task itself ran at a single
+seed, so the directional gap it shows against true role labels, $0.3277$
+nats, and the segment ordinal's larger gap, are reported as direction rather
+than as a resolved effect.
 
 \section{Is the Null Real}
 \label{sec:res-rq4}
@@ -679,14 +706,17 @@ another.
 \textbf{Top-15 TP} \\
 \midrule
 $G_{299}$ & TF-IDF plus logistic regression & 0.5761 & 0.1571 & 2 \\
-$G_{299}$ & Majority class                  & 0.5000 & 0.0401 & 0 \\
+$G_{299}$ & Majority class                  & 0.5000 & 0.0401 & n/a \\
 $G_{134}$ & TF-IDF plus logistic regression & 0.5729 & 0.2768 & 2 \\
-$G_{134}$ & Majority class                  & 0.5000 & 0.0448 & 1 \\
+$G_{134}$ & Majority class                  & 0.5000 & 0.0448 & n/a \\
 \bottomrule
 \end{tabular}
 \apanote{Both baselines are fitted on 1,183 training rows at a positive rate of
 $0.8521$, the same weak supervision the detector consumed; TF-IDF is capped at
-5,000 features. The majority-class average precisions are the base rates of the
+5,000 features. A majority-class predictor assigns every row the identical
+score, so it has no ranking among rows and no well-defined top 15; the column
+is marked n/a for both majority-class rows rather than reporting whatever
+count an arbitrary tie-break happened to produce. The majority-class average precisions are the base rates of the
 two sets and fix the no-skill line for that column.}
 \label{tab:baselines}
 \end{table}
@@ -711,20 +741,24 @@ domain-pretrained encoder \citep{gu2021biomedbert} with low-rank adaptation
 \textbf{Set} & \textbf{Positives} & \textbf{Negatives} &
 \textbf{SE under null} & \textbf{Gap} & \textbf{Min.\ detectable} \\
 \midrule
-$G_{253}$ & 12 & 241 & 0.0856 & 0.2382 & 0.7382 \\
-$G_{299}$ & 12 & 287 & 0.0852 & 0.2387 & 0.7387 \\
-$G_{134}$ & 6  & 128 & 0.1210 & 0.3391 & 0.8391 \\
+$G_{253}$ & 12 & 241 & 0.0856 & 0.2355 & 0.7355 \\
+$G_{299}$ & 12 & 287 & 0.0852 & 0.2350 & 0.7350 \\
+$G_{134}$ & 6  & 128 & 0.1210 & 0.3058 & 0.8058 \\
 \bottomrule
 \end{tabular}
-\apanote{$\alpha = 0.05$, power $0.8$, computed under the null standard error of
-the AUROC. The $G_{253}$ row is registered as \texttt{power.*}; the other two are
-the same formula recomputed on the other two denominators and registered under
-\texttt{control.power\_ceiling.*}. The gap column is the distance above chance
-the evaluation could resolve.}
+\apanote{$\alpha = 0.05$, power $0.8$. The SE column is the simple
+null-standard-error approximation, registered for $G_{253}$ as \texttt{power.*}
+and for the other two rows under \texttt{control.power\_ceiling.*}. The Gap and
+Min.\ detectable columns are the full Hanley and McNeil (1982) procedure,
+\texttt{accord/stats/recompute\_mde.py}, registered under
+\texttt{mde\_recomputed.*}: the earlier stored value of $0.7382$ for $G_{253}$
+did not reproduce under either the simple formula or the full procedure and is
+superseded (\texttt{REVISION\_LOG.md} R9). The gap column is the distance above
+chance the evaluation could resolve.}
 \label{tab:power}
 \end{table}
 
-On $G_{253}$ nothing below an AUROC of $0.7382$ was detectable at $80\%$ power,
+On $G_{253}$ nothing below an AUROC of $0.7355$ was detectable at $80\%$ power,
 and the measured $0.5145$ is far inside that. Figure~\ref{fig:power} draws the
 same ceiling for every evaluation in this thesis. This cuts both ways and the
 second way has to be said: at 12 positives the evaluation could not have detected
@@ -733,7 +767,7 @@ the task is unsolvable. What it does establish is that this pipeline produced
 nothing near the detectable range, and it fixes the size of the annotation effort
 a future attempt needs.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{What each evaluation in this thesis could have seen. The curve gives
 the minimum detectable area under the ROC curve at 80\% power and a two-sided
 $\alpha$ of 0.05, by the method of Hanley and McNeil, as a function of the number
@@ -748,17 +782,37 @@ task on a different cohort.}
 \label{fig:power}
 \end{figure}
 
+The minimum detectable AUROC above is an analytic formula, not a check run on the instrument itself.
+\texttt{accord/stats/injection\_sensitivity.py} runs that check: for true AUROC from $0.55$ to
+$0.95$, it draws $5{,}000$ synthetic score sets shaped like the $253$-pair evaluation ($12$
+positives, $241$ negatives) under an equal-variance binormal model calibrated to each target, and
+records how often a two-sided Mann-Whitney test at $\alpha = 0.05$ rejects the null. At a true
+AUROC of $0.70$ the instrument detects the effect in $0.6716$ of resamples; at $0.75$, in $0.8698$
+(\texttt{injection\_sensitivity.empirical\_power.0.70},
+\texttt{injection\_sensitivity.empirical\_power.0.75}). The interpolated crossing of $80\%$ power is
+$0.7324$ (\texttt{injection\_sensitivity.mde\_empirical}), against the analytic value of $0.7355$
+above (\texttt{injection\_sensitivity.mde\_analytic\_compared}): the two agree to within $0.0031$.
+The check run on the actual instrument therefore agrees with the formula describing it, so the
+$253$-pair evaluation's null is informative about true AUROC values at or above $0.7355$ and silent
+below that line, a claim checked by injection rather than inferred from the formula alone.
+
 \subsection{The positive control}
 
 The remaining objection is that the apparatus itself, the training loop, the
 splits, the seeds and the evaluation harness, cannot resolve any effect, and that
 is answerable only by running the same apparatus where an effect is known to
-exist. Four arms, a pretrained encoder and three from-scratch encoders at
-different pretraining scales, were each trained at 3, 6, 12 and 24 epochs, three
-seeds per cell, for 48 runs and 555 minutes of compute. The adjudication rule was
+exist. The control has a public arm, AG News, and a clinical arm built for
+this control rather than for its own sake, in-hospital mortality predicted
+from a patient's first 48 hours of notes, evaluated on $6{,}776$ held-out
+admissions holding $570$ positives (\texttt{mortality\_control.test\_n},
+\texttt{mortality\_control.test\_n\_pos}), a different task and cohort from
+the $253$-pair contradiction evaluation above. Four arms on the public task,
+a pretrained encoder and three from-scratch encoders at different
+pretraining scales, were each trained at 3, 6, 12 and 24 epochs, three seeds
+per cell, for 48 runs and 555 minutes of compute. The adjudication rule was
 committed before the sweep ran: if the gap between the pretrained arm and the
-best from-scratch arm closed as the budget grew, the clinical null would be
-attributable to under-training, and if it did not, it would not.
+best from-scratch arm closed as the budget grew, the mortality-task null
+would be attributable to under-training, and if not, not.
 
 \begin{table}[H]
 \caption{Convergence sweep: four arms at four training budgets}
@@ -799,40 +853,47 @@ The gap between the pretrained arm and the best from-scratch arm is $5.07$ point
 at 3 epochs and $4.53$ points at 24. Eight times the budget moved the pretrained
 arm by $-0.13$ points and the 100M from-scratch arm by $0.41$. The gap did not
 close, the arms had converged by the smallest budget in the sweep, and every cell
-has a seed-to-seed standard deviation at or below $0.0036$. That is the
-instrument resolving a real effect, from the same code that returns $0.5145$ on
-the clinical task.
+has a seed-to-seed standard deviation at or below $0.0036$. That is the harness
+resolving a real effect on the public task; on the mortality control task the
+same harness returns a gap of $0.0031$, reported next.
 
 \begin{table}[H]
 \caption{Pretraining against parameter count, and the same contrast on the
-clinical task}
+mortality control task}
 \centering
 \small
 \begin{tabular}{llrr}
 \toprule
 \textbf{Task} & \textbf{Arm} & \textbf{Parameters} & \textbf{Score} \\
 \midrule
-Public benchmark & Pretrained encoder & 85,648,132 & $0.9396 \pm 0.0010$ \\
-Public benchmark & Scratch, 100M      & 99,234,820 & $0.8878 \pm 0.0016$ \\
-Public benchmark & Scratch, 30M       & 31,913,860 & $0.8833 \pm 0.0009$ \\
-Public benchmark & Scratch, 10M       & 10,649,092 & $0.8790 \pm 0.0040$ \\
-Clinical task    & PubMedBERT         &            & $0.7693 \pm 0.0102$ \\
-Clinical task    & From scratch       & 10,638,720 & $0.7662 \pm 0.0073$ \\
-Clinical task    & Gap                &            & $0.0031$ \\
+Public benchmark  & Pretrained encoder & 85,648,132 & $0.9396 \pm 0.0010$ \\
+Public benchmark  & Scratch, 100M      & 99,234,820 & $0.8878 \pm 0.0016$ \\
+Public benchmark  & Scratch, 30M       & 31,913,860 & $0.8833 \pm 0.0009$ \\
+Public benchmark  & Scratch, 10M       & 10,649,092 & $0.8790 \pm 0.0040$ \\
+Mortality control  & PubMedBERT         &            & $0.7693 \pm 0.0102$ \\
+Mortality control  & From scratch       & 10,638,720 & $0.7662 \pm 0.0073$ \\
+Mortality control  & Gap                &            & $0.0031$ \\
 \bottomrule
 \end{tabular}
 \apanote{Public-benchmark rows are accuracy at a single budget from
 \texttt{results/accord/scaling/scaling\_results.json} with non-embedding
-parameter counts; clinical rows are AUROC on the identical split from
-\texttt{results/task\_runs.json}. The from-scratch arm with more parameters than
-the pretrained encoder does not reach it, so the public-benchmark difference is
-not a capacity difference, and the manipulation worth $4.53$ points there is
-worth $0.0031$ of AUROC here. No significance test for the clinical gap is
-registered; the register carries the means, the standard deviations and the
-difference, but no $p$ value, so none is quoted and the gap is reported as a
-descriptive difference only. A related defect belongs to the public-benchmark
-gap above, not this one: the notebook cell that would test the $4.53$-point
-convergence gap, in \texttt{accord/scaling/C4\_scaling\_study.ipynb}, calls
+parameter counts; mortality-control rows are AUROC on the identical split from
+\texttt{results/task\_runs.json} (cohort above). The from-scratch
+arm with more parameters than the pretrained encoder does not reach it, so the
+public-benchmark difference is not a capacity difference: the gap to the
+pretrained arm at this single budget is $0.0518$ for the 100M arm, $0.0563$
+for the 30M arm and $0.0606$ for the 10M arm, all larger than the mortality
+gap. The $4.53$-point figure used elsewhere as the positive control's
+headline is the same 100M-versus-pretrained comparison measured across the
+pre-registered convergence sweep of Table~\ref{tab:conv} instead of this
+single budget; the adjudication rule is bound to that figure, not this one.
+No significance test
+for the mortality-control gap is registered; the register carries the means,
+the standard deviations and the difference, but no $p$ value, so none is
+quoted and the gap is reported as a descriptive difference only. A related
+defect belongs to the public-benchmark gap above, not this one: the notebook
+cell that would test the $4.53$-point convergence gap, in
+\texttt{accord/scaling/C4\_scaling\_study.ipynb}, calls
 \texttt{scipy.stats.ttest\_ind} without \texttt{equal\_var=False}, so any $p$
 value it returned would be a Student test, not the Welch test earlier drafts of
 this material labelled it as (\texttt{stats.clinical\_gap\_test\_note}); none is
@@ -844,7 +905,7 @@ seed spreads already reported in the tables above.}
 \subsection{What this does not establish}
 
 The null is a measurement, not a proof of impossibility. Table~\ref{tab:power}
-puts the minimum detectable AUROC on the 253-pair core at $0.7382$, so a genuine
+puts the minimum detectable AUROC on the 253-pair core at $0.7355$, so a genuine
 effect below that would have been missed and nothing here rules one out. The
 claim that survives is narrower and sufficient: this pipeline produced no effect
 inside the detectable range, and the instrument that measured it resolves a
@@ -916,7 +977,7 @@ safe statement is this one: no claim in this thesis rests on the ordering in
 Table~\ref{tab:mcc}, because at 12 positives none of the four systems is
 distinguishable from chance, and none is distinguishable from any other.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{Headline estimates against zero. Each row gives one effect reported in
 this thesis with its 95\% interval; units differ by row and are named in the row
 label, so the rows are not comparable to one another and only each interval's
@@ -1057,15 +1118,20 @@ structural rather than an oversight. Chance-corrected agreement
 \citep{cohen1960kappa} is a ratio whose denominator is one minus expected
 agreement, and when a coder's marginal on a category is degenerate that
 denominator goes to zero and the coefficient is undefined rather than perfect. At
-4 positive codes in 75 the strict cell is close enough to degenerate for this to
-bite: on the 19 double-coded papers agreement on the strict cell is $1.0$ and
-kappa is reported as undefined
+4 positive codes in 75 the strict cell is degenerate on the double-coded
+subsample specifically: on the 19 overlap papers, the primary coder marked
+$0$ strict-positive
+(\texttt{survey.overlap\_strict.n\_primary\_coder\_strict\_positive},
+\texttt{survey.overlap\_strict.n\_overlap\_papers}), so agreement is $1.0$
+and kappa is reported as undefined
 (\texttt{survey.reliability.audits\_selection.agreement},
-\texttt{survey.reliability.audits\_selection.kappa}), consistent with both
-coders returning the same code on every one of the 19 overlap papers. The full
-contingency table behind that undefinedness is not itself registered, so it is
-not printed here; reporting perfect agreement as though it were a defined kappa
-is exactly the error the statistic exists to prevent.
+\texttt{survey.reliability.audits\_selection.kappa}) rather than perfect,
+since a chance-corrected coefficient's denominator is one minus expected
+agreement and a degenerate marginal drives it to zero. The join between the
+primary coder's table and the second coder's overlap answers this directly
+rather than leaving it unrecorded: neither coder found a strict-positive
+paper in the 19-paper subsample. Reporting perfect agreement as a defined
+kappa would be exactly the error the statistic exists to prevent.
 
 \subsection{What this does not establish}
 

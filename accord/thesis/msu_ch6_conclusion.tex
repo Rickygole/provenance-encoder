@@ -47,14 +47,16 @@ base rate of $0.0401$. That is a real enrichment over an unfiltered background
 rate orders of magnitude lower, and it is nowhere near usable precision. The
 finding that matters more than the rate is the exemplar defect: the mechanism
 choosing which sentence pair to display was independent of the mechanism
-deciding the candidate was a conflict, and across the full candidate pool the
-displayed exemplar did not exhibit the conflict for $65$ of the $137$ resolved candidates. The
-annotator, the weak labeller and the model all reasoned about that evidence,
-which makes $0.0401$ an upper bound on annotation validity rather than a clean
-estimate of pool precision. Of the $165$ rows from the two rules capable of
-exhibiting the defect, $28$ could not be resolved against the recomputed
-matched-mention frame at all, so the wrong rate of $0.4745$ is measured on the
-$137$ rows that could be checked, not on the full pool.
+deciding the candidate was a conflict. On the $165$-row Rule 1 and Rule 2 gold
+stratum ($134 + 31$), two measurements disagree and both are kept: a
+reconstruction, calibrated at $0.8934$ to $0.9508$ fidelity because the
+original row order cannot be recovered exactly, resolves $137$ of the $165$
+rows and finds $65$ of them wrong, a rate of $0.4745$, with $28$ unresolved;
+an exact join, covering only $23$ of the $165$ rows, finds none wrong. The
+annotator, the weak labeller and the model all reasoned about whichever
+evidence each candidate happened to receive, which makes $0.0401$ an upper
+bound on annotation validity rather than a clean estimate of pool precision,
+and the wrong rate itself is a range, $0$ to $0.4745$, not a single number.
 
 Comparing exposed and unexposed strata does not settle it either. Rules 1 and 2
 account for $165$ pairs with $6$ positives, a rate of $0.0364$; rules 3 and 4
@@ -92,11 +94,13 @@ an untrained sigmoid, and its Spearman correlation with the pharmacist's danger
 rating over the $299$ pairs is $-0.0001$ at $p = 0.9991$. That null measures an
 untrained module and says nothing about whether clinical severity is
 predictable. On a second system, a provenance-conditioned encoder built for this
-analysis and not the clinical detector above, a randomised control over the same
-role-label alphabet loses to true role labels by $0.3277$ nats, while an
-arbitrary positional ordinal, a different feature rather than a randomised
-version of the same one, beats both: role semantics carry something real, and a
-provenance-free position carries more. The comparison is
+analysis and not the clinical detector above, a single-seed randomised control
+over the same role-label alphabet directionally loses to true role labels by
+$0.3277$ nats with no significance claim attached, while an arbitrary
+positional ordinal, a different feature rather than a randomised version of
+the same one, beats both: role semantics look like they carry something real
+on this seed, and a provenance-free position looks like it carries more. The
+comparison is
 the randomisation sanity check \citep{adebayo2018sanity} and the control task
 \citep{hewitt2019control}, applied without modification to a different kind of
 component; neither design is claimed here.
@@ -157,16 +161,22 @@ observational epidemiology formalised decades ago
 \citep{lipsitch2010negative}: run the analysis where the answer is known, and
 read the result as a statement about the instrument. Run on AG News with the
 identical training harness and an adjudication rule committed before any run,
-the
-pretraining benefit is $4.53$ accuracy points at $24$ epochs, with seed standard
-deviations at or below $0.0036$ and non overlapping bands. The same instrument
-on the clinical task returns $0.0031$, between $0.7693 \pm 0.0102$ and
-$0.7662 \pm 0.0073$. Eight times the training budget bought the scratch arm
-$0.41$ points, so the arms were converged rather than starved. An instrument
-that resolves $4.53$ points and returns $0.0031$ is reporting a null, not
-failing to look. The general proposition that a pretraining objective predicts
-downstream utility poorly is not established here; it is established elsewhere
-and at a scale this project cannot approach
+the pretraining benefit is $4.53$ accuracy points at $24$ epochs, with seed
+standard deviations at or below $0.0036$ and non overlapping bands; eight times
+the training budget bought the from scratch arm $0.41$ points on that public
+task, so the AG News arms were converged rather than starved. The same
+harness, on a task built for this control, in hospital mortality predicted
+from a patient's first $48$ hours of notes on $6{,}776$ held out admissions
+holding $570$ positives, a different task on a different cohort from the
+$253$-pair contradiction evaluation, returns $0.0031$, between
+$0.7693 \pm 0.0102$ and $0.7662 \pm 0.0073$: a null there, not a failure to
+look. This licenses a narrower reading than it can sound: the harness resolves
+real differences at the sample sizes it was given, and the contradiction
+evaluation's own sensitivity is a separate question, checked directly by
+injection against its own minimum detectable AUROC in
+Chapter~\ref{ch:results}. The general proposition that a pretraining objective
+predicts downstream utility poorly is not established here; it is established
+elsewhere and at a scale this project cannot approach
 \citep{lourie2025scaling,feng2026tessera}. The sweep is a control, not a
 contribution.
 
@@ -201,23 +211,27 @@ Person hours were never logged, so this is a compute only claim.
 \section{Things to Check If You Are Building This}
 \label{sec:conc-practice}
 
-None of what follows is a prescription; this thesis is in a weak position to
-issue any. These are the checks that, had they been run when they were
-available, would each have changed what was reported here.
+These are the checks that, had they been run when they were available, would
+each have changed what was reported here.
 
 Check that the evidence a candidate is displayed with is the evidence that
 triggered it. Figure~\ref{fig:exemplar} shows the failure mode in the abstract:
 a rule that quantifies over a set of medication mentions, an exemplar selector
 that indexes into that set positionally, and nothing in between forcing the two
-to agree. The check is an assertion over two data structures, and at $65$ wrong of $137$
-agreement across the pool it is the check that would have caught the largest
-upstream defect in this project before any annotation was commissioned.
+to agree. The check is an assertion over two data structures, and on the Rule 1
+and Rule 2 gold stratum it is the check that would have caught the largest
+upstream defect in this project before any annotation was commissioned:
+$65$ of $137$ resolved candidates carry the wrong exemplar by reconstruction, a
+rate of $0.4745$, against none wrong on a smaller, exactly joined subset of
+$23$; Chapter~\ref{ch:results} reports both.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \caption{The check that was not run, drawn as a schematic. The rule fires on a
 conflict between two sets of medication mentions; the exemplar shown to the
 annotator, the weak labeller and the model is chosen by position instead. Slots
-are abstract and no clinical text appears.}
+are abstract and no clinical text appears. The wrong rate on the Rule 1 and
+Rule 2 gold stratum ranges from $0$ to $0.4745$ depending on measurement; the
+figure illustrates the mechanism, not a point estimate of its rate.}
 \label{fig:exemplar}
 \includegraphics[width=0.9\linewidth]{figures/fig-exemplar.pdf}
 \end{figure}
@@ -261,16 +275,21 @@ Three pieces of work follow directly from the limitations, and they are named as
 work rather than as hedges.
 
 \textbf{Re-annotate against corrected exemplars.} The base rate of $0.0401$ is
-an upper bound on annotation validity because the exemplar matched the trigger
-for $72$ of the $137$ resolved candidates, and the join that would measure the defect on the
-annotated sample recovers only $35$ of $299$ rows. Rebuilding the selector so
-the displayed pair is the pair that fired the rule, then re-annotating the same
-candidate identifiers, would establish how much of the measured base rate is
-real. The rules and the pool exist and the defect is located, so this is bounded
-work.
+an upper bound on annotation validity because the exemplar defect is measured
+two ways and they disagree. By reconstruction the exemplar matched the trigger
+for $72$ of the $137$ resolved Rule 1 and Rule 2 candidates, a rate of
+$0.5255$; by an exact join covering far fewer rows, all $23$ of the $23$ it can
+resolve match. A separate join, across all four rules rather than Rule 1 and 2
+alone, matches the $299$-row annotated sample to the rebuilt candidates table
+on $35$ rows; that is a different operation with a different denominator, not
+a third reading of the same exemplar-correctness question. Rebuilding the
+selector so the displayed pair is the pair that fired the rule, then
+re-annotating the same candidate identifiers, would establish how much of the
+measured base rate is real. The rules and the pool exist and the defect is
+located, so this is bounded work.
 
 \textbf{Assemble a cohort with more positives.} Every interval here rests on
-$12$ positives. The minimum detectable AUROC at that count is $0.7382$ at
+$12$ positives. The minimum detectable AUROC at that count is $0.7355$ at
 $80\%$ power and $\alpha = 0.05$, and the smallest stratum difference the
 exemplar comparison could detect is $0.0895$ in absolute rate. A cohort large
 enough to resolve effects where a useful clinical system would operate is the
@@ -296,7 +315,8 @@ rare, and weak supervision produces a labeller positive on $261$ of $299$
 pairs against $12$ true positives, a property of asking an instruction-tuned
 model to flag a rare class at low prevalence; both should recur in a
 differently built version of this pipeline. What would not necessarily recur
-belongs to this build specifically: $65$ of $137$ resolved candidates carry
+belongs to this build specifically: on the range measured, $0$ to $0.4745$ of
+resolved Rule 1 and Rule 2 candidates carry
 the wrong exemplar because this project's selector indexed positionally, the
 architectural components report their initialisations because of how this
 project's parameters were wired, and a second system shows a
@@ -308,7 +328,7 @@ this list large enough to answer RQ4 regardless of which category the rest
 sit in.
 
 None of that establishes that the task cannot be done. At $12$ positives the
-design cannot see an effect below AUROC $0.7382$, and the thesis says so in its
+design cannot see an effect below AUROC $0.7355$, and the thesis says so in its
 introduction as well as here. What it establishes is narrower and more useful:
 each failure has a located mechanism, and each was separated from measurement
 artifact by a control that fired.

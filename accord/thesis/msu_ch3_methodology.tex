@@ -111,12 +111,12 @@ under every partition tried, the original three-role split, the broadened admiss
 definition, and the temporal window, fell well short of the coverage achieved once the design
 retreated to two roles, and no attempt at three roles was judged usable. The adopted two-role
 partition finds 13,321 of the 13,608 heart failure admissions with a discharge summary and 10,012
-with a nursing note; the recomputed intersection carrying both roles is 9,820 admissions, while the
-reference implementation's own count for that same intersection is 9,825, five higher for reasons
-the recovered artifact does not resolve. The funnel figure quoted elsewhere in this thesis is the
-reference count, 9,825 of 13,608 (\texttt{cohort\_chain.has\_discharge\_summary},
-\texttt{cohort\_chain.has\_nursing\_note}, \texttt{cohort\_chain.has\_both\_roles},
-\texttt{cohort\_chain.reference\_has\_both\_roles}, \texttt{cohort\_chain.hf\_admissions\_icd\_only}).
+with a nursing note; the recomputed intersection carrying both roles is 9,820 admissions, the
+figure this thesis prints throughout, while the reference implementation's own count for that same
+intersection is 9,825, five higher for reasons the recovered artifact does not resolve
+(\texttt{cohort\_chain.has\_discharge\_summary}, \texttt{cohort\_chain.has\_nursing\_note},
+\texttt{cohort\_chain.has\_both\_roles}, \texttt{cohort\_chain.reference\_has\_both\_roles},
+\texttt{cohort\_chain.hf\_admissions\_icd\_only}).
 
 Dropping the third role is a design cost rather than a nuisance. With three roles the pipeline
 could have separated a nursing-to-physician disagreement, a within-stay communication failure, from
@@ -504,13 +504,17 @@ makes it the correct reference point for reading any AUROC near chance.
 
 \subsection{Sampling and annotation protocol}
 
-A stratified sample was drawn from the candidate pool, allocated across the four rules with Rules 2
-and 4 oversampled relative to their share of the pool, on the reasoning that these were the rules
-whose behaviour was least understood. The frame draws 134 pairs from Rule 1, 31 from Rule 2, 79
-from Rule 3 and 56 from Rule 4, for 300 pairs total (\texttt{extraction.annotation\_sample.rule1},
-\texttt{extraction.annotation\_sample.rule2}, \texttt{extraction.annotation\_sample.rule3},
-\texttt{extraction.annotation\_sample.rule4}, \texttt{extraction.annotation\_sample.total\_sampled}).
-The frame was fixed before annotation began. The returned annotation set has $n = 299$ pairs
+A stratified sample was drawn from the candidate pool, allocated across the four rules in
+proportion to each rule's share of the pool (886, 202, 520 and 370 candidates for Rules 1 through
+4) rounded to whole pairs, not oversampled toward any rule. The frame draws 134 pairs from Rule 1,
+31 from Rule 2, 79 from Rule 3 and 56 from Rule 4, for 300 pairs total
+(\texttt{extraction.annotation\_sample.rule1}, \texttt{extraction.annotation\_sample.rule2},
+\texttt{extraction.annotation\_sample.rule3}, \texttt{extraction.annotation\_sample.rule4},
+\texttt{extraction.annotation\_sample.total\_sampled}), the same sampling fraction in every
+stratum to within rounding. The frame was fixed before annotation began. Proportional allocation has a
+consequence Chapter~\ref{ch:results} relies on: under it, the gold sample's base rate is an
+unbiased estimate of the pool's base rate, which is the denominator the over-calling ratios in
+that chapter divide against. The returned annotation set has $n = 299$ pairs
 (\texttt{gold.n\_total}), one fewer than the frame, and the per-rule breakdown of what was returned,
 134, 31, 79 and 55, shows the missing row belongs to Rule 4
 (\texttt{goldstrata.join\_feasibility.gold\_rule\_counts.1},
@@ -656,7 +660,11 @@ shared additive attention bias on document provenance. Seven arms were trained a
 on masked language modelling over packed multi-document bundles, with segment order shuffled so
 role is decorrelated from position within the bundle. The arms are: no bias; a relative position
 bias in the style of T5; a misaligned block bias; a distance bias in the style of ALiBi; true role
-labels; an arbitrary segment ordinal carrying no provenance meaning; and a fixed hard block mask.
+labels; an arbitrary segment ordinal carrying no provenance meaning; and a fixed hard block mask,
+the encoder analogue, under masked language modelling, of the intra-document mask
+\citet{zhao2024seqcomposition} apply during causal decoder pretraining: the mask construct is the
+same, blocking attention across an announced document boundary, but the training objective is not,
+and that difference is disclosed rather than treated as a reproduction.
 Two comparisons are fixed in advance: true role labels against a randomised relabelling drawn from the same alphabet, which is the control task in the sense of Hewitt and Liang, and true role labels against an arbitrary positional ordinal, which is a competing hypothesis rather than a control. The
 misaligned block arm is a second control, holding the number of blocks fixed while destroying their
 alignment with document boundaries, which closes the obvious alternative reading that any coarse
@@ -712,19 +720,25 @@ instrument on a task where the effect is known to be present, and its outcome is
 to a written decision rule.
 
 The proxy under test is whether a difference in self-supervised pretraining, measured as a loss
-gap, predicts a difference in downstream discrimination. On the clinical side the comparison is a
-from-scratch encoder against a domain-pretrained encoder under a matched fine-tuning protocol at
-three seeds, with the from-scratch arm carrying $10{,}638{,}720$ non-embedding parameters
-(\texttt{c37.scratch\_nonemb\_params}). On the public side the same comparison runs on AG News
-across four arms, a pretrained BERT encoder at $85{,}648{,}132$ parameters and three from-scratch
-encoders at $10{,}649{,}092$, $31{,}913{,}860$ and $99{,}234{,}820$ parameters
+gap, predicts a difference in downstream discrimination. On the clinical side the comparison runs
+on a task built for this control rather than on the contradiction detector: in-hospital mortality
+predicted from a bundle of a patient's first 48 hours of notes, evaluated on $6{,}776$ held-out
+admissions holding $570$ positives (\texttt{mortality\_control.test\_n},
+\texttt{mortality\_control.test\_n\_pos}), a different task and cohort from the $253$-pair
+contradiction evaluation. The comparison there is a from-scratch encoder against a
+domain-pretrained encoder under a matched fine-tuning protocol at three seeds, with the
+from-scratch arm carrying $10{,}638{,}720$ non-embedding parameters
+(\texttt{c37.scratch\_nonemb\_params}). On the public side the same comparison runs on
+AG News across four arms, a pretrained BERT encoder at $85{,}648{,}132$ parameters and three
+from-scratch encoders at $10{,}649{,}092$, $31{,}913{,}860$ and $99{,}234{,}820$ parameters
 (\texttt{scaling.*.params}).
 
 One threat has to be answered before the public comparison can serve as a control. In the initial
 sweep every arm trained for the same short budget with no per-arm tuning, so a gap between
 pretrained and from-scratch arms could measure training budget rather than pretraining. The
-convergence sweep gives every arm four budgets, each with its own complete schedule and
-validation-based selection, at three seeds per cell, for $48$ runs (\texttt{conv.n\_runs}) and
+convergence sweep gives every arm four budgets, each with its own complete schedule, reported at
+the final epoch of that schedule rather than by validation-based checkpoint selection, at three
+seeds per cell, for $48$ runs (\texttt{conv.n\_runs}) and
 $555$ minutes of compute (\texttt{conv.total\_minutes}). The decision rule in
 Table~\ref{tab:m-prereg} was committed before the sweep started and applied by the analysis
 notebook without being edited after the first result landed
@@ -858,13 +872,19 @@ The sensitivity of the evaluation is a property of the evaluation set rather tha
 it belongs in the methods. Under the null of no discrimination, the standard error of an AUROC
 estimate with $n_+$ positives and $n_-$ negatives is approximated by
 \[
-\mathrm{SE}_0 = \sqrt{\frac{n_+ + n_- + 1}{12\, n_+ n_-}},
-\qquad
-\mathrm{AUROC}_{\min} = 0.5 + \bigl(z_{1-\alpha/2} + z_{1-\beta}\bigr)\, \mathrm{SE}_0 ,
+\mathrm{SE}_0 = \sqrt{\frac{n_+ + n_- + 1}{12\, n_+ n_-}} ,
 \]
-with $\alpha = 0.05$ and power $0.80$ throughout (\texttt{power.alpha}, \texttt{power.power}).
-Table~\ref{tab:m-mde} evaluates this under each treatment of the ambiguous rows and on the
-defect-free stratum.
+with $\alpha = 0.05$ and power $0.80$ throughout (\texttt{power.alpha}, \texttt{power.power}). This
+null-standard-error approximation is reported in Table~\ref{tab:m-mde} for reference, but it is not
+what the table's minimum detectable AUROC column uses. That column follows the full Hanley and
+McNeil (1982) procedure, which evaluates the sampling variance of the AUROC estimator at the
+candidate value $a$ itself rather than at the null, and finds the smallest $a$ such that
+$(a - 0.5) / \sqrt{\mathrm{Var}(a)} \geq z_{1-\alpha/2} + z_{1-\beta}$ by search, since
+$\mathrm{Var}(a)$ depends on $a$. An earlier version of this table printed a minimum detectable
+AUROC of $0.7382$ for the primary stratum that reproduced under neither procedure computed
+precisely; \texttt{accord/stats/recompute\_mde.py} implements the full procedure and the values
+below are its output (\texttt{REVISION\_LOG.md} R9). Table~\ref{tab:m-mde} evaluates this under
+each treatment of the ambiguous rows and on the defect-free stratum.
 
 \begin{table}[H]
 \caption{Sensitivity of the evaluation under each treatment of the ambiguous rows.}
@@ -875,17 +895,19 @@ defect-free stratum.
 \toprule
 \textbf{Stratum} & \textbf{$n_+$} & \textbf{$n_-$} & \textbf{$\mathrm{SE}_0$} & \textbf{$\mathrm{AUROC}_{\min}$} \\
 \midrule
-Gold, ambiguous excluded & 12 & 241 & 0.0856 & 0.7382 \\
-Gold, ambiguous retained & 12 & 287 & 0.0852 & 0.7387 \\
-Defect-free subset       &  6 & 128 & 0.1210 & 0.8391 \\
+Gold, ambiguous excluded & 12 & 241 & 0.0856 & 0.7355 \\
+Gold, ambiguous retained & 12 & 287 & 0.0852 & 0.7350 \\
+Defect-free subset       &  6 & 128 & 0.1210 & 0.8058 \\
 \bottomrule
 \end{tabular}
-\apanote{Sources: the \texttt{power.*} keys for row one, and the two
-\texttt{control.power\_ceiling.recomputed\_same\_formula\_*} blocks for rows two and three. Values
-are rounded to four decimal places. These figures bound what the evaluation could have seen and are
-not results about any model. They also state the limit of the thesis's negative claim: nothing here
-can establish that the task is unsolvable, only that this pipeline does not solve it at a
-sensitivity this coarse.}
+\apanote{$\mathrm{SE}_0$ sources: the \texttt{power.*} keys for row one, and the two
+\texttt{control.power\_ceiling.recomputed\_same\_formula\_*} blocks for rows two and three.
+$\mathrm{AUROC}_{\min}$ is \texttt{mde\_recomputed.*}, from
+\texttt{accord/stats/recompute\_mde.py}, which also drives the marker positions in
+Figure~\ref{fig:power}. Values are rounded to four decimal places. These figures bound what the
+evaluation could have seen and are not results about any model. They also state the limit of the
+thesis's negative claim: nothing here can establish that the task is unsolvable, only that this
+pipeline does not solve it at a sensitivity this coarse.}
 \end{table}
 
 \subsection{Seed variation and the standard-deviation convention}
@@ -914,3 +936,38 @@ protocol as the rows it is compared against; where that is not true, the compari
 directional with no significance claim attached. Finally, every quantity in
 Chapter~\ref{ch:results} maps to the committed artifact that produced it, and that mapping is
 reproduced as an appendix rather than asserted (\texttt{REVISION\_LOG.md} R7).
+
+\section{Data Use, Ethics, and Compliance}
+\label{sec:m-ethics}
+
+All clinical data in this project is governed by one instrument, the PhysioNet Credentialed Health
+Data Use Agreement (v1.5.0) for MIMIC-III v1.4, and the compliance posture below follows from it
+rather than from a general good-practice statement.
+
+\paragraph{Note text, and third-party transmission.} No clinical note text, and no admission or
+subject identifier, appears anywhere in this document or any released artifact; note-derived
+intermediate files stay outside the version-controlled tree, and the export script scans every
+candidate file for note-text markers and aborts on a hit. One departure is disclosed rather than
+concealed: the comparison against a hosted commercial model \citep{openai2023gpt4} (Section
+\ref{sec:m-data}) transmitted note excerpts to a third-party API inside its prompt. The data use
+agreement is the instrument that departure is judged against; guidance issued during this project's
+lifetime treats unconditioned transmission of credentialed data to a general-purpose hosted API as
+inconsistent with it, specifying zero-retention alternatives not in force for these calls. Those
+rows are retained with the caveat attached, because deleting them would misrepresent the comparison
+actually run, and no further transmission occurred or is planned.
+
+\paragraph{Re-identification and small cells.} No re-identification was attempted and no auxiliary
+dataset was joined against MIMIC-III at the patient level. Subgroup results are one-way marginals
+only; no multi-way disaggregation is published. Small cells, including some below ten observations,
+are reported without suppression, because the source data is de-identified under HIPAA Safe Harbor
+with no identifier crosswalk to re-link them; such cells are marked as unpowered for inference
+rather than withheld.
+
+\paragraph{Clinical status, and code contribution.} Nothing in this thesis has been validated for
+clinical use. The system is a research artifact evaluated on retrospective, de-identified data, not
+a clinical decision support tool; its measured performance, reported in Chapter~\ref{ch:results},
+does not support deployment in any care setting, and Chapter~\ref{ch:discussion} states what that
+performance would mean if the system were deployed regardless. Separately, the data use agreement
+obliges contributing analysis code back to the community rather than keeping it private; the code
+behind every result here is released alongside it, in the repository the verified-fact register and
+the appendices already point to.
