@@ -79,11 +79,8 @@ The only further clinical filter is a positive length of stay. Applying the pref
 returns 13,608 heart failure admissions; after the length-of-stay filter 13,597 remain, of which
 10,143 belong to distinct subjects. The two secondary cohorts move by the same filter from 6,265 to
 6,253 admissions for sepsis and from 11,422 to 11,408 for acute kidney injury, removing 12 and 14
-admissions respectively against 11 for heart failure, in every case under one percent of the cohort
-(\texttt{cohort.heart\_failure.pre\_los}, \texttt{cohort.heart\_failure.post\_los},
-\texttt{cohort\_chain.hf\_admissions\_los\_filtered\_unique\_subjects},
-\texttt{cohort.sepsis.pre\_los}, \texttt{cohort.sepsis.post\_los}, \texttt{cohort.sepsis.removed},
-\texttt{cohort.aki.pre\_los}, \texttt{cohort.aki.post\_los}, \texttt{cohort.aki.removed}). In the
+admissions respectively against 11 for heart failure, in every case under one percent of the cohort.
+In the
 reference implementation that filter was computed, printed, and assigned to a copy of the frame
 that was never used again, so the note joins ran against the unfiltered set; the rebuild applies it
 to the frame actually joined. The difference is immaterial to any conclusion, and it is recorded
@@ -113,10 +110,7 @@ retreated to two roles, and no attempt at three roles was judged usable. The ado
 partition finds 13,321 of the 13,608 heart failure admissions with a discharge summary and 10,012
 with a nursing note; the recomputed intersection carrying both roles is 9,820 admissions, the
 figure this thesis prints throughout, while the reference implementation's own count for that same
-intersection is 9,825, five higher for reasons the recovered artifact does not resolve
-(\texttt{cohort\_chain.has\_discharge\_summary}, \texttt{cohort\_chain.has\_nursing\_note},
-\texttt{cohort\_chain.has\_both\_roles}, \texttt{cohort\_chain.reference\_has\_both\_roles},
-\texttt{cohort\_chain.hf\_admissions\_icd\_only}).
+intersection is 9,825, five higher for reasons the recovered artifact does not resolve.
 
 Dropping the third role is a design cost rather than a nuisance. With three roles the pipeline
 could have separated a nursing-to-physician disagreement, a within-stay communication failure, from
@@ -145,9 +139,7 @@ Section~\ref{sec:m-candidates} reports it directly.
 
 This selection returns 9,783 admissions with a selected nursing note and 9,783 with a selected
 discharge summary, the same 9,783 admissions counted both ways, for 19,566 note rows across 9,783
-pairs in total
-(\texttt{cohort\_chain.nursing\_notes\_selected}, \texttt{cohort\_chain.discharge\_notes\_selected},
-\texttt{cohort\_chain.valid\_admissions\_both\_selected}, \texttt{cohort\_chain.total\_note\_pair\_rows}).
+pairs in total.
 That is the cohort the mining rules of Section~\ref{sec:m-candidates} run against.
 
 \subsection{Medication mention extraction and splitting}
@@ -172,11 +164,7 @@ continuation.
 
 Run over the 9,783 admissions the extractor returns 219,683 mentions across 9,732 unique admissions
 and 70 distinct drugs; 88,336 of those mentions receive an action classification and 131,347 do
-not; the two sum to the 219,683 total
-(\texttt{extraction.medication\_extraction.total\_mentions},
-\texttt{extraction.medication\_extraction.classified\_mentions},
-\texttt{extraction.medication\_extraction.unique\_admissions},
-\texttt{extraction.medication\_extraction.unique\_drugs}). Fewer than half of all mentions carry an
+not; the two sum to the 219,683 total. Fewer than half of all mentions carry an
 action at all, which bounds how much of the corpus Rules 1 and 2 can ever reach, since both rules
 are defined entirely over the classified subset.
 
@@ -297,24 +285,14 @@ behaviour is therefore restricted to Rules 1 and 2, and that restriction is what
 defect-free stratum used in Section~\ref{sec:m-control-rq1}.
 
 Applied to the classified mentions, the four rules return a raw pool of 1,980 candidates before any
-temporal check, split 886 from Rule 1, 203 from Rule 2, 521 from Rule 3 and 370 from Rule 4
-(\texttt{mining.total\_candidates}, \texttt{mining.by\_rule.rule1\_direct\_action\_conflicts},
-\texttt{mining.by\_rule.rule2\_drug\_class\_conflicts},
-\texttt{mining.by\_rule.rule3\_dosage\_conflicts},
-\texttt{mining.by\_rule.rule4\_omission\_conflicts}), covering 1,205 distinct admissions
-(\texttt{mining.unique\_admissions\_with\_candidates}). A temporal prefilter that requires a
+temporal check, split 886 from Rule 1, 203 from Rule 2, 521 from Rule 3 and 370 from Rule 4,
+covering 1,205 distinct admissions. A temporal prefilter that requires a
 resolvable ordering between the two notes then drops the pool to 1,978 candidates, split 886, 202,
-520 and 370 (\texttt{extraction.temporal\_prefilter.final\_candidates},
-\texttt{extraction.contradiction\_mining.rule1\_direct\_action},
-\texttt{extraction.contradiction\_mining.rule2\_drug\_class},
-\texttt{extraction.contradiction\_mining.rule3\_dosage},
-\texttt{extraction.contradiction\_mining.rule4\_omission}). These are two different splits, raw and
+520 and 370. These are two different splits, raw and
 post-prefilter, and the two are reported separately here rather than conflated, as an earlier draft
 did: the prefilter removes two candidates in total, one each from Rule 2 and Rule 3, out of 1,068
 admissions carrying a usable date window and 643 admissions carrying an intermediate note between
-the two selected notes (\texttt{extraction.temporal\_prefilter.resolved\_removed},
-\texttt{extraction.temporal\_prefilter.admissions\_with\_window},
-\texttt{extraction.temporal\_prefilter.admissions\_with\_intermediate\_notes}). Every candidate count
+the two selected notes. Every candidate count
 elsewhere in this thesis is the post-prefilter figure, 1,978, unless stated otherwise.
 
 \subsection{Exemplar selection, and the defect in it}
@@ -375,8 +353,7 @@ template with no demonstrations and no chain-of-thought elicitation, and it name
 before asking whether a conflict is present. The labelled pool is the candidate pool minus the
 pairs sent to the pharmacist, so the two are disjoint at the row level by construction;
 Section~\ref{sec:m-data} explains why that was insufficient. The weak-labelled candidate pool from
-this calibration join holds 1,679 rows before subject-disjoint exclusion
-(\texttt{goldstrata.weak\_confidence\_is\_degenerate.crosstab\_total\_1679}); removing rows whose
+this calibration join holds 1,679 rows before subject-disjoint exclusion; removing rows whose
 subject also appears in an evaluation split narrows that pool to the 1,183-row training pool
 reported in Table~\ref{tab:m-strata} and used to fit the detector.
 
@@ -502,7 +479,7 @@ $0.01$, batch size 16, three epochs and a maximum sequence length of 160 tokens
 Two floor baselines are trained on the identical pool and split so the comparison is like for like:
 a majority-class predictor assigning every gold row a constant score equal to the training-pool
 positive rate, and a TF-IDF representation with at most $5{,}000$ features feeding logistic
-regression (\texttt{control.baselines.tfidf\_logreg.max\_features}). The constant-score baseline is
+regression. The constant-score baseline is
 included precisely because a constant score yields an AUROC of exactly $0.5$ by construction, which
 makes it the correct reference point for reading any AUROC near chance.
 
@@ -514,20 +491,12 @@ makes it the correct reference point for reading any AUROC near chance.
 A stratified sample was drawn from the candidate pool, allocated across the four rules in
 proportion to each rule's share of the pool (886, 202, 520 and 370 candidates for Rules 1 through
 4) rounded to whole pairs, not oversampled toward any rule. The frame draws 134 pairs from Rule 1,
-31 from Rule 2, 79 from Rule 3 and 56 from Rule 4, for 300 pairs total
-(\texttt{extraction.annotation\_sample.rule1}, \texttt{extraction.annotation\_sample.rule2},
-\texttt{extraction.annotation\_sample.rule3}, \texttt{extraction.annotation\_sample.rule4},
-\texttt{extraction.annotation\_sample.total\_sampled}), the same sampling fraction in every
+31 from Rule 2, 79 from Rule 3 and 56 from Rule 4, for 300 pairs total, the same sampling fraction in every
 stratum to within rounding. The frame was fixed before annotation began. Proportional allocation has a
 consequence Chapter~\ref{ch:results} relies on: under it, the gold sample's base rate is an
 unbiased estimate of the pool's base rate, which is the denominator the over-calling ratios in
-that chapter divide against. The returned annotation set has $n = 299$ pairs
-(\texttt{gold.n\_total}), one fewer than the frame, and the per-rule breakdown of what was returned,
-134, 31, 79 and 55, shows the missing row belongs to Rule 4
-(\texttt{goldstrata.join\_feasibility.gold\_rule\_counts.1},
-\texttt{goldstrata.join\_feasibility.gold\_rule\_counts.2},
-\texttt{goldstrata.join\_feasibility.gold\_rule\_counts.3},
-\texttt{goldstrata.join\_feasibility.gold\_rule\_counts.4}): Rules 1 through 3 returned every
+that chapter divide against. The returned annotation set has $n = 299$ pairs, one fewer than the frame, and the per-rule breakdown of what was returned,
+134, 31, 79 and 55, shows the missing row belongs to Rule 4: Rules 1 through 3 returned every
 sampled pair and Rule 4 returned one fewer than it was sent.
 
 A single board-certified pharmacist annotated the sampled pairs, recording for each a three-way
@@ -726,23 +695,20 @@ The proxy under test is whether a difference in self-supervised pretraining, mea
 gap, predicts a difference in downstream discrimination. On the clinical side the comparison runs
 on a task built for this control rather than on the contradiction detector: in-hospital mortality
 predicted from a bundle of a patient's first 48 hours of notes, evaluated on $6{,}776$ held-out
-admissions holding $570$ positives (\texttt{mortality\_control.test\_n},
-\texttt{mortality\_control.test\_n\_pos}), a different task and cohort from the $253$-pair
+admissions holding $570$ positives, a different task and cohort from the $253$-pair
 contradiction evaluation. The comparison there is a from-scratch encoder against a
 domain-pretrained encoder under a matched fine-tuning protocol at three seeds, with the
-from-scratch arm carrying $10{,}638{,}720$ non-embedding parameters
-(\texttt{c37.scratch\_nonemb\_params}). On the public side the same comparison runs on
+from-scratch arm carrying $10{,}638{,}720$ non-embedding parameters. On the public side the same comparison runs on
 AG News across four arms, a pretrained BERT encoder at $85{,}648{,}132$ parameters and three
-from-scratch encoders at $10{,}649{,}092$, $31{,}913{,}860$ and $99{,}234{,}820$ parameters
-(\texttt{scaling.*.params}).
+from-scratch encoders at $10{,}649{,}092$, $31{,}913{,}860$ and $99{,}234{,}820$ parameters.
 
 One threat has to be answered before the public comparison can serve as a control. In the initial
 sweep every arm trained for the same short budget with no per-arm tuning, so a gap between
 pretrained and from-scratch arms could measure training budget rather than pretraining. The
 convergence sweep gives every arm four budgets, each with its own complete schedule, reported at
 the final epoch of that schedule rather than by validation-based checkpoint selection, at three
-seeds per cell, for $48$ runs (\texttt{conv.n\_runs}) and
-$555$ minutes of compute (\texttt{conv.total\_minutes}). The decision rule in
+seeds per cell, for $48$ runs and
+$555$ minutes of compute. The decision rule in
 Table~\ref{tab:m-prereg} was committed before the sweep started and applied by the analysis
 notebook without being edited after the first result landed
 (\texttt{accord/scaling/C44\_PREREGISTRATION.md}).
@@ -817,7 +783,7 @@ abstract screen that writes its exact exclusion rule for each record into a scre
 full-text retrieval quota in which records passing stage one are ranked by a pre-specified
 keyword-density score and advanced until the budget is met, with records below the quota logged as
 screened rather than silently dropped; and a full-text screen read against the three inclusion
-criteria. The corpus reaching coding contains $n = 75$ papers (\texttt{survey.n\_included}).
+criteria. The corpus reaching coding contains $n = 75$ papers.
 
 The primary coding of a selection audit is strict: a paper counts only if it compares the group
 composition, or the retention rate, of the retained cohort against a denominator existing prior to
@@ -837,8 +803,8 @@ primary coder under a shared written rule set. A blind second coder independentl
 deterministic subsample of nineteen papers, the basis for the agreement statistics reported in
 Chapter~\ref{ch:results}; no agreement figure is claimed for the fifty-six papers outside that
 subsample. And inclusion criterion two requires a disaggregated metric, so every included
-paper audits a model on its pool by construction: \texttt{survey.model\_on\_pool\_yes} equals
-\texttt{survey.n\_included} at $75$, the cross-tabulation of model audit against selection audit
+paper audits a model on its pool by construction: the count of papers coded as auditing a model on
+the pool equals the count of included papers, both $75$, the cross-tabulation of model audit against selection audit
 degenerates to a single row, and the only quantity this corpus estimates is how many papers that
 already audit a model also audit the selection step. The keyword-density ranking enriches the
 corpus toward fairness-forward work, stated plainly because the enrichment runs against the
@@ -851,9 +817,8 @@ direction of the finding rather than toward it.
 
 Interval estimates on AUROC and average precision are nonparametric percentile bootstraps over the
 evaluation rows \citep{efron1994bootstrap}. The main control uses $10{,}000$ resamples at a fixed
-generator seed of $20260806$ (\texttt{control.bootstrap\_n\_resamples},
-\texttt{control.bootstrap\_seed}); the decontamination analysis uses $10{,}000$ resamples at seed
-$42$ (\texttt{decontam.aggregate.bootstrap\_B}, \texttt{decontam.aggregate.bootstrap\_seed}). Seeds
+generator seed of $20260806$; the decontamination analysis uses $10{,}000$ resamples at seed
+$42$. Seeds
 are recorded so that every interval is reproducible to the digit. Degenerate resamples are handled
 explicitly rather than by imputation: with few positives a resample can contain none, in which case
 AUROC is undefined, so such resamples are discarded, do not count toward the requested total, and
@@ -875,7 +840,7 @@ estimate with $n_+$ positives and $n_-$ negatives is approximated by
 \[
 \mathrm{SE}_0 = \sqrt{\frac{n_+ + n_- + 1}{12\, n_+ n_-}} ,
 \]
-with $\alpha = 0.05$ and power $0.80$ throughout (\texttt{power.alpha}, \texttt{power.power}). This
+with $\alpha = 0.05$ and power $0.80$ throughout. This
 null-standard-error approximation is reported in Table~\ref{tab:m-mde} for reference, but it is not
 what the table's minimum detectable AUROC column uses. That column follows the full
 \citet{hanley1982meaning} procedure, which evaluates the sampling variance of the AUROC estimator at the
@@ -907,8 +872,7 @@ Defect-free subset       &  6 & 128 & 0.1210 & 0.8058 \\
 
 \subsection{Seed variation and the standard-deviation convention}
 
-The subject-disjoint control and the decontaminated retrain each run at three seeds
-(\texttt{control.n\_seeds}). The seed controls model initialisation, dropout and data loader
+The subject-disjoint control and the decontaminated retrain each run at three seeds. The seed controls model initialisation, dropout and data loader
 shuffle order. It does not control the train and validation split, which is fixed once by a
 separate split seed, so the spread across seeds reflects training stochasticity and not resampled
 training data. That is a deliberate narrowing: it makes the error bars interpretable as run-to-run

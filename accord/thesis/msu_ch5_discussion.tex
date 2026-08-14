@@ -165,10 +165,8 @@ frozen encoder is anisotropic, a high mean cosine similarity between the two
 notes in a pair is a property of the encoder rather than a signal about the
 pair. On unrelated non-clinical sentence pairs through the same frozen
 extraction path, mean pairwise similarity is $0.9113$, against $0.9176$ on the
-matched clinical pairs (\texttt{aniso.anisotropy\_control.mean},
-\texttt{aniso.homogeneity.results.head.matched.mean}); a Welch test rejects
-exact equality ($t = 4.0001$, Cohen's $d = 0.2808$,
-\texttt{stats.anisotropy\_welch.t}, \texttt{stats.anisotropy\_welch.cohens\_d}),
+matched clinical pairs; a Welch test rejects
+exact equality ($t = 4.0001$, Cohen's $d = 0.2808$),
 so what the control establishes is a small gap against a wider spread rather
 than identity, close enough to undercut the interpretation offered for the
 high similarity once a control task returns nearly the same number on text
@@ -321,8 +319,7 @@ A bootstrap standard deviation of $0.0870$ on the primary AUROC is consistent
 with a mildly informative model and with a mildly inverted one. The three-seed
 ensemble's own $95\%$ bootstrap interval on the $253$-pair set,
 $[0.3210, 0.7034]$, is wide enough that its upper bound of $0.7034$ sits only
-$0.0321$ below the minimum detectable AUROC of $0.7355$
-(\texttt{stats.auroc\_ci\_hi\_vs\_min\_detectable\_margin}), so interval width on its own does not rule out a
+$0.0321$ below the minimum detectable AUROC of $0.7355$, so interval width on its own does not rule out a
 modestly useful model. Three of the four estimators compared here, the single
 model, the three-seed ensemble and the TF-IDF baseline, could in principle have
 found separation and did not; the fourth, a majority-class predictor, returns
@@ -351,9 +348,7 @@ under the second, from $-0.11807$ to $-0.04101$. Neither series changes sign, bu
 they move in opposite directions as channel strength increases: the first becomes
 more negative, the second less. Fitted as drift slopes, the two channels produce
 signed drifts of opposite sign, $-0.00780$ under the first regime and
-$+0.01177$ under the second
-(\texttt{drift.PUMS\_RegimeA\_drift\_vs\_OR.demographic\_parity\_gap.signed\_slope},
-\texttt{drift.PUMS\_RegimeB\_drift\_vs\_beta.demographic\_parity\_gap.signed\_slope}).
+$+0.01177$ under the second.
 A third selection experiment on a different pool gives a
 gap running from $+0.00841$ to $+0.18939$, again without a sign change.
 
@@ -429,8 +424,7 @@ crossed zero has a signed interval that does not. The flip count is
 inconsistent across the project's own working notes, one summary reporting six
 of eight checked metric-slopes and its own itemised list holding a different
 count; the figure carried into the verified register, and the one used here, is
-7 of 14 compared metric-slopes (\texttt{drift.n\_sign\_flips},
-\texttt{drift.n\_metrics\_compared}). The field count behind the retrofit is not
+7 of 14 compared metric-slopes. The field count behind the retrofit is not
 registered and is not quoted.
 
 The rule is one sentence. A metric stored as a magnitude licenses no directional
@@ -522,10 +516,10 @@ Total, reconciled                         & 67 & 1181.5 \\
 \end{table}
 
 The control that retracted the directional core of three corrections cost
-$0.7 + 13.5 = 14.2$ GPU-minutes (\texttt{stats.signed\_rerun\_total\_minutes}) across both experiments. The convergence sweep that licenses the
+$0.7 + 13.5 = 14.2$ GPU-minutes across both experiments. The convergence sweep that licenses the
 whole argument of Section~\ref{sec:disc-null} cost $555$ minutes on its own. Together with the
 clinical-task comparison the two larger sweeps cost $555 + 612.3 = 1167.3$
-GPU-minutes (\texttt{stats.control\_cost\_reconciled.two\_sweeps\_minutes}), and all four episodes cost $1167.3 + 14.2 = 1181.5$ GPU-minutes and
+GPU-minutes, and all four episodes cost $1167.3 + 14.2 = 1181.5$ GPU-minutes and
 $67$ runs in total, roughly twenty GPU-hours. The claim is not that
 controls are always cheap: re-annotation is not, a second annotator is not, and
 the one control here that cannot be recomputed from disk requires re-running the
@@ -632,9 +626,7 @@ enrichment argument behind $4/75$ and $14/75$. A blind second coder recoded a
 subsample with field definitions only and the hypothesis withheld, and
 agreement on the permissive field is high. On the 19 double-coded papers, the
 registered permissive
-agreement is $0.9474$ with kappa $0.855$
-(\texttt{survey.reliability.audits\_selection\_literal.agreement},
-\texttt{survey.reliability.audits\_selection\_literal.kappa}). On the strict cell, the one that decides the
+agreement is $0.9474$ with kappa $0.855$. On the strict cell, the one that decides the
 headline count, the reliability coefficient is
 \textbf{undefined}: both coders returned the same code on all 19 overlap
 papers, which drives a coder's marginal on the category toward degenerate and
@@ -725,8 +717,7 @@ over-calling magnitude does not generalise, because a control on public text
 returned a much smaller factor for the same labellers, and the part that
 transfers is the mechanism, a labeller reporting a prior when the base rate is
 low; the public-text maximum over-calling ratio, measured on SNLI across three
-models, two prompts and four prevalence levels, is $3.5000$
-(\texttt{publicsweep.results.llama3:8b.A\_bare.0.02.over\_call\_ratio}), well
+models, two prompts and four prevalence levels, is $3.5000$, well
 below the $15.8196$ to $23.5959$ range measured on the clinical pool.
 The positive control is external evidence of a
 limited kind: it shows the instrument behaves as expected on a public benchmark,
