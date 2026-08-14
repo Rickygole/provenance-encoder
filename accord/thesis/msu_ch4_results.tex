@@ -127,14 +127,19 @@ above.
 \begin{figure}[!htbp]
 
 \centering
-\includegraphics[width=0.92\linewidth]{figures/fig-rule-precision.pdf}
-\caption[Ranking performance per mining rule]{Per-rule ranking performance on the annotated pairs. Bars give the
-area under the ROC curve for the detector's contradiction probability within each
+\includegraphics[width=0.9\linewidth]{figures/fig-rule-precision.pdf}
+\caption[Ranking performance per mining rule]{Per-rule ranking performance on the annotated pairs. Each row gives the
+area under the ROC curve for the detector's contradiction probability within one
 mining rule, evaluated against the pharmacist's binary label; the count of pairs
-and of confirmed positives is printed above each bar. The dashed line marks
-chance. The shaded band is the 95\% bootstrap interval for Rules 3 and 4 pooled,
-the stratum whose exemplars are correct by construction, and it is drawn across
-those two rules only.}
+and of confirmed positives is carried in the row label. The dashed line marks
+chance. Estimates are drawn as points rather than as bars because two to four
+confirmed positives per rule will not support a filled bar. The four
+single-rule rows are point estimates; no committed interval data covers them,
+because the per-pair scores an interval would have to be computed from are not
+released, and they are drawn in grey to say so rather than in the colour of a
+measured estimate. Only the pooled Rules 3 and 4 stratum, whose exemplars are
+correct by construction, has an interval the released aggregates permit, so it
+is the only row that carries one and the only row drawn in full.}
 \apanote{Ranking performance per rule in addition to the pharmacist precision table in Table~\ref{tab:rule-precision}.}
 \label{fig:rule-precision}
 \end{figure}
@@ -290,15 +295,18 @@ the direction, over-calling that does not track the true rate, not the size of i
 \begin{figure}[!htbp]
 
 \centering
-\includegraphics[width=0.92\linewidth]{figures/fig-prevalence-response.pdf}
+\includegraphics[width=0.9\linewidth]{figures/fig-prevalence-response.pdf}
 \caption[Labeller response to prevalence]{Labeller response to prevalence on public text. Each panel plots the
 rate at which a weak labeller returns a positive against the true prevalence of
 the sample it was shown, for three locally run open-weight models (columns) under
 two prompt conditions (rows): a bare instruction, and one that states the base
 rate and permits abstention. The dashed diagonal is perfect calibration, where
-predicted rate equals true rate. The square in the upper left of each panel marks
+predicted rate equals true rate. Each plotted rate carries a Wilson score
+interval computed in closed form from the decision counts the sweep records
+behind it. The square in the upper left of the first panel marks
 the clinical operating point measured in this thesis, a true rate near 4\% read as
-positive at roughly 85\%.}
+positive at roughly 85\%; it is the anchor the whole grid is read against and is
+drawn once rather than repeated into all six panels.}
 \apanote{Built from the prevalence replication sweep. Each panel varies the true positive rate and records the labeller's marginal at that setting.}
 \label{fig:prevalence-response}
 \end{figure}
@@ -369,15 +377,22 @@ question.
 \begin{figure}[!htbp]
 
 \centering
-\includegraphics[width=0.92\linewidth]{figures/fig-falsification.pdf}
-\caption[Two architecture components falsified]{Two falsifications in one view. Left: the two authority scale
-parameters, $\alpha_N$ on the nursing side and $\alpha_D$ on the discharge side,
-at their stated initialisation and after training, averaged over three seeds. Both
-finish within about one percent of where they began, so the values reported as
-learned are indistinguishable from the constants they were set to. Right: macro
+\includegraphics[width=0.9\linewidth]{figures/fig-falsification.pdf}
+\caption[Two architecture components falsified]{Two falsifications in one view. Panel (a): how far each of the two
+authority scale parameters moved from the value it was initialised to, $\alpha_N$
+on the nursing side and $\alpha_D$ on the discharge side, read against a line at
+no movement at all. The initialisation each parameter was set to is in its row
+label, the movement beside each dot is given in the parameter's own units, the
+units the axis is ticked in, and the three seeds behind each mean are drawn with
+it, coinciding with it at this scale. Both finish within about one percent of
+where they began, so the values reported as learned are indistinguishable from
+the constants they were set to. Panel (b): macro
 $F_1$ of the rule-type head in the domain it was fitted on and on two cohorts it
-was not, sepsis and acute kidney injury.}
-\apanote{Left panel: a parameter reported as learned, drawn against its initialisation. Right panel: the rule-type head's in-domain macro $F_1$ of $0.9603$ against its transfer scores of $0.0654$ on sepsis and $0.0595$ on acute kidney injury, all three measured and registered.}
+was not, sepsis and acute kidney injury, with the candidate count for each in
+the row label. Those three are point estimates; no committed interval data
+covers them, since no seed spread for those scores is recorded, and they are
+drawn in grey as underpowered rather than given a spread they do not have.}
+\apanote{Panel (a): a parameter reported as learned, drawn against its initialisation. Panel (b): the rule-type head's in-domain macro $F_1$ of $0.9603$ against its transfer scores of $0.0654$ on sepsis and $0.0595$ on acute kidney injury, all three measured and registered.}
 \label{fig:falsification}
 \end{figure}
 
@@ -678,7 +693,7 @@ a future attempt needs.
 \begin{figure}[!htbp]
 
 \centering
-\includegraphics[width=0.92\linewidth]{figures/fig-power.pdf}
+\includegraphics[width=0.9\linewidth]{figures/fig-power.pdf}
 \caption[Minimum detectable effect by evaluation size]{What each evaluation in this thesis could have seen. The curve gives
 the minimum detectable area under the ROC curve at 80\% power and a two-sided
 $\alpha$ of 0.05, by the method of Hanley and McNeil \citep{hanley1982meaning}, as a function of the number
@@ -841,13 +856,16 @@ distinguishable from chance, and none is distinguishable from any other.
 \begin{figure}[!htbp]
 
 \centering
-\includegraphics[width=0.92\linewidth]{figures/fig-forest.pdf}
+\includegraphics[width=0.9\linewidth]{figures/fig-forest.pdf}
 \caption[Headline estimates against zero]{Headline estimates against zero. Each row gives one effect reported in
-this thesis with its 95\% interval; units differ by row and are named in the row
-label, so the rows are not comparable to one another and only each interval's
-position relative to zero is being read. Rows whose interval contains zero are
-drawn in grey.}
-\apanote{Each row is a headline estimate from this project with its interval, and the figure title reports how many of the plotted intervals cross zero.}
+this thesis with its 95\% interval. The rows are grouped into three families,
+ruled apart, and the unit is named once at the head of each family: a Matthews
+correlation, an AUROC above chance and a pretraining gap do not share a unit, so
+the shared position axis ranks the rows within a family and nothing across
+families except each interval's position relative to zero. Whether an interval
+contains zero is read from whether it crosses the line, and is not also encoded
+in colour.}
+\apanote{Each row is a headline estimate from this project with its interval, read against the zero line.}
 \label{fig:forest}
 \end{figure}
 

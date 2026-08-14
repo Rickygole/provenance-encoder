@@ -266,8 +266,8 @@ and an instrument reporting a $4.53$-point difference at standard deviations
 at or below $0.0036$ is not an instrument that cannot see effects.
 
 Parameters do not close it either. Figure~\ref{fig:scaling} plots the from-scratch
-arms at three sizes against the pretrained band on the public task, and the
-inset carries the mortality-control comparison on the same axis convention. The
+arms at three sizes against the pretrained band on the public task, and its
+second panel carries the mortality-control comparison on that task's own scale. The
 from-scratch curve rises with size and does not approach the band, so the public
 gap is a pretraining effect rather than a capacity effect, and the mortality gap
 is the same instrument returning almost nothing.
@@ -275,10 +275,16 @@ is the same instrument returning almost nothing.
 \begin{figure}[!htbp]
 
 \includegraphics[width=0.9\linewidth]{figures/fig-scaling.pdf}
-\caption[Pretraining benefit across parameter scales]{From-scratch encoders at three parameter scales against a pretrained
-encoder on the public classification task, with the mortality-control
-comparison inset. The shaded band is the pretrained arm's seed standard
-deviation.}
+\caption[Pretraining benefit across parameter scales]{Panel (a): from-scratch encoders at three parameter scales against a
+pretrained encoder on the public classification task, measured in accuracy. The
+shaded band is the pretrained arm's seed standard deviation. Panel (b): the
+mortality-control comparison, measured in AUROC on the in-hospital mortality
+task, on its own scale rather than inset into the panel above it, because it is
+a second task with a second metric and not a detail of the first. The caps on
+every mean are that arm's seed standard deviation, and every seed behind every
+mean is drawn with it on both panels; where the seeds of an arm agree to within
+the width of a mark they coincide with the mean rather than reading as separate
+points.}
 \label{fig:scaling}
 \end{figure}
 
@@ -369,9 +375,11 @@ the recorded pass alone.
 \includegraphics[width=0.9\linewidth]{figures/fig-threshold-surface.pdf}
 \caption[Audited parity gap across operating points]{The audited demographic-parity gap across operating points and
 selection strengths for one selection experiment. The solid contour is the
-tolerance the audit was written against; the pale region is where the minimum
-detectable gap exceeds that tolerance, so a pass is underpowered rather than
-clean.}
+tolerance the audit was written against, drawn whole in every fragment it breaks
+into. The washed-out region is where the minimum
+detectable gap exceeds that tolerance, so a pass there is underpowered rather
+than clean; it is drawn at a fraction of the strength of the region that can
+answer, and the dashed line bounding the two is labelled at the line.}
 \label{fig:threshold-surface}
 \end{figure}
 
@@ -760,7 +768,10 @@ alarm. That question is clinical and it was never posed.
 \caption[Exchange rates of summary statistics]{What each summary statistic trades on this evaluation set: forgone true
 positives against gained true negatives, with the four compared systems plotted
 in the same coordinates. The indifference slopes follow from the class counts
-alone.}
+alone, so they are reference structure and are drawn as such, in grey and
+labelled at the line; the four systems are what was measured and carry the
+data colour, with ACCORD accented because where it sits against these three
+lines is what the figure is about.}
 \label{fig:met-exchange}
 \end{figure}
 

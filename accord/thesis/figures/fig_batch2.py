@@ -1,12 +1,18 @@
-"""F5 prevalence, F6 scaling, F7 forest, F10 power landscape.
+"""F5 prevalence response, F6 scaling, F7 forest, F10 power landscape.
 
 Every value is READ from a committed result file. An earlier version typed the
 C37 and C44 numbers as literals and drew the power curve from an ad-hoc formula
 that did not reproduce the one real MDE it plotted -- the exact defect
-corrections C7 and C10 retract elsewhere in this project. See C48."""
+corrections C7 and C10 retract elsewhere in this project. See C48.
+
+All four figures follow the shared grammar in style.py: one measure, dots with
+intervals for estimates, bars only for counts, grey hairline reference lines
+labelled at the line, and one scarlet element per canvas."""
 import json, pathlib, glob, math, statistics as st
 import numpy as np
-from style import setup, ACCENT, MUTED, LIGHT, DEAD, ALERT
+from style import (setup, FIGW, INK, BLUE, PALE, TEAL, SCARLET, MUTE, GREY, GRID,
+                   ACCENT, MUTED, LIGHT, DEAD, ALERT,
+                   CHANCE_STYLE, ERRBAR, DOT, canvas, lean, wilson_ci)
 setup()
 import matplotlib.pyplot as plt
 
@@ -30,36 +36,61 @@ clinical_y = _xtab["0.95"]["contradiction"] / (_xtab["0.95"]["contradiction"]
                                                + _xtab["1.0"]["not_contradiction"])
 clinical_x = json.loads((ROOT/"results/accord/diag/step2_signal_check.json").read_text())[
     "contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]["base_rate"]
-# The second row label is wrapped: on one line it ran the full height of its
-# panel and collided with the row above it.
+# A small-multiple grid: the row and column headings identify every panel, so
+# panel letters would be a third naming of the same six cells.
 PL = {"A_bare": "bare prompt", "B_baserate_abstain": "base rate stated,\nabstention allowed"}
-fig, axes = plt.subplots(2, 3, figsize=(7.0, 4.0), sharex=True, sharey=True)
+fig, axes = plt.subplots(2, 3, figsize=(FIGW, 2.60), sharex=True, sharey=True)
+canvas(fig)
+fig.subplots_adjust(left=0.185, right=0.995, top=0.885, bottom=0.175,
+                    wspace=0.16, hspace=0.22)
 for r, pr in enumerate(prompts):
     for c, m in enumerate(models):
         ax = axes[r, c]
-        xs, ys = [], []
+        xs, ys, lo, hi = [], [], [], []
         for p in ["0.02", "0.05", "0.1", "0.25"]:
             e = d["results"][m][pr].get(p)
-            if e: xs.append(float(p)); ys.append(e["positive_rate_of_decided"])
-        ax.plot([0, .28], [0, .28], ls="--", lw=.7, color=DEAD, zorder=1)
-        ax.plot(xs, ys, "-o", color=ACCENT, ms=3.6, lw=1.2, zorder=3)
-        ax.plot([clinical_x], [clinical_y], "s", color=ALERT, ms=5, zorder=4)
+            if not e:
+                continue
+            xs.append(float(p)); ys.append(e["positive_rate_of_decided"])
+            # The sweep commits both counts behind every rate, so the interval
+            # is a closed-form Wilson score interval on those counts: no
+            # resampling, no simulation, nothing invented. A rate printed on
+            # 100 decisions without one invites the reader to read a two-point
+            # wobble as a response to prevalence.
+            a, b = wilson_ci(e["n_contradiction"], e["n_decided"])
+            lo.append(a); hi.append(b)
+        ax.plot([0, .30], [0, .30], **CHANCE_STYLE)
+        ax.errorbar(xs, ys, yerr=[[y - a for y, a in zip(ys, lo)],
+                                  [b - y for y, b in zip(ys, hi)]],
+                    fmt="-o", color=BLUE, ms=3.0, lw=1.1, zorder=3,
+                    markeredgewidth=0, ecolor=BLUE, elinewidth=0.8,
+                    capthick=0.8, capsize=2.0)
+        # The clinical operating point is the claim this whole grid is drawn
+        # against, so it is the one accented mark, and it appears once. Six
+        # copies of one anchor read as six separate findings and put a scarlet
+        # square in every panel.
         if r == 0 and c == 0:
-            ax.annotate(f"clinical\n({clinical_x * 100:.0f}% to {clinical_y * 100:.0f}%)",
-                        (clinical_x, clinical_y), xytext=(0.075, 0.60),
-                        fontsize=8.0, color=ALERT, linespacing=1.25,
-                        arrowprops=dict(arrowstyle="-", lw=.5, color=ALERT))
-        ax.set_xlim(0, .285); ax.set_ylim(0, .92)
+            ax.plot([clinical_x], [clinical_y], "s", color=SCARLET, ms=3.6, zorder=4)
+            ax.annotate(f"clinical\n({clinical_x * 100:.0f}% read as {clinical_y * 100:.0f}%)",
+                        (clinical_x, clinical_y), xytext=(0.082, 0.52),
+                        fontsize=8.0, color=SCARLET, linespacing=1.25,
+                        arrowprops=dict(arrowstyle="-", lw=.5, color=SCARLET))
+        if r == 0 and c == 2:
+            ax.text(0.295, 0.34, "perfect\ncalibration", fontsize=8.0, color=MUTE,
+                    ha="right", va="bottom", linespacing=1.25)
+        # Bounds and ticks run past every mark and every cap, so nothing on the
+        # grid hangs off the end of the scale it is measured on.
+        ax.set_xlim(0, .32); ax.set_ylim(0, .99)
+        ax.set_xticks([0, 0.1, 0.2, 0.3]); ax.set_yticks([0, 0.3, 0.6, 0.9])
         # Panel heading, not a figure title: it names which labeller this column is.
-        if r == 0: ax.set_title(m, fontsize=8.5, pad=4)
+        if r == 0: ax.set_title(m, fontsize=8.0, pad=4)
         if c == 0: ax.set_ylabel(PL[pr], fontsize=8.0, linespacing=1.3)
         ax.tick_params(labelsize=8)
-fig.supxlabel("true prevalence", fontsize=9.0, y=0.028)
-fig.supylabel("labeller predicted-positive rate", fontsize=9.0, x=0.005)
+        lean(ax, xbounds=(0, 0.30), ybounds=(0, 0.9))
+fig.supxlabel("True prevalence", fontsize=9.0, y=0.020)
+fig.supylabel("Labeller predicted-positive rate", fontsize=9.0, x=0.008)
 if SHOW_INFIGURE_TITLES: fig.suptitle("The labeller under-responds to prevalence, but nowhere near the clinical shift",
              fontsize=9.5, x=0.02, ha="left", y=0.99)
-if SHOW_INFIGURE_NOTES: fig.text(0.02, 0.925, "dashed: perfect calibration", fontsize=8.0, color="0.4")
-fig.tight_layout(rect=[0.022, 0.058, 1, 1])
 fig.savefig(HERE/"fig-prevalence-response.pdf"); plt.close(fig); print("wrote fig-prevalence-response.pdf")
 
 # ---------- F6: scaling with clinical overlay --------------------------------
@@ -71,23 +102,6 @@ tags = ["scratch_10M", "scratch_30M", "scratch_100M"]
 xs = [pr_[t] for t in tags]; mu = [st.mean(by[t]) for t in tags]; sd = [st.stdev(by[t]) for t in tags]
 pm, ps, pp = st.mean(by["pretrained_bert"]), st.stdev(by["pretrained_bert"]), pr_["pretrained_bert"]
 
-fig, ax = plt.subplots(figsize=(6.6, 3.9))
-fig.subplots_adjust(left=0.105, right=0.985, top=0.97, bottom=0.135)
-ax.axhspan(pm-ps, pm+ps, color=LIGHT, zorder=1)
-ax.axhline(pm, color=MUTED, lw=1.1, zorder=2)
-ax.text(8.6e6, pm+0.0035, f"pretrained BERT   {pm:.4f} +/- {ps:.4f}   ({pp/1e6:.0f}M)",
-        fontsize=8.0, color=MUTED, va="bottom")
-ax.errorbar(xs, mu, yerr=sd, fmt="-o", color=ACCENT, ms=5, lw=1.3, capsize=3, zorder=4)
-# The gap labels sit below their points; the x limits are set wide enough that the
-# leftmost one is not cut off by the axis, as it was before.
-for x, m, s, t in zip(xs, mu, sd, tags):
-    ax.annotate(f"{pm-m:+.4f}", (x, m - s), textcoords="offset points", xytext=(0, -12),
-                ha="center", va="top", fontsize=8.0, color=ACCENT)
-ax.set_xscale("log"); ax.set_xlabel("non-embedding parameters (log scale)")
-ax.set_ylabel("accuracy, AG News"); ax.set_ylim(0.865, 0.952)
-ax.set_xlim(7.0e6, 1.7e8)
-if SHOW_INFIGURE_TITLES: ax.set_title("Pretraining is worth five points here, and more parameters do not close it",
-             loc="left", fontsize=9.5, pad=8)
 # C37 clinical comparison, read from the run records -- never typed
 _pb = [json.loads((ROOT/f"local_only/task_runs/concat_s{s}.json").read_text())["auroc"] for s in (1,2,3)]
 _ou = [json.loads(pathlib.Path(f).read_text())["auroc"]
@@ -95,68 +109,192 @@ _ou = [json.loads(pathlib.Path(f).read_text())["auroc"]
 _pbm, _pbs = st.mean(_pb), st.stdev(_pb)
 _oum, _ous = st.mean(_ou), st.stdev(_ou)
 _gap = _pbm - _oum
-_pooled = math.sqrt((_pbs**2 + _ous**2)/2)
-# The inset used to sit at the lower right, on top of the 100M point and its gap
-# label. It now occupies the empty band between the scratch curve and the
-# pretrained reference.
-ins = fig.add_axes([0.505, 0.455, 0.30, 0.235])
-ins.axhspan(_pbm-_pbs, _pbm+_pbs, color=LIGHT)
-ins.axhline(_pbm, color=MUTED, lw=1.0)
-ins.errorbar([1.06e7], [_oum], yerr=[_ous], fmt="o", color=ACCENT, ms=4, capsize=2.5)
-ins.set_xscale("log"); ins.set_xlim(5e6, 2e8); ins.set_ylim(_oum-0.025, _pbm+0.025)
-ins.set_title(f"clinical task: gap {_gap:+.4f}", fontsize=8.0, pad=3)
-ins.tick_params(labelsize=8); ins.set_yticks([0.75, 0.79]); ins.set_xticks([1e7, 1e8])
+
+# Two panels, not a panel with a floating inset. The clinical comparison is a
+# second experiment on a second task with a second metric; an inset says
+# "detail of the panel behind me", which this is not, and it borrowed the host
+# panel's frame so it had no way to name its own unit. As a panel it has its
+# own frame, its own axis label naming the metric and the task, and its own
+# letter.
+fig, (ax, axb) = plt.subplots(2, 1, figsize=(FIGW, 3.34),
+                              gridspec_kw={"height_ratios": [2.00, 1.0]})
+canvas(fig)
+fig.subplots_adjust(left=0.175, right=0.985, top=0.965, bottom=0.115, hspace=0.66)
+# The pretrained arm is the reference this figure measures against, so it
+# recedes: a pale seed band, a grey line, and its label at the line.
+ax.axhspan(pm-ps, pm+ps, color=PALE, alpha=0.7, linewidth=0, zorder=1)
+ax.axhline(pm, color=GREY, lw=0.6, zorder=2)
+ax.text(1.62e8, pm+0.0030, f"pretrained BERT {pm:.4f} ± {ps:.4f} ({pp/1e6:.0f}M)",
+        fontsize=8.0, color=MUTE, va="bottom", ha="right")
+# Every seed that went into each mean is drawn behind it, on both panels, in
+# the same small grey dot: the caps here are the seed standard deviation of
+# three committed runs, not an analytic bound, so the runs themselves are on
+# the canvas. The seeds share the mean's x (they are the same model size), so
+# the interval is drawn first and the seeds over it: drawn under the interval
+# they were hidden by its own rule and the panel read as caps with no seeds.
+# The mean is drawn last and still sits in front, so where the three seeds
+# agree to within the width of a marker they are simply the mark itself.
+ax.errorbar(xs, mu, yerr=sd, fmt="none", ecolor=BLUE, zorder=3, **ERRBAR)
+for x, t in zip(xs + [pp], tags + ["pretrained_bert"]):
+    ax.plot([x] * len(by[t]), by[t], "o", color=GREY, ms=2.6, markeredgewidth=0,
+            alpha=0.65, zorder=4)
+ax.plot(xs, mu, "-o", color=BLUE, ms=4.0, lw=1.1, zorder=5)
+# The gap labels sit below their points; the x limits are set wide enough that the
+# leftmost one is not cut off by the axis, as it was before.
+for x, m, s, t in zip(xs, mu, sd, tags):
+    ax.annotate(f"{pm-m:+.4f}", (x, m - s), textcoords="offset points", xytext=(0, -10),
+                ha="center", va="top", fontsize=8.0, color=MUTE)
+ax.set_xscale("log"); ax.set_xlabel("Non-embedding parameters (log scale)")
+ax.set_ylabel("Accuracy, AG News"); ax.set_ylim(0.851, 0.950)
+# The top tick has to reach past the pretrained reference. Ticked to 0.93 the
+# scale stopped below the band this panel is measured against, so the reference
+# line and its own seeds sat above the last value the axis named. Even steps,
+# so the ticks still read as one scale rather than a regular ladder with one
+# odd rung added at the top to reach the reference.
+ax.set_yticks([0.86, 0.88, 0.90, 0.92, 0.94])
+ax.set_xlim(7.0e6, 1.7e8)
+lean(ax, ybounds=(0.86, 0.941))
+if SHOW_INFIGURE_TITLES: ax.set_title("Pretraining is worth five points here, and more parameters do not close it",
+             loc="left", fontsize=9.5, pad=8)
+
+# (b) The clinical arms. Same grammar as panel (a): the from-scratch arm is the
+# measured thing and carries the primary colour, the pretrained arm is the
+# reference it is measured against and recedes to grey, and each mean has its
+# three seeds drawn behind it. No accent: the claim here is the size of the
+# gap, which is a relation between two marks rather than either of them.
+for i, (vals, mean, sdv, colour) in enumerate(
+        ((_ou, _oum, _ous, BLUE), (_pb, _pbm, _pbs, GREY))):
+    axb.plot(vals, [i] * len(vals), "o", color=GREY, ms=2.6, markeredgewidth=0,
+             alpha=0.65, zorder=2)
+    axb.errorbar([mean], [i], xerr=[sdv], fmt="o", color=colour, ms=4.0,
+                 ecolor=colour, zorder=3, **ERRBAR)
+axb.set_yticks([0, 1])
+axb.set_yticklabels(["from scratch", "PubMedBERT"], fontsize=8.0)
+for lab, c in zip(axb.get_yticklabels(), (INK, MUTE)):
+    lab.set_color(c)
+# Bounds and ticks reach past the outermost seed (0.7578) and the widest
+# cap, so nothing in the panel sits off the end of its own scale.
+axb.set_ylim(-0.75, 1.75); axb.set_xlim(0.7455, 0.8045)
+axb.set_xticks([0.75, 0.76, 0.77, 0.78, 0.79, 0.80])
+axb.set_xlabel("AUROC, in-hospital mortality task")
+axb.text(0.8040, 1.66, f"gap {_gap:+.4f}", fontsize=8.0, color=MUTE,
+         ha="right", va="top")
+axb.tick_params(labelsize=8)
+lean(axb, xbounds=(0.75, 0.80))
+axb.spines["left"].set_visible(False)
+axb.tick_params(axis="y", length=0)
+
+for a_, tag in ((ax, "(a)"), (axb, "(b)")):
+    p = a_.get_position()
+    fig.text(0.004, p.y1 + 0.008, tag, ha="left", va="bottom",
+             fontsize=8.0, style="italic", color=INK)
 fig.savefig(HERE/"fig-scaling.pdf"); plt.close(fig); print("wrote fig-scaling.pdf")
 
 # ---------- F7: forest of every headline claim -------------------------------
 iv = json.loads((ROOT/"results/accord/stats/intervals.json").read_text())["E2_mcc_intervals"]
-rows = []
-for k, v in iv.items():
-    rows.append((f"MCC, {k.replace('_',' ')}", v["mcc"], v["ci95"][0], v["ci95"][1]))
+# The register keys are turned into readable names here. Presentation only: the
+# same four systems, spelled the way the rest of the thesis spells them.
+NICE = {"gpt4o_zeroshot": "GPT-4o zero-shot", "gpt4o_fewshot": "GPT-4o few-shot",
+        "accord_binary_at_0.5_253core": "ACCORD at 0.5",
+        "llama_baseline": "Llama 3 8B"}
+# Eight estimates in three families. They were previously eight rows on one
+# sorted position axis, which put a Matthews correlation, an AUROC and an
+# accuracy gap in a single ranking and invited the reader to compare the length
+# of one against the length of another. They do not share a unit and cannot be
+# compared that way. Grouping them, naming the unit once per group and ruling a
+# hairline between the groups says what the axis actually supports: within a
+# family the rows are comparable, across families only the position against
+# zero is.
+fam_mcc = [((NICE.get(k, k) + f" ({v['n']} pairs)") if k.startswith("accord")
+            else NICE.get(k, k), v["mcc"], v["ci95"][0], v["ci95"][1])
+           for k, v in iv.items()]
 # Read, not typed: this row used to carry 0.5145 / [0.321, 0.703] as literals,
 # which are the same numbers rounded.
 _dec = json.loads((ROOT/"results/accord/decontam/corrected_gold_metrics.json").read_text())["aggregate"]
-rows.append(("AUROC minus 0.5 (decontaminated)", _dec["ensemble_auroc"]-0.5,
-             _dec["ensemble_ci95"][0]-0.5, _dec["ensemble_ci95"][1]-0.5))
 # Defect-free stratum, decontaminated. This row used to carry the E3 numbers from
 # stats/intervals.json (0.5078, CI [0.2217, 0.7615]), which are computed on the
 # contaminated released scores, so it was not comparable with the row above it.
 _ctrl = json.loads((ROOT/"results/accord/control/final_report.json").read_text())
 _df34 = _ctrl["ensemble_mean_of_seed_scores"]["gold_defect_free_rule34"]
-rows.append(("AUROC minus 0.5 (defect-free stratum)", _df34["auroc"]-0.5,
-             _df34["bootstrap"]["ci95"][0]-0.5, _df34["bootstrap"]["ci95"][1]-0.5))
+fam_auroc = [
+    ("Decontaminated ensemble", _dec["ensemble_auroc"]-0.5,
+     _dec["ensemble_ci95"][0]-0.5, _dec["ensemble_ci95"][1]-0.5),
+    ("Defect-free stratum", _df34["auroc"]-0.5,
+     _df34["bootstrap"]["ci95"][0]-0.5, _df34["bootstrap"]["ci95"][1]-0.5),
+]
 _pb2 = [json.loads((ROOT/f"local_only/task_runs/concat_s{s}.json").read_text())["auroc"] for s in (1,2,3)]
 _ou2 = [json.loads(pathlib.Path(f).read_text())["auroc"]
         for f in sorted(glob.glob(str(ROOT/"local_only/task_runs/ours_current_s*.json")))]
 _g = st.mean(_pb2) - st.mean(_ou2)
 _se = math.sqrt(st.stdev(_pb2)**2/3 + st.stdev(_ou2)**2/3)
-rows.append(("C37 gap, PubMedBERT minus scratch", _g, _g-1.96*_se, _g+1.96*_se))
 _sc = json.loads((ROOT/"results/accord/scaling/scaling_results.json").read_text())
 _p100 = [x["accuracy"] for x in _sc if x["tag"]=="scratch_100M"]
 _pbert = [x["accuracy"] for x in _sc if x["tag"]=="pretrained_bert"]
 _g44 = st.mean(_pbert) - st.mean(_p100)
 _se44 = math.sqrt(st.stdev(_pbert)**2/3 + st.stdev(_p100)**2/3)
-rows.append(("C44 gap at 100M (AG News)", _g44, _g44-1.96*_se44, _g44+1.96*_se44))
-rows.sort(key=lambda r: r[1])
+fam_gap = [
+    ("In-hospital mortality, AUROC", _g, _g-1.96*_se, _g+1.96*_se),
+    ("AG News at 100M, accuracy", _g44, _g44-1.96*_se44, _g44+1.96*_se44),
+]
+# Families run down the page in the order the thesis argues them; within a
+# family the rows are sorted, because there the position axis does rank.
+FAMILIES = [("Matthews correlation", fam_mcc),
+            ("AUROC above chance", fam_auroc),
+            ("Pretraining gap, pretrained minus from scratch", fam_gap)]
+for _, rs in FAMILIES:
+    rs.sort(key=lambda r: r[1])
 
-fig, ax = plt.subplots(figsize=(6.8, 3.7))
-fig.subplots_adjust(left=0.315, right=0.985, top=0.985, bottom=0.135)
-for i, (lab, e, lo, hi) in enumerate(rows):
-    crosses = lo <= 0 <= hi
-    c = DEAD if crosses else ACCENT
-    ax.hlines(i, lo, hi, color=c, lw=1.6)
-    ax.plot(e, i, "o", color=c, ms=4.8, markeredgecolor="w", markeredgewidth=0.6)
-ax.axvline(0, color=MUTED, lw=0.9, ls="--", zorder=0)
-ax.set_yticks(range(len(rows))); ax.set_yticklabels([r[0] for r in rows], fontsize=8.0)
-ax.set_xlabel("effect (units differ by row; zero = no effect)")
-# One extra row of headroom at the bottom holds the key, so it no longer sits on
-# the lowest interval.
-ax.set_ylim(-1.15, len(rows) - 0.5)
+# Lay the rows out bottom up: one unit per row, the family heading half a unit
+# above the family's top row, and the hairline in the band above that.
+placed, seps, heads, y = [], [], [], 0.0
+for fi, (fam, rs) in enumerate(reversed(FAMILIES)):
+    for r in rs:
+        placed.append((y, r)); y += 1.0
+    y -= 1.0
+    heads.append((y + 0.52, fam))
+    y += 1.30
+    if fi < len(FAMILIES) - 1:
+        seps.append(y)
+        y += 0.72
+rows = [r for _, r in placed]
+y_top_row = placed[-1][0]
+y_ceiling = y_top_row + 1.00
+
+fig, ax = plt.subplots(figsize=(FIGW, 3.00))
+canvas(fig)
+fig.subplots_adjust(left=0.400, right=0.985, top=0.985, bottom=0.140)
+# One colour for every estimate. Whether an interval contains zero is already
+# drawn, by whether it crosses the line; saying it again in grey said one fact
+# twice and needed a key to decode. All blue: this figure's claim is that the
+# whole column sits on the line, which no single mark carries, so nothing here
+# takes the accent.
+for yy, (lab, e, lo, hi) in placed:
+    ax.errorbar([e], [yy], xerr=[[e-lo], [hi-e]], fmt="o", color=BLUE, **ERRBAR, **DOT)
+ax.axvline(0, **CHANCE_STYLE)
+gt = ax.get_yaxis_transform()
+for ys in seps:
+    ax.plot([-0.66, 1.0], [ys, ys], transform=gt, color=GRID, lw=0.6,
+            clip_on=False, zorder=0)
+for yh, fam in heads:
+    ax.text(-0.65, yh, fam, transform=gt, ha="left", va="bottom", fontsize=8.0,
+            color=MUTE, style="italic", clip_on=False)
+ax.set_yticks([yy for yy, _ in placed])
+ax.set_yticklabels([r[0] for r in rows], fontsize=8.0, linespacing=1.25)
+ax.set_xlabel("Effect, 95% interval (unit named per family)")
+ax.set_xlim(-0.36, 0.46)
+ax.set_xticks([-0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4])
+ax.set_ylim(-0.60, y_ceiling)
 n_cross = sum(1 for r in rows if r[2] <= 0 <= r[3])
 if SHOW_INFIGURE_TITLES: ax.set_title(f"{n_cross} of {len(rows)} headline estimates cross zero",
              loc="left", fontsize=9.5, pad=8)
-ax.text(0.995, 0.015, "grey: interval contains zero", transform=ax.transAxes,
-        ha="right", va="bottom", fontsize=8.0, color=DEAD)
+ax.text(0, y_top_row + 0.46, "no effect", fontsize=8.0, color=MUTE, ha="center",
+        va="bottom")
+# The measured axis keeps its spine, extended past the widest cap so no
+# interval runs off the end of the scale it is read on. The categorical axis
+# has none: a rule beside eight row labels reads as a bracket over all eight.
+lean(ax, xbounds=(-0.3, 0.4))
+ax.spines["left"].set_visible(False)
+ax.tick_params(axis="y", length=0)
 fig.savefig(HERE/"fig-forest.pdf"); plt.close(fig)
 print(f"wrote fig-forest.pdf ({n_cross}/{len(rows)} cross zero)")
 
@@ -196,27 +334,29 @@ mde = hanley_mde(n_pos, n_neg, alpha=alpha_study, power=power_study)
 # used to be plotted at the stored 0.7382, which this curve does not pass through.
 mde_study = hanley_mde([n_pos_study], [n_neg_study], alpha=alpha_study, power=power_study)[0]
 mde_mort = hanley_mde([mort_n_pos], [mort_n_neg], alpha=alpha_study, power=power_study)[0]
-fig, ax = plt.subplots(figsize=(6.4, 3.7))
-fig.subplots_adjust(left=0.115, right=0.985, top=0.975, bottom=0.145)
-ax.plot(n_pos, np.clip(mde, 0.5, 1.0), color=ACCENT, lw=1.6, zorder=3)
-ax.fill_between(n_pos, np.clip(mde, .5, 1), 1.0, color=LIGHT, alpha=.45, lw=0, zorder=1)
-ax.text(760, 0.93, "detectable", fontsize=8.0, color=MUTED)
-ax.text(9, 0.56, "not detectable\nat this sample size", fontsize=8.0, color=MUTED,
-        linespacing=1.3)
-# Round marker for the study, square for the comparator: in a greyscale print the
-# scarlet and the teal are close in luminance, so shape carries the distinction.
-ax.plot([n_pos_study], [mde_study], "o", color=ALERT, ms=6.5, zorder=5)
-ax.annotate(f"this study\n{n_pos_study} positives, MDE {mde_study:.3f}",
-            (n_pos_study, mde_study), xytext=(26, 0.865),
-            fontsize=8.0, color=ALERT, linespacing=1.3,
-            arrowprops=dict(arrowstyle="-", lw=.6, color=ALERT))
-ax.plot([mort_n_pos], [mde_mort], "s", color=MUTED, ms=5.5, zorder=5)
+fig, ax = plt.subplots(figsize=(FIGW, 2.75))
+canvas(fig)
+fig.subplots_adjust(left=0.135, right=0.985, top=0.965, bottom=0.165)
+ax.fill_between(n_pos, np.clip(mde, .5, 1), 1.0, color=PALE, alpha=.55, lw=0, zorder=1)
+ax.plot(n_pos, np.clip(mde, 0.5, 1.0), color=BLUE, lw=1.3, zorder=3)
+ax.text(2600, 0.955, "detectable", fontsize=8.0, color=MUTE, ha="right")
+ax.text(6.4, 0.545, "not detectable at this sample size", fontsize=8.0, color=MUTE)
+# The study is the one accented mark. The comparator recedes to grey, and the
+# two also differ in shape, so a greyscale print keeps them apart.
+ax.plot([mort_n_pos], [mde_mort], "s", color=GREY, ms=4.2, zorder=5)
 ax.annotate(f"mortality task\n{mort_n_pos} test positives", (mort_n_pos, mde_mort),
-            xytext=(150, 0.605), fontsize=8.0, color=MUTED, linespacing=1.3,
-            arrowprops=dict(arrowstyle="-", lw=.6, color=MUTED))
-ax.set_xscale("log"); ax.set_xlabel("positive examples in the evaluation set (log scale)")
-ax.set_ylabel(f"minimum detectable AUROC ({power_study*100:.0f}% power)")
+            xytext=(105, 0.615), fontsize=8.0, color=MUTE, linespacing=1.3,
+            arrowprops=dict(arrowstyle="-", lw=.6, color=GREY))
+ax.plot([n_pos_study], [mde_study], "o", color=SCARLET, ms=5.0, zorder=5)
+ax.annotate(f"this study\n{n_pos_study} positives, MDE {mde_study:.3f}",
+            (n_pos_study, mde_study), xytext=(22, 0.855),
+            fontsize=8.0, color=SCARLET, linespacing=1.3,
+            arrowprops=dict(arrowstyle="-", lw=.6, color=SCARLET))
+ax.set_xscale("log"); ax.set_xlabel("Positive examples in the evaluation set (log scale)")
+ax.set_ylabel(f"Minimum detectable AUROC\n({power_study*100:.0f}% power)", linespacing=1.3)
 ax.set_ylim(0.5, 1.0); ax.set_xlim(5, 3000)
+ax.set_yticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+lean(ax, ybounds=(0.5, 1.0))
 if SHOW_INFIGURE_TITLES: ax.set_title("What each evaluation in this thesis could have seen",
              loc="left", fontsize=9.5, pad=8)
 fig.savefig(HERE/"fig-power.pdf"); plt.close(fig); print("wrote fig-power.pdf")

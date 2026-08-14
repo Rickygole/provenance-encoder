@@ -158,14 +158,14 @@ support.
 
 \includegraphics[width=0.9\linewidth]{figures/fig-pipeline-status.pdf}
 \caption[The pipeline stage by stage]{The pipeline as run, stage by stage, with the verdict each stage
-received and the diagnostic that produced it. Two verdicts are categorical
-rather than numeric, because no committed result file carries the underlying
-values. The weak-supervision badge's multiplier is the positive rate on the
-$1{,}679$-row weak-labelled candidate pool from the calibration join (before
-subject-disjoint exclusion narrows it to the $1{,}183$-row training pool of
-Chapter~\ref{ch:method}) over the pharmacist's base rate on the $299$-pair
-gold set; Figure~\ref{fig:intro-headline} reports a different, gold-set-only
-multiplier on the same rows, not the same ratio.}
+received and the diagnostic that produced it. Two verdicts, the medication
+extraction stage and the detector training stage, are categorical rather than
+numeric, because no committed result file carries the underlying values, and
+neither is re-stated here as a number. The weak-supervision verdict's
+multiplier is the weak labeller's positive rate on the $299$-pair gold set over
+the pharmacist's base rate on those same $299$ pairs. Both terms are counted on
+the same rows, and it is the multiplier
+Figure~\ref{fig:intro-headline} reports.}
 \label{fig:pipeline-status}
 \end{figure}
 
@@ -244,13 +244,15 @@ to give is an ordering over noise.
 \begin{figure}[!htbp]
 
 \includegraphics[width=0.9\linewidth]{figures/fig-intro-headline.pdf}
-\caption[Weak-labeller marginal and Matthews correlation intervals]{The marginal of the weak labeller against the pharmacist's measured
-base rate on the same pairs (left), and Matthews correlation with $95\%$
-bootstrap intervals for four systems on the $253$ non-ambiguous pairs (right).
-The top bar on the left is the positive rate on the full $1{,}679$-row
-weak-labelled pool, not the $1{,}183$-row training pool; the bracketed
-multiplier is a different, gold-set-only ratio from
-Figure~\ref{fig:pipeline-status}'s badge. The right panel's ACCORD bar is
+\caption[Weak-labeller marginal and Matthews correlation intervals]{Panel (a): the marginal of the weak labeller against the pharmacist's
+measured base rate on the same pairs. Panel (b): Matthews correlation with
+$95\%$ bootstrap intervals for four systems on the $253$ non-ambiguous pairs,
+drawn as points with their intervals rather than as bars, because every one of
+them is an estimate that contains zero. The top bar in panel (a) is the positive
+rate on the full $1{,}679$-row weak-labelled pool, not the $1{,}183$-row
+training pool; the bracketed multiplier compares only the two bars measured on
+the gold set, and is the same ratio
+Figure~\ref{fig:pipeline-status}'s verdict carries. The ACCORD row in panel (b) is
 the contaminated released run flagged in Chapter~\ref{ch:results}'s
 per-pair calls table.}
 \label{fig:intro-headline}
