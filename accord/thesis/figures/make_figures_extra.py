@@ -22,13 +22,16 @@ Panel (a) plots the DISPLACEMENT, final minus the value the parameter was
 initialised to, against a line at zero. That subtraction is arithmetic on two
 committed numbers, and it makes the near-zero geometry itself the claim: the
 reader sees that the parameter did not move rather than being asked to compare
-a blue dot with a grey tick a pixel away. Panel (b) carries no intervals
-because none exist to carry, and says so by being grey.
+a coloured dot with a grey tick a pixel away. Panel (b) carries no intervals
+because none exist to carry, and says so by drawing its three cohorts in
+lightened hues: a colour each, so they read as three different cohorts, at a
+strength that cannot be mistaken for the two dots in (a) that do carry a spread.
 """
 import json, pathlib
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from style import (setup, FIGW, INK, BLUE, PALE, SCARLET, MUTE, GREY,
+                   BLUE2, GREEN, ORANGE, PURPLE, SKY, SERIES_BARE,
                    ACCENT, MUTED, LIGHT, DEAD, ALERT,
                    CHANCE_STYLE, ERRBAR, DOT, canvas, lean)
 
@@ -110,10 +113,15 @@ fig.subplots_adjust(left=0.150, right=0.985, top=0.815, bottom=0.230, wspace=0.4
 # which put the whole claim in a two-pixel gap the reader had to hunt for and
 # needed a prose key to decode; the initialisation is now in the row label,
 # where every other constant in this set lives.
-for i, (init, mean, sdv, sds) in enumerate(((0.5, aN, sN, seed_N), (1.0, aD, sD, seed_D))):
+#
+# One hue per parameter. They are two different parameters, initialised to two
+# different constants, and the row labels carry the constants; in one colour
+# the panel read as one quantity measured twice.
+for i, (init, mean, sdv, sds, hue) in enumerate(
+        ((0.5, aN, sN, seed_N, ORANGE), (1.0, aD, sD, seed_D, BLUE2))):
     a.plot([s - init for s in sds], [i] * len(sds), "o", color=GREY, ms=2.6,
            markeredgewidth=0, alpha=0.65, zorder=2)
-    a.errorbar([mean - init], [i], xerr=[sdv], fmt="o", color=BLUE, zorder=3,
+    a.errorbar([mean - init], [i], xerr=[sdv], fmt="o", color=hue, zorder=3,
                **ERRBAR, **DOT)
     # Annotated in the unit the axis is ticked in. It used to read as a
     # percentage of the initialisation while the ticks read as absolute
@@ -137,13 +145,19 @@ lean(a, xbounds=(-0.05, 0.05))
 a.spines["left"].set_visible(False)
 a.tick_params(axis="y", length=0)
 
-# (b) Three F1 values. No interval for any of them is committed anywhere: the
-# per-pair scores these would be resampled from are not released, so there is
-# no honest interval to draw and none is invented. They are therefore drawn as
-# what they are, bare underpowered point estimates, in grey and labelled in
-# grey's own text tone.
+# (b) Three F1 values on three cohorts. No interval for any of them is
+# committed anywhere: the per-pair scores these would be resampled from are not
+# released, so there is no honest interval to draw and none is invented. They
+# are therefore drawn as what they are, bare underpowered point estimates: one
+# hue each, so the three cohorts are three things, but every hue lightened
+# toward the paper so that the bareness is in the mark and not only in the
+# caption. Nothing on this panel may look as solid as the dots in (a), which
+# have a spread behind them. The labels stay in the annotation grey, which no
+# lightened hue could carry at 8 point anyway.
 ys = [2, 1, 0]
-b.plot(f1, ys, "o", color=GREY, linestyle="none", **DOT)
+bare = [SERIES_BARE[BLUE2], SERIES_BARE[GREEN], SERIES_BARE[PURPLE]]
+for y, v, c in zip(ys, f1, bare):
+    b.plot([v], [y], "o", color=c, linestyle="none", **DOT)
 for y, v in zip(ys, f1):
     b.text(v + 0.055, y, f"{v:.2f}", fontsize=8.0, color=MUTE, va="center", ha="left")
 b.set_yticks(ys)

@@ -10,7 +10,9 @@ The visual system, applied to all fourteen bound figures:
               Axis labels 9pt sentence case, ticks and annotations 8pt,
               nothing below 8pt, and no bold anywhere. Multi-panel figures
               carry italic (a), (b) labels outside the axes.
-  Colour      One primary data colour, one neutral fill, one accent.
+  Colour      A five-hue categorical series palette for the things being
+              compared, one reserved accent for the claim, and a quiet
+              neutral structure behind both. See SERIES below.
   Estimates   A dot with a thin interval and small caps, never a bar.
   Bars        Counts and rates of a whole only. No outlines, 0.55 of the slot.
   Legends     None at all. Curves, bands and series are labelled at their own
@@ -39,12 +41,13 @@ more than one figure:
               carries what this figure is asserting. It does not mark an
               entity. ACCORD is not scarlet because it is ours; it is scarlet
               on fig-met-exchange because the whole figure is about where
-              ACCORD sits against the exchange rates, and it is blue on
-              fig-intro-headline (b) and on fig-forest because those two
-              figures claim that everything is at chance, which no single mark
-              carries. A figure whose claim is a shape rather than a point
-              carries no scarlet at all, and that is the correct outcome, not
-              a missing accent.
+              ACCORD sits against the exchange rates, and it takes its series
+              hue on fig-intro-headline (b) and on fig-forest because those
+              two figures claim that everything is at chance, which no single
+              mark carries. A figure whose claim is a shape rather than a
+              point carries no scarlet at all, and that is the correct
+              outcome, not a missing accent. Scarlet is never a series colour
+              and no series colour is ever asked to be the claim.
 
   Intervals   On a bar, the interval is cased: a wider white stroke under the
               bar-coloured interval, so the half that falls inside the fill
@@ -54,14 +57,17 @@ more than one figure:
               this set's first rule exists to prevent. This is the treatment
               for every bar that carries an interval.
 
-  Grey        Grey does two jobs of de-emphasis and they are not the same job.
-              It is the de-emphasised comparator, a mark with an interval that
-              the figure measures something else against (the pretrained arm on
-              fig-scaling); and it is the bare estimate with no committed
-              interval data at all, drawn without one and called underpowered
-              in the caption (the transfer scores on fig-falsification). The
-              first has an interval and recedes, the second has none and says
-              so, and in both cases the label goes in MUTE.
+  De-emphasis Two jobs that look alike and are not the same job. A
+              de-emphasised COMPARATOR is a mark with an interval that the
+              figure measures something else against (the pretrained arm on
+              fig-scaling): it keeps a full series hue, because it is a
+              measured arm, and it recedes by being the reference the other
+              arm is read against. A BARE ESTIMATE has no committed interval
+              data at all, is drawn without one, and is called underpowered in
+              the caption (the transfer scores on fig-falsification): it takes
+              its series hue LIGHTENED (see SERIES_BARE), so that the bareness
+              is visible in the mark itself and not only in the caption. In
+              both cases the label goes in MUTE.
 
   Intervals   Drawn only from committed data: a confidence interval already in
               a result file, or a closed-form Wilson interval computed from
@@ -84,49 +90,130 @@ import matplotlib.patches as mpatches
 FIGW = 5.36
 PRINT_W = 5.40
 
-# Palette. Six tones, each with one job, chosen against three hard constraints.
+# ---------------------------------------------------------------------------
+# STRUCTURE. Unchanged. These five tones draw everything that is not a
+# measurement: type, rules, reference lines, secondary bands, annotation.
 #
-# 1. Greyscale, using 0.299R + 0.587G + 0.114B out of 255:
+#   Greyscale lightness, 0.299R + 0.587G + 0.114B out of 255:
 #       INK      #1A1A1A  near-black       26   text, spines, ticks
-#       BLUE     #0A2795  royal blue       43   the primary data colour
-#       SCARLET  #D81E05  scarlet          83   the one accent, see below
-#       TEAL     #00817B  deep teal        90   retained, no longer drawn
 #       MUTE     #5B5B5B  grey             91   secondary annotation text
-#       GREY     #8A94A6  cool grey       147   de-emphasised data
-#       PALE     #C9D2E3  pale blue-grey  209   secondary bars and bands
+#       GREY     #8A94A6  cool grey       147   reference lines, seed dots
+#       PALE     #C9D2E3  pale blue-grey  209   secondary bands
 #       GRID     #E8E8E8  hairline grey   232   optional value grid
-#    Where two tones encode a data distinction they are far apart in print:
-#    BLUE against PALE is 166, BLUE against GREY is 104, BLUE against TEAL is
-#    47, SCARLET against BLUE is 40. SCARLET, TEAL and MUTE sit within 9 of one
-#    another, and never carry a distinction against each other: GREY draws every
-#    reference line, MUTE only secondary text, and SCARLET appears once per
-#    figure, on an element that is also distinguished by position or shape.
 #
-# 2. Colour-blind safety. Every data distinction is blue against a pale
-#    blue-grey or against a neutral grey, which is a lightness step no form of
-#    dichromacy removes. Red is never set against green, and never against
-#    another chromatic tone that carries meaning on the same canvas.
-#
-# 3. Text contrast on white: INK 17.4:1, BLUE 12.1:1, MUTE 6.8:1,
-#    SCARLET 5.1:1, TEAL 4.7:1. All clear 4.5:1 at 8 point. GREY is 3.1:1 and
-#    is therefore never used for text, only for de-emphasised lines and markers
-#    that are also labelled in MUTE.
-#
-# SCARLET is reserved. It marks exactly one thing per figure: the element that
-# is this study, or the element that failed. There is never a second red mark
-# on the same canvas.
+# Text contrast on white: INK 17.4:1, MUTE 6.8:1. GREY is 3.1:1 and is
+# therefore never used for text, only for reference lines and de-emphasised
+# markers that are also labelled in MUTE.
 INK = "#1A1A1A"
-BLUE = "#0A2795"
 PALE = "#C9D2E3"
-TEAL = "#00817B"
-SCARLET = "#D81E05"
 MUTE = "#5B5B5B"
 GREY = "#8A94A6"
 GRID = "#E8E8E8"
 
-# Historical names, kept so that nothing importing this module breaks. The
-# vivid amber LIGHT used to be is retired: it is now the pale blue-grey.
-ACCENT, MUTED, LIGHT, DEAD, ALERT = BLUE, TEAL, PALE, GREY, SCARLET
+# ---------------------------------------------------------------------------
+# CLAIM. Reserved, and reserved harder than before. SCARLET marks exactly one
+# element per figure: the element that is this study, or the element that
+# failed. It is never a series colour, and no series colour is ever asked to
+# carry a claim. There is never a second red mark on a canvas.
+SCARLET = "#D81E05"
+
+# ---------------------------------------------------------------------------
+# SERIES. Five hues, from the Okabe-Ito colour-blind-safe set, used wherever a
+# figure compares distinct THINGS. Before this revision the whole set was drawn
+# in a single royal blue, which is quiet but says nothing: four systems on one
+# canvas looked like one system measured four times.
+#
+#   Greyscale lightness and contrast on white:
+#       BLUE2    #0072B2  blue             87   5.19:1
+#       GREEN    #009E73  bluish green    106   3.42:1
+#       PURPLE   #CC79A7  reddish purple  151   3.06:1
+#       SKY      #56B4E9  sky blue        158   2.31:1
+#       ORANGE   #E69F00  orange          162   2.25:1
+#
+# Okabe-Ito's vermillion is not used: it would sit next to the reserved
+# scarlet. Its yellow is not used: it is illegible on white at hairline weight.
+# The five that remain are the five below.
+BLUE2 = "#0072B2"
+GREEN = "#009E73"
+ORANGE = "#E69F00"
+PURPLE = "#CC79A7"
+SKY = "#56B4E9"
+SERIES = (BLUE2, GREEN, ORANGE, PURPLE, SKY)
+
+# The entity-to-hue map. An entity that appears on more than one figure is the
+# same hue on every one of them, so that a reader who learns the map once on
+# the graphical abstract carries it through the whole document.
+#
+#   BLUE2   GPT-4o zero-shot.        Also qwen3:8b in the prevalence sweep and
+#                                    the from-scratch arm on fig-scaling; no
+#                                    GPT-4o series appears on either canvas.
+#   SKY     GPT-4o few-shot.         The same model as BLUE2 under a different
+#                                    prompt, so it is deliberately the same hue
+#                                    at a lighter value rather than a new hue.
+#   ORANGE  ACCORD.                  Except on fig-met-exchange, where ACCORD
+#                                    is the claim element and is therefore
+#                                    scarlet; it takes ORANGE everywhere else.
+#   PURPLE  Llama 3 8B.              Which is also the production weak
+#                                    labeller (Chapter 3), so the weak-labeller
+#                                    bars on fig-intro-headline (a) and the
+#                                    llama3:8b column on fig-prevalence-response
+#                                    are the same hue as the Llama 3 8B
+#                                    evaluation baseline. Same model, three
+#                                    roles; the row labels say which role.
+#   GREEN   Pharmacist truth.        The human reference standard, and by
+#                                    extension the arm a figure measures
+#                                    against: the pretrained arm on fig-scaling
+#                                    and the defect-free stratum on
+#                                    fig-disc-strata.
+ENTITY_HUE = {
+    "gpt4o_zeroshot": BLUE2,
+    "gpt4o_fewshot": SKY,
+    "accord": ORANGE,
+    "llama3_8b": PURPLE,
+    "weak_labeller": PURPLE,        # the production weak labeller is Llama 3 8B
+    "pharmacist_truth": GREEN,
+    "pretrained_reference": GREEN,
+}
+
+# Text tones. This set labels a series in the series' own colour rather than in
+# a legend, and 8 point type on white must clear 4.5:1. Three of the five hues
+# do not, so each one has a text tone: the same hue, darkened until it clears.
+# The MARK always keeps the full palette value; only type moves. BLUE2 clears
+# at 5.19:1 and is its own text tone.
+BLUE2_T = "#0072B2"     # 5.19:1
+GREEN_T = "#008662"     # 4.58:1
+ORANGE_T = "#9D6C00"    # 4.59:1
+PURPLE_T = "#A36186"    # 4.55:1
+SKY_T = "#3B7CA1"       # 4.58:1
+TEXT_TONE = {BLUE2: BLUE2_T, GREEN: GREEN_T, ORANGE: ORANGE_T,
+             PURPLE: PURPLE_T, SKY: SKY_T, SCARLET: SCARLET, GREY: MUTE,
+             INK: INK, MUTE: MUTE}
+
+# Bare estimates: a series hue lightened toward the paper until it prints at a
+# greyscale weight of 160 of 255, whichever hue it started from. Used only for
+# a point estimate with no committed interval. Two things follow from fixing
+# the weight rather than the lightening fraction. The mark is lighter than the
+# GREY this set draws reference lines in (147), so a bare estimate reads as
+# weaker than anything on the canvas that carries an interval; and three bare
+# estimates side by side carry equal weight, so hue distinguishes them without
+# any one of them looking like the important one. See the de-emphasis note.
+SERIES_BARE = {BLUE2: "#6FAFD3", GREEN: "#5DC1A6", ORANGE: "#E69F00",
+               PURPLE: "#D085AF", SKY: "#59B6E9"}
+
+# Greyscale survivability. In print, PURPLE 151, SKY 158 and ORANGE 162 are
+# within 11 of one another and of GREY 147, so hue alone does not survive a
+# black-and-white printer. It is not asked to: on every figure in this set that
+# uses more than one series hue, the series are ALSO separated by a direct
+# label on the mark (a row label, a column heading, a label at the line) and,
+# where the grammar allows a marker other than a dot, by marker shape as well.
+# Hue is the fast read; the label is the guarantee.
+
+# Historical names, kept so that nothing importing this module breaks. BLUE was
+# the single data colour of the previous system and now resolves to the first
+# series hue, so any figure not yet ported still draws something sensible.
+BLUE = BLUE2
+TEAL = GREEN
+ACCENT, MUTED, LIGHT, DEAD, ALERT = BLUE2, GREEN, PALE, GREY, SCARLET
 
 
 def setup():

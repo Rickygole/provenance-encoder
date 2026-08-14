@@ -11,6 +11,8 @@ labelled at the line, and one scarlet element per canvas."""
 import json, pathlib, glob, math, statistics as st
 import numpy as np
 from style import (setup, FIGW, INK, BLUE, PALE, TEAL, SCARLET, MUTE, GREY, GRID,
+                   BLUE2, GREEN, ORANGE, PURPLE, SKY,
+                   BLUE2_T, GREEN_T, ORANGE_T, PURPLE_T, SKY_T,
                    ACCENT, MUTED, LIGHT, DEAD, ALERT,
                    CHANCE_STYLE, ERRBAR, DOT, canvas, lean, wilson_ci)
 setup()
@@ -39,6 +41,12 @@ clinical_x = json.loads((ROOT/"results/accord/diag/step2_signal_check.json").rea
 # A small-multiple grid: the row and column headings identify every panel, so
 # panel letters would be a third naming of the same six cells.
 PL = {"A_bare": "bare prompt", "B_baserate_abstain": "base rate stated,\nabstention allowed"}
+# One hue per labeller, held down both rows of its column, so a column reads as
+# one model under two prompts rather than as six unrelated panels. llama3:8b is
+# the thesis's own production weak labeller, so it carries the same hue here
+# that the weak-labeller bars and the Llama 3 8B baseline carry elsewhere.
+MODEL_HUE = {"llama3:8b": PURPLE, "granite3.3:8b": GREEN, "qwen3:8b": BLUE2}
+MODEL_HUE_T = {"llama3:8b": PURPLE_T, "granite3.3:8b": GREEN_T, "qwen3:8b": BLUE2_T}
 fig, axes = plt.subplots(2, 3, figsize=(FIGW, 2.60), sharex=True, sharey=True)
 canvas(fig)
 fig.subplots_adjust(left=0.185, right=0.995, top=0.885, bottom=0.175,
@@ -59,11 +67,12 @@ for r, pr in enumerate(prompts):
             # wobble as a response to prevalence.
             a, b = wilson_ci(e["n_contradiction"], e["n_decided"])
             lo.append(a); hi.append(b)
+        hue = MODEL_HUE[m]
         ax.plot([0, .30], [0, .30], **CHANCE_STYLE)
         ax.errorbar(xs, ys, yerr=[[y - a for y, a in zip(ys, lo)],
                                   [b - y for y, b in zip(ys, hi)]],
-                    fmt="-o", color=BLUE, ms=3.0, lw=1.1, zorder=3,
-                    markeredgewidth=0, ecolor=BLUE, elinewidth=0.8,
+                    fmt="-o", color=hue, ms=3.0, lw=1.1, zorder=3,
+                    markeredgewidth=0, ecolor=hue, elinewidth=0.8,
                     capthick=0.8, capsize=2.0)
         # The clinical operating point is the claim this whole grid is drawn
         # against, so it is the one accented mark, and it appears once. Six
@@ -82,8 +91,13 @@ for r, pr in enumerate(prompts):
         # grid hangs off the end of the scale it is measured on.
         ax.set_xlim(0, .32); ax.set_ylim(0, .99)
         ax.set_xticks([0, 0.1, 0.2, 0.3]); ax.set_yticks([0, 0.3, 0.6, 0.9])
-        # Panel heading, not a figure title: it names which labeller this column is.
-        if r == 0: ax.set_title(m, fontsize=8.0, pad=4)
+        # Panel heading, not a figure title: it names which labeller this column
+        # is, and it is set in that labeller's own hue, darkened to the value 8
+        # point type needs on white. That heading is also what carries the
+        # column apart in a greyscale print, where three of these hues are the
+        # same grey.
+        if r == 0:
+            ax.set_title(m, fontsize=8.0, pad=4, color=MODEL_HUE_T[m])
         if c == 0: ax.set_ylabel(PL[pr], fontsize=8.0, linespacing=1.3)
         ax.tick_params(labelsize=8)
         lean(ax, xbounds=(0, 0.30), ybounds=(0, 0.9))
@@ -120,12 +134,16 @@ fig, (ax, axb) = plt.subplots(2, 1, figsize=(FIGW, 3.34),
                               gridspec_kw={"height_ratios": [2.00, 1.0]})
 canvas(fig)
 fig.subplots_adjust(left=0.175, right=0.985, top=0.965, bottom=0.115, hspace=0.66)
-# The pretrained arm is the reference this figure measures against, so it
-# recedes: a pale seed band, a grey line, and its label at the line.
-ax.axhspan(pm-ps, pm+ps, color=PALE, alpha=0.7, linewidth=0, zorder=1)
-ax.axhline(pm, color=GREY, lw=0.6, zorder=2)
+# Two arms, two hues. The pretrained arm is the reference this figure measures
+# against, but it is a measured arm with three seeds and a spread of its own,
+# not a chance line, so it is no longer drawn in the grey this set reserves for
+# structure: it takes the hue every other reference-standard arm in the set
+# takes, and its band, its line and its label are all that one hue, because an
+# interval belongs to the mark it came from.
+ax.axhspan(pm-ps, pm+ps, color=GREEN, alpha=0.22, linewidth=0, zorder=1)
+ax.axhline(pm, color=GREEN, lw=0.8, zorder=2)
 ax.text(1.62e8, pm+0.0030, f"pretrained BERT {pm:.4f} ± {ps:.4f} ({pp/1e6:.0f}M)",
-        fontsize=8.0, color=MUTE, va="bottom", ha="right")
+        fontsize=8.0, color=GREEN_T, va="bottom", ha="right")
 # Every seed that went into each mean is drawn behind it, on both panels, in
 # the same small grey dot: the caps here are the seed standard deviation of
 # three committed runs, not an analytic bound, so the runs themselves are on
@@ -134,11 +152,11 @@ ax.text(1.62e8, pm+0.0030, f"pretrained BERT {pm:.4f} ± {ps:.4f} ({pp/1e6:.0f}M
 # they were hidden by its own rule and the panel read as caps with no seeds.
 # The mean is drawn last and still sits in front, so where the three seeds
 # agree to within the width of a marker they are simply the mark itself.
-ax.errorbar(xs, mu, yerr=sd, fmt="none", ecolor=BLUE, zorder=3, **ERRBAR)
+ax.errorbar(xs, mu, yerr=sd, fmt="none", ecolor=BLUE2, zorder=3, **ERRBAR)
 for x, t in zip(xs + [pp], tags + ["pretrained_bert"]):
     ax.plot([x] * len(by[t]), by[t], "o", color=GREY, ms=2.6, markeredgewidth=0,
             alpha=0.65, zorder=4)
-ax.plot(xs, mu, "-o", color=BLUE, ms=4.0, lw=1.1, zorder=5)
+ax.plot(xs, mu, "-o", color=BLUE2, ms=4.0, lw=1.1, zorder=5)
 # The gap labels sit below their points; the x limits are set wide enough that the
 # leftmost one is not cut off by the axis, as it was before.
 for x, m, s, t in zip(xs, mu, sd, tags):
@@ -157,20 +175,25 @@ lean(ax, ybounds=(0.86, 0.941))
 if SHOW_INFIGURE_TITLES: ax.set_title("Pretraining is worth five points here, and more parameters do not close it",
              loc="left", fontsize=9.5, pad=8)
 
-# (b) The clinical arms. Same grammar as panel (a): the from-scratch arm is the
-# measured thing and carries the primary colour, the pretrained arm is the
-# reference it is measured against and recedes to grey, and each mean has its
-# three seeds drawn behind it. No accent: the claim here is the size of the
-# gap, which is a relation between two marks rather than either of them.
+# (b) The clinical arms. Same grammar and the same two hues as panel (a): the
+# from-scratch arm blue, the pretrained arm the reference hue, each mean with
+# its three seeds drawn behind it in grey. The two panels are two tasks, so
+# holding the arm colours across them is the only thing on the canvas saying
+# that the same comparison is being made twice. No accent: the claim here is
+# the size of the gap, which is a relation between two marks rather than either
+# of them.
 for i, (vals, mean, sdv, colour) in enumerate(
-        ((_ou, _oum, _ous, BLUE), (_pb, _pbm, _pbs, GREY))):
+        ((_ou, _oum, _ous, BLUE2), (_pb, _pbm, _pbs, GREEN))):
     axb.plot(vals, [i] * len(vals), "o", color=GREY, ms=2.6, markeredgewidth=0,
              alpha=0.65, zorder=2)
     axb.errorbar([mean], [i], xerr=[sdv], fmt="o", color=colour, ms=4.0,
                  ecolor=colour, zorder=3, **ERRBAR)
 axb.set_yticks([0, 1])
 axb.set_yticklabels(["from scratch", "PubMedBERT"], fontsize=8.0)
-for lab, c in zip(axb.get_yticklabels(), (INK, MUTE)):
+# Each row label is the direct label for its own arm, so it is set in that
+# arm's colour at the value type needs. That label is also what separates the
+# two arms in a greyscale print.
+for lab, c in zip(axb.get_yticklabels(), (BLUE2_T, GREEN_T)):
     lab.set_color(c)
 # Bounds and ticks reach past the outermost seed (0.7578) and the widest
 # cap, so nothing in the panel sits off the end of its own scale.
@@ -238,47 +261,57 @@ fam_gap = [
 ]
 # Families run down the page in the order the thesis argues them; within a
 # family the rows are sorted, because there the position axis does rank.
-FAMILIES = [("Matthews correlation", fam_mcc),
-            ("AUROC above chance", fam_auroc),
-            ("Pretraining gap, pretrained minus from scratch", fam_gap)]
-for _, rs in FAMILIES:
+# One hue per family, not per row. On this canvas the distinction that has to
+# survive is which unit a row is measured in, because that is the only thing
+# the position axis does not support comparing across; the four systems in the
+# first family are separated by their own row labels, as they are everywhere
+# else in the set, and take the family's colour here rather than their own.
+FAMILIES = [("Matthews correlation", fam_mcc, BLUE2),
+            ("AUROC above chance", fam_auroc, GREEN),
+            ("Pretraining gap, pretrained minus from scratch", fam_gap, ORANGE)]
+for _, rs, _hue in FAMILIES:
     rs.sort(key=lambda r: r[1])
 
 # Lay the rows out bottom up: one unit per row, the family heading half a unit
 # above the family's top row, and the hairline in the band above that.
 placed, seps, heads, y = [], [], [], 0.0
-for fi, (fam, rs) in enumerate(reversed(FAMILIES)):
+for fi, (fam, rs, hue) in enumerate(reversed(FAMILIES)):
     for r in rs:
-        placed.append((y, r)); y += 1.0
+        placed.append((y, r, hue)); y += 1.0
     y -= 1.0
-    heads.append((y + 0.52, fam))
+    heads.append((y + 0.52, fam, {BLUE2: BLUE2_T, GREEN: GREEN_T,
+                                  ORANGE: ORANGE_T}[hue]))
     y += 1.30
     if fi < len(FAMILIES) - 1:
         seps.append(y)
         y += 0.72
-rows = [r for _, r in placed]
+rows = [r for _, r, _h in placed]
 y_top_row = placed[-1][0]
 y_ceiling = y_top_row + 1.00
 
 fig, ax = plt.subplots(figsize=(FIGW, 3.00))
 canvas(fig)
 fig.subplots_adjust(left=0.400, right=0.985, top=0.985, bottom=0.140)
-# One colour for every estimate. Whether an interval contains zero is already
-# drawn, by whether it crosses the line; saying it again in grey said one fact
-# twice and needed a key to decode. All blue: this figure's claim is that the
-# whole column sits on the line, which no single mark carries, so nothing here
-# takes the accent.
-for yy, (lab, e, lo, hi) in placed:
-    ax.errorbar([e], [yy], xerr=[[e-lo], [hi-e]], fmt="o", color=BLUE, **ERRBAR, **DOT)
+# Colour by family, never by whether an interval contains zero. That fact is
+# already drawn, by whether the interval crosses the line; saying it again in a
+# second colour states one fact twice and needs a key to decode. Nothing here
+# takes the accent either: this figure's claim is that the whole column sits on
+# the line, which no single mark carries.
+for yy, (lab, e, lo, hi), hue in placed:
+    ax.errorbar([e], [yy], xerr=[[e-lo], [hi-e]], fmt="o", color=hue, **ERRBAR, **DOT)
 ax.axvline(0, **CHANCE_STYLE)
 gt = ax.get_yaxis_transform()
 for ys in seps:
     ax.plot([-0.66, 1.0], [ys, ys], transform=gt, color=GRID, lw=0.6,
             clip_on=False, zorder=0)
-for yh, fam in heads:
+# The family heading is this figure's direct label for the family, so it is set
+# in the family's own colour rather than in the annotation grey. It is also the
+# redundancy: in a greyscale print the heading, the hairline and the position
+# separate the three families, and the hue is only the fast read.
+for yh, fam, fam_t in heads:
     ax.text(-0.65, yh, fam, transform=gt, ha="left", va="bottom", fontsize=8.0,
-            color=MUTE, style="italic", clip_on=False)
-ax.set_yticks([yy for yy, _ in placed])
+            color=fam_t, style="italic", clip_on=False)
+ax.set_yticks([yy for yy, _, _h in placed])
 ax.set_yticklabels([r[0] for r in rows], fontsize=8.0, linespacing=1.25)
 ax.set_xlabel("Effect, 95% interval (unit named per family)")
 ax.set_xlim(-0.36, 0.46)
@@ -338,7 +371,7 @@ fig, ax = plt.subplots(figsize=(FIGW, 2.75))
 canvas(fig)
 fig.subplots_adjust(left=0.135, right=0.985, top=0.965, bottom=0.165)
 ax.fill_between(n_pos, np.clip(mde, .5, 1), 1.0, color=PALE, alpha=.55, lw=0, zorder=1)
-ax.plot(n_pos, np.clip(mde, 0.5, 1.0), color=BLUE, lw=1.3, zorder=3)
+ax.plot(n_pos, np.clip(mde, 0.5, 1.0), color=BLUE2, lw=1.3, zorder=3)
 ax.text(2600, 0.955, "detectable", fontsize=8.0, color=MUTE, ha="right")
 ax.text(6.4, 0.545, "not detectable at this sample size", fontsize=8.0, color=MUTE)
 # The study is the one accented mark. The comparator recedes to grey, and the

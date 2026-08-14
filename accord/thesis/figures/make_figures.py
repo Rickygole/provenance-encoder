@@ -119,29 +119,56 @@ plt.rcParams.update({
 # Palette. Shared verbatim with style.py and with the notebook's palette cell,
 # so the whole set looks like one document. Full rationale in style.py.
 #
-# Greyscale luminance, 0.299R + 0.587G + 0.114B, out of 255:
+# Structure, unchanged. Greyscale luminance, 0.299R + 0.587G + 0.114B, of 255:
 #     INK      #1A1A1A  near-black       26   text, spines, ticks
-#     BLUE     #0A2795  royal blue       43   the primary data colour
-#     SCARLET  #D81E05  scarlet          83   one accented element per figure
-#     TEAL     #00817B  deep teal        90   reference lines only
 #     MUTE     #5B5B5B  grey             91   secondary annotation text
-#     GREY     #8A94A6  cool grey       147   de-emphasised data
-#     PALE     #C9D2E3  pale blue-grey  209   secondary bars and bands
-# Every distinction that carries data is a large lightness step within one hue
-# family: BLUE against PALE is 166 of 255, BLUE against GREY 104, BLUE against
-# TEAL 47. Nothing depends on telling red from green.
+#     GREY     #8A94A6  cool grey       147   reference lines, seed dots
+#     PALE     #C9D2E3  pale blue-grey  209   secondary bands
+#     GRID     #E8E8E8  hairline grey   232   optional value grid
 INK = "#1A1A1A"
-BLUE = "#0A2795"
 PALE = "#C9D2E3"
-TEAL = "#00817B"
-SCARLET = "#D81E05"
 MUTE = "#5B5B5B"
 GREY = "#8A94A6"
 GRID = "#E8E8E8"
 
+# The claim tone. Exactly one element per figure, never a series colour.
+SCARLET = "#D81E05"
+
+# The series palette: five Okabe-Ito hues, used wherever a figure compares
+# distinct things. Lightness of 255 and contrast on white:
+#     BLUE2   #0072B2  blue             87   5.19:1   GPT-4o zero-shot
+#     GREEN   #009E73  bluish green    106   3.42:1   pharmacist truth
+#     ORANGE  #E69F00  orange          162   2.25:1   ACCORD
+#     PURPLE  #CC79A7  reddish purple  151   3.06:1   Llama 3 8B, weak labeller
+#     SKY     #56B4E9  sky blue        158   2.31:1   GPT-4o few-shot
+# An entity keeps its hue across every figure it appears on. Hue is never the
+# only separator: every series is also carried by a direct label, and by marker
+# shape wherever the grammar allows a marker other than a dot.
+BLUE2 = "#0072B2"
+GREEN = "#009E73"
+ORANGE = "#E69F00"
+PURPLE = "#CC79A7"
+SKY = "#56B4E9"
+
+# Text tones: the same hue darkened until 8 point type on white clears 4.5:1,
+# because this set labels a series in the series' own colour rather than in a
+# legend. The mark always keeps the full palette value; only type moves.
+BLUE2_T = "#0072B2"     # 5.19:1
+GREEN_T = "#008662"     # 4.58:1
+ORANGE_T = "#9D6C00"    # 4.59:1
+PURPLE_T = "#A36186"    # 4.55:1
+SKY_T = "#3B7CA1"       # 4.58:1
+
+# A series hue lightened toward the paper until it prints at a greyscale weight
+# of 160 of 255, for a point estimate that has no committed interval: lighter
+# than the 147 of the reference grey, so it reads as weaker than anything that
+# carries an interval, and equal to its peers, so no one of them dominates.
+BARE_BLUE2, BARE_GREEN, BARE_PURPLE = "#6FAFD3", "#5DC1A6", "#D085AF"
+
 # Historical names, still used by the figures in this file that the thesis does
 # not bind (funnel, prevalence, tracking, met-sharpened).
-GREY_DARK, GREY_LIGHT, GREY_FILL, GREY_DEAD = BLUE, TEAL, PALE, GREY
+BLUE, TEAL = BLUE2, GREEN
+GREY_DARK, GREY_LIGHT, GREY_FILL, GREY_DEAD = BLUE2, GREEN, PALE, GREY
 ALERT, GREY_MED = SCARLET, MUTE
 HATCH_A = "///"
 HATCH_B = "\\\\\\"
@@ -323,8 +350,16 @@ def make_fig_pipeline_status():
                         xytext=(box_x + box_w / 2, t - box_h),
                         arrowprops=dict(arrowstyle="-|>", color=INK, lw=0.6,
                                         mutation_scale=7, shrinkA=0, shrinkB=0))
+        # The one stage a diagnostic actually passed is the only good news on
+        # this canvas, and it was set in the same tone as the five failures
+        # beside it. It takes the truth hue, at the darkened value 8 point type
+        # needs on white. Everything else stays INK: the verdict rule beside
+        # the stages already carries the failures in scarlet, and setting five
+        # failure verdicts in red as well would put scarlet on most of the
+        # figure and retire it as an accent.
         ax.text(x_verdict, t - box_h / 2, v, ha="left", va="center",
-                fontsize=8.0, color=INK, linespacing=1.25)
+                fontsize=8.0, color=GREEN_T if v == "Works" else INK,
+                linespacing=1.25)
         ax.text(x_diag, t - box_h / 2, d, ha="left", va="center", fontsize=8.0,
                 style="italic", color=MUTE, linespacing=1.25)
 
@@ -334,13 +369,14 @@ def make_fig_pipeline_status():
             fontsize=8.0, color=MUTE)
 
     # The verdict rule, running beside the stages it judges. Three verdicts,
-    # three weights of rail, broken between them: grey against the one stage a
-    # diagnostic passed, pale against the one stage no diagnostic ever ran on,
-    # and scarlet against the four a diagnostic faulted. The first two used to
-    # share a single unbroken grey segment, which gave a stage that was never
-    # tested exactly the same mark as a stage that was tested and passed.
+    # three segments of rail, broken between them: green against the one stage
+    # a diagnostic passed, pale against the one stage no diagnostic ever ran
+    # on, and scarlet against the four a diagnostic faulted. The passed segment
+    # was grey, which is this set's tone for a reference rather than a result,
+    # so the one stage that works read as absence of a verdict rather than as a
+    # verdict. It now matches the word beside it.
     ax.plot([x_rule, x_rule], [tops[0], tops[0] - box_h],
-            color=GREY, lw=0.8, solid_capstyle="butt")
+            color=GREEN, lw=0.8, solid_capstyle="butt")
     ax.plot([x_rule, x_rule], [tops[1], tops[1] - box_h],
             color=PALE, lw=0.8, solid_capstyle="butt")
     ax.plot([x_rule, x_rule], [tops[2], tops[5] - box_h],
@@ -417,18 +453,27 @@ def make_fig_intro_headline():
     los = [b[3][0] for b in bars]
     his = [b[3][1] for b in bars]
     errs = [[r - lo for r, lo in zip(rates, los)], [hi - r for r, hi in zip(rates, his)]]
+    # Two hues, because there are two things here and not three: the same weak
+    # labeller measured on two different pools, and the pharmacist against whom
+    # it is measured. Drawing all three in one colour asked the reader to find
+    # the instrument-versus-truth split in the row labels alone, which is the
+    # split the whole thesis turns on. The weak labeller is Llama 3 8B
+    # (Chapter 3), so it carries Llama's hue here and on every other figure;
+    # the pharmacist carries the truth hue.
+    bar_hues = [PURPLE, PURPLE, GREEN]
     # The interval is the bar's own, so it is the bar's own colour. Black caps
-    # on a blue bar read as a second series laid over the first. But a blue
-    # interval on a blue bar loses its lower half inside the fill, so the
+    # on a coloured bar read as a second series laid over the first. But a
+    # same-colour interval loses its lower half inside the fill, so the
     # interval reads one-sided and the bar reads as if it were exact: the
     # interval is therefore cased in white, a slightly wider white stroke drawn
     # under it, so both halves read against the fill and against the paper.
-    axL.barh(ypos, rates, color=BLUE, linewidth=0, height=0.55, zorder=3)
+    axL.barh(ypos, rates, color=bar_hues, linewidth=0, height=0.55, zorder=3)
     axL.errorbar(rates, ypos, xerr=errs, fmt="none", ecolor="white",
                  elinewidth=1.8, capthick=1.8, capsize=ERRBAR["capsize"],
                  zorder=4)
-    axL.errorbar(rates, ypos, xerr=errs, fmt="none", ecolor=BLUE, zorder=5,
-                 **ERRBAR)
+    for y, r, e_lo, e_hi, hue in zip(ypos, rates, errs[0], errs[1], bar_hues):
+        axL.errorbar([r], [y], xerr=[[e_lo], [e_hi]], fmt="none", ecolor=hue,
+                     zorder=5, **ERRBAR)
     # One value label per bar, all in the same place: clear of the upper interval
     # cap, rate above and count below, so no label can reach the bracket.
     for y, b, r, hi in zip(ypos, bars, rates, his):
@@ -466,7 +511,14 @@ def make_fig_intro_headline():
     ci_hi = [mcc[k]["ci95"][1] for k in order]
     err = [[v - lo for v, lo in zip(vals, ci_lo)], [hi - v for v, hi in zip(vals, ci_hi)]]
     axR.axvline(0, **CHANCE_STYLE)
-    axR.errorbar(vals, ys, xerr=err, fmt="o", color=BLUE, zorder=3, **ERRBAR, **DOT)
+    # Four systems, four hues, from the map: the two GPT-4o prompting conditions
+    # take one hue at two values because they are one model, ACCORD takes its
+    # own, and Llama 3 8B takes the hue the weak-labeller bars in (a) carry,
+    # because the weak labeller is that same model in another role.
+    row_hues = [BLUE2, SKY, ORANGE, PURPLE]
+    for v, y, lo, hi, hue in zip(vals, ys, err[0], err[1], row_hues):
+        axR.errorbar([v], [y], xerr=[[lo], [hi]], fmt="o", color=hue, zorder=3,
+                     **ERRBAR, **DOT)
     axR.set_yticks(ys)
     axR.set_yticklabels(labels, fontsize=8.0)
     axR.set_ylim(-0.62, 3.62)
@@ -877,8 +929,8 @@ def make_fig_met_exchange():
     # statistic would accept, computed from the class counts, and they are the
     # grid this figure reads the four systems against. So they are drawn in the
     # reference grammar the rest of the set uses for a null or a chance line:
-    # grey hairlines, labelled at the line in the secondary text tone. Blue is
-    # returned to the thing that was actually measured, which is the systems.
+    # grey hairlines, labelled at the line in the secondary text tone. Colour
+    # is returned to the thing that was actually measured, which is the systems.
     d = np.linspace(0, P, 200)
     ax.plot(d, d, color=GREY, linewidth=0.8, zorder=3)
     slope_ba = N / P
@@ -938,21 +990,29 @@ def make_fig_met_exchange():
                    "Llama 3 8B": "center"}
     label_valign = {"ACCORD": "center", "GPT-4o zero-shot": "center",
                     "GPT-4o few-shot": "center", "Llama 3 8B": "top"}
+    # ACCORD is the claim element here: this whole figure is about where ACCORD
+    # sits against exchange rates it never chose, so it takes the accent and
+    # gives up its ORANGE for this one canvas. The other three are the measured
+    # comparison and carry their own hues from the map, so a reader who met
+    # them on the graphical abstract meets the same three colours again.
+    hues = {"ACCORD": SCARLET, "GPT-4o zero-shot": BLUE2,
+            "GPT-4o few-shot": SKY, "Llama 3 8B": PURPLE}
+    # The name is set in the mark's own hue, darkened where the hue itself is
+    # too light to hold 8 point type on white. Marker shape carries the same
+    # distinction, so the figure survives a greyscale print.
+    text_hues = {"ACCORD": SCARLET, "GPT-4o zero-shot": BLUE2_T,
+                 "GPT-4o few-shot": SKY_T, "Llama 3 8B": PURPLE_T}
     for name, s in systems.items():
         delta = TP0 - s["tp"]
         dtn = s["tn"] - TN0
-        # ACCORD is the claim element here: this whole figure is about where
-        # ACCORD sits against exchange rates it never chose, so it takes the
-        # accent. The other three are the measured comparison, so they carry
-        # the primary data colour.
         this_study = name == "ACCORD"
         ax.scatter([delta], [dtn], marker=markers[name], s=34,
-                   edgecolor=SCARLET if this_study else BLUE,
-                   facecolor=SCARLET if this_study else "white",
+                   edgecolor=hues[name],
+                   facecolor=hues[name] if this_study else "white",
                    linewidth=0.8, zorder=5)
         ax.annotate(name, (delta, dtn), textcoords="offset points", xytext=label_offset[name],
                     ha=label_align[name], va=label_valign[name], fontsize=8.0, zorder=6,
-                    color=SCARLET if this_study else BLUE)
+                    color=text_hues[name])
 
     # Origin lines bounded to the range they frame, so neither runs on into the
     # margin the Llama label now sits in.
@@ -1091,9 +1151,15 @@ def make_fig_disc_strata():
     fig.subplots_adjust(left=0.400, right=0.985, top=0.900, bottom=0.300)
     ys = np.arange(len(rows))[::-1]
     ax.axvline(0.5, **CHANCE_STYLE)
-    for y, (label, auroc, ci) in zip(ys, rows):
+    # Two rows, two hues, because they are two different populations scored by
+    # two different models and the caption has to say so in words when they
+    # share one colour. The defect-free stratum takes the truth hue: it is the
+    # subset whose evidence is correct by construction, which is the closest
+    # this evaluation gets to clean ground.
+    row_hues = [BLUE2, GREEN]
+    for y, (label, auroc, ci), hue in zip(ys, rows, row_hues):
         ax.errorbar([auroc], [y], xerr=[[auroc - ci[0]], [ci[1] - auroc]], fmt="o",
-                    color=BLUE, zorder=3, **ERRBAR, **DOT)
+                    color=hue, zorder=3, **ERRBAR, **DOT)
     ax.set_yticks(ys)
     ax.set_yticklabels([r[0] for r in rows], fontsize=8.0, linespacing=1.3)
     ax.set_xlim(0.16, 0.94)
@@ -1390,7 +1456,13 @@ def make_fig_survey_audit():
         (n_strict, SCARLET, SCARLET,
          f"{n_strict} papers ({n_strict / n_total * 100:.1f}%) report the check "
          "under the strict reading"),
-        (n_permissive_only, PALE, MUTE,
+        # The middle segment is a real, named population, not a leftover: the
+        # papers the two readings disagree about. It used to be drawn in the
+        # pale band tone, which is the tone this set uses for structure, so the
+        # one thing on the canvas that is a finding looked like backing. It now
+        # carries a series hue, light enough to stay behind the claim segment
+        # and dark enough to be a segment rather than a shadow.
+        (n_permissive_only, SKY, MUTE,
          f"{n_permissive_only} papers ({n_permissive_only / n_total * 100:.1f}%) "
          "report it only under the permissive reading"),
         (n_neither, GREY, MUTE,
