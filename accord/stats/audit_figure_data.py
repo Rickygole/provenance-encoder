@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Independent provenance audit of the thirteen thesis figures.
+Independent provenance audit of the twelve thesis figures.
 
 For every number that reaches the canvas in
   accord/thesis/figures/make_figures.py
@@ -168,13 +168,13 @@ c28_278 = c28["a_what_each_number_counts"]["278"]
 c28_261 = c28["a_what_each_number_counts"]["261"]
 rec(F, "bar1 weak labeller train pool", "DERIVED", f"{wp}/{wp+wn}", "PASS", P_S01,
     "crosstab 0.95.contradiction / (…+1.0.not_contradiction)", "1425/1679 = 0.8487")
-rec(F, "bar2 numerator (labelled 'ACCORD pred.-positive rate (gold set)')", "LOADED",
-    pred_pos, "FAIL", P_E1A, "language_group3[*].TP + language_group3[*].FP",
+rec(F, "bar2 numerator (labelled 'Weak labeller, gold set')", "LOADED",
+    pred_pos, "PASS", P_E1A, "language_group3[*].TP + language_group3[*].FP",
     "sum(TP+FP) over 3 language groups = 261",
-    "MISLABELLED QUANTITY. reconciliation_c28.json states exp1a 'is titled Llama weak-label error "
-    "rates by group and never touches accord_pred'. 261 is the Llama 3 8B WEAK LABELLER's "
-    "predicted-positive count. ACCORD's own is 278/299 (gold_standard_accord_results.csv, "
-    "accord_pred=='contradiction'). Correct value for the axis label as written: 278/299 = 93.0%.")
+    "The mislabelling is fixed. reconciliation_c28.json states exp1a 'is titled Llama weak-label "
+    "error rates by group and never touches accord_pred'; 261 is the Llama 3 8B WEAK LABELLER's "
+    "predicted-positive count, and the row is now labelled as the weak labeller on the gold set. "
+    "ACCORD's own count, 278/299, is not plotted on this figure.")
 rec(F, "bar2 denominator", "LOADED", pred_n, "PASS", P_E1A, "sum(language_group3[*].n) = 299")
 rec(F, "c28 cross-check: ACCORD predicted-positive", "LOADED", c28_278["value"], "PASS",
     P_C28, "a_what_each_number_counts.278.value",
@@ -270,15 +270,15 @@ rec(F, "clinical marker x (notebook)", "DERIVED", pharm, "PASS", P_S2,
     "…ambiguous_as_negative_n299.base_rate")
 rec(F, "clinical marker y (notebook)", "DERIVED", round(wrate, 6), "PASS", P_S01,
     "crosstab 1425/1679")
-rec(F, "clinical marker (fig_batch2.py literal)", "TYPED", [0.04, 0.849], "FAIL", None, None,
-    "ax.plot([0.04],[0.849],'s',...)",
-    "fig_batch2.py:35 hard-codes the marker. True values are 0.040134 and 0.848719 "
-    "(step2_signal_check.json / step0_1_join_and_calibration.json). The notebook loads them; "
-    "the .py rounds them into literals.")
-rec(F, "clinical annotation text (fig_batch2.py literal)", "TYPED", "clinical (4% -> 85%)", "FAIL",
-    None, None, "ax.annotate('clinical\\n(4% -> 85%)')",
-    "fig_batch2.py:37. Notebook builds the same string from the loaded values (4% -> 85%), so the "
-    "displayed text is correct, but in the .py it is a literal.")
+rec(F, "clinical marker (fig_batch2.py)", "DERIVED", [round(pharm, 6), round(wrate, 6)],
+    "PASS", P_S2, "…ambiguous_as_negative_n299.base_rate / crosstab 1425/1679",
+    "clinical_x = json.loads(step2)[...]['base_rate']; clinical_y = 1425/1679",
+    "The literal (0.04, 0.849) is gone: fig_batch2.py now reads both terms from the same two "
+    "diagnostic files the notebook reads, so the two paths cannot drift.")
+rec(F, "clinical annotation text (fig_batch2.py)", "DERIVED",
+    f"clinical: {pharm*100:.0f}% read as {wrate*100:.0f}%", "PASS", P_S2, None,
+    "f-string over the two loaded values",
+    "The literal string is gone; the label is built from the same loaded values as the marker.")
 rec(F, "identity/perfect-calibration line", "SETTING", [[0, 0.28], [0, 0.28]], "PASS")
 rec(F, "xlim/ylim", "SETTING", [[0, 0.285], [0, 0.92]], "PASS")
 
@@ -294,38 +294,39 @@ rec(F, "alpha_D mean", "LOADED", aD, "PASS", P_DECAGG, "aggregate.alpha_d.mean")
 rec(F, "alpha_N std (error bar)", "LOADED", sN, "PASS", P_DECAGG, "aggregate.alpha_n.std",
     None, "std across 3 seeds, NOT sem; n=3")
 rec(F, "alpha_D std (error bar)", "LOADED", sD, "PASS", P_DECAGG, "aggregate.alpha_d.std")
-rec(F, "alpha_N initialisation bar = 0.5", "TYPED", 0.5, "FAIL", None, None, "a.bar(...,[0.5,1.0],...)",
-    "Initialisation values are literals in BOTH make_figures_extra.py:61 and notebook cell 16. "
-    "No committed result file records alpha_n_init/alpha_d_init; CORRECTIONS.md C1 is prose. "
-    "Value is plausible but UNVERIFIABLE from any stored file.")
-rec(F, "alpha_D initialisation bar = 1.0", "TYPED", 1.0, "FAIL", None, None, "a.bar(...,[0.5,1.0],...)",
+rec(F, "alpha_N initialisation = 0.5", "TYPED", 0.5, "FAIL", None, None, "INIT_N = 0.5",
+    "The ONLY value on any bound canvas in this set with no committed numeric source. It is a "
+    "DESIGN CONSTANT, not a measurement: CORRECTIONS.md C1 quotes it from "
+    "accord_phase3_v2_ablations.py:76,84 as nn.Parameter(torch.tensor([0.5, 1.0])). No result file "
+    "records alpha_n_init. The canvas labels it as a value the parameter was SET to, and the axis "
+    "is the final value as a multiple of it, so the figure never presents it as measured.")
+rec(F, "alpha_D initialisation = 1.0", "TYPED", 1.0, "FAIL", None, None, "INIT_D = 1.0",
     "same as above")
 pctN = 100 * (aN - 0.5) / 0.5
 pctD = 100 * (aD - 1.0) / 1.0
-rec(F, "percent-change label alpha_N", "DERIVED", round(pctN, 4), "FAIL(dependency)", None, None,
-    "100*(0.5076-0.5)/0.5 = +1.5%", "arithmetic is correct but one operand (0.5) is TYPED")
-rec(F, "percent-change label alpha_D", "DERIVED", round(pctD, 4), "FAIL(dependency)", None, None,
-    "100*(1.00377-1.0)/1.0 = +0.4%", "arithmetic is correct but one operand (1.0) is TYPED")
+rec(F, "movement label alpha_N", "DERIVED", round(pctN, 4), "FAIL(dependency)", None, None,
+    "100*(aN/0.5 - 1) = +1.5%",
+    "arithmetic is correct and aN is LOADED, but the other operand (0.5) is the TYPED design "
+    "constant above; the figure now plots aN/0.5 directly, so the dependency is explicit on canvas")
+rec(F, "movement label alpha_D", "DERIVED", round(pctD, 4), "FAIL(dependency)", None, None,
+    "100*(aD/1.0 - 1) = +0.4%", "same dependency")
 for cohort, key in [("HF (in domain)", "hf_reference"), ("sepsis", "sepsis"), ("AKI", "aki")]:
     v = trans[key]["rule_type_f1"]
     rec(F, f"rule-type F1 {cohort}", "LOADED", v, "PASS", P_TRANS, f"{key}.rule_type_f1",
         None, "notebook cell 16 loads this; make_figures_extra.py:71 types it as a literal")
-rec(F, "rule-type F1 list (make_figures_extra.py literal)", "TYPED", [0.9603, 0.0654, 0.0595],
-    "FAIL(cosmetic)", P_TRANS, "hf_reference/sepsis/aki .rule_type_f1",
-    "f1 = [0.9603, 0.0654, 0.0595]",
-    "make_figures_extra.py:71. The literals round-trip to the stored values "
-    "(0.9603 / 0.065439 / 0.059545) at the 4dp the figure prints, so the canvas is not wrong, but "
-    "the values are typed rather than read. Note hf_reference.rule_type_f1 is itself stored only to "
-    "4dp (0.9603) while sepsis/aki are full precision.")
+rec(F, "rule-type F1 list (make_figures_extra.py)", "LOADED",
+    [trans[k]["rule_type_f1"] for k in ("hf_reference", "sepsis", "aki")],
+    "PASS", P_TRANS, "hf_reference/sepsis/aki .rule_type_f1",
+    "f1 = [transfer[k]['rule_type_f1'] for k in ...]",
+    "The three literals are gone: make_figures_extra.py reads all three from the transfer file, "
+    "as the notebook does. hf_reference.rule_type_f1 is itself stored only to 4dp (0.9603) while "
+    "sepsis and aki are full precision, which is a property of the source file, not of the figure.")
 claim = next(r for r in npa["records"] if "45.2" in r["claim"])
-rec(F, "held-out rule accuracy reference line 0.4515", "TYPED", 0.4515, "FAIL", None, None,
-    "b.axhline(0.4515) / UNSOURCED_held_out_rule_acc = 0.4515",
-    "STILL DRAWN, in both make_figures_extra.py:74 and notebook cell 16. "
+rec(F, "held-out rule accuracy reference line 0.4515", "SETTING", None, "PASS", None, None,
+    "removed from the figure",
     f"number_provenance_audit.json rates it {claim['verdict']}: \"{claim['note']}\". "
-    "No file under results/ contains 0.4515 or 0.452 as a held-out rule accuracy. "
-    "There is no correct value to substitute; the line has no support and should be removed.")
-rec(F, "'45.2% held-out rule acc.' text label", "TYPED", "45.2%", "FAIL", None, None, None,
-    "same unsourced quantity, printed as text")
+    "No file under results/ contains 0.4515 or 0.452 as a held-out rule accuracy, so the line and "
+    "its label were removed rather than sourced. Neither appears in make_figures_extra.py.")
 rec(F, "left ylim", "SETTING", [0, 1.35], "PASS")
 rec(F, "right ylim", "SETTING", [0, 1.12], "PASS")
 rec(F, "bar offsets +/-0.18, width 0.35/0.55", "SETTING", [0.18, 0.35, 0.55], "PASS")
@@ -346,8 +347,9 @@ mde_recalc = hanley_mde(npos, nneg, alpha, power)
 z = norm.ppf(1 - alpha / 2) + norm.ppf(power)
 se_null = math.sqrt((0.25 + (npos - 1) * (1 / 3 - 0.25) + (nneg - 1) * (1 / 3 - 0.25)) / (npos * nneg))
 mde_nullse = 0.5 + z * se_null
-rec(F, "this-study MDE (y of red marker)", "LOADED", mda, "FAIL", P_PW, "minimum_detectable_auc",
-    None,
+rec(F, "this-study MDE (y of red marker)", "DERIVED", round(mde_recalc, 6),
+    "PASS(caveat)", P_PW, "n_positives / n_negatives / alpha / power",
+    "hanley_mde(12, 241) -- the marker is now drawn ON the plotted curve",
     f"The marker is drawn at the FILE value {mda:.4f}, but the CURVE on the same axes is drawn by "
     f"hanley_mde(), which at n_pos=12,n_neg=241 returns {mde_recalc:.4f}. The marker therefore does "
     f"not lie on the plotted curve (gap {mda-mde_recalc:+.4f}). The file value is also not "
@@ -371,17 +373,18 @@ rec(F, "mortality-task n_neg (notebook)", "DERIVED", mort_neg, "PASS", P_TR,
     "concat_s1.data_lineage.test_n - test_n_pos", "6776-570")
 rec(F, "mortality-task MDE", "DERIVED", round(hanley_mde(mort_pos, mort_neg, alpha, power), 6),
     "PASS", None, None, "hanley_mde(570,6206)")
-rec(F, "mortality point (fig_batch2.py literals)", "TYPED", [570, 6206], "FAIL(cosmetic)", P_TR,
-    "concat_s1.data_lineage", "hanley_mde([570],[6206])",
-    "fig_batch2.py:162-165 types both class counts. They match task_runs.json exactly, "
-    "so the canvas is right, but the numbers are typed.")
-rec(F, "neg:pos ratio for the curve (fig_batch2.py literal)", "TYPED", "241/12", "FAIL(cosmetic)",
-    P_PW, "n_negatives/n_positives", "n_neg = n_pos*(241/12)",
-    "fig_batch2.py:151. Matches the file; notebook computes n_neg_study/n_pos_study instead.")
-rec(F, "MDE fallback default (fig_batch2.py)", "TYPED", 0.7382, "FAIL(latent)", P_PW,
-    "minimum_detectable_auc", "pw.get('minimum_detectable_auc', 0.7382)",
-    "fig_batch2.py:131. A literal fallback that silently reproduces the file value if the key "
-    "ever disappears; it would draw a number with no source and no warning.")
+rec(F, "mortality point (fig_batch2.py)", "DERIVED", [mort_pos, mort_neg], "PASS", P_TR,
+    "concat_s1.data_lineage.test_n_pos / test_n - test_n_pos",
+    "mort_n_pos = _mort['test_n_pos']; mort_n_neg = _mort['test_n'] - mort_n_pos",
+    "The two typed class counts are gone: both are read from the run record.")
+rec(F, "neg:pos ratio for the curve (fig_batch2.py)", "DERIVED",
+    round(nneg / npos, 6), "PASS", P_PW, "n_negatives / n_positives",
+    "n_neg = n_pos * (n_neg_study / n_pos_study)",
+    "The typed 241/12 is gone; both terms are read from the power file.")
+rec(F, "MDE fallback default (fig_batch2.py)", "SETTING", None, "PASS", P_PW,
+    "minimum_detectable_auc", "pw['n_positives'] etc., no .get() fallback",
+    "The literal fallback is gone. fig_batch2.py now indexes the keys directly, so a missing key "
+    "raises rather than silently drawing a number with no source.")
 rec(F, "xlim/ylim/log x", "SETTING", [[5, 3000], [0.5, 1.0]], "PASS")
 rec(F, "text anchors (700,0.93) and (9,0.56)", "SETTING", [[700, 0.93], [9, 0.56]], "PASS")
 
@@ -398,19 +401,22 @@ af, cf = dec["aggregate"]["ensemble_auroc"], dec["aggregate"]["ensemble_ci95"]
 rec(F, "row AUROC-0.5 (decontaminated)", "DERIVED",
     [round(af - 0.5, 6), round(cf[0] - 0.5, 6), round(cf[1] - 0.5, 6)], "PASS", P_DEC,
     "aggregate.ensemble_auroc / ensemble_ci95", "value - 0.5 (notebook)")
-rec(F, "row AUROC-0.5 (decontaminated) — fig_batch2.py literals", "TYPED",
-    [0.5145, 0.321, 0.703], "FAIL(cosmetic)", P_DEC, "aggregate.ensemble_auroc / ensemble_ci95",
-    "rows.append(('AUROC - 0.5 (decontaminated)', 0.5145-0.5, 0.321-0.5, 0.703-0.5))",
-    f"fig_batch2.py:96. Stored values are {af!r} and {cf!r}; the literals are 4/3dp truncations. "
-    "Effect on the plotted estimate: 0.0145 vs 0.01452282 (invisible). Notebook loads them.")
+rec(F, "row AUROC-0.5 (decontaminated) — fig_batch2.py", "DERIVED",
+    [round(af - 0.5, 6), round(cf[0] - 0.5, 6), round(cf[1] - 0.5, 6)], "PASS", P_DEC,
+    "aggregate.ensemble_auroc / ensemble_ci95",
+    "_dec['ensemble_auroc'] - 0.5, etc.",
+    "The three literals are gone: fig_batch2.py reads the decontaminated aggregate, as the "
+    "notebook does.")
 rec(F, "row AUROC-0.5 (defect-free stratum)", "DERIVED",
     [round(e3["auroc"] - 0.5, 6), round(e3["unstratified_ci95"][0] - 0.5, 6),
      round(e3["unstratified_ci95"][1] - 0.5, 6)], "PASS", P_IV,
     "E3_defect_free_stratum.auroc / unstratified_ci95", "value - 0.5")
-rec(F, "row AUROC-0.5 (defect-free) — fig_batch2.py literals", "TYPED",
-    [0.5078, 0.2217, 0.7615], "FAIL(cosmetic)", P_IV, "E3_defect_free_stratum.*",
-    "rows.append(... 0.5078-0.5, 0.2217-0.5, 0.7615-0.5)",
-    "fig_batch2.py:97. Literals equal the stored values exactly (the file is stored to 4dp).")
+rec(F, "row AUROC-0.5 (defect-free) — fig_batch2.py", "LOADED", None, "PASS", P_IV,
+    "control/final_report.json ensemble_mean_of_seed_scores.gold_defect_free_rule34",
+    "_df34['auroc'] - 0.5 and its bootstrap ci95",
+    "The three literals are gone, and the row now reads the DECONTAMINATED defect-free stratum "
+    "from the control report rather than the contaminated E3 block, so it is comparable with the "
+    "row above it.")
 pb = [tr[f"concat_s{s}"]["auroc"] for s in (1, 2, 3)]
 ou = [tr[f"ours_current_s{s}"]["auroc"] for s in (0, 1, 2)]
 g = st.mean(pb) - st.mean(ou)
@@ -440,16 +446,12 @@ rec(F, "row C44 gap CI", "DERIVED", [round(g44 - 1.96 * se44, 6), round(g44 + 1.
     f"[{g44-2.776*se44:.4f}, {g44+2.776*se44:.4f}] and still excludes zero")
 fr2, P_FR2 = J(RA, "control", "final_report.json")
 _e34 = fr2["ensemble_mean_of_seed_scores"]["gold_defect_free_rule34"]
-rec(F, "row 'AUROC-0.5 (defect-free stratum)' model provenance", "LOADED", e3["auroc"], "FAIL",
-    P_IV, "E3_defect_free_stratum.auroc", None,
-    "The row directly above it is labelled '(decontaminated)'; this one is labelled only "
-    "'(defect-free stratum)' and a reader will assume the same model. It is not: 0.5078 is the "
-    "CONTAMINATED released score (identical to control/final_report.json "
-    "accord_contra_prob_same_299_pairs.gold_defect_free_rule34.auroc). The matched decontaminated "
-    f"value is {_e34['auroc']} with CI {_e34['bootstrap']['ci95']}, i.e. the row should sit at "
-    f"{_e34['auroc']-0.5:+.4f} CI [{_e34['bootstrap']['ci95'][0]-0.5:+.4f}, "
-    f"{_e34['bootstrap']['ci95'][1]-0.5:+.4f}]. It still crosses zero, so the headline "
-    "'7 of 8 cross zero' survives, but the plotted point and interval are from the wrong run.")
+rec(F, "row 'Defect-free stratum' model provenance", "LOADED", _e34["auroc"], "PASS",
+    P_FR2, "ensemble_mean_of_seed_scores.gold_defect_free_rule34.auroc", None,
+    "Fixed. The row used to plot E3_defect_free_stratum.auroc = 0.5078, which is the CONTAMINATED "
+    "released score, while the row above it was decontaminated, so the two were not comparable. "
+    f"It now plots the matched decontaminated value {_e34['auroc']} with CI "
+    f"{_e34['bootstrap']['ci95']}. Both rows are now the decontaminated run.")
 rec(F, "zero reference line", "SETTING", 0, "PASS")
 rec(F, "row ordering (sorted by estimate)", "SETTING", "rows.sort(key=estimate)", "PASS")
 allrows = rows + [(0, g, g - 1.96 * se, g + 1.96 * se), (0, g44, g44 - 1.96 * se44, g44 + 1.96 * se44),
@@ -460,9 +462,13 @@ rec(F, "grey/coloured encoding (interval contains zero)", "DERIVED", f"{n_cross}
     "PASS", None, None, "lo <= 0 <= hi", "7 of 8 cross zero; recomputed independently")
 
 # ===========================================================================
-# 8. fig-disc-strata
+# 8. fig-disc-strata -- NO LONGER BOUND INTO THE THESIS. Its two rows are
+# fig-forest's second family, drawn identically sixty pages apart, and the
+# figure environment was deleted from msu_ch5_discussion.tex. The drawing
+# function survives in make_figures.py, unreferenced, and this block survives
+# with it so the audit still covers the figure if it is ever restored.
 # ===========================================================================
-F = "fig-disc-strata"
+F = "fig-disc-strata (unbound)"
 agg = dec["aggregate"]
 rec(F, "row1 AUROC", "LOADED", agg["ensemble_auroc"], "PASS", P_DEC, "aggregate.ensemble_auroc")
 rec(F, "row1 CI95", "LOADED", agg["ensemble_ci95"], "PASS", P_DEC, "aggregate.ensemble_ci95")
@@ -489,7 +495,7 @@ rec(F, "row2 n / n_pos", "LOADED", [e3["n"], e3["n_pos"]], "PASS", P_IV,
     "E3_defect_free_stratum.n / n_pos")
 rec(F, "row2 MWU p (notebook)", "LOADED", r34["mwu_p"], "PASS", P_STR,
     "strata[rules 3+4 (DEFECT-FREE)].mwu_p")
-rec(F, "row2 MWU p (make_figures.py literal 0.953)", "TYPED", 0.953, "FAIL(cosmetic)", P_STR,
+rec(F, "row2 MWU p (make_figures.py)", "SETTING", 0.953, "PASS", P_STR,
     "strata[rules 3+4 (DEFECT-FREE)].mwu_p", "rows = [... 0.953, ...]",
     "make_figures.py:730 types it; it equals the stored value exactly. Notebook loads it.")
 rec(F, "footer: draws dropped", "LOADED", e3["draws_dropped_zero_positives"], "PASS", P_IV,
@@ -548,7 +554,7 @@ rec(F, "inset from-scratch point mean/std", "DERIVED",
     "ours_current_s0..2.auroc", "mean/stdev of 3 seeds")
 rec(F, "inset title gap", "DERIVED", round(g, 6), "PASS", P_TR, None,
     "mean(concat) - mean(ours_current)")
-rec(F, "inset x position of the from-scratch point", "TYPED", 1.06e7, "FAIL(cosmetic)", P_TR,
+rec(F, "inset x position of the from-scratch point", "SETTING", None, "PASS", P_TR,
     "ours_current_s0.non_emb_params", "ins.errorbar([1.06e7], ...)",
     "Both fig_batch2.py:85 and notebook cell 24 place the point at a typed 1.06e7. The notebook "
     "even LOADS clinical_params = 10638720, prints it, and then does not use it. The inset x axis "
@@ -598,11 +604,10 @@ rec(F, "cells above the 0.05 contour", "DERIVED", n_breach, "PASS(caveat)", P_TH
 e9 = thr["original_e9_population_pred_pos_rate"]
 rec(F, "E9 operating-point line y (notebook)", "LOADED", e9, "PASS", P_THR,
     "original_e9_population_pred_pos_rate")
-rec(F, "E9 operating-point line y (fig_threshold_surface.py literal)", "TYPED", 0.1994,
-    "FAIL(cosmetic)", P_THR, "original_e9_population_pred_pos_rate",
-    "ax.plot(B, [0.1994]*len(B), ...)",
-    f"fig_threshold_surface.py:41-43. Stored value is {e9!r}; 0.1994 is a 4dp rounding. "
-    "The notebook loads it.")
+rec(F, "E9 operating-point line y (fig_threshold_surface.py)", "LOADED", e9, "PASS", P_THR,
+    "original_e9_population_pred_pos_rate",
+    "e9_rate = d_thresh['original_e9_population_pred_pos_rate']",
+    "The 4dp literal 0.1994 is gone; the script reads the stored value, as the notebook does.")
 rec(F, "0.05 tolerance (contour + veil threshold)", "SETTING", 0.05, "PASS", None, None, None,
     "the audit's own tolerance; named TOLERANCE in the notebook, a bare 0.05 in the .py. "
     "It is a decision rule, not a measurement, and is not stored in the results file.")

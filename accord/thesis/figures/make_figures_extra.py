@@ -1,39 +1,45 @@
 """Two figures the first pass declined: the data for both is on disk, in the
-Drive quarantine (from_drive_2026-08-08/) rather than results/accord/, which is
-why the earlier sweep missed it.
+Drive quarantine (from_drive_2026-08-08/) rather than results/accord/.
 
-fig-asymmetry     -- fully sourced from hf_medication_mentions.csv
-fig-falsification -- left panel sourced from the decontaminated 3-seed
-                     aggregate; right panel's transfer F1 now read from
-                     results/accord/generality/transfer_results_correct.json
-                     (it was typed as three literals here), so this script and
-                     the notebook cell cannot drift apart.
+fig-asymmetry     -- fully sourced from hf_medication_mentions.csv. Not bound
+                     into the thesis; kept buildable.
+fig-falsification -- panel (a) sourced from the decontaminated 3-seed
+                     aggregate; panel (b)'s transfer F1 read from
+                     results/accord/generality/transfer_results_correct.json.
 
 The 45.2% held-out rule-accuracy reference line that used to sit on the right
-panel has been removed: 0.4515 appears in no result file anywhere on disk, only
-in figure code and in the audit records that flag it as untraceable.
+panel is gone: 0.4515 appears in no result file anywhere on disk.
 
-fig-falsification now draws both panels as dot-and-interval, in the shared
-grammar of style.py. Neither quantity is a count: one is a learned parameter and
-one is an F1, and drawing either as a filled bar asserted a solidity three seeds
-do not carry. The three seeds behind each authority-scale mean are drawn.
+Panel (a) is a dumbbell on a RELATIVE axis: each parameter's final value as a
+multiple of the value it was initialised to. Both parameters were set to
+different constants (0.5 and 1.0), so an absolute axis puts the two rows two
+units apart and compresses the movement -- which is the claim -- to under a
+point. On the relative axis both initialisations sit on 1.0, the tolerance band
+is literally a percentage, and the two dumbbells are read against each other.
 
-Panel (a) plots the DISPLACEMENT, final minus the value the parameter was
-initialised to, against a line at zero. That subtraction is arithmetic on two
-committed numbers, and it makes the near-zero geometry itself the claim: the
-reader sees that the parameter did not move rather than being asked to compare
-a coloured dot with a grey tick a pixel away. Panel (b) carries no intervals
-because none exist to carry, and says so by drawing its three cohorts in
-lightened hues: a colour each, so they read as three different cohorts, at a
-strength that cannot be mistaken for the two dots in (a) that do carry a spread.
+The two initialisations themselves are the one pair of values on any canvas in
+this set with no committed numeric source. They are design constants quoted
+from source code in CORRECTIONS.md C1, not measurements, and they are labelled
+on the canvas as values the parameters were SET to.
 """
 import json, pathlib
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from style import (setup, FIGW, INK, BLUE, PALE, SCARLET, MUTE, GREY,
-                   BLUE2, GREEN, ORANGE, PURPLE, SKY, SERIES_BARE,
-                   ACCENT, MUTED, LIGHT, DEAD, ALERT,
-                   CHANCE_STYLE, ERRBAR, DOT, canvas, lean)
+import style
+from style import (FIGW, INK, PAPER, GRAPHITE, MUTE, SLATE, MIST, HAIR,
+                   COBALT, COBALT_DEEP, COBALT_CORE, COBALT_TINT, COBALT_BARE,
+                   EMERALD_CORE, PLUM_CORE,
+                   SCARLET_DEEP, SCARLET_CORE, SCARLET_TINT, SCARLET_WASH,
+                   T_CLAIM, T_AXIS, T_TICK, T_SERIES, T_NOTE,
+                   LW_DATA, LW_BAR, LW_INTERVAL, MS_DOT, MS_MARK, MS_SEED,
+                   ERRBAR, DOT, canvas, frame, signature, panel_label, arrow,
+                   case, cased)
+setup = style.setup
+BLUE = BLUE2 = COBALT_CORE
+GREEN = EMERALD_CORE
+PURPLE = PLUM_CORE
+PALE = MIST
+GREY = SLATE
 
 # Long provenance notes belong in the LaTeX caption, not inside the plot.
 # Set True to draw them again.
@@ -66,8 +72,8 @@ a.text(0.28, n_clf + (n_all - n_clf) / 2, f"unclassified\n{n_all - n_clf:,}",
        fontsize=8.0, color=MUTE, va="center", ha="left", linespacing=1.25)
 a.set_xticks([]); a.set_xlim(-0.4, 1.5)
 a.set_ylabel("Medication mentions")
-a.set_title(f"all mentions, n = {n_all:,}", fontsize=8.0, color=MUTE, pad=4)
-lean(a)
+a.set_title(f"all mentions, n = {n_all:,}", fontsize=T_SERIES, color=MUTE, pad=4)
+frame(a)
 a.spines["bottom"].set_visible(False)
 
 b.bar([0, 1], [disch, nurs], color=BLUE, linewidth=0, width=0.55)
@@ -77,7 +83,7 @@ for x, v in enumerate([disch, nurs]):
 b.set_ylabel("Action-classified mentions")
 b.set_title(f"by note role, {disch/nurs:.1f} to 1", fontsize=8.0, color=MUTE, pad=4)
 b.set_ylim(0, disch * 1.20)
-lean(b)
+frame(b)
 fig.savefig(HERE / "fig-asymmetry.pdf"); plt.close(fig)
 man["fig:asymmetry"] = {"file": "fig-asymmetry.pdf",
     "source": "from_drive_2026-08-08/outputs/hf_medication_mentions.csv",
@@ -88,11 +94,10 @@ man["fig:asymmetry"] = {"file": "fig-asymmetry.pdf",
 agg_all = json.loads((S / "accord_v2_decontam_gold_aggregate.json").read_text())
 agg = agg_all["aggregate"]
 aN, aD = agg["alpha_n"]["mean"], agg["alpha_d"]["mean"]
-sN, sD = agg["alpha_n"]["std"], agg["alpha_d"]["std"]
-# The three seeds behind each mean, read from the same file.
 seeds = sorted(agg_all["per_seed"])
-seed_N = [agg_all["per_seed"][s]["authority_scale"]["alpha_nursing"] for s in seeds]
-seed_D = [agg_all["per_seed"][s]["authority_scale"]["alpha_discharge"] for s in seeds]
+seed_N = [agg_all["per_seed"][s_]["authority_scale"]["alpha_nursing"] for s_ in seeds]
+seed_D = [agg_all["per_seed"][s_]["authority_scale"]["alpha_discharge"] for s_ in seeds]
+INIT_N, INIT_D = 0.5, 1.0          # design constants, CORRECTIONS.md C1
 
 transfer = json.loads((REPO / "results/accord/generality/transfer_results_correct.json").read_text())
 f1 = [transfer["hf_reference"]["rule_type_f1"], transfer["sepsis"]["rule_type_f1"],
@@ -100,92 +105,99 @@ f1 = [transfer["hf_reference"]["rule_type_f1"], transfer["sepsis"]["rule_type_f1
 n_cand = [transfer["hf_reference"]["n_candidates"], transfer["sepsis"]["n_candidates"],
           transfer["aki"]["n_candidates"]]
 
-fig, (a, b) = plt.subplots(1, 2, figsize=(FIGW, 1.95),
-                           gridspec_kw={"width_ratios": [1.12, 1.0]})
+fig, (a, b) = plt.subplots(1, 2, figsize=(FIGW, 2.45),
+                           gridspec_kw={"width_ratios": [1.06, 1.0]})
 canvas(fig)
-fig.subplots_adjust(left=0.150, right=0.985, top=0.815, bottom=0.230, wspace=0.46)
+fig.subplots_adjust(left=0.128, right=0.985, top=0.700, bottom=0.235, wspace=0.34)
 
-# (a) Drawn as a displacement, so the geometry is the claim. The quantity on
-# the axis is how far each parameter moved from the value it was set to, and
-# the reference is a line at no movement at all. A parameter reported as
-# learned that lands on that line has not been learned. The earlier version
-# plotted the parameter itself against a grey tick for the initialisation,
-# which put the whole claim in a two-pixel gap the reader had to hunt for and
-# needed a prose key to decode; the initialisation is now in the row label,
-# where every other constant in this set lives.
-#
-# One hue per parameter. They are two different parameters, initialised to two
-# different constants, and the row labels carry the constants; in one colour
-# the panel read as one quantity measured twice.
-for i, (init, mean, sdv, sds, hue) in enumerate(
-        ((0.5, aN, sN, seed_N, ORANGE), (1.0, aD, sD, seed_D, BLUE2))):
-    a.plot([s - init for s in sds], [i] * len(sds), "o", color=GREY, ms=2.6,
-           markeredgewidth=0, alpha=0.65, zorder=2)
-    a.errorbar([mean - init], [i], xerr=[sdv], fmt="o", color=hue, zorder=3,
-               **ERRBAR, **DOT)
-    # Annotated in the unit the axis is ticked in. It used to read as a
-    # percentage of the initialisation while the ticks read as absolute
-    # movement, so the label and the position of the dot it labelled were two
-    # different quantities, and the two rows did not even share a denominator
-    # (one parameter was set to half of what the other was).
-    a.text(mean - init + 0.008, i, f"{mean - init:+.3f}", fontsize=8.0,
-           color=MUTE, va="center", ha="left")
-a.axvline(0, **CHANCE_STYLE)
-a.text(0.0, 1.66, "stated initialisation", fontsize=8.0, color=MUTE,
-       ha="center", va="bottom")
+# ---- (a) the dumbbell ------------------------------------------------------
+TOL = 0.02
+a.axvspan(1 - TOL, 1 + TOL, facecolor=SCARLET_TINT, edgecolor="none",
+          linewidth=0, zorder=0)
+moved = []
+for i, (init, mean, sds) in enumerate(((INIT_N, aN, seed_N),
+                                       (INIT_D, aD, seed_D))):
+    ratio = mean / init
+    moved.append(abs(ratio - 1))
+    a.plot([1.0, ratio], [i, i], color=GRAPHITE, lw=2.4,
+           solid_capstyle="butt", zorder=3)
+    # The three seeds spread 10.8pt about a 6.6pt marker, so on the dumbbell's
+    # own line they were neither hidden nor visible: a grey crescent behind the
+    # final dot that reads as a print smudge. They drop to their own sub-row,
+    # true x, where three dots read as three seeds.
+    a.plot([s_ / init for s_ in sds], [i - 0.32] * len(sds), "o", color=SLATE,
+           ms=MS_SEED, markeredgewidth=0, zorder=5)
+    a.plot([1.0], [i], "o", markerfacecolor=PAPER, markeredgecolor=GRAPHITE,
+           markeredgewidth=1.2, ms=MS_DOT, zorder=4)
+    a.plot([ratio], [i], "o", color=GRAPHITE, ms=MS_DOT, zorder=6)
+    a.text(ratio + 0.0026, i, f"{(ratio - 1) * 100:+.1f}%",
+           fontsize=T_NOTE, color=MUTE, va="center", ha="left", zorder=6)
+case(a.text(1 - TOL + 0.0012, 2.00,
+            f"reported as learned:\nneither left a {TOL * 100:.0f}% band",
+            fontsize=T_NOTE, color=SCARLET_DEEP, ha="left", va="top",
+            linespacing=1.24, zorder=6))
 a.set_yticks([1, 0])
-a.set_yticklabels([r"$\alpha_D$" + "\n(set to 1.00)", r"$\alpha_N$" + "\n(set to 0.50)"],
-                  fontsize=8.0, linespacing=1.25)
-a.set_ylim(-0.62, 1.62); a.set_xlim(-0.080, 0.080)
-a.set_xticks([-0.05, 0.0, 0.05])
-a.set_xlabel("Movement from initialisation")
-# No left spine: the axis is categorical, and a rule running past both rows is
-# read as a bracket joining two parameters that are not a group.
-lean(a, xbounds=(-0.05, 0.05))
-a.spines["left"].set_visible(False)
+a.set_yticklabels([r"$\alpha_D$" + "\n(set to 1.00)",
+                   r"$\alpha_N$" + "\n(set to 0.50)"],
+                  fontsize=T_SERIES, linespacing=1.25)
+a.set_ylim(-0.72, 2.10)
+a.set_xlim(0.9755, 1.0295)
+a.set_xticks([0.98, 0.99, 1.00, 1.01, 1.02])
+a.set_xticklabels(["0.98", "0.99", "1.00", "1.01", "1.02"])
+a.set_xlabel("Final value, as a multiple\nof the initialisation",
+             linespacing=1.25)
 a.tick_params(axis="y", length=0)
+frame(a)
 
-# (b) Three F1 values on three cohorts. No interval for any of them is
-# committed anywhere: the per-pair scores these would be resampled from are not
-# released, so there is no honest interval to draw and none is invented. They
-# are therefore drawn as what they are, bare underpowered point estimates: one
-# hue each, so the three cohorts are three things, but every hue lightened
-# toward the paper so that the bareness is in the mark and not only in the
-# caption. Nothing on this panel may look as solid as the dots in (a), which
-# have a spread behind them. The labels stay in the annotation grey, which no
-# lightened hue could carry at 8 point anyway.
-ys = [2, 1, 0]
-bare = [SERIES_BARE[BLUE2], SERIES_BARE[GREEN], SERIES_BARE[PURPLE]]
-for y, v, c in zip(ys, f1, bare):
-    b.plot([v], [y], "o", color=c, linestyle="none", **DOT)
-for y, v in zip(ys, f1):
-    b.text(v + 0.055, y, f"{v:.2f}", fontsize=8.0, color=MUTE, va="center", ha="left")
-b.set_yticks(ys)
-b.set_yticklabels([f"HF, in domain\n(n={n_cand[0]:,})", f"sepsis\n(n={n_cand[1]:,})",
-                   f"AKI\n(n={n_cand[2]:,})"], fontsize=8.0, linespacing=1.25)
-b.set_ylim(-0.62, 2.62); b.set_xlim(-0.03, 1.30)
-b.set_xticks([0, 0.5, 1.0])
-b.set_xlabel(r"Rule-type $F_1$")
-lean(b, xbounds=(0, 1.0))
-b.spines["left"].set_visible(False)
-b.tick_params(axis="y", length=0)
+# ---- (b) the cliff ---------------------------------------------------------
+# Cohorts are not entities, so all three columns take one hue. The two the head
+# was never fitted on are BARE: no interval for either is committed anywhere,
+# because the per-pair scores they would be resampled from are not released.
+xs = [0, 1, 2]
+fills = [COBALT_TINT, COBALT_BARE, COBALT_BARE]
+b.axvspan(0.5, 2.6, facecolor=SCARLET_WASH, edgecolor="none", linewidth=0,
+          zorder=0)
+b.bar(xs, f1, width=0.62, color=fills, edgecolor=COBALT_DEEP,
+      linewidth=LW_BAR, zorder=3)
+case(b.text(0.58, 0.985, "not fitted\nhere", ha="left", va="top",
+            linespacing=1.24,
+            fontsize=T_NOTE, color=SCARLET_DEEP, zorder=5))
+# The drop itself, from the top of the column the head was fitted on to the
+# top of the first column it was not.
+b.plot([0, 1], [f1[0], f1[1]], color=SCARLET_CORE, lw=LW_DATA, zorder=5)
+# The drop, written as a claim numeral, and written vertically, because that
+# is the shape of the finding. The arrow is a patch: never a dash, never two
+# keyboard characters.
+b.text(1.88, 0.86, f"{f1[0]:.2f}", ha="center", va="center", fontsize=T_CLAIM,
+       fontweight="bold", color=SCARLET_DEEP, zorder=6)
+arrow(b, (1.88, 0.73), (1.88, 0.48), color=SCARLET_CORE, lw=LW_DATA, zorder=6)
+b.text(1.88, 0.35, f"{f1[1]:.2f}", ha="center", va="center", fontsize=T_CLAIM,
+       fontweight="bold", color=SCARLET_DEEP, zorder=6)
+b.set_xticks(xs)
+b.set_xticklabels([f"HF,\nin domain\nn = {n_cand[0]:,}",
+                   f"sepsis\nn = {n_cand[1]:,}",
+                   f"AKI\nn = {n_cand[2]:,}"], fontsize=T_NOTE,
+                  linespacing=1.28)
+b.set_xlim(-0.62, 2.6)
+b.set_ylim(0, 1.02)
+b.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
+b.set_ylabel(r"Rule-type $F_1$")
+frame(b)
 
-for ax, tag in ((a, "(a)"), (b, "(b)")):
-    p = ax.get_position()
-    fig.text(p.x0 - 0.055, p.y1 + 0.055, tag, ha="left", va="bottom",
-             fontsize=8.0, style="italic", color=INK)
-if SHOW_INFIGURE_NOTES:
-    b.text(0.5, 2.9, "transfer values recovered; see Appendix C", fontsize=8.0,
-           style="italic", ha="center", va="bottom", color=MUTE)
+for ax_, tag in ((a, "(a)"), (b, "(b)")):
+    panel_label(fig, ax_, tag)
+signature(fig, SCARLET_DEEP,
+          "Two parameters reported as learned did not move;\n"
+          "the rule head does not transfer.")
 fig.savefig(HERE / "fig-falsification.pdf"); plt.close(fig)
 man["fig:falsification"] = {"file": "fig-falsification.pdf",
-    "source": "accord_supp/results/accord_v2_decontam_gold_aggregate.json (left); "
-              "results/accord/generality/transfer_results_correct.json (right)",
+    "source": "accord_supp/results/accord_v2_decontam_gold_aggregate.json (a); "
+              "results/accord/generality/transfer_results_correct.json (b)",
     "values": {"alpha_n": aN, "alpha_d": aD, "alpha_n_per_seed": seed_N,
                "alpha_d_per_seed": seed_D, "rule_type_f1": f1,
                "n_candidates": n_cand,
-               "alpha_init_stated_design_constant": [0.5, 1.0],
-               "alpha_n_movement": aN - 0.5, "alpha_d_movement": aD - 1.0},
+               "alpha_init_stated_design_constant": [INIT_N, INIT_D],
+               "alpha_n_ratio": aN / INIT_N, "alpha_d_ratio": aD / INIT_D},
     "removed": "45.2% held-out rule-accuracy reference line (0.4515 is in no result file)"}
 
 p = HERE / "manifest_extra.json"; p.write_text(json.dumps(man, indent=2))

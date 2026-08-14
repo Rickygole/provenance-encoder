@@ -45,7 +45,7 @@ import matplotlib.pyplot as plt
 # Long provenance notes belong in the LaTeX caption, not inside the plot.
 # Set True to draw them again.
 SHOW_INFIGURE_NOTES = False
-SHOW_INFIGURE_TITLES = False
+SHOW_INFIGURE_TITLES = True   # permanent in v3; the headline is a finding, not a flag
 import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 from scipy.stats import norm
@@ -69,159 +69,60 @@ def load(*parts):
 
 
 # ----------------------------------------------------------------------------
-# matplotlib style: serif, print-legible, greyscale-safe
-#
-# Identical to style.setup() and to the notebook's setup cell, so the same
-# figure drawn from any of the three is the same figure.
+# The v3 visual system. style.py is the only file in this repository allowed to
+# contain a colour literal; everything below is a name imported from it, so the
+# script path and the notebook path cannot drift. tools/check_parity.py makes
+# that a build failure rather than a proofreading job.
 # ----------------------------------------------------------------------------
-plt.rcParams.update({
-    "font.family": "serif",
-    # Pinned so that this script, style.py and the notebook all draw the same
-    # text metrics. See the note in style.py.
-    "font.serif": ["DejaVu Serif"],
-    "font.size": 9,
-    "axes.titlesize": 9,
-    "axes.labelsize": 9,
-    "xtick.labelsize": 8,
-    "ytick.labelsize": 8,
-    "legend.fontsize": 8,
-    "pdf.fonttype": 42,
-    # A negative tick label must be a hyphen-minus, not U+2212: the thesis bans
-    # the unicode minus on the page and on every canvas, and matplotlib draws it
-    # by default.
-    "axes.unicode_minus": False,
-    "text.color": "#1A1A1A",
-    "axes.labelcolor": "#1A1A1A",
-    "axes.edgecolor": "#1A1A1A",
-    "xtick.color": "#1A1A1A",
-    "ytick.color": "#1A1A1A",
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-    "axes.linewidth": 0.6,
-    "xtick.major.width": 0.6,
-    "ytick.major.width": 0.6,
-    "xtick.major.size": 3.0,
-    "ytick.major.size": 3.0,
-    "xtick.direction": "out",
-    "ytick.direction": "out",
-    "axes.grid": False,
-    "grid.linewidth": 0.25,
-    "grid.color": "#E8E8E8",
-    "lines.linewidth": 1.1,
-    "legend.frameon": False,
-    "figure.dpi": 150,
-    # Matches the notebook, so a figure built here and the same figure built
-    # there have the same margins and neither clips an annotation.
-    "savefig.bbox": "tight",
-    "savefig.pad_inches": 0.02,
-})
+import sys as _sys, os as _os
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+import style
+from style import (
+    COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET,
+    COBALT_DEEP, COBALT_CORE, COBALT_TINT, COBALT_WASH, COBALT_BARE,
+    AZURE_DEEP, AZURE_CORE, AZURE_TINT, AZURE_WASH, AZURE_BARE,
+    EMERALD_DEEP, EMERALD_CORE, EMERALD_TINT, EMERALD_WASH, EMERALD_BARE,
+    AMBER_DEEP, AMBER_CORE, AMBER_TINT, AMBER_WASH, AMBER_BARE,
+    PLUM_DEEP, PLUM_CORE, PLUM_TINT, PLUM_WASH, PLUM_BARE,
+    SCARLET_DEEP, SCARLET_CORE, SCARLET_TINT, SCARLET_WASH, SCARLET_BARE,
+    PAPER, INK, GRAPHITE, MUTE, SLATE, MIST, HAIR, PLATE_EDGE,
+    ENTITY_HUE, NON_ENTITY_MEASUREMENT,
+    T_HEADLINE, T_CLAIM, T_DECK, T_AXIS, T_TICK, T_SERIES, T_NOTE, T_PANEL,
+    T_CHIP, T_FLOOR,
+    LW_SIGNATURE, LW_PLATE, LW_SPINE, LW_GRID, LW_DATA, LW_REF, LW_INTERVAL,
+    LW_NODE, LW_CHIP, LW_CONNECTOR, LW_BAR,
+    MS_DOT, MS_MARK, MS_BARE, MS_SEED, REF_DASH, ERRBAR, DOT,
+    FIGW, PRINT_W, W90, W80, figw, canvas,
+    frame, plate, signature, panel_label, arrow, chip, node, band, case, cased,
+    wilson_ci,
+)
 
-# Palette. Shared verbatim with style.py and with the notebook's palette cell,
-# so the whole set looks like one document. Full rationale in style.py.
-#
-# Structure, unchanged. Greyscale luminance, 0.299R + 0.587G + 0.114B, of 255:
-#     INK      #1A1A1A  near-black       26   text, spines, ticks
-#     MUTE     #5B5B5B  grey             91   secondary annotation text
-#     GREY     #8A94A6  cool grey       147   reference lines, seed dots
-#     PALE     #C9D2E3  pale blue-grey  209   secondary bands
-#     GRID     #E8E8E8  hairline grey   232   optional value grid
-INK = "#1A1A1A"
-PALE = "#C9D2E3"
-MUTE = "#5B5B5B"
-GREY = "#8A94A6"
-GRID = "#E8E8E8"
+style.setup()
 
-# The claim tone. Exactly one element per figure, never a series colour.
-SCARLET = "#D81E05"
-
-# The series palette: five Okabe-Ito hues, used wherever a figure compares
-# distinct things. Lightness of 255 and contrast on white:
-#     BLUE2   #0072B2  blue             87   5.19:1   GPT-4o zero-shot
-#     GREEN   #009E73  bluish green    106   3.42:1   pharmacist truth
-#     ORANGE  #E69F00  orange          162   2.25:1   ACCORD
-#     PURPLE  #CC79A7  reddish purple  151   3.06:1   Llama 3 8B, weak labeller
-#     SKY     #56B4E9  sky blue        158   2.31:1   GPT-4o few-shot
-# An entity keeps its hue across every figure it appears on. Hue is never the
-# only separator: every series is also carried by a direct label, and by marker
-# shape wherever the grammar allows a marker other than a dot.
-BLUE2 = "#0072B2"
-GREEN = "#009E73"
-ORANGE = "#E69F00"
-PURPLE = "#CC79A7"
-SKY = "#56B4E9"
-
-# Text tones: the same hue darkened until 8 point type on white clears 4.5:1,
-# because this set labels a series in the series' own colour rather than in a
-# legend. The mark always keeps the full palette value; only type moves.
-BLUE2_T = "#0072B2"     # 5.19:1
-GREEN_T = "#008662"     # 4.58:1
-ORANGE_T = "#9D6C00"    # 4.59:1
-PURPLE_T = "#A36186"    # 4.55:1
-SKY_T = "#3B7CA1"       # 4.58:1
-
-# A series hue lightened toward the paper until it prints at a greyscale weight
-# of 160 of 255, for a point estimate that has no committed interval: lighter
-# than the 147 of the reference grey, so it reads as weaker than anything that
-# carries an interval, and equal to its peers, so no one of them dominates.
-BARE_BLUE2, BARE_GREEN, BARE_PURPLE = "#6FAFD3", "#5DC1A6", "#D085AF"
-
-# Historical names, still used by the figures in this file that the thesis does
-# not bind (funnel, prevalence, tracking, met-sharpened).
-BLUE, TEAL = BLUE2, GREEN
-GREY_DARK, GREY_LIGHT, GREY_FILL, GREY_DEAD = BLUE2, GREEN, PALE, GREY
-ALERT, GREY_MED = SCARLET, MUTE
+# Legacy names, for the four figures in this file that the thesis does not bind
+# (funnel, prevalence, tracking, met-sharpened) and for the two whose drawing
+# functions are kept unreferenced (rule-precision, disc-strata, survey-audit).
+# They are aliases onto v3 stops, not new colours.
+BLUE = BLUE2 = COBALT_CORE
+GREEN = EMERALD_CORE
+ORANGE = AMBER_CORE
+PURPLE = PLUM_CORE
+SKY = AZURE_CORE
+TEAL = EMERALD_CORE
+PALE = MIST
+GREY = SLATE
+GRID = HAIR
+ALERT = SCARLET_CORE
+BLUE2_T, GREEN_T, ORANGE_T = COBALT_DEEP, EMERALD_DEEP, AMBER_DEEP
+PURPLE_T, SKY_T = PLUM_DEEP, AZURE_DEEP
+GREY_DARK, GREY_LIGHT, GREY_FILL, GREY_DEAD = COBALT_CORE, EMERALD_CORE, MIST, SLATE
+GREY_MED = MUTE
+BARE_BLUE2, BARE_GREEN, BARE_PURPLE = COBALT_BARE, EMERALD_BARE, PLUM_BARE
 HATCH_A = "///"
 HATCH_B = "\\\\\\"
-# One grammar for the whole set, applied identically in all fourteen figures.
-#
-#   CHANCE_STYLE  every reference value (chance, a null, an initialisation):
-#                 grey, hairline, one dash pattern, labelled at the line itself.
-#   ERRBAR/DOT    every point estimate: a dot with a thin interval and small
-#                 caps, in the dot's own colour. Estimates are never bars.
-#   Bars          only for a count or a rate of a whole, no outline, 0.55 wide.
-#   SCARLET       exactly one element per canvas: this study, or the failure.
-CHANCE_STYLE = dict(color=GREY, linestyle=(0, (4, 2)), linewidth=0.6, zorder=1)
-ERRBAR = dict(elinewidth=1.0, capthick=1.0, capsize=2.5)
-DOT = dict(markersize=4.6)
-
-
-def lean(ax, grid=False, xbounds=None, ybounds=None):
-    """Left and bottom spines only, optionally clipped to the range they
-    actually measure, plus an optional single hairline value grid."""
-    ax.spines[["top", "right"]].set_visible(False)
-    if xbounds is not None:
-        ax.spines["bottom"].set_bounds(*xbounds)
-    if ybounds is not None:
-        ax.spines["left"].set_bounds(*ybounds)
-    if grid:
-        ax.set_axisbelow(True)
-        ax.yaxis.grid(True, color=GRID, linewidth=0.25)
-
-# Every figure in this file is bound at width=0.9\linewidth in a 6 inch text
-# block, so it is printed 5.40 inches wide. Each one is therefore DRAWN 5.40
-# inches wide (5.36 plus the 0.02 inch save pad on each side), which makes the
-# scale factor 1.0 and puts 8 point text on the page at 8 point. Before this,
-# figures were drawn 5.7 to 7.2 inches wide and shrunk to fit, so the same
-# 8 point label printed anywhere between 6.0 and 7.7 point depending on which
-# figure it was in.
-FIGW = 5.36
-PRINT_W = 5.40
+CHANCE_STYLE = dict(color=SLATE, linestyle=REF_DASH, linewidth=LW_REF, zorder=1)
 
 MANIFEST = []
-
-
-def canvas(fig):
-    """Pin the saved bounding box to the whole figure.
-
-    savefig crops to the artists, so the width of the file depended on how far
-    the longest annotation happened to reach and no two figures came out the
-    same measure. One invisible full-figure patch fixes the crop to the canvas,
-    so FIGW plus the 0.02 inch pad on each side is exactly the 5.40 inches the
-    document prints. Margins are then a layout decision, made in
-    subplots_adjust, rather than an accident of the text.
-    """
-    fig.patches.append(mpatches.Rectangle((0, 0), 1, 1, transform=fig.transFigure,
-                                          fill=False, linewidth=0, edgecolor="none"))
 
 
 def register(fname, label, sources, note=""):
@@ -231,24 +132,6 @@ def register(fname, label, sources, note=""):
         "sources": sources,
         "note": note,
     })
-
-
-def wilson_ci(k, n, z=1.959963984540054):
-    """Wilson score interval for a binomial proportion. Closed-form,
-    deterministic, no simulation."""
-    if n == 0:
-        return (np.nan, np.nan)
-    p = k / n
-    denom = 1 + z**2 / n
-    centre = p + z**2 / (2 * n)
-    adj = z * np.sqrt(p * (1 - p) / n + z**2 / (4 * n**2))
-    # Clamped to [0, 1] and to the estimate itself, identically to the helper in
-    # style.py: at k = 0 the exact lower bound is 0 and the arithmetic lands a
-    # few parts in 10^18 either side of it, which is not a real interval but is
-    # enough to make a plotting library refuse a negative error bar.
-    lo = min(p, max(0.0, (centre - adj) / denom))
-    hi = max(p, min(1.0, (centre + adj) / denom))
-    return (lo, hi)
 
 
 def mcc_from_counts(tp, tn, fp, fn):
@@ -266,7 +149,7 @@ def make_fig_pipeline_status():
     exemplar, p_exemplar = load("exemplar", "exemplar_correctness_recomputed.json")
     # The former reference rate was supplied by a task description, never measured
     # (REVISION_LOG R8). Use the measured wrong rate on the resolved candidates.
-    _ex = json.load(open(os.path.join(RESULTS, "exemplar", "exemplar_correctness_recomputed.json")))["rule_1_2_pooled"]
+    _ex = exemplar["rule_1_2_pooled"]
     defect_rate = _ex["n_wrong"] / _ex["n_resolved"]
 
     step01, p_step01 = load("diag", "step0_1_join_and_calibration.json")
@@ -297,110 +180,88 @@ def make_fig_pipeline_status():
     auroc = decontam["aggregate"]["ensemble_auroc"]
     ci = decontam["aggregate"]["ensemble_ci95"]
 
-    # The pipeline runs down the page, not across it. Six stages in one column
-    # of identical boxes, the verdict and the diagnostic that produced it in two
-    # aligned text columns beside them. Drawn on a strict point grid: the axes
-    # span exactly the figure and one data unit is one typographic point, so the
-    # boxes are identical and the rows are on one baseline by construction.
-    W, H = FIGW, 3.66
+    # Six full-canvas-width row bands, no box column and no connectors: reading
+    # order down the page plus the index column carries the sequence, and six
+    # arrows on a band chart is noise. Drawn on a strict point grid, one data
+    # unit to one typographic point, so the bands are identical by construction.
+    W, H = FIGW, 3.10
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
+    plate(fig)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     ax.set_xlim(0, W * 72)
     ax.set_ylim(0, H * 72)
     ax.axis("off")
 
-    stages = ["Cohort construction", "Medication extraction",
-              "Rule-based candidate\ngeneration", "LLM weak supervision",
-              "Detector training", "Evaluation"]
-    # Sentence case, not the shouted capitals of the old filled badges: these
-    # are typographic labels now, and the rule beside them carries the verdict.
-    # No asterisks. They pointed at a note that had already been moved into the
-    # chapter caption, so on the page they were two marks referring to nothing.
-    verdicts = ["Works", "Unvalidated",
-                f"Enriches but\nmis-attributes evidence\n({defect_rate*100:.1f}%)",
-                f"Fails\n({ratio:.0f}x prevalence mismatch,\ngold set)",
-                "Three claims falsified",
-                f"Fails\n(AUROC {auroc:.3f},\n95% CI [{ci[0]:.2f}, {ci[1]:.2f}])"]
-    # Written out rather than left as a dash: the thesis bans en and em dashes,
-    # and a double hyphen renders on canvas as something a reader reads as one.
-    # The parameter-displacement diagnostic is set as mathematics because that
-    # is what it is; spelled out in underscored identifiers it read as a
-    # variable name someone had pasted in.
-    diagnostics = ["no diagnostic run", "no diagnostic run",
-                   "action-set match vs\n.iloc[0] index",
-                   "weak-label marginal\nvs gold marginal",
-                   r"$\|\Delta\theta\|$ from init," + "\n" + r"OOD transfer $F_1$",
-                   "bootstrap CI on AUROC\nbefore write-up"]
+    # (stage, verdict word, numeric detail, diagnostic, state)
+    PASS, NONE, FAULT = "pass", "none", "fault"
+    rows = [
+        ("Cohort construction", "Works", "",
+         "cohort counts\nreconcile", PASS),
+        ("Medication extraction", "Unvalidated", "",
+         "no diagnostic run", NONE),
+        ("Rule-based candidate\ngeneration", "Fails",
+         f"{defect_rate*100:.1f}% wrong of\nresolved candidates",
+         "action-set match vs\nposition index", FAULT),
+        ("LLM weak supervision", "Fails",
+         f"{ratio:.0f}x prevalence\nmismatch, gold set",
+         "weak-label marginal\nvs gold marginal", FAULT),
+        ("Detector training", "Falsified", "three claims",
+         r"$\|\Delta\theta\|$ from init," + "\n" + r"OOD transfer $F_1$", FAULT),
+        ("Evaluation", "Fails",
+         f"AUROC {auroc:.3f},\n95% CI [{ci[0]:.2f}, {ci[1]:.2f}]",
+         "bootstrap CI on\nAUROC before write-up", FAULT),
+    ]
+    # Band fill F1, chip fill F2. The no-diagnostic chip is MUTE rather than the
+    # SLATE its band stroke uses: white text on SLATE is 3.48:1, under this
+    # set's own floor, and on MUTE it is 4.83:1. The band still reads as the
+    # quiet state because the band, not the chip, carries the area.
+    STATE = {
+        PASS:  (EMERALD_TINT, EMERALD_DEEP, (EMERALD_DEEP, EMERALD_CORE)),
+        NONE:  (MIST, SLATE, (MUTE, SLATE)),
+        FAULT: (SCARLET_TINT, SCARLET_DEEP, (SCARLET_DEEP, SCARLET_CORE)),
+    }
 
-    n = len(stages)
-    box_x, box_w, box_h, pitch = 3.0, 139.0, 30.0, 42.0
-    x_rule, x_verdict, x_diag = 150.0, 160.0, 284.0
-    y_top = 246.0
-    tops = [y_top - i * pitch for i in range(n)]
-    for i, (t, s, v, d) in enumerate(zip(tops, stages, verdicts, diagnostics)):
+    x_idx, x_name = 13.0, 24.0
+    x_chip, w_chip = 148.0, 58.0
+    x_detail, x_diag = 210.0, 294.0
+    band_h, gutter = 29.4, 3.0
+    y_top = H * 72 - 30.0
+    for i, (name, verdict, detail, diag, state) in enumerate(rows):
+        tint, deep, chip_hue = STATE[state]
+        y = y_top - (i + 1) * band_h - i * gutter
+        mid = y + band_h / 2
         ax.add_patch(FancyBboxPatch(
-            (box_x, t - box_h), box_w, box_h,
+            (1.5, y), W * 72 - 3.0, band_h,
             boxstyle="round,pad=0,rounding_size=2.0", mutation_aspect=1.0,
-            linewidth=0.6, edgecolor=INK, facecolor="white"))
-        ax.text(box_x + box_w / 2, t - box_h / 2, s, ha="center", va="center",
-                fontsize=8.0, color=INK, linespacing=1.25)
-        if i < n - 1:
-            ax.annotate("", xy=(box_x + box_w / 2, t - box_h - pitch + box_h),
-                        xytext=(box_x + box_w / 2, t - box_h),
-                        arrowprops=dict(arrowstyle="-|>", color=INK, lw=0.6,
-                                        mutation_scale=7, shrinkA=0, shrinkB=0))
-        # The one stage a diagnostic actually passed is the only good news on
-        # this canvas, and it was set in the same tone as the five failures
-        # beside it. It takes the truth hue, at the darkened value 8 point type
-        # needs on white. Everything else stays INK: the verdict rule beside
-        # the stages already carries the failures in scarlet, and setting five
-        # failure verdicts in red as well would put scarlet on most of the
-        # figure and retire it as an accent.
-        ax.text(x_verdict, t - box_h / 2, v, ha="left", va="center",
-                fontsize=8.0, color=GREEN_T if v == "Works" else INK,
-                linespacing=1.25)
-        ax.text(x_diag, t - box_h / 2, d, ha="left", va="center", fontsize=8.0,
-                style="italic", color=MUTE, linespacing=1.25)
+            linewidth=LW_NODE, edgecolor=deep, facecolor=tint, zorder=2))
+        ax.text(x_idx, mid, str(i + 1), ha="center", va="center",
+                fontsize=10.0, color=deep, zorder=5)
+        ax.text(x_name, mid, name, ha="left", va="center", fontsize=10.5,
+                color=INK, linespacing=1.18, zorder=5)
+        chip(ax, x_chip, mid - 8.0, w_chip, 16.0, chip_hue, verdict,
+             fontsize=T_CHIP, radius=3.0, zorder=5)
+        if detail:
+            ax.text(x_detail, mid, detail, ha="left", va="center",
+                    fontsize=T_SERIES, color=INK, linespacing=1.22, zorder=5)
+        ax.text(x_diag, mid, diag, ha="left", va="center", fontsize=T_NOTE,
+                style="italic", color=MUTE, linespacing=1.22, zorder=5)
 
-    ax.text(x_verdict, y_top + 7, "verdict", ha="left", va="bottom",
-            fontsize=8.0, color=MUTE)
-    ax.text(x_diag, y_top + 7, "diagnostic", ha="left", va="bottom",
-            fontsize=8.0, color=MUTE)
-
-    # The verdict rule, running beside the stages it judges. Three verdicts,
-    # three segments of rail, broken between them: green against the one stage
-    # a diagnostic passed, pale against the one stage no diagnostic ever ran
-    # on, and scarlet against the four a diagnostic faulted. The passed segment
-    # was grey, which is this set's tone for a reference rather than a result,
-    # so the one stage that works read as absence of a verdict rather than as a
-    # verdict. It now matches the word beside it.
-    ax.plot([x_rule, x_rule], [tops[0], tops[0] - box_h],
-            color=GREEN, lw=0.8, solid_capstyle="butt")
-    ax.plot([x_rule, x_rule], [tops[1], tops[1] - box_h],
-            color=PALE, lw=0.8, solid_capstyle="butt")
-    ax.plot([x_rule, x_rule], [tops[2], tops[5] - box_h],
-            color=SCARLET, lw=0.8, solid_capstyle="butt")
-
-    if SHOW_INFIGURE_TITLES: ax.text(W * 36, H * 72 - 4, "The pipeline as run, stage by stage",
-            ha="center", va="top", fontsize=9.0)
-    if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.02,
-            "*Categorical only (not re-plotted with a number): CORRECTIONS.md C1/C2/C4 document that the\n"
-            "authority-weight and rule-F1 claims did not survive re-audit; no committed result file in this\n"
-            "repo carries the underlying numbers, so they are not re-typed here.",
-            ha="center", fontsize=8.0, color=MUTE)
+    # 335.6pt at 13pt against 380pt of inner plate: the longer wording ran to
+    # 381.8pt and set its terminal period on the plate's rounded right corner.
+    signature(fig, SCARLET_DEEP,
+              "Five of six stages failed the diagnostic run on them, "
+              "or had none.")
     fname = "fig-pipeline-status.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
     register(fname, "fig:pipeline-status",
              [p_exemplar, p_step01, p_step2, p_decontam],
              "Two stage verdicts are categorical narrative with no committed numeric source "
-             "(CORRECTIONS.md); the asterisks that used to flag them are gone, because the "
-             "chapter caption already carries that note. The three parenthetical numbers "
+             "(CORRECTIONS.md). The three parenthetical numbers "
              "(47.45% wrong of resolved, ~22x, AUROC 0.5145 with CI) are computed from the cited JSON files. "
-             "The multiplier is now the gold-set one, 261/299 over 12/299, the same ratio "
-             "fig:intro-headline brackets, replacing the earlier train-pool-over-gold-set ratio "
-             "whose two terms had different denominators. "
+             "The multiplier is the gold-set one, 261/299 over 12/299, the same ratio "
+             "fig:intro-headline brackets. "
              "AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated "
              "3-seed ensemble 0.5145).")
 
@@ -426,25 +287,19 @@ def make_fig_intro_headline():
     pharm_pos, pharm_n = d["n_pos"], d["n"]
     pharm_rate = pharm_pos / pharm_n
 
-    intervals, p_intervals = load("stats", "intervals.json")
-    mcc = intervals["E2_mcc_intervals"]
-    order = ["gpt4o_zeroshot", "gpt4o_fewshot", "accord_binary_at_0.5_253core", "llama_baseline"]
-    labels = ["GPT-4o zero-shot", "GPT-4o few-shot", "ACCORD (contam.)", "Llama 3 8B"]
-
-    # The graphical abstract of the thesis: two stacked panels sharing one label
-    # gutter and one measure, both read left to right along a common grammar.
-    # (a) is a rate of a whole, so bars; (b) is an estimate, so dots with
-    # intervals. Stacked rather than side by side because at this measure two
-    # label gutters side by side leave no room for either panel's data.
-    fig, (axL, axR) = plt.subplots(2, 1, figsize=(FIGW, 3.42),
-                                   gridspec_kw={"height_ratios": [74, 84]})
+    # Panel (b) is gone. Its four Matthews-correlation rows are Figure 8's
+    # first family, drawn identically 85 pages later, and Figure 8 is now the
+    # one place every headline estimate in this thesis lives. What remains is
+    # the number the rest of the thesis follows: a rate of a whole, so bars.
+    fig, ax = plt.subplots(figsize=(FIGW, 2.55))
     canvas(fig)
-    fig.subplots_adjust(left=0.330, right=0.985, top=0.938, bottom=0.122, hspace=0.640)
+    # top was 0.735, which left 11pt of dead paper between the headline and the
+    # frame. The sub-line is now one line by directive, so 250pt of scarlet type
+    # has left the white right-hand third of the plot; the axes takes back the
+    # dead band instead, which is where that ink should have come from anyway.
+    # 6.8pt of clearance remains under the headline's second line.
+    fig.subplots_adjust(left=0.300, right=0.985, top=0.752, bottom=0.170)
 
-    # Middle bar: 261/299 is the weak labeller's marginal on the gold set, not
-    # ACCORD's own predicted-positive count (that is 278/299). reconciliation_c28.json
-    # exists to settle exactly this, and the bar was previously mislabelled ACCORD.
-    # The denominators live in the tick labels now, out of the plot area.
     bars = [("Weak labeller, train pool", weak_pos, weak_n, wilson_ci(weak_pos, weak_n)),
             ("Weak labeller, gold set", pred_pos, pred_n, wilson_ci(pred_pos, pred_n)),
             ("Pharmacist truth, gold set", pharm_pos, pharm_n, wilson_ci(pharm_pos, pharm_n))]
@@ -452,111 +307,80 @@ def make_fig_intro_headline():
     rates = [b[1] / b[2] for b in bars]
     los = [b[3][0] for b in bars]
     his = [b[3][1] for b in bars]
-    errs = [[r - lo for r, lo in zip(rates, los)], [hi - r for r, hi in zip(rates, his)]]
-    # Two hues, because there are two things here and not three: the same weak
-    # labeller measured on two different pools, and the pharmacist against whom
-    # it is measured. Drawing all three in one colour asked the reader to find
-    # the instrument-versus-truth split in the row labels alone, which is the
-    # split the whole thesis turns on. The weak labeller is Llama 3 8B
-    # (Chapter 3), so it carries Llama's hue here and on every other figure;
-    # the pharmacist carries the truth hue.
-    bar_hues = [PURPLE, PURPLE, GREEN]
-    # The interval is the bar's own, so it is the bar's own colour. Black caps
-    # on a coloured bar read as a second series laid over the first. But a
-    # same-colour interval loses its lower half inside the fill, so the
-    # interval reads one-sided and the bar reads as if it were exact: the
-    # interval is therefore cased in white, a slightly wider white stroke drawn
-    # under it, so both halves read against the fill and against the paper.
-    axL.barh(ypos, rates, color=bar_hues, linewidth=0, height=0.55, zorder=3)
-    axL.errorbar(rates, ypos, xerr=errs, fmt="none", ecolor="white",
-                 elinewidth=1.8, capthick=1.8, capsize=ERRBAR["capsize"],
-                 zorder=4)
-    for y, r, e_lo, e_hi, hue in zip(ypos, rates, errs[0], errs[1], bar_hues):
-        axL.errorbar([r], [y], xerr=[[e_lo], [e_hi]], fmt="none", ecolor=hue,
-                     zorder=5, **ERRBAR)
-    # One value label per bar, all in the same place: clear of the upper interval
-    # cap, rate above and count below, so no label can reach the bracket.
-    for y, b, r, hi in zip(ypos, bars, rates, his):
-        axL.text(hi + 0.05, y, f"{r*100:.1f}%\n{b[1]:,} of {b[2]:,}", va="center",
-                 ha="left", fontsize=8.0, color=INK, linespacing=1.25)
-    axL.set_yticks(ypos)
-    axL.set_yticklabels([b[0] for b in bars], fontsize=8.0, linespacing=1.3)
-    axL.set_xlim(0, 1.75)
-    axL.set_ylim(-0.62, 2.62)
-    axL.set_xticks([0, 0.5, 1.0])
-    axL.set_xlabel("Positive rate")
-    # The spines are cut back to the range they measure, so neither axis line
-    # runs on into the annotation gutter.
-    lean(axL, xbounds=(0, 1.0), ybounds=(0, 2))
-    if SHOW_INFIGURE_TITLES: axL.set_title(f"Marginal, weak label against truth ({weak_rate/pharm_rate:.0f}x)", fontsize=8.5)
-    # The bracket compares the two bars measured on the same 299-pair gold set.
-    # It used to span the training-pool bar and the gold-set bar, which have
-    # different denominators.
+    errs = [[r - lo for r, lo in zip(rates, los)],
+            [hi - r for r, hi in zip(rates, his)]]
+    # The weak labeller is Llama 3 8B (Chapter 3), so it carries Llama's hue on
+    # both of its rows; the pharmacist carries the truth hue.
+    hues = [PLUM, PLUM, EMERALD]
+
+    ax.set_xlim(0, 1.86)
+    ax.set_ylim(-0.66, 2.66)
+    # The gap between the pharmacist's rate and the weak labeller's on the same
+    # 299 pairs IS the finding, so it is drawn as a region rather than left for
+    # the reader to measure off the axis.
+    band(ax, pharm_pos / pharm_n, pred_pos / pred_n, SCARLET_WASH, zorder=0)
+    ax.barh(ypos, rates, color=[h.CORE for h in hues], height=0.62,
+            linewidth=LW_BAR, edgecolor=[h.DEEP for h in hues], zorder=3)
+    # A same-colour interval loses its lower half inside the fill, so the
+    # estimate reads one-sided and the bar reads as if it were exact. Casing is
+    # what keeps both halves readable.
+    ax.errorbar(rates, ypos, xerr=errs, fmt="none", ecolor=PAPER,
+                elinewidth=LW_INTERVAL + 1.4, capthick=LW_INTERVAL + 1.4,
+                capsize=ERRBAR["capsize"], zorder=4)
+    for y, r, e_lo, e_hi, hue in zip(ypos, rates, errs[0], errs[1], hues):
+        ax.errorbar([r], [y], xerr=[[e_lo], [e_hi]], fmt="none",
+                    ecolor=hue.CORE, zorder=5, **ERRBAR)
+    for y, b, r, hi, hue in zip(ypos, bars, rates, his, hues):
+        # The rate at the bar, the denominators in the row label: two
+        # different jobs, and side by side they collided with the bracket.
+        ax.text(hi + 0.030, y, f"{r*100:.1f}%", va="center", ha="left",
+                fontsize=T_SERIES, color=hue.DEEP, zorder=6)
+    ax.set_yticks(ypos)
+    ax.set_yticklabels([f"{b[0]}\n({b[1]:,} of {b[2]:,})" for b in bars],
+                       fontsize=T_SERIES, linespacing=1.3)
+    ax.set_xticks([0, 0.25, 0.5, 0.75, 1.0])
+    ax.set_xlabel("Positive rate")
+    frame(ax)
+
+    # The claim numeral. The bracket spans only the two bars measured on the
+    # same 299-pair gold set; the training-pool bar has a different denominator
+    # and is not part of the comparison.
     gold_ratio = (pred_pos / pred_n) / (pharm_pos / pharm_n)
-    x_bracket = 1.42
-    axL.plot([x_bracket] * 2, [ypos[2], ypos[1]], color=MUTE, lw=0.6,
-             solid_capstyle="butt", zorder=4)
+    x_br = 1.14
+    ax.plot([x_br] * 2, [ypos[2], ypos[1]], color=SCARLET_CORE, lw=LW_DATA,
+            solid_capstyle="butt", zorder=6)
     for y in (ypos[1], ypos[2]):
-        axL.plot([x_bracket, x_bracket - 0.045], [y, y], color=MUTE, lw=0.6, zorder=4)
-    axL.text(x_bracket + 0.05, (ypos[1] + ypos[2]) / 2, f"~{gold_ratio:.0f}x",
-             va="center", ha="left", fontsize=8.0, color=MUTE)
+        ax.plot([x_br, x_br - 0.045], [y, y], color=SCARLET_CORE, lw=LW_DATA,
+                zorder=6)
+    # The sub-line is ONE line, and one line of it is 167pt: it does not fit in
+    # the 94pt between the bracket and the right spine, so it goes BELOW the
+    # bracket, flush to the right spine, and runs left across the empty row
+    # under the pharmacist bar. Set beside the bracket it wrapped to four lines
+    # and the fourth was struck through by the bottom spine. Its left third
+    # crosses the scarlet wash; SCARLET_DEEP on SCARLET_WASH is 6.29:1.
+    ax.text(x_br + 0.06, (ypos[1] + ypos[2]) / 2, f"{gold_ratio:.0f}x",
+            va="center", ha="left", fontsize=T_CLAIM, fontweight="bold",
+            color=SCARLET_DEEP, zorder=6)
+    ax.text(1.817, -0.24,
+            f"the weak labeller's marginal over the pharmacist's, "
+            f"same {pharm_n} pairs",
+            va="top", ha="right", fontsize=T_SERIES, color=SCARLET_DEEP,
+            zorder=6)
 
-    # An MCC is an estimate, not a quantity of anything, so it is drawn as a dot
-    # with its interval, in the same grammar as every other estimate in this
-    # thesis. Rows, not columns, so that the eye reads the four intervals
-    # against one vertical chance line.
-    ys = np.arange(len(order))[::-1]
-    vals = [mcc[k]["mcc"] for k in order]
-    ci_lo = [mcc[k]["ci95"][0] for k in order]
-    ci_hi = [mcc[k]["ci95"][1] for k in order]
-    err = [[v - lo for v, lo in zip(vals, ci_lo)], [hi - v for v, hi in zip(vals, ci_hi)]]
-    axR.axvline(0, **CHANCE_STYLE)
-    # Four systems, four hues, from the map: the two GPT-4o prompting conditions
-    # take one hue at two values because they are one model, ACCORD takes its
-    # own, and Llama 3 8B takes the hue the weak-labeller bars in (a) carry,
-    # because the weak labeller is that same model in another role.
-    row_hues = [BLUE2, SKY, ORANGE, PURPLE]
-    for v, y, lo, hi, hue in zip(vals, ys, err[0], err[1], row_hues):
-        axR.errorbar([v], [y], xerr=[[lo], [hi]], fmt="o", color=hue, zorder=3,
-                     **ERRBAR, **DOT)
-    axR.set_yticks(ys)
-    axR.set_yticklabels(labels, fontsize=8.0)
-    axR.set_ylim(-0.62, 3.62)
-    # Ticks and spine both run past the widest cap (the zero-shot interval
-    # reaches 0.2484), so no interval ends beyond the scale it is read on.
-    axR.set_xlim(-0.34, 0.34)
-    axR.set_xticks([-0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3])
-    axR.set_xlabel("Matthews correlation, 95% CI")
-    if SHOW_INFIGURE_TITLES: axR.set_title("MCC, 95% CI, n=253", fontsize=8.5)
-    # Sits at the top of the reference line it names, clear of every interval.
-    axR.text(0.0, 3.72, "chance", fontsize=8.0, color=MUTE, va="bottom",
-             ha="center", clip_on=False)
-    # ACCORD is not accented here. This panel's claim is that all four
-    # intervals contain zero, which is a property of the column and not of any
-    # one row, so nothing in it takes the accent.
-    lean(axR, xbounds=(-0.3, 0.3))
-    axR.spines["left"].set_visible(False)
-    axR.tick_params(axis="y", length=0)
-
-    for ax, tag in ((axL, "(a)"), (axR, "(b)")):
-        p = ax.get_position()
-        fig.text(0.004, p.y1 + 0.010, tag, ha="left", va="bottom",
-                 fontsize=8.0, style="italic", color=INK)
-
-    if SHOW_INFIGURE_TITLES: fig.suptitle("The number that determines the rest of the thesis", fontsize=9.0, y=0.97)
-    if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.02,
-            "Left-panel middle bar (weak labeller gold-set marginal): 261/299, summed from per-group counts in\n"
-            "exp1a_gold_error_rates_by_group.json. CORRECTIONS.md C28 flags an unresolved 17-row discrepancy against a\n"
-            "raw-file count of 278/299 in a file not committed to this repo; the value shown is the one reconstructable here.",
-            ha="center", fontsize=8.0, color=MUTE)
+    signature(fig, PLUM_DEEP,
+              f"The weak labeller calls {pred_pos/pred_n*100:.0f}% of gold-set "
+              f"pairs contradictions.\n"
+              f"The pharmacist calls {pharm_pos/pharm_n*100:.0f}%.")
     fname = "fig-intro-headline.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
     register(fname, "fig:intro-headline",
-             [p_step01, p_exp1a, p_step2, p_intervals],
-             "MCC panel uses stats/intervals.json E2 (all four CIs contain zero, per CORRECTIONS.md "
-             "C36). The left-panel middle bar is the weak labeller marginal, 261 of 299 (gold.weaklabel_contradiction); ACCORD predicts contradiction for 278 of 299 (gold.accord_pred_contradiction, reconciliation_c28.json). Earlier notes conflated the two reading with "
-             "the discrepancy noted on the figure.")
+             [p_step01, p_exp1a, p_step2],
+             "The left-panel middle bar is the weak labeller marginal, 261 of 299 "
+             "(gold.weaklabel_contradiction); ACCORD predicts contradiction for 278 of 299 "
+             "(gold.accord_pred_contradiction, reconciliation_c28.json). The Matthews "
+             "correlation panel that used to sit under this one is deleted: those four "
+             "estimates are fig:forest's first family.")
 
 
 # ============================================================================
@@ -610,88 +434,91 @@ def make_fig_funnel():
 def make_fig_exemplar():
     exemplar, p_exemplar = load("exemplar", "exemplar_correctness_recomputed.json")
 
-    # Laid out on the same point grid as the other two schematics: one data unit
-    # is one typographic point, so the two columns are identical by construction
-    # and every row sits on one baseline. The canvas is shorter than it was by
-    # exactly the two lines of summary sentence that have moved to the caption.
-    W, H = FIGW, 2.58
+    # Abstract slots, coloured loudly. No synthetic clinical sentences: a thesis
+    # about instruments that mislead, built on a MIMIC-III data agreement, does
+    # not put invented clinical text on a canvas where a reader could take it
+    # for a record. One data unit is one typographic point.
+    W, H = W80, 2.45
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
+    plate(fig)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     ax.set_xlim(0, W * 72)
     ax.set_ylim(0, H * 72)
     ax.axis("off")
 
-    # Two columns of abstract mention slots (no clinical text).
-    col_x = {"Nursing note": 60.0, "Discharge summary": 190.0}
-    box_w, box_h, pitch = 54.0, 20.0, 26.0
-    rows_y = [124.0 - i * pitch for i in range(5)]
-    for label, x in col_x.items():
-        ax.text(x, 177.0, label, ha="center", va="center", fontsize=8.0,
-                color=INK)
+    x_nurse, x_disch, box_w = 58.0, 158.0, 84.0
+    x_note = 222.0
+    box_h, pitch = 19.0, 21.8
+    y_row0 = 106.0
+    rows_y = [y_row0 - i * pitch for i in range(5)]
+    x_right = W * 72 - 1.5
+
+    # The mismatch is a ROW, so it is drawn as one: a wash ground across the
+    # whole canvas at the CESS row, under both columns and the annotation.
+    ax.add_patch(mpatches.Rectangle(
+        (1.5, rows_y[4] - box_h / 2 - 4.0), x_right - 1.5, box_h + 8.0,
+        facecolor=SCARLET_WASH, edgecolor="none", linewidth=0, zorder=0))
+
+    # The trigger bracket over the two column heads: the rule quantifies over
+    # the whole set, which is the fact the positional selector ignores.
+    y_br = 133.0
+    ax.plot([x_nurse, x_disch], [y_br, y_br], color=COBALT_CORE, lw=LW_DATA,
+            solid_capstyle="butt", zorder=4)
+    for x in (x_nurse, x_disch):
+        ax.plot([x, x], [y_br - 5.0, y_br], color=COBALT_CORE, lw=LW_DATA,
+                solid_capstyle="butt", zorder=4)
+    ax.text(x_disch + 14.0, y_br, "the rule quantifies over the whole set",
+            ha="left", va="center", fontsize=T_SERIES, color=COBALT_DEEP,
+            zorder=5)
+
+    for x, head in ((x_nurse, "Nursing note"), (x_disch, "Discharge summary")):
+        ax.text(x, 120.0, head, ha="center", va="center", fontsize=10.0,
+                color=INK, zorder=5)
 
     nurse_tags = ["M1", "M2", "M3", "M4", "M5"]
     disch_tags = ["CONT", "CONT", "CONT", "CONT", "CESS"]
     for i, y in enumerate(rows_y):
-        for col, tags in ((col_x["Nursing note"], nurse_tags),
-                          (col_x["Discharge summary"], disch_tags)):
-            # The one highlighted slot is a scarlet stroke and scarlet text, not
-            # a filled block: the accent marks it without shouting.
-            hit = (col == col_x["Discharge summary"] and i == 4)
-            edge = SCARLET if hit else INK
-            ax.add_patch(FancyBboxPatch(
-                (col - box_w / 2, y - box_h / 2), box_w, box_h,
-                boxstyle="round,pad=0,rounding_size=2.0", mutation_aspect=1.0,
-                linewidth=1.0 if hit else 0.6, edgecolor=edge, facecolor="white"))
-            ax.text(col, y, tags[i], ha="center", va="center", fontsize=8.0,
-                    color=edge)
+        node(ax, x_nurse - box_w / 2, y - box_h / 2, box_w, box_h,
+             COBALT_TINT, COBALT_DEEP, radius=2.5, zorder=3)
+        ax.text(x_nurse, y, nurse_tags[i], ha="center", va="center",
+                fontsize=T_SERIES, color=INK, zorder=5)
+        if i < 4:
+            node(ax, x_disch - box_w / 2, y - box_h / 2, box_w, box_h,
+                 MIST, SLATE, radius=2.5, zorder=3)
+            ax.text(x_disch, y, disch_tags[i], ha="center", va="center",
+                    fontsize=T_SERIES, color=INK, zorder=5)
+        else:
+            # The one loud element on the canvas.
+            chip(ax, x_disch - box_w / 2, y - box_h / 2, box_w, box_h,
+                 SCARLET, disch_tags[i], fontsize=T_SERIES, radius=2.5,
+                 zorder=3)
 
-    # The trigger arrow spans the two columns it relates, from the centre of
-    # the M column to the centre of the CONT column, dropping a short stem at
-    # each end onto the column it names. It used to float in the gutter between
-    # them, touching neither, which left the reader to guess what was being
-    # related to what.
-    x_l, x_r = col_x["Nursing note"], col_x["Discharge summary"]
-    y_arrow, y_stem = 146.0, 136.0
-    for x in (x_l, x_r):
-        ax.plot([x, x], [y_stem, y_arrow], color=INK, lw=0.6,
-                solid_capstyle="butt", zorder=1)
-    ax.annotate("", xy=(x_r, y_arrow), xytext=(x_l, y_arrow),
-                arrowprops=dict(arrowstyle="-|>", color=INK, lw=0.6,
-                                mutation_scale=7, shrinkA=0, shrinkB=0))
-    ax.text((x_l + x_r) / 2, y_arrow + 4.0,
-            "trigger: sets conflict\n(quantifies over the set)", ha="center",
-            va="bottom", fontsize=8.0, color=MUTE, linespacing=1.25)
+    # Annotations align to their own row and are joined to it by a rule on the
+    # row's own baseline. No diagonals, no leaders.
+    notes = [
+        (0, "selected by position (row 1):\nwhat the annotator, the weak\n"
+            "labeller and the model saw", MUTE),
+        (4, "the mention the rule\nactually fired on:\naction matched, dose adjacent",
+         SCARLET_DEEP),
+    ]
+    for i, text, tone in notes:
+        y = rows_y[i]
+        ax.plot([x_disch + box_w / 2 + 4.0, x_note - 5.0], [y, y], color=SLATE,
+                lw=1.1, solid_capstyle="butt", zorder=4)
+        ax.text(x_note, y, text, ha="left", va="center", fontsize=T_NOTE,
+                color=tone, linespacing=1.24, zorder=5)
 
-    # Leaders: one weight, one length, attached to the right edge of the slot
-    # they name, so neither crosses a box. Both notes are annotation, so both
-    # are drawn in the secondary text tone with their arrows: the scarlet CESS
-    # slot is the one accent on this canvas and carries the finding by itself.
-    # A scarlet note beside a scarlet box put the accent on the canvas twice
-    # and made the sentence compete with the thing it points at.
-    x_tip = col_x["Discharge summary"] + box_w / 2 + 2
-    x_note = x_tip + 26
-    for y, note, colour in ((rows_y[0], ".iloc[0]\n(what the model,\nannotator and LLM saw)", MUTE),
-                            (rows_y[4], "fix: action-matched\nand dose-adjacent\n(the CESS mention)", MUTE)):
-        ax.annotate("", xy=(x_tip, y), xytext=(x_note - 3, y),
-                    arrowprops=dict(arrowstyle="-|>", color=colour, lw=0.6,
-                                    mutation_scale=7, shrinkA=0, shrinkB=0))
-        ax.text(x_note, y, note, va="center", ha="left", fontsize=8.0,
-                color=colour, linespacing=1.25)
-
-    # The measured rate is gone from the canvas and lives in the caption. This
-    # panel is a schematic of one candidate: five slots, one of them wrong.
-    # Welding a population rate to a picture of a single case invited the
-    # reader to take the picture as the estimate of the rate, which it is not,
-    # and the rate itself is reported two ways in the chapter.
+    signature(fig, SCARLET_DEEP,
+              "The rule fires on the set.\nThe exemplar shown to everyone is row 1.")
     fname = "fig-exemplar.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
     register(fname, "fig:exemplar", [p_exemplar],
              "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes), no "
-             "clinical text and, since round two, no number: the wrong-exemplar rate it used "
-             "to carry is a population rate and this panel draws a single candidate, so the "
-             "rate is stated in the chapter caption instead.")
+             "clinical text and no number: the wrong-exemplar rate it used to carry is a "
+             "population rate and this panel draws a single candidate, so the rate is stated "
+             "in the chapter body instead.")
 
 
 # ============================================================================
@@ -762,7 +589,7 @@ def make_fig_rule_precision():
     # The measured axis keeps its spine; the categorical one loses it, because a
     # rule running the height of five row labels reads as a bracket joining all
     # five, and the hairline below rule 4 says the opposite.
-    lean(ax, xbounds=(0.2, 0.8))
+    frame(ax)
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0)
     if SHOW_INFIGURE_TITLES: ax.set_title("ACCORD's own ranking performance does not exceed chance\nwithin any single rule", fontsize=8.3)
@@ -837,7 +664,7 @@ def make_fig_prevalence():
     ax.set_xlim(0, 1.02)
     ax.set_xticks([0, 0.5, 1.0])
     ax.set_xlabel("Share of labels")
-    lean(ax, xbounds=(0, 1.0), ybounds=(0, 1))
+    frame(ax)
     ratio = (weak_pos / weak_n) / (gold_pos / gold_n)
     ax.plot([1.05, 1.05], [0, 1], color=MUTE, lw=0.6, clip_on=False)
     ax.text(1.09, 0.5, f"~{ratio:.0f}x", va="center", fontsize=8.0, color=MUTE,
@@ -885,7 +712,7 @@ def make_fig_tracking():
 
     plot_series(llama, "o", "-", BLUE, "Llama 3 8B\n(teacher weak label)", 0.50)
     plot_series(accord, "s", "--", GREY, "ACCORD\n(student)", 0.90)
-    plot_series(truth, "^", ":", SCARLET, "pharmacist truth", 0.10)
+    plot_series(truth, "^", ":", SCARLET_CORE, "pharmacist truth", 0.10)
 
     ax.set_xticks(xs)
     ax.set_xticklabels([f"Rule {r}\n(n={ns[r]})" for r in rules], fontsize=8.0,
@@ -894,7 +721,7 @@ def make_fig_tracking():
     ax.set_ylim(-0.06, 1.06)
     ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
     ax.set_xlim(-0.35, 3.05)
-    lean(ax, xbounds=(0, 3), ybounds=(0, 1))
+    frame(ax)
     if SHOW_INFIGURE_TITLES: ax.set_title("The student tracks the teacher's marginal, not the truth's",
                  fontsize=8.5)
     fname = "fig-tracking.pdf"
@@ -924,26 +751,26 @@ def make_fig_met_exchange():
 
     fig, ax = plt.subplots(figsize=(FIGW, 3.10))
     canvas(fig)
-    fig.subplots_adjust(left=0.125, right=0.985, top=0.955, bottom=0.155)
-    # The three indifference lines are not measurements. They are what each
-    # statistic would accept, computed from the class counts, and they are the
-    # grid this figure reads the four systems against. So they are drawn in the
-    # reference grammar the rest of the set uses for a null or a chance line:
-    # grey hairlines, labelled at the line in the secondary text tone. Colour
-    # is returned to the thing that was actually measured, which is the systems.
-    d = np.linspace(0, P, 200)
-    ax.plot(d, d, color=GREY, linewidth=0.8, zorder=3)
-    slope_ba = N / P
-    ax.plot(d, d * slope_ba, color=GREY, linewidth=0.8, linestyle=(0, (5, 2)), zorder=3)
+    fig.subplots_adjust(left=0.118, right=0.760, top=0.800, bottom=0.150)
+    # Zoomed to the occupied wedge. The old range ran to x = 12 only to give the
+    # two long leaders somewhere to go, and the leaders are gone. Starting at a
+    # negative x is what pulls the boxed left spine off the origin cluster.
+    X_LO, X_HI = -1.2, 7.0
+    # Y_HI is the FRAME TOP, not the data maximum. set_yticks() below unions the
+    # view interval with its own ticks, so a 200 tick pulls the top of the box to
+    # 200 whatever set_ylim said; building the region polygons to a smaller
+    # number left a white strip across the plot under the frame top. One
+    # constant, used by the limits, the ticks and the fills alike.
+    Y_LO, Y_HI = -30.0, 200.0
+    ax.set_xlim(X_LO, X_HI)
+    ax.set_ylim(Y_LO, Y_HI)
 
-    # MCC indifference curve through ACCORD's own operating point, traced
-    # numerically: for each delta (forgone TPs), solve for the TN that holds
-    # MCC constant at mcc0.
-    # Sweep to TP0, not to P. A system cannot forgo more true positives than it
-    # found, and ACCORD found 11 of the 12. Running to P made tp negative at the
-    # last step, which put a negative product under the sqrt in mcc_from_counts,
-    # returned NaN, and silently truncated the curve while printing a warning.
-    deltas = np.linspace(0, TP0, 60)
+    d = np.linspace(0, X_HI, 200)
+    slope_ba = N / P
+    # The indifference lines are not measurements: they are what each statistic
+    # would accept, computed from the class counts. What a reader needs is the
+    # SPAN of what different statistics will trade, so the span is filled.
+    deltas = np.linspace(0, min(TP0, X_HI), 60)
     dtn_curve = []
     for delta in deltas:
         tp = TP0 - delta
@@ -954,78 +781,91 @@ def make_fig_met_exchange():
             return mcc_from_counts(tp, tn, fp, fn) - mcc0
 
         try:
-            tn_sol = brentq(f, 0, N)
-            dtn_curve.append(tn_sol - TN0)
+            dtn_curve.append(brentq(f, 0, N) - TN0)
         except ValueError:
             dtn_curve.append(np.nan)
-    # The MCC line runs under the balanced-accuracy line for nearly its whole
-    # length, so it is drawn as a band wide enough to show on both sides of it.
-    ax.plot(deltas, dtn_curve, color=PALE, linewidth=3.0, zorder=2)
+    dtn_curve = np.array(dtn_curve)
 
-    # Direct labels at the right end of each line, in the tone of the line they
-    # name. No legend: three keys in a box is three facts stated twice.
-    ax.text(P - 0.2, N + 8, f"balanced accuracy\n(slope {slope_ba:.2f})", ha="right",
-            va="bottom", fontsize=8.0, color=MUTE, linespacing=1.25, zorder=6)
-    # The MCC band is labelled at its own right edge, where the band stops and
-    # the balanced-accuracy line carries on: the one place on the canvas the
-    # two are visibly different things. The label itself sits in the empty
-    # wedge below both diagonals, because there is no room beside the band that
-    # the balanced-accuracy line does not already cross, and it is reached by a
-    # tail in the band's own tone.
-    ax.plot([deltas[-1], deltas[-1] + 0.9], [dtn_curve[-1] - 4, 134],
-            color=PALE, lw=1.2, solid_capstyle="butt", zorder=2)
-    ax.text(P + 0.5, 130, f"MCC indifference through\nACCORD ({mcc0:.3f})",
-            ha="right", va="top", fontsize=8.0, color=MUTE, linespacing=1.25, zorder=6)
-    ax.text(P - 0.2, P + 6, "PABAK (slope 1)", ha="right", va="bottom", fontsize=8.0,
-            color=MUTE, zorder=6)
+    # Three regions, and between them they are the whole content of this
+    # figure. Above the balanced-accuracy slope every statistic on this canvas
+    # counts the trade as a gain; below the PABAK slope none of them does;
+    # between the two it depends entirely on which statistic was chosen, and
+    # that span is the thing a reader has to see. Wider region first, narrower
+    # over it. HAIR under MIST rather than MIST under something darker: there
+    # is no structural stop between MIST and SLATE, and SLATE at area scale is
+    # a mark colour, not a ground.
+    dfull = np.linspace(X_LO, X_HI, 200)
+    ax.fill_between(dfull, np.clip(dfull * slope_ba, Y_LO, Y_HI), Y_HI,
+                    facecolor=HAIR, edgecolor="none", linewidth=0, zorder=1)
+    ax.fill_between(dfull, Y_LO, np.clip(dfull, Y_LO, Y_HI), facecolor=HAIR,
+                    edgecolor="none", linewidth=0, zorder=1)
+    ax.fill_between(dfull, np.clip(dfull, Y_LO, Y_HI),
+                    np.clip(dfull * slope_ba, Y_LO, Y_HI), facecolor=MIST,
+                    edgecolor="none", linewidth=0, zorder=2)
+    case(ax.text(6.7, 26.0, "only some of these statistics\n"
+                            "accept a trade in this wedge",
+                 ha="right", va="center", fontsize=T_NOTE, color=MUTE,
+                 linespacing=1.24, zorder=4))
+    ax.plot(d, d * slope_ba, color=GRAPHITE, lw=LW_REF, zorder=3)
+    ax.plot(d, d, color=GRAPHITE, lw=LW_REF, zorder=3)
+    ax.plot(deltas, dtn_curve, color=GRAPHITE, lw=LW_REF, zorder=3)
+    # The x = 0 reference, now clearly separate from the boxed left spine.
+    ax.axvline(0, color=SLATE, linestyle=REF_DASH, lw=LW_REF, zorder=2)
 
-    markers = {"ACCORD": "o", "GPT-4o zero-shot": "s", "GPT-4o few-shot": "^", "Llama 3 8B": "D"}
-    # Every label is placed away from the two near-coincident diagonals: the
-    # GPT points are labelled up and to the left of the lines, ACCORD to the left
-    # of the origin, Llama directly below its own glyph, which is the only
-    # placement that clears the crowd of marks and axis lines around the origin.
-    label_offset = {"ACCORD": (-8, 8), "GPT-4o zero-shot": (-8, 5), "GPT-4o few-shot": (-8, 5),
-                     "Llama 3 8B": (0, -9)}
-    label_align = {"ACCORD": "right", "GPT-4o zero-shot": "right", "GPT-4o few-shot": "right",
-                   "Llama 3 8B": "center"}
-    label_valign = {"ACCORD": "center", "GPT-4o zero-shot": "center",
-                    "GPT-4o few-shot": "center", "Llama 3 8B": "top"}
-    # ACCORD is the claim element here: this whole figure is about where ACCORD
-    # sits against exchange rates it never chose, so it takes the accent and
-    # gives up its ORANGE for this one canvas. The other three are the measured
-    # comparison and carry their own hues from the map, so a reader who met
-    # them on the graphical abstract meets the same three colours again.
-    hues = {"ACCORD": SCARLET, "GPT-4o zero-shot": BLUE2,
-            "GPT-4o few-shot": SKY, "Llama 3 8B": PURPLE}
-    # The name is set in the mark's own hue, darkened where the hue itself is
-    # too light to hold 8 point type on white. Marker shape carries the same
-    # distinction, so the figure survives a greyscale print.
-    text_hues = {"ACCORD": SCARLET, "GPT-4o zero-shot": BLUE2_T,
-                 "GPT-4o few-shot": SKY_T, "Llama 3 8B": PURPLE_T}
-    for name, s in systems.items():
-        delta = TP0 - s["tp"]
-        dtn = s["tn"] - TN0
-        this_study = name == "ACCORD"
-        ax.scatter([delta], [dtn], marker=markers[name], s=34,
-                   edgecolor=hues[name],
-                   facecolor=hues[name] if this_study else "white",
-                   linewidth=0.8, zorder=5)
-        ax.annotate(name, (delta, dtn), textcoords="offset points", xytext=label_offset[name],
-                    ha=label_align[name], va=label_valign[name], fontsize=8.0, zorder=6,
-                    color=text_hues[name])
+    # Each slope is labelled at the right edge of the plot at its own exit y,
+    # horizontal. Where two exit y values fall within 11pt the lower one drops
+    # to the next slot and takes a 3pt tick at the frame; a tick at the frame
+    # is not a leader.
+    exits = [
+        (min(X_HI * slope_ba, Y_HI), f"balanced accuracy (slope {slope_ba:.1f})"),
+        (X_HI, "PABAK (slope 1)"),
+        (float(dtn_curve[-1]), f"MCC through ACCORD ({mcc0:.3f})"),
+    ]
+    exits.sort(key=lambda e: -e[0])
+    pt_per_y = (0.800 - 0.150) * 3.10 * 72 / (Y_HI - Y_LO)
+    placed_y = []
+    for y, text in exits:
+        yy = y
+        for prev in placed_y:
+            if abs(yy - prev) * pt_per_y < 11.0:
+                yy = prev - 11.0 / pt_per_y
+        placed_y.append(yy)
+        ax.plot([X_HI - 0.10, X_HI], [yy, yy], color=GRAPHITE, lw=1.0,
+                clip_on=False, zorder=5)
+        ax.text(X_HI + 0.18, yy, text, ha="left", va="center",
+                fontsize=T_SERIES, color=GRAPHITE, clip_on=False, zorder=5)
 
-    # Origin lines bounded to the range they frame, so neither runs on into the
-    # margin the Llama label now sits in.
-    ax.plot([-2.3, P + 0.6], [0, 0], color=GREY, linewidth=0.6, zorder=0)
-    ax.plot([0, 0], [0, N], color=GREY, linewidth=0.6, zorder=0)
+    # The four systems. ACCORD is the claim: this whole figure is about where
+    # ACCORD sits against exchange rates it never chose, so it is the one solid
+    # scarlet mark and it gives up its amber on this canvas.
+    spec = {
+        "ACCORD": ("D", SCARLET_DEEP, SCARLET_CORE, SCARLET_DEEP, 7.0,
+                   (-6, 7), "right", "bottom"),
+        "Llama 3 8B": ("D", PAPER, PLUM_CORE, PLUM_DEEP, MS_MARK,
+                       (8, -6), "left", "top"),
+        "GPT-4o zero-shot": ("s", PAPER, COBALT_CORE, COBALT_DEEP, MS_MARK,
+                             (7, 4), "left", "bottom"),
+        "GPT-4o few-shot": ("^", PAPER, AZURE_CORE, AZURE_DEEP, MS_MARK,
+                            (7, -5), "left", "top"),
+    }
+    for name, s_ in systems.items():
+        delta = TP0 - s_["tp"]
+        dtn = s_["tn"] - TN0
+        mk, face, edge, tone, ms, off, ha, va = spec[name]
+        ax.plot([delta], [dtn], mk, markerfacecolor=face, markeredgecolor=edge,
+                markeredgewidth=LW_CHIP if name == "ACCORD" else 1.2, ms=ms,
+                zorder=6)
+        case(ax.annotate(name, (delta, dtn), textcoords="offset points",
+                         xytext=off, ha=ha, va=va, fontsize=T_SERIES,
+                         color=tone, zorder=7))
+
     ax.set_xlabel(r"$\delta$ = forgone true positives, relative to ACCORD")
     ax.set_ylabel(r"$\Delta$TN, relative to ACCORD")
-    ax.set_xlim(-2.3, P + 0.6)
-    ax.set_ylim(-46, N + 40)
-    ax.set_xticks([0, 3, 6, 9, 12])
-    ax.set_yticks([0, 50, 100, 150, 200])
-    lean(ax, xbounds=(0, 12), ybounds=(0, 200))
-    if SHOW_INFIGURE_TITLES: ax.set_title(f"What each statistic trades (P={P}, N={N}, n={P+N})", fontsize=8.5)
+    ax.set_xticks([0, 2, 4, 6])
+    ax.set_yticks([0, 50, 100, 150, Y_HI])
+    frame(ax)
+    signature(fig, SCARLET_DEEP,
+              "ACCORD sits on the indifference line: it buys no trade at all.")
     fname = "fig-met-exchange.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -1070,7 +910,7 @@ def make_fig_met_sharpened():
     axL.set_yticks(ys)
     axL.set_yticklabels(labels, fontsize=8.0)
     axL.set_ylim(-0.62, 3.62)
-    lean(axL, xbounds=(0, 12), ybounds=(0, 3))
+    frame(axL)
     accord_pp = baselines["accord_binary_at_0.5_253core"]["tp"] + baselines["accord_binary_at_0.5_253core"]["fp"]
     llama_pp = baselines["llama_baseline"]["tp"] + baselines["llama_baseline"]["fp"]
     n253 = baselines["accord_binary_at_0.5_253core"]["tp"] + baselines["accord_binary_at_0.5_253core"]["fp"] + \
@@ -1098,7 +938,7 @@ def make_fig_met_sharpened():
     axR.set_xlim(-0.28, 0.28)
     axR.set_xticks([-0.2, -0.1, 0.0, 0.1, 0.2])
     axR.text(0.0, 3.80, "chance", fontsize=8.0, color=MUTE, va="bottom", ha="center")
-    lean(axR, xbounds=(-0.2, 0.2), ybounds=(0, 3))
+    frame(axR)
 
     for ax, tag in ((axL, "(a)"), (axR, "(b)")):
         pos = ax.get_position()
@@ -1174,7 +1014,7 @@ def make_fig_disc_strata():
     # subset of the upper one. It is not. The caption says in as many words
     # that the second row is a different model on a different stratum, and the
     # figure was contradicting its own caption.
-    lean(ax, xbounds=(0.2, 0.9))
+    frame(ax)
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0)
     # Note sits below the axes, clear of both intervals.
@@ -1212,62 +1052,92 @@ def make_fig_disc_strata():
 #   this figure.
 # ============================================================================
 def make_fig_disc_actionability():
-    # One clean timeline. Events are tick-marked on a single axis, their labels
-    # alternate above and below on thin leaders, and the two moments the
-    # argument turns on carry the only accents: the point a detector could have
-    # fired, and the point this one actually does. Drawn on the same point grid
-    # as the other two schematics, one data unit to one typographic point.
-    W, H = FIGW, 1.84
+    """Fig 11. A fat timeline, not a hairline axis.
+
+    The three phases ARE the content, so they are drawn as regions: a WASH
+    ground per phase running the height of the plate, and a 16pt TINT band on
+    the timeline itself carrying the phase name inside it, cased. The first
+    phase runs back to the left edge and the last runs on to the right edge,
+    because both are open-ended in time; only the middle phase has two ends.
+
+    One grammar, so nothing collides: event names sit ABOVE the band on two
+    staggered levels, marks sit BELOW it with their labels beneath, and the
+    inside of the band carries the phase names and nothing else. The field
+    detail that used to ride these labels in parentheses is in the caption.
+    """
+    W, H = FIGW, 1.95
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
+    plate(fig)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     ax.set_xlim(0, W * 72)
     ax.set_ylim(0, H * 72)
     ax.axis("off")
 
-    line_y = 72.0
-    band_lo, band_hi = line_y - 11.0, line_y + 11.0
-    # (x, label, above?, accent colour or None)
-    events = [
-        (48.0, "last nursing note\n(CHARTTIME present)", True, None),
-        (150.0, "discharge order\nproposed detection point", False, BLUE),
-        (196.0, "DISCHTIME\n(patient leaves)", True, None),
-        (308.0, "discharge summary finalised\n(CHARTDATE only, no CHARTTIME)\n"
-                "the system's trigger point", False, SCARLET),
+    x_nurse, x_order, x_disch, x_summary = 48.0, 150.0, 268.0, 336.0
+    x0, x1 = 1.5, W * 72 - 1.5
+    g_lo, g_hi = 10.0, 112.0
+    band_lo, band_hi = 52.0, 68.0          # the 16pt band
+    mid = (band_lo + band_hi) / 2
+
+    phases = [
+        (x0, x_order, EMERALD_WASH, EMERALD_TINT, EMERALD_DEEP,
+         "intervention possible"),
+        (x_order, x_disch, AMBER_WASH, AMBER_TINT, AMBER_DEEP,
+         "window closing"),
+        (x_disch, x1, SCARLET_WASH, SCARLET_TINT, SCARLET_DEEP,
+         "no intervention possible"),
     ]
+    for a, b, wash, tint, deep, name in phases:
+        ax.add_patch(mpatches.Rectangle((a, g_lo), b - a, g_hi - g_lo,
+                                        facecolor=wash, edgecolor="none",
+                                        linewidth=0, zorder=0))
+    for a, b, wash, tint, deep, name in phases:
+        ax.add_patch(mpatches.Rectangle((a, band_lo), b - a, band_hi - band_lo,
+                                        facecolor=tint, edgecolor=deep,
+                                        linewidth=LW_NODE, zorder=2))
+    for a, b, wash, tint, deep, name in phases:
+        case(ax.text((a + b) / 2, mid, name, ha="center", va="center",
+                     fontsize=T_NOTE, color=INK, zorder=6))
 
-    # The span in which nothing can be done: a light band, labelled directly
-    # above itself, sitting behind the axis rather than on top of it.
-    ax.add_patch(mpatches.Rectangle((196.0, band_lo), 308.0 - 196.0, band_hi - band_lo,
-                                    facecolor=PALE, edgecolor="none", alpha=0.55,
-                                    zorder=0))
-    ax.text((196.0 + 308.0) / 2, band_hi + 3, "no intervention possible",
-            ha="center", va="bottom", fontsize=8.0, style="italic", color=MUTE)
+    # Event ticks pierce the band; names above it on two staggered levels, so
+    # no two names share a line and none needs a leader.
+    # The tick meets the band at both edges rather than running through it: the
+    # inside of the band belongs to the phase name, and a tick crossing that
+    # name is the one collision this layout can produce.
+    events = [
+        (x_nurse, "last nursing note", GRAPHITE, 7.0, "center"),
+        (x_order, "discharge order", GRAPHITE, 22.0, "center"),
+        (x_disch, "the patient leaves", GRAPHITE, 7.0, "center"),
+        (x_summary, "discharge summary finalised", SCARLET_DEEP, 22.0, "right"),
+    ]
+    for x, label, tone, dy, ha in events:
+        for lo, hi in ((band_lo - 6.0, band_lo), (band_hi, band_hi + 6.0)):
+            ax.plot([x, x], [lo, hi], color=tone, lw=LW_CONNECTOR,
+                    solid_capstyle="butt", zorder=5)
+        ax.text(x1 - 4.0 if ha == "right" else x, band_hi + dy, label, ha=ha,
+                va="bottom", fontsize=T_SERIES, color=tone, zorder=6)
 
-    ax.annotate("", xy=(368.0, line_y), xytext=(22.0, line_y),
-                arrowprops=dict(arrowstyle="-|>", color=INK, lw=0.6,
-                                mutation_scale=7, shrinkA=0, shrinkB=0))
-    for x, label, above, accent in events:
-        colour = accent or INK
-        ax.plot([x, x], [line_y - 3.5, line_y + 3.5], color=colour, lw=0.9,
-                solid_capstyle="butt", zorder=4)
-        ax.plot([x], [line_y], "o", color=colour, markersize=3.2,
-                markeredgewidth=0, zorder=5)
-        if above:
-            ax.plot([x, x], [line_y + 5, 100.0], color=GREY, lw=0.5, zorder=2)
-            ax.text(x, 103.0, label, ha="center", va="bottom", fontsize=8.0,
-                    color=colour, linespacing=1.3)
-        else:
-            ax.plot([x, x], [line_y - 5, 49.0], color=GREY, lw=0.5, zorder=2)
-            ax.text(x, 46.0, label, ha="center", va="top", fontsize=8.0,
-                    color=colour, linespacing=1.3)
+    y_mark = band_lo - 9.0
+    y_note = band_lo - 20.0
+    # The point a detector could have fired: a proposal that was measured, so a
+    # CORE mark in the entity blue rather than an accent.
+    ax.plot([x_order], [y_mark], "o", color=COBALT_CORE, markersize=MS_MARK,
+            markeredgecolor=COBALT_DEEP, markeredgewidth=1.0, zorder=7)
+    ax.text(x_order, y_note, "proposed detection point", ha="center", va="top",
+            fontsize=T_SERIES, color=COBALT_DEEP, zorder=7)
 
-    if SHOW_INFIGURE_TITLES: ax.text(W * 36, H * 72 - 4, "The trigger fires after the patient has left",
-                 ha="center", va="top", fontsize=9.0)
-    if SHOW_INFIGURE_NOTES: fig.text(0.5, 0.02,
-             "Schematic of MIMIC-III field timing (CORRECTIONS.md C6: CHARTTIME is null for every\n"
-             "discharge summary). No numeric estimate is shown; not sourced from a results JSON.",
-             ha="center", fontsize=8.0, color=MUTE)
+    # The system's trigger point: the one saturated scarlet mark on the canvas.
+    ax.plot([x_summary], [y_mark], "D", color=SCARLET_DEEP, markersize=9.4,
+            markeredgecolor=SCARLET_CORE, markeredgewidth=LW_CHIP, zorder=7)
+    ax.text(x_summary, y_mark, "!", ha="center", va="center", fontsize=T_NOTE,
+            color=PAPER, fontweight="bold", zorder=8)
+    ax.text(x1 - 4.0, y_note, "the system triggers here", ha="right", va="top",
+            fontsize=T_SERIES, color=SCARLET_DEEP, zorder=7)
+
+    signature(fig, SCARLET_DEEP,
+              "The document the system triggers on is finalised at or "
+              "after the patient leaves.")
     fname = "fig-disc-actionability.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -1324,82 +1194,121 @@ def make_fig_cohort_flow():
     n_unclassified = fact("extraction.medication_extraction.unclassified_derived")
     n_drawn = fact("extraction.annotation_sample.total_sampled")
 
-    # Same point grid as the other schematics in this set: the axes span exactly
-    # the figure and one data unit is one typographic point, so the nine boxes
-    # are identical by construction and every row sits on one baseline.
-    W, H = FIGW, 4.62
+    # A true branching flow in three phase groups. The phase band is a WASH
+    # ground and the stage boxes inside it are the TINT of the same hue, so the
+    # group reads as a group and the boxes still read as boxes; a band and its
+    # boxes in one stop would differ only by their strokes. One data unit is
+    # one typographic point.
+    W, H = W80, 3.80
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
+    plate(fig)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     ax.set_xlim(0, W * 72)
     ax.set_ylim(0, H * 72)
     ax.axis("off")
+    x_right = W * 72 - 1.5
 
-    # (stage name, count line, exclusion below this stage or None)
+    # (stage name, count, exclusion below this stage or None)
     stages = [
-        ("Heart failure admissions, ICD-9 prefix",
-         f"{hf['pre_los']:,} admissions",
+        ("Heart failure admissions, ICD-9 prefix", f"{hf['pre_los']:,}",
          f"{hf['removed']:,} admissions with no\npositive length of stay"),
-        ("After the length of stay filter",
-         f"{hf['post_los']:,} admissions", None),
-        ("Admissions carrying both note roles",
-         f"{n_both_roles:,} admissions", None),
-        ("Note pair selected, one note per role",
-         f"{n_pairs:,} pairs, {n_note_rows:,} note rows", None),
-        ("Medication mentions extracted",
-         f"{n_mentions:,} mentions",
+        ("After the length-of-stay filter", f"{hf['post_los']:,}", None),
+        ("Admissions carrying both note roles", f"{n_both_roles:,}", None),
+        ("Note pair selected, one per role", f"{n_pairs:,} pairs", None),
+        ("Medication mentions extracted", f"{n_mentions:,}",
          f"{n_unclassified:,} mentions with no\naction class assigned"),
-        ("Mentions carrying an action class",
-         f"{n_classified:,} mentions", None),
-        ("Candidates after the temporal prefilter",
-         f"{n_candidates:,} candidates", None),
-        ("Pairs annotated by the pharmacist",
-         f"{d299['n']} of {n_drawn} drawn",
+        ("Mentions carrying an action class", f"{n_classified:,}", None),
+        ("Candidates after the temporal prefilter", f"{n_candidates:,}", None),
+        ("Pairs annotated by the pharmacist", f"{d299['n']} of {n_drawn}",
          f"{n_ambiguous} pairs coded ambiguous"),
         ("Non-ambiguous evaluation core",
          f"{d253['n']} pairs, {d253['n_pos']} confirmed contradictions", None),
     ]
 
-    box_x, box_w, box_h, pitch = 6.0, 194.0, 26.0, 36.0
-    x_excl = 212.0
-    y_top = H * 72 - 9.0
-    tops = [y_top - i * pitch for i in range(len(stages))]
+    # The exclusion stub's arrowhead is 7.4pt long and 7.2pt wide, and it used
+    # to land with its back edge at x = 225.6 against stage boxes that ended at
+    # 228: the flare fused with the rounded bottom-right and top-right corners
+    # of the boxes above and below, and both strokes were interrupted. The head
+    # moves clear of the boxes instead of the boxes shrinking, because the two
+    # chromatic boxes on this canvas carry its whole chroma budget. The stage
+    # column shifts 2pt left, the gutter 4pt right, and the head now stops 3pt
+    # short of the gutter: back edge 231.6, box stroke outer edge 226.6, 5.0pt
+    # of clear paper between them. The gutter node loses 2pt of the 8pt it had
+    # spare on its longest line.
+    box_x, box_w = 24.0, 202.0
+    x_gut = 242.0
+    stub_gap = 3.0
+    box_h, last_h, gap = 17.0, 28.0, 8.0
+    y_top = H * 72 - 44.0
+    tops, y = [], y_top
+    for i in range(len(stages)):
+        h = last_h if i == len(stages) - 1 else box_h
+        tops.append((y, h))
+        y -= h + gap
+
+    # Phase groups: rows, WASH band, box TINT, DEEP stroke, rail, name.
+    phases = [
+        (range(0, 4), HAIR, MIST, SLATE, SLATE, "cohort construction"),
+        (range(4, 7), COBALT_WASH, COBALT_TINT, COBALT_DEEP, COBALT_DEEP,
+         "extraction and mining"),
+        (range(7, 9), EMERALD_WASH, EMERALD_TINT, EMERALD_DEEP, EMERALD_DEEP,
+         "annotation"),
+    ]
+    phase_of = {}
+    for rows, wash, tint, deep, rail, name in phases:
+        idx = list(rows)
+        for i in idx:
+            phase_of[i] = (tint, deep)
+        b_hi = tops[idx[0]][0] + 5.0
+        b_lo = tops[idx[-1]][0] - tops[idx[-1]][1] - 5.0
+        ax.add_patch(mpatches.Rectangle((1.5, b_lo), x_right - 1.5, b_hi - b_lo,
+                                        facecolor=wash, edgecolor="none",
+                                        linewidth=0, zorder=0))
+        ax.add_patch(mpatches.Rectangle((7.0, b_lo + 2.0), 3.0,
+                                        b_hi - b_lo - 4.0, facecolor=rail,
+                                        edgecolor="none", linewidth=0, zorder=1))
+        ax.text(17.0, (b_lo + b_hi) / 2, name, ha="center", va="center",
+                rotation=90, fontsize=T_NOTE, color=MUTE, zorder=2)
+
     x_stem = box_x + box_w / 2
-
-    for i, (t, (name, count, excl)) in enumerate(zip(tops, stages)):
-        # The last box is the one mark that carries what this figure asserts:
-        # the two evaluated sets the whole path ends at, and the twelve
-        # confirmed contradictions inside them. Scarlet stroke and scarlet
-        # text, the same treatment the exemplar schematic gives its one wrong
-        # slot, rather than a filled block.
+    for i, ((t, h), (name, count, excl)) in enumerate(zip(tops, stages)):
         last = i == len(stages) - 1
-        edge = SCARLET if last else INK
-        ax.add_patch(FancyBboxPatch(
-            (box_x, t - box_h), box_w, box_h,
-            boxstyle="round,pad=0,rounding_size=2.0", mutation_aspect=1.0,
-            linewidth=1.0 if last else 0.6, edgecolor=edge, facecolor="white"))
-        ax.text(box_x + box_w / 2, t - box_h / 2, f"{name}\n{count}",
-                ha="center", va="center", fontsize=8.0, color=edge,
-                linespacing=1.35)
+        mid = t - h / 2
+        if last:
+            # The evaluated core: the one solid element, and the end of the path.
+            chip(ax, box_x, t - h, box_w, h, SCARLET,
+                 f"{name}\n{count}", fontsize=T_SERIES, radius=3.0, zorder=4)
+        else:
+            tint, deep = phase_of[i]
+            node(ax, box_x, t - h, box_w, h, tint, deep, radius=2.5, zorder=4)
+            ax.text(box_x + 7.0, mid, name, ha="left", va="center",
+                    fontsize=T_SERIES, color=INK, zorder=5)
+            ax.text(box_x + box_w - 7.0, mid, count, ha="right", va="center",
+                    fontsize=T_AXIS, color=deep, zorder=5)
         if not last:
-            ax.annotate("", xy=(x_stem, t - pitch),
-                        xytext=(x_stem, t - box_h),
-                        arrowprops=dict(arrowstyle="-|>", color=INK, lw=0.6,
-                                        mutation_scale=7, shrinkA=0, shrinkB=0))
+            arrow(ax, (x_stem, t - h), (x_stem, t - h - gap), color=GRAPHITE,
+                  lw=LW_CONNECTOR, zorder=6)
         if excl is not None:
-            # A CONSORT exclusion leaves the trunk in the gap between two
-            # stages and runs right, so it reads as taken out between them
-            # rather than as a second thing the stage produced.
-            y_gap = t - box_h - (pitch - box_h) / 2
-            ax.annotate("", xy=(x_excl - 4.0, y_gap), xytext=(x_stem, y_gap),
-                        arrowprops=dict(arrowstyle="-|>", color=MUTE, lw=0.6,
-                                        mutation_scale=7, shrinkA=0, shrinkB=0))
-            ax.text(x_excl, y_gap, excl, ha="left", va="center", fontsize=8.0,
-                    color=MUTE, linespacing=1.25)
+            # An exclusion is accounting, not failure: SLATE and MIST, never
+            # scarlet. It leaves the trunk in the gap between two stages, so it
+            # reads as taken out between them.
+            y_gap = t - h - gap / 2
+            arrow(ax, (x_stem + 4.0, y_gap), (x_gut - stub_gap, y_gap),
+                  color=SLATE, lw=LW_CONNECTOR, zorder=6)
+            lines = excl.count("\n") + 1
+            ch = 11.0 * lines + 7.0
+            node(ax, x_gut, y_gap - ch / 2, x_right - 4.0 - x_gut, ch, MIST,
+                 SLATE, radius=2.5, zorder=4)
+            ax.text(x_gut + 6.0, y_gap, excl, ha="left", va="center",
+                    fontsize=T_NOTE, color=GRAPHITE, linespacing=1.24, zorder=5)
 
-    ax.text(x_excl, y_top + 1.0, "excluded", ha="left", va="top", fontsize=8.0,
-            color=MUTE)
+    ax.text(x_gut, y_top + 8.0, "excluded", ha="left", va="bottom",
+            fontsize=T_NOTE, color=MUTE, style="italic")
 
+    signature(fig, SCARLET_DEEP,
+              "13,608 admissions in; 253 pairs and\n"
+              "12 confirmed contradictions out.")
     fname = "fig-cohort-flow.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -1453,7 +1362,7 @@ def make_fig_survey_audit():
 
     y_bar_lo, y_bar_hi = 0.845, 1.0
     segments = [
-        (n_strict, SCARLET, SCARLET,
+        (n_strict, SCARLET_CORE, SCARLET_CORE,
          f"{n_strict} papers ({n_strict / n_total * 100:.1f}%) report the check "
          "under the strict reading"),
         # The middle segment is a real, named population, not a leftover: the
@@ -1493,7 +1402,7 @@ def make_fig_survey_audit():
     y_rows = [0.615, 0.395, 0.175]
     for (left, n, fill, text_colour, label), y_row in zip(
             sorted(placed, key=lambda p: -p[0]), y_rows):
-        leader = SCARLET if fill is SCARLET else GREY
+        leader = SCARLET_CORE if fill is SCARLET_CORE else GREY
         # Leaders anchor at the segment's left edge, with one stated exception:
         # a segment starting at x = 0 anchors at its midpoint, because a
         # full-height hairline directly above the 0 tick, on an axes whose left
@@ -1509,7 +1418,7 @@ def make_fig_survey_audit():
     ax.set_yticks([])
     # The count axis measures something and keeps its spine; the bar has one row
     # and no categorical axis, so nothing runs up the left edge.
-    lean(ax, xbounds=(0, n_total))
+    frame(ax)
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0)
 
@@ -1580,10 +1489,14 @@ def main():
     make_fig_tracking()
     make_fig_met_exchange()
     make_fig_met_sharpened()
-    make_fig_disc_strata()
+    # make_fig_disc_strata() and make_fig_survey_audit() are no longer bound.
+    # disc-strata redrew fig:forest's second family identically, sixty pages
+    # apart; survey-audit was cut by the author and its content is one sentence
+    # of body text. Both drawing functions are left in place above, exactly as
+    # make_fig_rule_precision was handled at the committee review, so either
+    # figure can be rebuilt if it is ever wanted again.
     make_fig_disc_actionability()
     make_fig_cohort_flow()
-    make_fig_survey_audit()
 
     manifest_path = os.path.join(FIGDIR, "manifest.json")
     with open(manifest_path, "w") as f:

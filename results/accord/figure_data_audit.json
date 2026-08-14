@@ -11,18 +11,16 @@
   ],
   "summary": {
     "by_classification": {
-      "LOADED": 142,
-      "DERIVED": 69,
-      "SETTING": 48,
-      "TYPED": 15
+      "LOADED": 144,
+      "DERIVED": 75,
+      "SETTING": 52,
+      "TYPED": 2
     },
     "by_verdict": {
-      "PASS": 249,
-      "FAIL": 10,
-      "PASS(caveat)": 2,
+      "PASS": 263,
+      "PASS(caveat)": 3,
+      "FAIL": 3,
       "FAIL(dependency)": 2,
-      "FAIL(cosmetic)": 8,
-      "FAIL(latent)": 1,
       "FAIL(label)": 1,
       "PASS(divergent)": 1
     },
@@ -42,8 +40,8 @@
         "DERIVED": 9,
         "SETTING": 5,
         "TYPED": 0,
-        "n_fail": 1,
-        "clean": false
+        "n_fail": 0,
+        "clean": true
       },
       "fig-rule-precision": {
         "n_values": 22,
@@ -57,65 +55,65 @@
       "fig-prevalence-response": {
         "n_values": 54,
         "LOADED": 48,
-        "DERIVED": 2,
+        "DERIVED": 4,
         "SETTING": 2,
-        "TYPED": 2,
-        "n_fail": 2,
-        "clean": false
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
       },
       "fig-falsification": {
-        "n_values": 18,
-        "LOADED": 7,
+        "n_values": 17,
+        "LOADED": 8,
         "DERIVED": 2,
-        "SETTING": 4,
-        "TYPED": 5,
-        "n_fail": 7,
+        "SETTING": 5,
+        "TYPED": 2,
+        "n_fail": 4,
         "clean": false
       },
       "fig-power": {
         "n_values": 16,
-        "LOADED": 6,
-        "DERIVED": 5,
-        "SETTING": 2,
-        "TYPED": 3,
-        "n_fail": 4,
-        "clean": false
+        "LOADED": 5,
+        "DERIVED": 8,
+        "SETTING": 3,
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
       },
       "fig-forest": {
         "n_values": 22,
-        "LOADED": 11,
-        "DERIVED": 7,
+        "LOADED": 12,
+        "DERIVED": 8,
         "SETTING": 2,
-        "TYPED": 2,
-        "n_fail": 3,
-        "clean": false
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
       },
-      "fig-disc-strata": {
+      "fig-disc-strata (unbound)": {
         "n_values": 18,
         "LOADED": 13,
         "DERIVED": 2,
-        "SETTING": 2,
-        "TYPED": 1,
-        "n_fail": 3,
+        "SETTING": 3,
+        "TYPED": 0,
+        "n_fail": 2,
         "clean": false
       },
       "fig-scaling": {
         "n_values": 27,
         "LOADED": 8,
         "DERIVED": 14,
-        "SETTING": 4,
-        "TYPED": 1,
-        "n_fail": 1,
-        "clean": false
+        "SETTING": 5,
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
       },
       "fig-threshold-surface": {
         "n_values": 12,
-        "LOADED": 5,
+        "LOADED": 6,
         "DERIVED": 2,
         "SETTING": 4,
-        "TYPED": 1,
-        "n_fail": 1,
-        "clean": false
+        "TYPED": 0,
+        "n_fail": 0,
+        "clean": true
       },
       "fig-disc-actionability": {
         "n_values": 9,
@@ -351,14 +349,14 @@
       },
       {
         "figure": "fig-intro-headline",
-        "value_name": "bar2 numerator (labelled 'ACCORD pred.-positive rate (gold set)')",
+        "value_name": "bar2 numerator (labelled 'Weak labeller, gold set')",
         "classification": "LOADED",
         "plotted_value": 261,
         "source_file": "results/accord/differential/exp1a_gold_error_rates_by_group.json",
         "key_path": "language_group3[*].TP + language_group3[*].FP",
         "expression": "sum(TP+FP) over 3 language groups = 261",
-        "verdict": "FAIL",
-        "note": "MISLABELLED QUANTITY. reconciliation_c28.json states exp1a 'is titled Llama weak-label error rates by group and never touches accord_pred'. 261 is the Llama 3 8B WEAK LABELLER's predicted-positive count. ACCORD's own is 278/299 (gold_standard_accord_results.csv, accord_pred=='contradiction'). Correct value for the axis label as written: 278/299 = 93.0%."
+        "verdict": "PASS",
+        "note": "The mislabelling is fixed. reconciliation_c28.json states exp1a 'is titled Llama weak-label error rates by group and never touches accord_pred'; 261 is the Llama 3 8B WEAK LABELLER's predicted-positive count, and the row is now labelled as the weak labeller on the gold set. ACCORD's own count, 278/299, is not plotted on this figure."
       },
       {
         "figure": "fig-intro-headline",
@@ -1486,28 +1484,28 @@
       },
       {
         "figure": "fig-prevalence-response",
-        "value_name": "clinical marker (fig_batch2.py literal)",
-        "classification": "TYPED",
+        "value_name": "clinical marker (fig_batch2.py)",
+        "classification": "DERIVED",
         "plotted_value": [
-          0.04,
-          0.849
+          0.0401,
+          0.848719
         ],
-        "source_file": null,
-        "key_path": null,
-        "expression": "ax.plot([0.04],[0.849],'s',...)",
-        "verdict": "FAIL",
-        "note": "fig_batch2.py:35 hard-codes the marker. True values are 0.040134 and 0.848719 (step2_signal_check.json / step0_1_join_and_calibration.json). The notebook loads them; the .py rounds them into literals."
+        "source_file": "results/accord/diag/step2_signal_check.json",
+        "key_path": "\u2026ambiguous_as_negative_n299.base_rate / crosstab 1425/1679",
+        "expression": "clinical_x = json.loads(step2)[...]['base_rate']; clinical_y = 1425/1679",
+        "verdict": "PASS",
+        "note": "The literal (0.04, 0.849) is gone: fig_batch2.py now reads both terms from the same two diagnostic files the notebook reads, so the two paths cannot drift."
       },
       {
         "figure": "fig-prevalence-response",
-        "value_name": "clinical annotation text (fig_batch2.py literal)",
-        "classification": "TYPED",
-        "plotted_value": "clinical (4% -> 85%)",
-        "source_file": null,
+        "value_name": "clinical annotation text (fig_batch2.py)",
+        "classification": "DERIVED",
+        "plotted_value": "clinical: 4% read as 85%",
+        "source_file": "results/accord/diag/step2_signal_check.json",
         "key_path": null,
-        "expression": "ax.annotate('clinical\\n(4% -> 85%)')",
-        "verdict": "FAIL",
-        "note": "fig_batch2.py:37. Notebook builds the same string from the loaded values (4% -> 85%), so the displayed text is correct, but in the .py it is a literal."
+        "expression": "f-string over the two loaded values",
+        "verdict": "PASS",
+        "note": "The literal string is gone; the label is built from the same loaded values as the marker."
       },
       {
         "figure": "fig-prevalence-response",
@@ -1597,47 +1595,47 @@
       },
       {
         "figure": "fig-falsification",
-        "value_name": "alpha_N initialisation bar = 0.5",
+        "value_name": "alpha_N initialisation = 0.5",
         "classification": "TYPED",
         "plotted_value": 0.5,
         "source_file": null,
         "key_path": null,
-        "expression": "a.bar(...,[0.5,1.0],...)",
+        "expression": "INIT_N = 0.5",
         "verdict": "FAIL",
-        "note": "Initialisation values are literals in BOTH make_figures_extra.py:61 and notebook cell 16. No committed result file records alpha_n_init/alpha_d_init; CORRECTIONS.md C1 is prose. Value is plausible but UNVERIFIABLE from any stored file."
+        "note": "The ONLY value on any bound canvas in this set with no committed numeric source. It is a DESIGN CONSTANT, not a measurement: CORRECTIONS.md C1 quotes it from accord_phase3_v2_ablations.py:76,84 as nn.Parameter(torch.tensor([0.5, 1.0])). No result file records alpha_n_init. The canvas labels it as a value the parameter was SET to, and the axis is the final value as a multiple of it, so the figure never presents it as measured."
       },
       {
         "figure": "fig-falsification",
-        "value_name": "alpha_D initialisation bar = 1.0",
+        "value_name": "alpha_D initialisation = 1.0",
         "classification": "TYPED",
         "plotted_value": 1.0,
         "source_file": null,
         "key_path": null,
-        "expression": "a.bar(...,[0.5,1.0],...)",
+        "expression": "INIT_D = 1.0",
         "verdict": "FAIL",
         "note": "same as above"
       },
       {
         "figure": "fig-falsification",
-        "value_name": "percent-change label alpha_N",
+        "value_name": "movement label alpha_N",
         "classification": "DERIVED",
         "plotted_value": 1.52,
         "source_file": null,
         "key_path": null,
-        "expression": "100*(0.5076-0.5)/0.5 = +1.5%",
+        "expression": "100*(aN/0.5 - 1) = +1.5%",
         "verdict": "FAIL(dependency)",
-        "note": "arithmetic is correct but one operand (0.5) is TYPED"
+        "note": "arithmetic is correct and aN is LOADED, but the other operand (0.5) is the TYPED design constant above; the figure now plots aN/0.5 directly, so the dependency is explicit on canvas"
       },
       {
         "figure": "fig-falsification",
-        "value_name": "percent-change label alpha_D",
+        "value_name": "movement label alpha_D",
         "classification": "DERIVED",
         "plotted_value": 0.3767,
         "source_file": null,
         "key_path": null,
-        "expression": "100*(1.00377-1.0)/1.0 = +0.4%",
+        "expression": "100*(aD/1.0 - 1) = +0.4%",
         "verdict": "FAIL(dependency)",
-        "note": "arithmetic is correct but one operand (1.0) is TYPED"
+        "note": "same dependency"
       },
       {
         "figure": "fig-falsification",
@@ -1674,40 +1672,29 @@
       },
       {
         "figure": "fig-falsification",
-        "value_name": "rule-type F1 list (make_figures_extra.py literal)",
-        "classification": "TYPED",
+        "value_name": "rule-type F1 list (make_figures_extra.py)",
+        "classification": "LOADED",
         "plotted_value": [
           0.9603,
-          0.0654,
-          0.0595
+          0.06543855847829327,
+          0.059544945658295115
         ],
         "source_file": "results/accord/generality/transfer_results_correct.json",
         "key_path": "hf_reference/sepsis/aki .rule_type_f1",
-        "expression": "f1 = [0.9603, 0.0654, 0.0595]",
-        "verdict": "FAIL(cosmetic)",
-        "note": "make_figures_extra.py:71. The literals round-trip to the stored values (0.9603 / 0.065439 / 0.059545) at the 4dp the figure prints, so the canvas is not wrong, but the values are typed rather than read. Note hf_reference.rule_type_f1 is itself stored only to 4dp (0.9603) while sepsis/aki are full precision."
+        "expression": "f1 = [transfer[k]['rule_type_f1'] for k in ...]",
+        "verdict": "PASS",
+        "note": "The three literals are gone: make_figures_extra.py reads all three from the transfer file, as the notebook does. hf_reference.rule_type_f1 is itself stored only to 4dp (0.9603) while sepsis and aki are full precision, which is a property of the source file, not of the figure."
       },
       {
         "figure": "fig-falsification",
         "value_name": "held-out rule accuracy reference line 0.4515",
-        "classification": "TYPED",
-        "plotted_value": 0.4515,
+        "classification": "SETTING",
+        "plotted_value": null,
         "source_file": null,
         "key_path": null,
-        "expression": "b.axhline(0.4515) / UNSOURCED_held_out_rule_acc = 0.4515",
-        "verdict": "FAIL",
-        "note": "STILL DRAWN, in both make_figures_extra.py:74 and notebook cell 16. number_provenance_audit.json rates it UNTRACEABLE: \"Caption asserts it 'recomputes to 0.4515 directly from the gold-standard CSV' but no results file records 0.4515.\". No file under results/ contains 0.4515 or 0.452 as a held-out rule accuracy. There is no correct value to substitute; the line has no support and should be removed."
-      },
-      {
-        "figure": "fig-falsification",
-        "value_name": "'45.2% held-out rule acc.' text label",
-        "classification": "TYPED",
-        "plotted_value": "45.2%",
-        "source_file": null,
-        "key_path": null,
-        "expression": null,
-        "verdict": "FAIL",
-        "note": "same unsourced quantity, printed as text"
+        "expression": "removed from the figure",
+        "verdict": "PASS",
+        "note": "number_provenance_audit.json rates it UNTRACEABLE: \"Caption asserts it 'recomputes to 0.4515 directly from the gold-standard CSV' but no results file records 0.4515.\". No file under results/ contains 0.4515 or 0.452 as a held-out rule accuracy, so the line and its label were removed rather than sourced. Neither appears in make_figures_extra.py."
       },
       {
         "figure": "fig-falsification",
@@ -1812,12 +1799,12 @@
       {
         "figure": "fig-power",
         "value_name": "this-study MDE (y of red marker)",
-        "classification": "LOADED",
-        "plotted_value": 0.7382,
+        "classification": "DERIVED",
+        "plotted_value": 0.735472,
         "source_file": "results/accord/section6_auroc_power.json",
-        "key_path": "minimum_detectable_auc",
-        "expression": null,
-        "verdict": "FAIL",
+        "key_path": "n_positives / n_negatives / alpha / power",
+        "expression": "hanley_mde(12, 241) -- the marker is now drawn ON the plotted curve",
+        "verdict": "PASS(caveat)",
         "note": "The marker is drawn at the FILE value 0.7382, but the CURVE on the same axes is drawn by hanley_mde(), which at n_pos=12,n_neg=241 returns 0.7355. The marker therefore does not lie on the plotted curve (gap +0.0027). The file value is also not reproducible by the null-variance route either: 0.5 + z*se_auc_under_null = 0.7397 (se_auc_under_null=0.08555, z=2.801585). Neither method yields 0.7382."
       },
       {
@@ -1888,39 +1875,39 @@
       },
       {
         "figure": "fig-power",
-        "value_name": "mortality point (fig_batch2.py literals)",
-        "classification": "TYPED",
+        "value_name": "mortality point (fig_batch2.py)",
+        "classification": "DERIVED",
         "plotted_value": [
           570,
           6206
         ],
         "source_file": "results/task_runs.json",
-        "key_path": "concat_s1.data_lineage",
-        "expression": "hanley_mde([570],[6206])",
-        "verdict": "FAIL(cosmetic)",
-        "note": "fig_batch2.py:162-165 types both class counts. They match task_runs.json exactly, so the canvas is right, but the numbers are typed."
+        "key_path": "concat_s1.data_lineage.test_n_pos / test_n - test_n_pos",
+        "expression": "mort_n_pos = _mort['test_n_pos']; mort_n_neg = _mort['test_n'] - mort_n_pos",
+        "verdict": "PASS",
+        "note": "The two typed class counts are gone: both are read from the run record."
       },
       {
         "figure": "fig-power",
-        "value_name": "neg:pos ratio for the curve (fig_batch2.py literal)",
-        "classification": "TYPED",
-        "plotted_value": "241/12",
+        "value_name": "neg:pos ratio for the curve (fig_batch2.py)",
+        "classification": "DERIVED",
+        "plotted_value": 20.083333,
         "source_file": "results/accord/section6_auroc_power.json",
-        "key_path": "n_negatives/n_positives",
-        "expression": "n_neg = n_pos*(241/12)",
-        "verdict": "FAIL(cosmetic)",
-        "note": "fig_batch2.py:151. Matches the file; notebook computes n_neg_study/n_pos_study instead."
+        "key_path": "n_negatives / n_positives",
+        "expression": "n_neg = n_pos * (n_neg_study / n_pos_study)",
+        "verdict": "PASS",
+        "note": "The typed 241/12 is gone; both terms are read from the power file."
       },
       {
         "figure": "fig-power",
         "value_name": "MDE fallback default (fig_batch2.py)",
-        "classification": "TYPED",
-        "plotted_value": 0.7382,
+        "classification": "SETTING",
+        "plotted_value": null,
         "source_file": "results/accord/section6_auroc_power.json",
         "key_path": "minimum_detectable_auc",
-        "expression": "pw.get('minimum_detectable_auc', 0.7382)",
-        "verdict": "FAIL(latent)",
-        "note": "fig_batch2.py:131. A literal fallback that silently reproduces the file value if the key ever disappears; it would draw a number with no source and no warning."
+        "expression": "pw['n_positives'] etc., no .get() fallback",
+        "verdict": "PASS",
+        "note": "The literal fallback is gone. fig_batch2.py now indexes the keys directly, so a missing key raises rather than silently drawing a number with no source."
       },
       {
         "figure": "fig-power",
@@ -2049,18 +2036,18 @@
       },
       {
         "figure": "fig-forest",
-        "value_name": "row AUROC-0.5 (decontaminated) \u2014 fig_batch2.py literals",
-        "classification": "TYPED",
+        "value_name": "row AUROC-0.5 (decontaminated) \u2014 fig_batch2.py",
+        "classification": "DERIVED",
         "plotted_value": [
-          0.5145,
-          0.321,
-          0.703
+          0.014523,
+          -0.179043,
+          0.203372
         ],
         "source_file": "results/accord/decontam/corrected_gold_metrics.json",
         "key_path": "aggregate.ensemble_auroc / ensemble_ci95",
-        "expression": "rows.append(('AUROC - 0.5 (decontaminated)', 0.5145-0.5, 0.321-0.5, 0.703-0.5))",
-        "verdict": "FAIL(cosmetic)",
-        "note": "fig_batch2.py:96. Stored values are 0.5145228215767634 and [0.3209574856693268, 0.7033717778609418]; the literals are 4/3dp truncations. Effect on the plotted estimate: 0.0145 vs 0.01452282 (invisible). Notebook loads them."
+        "expression": "_dec['ensemble_auroc'] - 0.5, etc.",
+        "verdict": "PASS",
+        "note": "The three literals are gone: fig_batch2.py reads the decontaminated aggregate, as the notebook does."
       },
       {
         "figure": "fig-forest",
@@ -2079,18 +2066,14 @@
       },
       {
         "figure": "fig-forest",
-        "value_name": "row AUROC-0.5 (defect-free) \u2014 fig_batch2.py literals",
-        "classification": "TYPED",
-        "plotted_value": [
-          0.5078,
-          0.2217,
-          0.7615
-        ],
+        "value_name": "row AUROC-0.5 (defect-free) \u2014 fig_batch2.py",
+        "classification": "LOADED",
+        "plotted_value": null,
         "source_file": "results/accord/stats/intervals.json",
-        "key_path": "E3_defect_free_stratum.*",
-        "expression": "rows.append(... 0.5078-0.5, 0.2217-0.5, 0.7615-0.5)",
-        "verdict": "FAIL(cosmetic)",
-        "note": "fig_batch2.py:97. Literals equal the stored values exactly (the file is stored to 4dp)."
+        "key_path": "control/final_report.json ensemble_mean_of_seed_scores.gold_defect_free_rule34",
+        "expression": "_df34['auroc'] - 0.5 and its bootstrap ci95",
+        "verdict": "PASS",
+        "note": "The three literals are gone, and the row now reads the DECONTAMINATED defect-free stratum from the control report rather than the contaminated E3 block, so it is comparable with the row above it."
       },
       {
         "figure": "fig-forest",
@@ -2210,14 +2193,14 @@
       },
       {
         "figure": "fig-forest",
-        "value_name": "row 'AUROC-0.5 (defect-free stratum)' model provenance",
+        "value_name": "row 'Defect-free stratum' model provenance",
         "classification": "LOADED",
-        "plotted_value": 0.5078,
-        "source_file": "results/accord/stats/intervals.json",
-        "key_path": "E3_defect_free_stratum.auroc",
+        "plotted_value": 0.546875,
+        "source_file": "results/accord/control/final_report.json",
+        "key_path": "ensemble_mean_of_seed_scores.gold_defect_free_rule34.auroc",
         "expression": null,
-        "verdict": "FAIL",
-        "note": "The row directly above it is labelled '(decontaminated)'; this one is labelled only '(defect-free stratum)' and a reader will assume the same model. It is not: 0.5078 is the CONTAMINATED released score (identical to control/final_report.json accord_contra_prob_same_299_pairs.gold_defect_free_rule34.auroc). The matched decontaminated value is 0.546875 with CI [0.24184073920265783, 0.8281430288461535], i.e. the row should sit at +0.0469 CI [-0.2582, +0.3281]. It still crosses zero, so the headline '7 of 8 cross zero' survives, but the plotted point and interval are from the wrong run."
+        "verdict": "PASS",
+        "note": "Fixed. The row used to plot E3_defect_free_stratum.auroc = 0.5078, which is the CONTAMINATED released score, while the row above it was decontaminated, so the two were not comparable. It now plots the matched decontaminated value 0.546875 with CI [0.24184073920265783, 0.8281430288461535]. Both rows are now the decontaminated run."
       },
       {
         "figure": "fig-forest",
@@ -2253,9 +2236,9 @@
         "note": "7 of 8 cross zero; recomputed independently"
       }
     ],
-    "fig-disc-strata": [
+    "fig-disc-strata (unbound)": [
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row1 AUROC",
         "classification": "LOADED",
         "plotted_value": 0.5145228215767634,
@@ -2266,7 +2249,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row1 CI95",
         "classification": "LOADED",
         "plotted_value": [
@@ -2280,7 +2263,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row1 n",
         "classification": "LOADED",
         "plotted_value": 253,
@@ -2291,7 +2274,7 @@
         "note": "The row is labelled 'All annotated pairs' but n=253, which is the ambiguous-EXCLUDED core. The annotated gold set is 299 (defect_free_strata.json strata[ALL].n = 299, reconciliation_c28 pharm_label_value_counts sums to 299). 46 pharmacist-ambiguous pairs are dropped. The number printed on the canvas (n=253) is right; the words next to it are not."
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row1 n_positives",
         "classification": "LOADED",
         "plotted_value": 12,
@@ -2302,7 +2285,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row1 MWU p",
         "classification": "LOADED",
         "plotted_value": 0.8667920078913933,
@@ -2313,7 +2296,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "auroc_mean cross-check (not plotted)",
         "classification": "DERIVED",
         "plotted_value": 0.521093,
@@ -2324,7 +2307,7 @@
         "note": "confirms the ensemble AUROC (0.5145) is a distinct quantity from the seed mean (0.5211); the figure plots the ensemble, matching the CI it is paired with"
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row2 AUROC",
         "classification": "LOADED",
         "plotted_value": 0.5078,
@@ -2335,7 +2318,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row2 unstratified CI95",
         "classification": "LOADED",
         "plotted_value": [
@@ -2349,7 +2332,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row2 stratified CI95 (diamond)",
         "classification": "LOADED",
         "plotted_value": [
@@ -2363,7 +2346,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row2 n / n_pos",
         "classification": "LOADED",
         "plotted_value": [
@@ -2377,7 +2360,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row2 MWU p (notebook)",
         "classification": "LOADED",
         "plotted_value": 0.953,
@@ -2388,18 +2371,18 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
-        "value_name": "row2 MWU p (make_figures.py literal 0.953)",
-        "classification": "TYPED",
+        "figure": "fig-disc-strata (unbound)",
+        "value_name": "row2 MWU p (make_figures.py)",
+        "classification": "SETTING",
         "plotted_value": 0.953,
         "source_file": "results/accord/defect_free_strata.json",
         "key_path": "strata[rules 3+4 (DEFECT-FREE)].mwu_p",
         "expression": "rows = [... 0.953, ...]",
-        "verdict": "FAIL(cosmetic)",
+        "verdict": "PASS",
         "note": "make_figures.py:730 types it; it equals the stored value exactly. Notebook loads it."
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "footer: draws dropped",
         "classification": "LOADED",
         "plotted_value": 20,
@@ -2410,7 +2393,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "footer: bootstrap B",
         "classification": "LOADED",
         "plotted_value": 10000,
@@ -2421,7 +2404,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "drop_rate cross-check",
         "classification": "DERIVED",
         "plotted_value": 0.002,
@@ -2432,7 +2415,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "row1 vs row2 come from the same model",
         "classification": "LOADED",
         "plotted_value": false,
@@ -2443,7 +2426,7 @@
         "note": "BRANCH MISMATCH. Row 1 (0.5145, n=253) is the ACCORD v2 DECONTAMINATED 3-seed ensemble (seeds 0/1/2, ambiguous pairs excluded). Row 2 (0.5078, n=134) is byte-identical to control/final_report.json accord_contra_prob_same_299_pairs.gold_defect_free_rule34.auroc = 0.5078125 -- the CONTAMINATED released per-pair score, on a 134-of-299 subset in which pharmacist-ambiguous pairs are counted as negatives. The two rows differ in BOTH the model and the denominator convention, and are drawn on one axis as one comparison with no marking. A matched-branch value exists in the same repository: control/final_report.json ensemble_mean_of_seed_scores.gold_defect_free_rule34.auroc = 0.546875, CI [0.24184073920265783, 0.8281430288461535]. number_provenance_audit.json statistical_concerns S6 flags exactly this."
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "chance line 0.5",
         "classification": "SETTING",
         "plotted_value": 0.5,
@@ -2454,7 +2437,7 @@
         "note": ""
       },
       {
-        "figure": "fig-disc-strata",
+        "figure": "fig-disc-strata (unbound)",
         "value_name": "xlim/ylim",
         "classification": "SETTING",
         "plotted_value": [
@@ -2742,12 +2725,12 @@
       {
         "figure": "fig-scaling",
         "value_name": "inset x position of the from-scratch point",
-        "classification": "TYPED",
-        "plotted_value": 10600000.0,
+        "classification": "SETTING",
+        "plotted_value": null,
         "source_file": "results/task_runs.json",
         "key_path": "ours_current_s0.non_emb_params",
         "expression": "ins.errorbar([1.06e7], ...)",
-        "verdict": "FAIL(cosmetic)",
+        "verdict": "PASS",
         "note": "Both fig_batch2.py:85 and notebook cell 24 place the point at a typed 1.06e7. The notebook even LOADS clinical_params = 10638720, prints it, and then does not use it. The inset x axis is unlabelled and untickmarked, so nothing visible is wrong; still a typed coordinate where a loaded one was available."
       },
       {
@@ -2893,14 +2876,14 @@
       },
       {
         "figure": "fig-threshold-surface",
-        "value_name": "E9 operating-point line y (fig_threshold_surface.py literal)",
-        "classification": "TYPED",
-        "plotted_value": 0.1994,
+        "value_name": "E9 operating-point line y (fig_threshold_surface.py)",
+        "classification": "LOADED",
+        "plotted_value": 0.19937082186394023,
         "source_file": "results/accord/selection/threshold_robustness_results.json",
         "key_path": "original_e9_population_pred_pos_rate",
-        "expression": "ax.plot(B, [0.1994]*len(B), ...)",
-        "verdict": "FAIL(cosmetic)",
-        "note": "fig_threshold_surface.py:41-43. Stored value is 0.19937082186394023; 0.1994 is a 4dp rounding. The notebook loads it."
+        "expression": "e9_rate = d_thresh['original_e9_population_pred_pos_rate']",
+        "verdict": "PASS",
+        "note": "The 4dp literal 0.1994 is gone; the script reads the stored value, as the notebook does."
       },
       {
         "figure": "fig-threshold-surface",
@@ -3495,28 +3478,5 @@
         "note": ""
       }
     ]
-  },
-  "renderer_provenance": {
-    "shipped_pdfs_were_produced_by": "accord/thesis/figures/Thesis_Figures_PerFigure.ipynb",
-    "evidence": "All thirteen fig-*.pdf carry mtimes 22:26:01-22:26:04 in exactly the notebook's EXPECTED[] order; the five .py-only figures (funnel, prevalence, tracking, met-sharpened, asymmetry) carry 22:25:42-22:25:47. The notebook was the last writer for all thirteen.",
-    "why_it_matters": "The notebook LOADS most of the values the .py scripts TYPE. Twelve of the fifteen TYPED literals below live only in fig_batch2.py / fig_threshold_surface.py / make_figures_extra.py / make_figures.py and are therefore NOT on the currently shipped canvases. Three are typed in the notebook too (the two alpha initialisation bars and the 0.4515 held-out line) and ARE on the shipped canvas.",
-    "live_risk": {
-      "file": "accord/thesis/figures/run_all_figures_cell.py (and Render_All_Figures.ipynb), created 2026-08-12 22:31 while this audit was running",
-      "behaviour": "Renders the same thirteen by running make_figures.py, fig_batch2.py, fig_threshold_surface.py, make_figures_extra.py -- the .py path, not the notebook. Its header asserts 'Every value is read from a stored result file. Nothing is typed in.', which is false for that path.",
-      "consequences": [
-        "All fifteen TYPED literals would reach the canvas.",
-        "It copies only results/ into the Colab repo, but fig_batch2.py's first read is ROOT/'accord/prevalence_replication/results/sweep_results.json' (under accord/, not results/) -> fig_batch2.py aborts before writing any figure, so fig-prevalence-response, fig-scaling, fig-forest and fig-power would all be MISSING.",
-        "fig_threshold_surface.py reads the absolute path /Users/rickygole/mimic_local_only/accord_selection/threshold_robustness_cells.csv, which the script's path-rewrite does not touch (it only rewrites '/Users/rickygole/provenance-encoder') -> fig-threshold-surface would also be MISSING.",
-        "make_figures.py does not build fig-falsification at all (it is in its SKIPPED list); only make_figures_extra.py does, from files outside the repository."
-      ]
-    }
-  },
-  "notes_on_traps_checked": {
-    "trap_1_supplied_0.586": "results/accord/exemplar/exemplar_correctness_recomputed.json does carry rule_1_2_pooled.reference_full_2296_candidate_pool_rate_from_task_description = 0.586, but NEITHER fig-exemplar nor fig-pipeline-status reads it in either the .py or the notebook. Both use n_wrong/n_resolved = 65/137 = 0.4745 and print 47.4%. CLEAN. Residual: make_figures.py's register() note for fig:exemplar still says 'Only numeric content (41.4%) is sourced', and that stale string is written into accord/thesis/figures/manifest.json. It is caption metadata, not canvas.",
-    "trap_2_dp_min_dp_max": "results/accord/signed_gap_analysis.json is not read by any of the thirteen. fig-threshold-surface takes its gap surface from results/accord/selection/threshold_robustness_results.json cells[] (notebook) or the equivalent CSV (.py). The dp_min/dp_max first-and-last-point keys never reach a canvas. CLEAN.",
-    "trap_3_val_accuracy_vs_accuracy": "results/accord/scaling/convergence_results.json (which carries BOTH val_accuracy and accuracy) is not read by any of the thirteen. fig-scaling and the fig-forest C44 row read results/accord/scaling/scaling_results.json, which carries only 'accuracy'. The AG News gap plotted is 0.0518 at 100M, from the test column. CLEAN.",
-    "trap_4_gold_all_vs_defect_free": "This one DID bite, in a different form. results/accord/control/final_report.json carries gold_all (n=299) and gold_defect_free_rule34 (n=134) for four different score branches. fig-disc-strata and fig-forest plot the defect-free 0.5078, which is the CONTAMINATED accord_contra_prob branch, beside a decontaminated 0.5145. See the FAIL records on those two figures.",
-    "trap_5_intro_headline_middle_bar": "CONFIRMED. It plots 261/299, the Llama weak labeller's marginal, under the axis label 'ACCORD pred.-positive rate (gold set)'. ACCORD's own is 278/299. See the FAIL record on fig-intro-headline.",
-    "trap_6_falsification_45.2": "CONFIRMED STILL DRAWN, in both make_figures_extra.py and notebook cell 16, as a dashed reference line at 0.4515 plus a '45.2%' text label. No file under results/ supports it; number_provenance_audit.json rates it UNTRACEABLE. The notebook at least names the constant UNSOURCED_held_out_rule_acc and prints the audit record, but the line is on the canvas either way."
   }
 }

@@ -154,21 +154,19 @@ the $299$-row annotated sample to the rebuilt candidates table on $35$ rows;
 that is a different operation with a different denominator, not a third
 reading of the same exemplar-correctness question.
 Figure~\ref{fig:exemplar} draws the mechanism the two measurements are
-measuring.
+measuring. The rate at which the trigger-set slot and the positionally indexed
+slot actually disagreed on the Rule 1 and Rule 2 gold stratum ranges from $0$ to
+$0.4745$ depending on measurement, and a rate over a population does not belong
+welded to a picture of a single case, so the figure carries no number.
 
-\begin{figure}[!htbp]
+\begin{figure}[!ht]
 
 \centering
-\includegraphics[width=0.9\linewidth]{figures/fig-exemplar.pdf}
-\caption[Schematic of the exemplar defect]{The check that was not run, drawn as a schematic. The rule fires on a
-conflict between two sets of medication mentions; the exemplar shown to the
-annotator, the weak labeller and the model is chosen by position instead. Slots
-are abstract and no clinical text appears. The panel draws one candidate, five
-mention slots with one of them wrong, and carries no number for that reason. The
-rate at which the trigger-set slot and the positionally indexed slot actually
-disagreed on the Rule 1 and Rule 2 gold stratum ranges from $0$ to $0.4745$
-depending on measurement, and a rate over a population does not belong welded to
-a picture of a single case.}
+\includegraphics[width=0.80\linewidth]{figures/fig-exemplar.pdf}
+\caption[Schematic of the exemplar defect]{The check that was not run. The rule
+fires on a conflict between two sets of medication mentions; the exemplar shown
+to annotator, weak labeller and model is chosen by position instead. Slots are
+abstract and carry no clinical text.}
 \label{fig:exemplar}
 \end{figure}
 
@@ -291,22 +289,15 @@ $15.8196$ to $23.5959$ range of pool over-calling ratios measured above in this 
 instruction-tuned labeller asked for a rare positive class; what survives the change of domain is
 the direction, over-calling that does not track the true rate, not the size of it.
 
-\begin{figure}[!htbp]
+\begin{figure}[!t]
 
 \centering
 \includegraphics[width=0.9\linewidth]{figures/fig-prevalence-response.pdf}
-\caption[Labeller response to prevalence]{Labeller response to prevalence on public text. Each panel plots the
-rate at which a weak labeller returns a positive against the true prevalence of
-the sample it was shown, for three locally run open-weight models (columns) under
-two prompt conditions (rows): a bare instruction, and one that states the base
-rate and permits abstention. The dashed diagonal is perfect calibration, where
-predicted rate equals true rate. Each plotted rate carries a Wilson score
-interval computed in closed form from the decision counts the sweep records
-behind it. The square in the upper left of the first panel marks
-the clinical operating point measured in this thesis, a true rate near 4\% read as
-positive at roughly 85\%; it is the anchor the whole grid is read against and is
-drawn once rather than repeated into all six panels.}
-\apanote{Built from the prevalence replication sweep. Each panel varies the true positive rate and records the labeller's marginal at that setting.}
+\caption[Labeller response to prevalence]{Weak-labeller positive rate against
+true prevalence for three open-weight models under two prompt conditions. The
+diagonal is perfect calibration; the tinted wedge is over-prediction. Wilson
+intervals from the sweep's decision counts. The scarlet square is this thesis's
+clinical operating point.}
 \label{fig:prevalence-response}
 \end{figure}
 
@@ -373,25 +364,14 @@ severity-ranking question was therefore not tested here, and any null reported
 against that head measures an untrained module rather than the underlying
 question.
 
-\begin{figure}[!htbp]
+\begin{figure}[!ht]
 
 \centering
 \includegraphics[width=0.9\linewidth]{figures/fig-falsification.pdf}
-\caption[Two architecture components falsified]{Two falsifications in one view. Panel (a): how far each of the two
-authority scale parameters moved from the value it was initialised to, $\alpha_N$
-on the nursing side and $\alpha_D$ on the discharge side, read against a line at
-no movement at all. The initialisation each parameter was set to is in its row
-label, the movement beside each dot is given in the parameter's own units, the
-units the axis is ticked in, and the three seeds behind each mean are drawn with
-it, coinciding with it at this scale. Both finish within about one percent of
-where they began, so the values reported as learned are indistinguishable from
-the constants they were set to. Panel (b): macro
-$F_1$ of the rule-type head in the domain it was fitted on and on two cohorts it
-was not, sepsis and acute kidney injury, with the candidate count for each in
-the row label. Those three are point estimates; no committed interval data
-covers them, since no seed spread for those scores is recorded, and they are
-drawn lightened, as underpowered, rather than given a spread they do not have.}
-\apanote{Panel (a): a parameter reported as learned, drawn against its initialisation. Panel (b): the rule-type head's in-domain macro $F_1$ of $0.9603$ against its transfer scores of $0.0654$ on sepsis and $0.0595$ on acute kidney injury, all three measured and registered.}
+\caption[Two architecture components falsified]{Panel (a): each authority scale
+parameter from its initialisation to its final value, with the three seeds.
+Panel (b): the rule-type head's macro $F_1$ in the domain it was fitted on and
+on two it was not. Transfer scores carry no committed interval.}
 \label{fig:falsification}
 \end{figure}
 
@@ -689,19 +669,15 @@ the task is unsolvable. What it does establish is that this pipeline produced
 nothing near the detectable range, and it fixes the size of the annotation effort
 a future attempt needs.
 
-\begin{figure}[!htbp]
+\begin{figure}[!ht]
 
 \centering
 \includegraphics[width=0.9\linewidth]{figures/fig-power.pdf}
-\caption[Minimum detectable effect by evaluation size]{What each evaluation in this thesis could have seen. The curve gives
-the minimum detectable area under the ROC curve at 80\% power and a two-sided
-$\alpha$ of 0.05, by the method of Hanley and McNeil \citep{hanley1982meaning}, as a function of the number
-of positive cases in the evaluation set. The circle marks the contradiction
-evaluation reported in this chapter, which holds 12 positives among 253 pairs. The
-square marks the in-hospital mortality task used elsewhere as a positive control,
-which holds 570 positives among 6{,}776 held-out admissions and is a different
-task on a different cohort.}
-
+\caption[Minimum detectable effect by evaluation size]{Minimum detectable AUROC
+at 80\% power and two-sided $\alpha$ of 0.05, by Hanley and McNeil
+\citep{hanley1982meaning}, against the number of positives in the evaluation
+set. The circle is this thesis's contradiction evaluation; the square is the
+mortality positive control.}
 \label{fig:power}
 \end{figure}
 
@@ -852,19 +828,14 @@ safe statement is this one: no claim in this thesis rests on the ordering in
 Table~\ref{tab:mcc}, because at 12 positives none of the four systems is
 distinguishable from chance, and none is distinguishable from any other.
 
-\begin{figure}[!htbp]
+\begin{figure}[!t]
 
 \centering
 \includegraphics[width=0.9\linewidth]{figures/fig-forest.pdf}
-\caption[Headline estimates against zero]{Headline estimates against zero. Each row gives one effect reported in
-this thesis with its 95\% interval. The rows are grouped into three families,
-ruled apart, and the unit is named once at the head of each family: a Matthews
-correlation, an AUROC above chance and a pretraining gap do not share a unit, so
-the shared position axis ranks the rows within a family and nothing across
-families except each interval's position relative to zero. Whether an interval
-contains zero is read from whether it crosses the line, and is not also encoded
-in colour.}
-\apanote{Each row is a headline estimate from this project with its interval, read against the zero line.}
+\caption[Headline estimates against zero]{Every headline estimate with its
+95\% interval, grouped into three unit families and read against zero.
+The unit is named once per family; position ranks rows within a family only.
+Values are printed at right because one interval is narrower than its marker.}
 \label{fig:forest}
 \end{figure}
 
@@ -954,8 +925,8 @@ Reports only      & 6  \\
 \label{tab:survey}
 \end{table}
 
-Four of 75 strictly, 14 of 75 permissively. Figure~\ref{fig:survey-audit} puts
-the three groups on one denominator. The 10-paper gap between the two
+Four of 75 papers report the check under the strict reading and 14 under the
+permissive one, so 61 report it under neither. The 10-paper gap between the two
 readings is the population that says it did the check without reporting what the
 check returned, and the strict count is the one a reader can verify. Twenty-three
 papers, the largest single category, do not mention the null-attribute question
@@ -965,24 +936,6 @@ equivalent and neither is neutral, and the two choices move a reported disparity
 in different directions; 17 papers take the first and 7 the second. The point is
 not that one choice is wrong; it is that 32 of 75 leave it unrecoverable.
 
-\begin{figure}[!htbp]
-
-\centering
-\includegraphics[width=0.9\linewidth]{figures/fig-survey-audit.pdf}
-\caption[The selection check across the coded papers]{Whether the coded papers report a check on the selection step, over the
-one denominator on which all three groups are counted. The bar is the full
-coded corpus and the three segments are exclusive: the papers reporting the
-check under the strict reading, which requires the quantity that would make it
-verifiable; the further papers reporting it only under the permissive reading,
-which accepts any statement that the check was performed; and the papers
-reporting it under neither. Each segment is labelled with its own count and its
-share of the denominator, and the axis is counted in papers rather than
-converted to a rate, because the denominator is the corpus itself. No interval
-is drawn on any segment and none is available: these are the counts of a coded
-corpus, not a sample estimate of a rate in the field, and the last subsection of
-this section says why the corpus cannot carry one.}
-\label{fig:survey-audit}
-\end{figure}
 
 \subsection{Reliability}
 

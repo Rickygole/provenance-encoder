@@ -9,7 +9,7 @@
         "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json",
         "/Users/rickygole/provenance-encoder/results/accord/decontam/corrected_gold_metrics.json"
       ],
-      "note": "Two stage verdicts are categorical narrative with no committed numeric source (CORRECTIONS.md); the asterisks that used to flag them are gone, because the chapter caption already carries that note. The three parenthetical numbers (47.45% wrong of resolved, ~22x, AUROC 0.5145 with CI) are computed from the cited JSON files. The multiplier is now the gold-set one, 261/299 over 12/299, the same ratio fig:intro-headline brackets, replacing the earlier train-pool-over-gold-set ratio whose two terms had different denominators. AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated 3-seed ensemble 0.5145)."
+      "note": "Two stage verdicts are categorical narrative with no committed numeric source (CORRECTIONS.md). The three parenthetical numbers (47.45% wrong of resolved, ~22x, AUROC 0.5145 with CI) are computed from the cited JSON files. The multiplier is the gold-set one, 261/299 over 12/299, the same ratio fig:intro-headline brackets. AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated 3-seed ensemble 0.5145)."
     },
     {
       "file": "figures/fig-intro-headline.pdf",
@@ -17,10 +17,9 @@
       "sources": [
         "/Users/rickygole/provenance-encoder/results/accord/diag/step0_1_join_and_calibration.json",
         "/Users/rickygole/provenance-encoder/results/accord/differential/exp1a_gold_error_rates_by_group.json",
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json",
-        "/Users/rickygole/provenance-encoder/results/accord/stats/intervals.json"
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json"
       ],
-      "note": "MCC panel uses stats/intervals.json E2 (all four CIs contain zero, per CORRECTIONS.md C36). The left-panel middle bar is the weak labeller marginal, 261 of 299 (gold.weaklabel_contradiction); ACCORD predicts contradiction for 278 of 299 (gold.accord_pred_contradiction, reconciliation_c28.json). Earlier notes conflated the two reading with the discrepancy noted on the figure."
+      "note": "The left-panel middle bar is the weak labeller marginal, 261 of 299 (gold.weaklabel_contradiction); ACCORD predicts contradiction for 278 of 299 (gold.accord_pred_contradiction, reconciliation_c28.json). The Matthews correlation panel that used to sit under this one is deleted: those four estimates are fig:forest's first family."
     },
     {
       "file": "figures/fig-funnel.pdf",
@@ -37,7 +36,7 @@
       "sources": [
         "/Users/rickygole/provenance-encoder/results/accord/exemplar/exemplar_correctness_recomputed.json"
       ],
-      "note": "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes), no clinical text and, since round two, no number: the wrong-exemplar rate it used to carry is a population rate and this panel draws a single candidate, so the rate is stated in the chapter caption instead."
+      "note": "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes), no clinical text and no number: the wrong-exemplar rate it used to carry is a population rate and this panel draws a single candidate, so the rate is stated in the chapter body instead."
     },
     {
       "file": "figures/fig-prevalence.pdf",
@@ -74,15 +73,6 @@
       "note": "Recall CIs are Wilson score on (tp, 12) -- not in the original spec, added per the CI non-negotiable. MCC CIs from stats/intervals.json E2 (all four contain zero, per CORRECTIONS.md C36)."
     },
     {
-      "file": "figures/fig-disc-strata.pdf",
-      "label": "fig:disc-strata",
-      "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/decontam/corrected_gold_metrics.json",
-        "/Users/rickygole/provenance-encoder/results/accord/control/final_report.json"
-      ],
-      "note": "MODIFIED from spec (ROC panels) to point-estimate+CI panels because per-pair scores are not committed. Full-set row uses the decontaminated ensemble AUROC 0.5145 / CI [0.321, 0.703] / p=0.867 per CORRECTIONS.md C16, replacing the withdrawn 0.460/p=0.64. Defect-free row now reads control/final_report.json ensemble_mean_of_seed_scores.gold_defect_free_rule34 (0.5469, CI [0.242, 0.828]), the decontaminated counterpart, replacing stats/intervals.json E3 (0.5078) which is computed on the contaminated released scores; its stratified CI and its dropped-resample count belong to that superseded bootstrap and are no longer drawn."
-    },
-    {
       "file": "figures/fig-disc-actionability.pdf",
       "label": "fig:disc-actionability",
       "sources": [
@@ -100,14 +90,6 @@
         "/Users/rickygole/provenance-encoder/results/accord/VERIFIED_FACTS.json"
       ],
       "note": "CONSORT-style path from the source database to the two evaluated sets. Nine stages, three exclusions, every count read from a committed file. Two exclusion branches the diagram would otherwise carry are omitted because no committed file records them as counts: the admissions dropped between the length-of-stay filter and the both-roles requirement, and those dropped between the both-roles requirement and the selected pairs. Both are differences of two committed counts and neither is a recorded exclusion, so neither is drawn. The ambiguous count is the difference between the two positive counts recorded on the same 299 rows in the signal-check file, the same subtraction the prevalence figure performs. Four stages read the thesis register rather than a primary artifact, because their own upstream summaries live outside this repository under the data agreement."
-    },
-    {
-      "file": "figures/fig-survey-audit.pdf",
-      "label": "fig:survey-audit",
-      "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/survey/coding_summary.json"
-      ],
-      "note": "One bar, three segments, a rate of a whole. The strict count, the permissive count and the count clearing neither reading are read straight from the coding summary; the middle segment is the permissive count less the strict count, and the three are asserted to sum to the committed denominator before the figure is drawn. Scarlet marks the four-paper segment, which is what this figure claims; the other two segments carry no accent."
     }
   ],
   "skipped": [

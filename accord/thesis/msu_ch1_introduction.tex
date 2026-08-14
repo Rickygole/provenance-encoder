@@ -154,18 +154,19 @@ this implementation's failures, not the standard construction's, and treating
 them as evidence against the construction would be a claim the data does not
 support.
 
-\begin{figure}[!htbp]
+The multiplier that stage four carries is the weak labeller's positive rate on
+the $299$-pair gold set over the pharmacist's base rate on those same $299$
+pairs. Both terms are counted on the same rows, and it is the multiplier
+Figure~\ref{fig:intro-headline} reports.
+
+\begin{figure}[!t]
 
 \includegraphics[width=0.9\linewidth]{figures/fig-pipeline-status.pdf}
-\caption[The pipeline stage by stage]{The pipeline as run, stage by stage, with the verdict each stage
-received and the diagnostic that produced it. Two verdicts, the medication
-extraction stage and the detector training stage, are categorical rather than
-numeric, because no committed result file carries the underlying values, and
-neither is re-stated here as a number. The weak-supervision verdict's
-multiplier is the weak labeller's positive rate on the $299$-pair gold set over
-the pharmacist's base rate on those same $299$ pairs. Both terms are counted on
-the same rows, and it is the multiplier
-Figure~\ref{fig:intro-headline} reports.}
+\caption[The pipeline stage by stage]{The six pipeline stages with the verdict
+each received and the diagnostic that produced it. Two verdicts are categorical
+because no committed result file carries the underlying values. The prevalence
+multiplier compares the weak labeller and the pharmacist on the same $299$
+pairs.}
 \label{fig:pipeline-status}
 \end{figure}
 
@@ -234,27 +235,24 @@ $0.5761$ and average precision $0.1571$, above both neural configurations;
 whether that reflects surface form signal or small sample noise is not
 established here and is reported as found.
 
-Figure~\ref{fig:intro-headline} puts the two halves of that failure beside each
-other. On the left, the weak labeller's positive rate against the pharmacist's,
-which is the number the rest of the thesis follows. On the right, Matthews
-correlation with bootstrap intervals for the four systems compared on the same
-$253$ pairs; every interval contains zero, so the ordering those numbers appear
-to give is an ordering over noise.
+Figure~\ref{fig:intro-headline} carries the first half of that failure: the
+weak labeller's positive rate against the pharmacist's, which is the number the
+rest of the thesis follows. The top bar is the positive rate on the full
+$1{,}679$-row weak-labelled pool, not the $1{,}183$-row training pool. The
+second half, Matthews correlation with bootstrap intervals for the four systems
+on the same $253$ pairs, is reported with every other headline estimate in
+Figure~\ref{fig:forest}; every interval contains zero, so the ordering those
+numbers appear to give is an ordering over noise. The ACCORD row there is the
+contaminated released run flagged in Chapter~\ref{ch:results}'s per-pair calls
+table.
 
-\begin{figure}[!htbp]
+\begin{figure}[!ht]
 
 \includegraphics[width=0.9\linewidth]{figures/fig-intro-headline.pdf}
-\caption[Weak-labeller marginal and Matthews correlation intervals]{Panel (a): the marginal of the weak labeller against the pharmacist's
-measured base rate on the same pairs. Panel (b): Matthews correlation with
-$95\%$ bootstrap intervals for four systems on the $253$ non-ambiguous pairs,
-drawn as points with their intervals rather than as bars, because every one of
-them is an estimate that contains zero. The top bar in panel (a) is the positive
-rate on the full $1{,}679$-row weak-labelled pool, not the $1{,}183$-row
-training pool; the bracketed multiplier compares only the two bars measured on
-the gold set, and is the same ratio
-Figure~\ref{fig:pipeline-status}'s verdict carries. The ACCORD row in panel (b) is
-the contaminated released run flagged in Chapter~\ref{ch:results}'s
-per-pair calls table.}
+\caption[Weak-labeller marginal against the pharmacist's]{The weak labeller's
+positive rate on the $1{,}679$-row pool and on the $299$-pair gold set, against
+the pharmacist's measured base rate on those same $299$ pairs. Wilson intervals
+from the counts shown. The bracket compares only the two gold-set bars.}
 \label{fig:intro-headline}
 \end{figure}
 
