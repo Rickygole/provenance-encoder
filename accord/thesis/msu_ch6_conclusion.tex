@@ -220,30 +220,15 @@ These are the checks that, had they been run when they were available, would
 each have changed what was reported here.
 
 Check that the evidence a candidate is displayed with is the evidence that
-triggered it. Figure~\ref{fig:exemplar} shows the failure mode in the abstract:
-a rule that quantifies over a set of medication mentions, an exemplar selector
-that indexes into that set positionally, and nothing in between forcing the two
-to agree. The check is an assertion over two data structures, and on the Rule 1
-and Rule 2 gold stratum it is the check that would have caught the largest
-upstream defect in this project before any annotation was commissioned:
-$65$ of $137$ resolved candidates carry the wrong exemplar by reconstruction, a
-rate of $0.4745$, against none wrong on a smaller, exactly joined subset of
-$23$; Chapter~\ref{ch:results} reports both.
-
-\begin{figure}[!htbp]
-
-\includegraphics[width=0.9\linewidth]{figures/fig-exemplar.pdf}
-\caption[Schematic of the exemplar defect]{The check that was not run, drawn as a schematic. The rule fires on a
-conflict between two sets of medication mentions; the exemplar shown to the
-annotator, the weak labeller and the model is chosen by position instead. Slots
-are abstract and no clinical text appears. The panel draws one candidate, five
-mention slots with one of them wrong, and carries no number for that reason. The
-rate at which the trigger-set slot and the positionally indexed slot actually
-disagreed on the Rule 1 and Rule 2 gold stratum ranges from $0$ to $0.4745$
-depending on measurement, and a rate over a population does not belong welded to
-a picture of a single case.}
-\label{fig:exemplar}
-\end{figure}
+triggered it. The failure mode is the one drawn back in
+Figure~\ref{fig:exemplar}: a rule that quantifies over a set of medication
+mentions, an exemplar selector that indexes into that set positionally, and
+nothing in between forcing the two to agree. The check is an assertion over two
+data structures, and on the Rule 1 and Rule 2 gold stratum it is the check that
+would have caught the largest upstream defect in this project before any
+annotation was commissioned: $65$ of $137$ resolved candidates carry the wrong
+exemplar by reconstruction, a rate of $0.4745$, against none wrong on a smaller,
+exactly joined subset of $23$; Chapter~\ref{ch:results} reports both.
 
 Estimate the base rate on a human labelled sample before generating weak labels,
 and print the labeller's marginal beside it. A labeller positive on $261$ of

@@ -40,15 +40,6 @@
       "note": "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes), no clinical text and, since round two, no number: the wrong-exemplar rate it used to carry is a population rate and this panel draws a single candidate, so the rate is stated in the chapter caption instead."
     },
     {
-      "file": "figures/fig-rule-precision.pdf",
-      "label": "fig:rule-precision",
-      "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/defect_free_strata.json",
-        "/Users/rickygole/provenance-encoder/results/accord/stats/intervals.json"
-      ],
-      "note": "MODIFIED from spec: shows per-rule AUROC (sourced) rather than per-rule precision (pharmacist side sourced, ACCORD side not committed per-rule anywhere in results/accord). No per-rule interval exists in defect_free_strata.json or in stats/intervals.json, and the per-pair scores one would be computed from are not committed, so the four single-rule rows are drawn in grey as underpowered point estimates and only the pooled rules-3+4 row, which has a committed CI, is drawn as an estimate."
-    },
-    {
       "file": "figures/fig-prevalence.pdf",
       "label": "fig:prevalence",
       "sources": [
@@ -98,6 +89,25 @@
         "accord/CORRECTIONS.md (C6)"
       ],
       "note": "Structural/schema diagram, not derived from a numeric result file; documents a MIMIC-III field-availability fact. No CI applies (no estimate is plotted)."
+    },
+    {
+      "file": "figures/fig-cohort-flow.pdf",
+      "label": "fig:cohort-flow",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/stats/cohort_icd_counts.json",
+        "/Users/rickygole/provenance-encoder/results/accord/generality/transfer_results_correct.json",
+        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json",
+        "/Users/rickygole/provenance-encoder/results/accord/VERIFIED_FACTS.json"
+      ],
+      "note": "CONSORT-style path from the source database to the two evaluated sets. Nine stages, three exclusions, every count read from a committed file. Two exclusion branches the diagram would otherwise carry are omitted because no committed file records them as counts: the admissions dropped between the length-of-stay filter and the both-roles requirement, and those dropped between the both-roles requirement and the selected pairs. Both are differences of two committed counts and neither is a recorded exclusion, so neither is drawn. The ambiguous count is the difference between the two positive counts recorded on the same 299 rows in the signal-check file, the same subtraction the prevalence figure performs. Four stages read the thesis register rather than a primary artifact, because their own upstream summaries live outside this repository under the data agreement."
+    },
+    {
+      "file": "figures/fig-survey-audit.pdf",
+      "label": "fig:survey-audit",
+      "sources": [
+        "/Users/rickygole/provenance-encoder/results/accord/survey/coding_summary.json"
+      ],
+      "note": "One bar, three segments, a rate of a whole. The strict count, the permissive count and the count clearing neither reading are read straight from the coding summary; the middle segment is the permissive count less the strict count, and the three are asserted to sum to the committed denominator before the figure is drawn. Scarlet marks the four-paper segment, which is what this figure claims; the other two segments carry no accent."
     }
   ],
   "skipped": [

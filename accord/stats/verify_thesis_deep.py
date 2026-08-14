@@ -34,11 +34,15 @@ CHAPTERS = sorted(THESIS.glob("msu_ch*.tex"))
 APPENDICES = sorted(THESIS.glob("msu_app*.tex"))
 FRONT = sorted((THESIS / "frontmatter").glob("*.tex"))
 
-# The thirteen figures bound into the thesis, and the scripts that draw them.
+# The fourteen figures bound into the thesis, and the scripts that draw them.
+# fig-rule-precision left the set at the committee review: its per-rule content
+# is carried by the per-rule precision table in the results chapter. The drawing
+# function survives in make_figures.py but nothing calls it and nothing binds it,
+# so it is not checked here.
 THESIS_FIGS = [
-    "fig-pipeline-status", "fig-intro-headline", "fig-rule-precision",
+    "fig-pipeline-status", "fig-intro-headline", "fig-cohort-flow",
     "fig-prevalence-response", "fig-falsification", "fig-power", "fig-forest",
-    "fig-disc-strata", "fig-scaling", "fig-threshold-surface",
+    "fig-survey-audit", "fig-disc-strata", "fig-scaling", "fig-threshold-surface",
     "fig-disc-actionability", "fig-met-exchange", "fig-exemplar",
 ]
 FIG_SCRIPTS = ["make_figures.py", "fig_batch2.py",

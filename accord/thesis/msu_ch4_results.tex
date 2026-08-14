@@ -121,28 +121,9 @@ $134$ pairs with $6$ positives, a rate of $0.0448$. A Fisher exact test on that 
 gives an odds ratio of $0.805$ at $p = 0.7725$, achieved power is $0.0576$, and the smallest
 absolute rate difference detectable at $80\%$ power is $0.0895$, more than twice the overall base
 rate. The two mechanism groups are indistinguishable at this sample size, which is not the same as equal.
-Figure~\ref{fig:rule-precision} reports per-rule ranking performance alongside the precision table
-above.
-
-\begin{figure}[!htbp]
-
-\centering
-\includegraphics[width=0.9\linewidth]{figures/fig-rule-precision.pdf}
-\caption[Ranking performance per mining rule]{Per-rule ranking performance on the annotated pairs. Each row gives the
-area under the ROC curve for the detector's contradiction probability within one
-mining rule, evaluated against the pharmacist's binary label; the count of pairs
-and of confirmed positives is carried in the row label. The dashed line marks
-chance. Estimates are drawn as points rather than as bars because two to four
-confirmed positives per rule will not support a filled bar. The four
-single-rule rows are point estimates; no committed interval data covers them,
-because the per-pair scores an interval would have to be computed from are not
-released, and they are drawn in grey to say so rather than in the colour of a
-measured estimate. Only the pooled Rules 3 and 4 stratum, whose exemplars are
-correct by construction, has an interval the released aggregates permit, so it
-is the only row that carries one and the only row drawn in full.}
-\apanote{Ranking performance per rule in addition to the pharmacist precision table in Table~\ref{tab:rule-precision}.}
-\label{fig:rule-precision}
-\end{figure}
+The per-rule reading stops at Table~\ref{tab:rule-precision}. A ranking statistic computed inside a
+single rule would rest on a handful of confirmed positives with no committed interval to bound it,
+so none is reported for a rule on its own.
 
 \subsection{The exemplar selection defect}
 
@@ -172,6 +153,24 @@ separate join, across all four rules rather than Rule 1 and 2 alone, matches
 the $299$-row annotated sample to the rebuilt candidates table on $35$ rows;
 that is a different operation with a different denominator, not a third
 reading of the same exemplar-correctness question.
+Figure~\ref{fig:exemplar} draws the mechanism the two measurements are
+measuring.
+
+\begin{figure}[!htbp]
+
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig-exemplar.pdf}
+\caption[Schematic of the exemplar defect]{The check that was not run, drawn as a schematic. The rule fires on a
+conflict between two sets of medication mentions; the exemplar shown to the
+annotator, the weak labeller and the model is chosen by position instead. Slots
+are abstract and no clinical text appears. The panel draws one candidate, five
+mention slots with one of them wrong, and carries no number for that reason. The
+rate at which the trigger-set slot and the positionally indexed slot actually
+disagreed on the Rule 1 and Rule 2 gold stratum ranges from $0$ to $0.4745$
+depending on measurement, and a rate over a population does not belong welded to
+a picture of a single case.}
+\label{fig:exemplar}
+\end{figure}
 
 The measured consequence does not depend on that rate. Rules 3 and 4 cannot
 exhibit the defect: Rule 3 selects the maximum-difference dose pair, and Rule 4
@@ -955,7 +954,8 @@ Reports only      & 6  \\
 \label{tab:survey}
 \end{table}
 
-Four of 75 strictly, 14 of 75 permissively. The 10-paper gap between the two
+Four of 75 strictly, 14 of 75 permissively. Figure~\ref{fig:survey-audit} puts
+the three groups on one denominator. The 10-paper gap between the two
 readings is the population that says it did the check without reporting what the
 check returned, and the strict count is the one a reader can verify. Twenty-three
 papers, the largest single category, do not mention the null-attribute question
@@ -964,6 +964,25 @@ happened to rows with a missing attribute. Dropping and imputing are not
 equivalent and neither is neutral, and the two choices move a reported disparity
 in different directions; 17 papers take the first and 7 the second. The point is
 not that one choice is wrong; it is that 32 of 75 leave it unrecoverable.
+
+\begin{figure}[!htbp]
+
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig-survey-audit.pdf}
+\caption[The selection check across the coded papers]{Whether the coded papers report a check on the selection step, over the
+one denominator on which all three groups are counted. The bar is the full
+coded corpus and the three segments are exclusive: the papers reporting the
+check under the strict reading, which requires the quantity that would make it
+verifiable; the further papers reporting it only under the permissive reading,
+which accepts any statement that the check was performed; and the papers
+reporting it under neither. Each segment is labelled with its own count and its
+share of the denominator, and the axis is counted in papers rather than
+converted to a rate, because the denominator is the corpus itself. No interval
+is drawn on any segment and none is available: these are the counts of a coded
+corpus, not a sample estimate of a rate in the field, and the last subsection of
+this section says why the corpus cannot carry one.}
+\label{fig:survey-audit}
+\end{figure}
 
 \subsection{Reliability}
 

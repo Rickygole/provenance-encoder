@@ -4,7 +4,7 @@ One rule specific to this document: no figure may show a point estimate
 without its uncertainty. A thesis about instruments that mislead cannot
 itself present a bare number.
 
-The visual system, applied to all thirteen bound figures:
+The visual system, applied to all fourteen bound figures:
 
   Typography  DejaVu Serif throughout (pinned for script/notebook parity).
               Axis labels 9pt sentence case, ticks and annotations 8pt,

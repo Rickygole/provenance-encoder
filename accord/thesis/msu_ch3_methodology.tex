@@ -141,6 +141,31 @@ This selection returns 9,783 admissions with a selected nursing note and 9,783 w
 discharge summary, the same 9,783 admissions counted both ways, for 19,566 note rows across 9,783
 pairs in total.
 That is the cohort the mining rules of Section~\ref{sec:m-candidates} run against.
+Figure~\ref{fig:cohort-flow} carries the whole path in one view, from the billing-code cohort
+through this selection to the evaluated sets, including the stages
+Sections~\ref{sec:m-candidates} and~\ref{sec:m-gold} specify below.
+
+\begin{figure}[!htbp]
+
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig-cohort-flow.pdf}
+\caption[Cohort flow from the source database to the evaluated sets]{The path from the source database to the sets every clinical result in this
+thesis is measured on, with the count recorded at each stage and, to the right,
+the exclusions that are themselves recorded as counts. Reading down: admissions
+selected by billing code, filtered on length of stay, reduced to those carrying
+both note roles, and reduced again to one note pair per admission; the
+medication mentions extracted from those pairs and the subset of them carrying
+an action class; the candidates the four mining rules return after the temporal
+prefilter; and the pairs a pharmacist annotated, of the sample drawn. Two
+exclusions along the way are not drawn, those between the length-of-stay filter
+and the both-roles requirement and between that requirement and the selected
+pairs, because no committed file records either as a count and this diagram
+performs no subtraction of its own. The stages below the note pair are specified
+in the sections that follow this one. The terminal box is the non-ambiguous
+evaluation core and the confirmed contradictions inside it, which is what the
+whole path yields.}
+\label{fig:cohort-flow}
+\end{figure}
 
 \subsection{Medication mention extraction and splitting}
 

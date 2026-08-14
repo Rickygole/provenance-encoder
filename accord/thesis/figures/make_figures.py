@@ -145,7 +145,7 @@ GREY_DARK, GREY_LIGHT, GREY_FILL, GREY_DEAD = BLUE, TEAL, PALE, GREY
 ALERT, GREY_MED = SCARLET, MUTE
 HATCH_A = "///"
 HATCH_B = "\\\\\\"
-# One grammar for the whole set, applied identically in all thirteen figures.
+# One grammar for the whole set, applied identically in all fourteen figures.
 #
 #   CHANCE_STYLE  every reference value (chance, a null, an initialisation):
 #                 grey, hairline, one dash pattern, labelled at the line itself.
@@ -643,7 +643,13 @@ def make_fig_exemplar():
 
 
 # ============================================================================
-# Figure 5 -- fig:rule-precision  (ch4_candidates.tex)
+# fig:rule-precision -- NO LONGER BOUND INTO THE THESIS.
+#   Removed at the committee review: the per-rule precision table in the results
+#   chapter carries this content, and a per-rule ranking statistic on two to four
+#   confirmed positives was not worth a figure. The function is kept so the
+#   figure can be rebuilt if it is ever wanted again; main() does not call it and
+#   the verification harness does not check it.
+#
 #   MODIFIED: the spec's precision-by-rule numbers (pharmacist 2.2/9.7/5.1/3.6
 #   and ACCORD 2.3/10.0/5.2/2.4) are not both in any committed file -- only
 #   the pharmacist side is (it equals the per-rule positive rate). ACCORD's
@@ -1205,6 +1211,249 @@ def make_fig_disc_actionability():
 
 
 # ============================================================================
+# Figure 12 -- fig:cohort-flow  (ch3_methodology.tex)
+#   The CONSORT-style path from the source database to the two evaluated sets.
+#   Nine stages, three exclusions. Every count is read from a committed file:
+#   the ICD and length-of-stay counts from stats/cohort_icd_counts.json, the
+#   candidate count from generality/transfer_results_correct.json, the gold
+#   counts from diag/step2_signal_check.json, and the four stages whose own
+#   upstream artifact is quarantined off this repository (note-role coverage,
+#   pair selection, mention extraction, the drawn annotation sample) from the
+#   thesis register, which is itself committed under results/accord.
+#
+#   Two stages the funnel would normally carry are skipped for want of a
+#   committed count and are named in the register note: the exclusion between
+#   the length-of-stay filter and the both-roles stage, and the exclusion
+#   between the both-roles stage and the selected pairs. Both differences are
+#   arithmetic on two committed counts, but neither is itself a recorded
+#   exclusion count, and a funnel that invents its own subtractions is the
+#   thing this set exists to avoid.
+# ============================================================================
+def make_fig_cohort_flow():
+    icd, p_icd = load("stats", "cohort_icd_counts.json")
+    hf = icd["heart_failure"]
+
+    transfer, p_transfer = load("generality", "transfer_results_correct.json")
+    n_candidates = transfer["hf_reference"]["n_candidates"]
+
+    step2, p_step2 = load("diag", "step2_signal_check.json")
+    d299 = step2["contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]
+    d253 = step2["contra_prob_vs_pharm_label__ambiguous_excluded_n253"]
+    d_amb = step2["contra_prob_vs_pharm_label__ambiguous_as_positive_n299"]
+    # The ambiguous count is not stored on its own line. It is the difference
+    # between the two positive counts recorded in the same file on the same 299
+    # rows, ambiguous counted positive against ambiguous counted negative, which
+    # is the same subtraction make_fig_prevalence already performs.
+    n_ambiguous = d_amb["n_pos"] - d299["n_pos"]
+
+    facts, p_facts = load("VERIFIED_FACTS.json")
+    def fact(key):
+        return facts[key]["value"]
+
+    n_both_roles = fact("cohort_chain.has_both_roles")
+    n_pairs = fact("cohort_chain.valid_admissions_both_selected")
+    n_note_rows = fact("cohort_chain.total_note_pair_rows")
+    n_mentions = fact("extraction.medication_extraction.total_mentions")
+    n_classified = fact("extraction.medication_extraction.classified_mentions")
+    n_unclassified = fact("extraction.medication_extraction.unclassified_derived")
+    n_drawn = fact("extraction.annotation_sample.total_sampled")
+
+    # Same point grid as the other schematics in this set: the axes span exactly
+    # the figure and one data unit is one typographic point, so the nine boxes
+    # are identical by construction and every row sits on one baseline.
+    W, H = FIGW, 4.62
+    fig, ax = plt.subplots(figsize=(W, H))
+    canvas(fig)
+    fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
+    ax.set_xlim(0, W * 72)
+    ax.set_ylim(0, H * 72)
+    ax.axis("off")
+
+    # (stage name, count line, exclusion below this stage or None)
+    stages = [
+        ("Heart failure admissions, ICD-9 prefix",
+         f"{hf['pre_los']:,} admissions",
+         f"{hf['removed']:,} admissions with no\npositive length of stay"),
+        ("After the length of stay filter",
+         f"{hf['post_los']:,} admissions", None),
+        ("Admissions carrying both note roles",
+         f"{n_both_roles:,} admissions", None),
+        ("Note pair selected, one note per role",
+         f"{n_pairs:,} pairs, {n_note_rows:,} note rows", None),
+        ("Medication mentions extracted",
+         f"{n_mentions:,} mentions",
+         f"{n_unclassified:,} mentions with no\naction class assigned"),
+        ("Mentions carrying an action class",
+         f"{n_classified:,} mentions", None),
+        ("Candidates after the temporal prefilter",
+         f"{n_candidates:,} candidates", None),
+        ("Pairs annotated by the pharmacist",
+         f"{d299['n']} of {n_drawn} drawn",
+         f"{n_ambiguous} pairs coded ambiguous"),
+        ("Non-ambiguous evaluation core",
+         f"{d253['n']} pairs, {d253['n_pos']} confirmed contradictions", None),
+    ]
+
+    box_x, box_w, box_h, pitch = 6.0, 194.0, 26.0, 36.0
+    x_excl = 212.0
+    y_top = H * 72 - 9.0
+    tops = [y_top - i * pitch for i in range(len(stages))]
+    x_stem = box_x + box_w / 2
+
+    for i, (t, (name, count, excl)) in enumerate(zip(tops, stages)):
+        # The last box is the one mark that carries what this figure asserts:
+        # the two evaluated sets the whole path ends at, and the twelve
+        # confirmed contradictions inside them. Scarlet stroke and scarlet
+        # text, the same treatment the exemplar schematic gives its one wrong
+        # slot, rather than a filled block.
+        last = i == len(stages) - 1
+        edge = SCARLET if last else INK
+        ax.add_patch(FancyBboxPatch(
+            (box_x, t - box_h), box_w, box_h,
+            boxstyle="round,pad=0,rounding_size=2.0", mutation_aspect=1.0,
+            linewidth=1.0 if last else 0.6, edgecolor=edge, facecolor="white"))
+        ax.text(box_x + box_w / 2, t - box_h / 2, f"{name}\n{count}",
+                ha="center", va="center", fontsize=8.0, color=edge,
+                linespacing=1.35)
+        if not last:
+            ax.annotate("", xy=(x_stem, t - pitch),
+                        xytext=(x_stem, t - box_h),
+                        arrowprops=dict(arrowstyle="-|>", color=INK, lw=0.6,
+                                        mutation_scale=7, shrinkA=0, shrinkB=0))
+        if excl is not None:
+            # A CONSORT exclusion leaves the trunk in the gap between two
+            # stages and runs right, so it reads as taken out between them
+            # rather than as a second thing the stage produced.
+            y_gap = t - box_h - (pitch - box_h) / 2
+            ax.annotate("", xy=(x_excl - 4.0, y_gap), xytext=(x_stem, y_gap),
+                        arrowprops=dict(arrowstyle="-|>", color=MUTE, lw=0.6,
+                                        mutation_scale=7, shrinkA=0, shrinkB=0))
+            ax.text(x_excl, y_gap, excl, ha="left", va="center", fontsize=8.0,
+                    color=MUTE, linespacing=1.25)
+
+    ax.text(x_excl, y_top + 1.0, "excluded", ha="left", va="top", fontsize=8.0,
+            color=MUTE)
+
+    fname = "fig-cohort-flow.pdf"
+    fig.savefig(os.path.join(FIGDIR, fname))
+    plt.close(fig)
+    register(fname, "fig:cohort-flow",
+             [p_icd, p_transfer, p_step2, p_facts],
+             "CONSORT-style path from the source database to the two evaluated sets. Nine "
+             "stages, three exclusions, every count read from a committed file. Two exclusion "
+             "branches the diagram would otherwise carry are omitted because no committed file "
+             "records them as counts: the admissions dropped between the length-of-stay filter "
+             "and the both-roles requirement, and those dropped between the both-roles "
+             "requirement and the selected pairs. Both are differences of two committed counts "
+             "and neither is a recorded exclusion, so neither is drawn. The ambiguous count is "
+             "the difference between the two positive counts recorded on the same 299 rows in "
+             "the signal-check file, the same subtraction the prevalence figure performs. Four "
+             "stages read the thesis register rather than a primary artifact, because their own "
+             "upstream summaries live outside this repository under the data agreement.")
+
+
+# ============================================================================
+# Figure 13 -- fig:survey-audit  (ch4_results.tex)
+#   One rate of a whole, so one bar. Three segments over the 75 coded papers:
+#   the strict reading, the papers that clear only the permissive reading, and
+#   the papers that clear neither.
+# ============================================================================
+def make_fig_survey_audit():
+    coding, p_coding = load("survey", "coding_summary.json")
+    n_total = coding["n_included_papers"]
+    dist = coding["distributions"]
+    n_strict = dist["audits_selection_strict"]["yes"]
+    n_literal = dist["audits_selection_literal"]["yes"]
+    n_neither = dist["audits_selection_literal"]["no"]
+    # The middle segment is the population the two readings disagree about. It
+    # is not stored on its own line and is not invented: it is the permissive
+    # count less the strict count, both read above, and the three segments are
+    # checked against the denominator before anything is drawn.
+    n_permissive_only = n_literal - n_strict
+    assert n_strict + n_permissive_only + n_neither == n_total
+
+    fig, ax = plt.subplots(figsize=(FIGW, 1.66))
+    canvas(fig)
+    # The right margin holds the last tick label, not the bar: ticked to the
+    # denominator, the "75" is centred on the axis end, so half of it sits
+    # outside the axes and the canvas has to be wide enough to contain it.
+    fig.subplots_adjust(left=0.015, right=0.982, top=0.985, bottom=0.235)
+
+    # Counts, not percentages, on the axis: the denominator is 75 and the top
+    # tick is 75, so the whole is on the canvas and every segment is read
+    # against it directly.
+    ax.set_xlim(0, n_total)
+    ax.set_ylim(0, 1)
+
+    y_bar_lo, y_bar_hi = 0.845, 1.0
+    segments = [
+        (n_strict, SCARLET, SCARLET,
+         f"{n_strict} papers ({n_strict / n_total * 100:.1f}%) report the check "
+         "under the strict reading"),
+        (n_permissive_only, PALE, MUTE,
+         f"{n_permissive_only} papers ({n_permissive_only / n_total * 100:.1f}%) "
+         "report it only under the permissive reading"),
+        (n_neither, GREY, MUTE,
+         f"{n_neither} papers ({n_neither / n_total * 100:.1f}%) do not report "
+         "it under either reading"),
+    ]
+
+    left = 0.0
+    placed = []
+    for n, fill, text_colour, label in segments:
+        ax.add_patch(mpatches.Rectangle((left, y_bar_lo), n, y_bar_hi - y_bar_lo,
+                                        facecolor=fill, edgecolor="none",
+                                        zorder=2))
+        placed.append((left, n, fill, text_colour, label))
+        left += n
+
+    # A staircase of direct labels: each one begins under the left edge of its
+    # own segment and is tied to it by a leader dropped from that edge, so no
+    # key is needed to say which label belongs to which colour. The four-paper
+    # segment is a quarter of an inch on the page and will not hold a label
+    # inside it, and neither pale nor grey may carry text, so all three labels
+    # sit below the bar.
+    #
+    # The rows run widest segment first, which is what keeps the leaders off
+    # the type: a leader dropped from a segment further left passes only rows
+    # whose text starts further right, so it never strikes through a label. In
+    # the other order, every leader crossed the two labels above it.
+    y_rows = [0.615, 0.395, 0.175]
+    for (left, n, fill, text_colour, label), y_row in zip(
+            sorted(placed, key=lambda p: -p[0]), y_rows):
+        leader = SCARLET if fill is SCARLET else GREY
+        # Leaders anchor at the segment's left edge, with one stated exception:
+        # a segment starting at x = 0 anchors at its midpoint, because a
+        # full-height hairline directly above the 0 tick, on an axes whose left
+        # spine is deliberately absent, reads as a spine in claim colour.
+        anchor = left + n / 2 if left == 0 else left
+        ax.plot([anchor, anchor], [y_row + 0.055, y_bar_lo], color=leader,
+                lw=0.5, zorder=1)
+        ax.text(anchor + 0.7, y_row, label, ha="left", va="center",
+                fontsize=8.0, color=text_colour)
+
+    ax.set_xlabel("Papers coded")
+    ax.set_xticks([0, 25, 50, n_total])
+    ax.set_yticks([])
+    # The count axis measures something and keeps its spine; the bar has one row
+    # and no categorical axis, so nothing runs up the left edge.
+    lean(ax, xbounds=(0, n_total))
+    ax.spines["left"].set_visible(False)
+    ax.tick_params(axis="y", length=0)
+
+    fname = "fig-survey-audit.pdf"
+    fig.savefig(os.path.join(FIGDIR, fname))
+    plt.close(fig)
+    register(fname, "fig:survey-audit", [p_coding],
+             "One bar, three segments, a rate of a whole. The strict count, the permissive "
+             "count and the count clearing neither reading are read straight from the coding "
+             "summary; the middle segment is the permissive count less the strict count, and "
+             "the three are asserted to sum to the committed denominator before the figure is "
+             "drawn. Scarlet marks the four-paper segment, which is what this figure claims; "
+             "the other two segments carry no accent.")
+
+
+# ============================================================================
 # Run all buildable figures + report skipped ones
 # ============================================================================
 SKIPPED = [
@@ -1251,13 +1500,18 @@ def main():
     make_fig_intro_headline()
     make_fig_funnel()
     make_fig_exemplar()
-    make_fig_rule_precision()
+    # make_fig_rule_precision() removed from the thesis per committee review;
+    # the per-rule table carries this. The drawing function is left in place
+    # above so the figure can be rebuilt if it is ever wanted again, but
+    # nothing binds it and nothing calls it.
     make_fig_prevalence()
     make_fig_tracking()
     make_fig_met_exchange()
     make_fig_met_sharpened()
     make_fig_disc_strata()
     make_fig_disc_actionability()
+    make_fig_cohort_flow()
+    make_fig_survey_audit()
 
     manifest_path = os.path.join(FIGDIR, "manifest.json")
     with open(manifest_path, "w") as f:
