@@ -42,7 +42,7 @@ what they returned.
 
 \begin{table}[H]
 \centering
-\caption{Each pipeline stage, the reading available before its control, and the
+\caption[Each pipeline stage before and after control]{Each pipeline stage, the reading available before its control, and the
 reading after. ``Reversed'' means the direction of the conclusion changed.
 ``Narrowed'' means it survived in a smaller form. ``Survived'' means the control
 fired and the original reading held.}
@@ -208,7 +208,9 @@ by side. Both intervals straddle chance, and the stratum's is wider because it
 holds half the positives.
 
 \begin{figure}[!htbp]
-\caption{Ranking performance on the full decontaminated evaluation set and on
+
+\includegraphics[width=0.9\linewidth]{figures/fig-disc-strata.pdf}
+\caption[Ranking performance, full set versus stratum]{Ranking performance on the full decontaminated evaluation set and on
 the stratum where the displayed evidence is correct by construction, each with
 its bootstrap interval. No ROC curve is drawn because per-pair scores are not
 released; the panel row labels carry the sample sizes that apply. The
@@ -216,7 +218,6 @@ $253$-pair row is the decontaminated ACCORD ensemble; the $134$-pair row is
 the separate defect-free control model of Section~\ref{sec:m-control-model},
 not a rescoring of ACCORD's own architecture on that stratum.}
 \label{fig:disc-strata}
-\includegraphics[width=0.9\linewidth]{figures/fig-disc-strata.pdf}
 \end{figure}
 
 Two baselines finish the picture and one is uncomfortable. A majority-class
@@ -274,12 +275,13 @@ gap is a pretraining effect rather than a capacity effect, and the mortality gap
 is the same instrument returning almost nothing.
 
 \begin{figure}[!htbp]
-\caption{From-scratch encoders at three parameter scales against a pretrained
+
+\includegraphics[width=0.9\linewidth]{figures/fig-scaling.pdf}
+\caption[Pretraining benefit across parameter scales]{From-scratch encoders at three parameter scales against a pretrained
 encoder on the public classification task, with the mortality-control
 comparison inset. The shaded band is the pretrained arm's seed standard
 deviation.}
 \label{fig:scaling}
-\includegraphics[width=0.9\linewidth]{figures/fig-scaling.pdf}
 \end{figure}
 
 The decision rule was committed before the sweep ran
@@ -368,13 +370,14 @@ sample size rather than a system, and the two cases are not distinguishable from
 the recorded pass alone.
 
 \begin{figure}[!htbp]
-\caption{The audited demographic-parity gap across operating points and
+
+\includegraphics[width=0.9\linewidth]{figures/fig-threshold-surface.pdf}
+\caption[Audited parity gap across operating points]{The audited demographic-parity gap across operating points and
 selection strengths for one selection experiment. The solid contour is the
 tolerance the audit was written against; the pale region is where the minimum
 detectable gap exceeds that tolerance, so a pass is underpowered rather than
 clean.}
 \label{fig:threshold-surface}
-\includegraphics[width=0.9\linewidth]{figures/fig-threshold-surface.pdf}
 \end{figure}
 
 The behaviour does not survive a controlled sweep of the same construct. A
@@ -457,7 +460,7 @@ Table~\ref{tab:disc-survey} gives the disposition of the rest.
 
 \begin{table}[H]
 \centering
-\caption{How the $75$ surveyed papers handle the population removed upstream of
+\caption[How surveyed papers handle removed rows]{How the $75$ surveyed papers handle the population removed upstream of
 the model they evaluate. Both readings of the audit question are reported side by
 side; the $10$-paper gap between them is the honest ambiguity in the coding.}
 \label{tab:disc-survey}
@@ -497,15 +500,12 @@ would be an invented number in a thesis about invented numbers.
 
 \begin{table}[H]
 \centering
-\caption{Recorded compute for the controls. Person-hours are excluded and were
-not logged. \texttt{results/accord/control\_cost\_log.json} logs the public-task
-positive control episode as a $12$-run, $34.9$-minute subset, the $3$-epoch
-decision point alone; reconciled here to the full convergence sweep behind that
-episode, $48$ runs and $555$ minutes
-(\texttt{conv.n\_runs}, \texttt{conv.total\_minutes}), which is the figure the
-argument in Section~\ref{sec:disc-null} actually rests on. The reconciled total
-is registered as \texttt{stats.control\_cost\_reconciled.total\_runs} and
-\texttt{stats.control\_cost\_reconciled.total\_minutes}.}
+\caption[Recorded compute cost of controls]{Recorded compute for the controls. Person-hours are excluded and were
+not logged. The public-task positive control episode is logged as a $12$-run,
+$34.9$-minute subset, the $3$-epoch decision point alone; reconciled here to
+the full convergence sweep behind that episode, $48$ runs and $555$ minutes,
+which is the figure the argument in Section~\ref{sec:disc-null} actually rests
+on.}
 \label{tab:disc-cost}
 \begin{tabular}{lrr}
 \toprule
@@ -604,11 +604,12 @@ to the finished summary. Nothing here measures whether the task is tractable at
 that earlier point, and nothing here should be read as a claim that it is.
 
 \begin{figure}[!htbp]
-\caption{When the system can fire, relative to when the patient leaves. Nursing
+
+\includegraphics[width=0.9\linewidth]{figures/fig-disc-actionability.pdf}
+\caption[When the system can fire]{When the system can fire, relative to when the patient leaves. Nursing
 notes carry a charting time; discharge summaries carry only a charting date, so
 the document the system triggers on is finalised at or after discharge.}
 \label{fig:disc-actionability}
-\includegraphics[width=0.9\linewidth]{figures/fig-disc-actionability.pdf}
 \end{figure}
 
 \paragraph{The exemplar defect bounds annotation validity, and re-annotation was
@@ -684,7 +685,7 @@ call for different responses.
 
 \begin{table}[H]
 \centering
-\caption{Internal threats and what this thesis does with each. Two are bounded by
+\caption[Internal threats and their status]{Internal threats and what this thesis does with each. Two are bounded by
 measurement; the rest are stated rather than argued away.}
 \label{tab:disc-internal}
 \small
@@ -763,12 +764,13 @@ chosen here by asking what a missed contradiction costs relative to a false
 alarm. That question is clinical and it was never posed.
 
 \begin{figure}[!htbp]
-\caption{What each summary statistic trades on this evaluation set: forgone true
+
+\includegraphics[width=0.9\linewidth]{figures/fig-met-exchange.pdf}
+\caption[Exchange rates of summary statistics]{What each summary statistic trades on this evaluation set: forgone true
 positives against gained true negatives, with the four compared systems plotted
 in the same coordinates. The indifference slopes follow from the class counts
 alone.}
 \label{fig:met-exchange}
-\includegraphics[width=0.9\linewidth]{figures/fig-met-exchange.pdf}
 \end{figure}
 
 Finally, the

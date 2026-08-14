@@ -26,7 +26,7 @@ Every metric below carries its denominator, and a quantity that is a ratio of
 two registered counts is written as that ratio, for example $12/253$.
 
 \begin{table}[H]
-\caption{The three evaluation sets used in this chapter.}
+\caption[The three evaluation sets]{The three evaluation sets used in this chapter.}
 \centering
 \small
 \begin{tabular}{lrrrl}
@@ -39,12 +39,7 @@ $G_{253}$ & 253 & 12 & 241 & non-ambiguous pairs, ambiguous dropped \\
 $G_{134}$ & 134 & 6  & 128 & Rule 3 and Rule 4 stratum, defect free \\
 \bottomrule
 \end{tabular}
-\apanote{$G_{299}$ from \texttt{gold.n\_total} and the recomputed power ceiling;
-$G_{253}$ from \texttt{decontam.n}, \texttt{power.n\_positives} and
-\texttt{power.n\_negatives}; $G_{134}$ from the defect-free stratum in the
-control report. The 46 ambiguous pairs are the difference between the two
-negative counts, $287 - 241$. $G_{134}$ is a subset of $G_{299}$ and holds half
-of the 12 confirmed contradictions.}
+\apanote{$G_{299}$ is all annotated pairs; $G_{253}$ excludes the ambiguous pairs; $G_{134}$ is the defect-free stratum from the control report. The 46 ambiguous pairs are the difference between the two negative counts, $287 - 241$. $G_{134}$ is a subset of $G_{299}$ and holds half of the 12 confirmed contradictions.}
 \label{tab:denoms}
 \end{table}
 
@@ -87,7 +82,7 @@ gives the size of each rule's gold stratum, the pharmacist's true-positive rate 
 predicted-positive rate on the same rows.
 
 \begin{table}[H]
-\caption{Per-rule gold stratum size, pharmacist precision, and ACCORD's predicted-positive rate.}
+\caption[Per-rule precision and predicted-positive rate]{Per-rule gold stratum size, pharmacist precision, and ACCORD's predicted-positive rate.}
 \label{tab:rule-precision}
 \centering
 \small
@@ -101,14 +96,7 @@ predicted-positive rate on the same rows.
 4, omission                & 55  & 3.64\% & 74.55\% \\
 \bottomrule
 \end{tabular}
-\apanote{From \texttt{results/accord/step0\_1\_join\_and\_calibration.json}, block
-\texttt{rule\_stratified\_calibration}, keys \texttt{n\_gold},
-\texttt{pharmacist\_true\_pos\_rate\_gold} and \texttt{accord\_predicted\_pos\_rate\_gold} for rules 1
-through 4. The four strata sum to 299, the full annotated set. The ACCORD column is the
-contaminated released run, the same run reported as \texttt{gold.accord\_pred\_contradiction}
-in Table~\ref{tab:marginal}: $134 \times 0.9701 + 31 \times 0.9677 + 79 \times 0.9747 +
-55 \times 0.7455 \approx 278$, the contaminated marginal. The decontaminated retrain appears
-in Section~\ref{sec:res-rq4} and is not restratified by rule here.}
+\apanote{The four strata sum to 299, the full annotated set. The ACCORD column is the contaminated released run, the same run reported in Table~\ref{tab:marginal}: $134 \times 0.9701 + 31 \times 0.9677 + 79 \times 0.9747 + 55 \times 0.7455 \approx 278$, the contaminated marginal. The decontaminated retrain appears in Section~\ref{sec:res-rq4} and is not restratified by rule here.}
 \end{table}
 
 Rule 2 has the highest pharmacist precision, 9.68 percent, despite supplying the smallest gold
@@ -143,17 +131,17 @@ Figure~\ref{fig:rule-precision} reports per-rule ranking performance alongside t
 above.
 
 \begin{figure}[!htbp]
-\caption{Per-rule ranking performance on the annotated pairs. Bars give the
+
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-rule-precision.pdf}
+\caption[Ranking performance per mining rule]{Per-rule ranking performance on the annotated pairs. Bars give the
 area under the ROC curve for the detector's contradiction probability within each
 mining rule, evaluated against the pharmacist's binary label; the count of pairs
 and of confirmed positives is printed above each bar. The dashed line marks
 chance. The shaded band is the 95\% bootstrap interval for Rules 3 and 4 pooled,
 the stratum whose exemplars are correct by construction, and it is drawn across
 those two rules only.}
-\centering
-\includegraphics[width=0.92\linewidth]{figures/fig-rule-precision.pdf}
-\apanote{Ranking performance per rule, drawn from \texttt{figures/manifest.json}, in addition to
-the pharmacist precision table in Table~\ref{tab:rule-precision}.}
+\apanote{Ranking performance per rule in addition to the pharmacist precision table in Table~\ref{tab:rule-precision}.}
 \label{fig:rule-precision}
 \end{figure}
 
@@ -227,7 +215,7 @@ and that defence assumes noise conditionally independent across sources given th
 label; one source whose error is a shifted marginal falls outside the regime.
 
 \begin{table}[H]
-\caption{Predicted-positive counts on the 299 annotated pairs.}
+\caption[Predicted-positive counts by source]{Predicted-positive counts on the 299 annotated pairs.}
 \centering
 \small
 \begin{tabular}{lrl}
@@ -239,13 +227,7 @@ Llama 3 8B weak labeller           & 261 & 299 \\
 ACCORD, released per-pair decision & 278 & 299 \\
 \bottomrule
 \end{tabular}
-\apanote{Registered as \texttt{gold.n\_total},
-\texttt{gold.weaklabel\_contradiction} and
-\texttt{gold.accord\_pred\_contradiction}. The ACCORD decision column is
-three-valued; 15 rows carry the value \emph{ambiguous}. The 261 and the 278 count
-two different columns produced by two different systems on the same 299 rows and
-are not two readings of one quantity. The ACCORD row is the contaminated released
-run; the decontaminated retrain appears in Section~\ref{sec:res-rq4}.}
+\apanote{The ACCORD decision column is three-valued; 15 rows carry the value \emph{ambiguous}. The 261 and the 278 count two different columns produced by two different systems on the same 299 rows and are not two readings of one quantity. The ACCORD row is the contaminated released run; the decontaminated retrain appears in Section~\ref{sec:res-rq4}.}
 \label{tab:marginal}
 \end{table}
 
@@ -281,7 +263,7 @@ class-prior sensitivity documented for in-context learning
 \citep{zhao2021calibrate}.
 
 \begin{table}[H]
-\caption{Per-pair calls on the 253 non-ambiguous pairs.}
+\caption[Per-pair calls on the core evaluation set]{Per-pair calls on the 253 non-ambiguous pairs.}
 \centering
 \small
 \begin{tabular}{lrrrrrr}
@@ -295,13 +277,7 @@ ACCORD at $\tau = 0.5$         & 11 & 1 & 223 & 18  & 0.0470 & 0.9167 \\
 Llama 3 8B evaluation baseline & 11 & 1 & 231 & 10  & 0.0455 & 0.9167 \\
 \bottomrule
 \end{tabular}
-\apanote{All four rows from \texttt{results/accord/step3\_baselines.json} on
-$G_{253}$, 12 positives and 241 negatives. The last row is a separately
-prompted Llama 3 8B evaluation run and is \emph{not} the weak-supervision
-labeller of Table~\ref{tab:marginal}, whose own calls on these pairs differ.
-The ACCORD row is the contaminated released run, whose recall of 11 of 12 no
-decontaminated seed reaches; it is kept only because its per-pair calls are the
-committed ones.}
+\apanote{On $G_{253}$, 12 positives and 241 negatives. The last row is a separately prompted Llama 3 8B evaluation run and is \emph{not} the weak-supervision labeller of Table~\ref{tab:marginal}, whose own calls on these pairs differ. The ACCORD row is the contaminated released run, whose recall of 11 of 12 no decontaminated seed reaches; it is kept only because its per-pair calls are the committed ones.}
 \label{tab:systems253}
 \end{table}
 
@@ -328,7 +304,10 @@ instruction-tuned labeller asked for a rare positive class; what survives the ch
 the direction, over-calling that does not track the true rate, not the size of it.
 
 \begin{figure}[!htbp]
-\caption{Labeller response to prevalence on public text. Each panel plots the
+
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-prevalence-response.pdf}
+\caption[Labeller response to prevalence]{Labeller response to prevalence on public text. Each panel plots the
 rate at which a weak labeller returns a positive against the true prevalence of
 the sample it was shown, for three locally run open-weight models (columns) under
 two prompt conditions (rows): a bare instruction, and one that states the base
@@ -336,10 +315,7 @@ rate and permits abstention. The dashed diagonal is perfect calibration, where
 predicted rate equals true rate. The square in the upper left of each panel marks
 the clinical operating point measured in this thesis, a true rate near 4\% read as
 positive at roughly 85\%.}
-\centering
-\includegraphics[width=0.92\linewidth]{figures/fig-prevalence-response.pdf}
-\apanote{Built from the prevalence replication sweep. Each panel varies the true
-positive rate and records the labeller's marginal at that setting.}
+\apanote{Built from the prevalence replication sweep. Each panel varies the true positive rate and records the labeller's marginal at that setting.}
 \label{fig:prevalence-response}
 \end{figure}
 
@@ -419,19 +395,17 @@ against that head measures an untrained module rather than the underlying
 question.
 
 \begin{figure}[!htbp]
-\caption{Two falsifications in one view. Left: the two authority scale
+
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-falsification.pdf}
+\caption[Two architecture components falsified]{Two falsifications in one view. Left: the two authority scale
 parameters, $\alpha_N$ on the nursing side and $\alpha_D$ on the discharge side,
 at their stated initialisation and after training, averaged over three seeds. Both
 finish within about one percent of where they began, so the values reported as
 learned are indistinguishable from the constants they were set to. Right: macro
 $F_1$ of the rule-type head in the domain it was fitted on and on two cohorts it
 was not, sepsis and acute kidney injury.}
-\centering
-\includegraphics[width=0.92\linewidth]{figures/fig-falsification.pdf}
-\apanote{Left panel: a parameter reported as learned, drawn against its
-initialisation. Right panel: the rule-type head's in-domain macro $F_1$ of
-$0.9603$ against its transfer scores of $0.0654$ on sepsis and $0.0595$ on acute
-kidney injury, all three measured and registered.}
+\apanote{Left panel: a parameter reported as learned, drawn against its initialisation. Right panel: the rule-type head's in-domain macro $F_1$ of $0.9603$ against its transfer scores of $0.0654$ on sepsis and $0.0595$ on acute kidney injury, all three measured and registered.}
 \label{fig:falsification}
 \end{figure}
 
@@ -451,7 +425,7 @@ validation loss, its seed spread where more than one seed exists, and the loss r
 no-bias arm for all ten.
 
 \begin{table}[H]
-\caption{Ten-arm architecture ablation, mean validation loss.}
+\caption[Ten-arm architecture ablation results]{Ten-arm architecture ablation, mean validation loss.}
 \label{tab:ablation}
 \centering
 \small
@@ -472,18 +446,7 @@ Segment-index bias         & 3.4078 & 0.0225 & -0.9476 & 100\%   & 3 \\
 Hard block mask, fixed     & 3.2772 & 0.0124 & -1.0782 & 113.8\% & 3 \\
 \bottomrule
 \end{tabular}
-\apanote{Source artifact \texttt{results/pretraining\_runs.json}, registered
-under the keys \texttt{ablation.*.val\_loss\_mean}, \texttt{ablation.*.val\_loss\_sd} or
-\texttt{ablation.*.val\_loss}, \texttt{ablation.*.delta\_vs\_vanilla},
-\texttt{ablation.*.pct\_of\_segment\_index} and \texttt{ablation.*.n\_seeds} in
-\texttt{VERIFIED\_FACTS.json}; the dotted names are register keys, not a node
-inside the source file. The share column is each
-arm's loss reduction expressed as a percentage of the segment-index arm's reduction, the largest
-gain among the three-seed additive-bias arms; it is not defined for the global-positions row, which
-increases loss relative to vanilla rather than reducing it. Seed spreads on the seven three-seed
-rows run from $0.0023$ to $0.0293$ nats against effects from $0.2520$ to $1.0782$ nats, so every
-ordering among those seven is resolved well outside seed noise. The three single-seed rows carry no
-seed spread and are shown for completeness rather than as matched comparisons.}
+\apanote{Mean validation loss and its standard deviation are given for each arm, together with the change against the vanilla arm and its share of the segment-index arm's reduction. The share column is each arm's loss reduction expressed as a percentage of the segment-index arm's reduction, the largest gain among the three-seed additive-bias arms; it is not defined for the global-positions row, which increases loss relative to vanilla rather than reducing it. Seed spreads on the seven three-seed rows run from $0.0023$ to $0.0293$ nats against effects from $0.2520$ to $1.0782$ nats, so every ordering among those seven is resolved well outside seed noise. The three single-seed rows carry no seed spread and are shown for completeness rather than as matched comparisons.}
 \end{table}
 
 The control task in the sense \citet{hewitt2019control} define it holds the label alphabet fixed and
@@ -599,7 +562,7 @@ committed before the sweep ran, shows the same apparatus resolving a real effect
 \subsection{Three configurations at chance}
 
 \begin{table}[H]
-\caption{Decontaminated detector on the 253 non-ambiguous pairs.}
+\caption[Decontaminated detector at chance]{Decontaminated detector on the 253 non-ambiguous pairs.}
 \centering
 \small
 \begin{tabular}{lrrrr}
@@ -616,17 +579,7 @@ Three-seed ensemble & 0.5145 & & 0.8668 & \\
 Contaminated run, same 253 pairs & 0.4595 & & & \\
 \bottomrule
 \end{tabular}
-\apanote{$G_{253}$, 12 positives and 241 negatives, from
-\texttt{results/accord/decontam/corrected\_gold\_metrics.json}; bootstrap
-resampling there uses $B = 10{,}000$ at seed 42. Average precision is the
-appropriate summary at this imbalance \citep{saito2015prcurve} and its no-skill
-line is $12/253$. The percentile bootstrap interval for the ensemble AUROC on
-$G_{253}$ is $0.3210$ to $0.7034$
-(\texttt{decontam.aggregate.ensemble\_ci95\_lo},
-\texttt{decontam.aggregate.ensemble\_ci95\_hi}). The per-seed standard deviation
-is computed at $\mathrm{ddof} = 0$, the population convention
-(Section~\ref{sec:m-stats}), and is not compared against a spread computed
-under the sample convention.}
+\apanote{$G_{253}$, 12 positives and 241 negatives; bootstrap resampling uses $B = 10{,}000$ at seed 42. Average precision is the appropriate summary at this imbalance \citep{saito2015prcurve} and its no-skill line is $12/253$. The percentile bootstrap interval for the ensemble AUROC on $G_{253}$ is $0.3210$ to $0.7034$. The per-seed standard deviation is computed at $\mathrm{ddof} = 0$, the population convention (Section~\ref{sec:m-stats}), and is not compared against a spread computed under the sample convention.}
 \label{tab:decontam}
 \end{table}
 
@@ -638,7 +591,7 @@ scores, lands at $0.4595$, below chance on the same 253 pairs: leakage did not
 manufacture signal, because there was none to manufacture.
 
 \begin{table}[H]
-\caption{Control configurations on the full annotated set and the defect-free
+\caption[Control configurations, full set and stratum]{Control configurations on the full annotated set and the defect-free
 stratum.}
 \centering
 \small
@@ -655,14 +608,7 @@ $G_{134}$ & Three-seed ensemble    & 0.5469 & 0.0784 & 0.5479 & 0.1481 \\
 $G_{134}$ & Per-seed mean $\pm$ SD & \multicolumn{4}{l}{$0.5295 \pm 0.0158$ (AP $0.0707 \pm 0.0108$)} \\
 \bottomrule
 \end{tabular}
-\apanote{From \texttt{results/accord/control/final\_report.json}. Bootstrap
-columns are the mean and standard deviation over $B = 10{,}000$ resamples at seed
-$20{,}260{,}806$ \citep{efron1994bootstrap}. All six rows in this table, the
-$G_{299}$ per-seed mean of $0.4967 \pm 0.0350$ included, come from runs taken
-under an asserted subject-disjoint split. The per-seed standard deviation is
-computed at $\mathrm{ddof} = 1$, the sample convention (Section~\ref{sec:m-stats}),
-which differs from the $\mathrm{ddof} = 0$ convention used for
-Table~\ref{tab:decontam}; the two are not compared against each other.}
+\apanote{Bootstrap columns are the mean and standard deviation over $B = 10{,}000$ resamples at seed $20{,}260{,}806$ \citep{efron1994bootstrap}. All six rows in this table, the $G_{299}$ per-seed mean of $0.4967 \pm 0.0350$ included, come from runs taken under an asserted subject-disjoint split. The per-seed standard deviation is computed at $\mathrm{ddof} = 1$, the sample convention (Section~\ref{sec:m-stats}), which differs from the $\mathrm{ddof} = 0$ convention used for Table~\ref{tab:decontam}; the two are not compared against each other.}
 \label{tab:control299}
 \end{table}
 
@@ -683,7 +629,7 @@ are indistinguishable from a random draw. For a ranked worklist that is decisive
 \subsection{The paired comparison}
 
 \begin{table}[H]
-\caption{Paired ROC comparisons on the same pairs.}
+\caption[Paired ROC comparisons by DeLong test]{Paired ROC comparisons on the same pairs.}
 \centering
 \small
 \begin{tabular}{llrrrrr}
@@ -698,10 +644,7 @@ $G_{299}$ & Seed 2024 vs.\ single & 0.5282 & 0.4602 & $0.0679$  & $0.7028$  & 0.
 $G_{134}$ & Ensemble vs.\ single  & 0.5469 & 0.5078 & $0.0391$  & $0.7881$  & 0.4306 \\
 \bottomrule
 \end{tabular}
-\apanote{DeLong's test for two correlated ROC curves \citep{delong1988comparing},
-from \texttt{results/accord/control/final\_report.json}. Standard errors of the
-difference are $0.1025$, $0.1052$, $0.0979$, $0.0967$ and $0.0496$ for the five
-rows in order.}
+\apanote{DeLong's test for two correlated ROC curves \citep{delong1988comparing}. Standard errors of the difference are $0.1025$, $0.1052$, $0.0979$, $0.0967$ and $0.0496$ for the five rows in order.}
 \label{tab:delong}
 \end{table}
 
@@ -715,7 +658,7 @@ another.
 \subsection{A bag-of-words baseline}
 
 \begin{table}[H]
-\caption{Reference baselines on the annotated pairs.}
+\caption[Reference baselines on annotated pairs]{Reference baselines on the annotated pairs.}
 \centering
 \small
 \begin{tabular}{llrrr}
@@ -729,13 +672,7 @@ $G_{134}$ & TF-IDF plus logistic regression & 0.5729 & 0.2768 & 2 \\
 $G_{134}$ & Majority class                  & 0.5000 & 0.0448 & n/a \\
 \bottomrule
 \end{tabular}
-\apanote{Both baselines are fitted on 1,183 training rows at a positive rate of
-$0.8521$, the same weak supervision the detector consumed; TF-IDF is capped at
-5,000 features. A majority-class predictor assigns every row the identical
-score, so it has no ranking among rows and no well-defined top 15; the column
-is marked n/a for both majority-class rows rather than reporting whatever
-count an arbitrary tie-break happened to produce. The majority-class average precisions are the base rates of the
-two sets and fix the no-skill line for that column.}
+\apanote{Both baselines are fitted on 1,183 training rows at a positive rate of $0.8521$, the same weak supervision the detector consumed; TF-IDF is capped at 5,000 features. A majority-class predictor assigns every row the identical score, so it has no ranking among rows and no well-defined top 15; the column is marked n/a for both majority-class rows rather than reporting whatever count an arbitrary tie-break happened to produce. The majority-class average precisions are the base rates of the two sets and fix the no-skill line for that column.}
 \label{tab:baselines}
 \end{table}
 
@@ -751,7 +688,7 @@ domain-pretrained encoder \citep{gu2021biomedbert} with low-rank adaptation
 \subsection{What the instrument could have seen}
 
 \begin{table}[H]
-\caption{Minimum detectable AUROC at 80\% power.}
+\caption[Minimum detectable AUROC by evaluation size]{Minimum detectable AUROC at 80\% power.}
 \centering
 \small
 \begin{tabular}{lrrrrr}
@@ -764,15 +701,7 @@ $G_{299}$ & 12 & 287 & 0.0852 & 0.2350 & 0.7350 \\
 $G_{134}$ & 6  & 128 & 0.1210 & 0.3058 & 0.8058 \\
 \bottomrule
 \end{tabular}
-\apanote{$\alpha = 0.05$, power $0.8$. The SE column is the simple
-null-standard-error approximation, registered for $G_{253}$ as \texttt{power.*}
-and for the other two rows under \texttt{control.power\_ceiling.*}. The Gap and
-Min.\ detectable columns are the full \citet{hanley1982meaning} procedure,
-\texttt{accord/stats/recompute\_mde.py}, registered under
-\texttt{mde\_recomputed.*}: the earlier stored value of $0.7382$ for $G_{253}$
-did not reproduce under either the simple formula or the full procedure and is
-superseded (\texttt{REVISION\_LOG.md} R9). The gap column is the distance above
-chance the evaluation could resolve.}
+\apanote{$\alpha = 0.05$, power $0.8$. The SE column is the simple null-standard-error approximation. The Gap and Min.\ detectable columns follow the full \citet{hanley1982meaning} procedure: the earlier stored value of $0.7382$ for $G_{253}$ did not reproduce under either the simple formula or the full procedure and is superseded. The gap column is the distance above chance the evaluation could resolve.}
 \label{tab:power}
 \end{table}
 
@@ -786,7 +715,10 @@ nothing near the detectable range, and it fixes the size of the annotation effor
 a future attempt needs.
 
 \begin{figure}[!htbp]
-\caption{What each evaluation in this thesis could have seen. The curve gives
+
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-power.pdf}
+\caption[Minimum detectable effect by evaluation size]{What each evaluation in this thesis could have seen. The curve gives
 the minimum detectable area under the ROC curve at 80\% power and a two-sided
 $\alpha$ of 0.05, by the method of Hanley and McNeil \citep{hanley1982meaning}, as a function of the number
 of positive cases in the evaluation set. The circle marks the contradiction
@@ -794,9 +726,7 @@ evaluation reported in this chapter, which holds 12 positives among 253 pairs. T
 square marks the in-hospital mortality task used elsewhere as a positive control,
 which holds 570 positives among 6{,}776 held-out admissions and is a different
 task on a different cohort.}
-\centering
-\includegraphics[width=0.92\linewidth]{figures/fig-power.pdf}
-\apanote{Built from \texttt{results/accord/section6\_auroc\_power.json}.}
+
 \label{fig:power}
 \end{figure}
 
@@ -833,7 +763,7 @@ best from-scratch arm closed as the budget grew, the mortality-task null
 would be attributable to under-training, and if not, not.
 
 \begin{table}[H]
-\caption{Convergence sweep: four arms at four training budgets.}
+\caption[Convergence sweep across training budgets]{Convergence sweep: four arms at four training budgets.}
 \centering
 \small
 \begin{tabular}{lrrrr}
@@ -847,27 +777,7 @@ Scratch, 30M       & 0.8833 (0.0009) & 0.8856 (0.0035) & 0.8845 (0.0022) & 0.888
 Scratch, 10M       & 0.8784 (0.0022) & 0.8795 (0.0013) & 0.8822 (0.0011) & 0.8838 (0.0036) \\
 \bottomrule
 \end{tabular}
-\apanote{Accuracy, three seeds per cell, standard deviation in parentheses; 48
-runs and 555 minutes in total, from
-\texttt{results/accord/scaling/convergence\_results.json}. The task is topic
-classification on AG News (\texttt{fancyzhx/ag\_news}), tokenised with
-\texttt{bert-base-uncased} at 40,000 training rows, 5,000 validation rows and a
-maximum length of 256 tokens (\texttt{conv.dataset}, \texttt{conv.tokenizer},
-\texttt{conv.n\_train}, \texttt{conv.n\_val}, \texttt{conv.maxlen}), from the
-committed notebook \texttt{accord/scaling/C44\_convergence\_check.ipynb}. The
-pretrained arm gained $-0.13$ points from 3 epochs to 24 and the 100M
-from-scratch arm gained $0.41$. The adjudication rule is committed at
-\texttt{accord/scaling/C44\_PREREGISTRATION.md}, commit \texttt{b048829}
-(\texttt{conv.preregistration\_commit}), before the sweep ran: Outcome A is a gap
-of at least 3.0 accuracy points between the pretrained and best from-scratch
-arm with the standard deviation bands disjoint; Outcome B is a gap below 3.0
-points or an ordering not resolved across seeds; the range 2.5 to 3.5 points is
-declared inconclusive in advance, and the rule itself forbids resolving an
-inconclusive result by adding seeds. Gaps reported in prose are computed from
-the unrounded registered values, not from the four-decimal cells printed here,
-so subtracting the printed cells directly can differ in the last digit: at 24
-epochs $0.8925 + 0.0454 = 0.9379$ from the printed cells alone, one hundredth
-of a point above the registered gap of $4.53$.}
+\apanote{Accuracy, three seeds per cell, standard deviation in parentheses; 48 runs and 555 minutes in total. The task is topic classification on the AG News corpus, tokenised with the \texttt{bert-base-uncased} tokeniser at 40,000 training rows, 5,000 validation rows and a maximum length of 256 tokens. The pretrained arm gained $-0.13$ points from 3 epochs to 24 and the 100M from-scratch arm gained $0.41$. The adjudication rule was committed, at commit \texttt{b048829}, before the sweep ran: Outcome A is a gap of at least 3.0 accuracy points between the pretrained and best from-scratch arm with the standard deviation bands disjoint; Outcome B is a gap below 3.0 points or an ordering not resolved across seeds; the range 2.5 to 3.5 points is declared inconclusive in advance, and the rule itself forbids resolving an inconclusive result by adding seeds. Gaps reported in prose are computed from the unrounded values, not from the four-decimal cells printed here, so subtracting the printed cells directly can differ in the last digit: at 24 epochs $0.8925 + 0.0454 = 0.9379$ from the printed cells alone, one hundredth of a point above the recorded gap of $4.53$. Every value is traceable through the register in the supplementary file.}
 \label{tab:conv}
 \end{table}
 
@@ -880,7 +790,7 @@ resolving a real effect on the public task; on the mortality control task the
 same harness returns a gap of $0.0031$, reported next.
 
 \begin{table}[H]
-\caption{Pretraining against parameter count, and the same contrast on the
+\caption[Pretraining gap versus parameter count]{Pretraining against parameter count, and the same contrast on the
 mortality control task.}
 \centering
 \small
@@ -897,30 +807,7 @@ Mortality control  & From scratch       & 10,638,720 & $0.7662 \pm 0.0073$ \\
 Mortality control  & Gap                &            & $0.0031$ \\
 \bottomrule
 \end{tabular}
-\apanote{Public-benchmark rows are accuracy at a single budget from
-\texttt{results/accord/scaling/scaling\_results.json} with non-embedding
-parameter counts; mortality-control rows are AUROC on the identical split from
-\texttt{results/task\_runs.json} (cohort above). The from-scratch
-arm with more parameters than the pretrained encoder does not reach it, so the
-public-benchmark difference is not a capacity difference: the gap to the
-pretrained arm at this single budget is $0.0518$ for the 100M arm, $0.0563$
-for the 30M arm and $0.0606$ for the 10M arm, all larger than the mortality
-gap. The $4.53$-point figure used elsewhere as the positive control's
-headline is the same 100M-versus-pretrained comparison measured across the
-pre-registered convergence sweep of Table~\ref{tab:conv} instead of this
-single budget; the adjudication rule is bound to that figure, not this one.
-No significance test
-for the mortality-control gap is registered; the register carries the means,
-the standard deviations and the difference, but no $p$ value, so none is
-quoted and the gap is reported as a descriptive difference only. A related
-defect belongs to the public-benchmark gap above, not this one: the notebook
-cell that would test the $4.53$-point convergence gap, in
-\texttt{accord/scaling/C4\_scaling\_study.ipynb}, calls
-\texttt{scipy.stats.ttest\_ind} without \texttt{equal\_var=False}, so any $p$
-value it returned would be a Student test, not the Welch test earlier drafts of
-this material labelled it as (\texttt{stats.clinical\_gap\_test\_note}); none is
-computed or quoted for either gap, and both comparisons rest on the means and
-seed spreads already reported in the tables above.}
+\apanote{Public-benchmark rows are accuracy at a single budget, with non-embedding parameter counts; mortality-control rows are AUROC on the identical split (cohort above). The from-scratch arm with more parameters than the pretrained encoder does not reach it, so the public-benchmark difference is not a capacity difference: the gap to the pretrained arm at this single budget is $0.0518$ for the 100M arm, $0.0563$ for the 30M arm and $0.0606$ for the 10M arm, all larger than the mortality gap. The $4.53$-point figure used elsewhere as the positive control's headline is the same 100M-versus-pretrained comparison measured across the pre-registered convergence sweep of Table~\ref{tab:conv} instead of this single budget; the adjudication rule is bound to that figure, not this one. No significance test for the mortality-control gap is available; the means, the standard deviations and the difference are reported, but no $p$ value, so none is quoted and the gap is reported as a descriptive difference only. A related defect belongs to the public-benchmark gap above, not this one: the notebook cell that would test the $4.53$-point convergence gap calls \texttt{scipy.stats.ttest\_ind} without \texttt{equal\_var=False}, so any $p$ value it returned would be a Student test, not the Welch test earlier drafts of this material labelled it as; none is computed or quoted for either gap, and both comparisons rest on the means and seed spreads already reported in the tables above.}
 \label{tab:scaling}
 \end{table}
 
@@ -964,7 +851,7 @@ done here is to apply it to these class counts.
 \subsection{The ordering and its intervals}
 
 \begin{table}[H]
-\caption{Matthews correlation on the 253 non-ambiguous pairs.}
+\caption[Matthews correlation with bootstrap intervals]{Matthews correlation on the 253 non-ambiguous pairs.}
 \centering
 \small
 \begin{tabular}{lrrr}
@@ -977,14 +864,7 @@ ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ & $-0.1626$ to $0.
 Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ & $-0.2337$ to $0.0563$ \\
 \bottomrule
 \end{tabular}
-\apanote{Cells from Table~\ref{tab:systems253}; the predicted-positive column is
-shown as the sum of the two registered cells. MCC is the statistic most often
-recommended for imbalanced binary evaluation
-\citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are
-percentile bootstraps at $B = 10{,}000$ and seed 42
-(\texttt{mccint.bootstrap\_B}, \texttt{mccint.seed}), from
-\texttt{results/accord/stats/intervals.json}, block \texttt{E2\_mcc\_intervals}.
-All four contain zero.}
+\apanote{Cells from Table~\ref{tab:systems253}; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42. All four contain zero.}
 \label{tab:mcc}
 \end{table}
 
@@ -1000,16 +880,15 @@ Table~\ref{tab:mcc}, because at 12 positives none of the four systems is
 distinguishable from chance, and none is distinguishable from any other.
 
 \begin{figure}[!htbp]
-\caption{Headline estimates against zero. Each row gives one effect reported in
+
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig-forest.pdf}
+\caption[Headline estimates against zero]{Headline estimates against zero. Each row gives one effect reported in
 this thesis with its 95\% interval; units differ by row and are named in the row
 label, so the rows are not comparable to one another and only each interval's
 position relative to zero is being read. Rows whose interval contains zero are
 drawn in grey.}
-\centering
-\includegraphics[width=0.92\linewidth]{figures/fig-forest.pdf}
-\apanote{Each row is a headline estimate from this project with its interval, and
-the figure title reports how many of the plotted intervals cross zero. Built from
-the committed intervals file.}
+\apanote{Each row is a headline estimate from this project with its interval, and the figure title reports how many of the plotted intervals cross zero.}
 \label{fig:forest}
 \end{figure}
 
@@ -1028,7 +907,7 @@ $0.0$, which establishes that it is a faithful reproduction rather than a
 different computation.
 
 \begin{table}[H]
-\caption{Signed demographic parity endpoints in three experiments.}
+\caption[Signed parity endpoints, three experiments]{Signed demographic parity endpoints in three experiments.}
 \centering
 \small
 \begin{tabular}{lrrl}
@@ -1041,15 +920,7 @@ PUMS, regime A       & $-0.13556$ & $-0.19435$ & none \\
 PUMS, regime B       & $-0.11807$ & $-0.04101$ & none \\
 \bottomrule
 \end{tabular}
-\apanote{From \texttt{results/accord/signed\_gap\_analysis.json}. Endpoint 1 is
-the signed gap at the weakest selection strength swept and Endpoint 2 is the
-signed gap at the strongest; these are sweep endpoints, not the extrema the
-series attains in between. On PUMS regime A the sweep's true minimum is
-$-0.20733$ and true maximum is $-0.12761$
-(\texttt{signed.E10\_pums\_regimeA.dp\_true\_min},
-\texttt{signed.E10\_pums\_regimeA.dp\_true\_max}), both more extreme than
-either printed endpoint, so the endpoints in this table describe where the
-sweep starts and ends, not its range. Both endpoints are reported as recorded.}
+\apanote{Endpoint 1 is the signed gap at the weakest selection strength swept and Endpoint 2 is the signed gap at the strongest; these are sweep endpoints, not the extrema the series attains in between. On PUMS regime A the sweep's true minimum is $-0.20733$ and true maximum is $-0.12761$, both more extreme than either printed endpoint, so the endpoints in this table describe where the sweep starts and ends, not its range. Both endpoints are reported as recorded.}
 \label{tab:signed}
 \end{table}
 
@@ -1083,7 +954,7 @@ choice between them is a judgement call the reader should make independently.
 \subsection{Both readings, and the null-attribute distribution}
 
 \begin{table}[H]
-\caption{Coded outcomes across 75 included papers.}
+\caption[Coded outcomes across surveyed papers]{Coded outcomes across 75 included papers.}
 \centering
 \small
 \begin{tabular}{lr}
@@ -1103,11 +974,7 @@ Imputes           & 7  \\
 Reports only      & 6  \\
 \bottomrule
 \end{tabular}
-\apanote{From \texttt{results/accord/survey/coding\_table.csv}; the denominator
-is 75 throughout. The first row is the screening condition, satisfied by every
-included paper by construction. The permissive reading accepts any statement that
-the check was performed; the strict reading requires the quantity that would make
-it verifiable. The six null-attribute categories are exclusive and sum to 75.}
+\apanote{Papers are coded once each; the denominator is 75 throughout. The first row is the screening condition, satisfied by every included paper by construction. The permissive reading accepts any statement that the check was performed; the strict reading requires the quantity that would make it verifiable. The six null-attribute categories are exclusive and sum to 75.}
 \label{tab:survey}
 \end{table}
 

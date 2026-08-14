@@ -98,7 +98,7 @@
 \usepackage{microtype}
 \usepackage[htt]{hyphenat}  % permit breaks inside \texttt so long register keys do not overrun the margin
 \sloppy
-\usepackage[round]{natbib}
+\usepackage[numbers,sort&compress]{natbib}   % numeric citations, [14, 61, 93] style
 \usepackage[hidelinks,linktoc=all,bookmarks=true,bookmarksnumbered=true]{hyperref}
 % linktoc=all makes the whole entry clickable in the Table of Contents, the List
 % of Tables and the List of Figures, not just the page number.
@@ -155,12 +155,16 @@
 \titleformat{\subsection}{\normalfont\bfseries\itshape\normalsize}{}{0pt}{}
 \titlespacing*{\subsection}{0pt}{0.75\baselineskip}{0.35\baselineskip}
 
-% APA captions: label on its own line, bold label, italic text, ABOVE the float.
-\captionsetup{font={normalsize,stretch=2}}
-\captionsetup[figure]{labelsep=newline,labelfont=bf,textfont=it,
-  justification=raggedright,singlelinecheck=false,position=top,skip=0.5\baselineskip}
-\captionsetup[table]{labelsep=newline,labelfont=bf,textfont=it,
-  justification=raggedright,singlelinecheck=false,position=top,skip=0.5\baselineskip}
+% Caption and citation conventions follow the accepted departmental example
+% (CausalRAG thesis, same examples folder as the template), per the author's
+% decision of 2026-08-13: figure captions run BELOW the figure as a
+% single-spaced "Figure N: text" block, and citations are numeric. The official
+% template file's XML reads as APA (label above, author-year); the accepted
+% thesis in the same department uses this convention, and the author chose it.
+\captionsetup[figure]{labelsep=colon,font={normalsize,stretch=1},
+  justification=justified,singlelinecheck=false,position=bottom,skip=0.6\baselineskip}
+\captionsetup[table]{labelsep=colon,font={normalsize,stretch=1},
+  justification=justified,singlelinecheck=false,position=top,skip=0.6\baselineskip}
 \newcommand{\apanote}[1]{%
   \par\vspace{0.25\baselineskip}%
   \begingroup\raggedright\noindent\textit{Note.} #1\par\endgroup}
@@ -249,7 +253,7 @@
 \clearpage
 \phantomsection
 \addcontentsline{toc}{chapter}{\bibname}
-\bibliographystyle{apalike}   % SUBSTITUTE for apacite / APA 7
+\bibliographystyle{plainnat}  % numbered, alphabetically sorted, [1] [2] ...
 % The template's own XML single-spaces reference entries (FORMAT.md section 2,
 % w:line="240" on reference paragraphs) with a 0.5in hanging indent (section 8).
 % The body's \doublespacing does not extend here; doing so was a deviation.

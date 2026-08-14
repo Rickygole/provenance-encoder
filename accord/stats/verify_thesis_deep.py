@@ -166,8 +166,10 @@ def pass8_captions():
                 print(f"   {f.name}: figure {name} has NO caption")
                 problems += 1
                 continue
-            if c > env.find("\\includegraphics"):
-                print(f"   {f.name}: caption BELOW graphic (APA requires above): {name}")
+            # Convention per the accepted departmental example (author's
+            # decision 2026-08-13): figure captions sit BELOW the graphic.
+            if c < env.find("\\includegraphics"):
+                print(f"   {f.name}: caption ABOVE graphic (convention: below): {name}")
                 problems += 1
             i = c + len("\\caption{")
             depth, j = 1, i

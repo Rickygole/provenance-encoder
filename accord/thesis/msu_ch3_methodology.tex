@@ -2,7 +2,7 @@
 %  Chapter 3. Methodology  (Morgan State MS format)
 %
 %  \input file. Parent (main_msu.tex) supplies report/12pt, double spacing,
-%  Times, booktabs, graphicx, float, amsmath, natbib and \apanote{}.
+%  Times, booktabs, graphicx, float, amsmath, natbib and .
 %
 %  PROVENANCE. Every reported quantity comes from results/accord/VERIFIED_FACTS.json.
 %  Configuration constants (hyperparameters, pre-registered thresholds, rule
@@ -578,7 +578,7 @@ rests on a single-rater instrument with no inter-rater or intra-rater agreement 
 to it.
 
 \begin{table}[H]
-\caption{Evaluation strata, their sizes, and their positive counts.}
+\caption[Evaluation strata and their sizes]{Evaluation strata, their sizes, and their positive counts.}
 \label{tab:m-strata}
 \centering
 \small
@@ -592,13 +592,7 @@ Decontaminated evaluation & 253 & 12 & Ambiguous rows excluded \\
 Weak-label training pool  & 1,183 & \multicolumn{2}{l}{Positive rate 0.8521} \\
 \bottomrule
 \end{tabular}
-\apanote{Sources: \texttt{gold.n\_total}; the
-\texttt{control.accord\_contra\_prob\_same\_299\_pairs} block for both gold strata;
-\texttt{decontam.n} and \texttt{decontam.n\_positives}; \texttt{control.baselines.n\_train} and
-\texttt{control.baselines.train\_pos\_rate}. The defect-free subset is fixed by rule membership
-before any score is computed. The training pool's positive rate is the weak labeller's marginal on
-the rows surviving subject-level exclusion, and it is the reference against which any agreement
-figure on weak labels must be read.}
+\apanote{The defect-free subset is fixed by rule membership before any score is computed. The training pool's positive rate is the weak labeller's marginal on the rows surviving subject-level exclusion, and it is the reference against which any agreement figure on weak labels must be read.}
 \end{table}
 
 \section{The Controls}
@@ -754,7 +748,7 @@ notebook without being edited after the first result landed
 (\texttt{accord/scaling/C44\_PREREGISTRATION.md}).
 
 \begin{table}[H]
-\caption{Pre-registered decision rule for the pretraining positive control, committed before the
+\caption[Pre-registered decision rule for the control]{Pre-registered decision rule for the pretraining positive control, committed before the
 sweep was run.}
 \label{tab:m-prereg}
 \centering
@@ -777,11 +771,7 @@ Inconclusive & Gap in the range $2.5$ to $3.5$ points, or the bands touch withou
     control is unresolved at this compute scale. \\
 \bottomrule
 \end{tabular}
-\apanote{The rule also forbids resolving a boundary case by adding seeds until it moves, which is
-optional stopping. It does not decide whether pretraining helps on the clinical task; it decides
-only whether the public comparison is sensitive enough to serve as a control, and the two questions
-must not be merged. Thresholds are quoted from
-\texttt{accord/scaling/C44\_PREREGISTRATION.md} and are configuration, not results.}
+\apanote{The rule also forbids resolving a boundary case by adding seeds until it moves, which is optional stopping. It does not decide whether pretraining helps on the clinical task; it decides only whether the public comparison is sensitive enough to serve as a control, and the two questions must not be merged. The thresholds shown are configuration decided in advance, not results.}
 \end{table}
 
 \subsection{Base-rate comparison for the low-prevalence metrics}
@@ -899,7 +889,7 @@ each treatment of the ambiguous rows and on the defect-free stratum
 (Figure~\ref{fig:power}, Chapter~\ref{ch:results}).
 
 \begin{table}[H]
-\caption{Sensitivity of the evaluation under each treatment of the ambiguous rows.}
+\caption[Sensitivity of the evaluation by stratum]{Sensitivity of the evaluation under each treatment of the ambiguous rows.}
 \label{tab:m-mde}
 \centering
 \small
@@ -912,14 +902,7 @@ Gold, ambiguous retained & 12 & 287 & 0.0852 & 0.7350 \\
 Defect-free subset       &  6 & 128 & 0.1210 & 0.8058 \\
 \bottomrule
 \end{tabular}
-\apanote{$\mathrm{SE}_0$ sources: the \texttt{power.*} keys for row one, and the two
-\texttt{control.power\_ceiling.recomputed\_same\_formula\_*} blocks for rows two and three.
-$\mathrm{AUROC}_{\min}$ is \texttt{mde\_recomputed.*}, from
-\texttt{accord/stats/recompute\_mde.py}, which also drives the marker positions in
-Figure~\ref{fig:power}. Values are rounded to four decimal places. These figures bound what the
-evaluation could have seen and are not results about any model. They also state the limit of the
-thesis's negative claim: nothing here can establish that the task is unsolvable, only that this
-pipeline does not solve it at a sensitivity this coarse.}
+\apanote{$\mathrm{AUROC}_{\min}$ is computed by the same procedure that also drives the marker positions in Figure~\ref{fig:power}. Values are rounded to four decimal places. These figures bound what the evaluation could have seen and are not results about any model. They also state the limit of the thesis's negative claim: nothing here can establish that the task is unsolvable, only that this pipeline does not solve it at a sensitivity this coarse.}
 \end{table}
 
 \subsection{Seed variation and the standard-deviation convention}
