@@ -137,11 +137,15 @@ the rebuild sorts on \texttt{CHARTDATE} with the row identifier as tie-break. Th
 determinism, not sub-day chronology, which the resource does not contain. Two consequences
 constrain later claims. Every statement that the nursing note came first rests on the selection
 rule rather than on a measured comparison, and any filter searching for documentation written
-between the two notes has an empty interval to search, which makes the intermediate-documentation
-hypothesis untestable in this resource rather than tested and rejected.
+between the two notes at sub-day resolution has an empty interval to search, because the discharge
+summary carries only a \texttt{CHARTDATE} and no \texttt{CHARTTIME}: at that resolution the
+intermediate-documentation hypothesis is untestable in this resource rather than tested and
+rejected. Counting at date-level resolution instead is a coarser but answerable question, and
+Section~\ref{sec:m-candidates} reports it directly.
 
 This selection returns 9,783 admissions with a selected nursing note and 9,783 with a selected
-discharge summary, the same 9,783 admissions counted both ways, for 19,566 note-pair rows in total
+discharge summary, the same 9,783 admissions counted both ways, for 19,566 note rows across 9,783
+pairs in total
 (\texttt{cohort\_chain.nursing\_notes\_selected}, \texttt{cohort\_chain.discharge\_notes\_selected},
 \texttt{cohort\_chain.valid\_admissions\_both\_selected}, \texttt{cohort\_chain.total\_note\_pair\_rows}).
 That is the cohort the mining rules of Section~\ref{sec:m-candidates} run against.
@@ -168,7 +172,7 @@ continuation.
 
 Run over the 9,783 admissions the extractor returns 219,683 mentions across 9,732 unique admissions
 and 70 distinct drugs; 88,336 of those mentions receive an action classification and 131,347 do
-not, since $88{,}336 + 131{,}347 = 219{,}683$
+not; the two sum to the 219,683 total
 (\texttt{extraction.medication\_extraction.total\_mentions},
 \texttt{extraction.medication\_extraction.classified\_mentions},
 \texttt{extraction.medication\_extraction.unique\_admissions},
@@ -176,8 +180,7 @@ not, since $88{,}336 + 131{,}347 = 219{,}683$
 action at all, which bounds how much of the corpus Rules 1 and 2 can ever reach, since both rules
 are defined entirely over the classified subset.
 
-Three properties propagate downstream, and they matter because Rules 1 and 2 are defined entirely
-over these labels. The action is a property of the window and not of the drug mention, so every
+Three properties propagate downstream. The action is a property of the window and not of the drug mention, so every
 drug named anywhere in the window gets the same label. First-match ordering makes the classes
 non-exclusive in effect, since a window carrying vocabulary from two classes resolves to whichever
 is tested first. And the negation rewrite is a hard flip with no scope model, where a purpose-built
@@ -371,7 +374,11 @@ it, and the model was asked for a binary judgement plus a confidence value. The 
 template with no demonstrations and no chain-of-thought elicitation, and it names a conflict type
 before asking whether a conflict is present. The labelled pool is the candidate pool minus the
 pairs sent to the pharmacist, so the two are disjoint at the row level by construction;
-Section~\ref{sec:m-data} explains why that was insufficient.
+Section~\ref{sec:m-data} explains why that was insufficient. The weak-labelled candidate pool from
+this calibration join holds 1,679 rows before subject-disjoint exclusion
+(\texttt{goldstrata.weak\_confidence\_is\_degenerate.crosstab\_total\_1679}); removing rows whose
+subject also appears in an evaluation split narrows that pool to the 1,183-row training pool
+reported in Table~\ref{tab:m-strata} and used to fit the detector.
 
 For the replication in Section~\ref{sec:m-control-rq2} the original prompt was recovered verbatim
 from the committed prompt table rather than rewritten, and reused unchanged across models. Decoding
@@ -408,7 +415,7 @@ Section~\ref{sec:m-gold} supplies those items.
 
 \subsection{Backbone, and what the running code contained}
 
-The encoder is BioMedBERT \citep{gu2021biomedbert}, selected over ClinicalBERT
+The encoder is BioMedBERT (released as PubMedBERT) \citep{gu2021biomedbert}, selected over ClinicalBERT
 \citep{alsentzer2019clinicalbert} on published benchmark performance, adapted with low-rank
 adapters on the attention projections \citep{hu2022lora}. Each candidate's nursing and discharge
 sentences are encoded, each truncated to a fixed prefix from the head of the sequence, which is
@@ -653,7 +660,7 @@ mechanism may be described as general and the magnitude may not.
 substitute that carries no such property. If the arbitrary substitute matches or exceeds the
 semantic feature, the credited mechanism is not the operative one, and the control has fired
 positively rather than by absence of evidence. This is the control-task logic developed in the
-probing literature by Hewitt and Liang (2019), applied here rather than proposed.
+probing literature by \citet{hewitt2019control}, applied here rather than proposed.
 
 The arbitrary-substitute control operates on a second system in this project that conditions a
 shared additive attention bias on document provenance. Seven arms were trained at three seeds each, and three further arms at a single seed
@@ -665,7 +672,7 @@ the encoder analogue, under masked language modelling, of the intra-document mas
 \citet{zhao2024seqcomposition} apply during causal decoder pretraining: the mask construct is the
 same, blocking attention across an announced document boundary, but the training objective is not,
 and that difference is disclosed rather than treated as a reproduction.
-Two comparisons are fixed in advance: true role labels against a randomised relabelling drawn from the same alphabet, which is the control task in the sense of Hewitt and Liang, and true role labels against an arbitrary positional ordinal, which is a competing hypothesis rather than a control. The
+Two comparisons are fixed in advance: true role labels against a randomised relabelling drawn from the same alphabet, which is the control task in the sense of \citet{hewitt2019control}, and true role labels against an arbitrary positional ordinal, which is a competing hypothesis rather than a control. The
 misaligned block arm is a second control, holding the number of blocks fixed while destroying their
 alignment with document boundaries, which closes the obvious alternative reading that any coarse
 blocking of the attention matrix would do.
@@ -676,15 +683,17 @@ table, the loss surface is isomorphic, and the result is fixed at the uncorrupte
 construction. It was implemented, recognised as powerless, removed, and guarded against in code. It
 is described because a control that cannot fail is worse than no control.
 
-A third control addresses the representation. The pretraining collapse was originally explained by
-clinical homogeneity, the claim that notes within an institution are too similar for a coherence
-objective to separate genuine from mismatched pairs, and nothing in the pipeline ever measured note
-similarity. The control passes a set of deliberately unrelated non-clinical sentences, on subjects
-with no medical content, through the identical frozen extraction path and compares mean pairwise
-cosine similarity against matched and mismatched clinical pairs. If unrelated non-clinical text is
-as similar to itself as clinical pairs are to each other under the same extraction, the observed
-similarity is a property of the encoder's representation geometry rather than of clinical text, and
-the homogeneity explanation is refuted positively.
+A third control, the anisotropy control, addresses the representation. The pretraining collapse was
+originally explained by clinical homogeneity, the claim that notes within an institution are too
+similar for a coherence objective to separate genuine from mismatched pairs, and nothing in the
+pipeline ever measured note similarity. Removing anisotropy tests whether the collapse instead
+follows from representational geometry in the encoder: the control passes deliberately unrelated
+non-clinical sentences through the identical frozen extraction path and compares mean pairwise
+cosine similarity against matched and mismatched clinical pairs. Text this similar to itself under
+the same extraction weakens the homogeneity explanation without asserting the two conditions are
+statistically identical; Chapter~\ref{ch:results} reports a Welch test that rejects exact equality,
+so what the control establishes is a small difference against a wider spread, not equality on the
+nose.
 
 \subsection{The degeneracy precondition}
 
@@ -833,9 +842,11 @@ location, and a verification script re-checks each quote by exact string match a
 text; a quote that fails to match is rejected and its field forced to unclear, so no coded value
 survives without verified textual support.
 
-Two design limitations bound what the instrument can measure. Each paper was coded once under a
-shared written rule set. A blind second coder independently re-coded a deterministic subsample of nineteen papers, which is the basis for the agreement statistics reported in Chapter~\ref{ch:results}; agreement is not claimed
-from this corpus. And inclusion criterion two requires a disaggregated metric, so every included
+Two design limitations bound what the instrument can measure. Each paper was coded once by the
+primary coder under a shared written rule set. A blind second coder independently re-coded a
+deterministic subsample of nineteen papers, the basis for the agreement statistics reported in
+Chapter~\ref{ch:results}; no agreement figure is claimed for the fifty-six papers outside that
+subsample. And inclusion criterion two requires a disaggregated metric, so every included
 paper audits a model on its pool by construction: \texttt{survey.model\_on\_pool\_yes} equals
 \texttt{survey.n\_included} at $75$, the cross-tabulation of model audit against selection audit
 degenerates to a single row, and the only quantity this corpus estimates is how many papers that
@@ -876,15 +887,16 @@ estimate with $n_+$ positives and $n_-$ negatives is approximated by
 \]
 with $\alpha = 0.05$ and power $0.80$ throughout (\texttt{power.alpha}, \texttt{power.power}). This
 null-standard-error approximation is reported in Table~\ref{tab:m-mde} for reference, but it is not
-what the table's minimum detectable AUROC column uses. That column follows the full Hanley and
-McNeil (1982) procedure, which evaluates the sampling variance of the AUROC estimator at the
+what the table's minimum detectable AUROC column uses. That column follows the full
+\citet{hanley1982meaning} procedure, which evaluates the sampling variance of the AUROC estimator at the
 candidate value $a$ itself rather than at the null, and finds the smallest $a$ such that
 $(a - 0.5) / \sqrt{\mathrm{Var}(a)} \geq z_{1-\alpha/2} + z_{1-\beta}$ by search, since
 $\mathrm{Var}(a)$ depends on $a$. An earlier version of this table printed a minimum detectable
 AUROC of $0.7382$ for the primary stratum that reproduced under neither procedure computed
 precisely; \texttt{accord/stats/recompute\_mde.py} implements the full procedure and the values
 below are its output (\texttt{REVISION\_LOG.md} R9). Table~\ref{tab:m-mde} evaluates this under
-each treatment of the ambiguous rows and on the defect-free stratum.
+each treatment of the ambiguous rows and on the defect-free stratum
+(Figure~\ref{fig:power}, Chapter~\ref{ch:results}).
 
 \begin{table}[H]
 \caption{Sensitivity of the evaluation under each treatment of the ambiguous rows.}

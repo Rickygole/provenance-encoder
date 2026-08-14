@@ -40,7 +40,7 @@ later. It is an instruction that leaves the building.
 
 The scenario above is a constructed composite, drawn from no single record in
 this project's corpus; the pattern it illustrates is real. Of the $12$
-contradictions a board certified pharmacist confirmed in this project's
+contradictions a board-certified pharmacist confirmed in this project's
 annotated sample, $3$ involve a loop
 diuretic and $3$ involve an anticoagulant, $7$ are omissions rather than dose or
 class disagreements, and on a five point danger scale $1$ was rated $4$ and $3$
@@ -60,9 +60,10 @@ Adverse drug events were established as a first order inpatient safety problem
 three decades ago \citep{bates1995ade}, and the transition of care component of
 that problem has not been solved since.
 
-This thesis takes one narrow, checkable instance as its object. A \emph{cross
-note medication contradiction} is a disagreement about a specific drug between a
-nursing progress note and the discharge summary of the same admission. The
+This thesis takes one narrow, checkable instance as its object. A
+\emph{cross-note medication contradiction} is a disagreement about a specific
+drug between a nursing progress note and the discharge summary of the same
+admission. The
 corpus is MIMIC-III \citep{johnson2016mimic}, accessed under PhysioNet
 credentialed use. No note text and no identifiers appear anywhere in this
 document, and every quantity reported is an aggregate.
@@ -81,12 +82,13 @@ what breaks every stage of the pipeline described next.
 
 Given a rare event, expensive expert labels, and a large corpus of paired notes,
 the standard construction is close to automatic. Mine candidates with cheap high
-recall rules, because exhaustive expert review of every cross note medication
+recall rules, because exhaustive expert review of every cross-note medication
 pair is infeasible. Label those candidates with an instruction tuned language
 model, because expert annotation does not scale and recent work reports such
 models matching or exceeding crowd annotators on many classification tasks
-\citep{gilardi2023chatgpt}. Distil the labels into a purpose built neural
-detector over a domain pretrained clinical encoder
+\citep{gilardi2023chatgpt}. Distil the labels into a purpose-built neural
+detector, referred to throughout this thesis as ACCORD, over a domain-pretrained
+clinical encoder
 \citep{gu2021biomedbert,alsentzer2019clinicalbert}, with architectural
 components that encode the structure a generic natural language inference model
 lacks. Evaluate against the expert annotations and report.
@@ -139,8 +141,8 @@ not for a reason specific to the three models tested here. An evaluation built
 on the number of pharmacist-confirmed positives that exist is limited by that
 number regardless of who trains the detector. Those three findings should
 generalise to another group that builds a similarly shaped pipeline on a
-similarly rare event. Two verdicts do not carry that weight, and this thesis
-says so plainly. The exemplar selector indexed candidates positionally instead of by
+similarly rare event. Two verdicts and two further implementation defects do
+not carry that weight, and this thesis says so plainly. The exemplar selector indexed candidates positionally instead of by
 the evidence the trigger actually used, an implementation choice this project
 made and a differently written selector would not have to repeat. The harm
 head received no term in the training objective, which is a defect in this
@@ -175,7 +177,7 @@ of the measurement. Every stage failed its control. The statement is made once,
 here, so that nothing later in the document reads as a reveal.
 
 The cleanest single expression of the failure is the detector's operating
-behavior after decontamination. On the $253$ non ambiguous pairs, which contain
+behaviour after decontamination. On the $253$ non-ambiguous pairs, which contain
 $12$ positives for a base rate of $0.0474$, the decontaminated detector at
 threshold $0.5$ predicts positive for almost the entire pool: in the first seed
 it flags $216 + 9 = 225$ of the $253$ pairs, $9$ correctly and $216$
@@ -185,7 +187,7 @@ three seeds is $-0.0105$, expected calibration error is $0.8015$, and the
 three-seed ensemble AUROC on the same $253$ pairs is $0.5145$ with a $95\%$
 bootstrap interval of $[0.3210, 0.7034]$, an interval built around a point
 estimate barely above chance and wide enough to sit on either side of it. A
-detector that clears nearly nine in ten pairs in the pool and whose ranking
+detector that flags nearly nine in ten pairs in the pool and whose ranking
 interval straddles $0.5$ this widely is not weak in the sense of a threshold
 chosen badly. Its output carries no information the label distribution did not
 already contain.
@@ -214,20 +216,21 @@ standard errors does not clear that same bar. The precision comparison is read
 here as an illustration of the operating point just described, not as the
 thesis's headline finding.
 
-Ranking behavior agrees with operating behavior. Across three seeds on the same
+Ranking behaviour agrees with operating behaviour. Across three seeds on the same
 $253$ pairs the decontaminated ensemble AUROC is $0.5145$ with a Mann-Whitney
 $p$ of $0.8668$, and the per seed mean is $0.5211$ with a standard deviation of
 $0.0201$, computed at $\mathrm{ddof} = 0$. On the $299$ annotated pairs under
-subject disjoint splits the three
+subject-disjoint splits the three
 seed mean AUROC is $0.4967$ with a standard deviation of $0.0350$, computed at
 $\mathrm{ddof} = 1$, a different convention, so the two spreads are not
 compared against each other (Chapter~\ref{ch:method}). A DeLong
 test between the seed ensemble and the single model
 \citep{delong1988comparing} returns $p = 0.930$. The
-score distributions overlap almost exactly: the $12$ positives have mean
-contradiction probability $0.4198$ and the $241$ negatives $0.4282$, with
-Mann-Whitney $p = 0.6418$, so the positives score marginally lower than the
-negatives. A TF-IDF logistic regression on the same $299$ pairs reaches AUROC
+score distributions overlap almost exactly on the $253$-pair core: the $12$
+positives have mean contradiction probability $0.4198$ and the $241$
+negatives $0.4282$, with Mann-Whitney $p = 0.6418$, so the positives score
+marginally lower than the negatives. A TF-IDF logistic regression on the
+$299$ annotated pairs reaches AUROC
 $0.5761$ and average precision $0.1571$, above both neural configurations;
 whether that reflects surface form signal or small sample noise is not
 established here and is reported as found.
@@ -242,7 +245,7 @@ to give is an ordering over noise.
 \begin{figure}[!htbp]
 \caption{The marginal of the weak labeller against the pharmacist's measured
 base rate on the same pairs (left), and Matthews correlation with $95\%$
-bootstrap intervals for four systems on the $253$ non ambiguous pairs (right).
+bootstrap intervals for four systems on the $253$ non-ambiguous pairs (right).
 The top bar on the left is the positive rate on the full $1{,}679$-row
 weak-labelled pool, not the $1{,}183$-row training pool; the bracketed
 multiplier is a different, gold-set-only ratio from
@@ -259,19 +262,19 @@ positive control on the same training and evaluation harness. Run on AG News
 with an identical harness and an adjudication rule committed before the
 sweep, the pretraining benefit is $4.53$ accuracy points at $24$ epochs, with
 seed standard deviations at or below $0.0036$ and non overlapping bands;
-eight times the training budget bought the from scratch arm $0.41$ points on
+eight times the training budget bought the from-scratch arm $0.41$ points on
 that public task, so the AG News arms were converged rather than starved. The
-same harness, applied to a second task built for this purpose, in hospital
-mortality predicted from a patient's first $48$ hours of notes on $6,776$
+same harness, applied to a second task built for this purpose, in-hospital
+mortality predicted from a patient's first $48$ hours of notes on $6{,}776$
 held out admissions holding $570$ positives, a different task on a different
 cohort from the $253$-pair contradiction evaluation, returns a gap of
-$0.0031$, between a domain pretrained encoder at $0.7693 \pm 0.0102$ and a
-from scratch encoder at $0.7662 \pm 0.0073$. What this control establishes is
+$0.0031$, between a domain-pretrained encoder at $0.7693 \pm 0.0102$ and a
+from-scratch encoder at $0.7662 \pm 0.0073$. What this control establishes is
 that the harness resolves a real difference at the sample sizes it was
 given; it says nothing about the sensitivity of the twelve-positive
 contradiction evaluation itself, a separate instrument checked directly by
-injection in Chapter~\ref{ch:results}, which is not the same as showing the
-contradiction task cannot be done. At $12$ positives and $241$ negatives the
+injection in Chapter~\ref{ch:results}. Ruling that out is not the same as
+showing the contradiction task cannot be done. At $12$ positives and $241$ negatives the
 minimum detectable AUROC at $80\%$ power and $\alpha = 0.05$ is $0.7355$. Any true
 effect below that is invisible to this design, and the thesis concedes it
 here rather than in a limitations section at the end.
@@ -287,7 +290,7 @@ Chapter~\ref{ch:method} as a condition set before any result was seen.
 
 \begin{description}
 
-\item[RQ1. Candidate generation.] Can rule based mining over paired clinical
+\item[RQ1. Candidate generation.] Can rule-based mining over paired clinical
 notes yield a candidate pool with usable precision?
 \emph{No: four rules enrich the pool to $12$ true contradictions in $299$
 annotated pairs, a base rate of $0.0401$, and the mechanism selecting the
@@ -303,8 +306,8 @@ clean estimate of pool precision.}
 expert annotation at this base rate?
 \emph{No: the weak labeller assigned the contradiction class to $261$ of the
 $299$ annotated pairs against $12$ true positives, and the failure has a floor,
-since the strongest labeller tested still flagged $71$ of the $253$ non
-ambiguous pairs zero shot for $6$ true positives and $141$ pairs few shot for
+since the strongest labeller tested still flagged $71$ of the $253$
+non-ambiguous pairs zero shot for $6$ true positives and $141$ pairs few shot for
 $7$.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
@@ -347,11 +350,11 @@ measurements with a stated resolution limit.
 
 The methods applied in this thesis are not novel and the thesis does not claim
 them. Positive and negative controls come from epidemiology, where that
-literature is decades old \citep{lipsitch2010negative}. Randomization based
+literature is decades old \citep{lipsitch2010negative}. Randomisation based
 sanity checks on learned components come from the saliency map literature
 \citep{adebayo2018sanity}. Control tasks for probing classifiers come from work
 that owns both the design and its conclusion \citep{hewitt2019control}. The
-prevalence dependence of agreement statistics was described thirty six years ago
+prevalence dependence of agreement statistics was described thirty-six years ago
 \citep{feinstein1990paradoxes,cicchetti1990resolving}, and the adjusted
 coefficient proposed in response removes the marginal sensitivity by removing
 the marginal information \citep{byrt1993pabak}.
@@ -437,15 +440,15 @@ does not solve the task, and that the instrument used to say so could have
 resolved a $4.53$ point effect where one existed.
 
 \textbf{It does not claim any of the controls as methods.} Positive controls
-\citep{lipsitch2010negative}, randomization checks \citep{adebayo2018sanity},
+\citep{lipsitch2010negative}, randomisation checks \citep{adebayo2018sanity},
 control tasks \citep{hewitt2019control}, surrogate label corrections
 \citep{egami2023surrogates} and the prevalence critique of agreement metrics
-\citep{feinstein1990paradoxes} all belong to prior work. Applying a thirty six
-year old critique is not the same as making it.
+\citep{feinstein1990paradoxes} all belong to prior work. Applying a thirty-six-year-old
+critique is not the same as making it.
 
 \textbf{The survey is not a prevalence estimate for clinical machine learning.}
 The corpus is deliberately enriched, coverage is limited to open access sources,
-and a large number of screened in papers were never retrieved in full text. The
+and $459$ screened in papers were never retrieved in full text. The
 $4$ of $75$ and $14$ of $75$ readings describe that corpus and nothing wider,
 and $\kappa$ on the strict cell is undefined rather than perfect.
 
@@ -461,7 +464,7 @@ and is not reinstated. No claim is made that executable checks outperform prose
 checklists either; that comparison was retracted because the check in question
 had no recorded failure to compare against.
 
-\textbf{The over calling magnitude does not generalize.} The multiplier measured
+\textbf{The over calling magnitude does not generalise.} The multiplier measured
 on this pool is a property of this pool's base rate. A parallel measurement on
 public text produced a far smaller one, so the mechanism transfers and the
 number does not.

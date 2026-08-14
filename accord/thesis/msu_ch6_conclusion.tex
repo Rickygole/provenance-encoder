@@ -31,8 +31,8 @@ reason the instruction is wrong.
 This thesis asked whether that disagreement can be detected automatically from
 paired clinical notes in MIMIC-III \citep{johnson2016mimic}, and built a
 standard-shaped pipeline to
-answer it: rule based candidate mining, language model weak supervision, and a
-purpose built neural detector over a domain pretrained clinical encoder. Five
+answer it: rule-based candidate mining, language model weak supervision, and a
+purpose-built neural detector over a domain-pretrained clinical encoder. Five
 questions were posed, four about the stages and one about the field that
 publishes pipelines like this one. Every stage failed a control, and not every
 failure carries the same weight, a distinction Section~\ref{sec:conc-found}
@@ -60,11 +60,12 @@ and the wrong rate itself is a range, $0$ to $0.4745$, not a single number.
 
 Comparing exposed and unexposed strata does not settle it either. Rules 1 and 2
 account for $165$ pairs with $6$ positives, a rate of $0.0364$; rules 3 and 4
-account for $134$ pairs with $6$ positives, a rate of $0.0448$. Fisher exact
-gives an odds ratio of $0.805$ at $p = 0.7725$, achieved power at that observed
-effect is $0.0576$, and the smallest absolute rate difference detectable at
-$80\%$ power is $0.0895$, more than twice the overall base rate. The strata are
-indistinguishable at this sample size, which is not the same as equal.
+account for $134$ pairs with $6$ positives, a rate of $0.0448$.
+Section~\ref{sec:res-rq1} reports the Fisher exact test on that split: an odds
+ratio of $0.805$ at $p = 0.7725$, achieved power $0.0576$, and a minimum
+detectable rate difference of $0.0895$, more than twice the overall base rate.
+The strata are indistinguishable at this sample size, which is not the same as
+equal.
 
 \textbf{RQ2, weak supervision.} The weak labeller assigned the contradiction
 class to $261$ of the $299$ annotated pairs, against $12$ true positives in the
@@ -78,7 +79,7 @@ rates on the same distribution \citep{forman2008quantifying}, and the
 doubly robust correction for surrogate label bias needs a gold-labelled
 subsample \citep{egami2023surrogates}, which is the resource the workflow
 existed to avoid spending. The failure has a floor: the strongest labeller tested, on the $253$
-non ambiguous pairs, flagged $71$ zero shot and was right about $6$, and flagged
+non-ambiguous pairs, flagged $71$ zero shot and was right about $6$, and flagged
 $141$ few shot and was right about $7$. Better prompting moves the multiplier
 without removing it, and the magnitude belongs to this pool's base rate rather
 than transferring.
@@ -87,8 +88,8 @@ than transferring.
 was credited with, and the controls establish this positively rather than by
 absence of evidence. The authority parameters reported as learned finish at
 $0.5076 \pm 0.0006$ and $1.0038 \pm 0.0010$ across seeds, against initialisation
-at exactly $0.5$ and $1.0$; a parameter agreeing to three decimals across
-independent seeds, within one percent of where it started, was not discovered by
+at exactly $0.5$ and $1.0$; a parameter agreeing to two decimals across
+independent seeds, within two percent of where it started, was not discovered by
 training. The harm head emits scores spanning $0.3977$ to $0.6096$, the range of
 an untrained sigmoid, and its Spearman correlation with the pharmacist's danger
 rating over the $299$ pairs is $-0.0001$ at $p = 0.9991$. That null measures an
@@ -105,23 +106,25 @@ the randomisation sanity check \citep{adebayo2018sanity} and the control task
 \citep{hewitt2019control}, applied without modification to a different kind of
 component; neither design is claimed here.
 
-\textbf{RQ4, evaluation.} Three configurations sit at chance. On the $253$ non
-ambiguous pairs with $12$ positives, the decontaminated three seed ensemble
+\textbf{RQ4, evaluation.} Three configurations sit at chance. On the
+$253$ non-ambiguous pairs with $12$ positives, the decontaminated three seed ensemble
 reaches AUROC $0.5145$ with Mann-Whitney $p = 0.8668$, and the per seed mean is
 $0.5211 \pm 0.0201$. On the $299$ annotated pairs with the same $12$ positives,
-under subject disjoint splits, the three seed mean AUROC is $0.4967 \pm 0.0350$,
+under subject-disjoint splits, the three seed mean AUROC is $0.4967 \pm 0.0350$,
 and a DeLong test between the seed ensemble and the single model, which is the
 correlated comparison the two share their cases with
-\citep{delong1988comparing}, gives $p = 0.930$. The score distributions overlap: positives average $0.4198$ and
+\citep{delong1988comparing}, gives $p = 0.930$. On the $253$-pair core the score distributions
+overlap: positives average $0.4198$ and
 negatives $0.4282$, with Mann-Whitney $p = 0.6418$, so the positives score
-marginally lower. A TF-IDF logistic regression on the same $299$ pairs reaches
+marginally lower. A TF-IDF logistic regression on the $299$ annotated pairs reaches
 AUROC $0.5761$ and average precision $0.1571$, above both neural
 configurations, and whether that is surface form signal or small sample noise is
 not established.
 
 At the operating threshold the same conclusion appears as a cost, and the
 direction of it is forced by where the detector sits rather than a separate
-finding. On the $253$ pair core the decontaminated detector flags
+finding. On the $253$ pair core the decontaminated detector, in the first
+seed, flags
 $216 + 9 = 225$ pairs, predicting positive for nearly the whole pool; $9$ are
 correct, $216$ wrong, $25$ true negatives and $3$ missed. Its ranking is at
 chance: Cohen $\kappa$ across seeds is $-0.0105$, expected calibration error is
@@ -137,7 +140,7 @@ the operating point rather than as evidence on its own.
 \textbf{RQ5, practice.} On a $75$ paper corpus deliberately enriched toward work
 that attends to selection, $4$ papers audit the selection step under the strict
 reading and $14$ under the permissive one, across $225$ quoted fields verified
-against their sources. A blind second coder on $19$ overlapping papers gives
+against their sources (Section~\ref{sec:res-rq5}). A blind second coder on $19$ overlapping papers gives
 $\kappa = 0.855$ at $0.9474$ agreement on the permissive field and
 $\kappa = 0.730$ at $0.7895$ on null attribute handling. On the strict field
 both coders returned the same value on all $19$ papers, so agreement is $1.0$
@@ -163,9 +166,9 @@ read the result as a statement about the instrument. Run on AG News with the
 identical training harness and an adjudication rule committed before any run,
 the pretraining benefit is $4.53$ accuracy points at $24$ epochs, with seed
 standard deviations at or below $0.0036$ and non overlapping bands; eight times
-the training budget bought the from scratch arm $0.41$ points on that public
+the training budget bought the from-scratch arm $0.41$ points on that public
 task, so the AG News arms were converged rather than starved. The same
-harness, on a task built for this control, in hospital mortality predicted
+harness, on a task built for this control, in-hospital mortality predicted
 from a patient's first $48$ hours of notes on $6{,}776$ held out admissions
 holding $570$ positives, a different task on a different cohort from the
 $253$-pair contradiction evaluation, returns $0.0031$, between
@@ -194,19 +197,23 @@ slope is $-0.0078$ signed under one selection regime and $+0.0118$ under the
 other, and both invert when stored as magnitudes. A quantity stored as a
 magnitude licenses no directional claim.
 
-The randomization controls changed the sign of the architecture argument. An
-ablation that removes a component and observes a drop is consistent with the
-component working and equally consistent with it absorbing capacity. A
-randomized counterpart performing comparably is not consistent with it working.
-Chapter~\ref{ch:results} reports the latter, which is why RQ3 is answered
-negatively rather than left open.
+The randomisation controls changed the sign of the architecture argument, but
+not through the arm built for that purpose. The pre-specified control,
+randomising the role-label alphabet while holding it fixed, ran at a single
+seed and lost to true role labels by $0.3277$ nats with no significance claim
+attached: a control that ran underpowered, not a falsifier. The falsifier is
+the segment-index arm, an arbitrary ordinal carrying no provenance meaning,
+which reduces the loss by $0.9476$ nats against true role labels' $0.8244$
+nats: a substitute with no provenance content outperforming the credited
+component is not consistent with that component working as credited, the way
+a mere ablation drop would be. Chapter~\ref{ch:results} reports both comparisons, which is why RQ3
+is answered negatively rather than left open.
 
-The controls were cheap. Logged control compute totals $1181.5$ GPU minutes across $67$ runs: AG
-News $34.9$ minutes over $12$ runs, a $3$-epoch subset of the full $48$-run,
-$555$-minute convergence sweep, the clinical comparison $612.3$ minutes over
-$17$ runs, and the two signed storage re-runs $0.7$ and $13.5$ minutes.
-Chapter~\ref{ch:discussion} reconciles the AG News figure to the full sweep.
-Person hours were never logged, so this is a compute only claim.
+The controls were cheap. Logged control compute totals $1181.5$ GPU minutes across $67$ runs: the
+AG News convergence sweep $555$ minutes over $48$ runs (of which a $3$-epoch
+subset cost $34.9$ minutes over $12$ runs), the clinical comparison $612.3$
+minutes over $17$ runs, and the two signed storage re-runs $0.7$ and $13.5$
+minutes. Person hours were never logged, so this is a compute only claim.
 
 \section{Things to Check If You Are Building This}
 \label{sec:conc-practice}
@@ -252,10 +259,10 @@ At an operating point where the detector flags nearly the whole pool, precision
 falling below base rate follows from the arithmetic of that operating point and
 should be read beside kappa and the ranking metrics, not asserted alone.
 
-Run a randomized counterpart of any component reported as learned, under the
+Run a randomised counterpart of any component reported as learned, under the
 same training conditions, and log the distance a learned parameter moved from
 its initialisation. A parameter that finishes at $0.5076$ from a start of $0.5$,
-agreeing to three decimals across seeds, is reporting its initialisation.
+agreeing to two decimals across seeds, is reporting its initialisation.
 
 Run a positive control on the instrument before reporting a null from it, and
 report achieved power alongside any comparison that returns no difference. The
@@ -264,7 +271,7 @@ comparison has $p = 0.7725$ at achieved power $0.0576$, where the first number
 without the second reads as evidence of no effect.
 
 Keep the denominators separate and state them with every metric. The $299$
-annotated pairs and the $253$ non ambiguous pairs are different sets, and
+annotated pairs and the $253$ non-ambiguous pairs are different sets, and
 conflating them in this project inverted a central claim that then survived
 several rounds of internal review.
 
@@ -279,10 +286,10 @@ an upper bound on annotation validity because the exemplar defect is measured
 two ways and they disagree. By reconstruction the exemplar matched the trigger
 for $72$ of the $137$ resolved Rule 1 and Rule 2 candidates, a rate of
 $0.5255$; by an exact join covering far fewer rows, all $23$ of the $23$ it can
-resolve match. A separate join, across all four rules rather than Rule 1 and 2
-alone, matches the $299$-row annotated sample to the rebuilt candidates table
-on $35$ rows; that is a different operation with a different denominator, not
-a third reading of the same exemplar-correctness question. Rebuilding the
+resolve match. A separate join across all four rules matches $35$ rows of the
+annotated sample to the rebuilt candidates table
+(Section~\ref{sec:res-rq1}), a different operation with a different
+denominator, not a third reading of the same exemplar-correctness question. Rebuilding the
 selector so the displayed pair is the pair that fired the rule, then
 re-annotating the same candidate identifiers, would establish how much of the
 measured base rate is real. The rules and the pool exist and the defect is
@@ -322,10 +329,13 @@ architectural components report their initialisations because of how this
 project's parameters were wired, and a second system shows a
 provenance-free position beating both true role semantics and a randomised
 control drawn from the same label alphabet. The detector sits at chance on
-both evaluations while operating at precision
-$0.0424$ below a base rate of $0.0474$, and that result is the one finding in
-this list large enough to answer RQ4 regardless of which category the rest
-sit in.
+both evaluations, an AUROC indistinguishable from $0.5$ against a minimum
+detectable AUROC of $0.7355$ at $12$ positives, and that result is the one
+finding in this list large enough to answer RQ4 regardless of which category
+the rest sit in. Operating at precision $0.0424$ below a base rate of $0.0474$
+illustrates the same point rather than adding independent evidence, since the
+margin between precision and base rate, $0.0051$, is smaller than the
+binomial standard error on $12$ of $253$ pairs, $0.0134$.
 
 None of that establishes that the task cannot be done. At $12$ positives the
 design cannot see an effect below AUROC $0.7355$, and the thesis says so in its

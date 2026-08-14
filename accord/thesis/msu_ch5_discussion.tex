@@ -85,7 +85,7 @@ mining rules' property. The control run late here was to check whether the evide
 to the annotator was the evidence that fired the rule. For a large fraction of
 action-conflict candidates it was not: the trigger quantified over sets of
 medication mentions, the exemplar selector indexed positionally, and nothing
-forced the two to agree. Two measurements of how often disagree. A
+forced the two to agree. Two measurements of how often it fired disagree. A
 reconstruction of the exemplar, calibrated against the pharmacist's actual
 evidence at $0.8934$ to $0.9508$ fidelity because the original row order
 cannot be recovered exactly, resolves 137 of the 165 Rule 1 and Rule 2
@@ -160,19 +160,26 @@ from the input features, so the rule head measured leakage rather than learning,
 which is the textbook symptom \citet{kaufman2012leakage} describe: a target that
 is not independent of what the model already has.
 
-A third control targeted the representation. If the frozen encoder is
-anisotropic, a high mean cosine similarity between the two notes in a pair is a
-property of the encoder rather than a signal about the pair. On unrelated
-non-clinical sentence pairs through the same frozen extraction path, mean
-pairwise similarity is $0.9113$, against $0.9176$ on the matched clinical note
-pairs (\texttt{aniso.anisotropy\_control.mean},
-\texttt{aniso.homogeneity.results.head.matched.mean}). The interpretation
-offered for the high similarity is unavailable once a control task returns nearly
-the same number on text sharing no content. None of this design is this thesis's:
-Hewitt and Liang own the control task construction and its conclusion
-\citep{hewitt2019control}, and this
-work applies it in a second system. A component credited by a system's authors and
-never given a substitute that should not work has not been tested.
+A third control, the anisotropy control, targeted the representation: if the
+frozen encoder is anisotropic, a high mean cosine similarity between the two
+notes in a pair is a property of the encoder rather than a signal about the
+pair. On unrelated non-clinical sentence pairs through the same frozen
+extraction path, mean pairwise similarity is $0.9113$, against $0.9176$ on the
+matched clinical pairs (\texttt{aniso.anisotropy\_control.mean},
+\texttt{aniso.homogeneity.results.head.matched.mean}); a Welch test rejects
+exact equality ($t = 4.0001$, Cohen's $d = 0.2808$,
+\texttt{stats.anisotropy\_welch.t}, \texttt{stats.anisotropy\_welch.cohens\_d}),
+so what the control establishes is a small gap against a wider spread rather
+than identity, close enough to undercut the interpretation offered for the
+high similarity once a control task returns nearly the same number on text
+sharing no content.
+
+A fourth control, borrowed rather than built here, targets the architecture
+directly: Hewitt and Liang own the control-task construction and its
+randomised-substitute logic \citep{hewitt2019control}, while the
+misaligned-block and global-positions arms applied to it are this thesis's own
+additions to that design. A component credited by a system's
+authors and never given a substitute that should not work has not been tested.
 
 \subsection{Evaluation: survived}
 
@@ -192,8 +199,8 @@ parameters, rule head or harm head, reaches AUROC $0.4602$ on all $299$ pairs
 the exemplar is correct by construction, AUROC $0.5078$ (mean $0.5295$,
 ensemble $0.5469$). The strongest objection here is that real signal in
 ACCORD's own architecture was attenuated by wrong-evidence labels. This
-result does not answer that directly: it is the separate control model, not
-ACCORD's own architecture, which was never scored on that stratum, whose $6$
+result does not answer that directly: ACCORD's own architecture was never
+scored on that stratum, only the separate control model was. The stratum's $6$
 positives put the minimum detectable AUROC at $0.8058$, so the check has
 almost no power to begin with.
 Figure~\ref{fig:disc-strata} puts the full set and the defect-free stratum side
@@ -253,11 +260,11 @@ are disjoint by a wide margin. At $3$ epochs the gap is $5.07$ points, so the
 effect is present early and does not depend on the budget chosen.
 
 The budget is what closes the objection. Eight times the training budget bought
-the 100M-token scratch arm $0.41$ points, from $0.8885$ at $3$ epochs to $0.8925$
+the 100M-parameter scratch arm $0.41$ points, from $0.8885$ at $3$ epochs to $0.8925$
 at $24$; the pretrained arm moved $-0.13$ points over the same range. Both arms
 are converged. A gap that persists at convergence is not a gap in optimisation,
-and an instrument reporting a $4.53$-point difference at standard deviations of
-$0.003$ or less is not an instrument that cannot see effects.
+and an instrument reporting a $4.53$-point difference at standard deviations
+at or below $0.0036$ is not an instrument that cannot see effects.
 
 Parameters do not close it either. Figure~\ref{fig:scaling} plots the from-scratch
 arms at three sizes against the pretrained band on the public task, and the
@@ -311,10 +318,9 @@ effect had one been present. Only the second statement is made.
 A bootstrap standard deviation of $0.0870$ on the primary AUROC is consistent
 with a mildly informative model and with a mildly inverted one. The three-seed
 ensemble's own $95\%$ bootstrap interval on the $253$-pair set,
-$[0.3210, 0.7034]$, is wide enough that its upper bound,
-$0.7034 + 0.0321 = 0.7355$
-(\texttt{stats.auroc\_ci\_hi\_vs\_min\_detectable\_margin}), sits within a small margin of the minimum detectable
-AUROC established above, so interval width on its own does not rule out a
+$[0.3210, 0.7034]$, is wide enough that its upper bound of $0.7034$ sits only
+$0.0321$ below the minimum detectable AUROC of $0.7355$
+(\texttt{stats.auroc\_ci\_hi\_vs\_min\_detectable\_margin}), so interval width on its own does not rule out a
 modestly useful model. Three of the four estimators compared here, the single
 model, the three-seed ensemble and the TF-IDF baseline, could in principle have
 found separation and did not; the fourth, a majority-class predictor, returns
@@ -479,7 +485,7 @@ enrichment runs against the finding rather than for it: a corpus over-sampling
 the papers most likely to run the check still returns $4$ of $75$ strictly. This
 is not a prevalence estimate for clinical machine learning. Coverage is
 open-access and preprint venues rather than the literature as a whole, and
-several hundred screened-in papers were never retrieved in full text.
+$459$ screened-in papers were never retrieved in full text.
 
 \section{What the Controls Cost}
 \label{sec:disc-cost}
@@ -616,16 +622,15 @@ the central evaluation result, which reproduces on the $134$-pair stratum.
 
 \paragraph{The survey is a prevalence measurement on an enriched corpus, and it
 is limited on several axes at once.} It is the weakest of the empirical
-strands in this thesis, and it is reported at that weight rather than
-alongside the ablation or the pre-registered convergence control. The
-$75$-paper corpus was assembled to over-sample fairness-forward work. That
-direction runs against the finding rather than for it, which is why the reading
-is defensible at all, but it also means $4/75$ and $14/75$ are not prevalence
-estimates for the field. Coverage is open-access sources only, several
-screened-in papers were never retrieved in full text, and one coder codes the
-full set. A blind second coder recoded a subsample with field
-definitions only and the hypothesis withheld, and agreement on the permissive
-field is high. On the 19 double-coded papers, the registered permissive
+strands in this thesis, reported at that weight rather than alongside the
+ablation or the pre-registered convergence control. The $75$-paper corpus was
+assembled to over-sample fairness-forward work, coverage is open-access
+sources only, $459$ screened-in papers were never retrieved in full text, and
+one coder codes the full set; Chapter~\ref{ch:results} gives the full
+enrichment argument behind $4/75$ and $14/75$. A blind second coder recoded a
+subsample with field definitions only and the hypothesis withheld, and
+agreement on the permissive field is high. On the 19 double-coded papers, the
+registered permissive
 agreement is $0.9474$ with kappa $0.855$
 (\texttt{survey.reliability.audits\_selection\_literal.agreement},
 \texttt{survey.reliability.audits\_selection\_literal.kappa}). On the strict cell, the one that decides the

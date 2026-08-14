@@ -14,8 +14,8 @@
 This thesis builds nothing new. It takes a pipeline whose shape is standard in clinical
 natural language processing, rule-based candidate mining followed by language model weak
 supervision followed by a purpose-built neural detector, and runs at each stage the control
-that separates a real finding from an artifact of the measurement. The controls are not
-mine. Each was developed elsewhere, by authors named in this chapter and credited again
+that separates a real finding from an artifact of the measurement. The controls are
+borrowed. Each was developed elsewhere, by authors named in this chapter and credited again
 wherever the corresponding control appears later. What this chapter has to establish is
 therefore narrower than a conventional review: not that a gap exists in the space of
 methods, but that a gap exists in the space of things that have been checked.
@@ -197,7 +197,8 @@ accuracy is not a validation step. The second is that the correction requires go
 a subsample, which means the workflow that used a language model to avoid annotation entirely
 cannot apply it. Their estimand is a population quantity in a social science analysis rather
 than the training signal of a detector, and the mapping to the case where surrogate labels
-are the training targets is not made in that paper or, as far as I could find, anywhere else.
+are the training targets is not made in that paper or, as far as the search described in
+Chapter 3 found, anywhere else.
 What transfers is the shape of the warning: accuracy on the annotator's own terms says
 nothing about the validity of what is built on it.
 
@@ -235,8 +236,7 @@ Cohen's kappa \citep{cohen1960kappa} corrects observed agreement for the agreeme
 by chance under the observed marginals, which makes it a function of those marginals in ways
 that surprise readers who take it for a corrected accuracy. \citet{feinstein1990paradoxes}
 set out the two paradoxes: high observed agreement can coexist with a low kappa when the
-marginals are badly unbalanced, and unbalanced marginals can raise rather than lower kappa in
-the second paradox. The companion paper \citep{cicchetti1990resolving} works through the
+marginals are badly unbalanced, and unbalanced marginals can raise rather than lower kappa. The companion paper \citep{cicchetti1990resolving} works through the
 resolution and recommends reporting the marginals alongside the statistic.
 \citet{byrt1993pabak} respond with the prevalence-adjusted bias-adjusted kappa, an affine
 function of observed agreement, $\mathrm{PABAK} = 2p_o - 1$, which removes the marginal
@@ -358,8 +358,7 @@ same probe on that, and define selectivity as the difference between linguistic 
 and control task accuracy. A good probe has high task accuracy and low control accuracy.
 Their finding is that common probing setups have poor selectivity, that dropout does not fix
 it for multilayer perceptron probes, and that ELMo's second layer yields more selective
-part-of-speech probes despite slightly lower accuracy than the first. The paper was an EMNLP
-2019 Best Paper runner-up.
+part-of-speech probes despite slightly lower accuracy than the first.
 
 \citet{belinkov2022probing} synthesises the probing literature that followed, including the
 recurring problem that probe accuracy alone identifies neither what a representation encodes
@@ -482,7 +481,7 @@ not track the differences that would be measured against the target, and they gi
 sensitivity analysis rather than a correction. Both results constrain what a measured
 disparity is allowed to be read as.
 
-That result is why a selection-channel finding cannot be reported as a fairness result
+Those results are why a selection-channel finding cannot be reported as a fairness result
 without an accompanying mechanism. The Discussion chapter reports an unexplained anomaly in
 how a pool audit responds to the channel through which items are selected, and reports it as
 unexplained precisely because \citet{pfohl2025disaggregated} establish that interpreting such

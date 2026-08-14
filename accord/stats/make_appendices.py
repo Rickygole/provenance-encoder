@@ -135,6 +135,7 @@ def main():
          "repeated in full; their complete text, with artifact and reasoning, is retained in",
          r"\texttt{CORRECTIONS.md} in the project repository.", "",
          r"\section{Corrections That Changed a Printed Number}", "", r"\singlespacing",
+         r"\renewcommand{\arraystretch}{0.9}",
          r"\footnotesize",
          r"\begin{longtable}{@{}p{1.9in}p{1.9in}p{1.9in}@{}}",
          r"\textbf{Claim as stated} & \textbf{Evidence that retired it} & "
@@ -168,7 +169,7 @@ def main():
               "The correction record was closed once the frame was frozen. Findings after that point",
               "change a number, a chapter, or a stated limitation, and by rule cannot change the",
               "thesis statement. They are listed separately for that reason.", "",
-              r"\singlespacing", r"\footnotesize",
+              r"\singlespacing", r"\renewcommand{\arraystretch}{0.9}", r"\footnotesize",
               r"\begin{longtable}{@{}p{0.35in}p{0.7in}p{4.5in}@{}}",
               r"\textbf{ID} & \textbf{Date} & \textbf{Revision}\\", r"\midrule", r"\endhead"]
         a += [f"{rid} & {d} & {esc(t.strip())}\\\\" for rid, d, t in revs]
@@ -185,7 +186,7 @@ def main():
          f"Every quantity reported in this thesis is drawn from a register of {len(F)} values, each",
          "extracted from a stored result file by script rather than transcribed. The register is",
          "grouped below by the experiment that produced it, with the file each group was read from.", "",
-         r"\singlespacing", r"\small", r"\begin{longtable}{@{}p{1.6in}p{0.6in}p{3.6in}@{}}",
+         r"\singlespacing", r"\renewcommand{\arraystretch}{0.9}", r"\footnotesize", r"\begin{longtable}{@{}p{1.6in}p{0.6in}p{3.6in}@{}}",
          r"\textbf{Group} & \textbf{Values} & \textbf{Source file}\\", r"\midrule", r"\endhead"]
     abbreviated = False
     for g, items in sorted(groups.items()):

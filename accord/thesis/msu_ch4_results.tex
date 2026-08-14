@@ -26,7 +26,7 @@ Every metric below carries its denominator, and a quantity that is a ratio of
 two registered counts is written as that ratio, for example $12/253$.
 
 \begin{table}[H]
-\caption{The three evaluation sets used in this chapter}
+\caption{The three evaluation sets used in this chapter.}
 \centering
 \small
 \begin{tabular}{lrrrl}
@@ -87,7 +87,7 @@ gives the size of each rule's gold stratum, the pharmacist's true-positive rate 
 predicted-positive rate on the same rows.
 
 \begin{table}[H]
-\caption{Per-rule gold stratum size, pharmacist precision, and ACCORD's predicted-positive rate}
+\caption{Per-rule gold stratum size, pharmacist precision, and ACCORD's predicted-positive rate.}
 \label{tab:rule-precision}
 \centering
 \small
@@ -125,8 +125,22 @@ rule-sensitive discrimination.
 The Rule 3 plus Rule 4 stratum carries a further structural point on its own, distinct from either
 rule's individual precision. Combined, Rules 3 and 4 account for 134 of the 299 pairs and 6 of the
 12 confirmed contradictions, so the positives are spread across the rule set rather than
-concentrated in one rule, and no rule is doing the work. Figure~\ref{fig:rule-precision} reports
-per-rule ranking performance alongside the precision panel above.
+concentrated in one rule, and no rule is doing the work.
+
+Grouping by mechanism rather than by rule number tests that split directly. Rules 1 and 2 together
+account for $165$ pairs with $6$ positives, a rate of $0.0364$; Rules 3 and 4 together account for
+$134$ pairs with $6$ positives, a rate of $0.0448$. A Fisher exact test on that $2 \times 2$ table
+gives an odds ratio of $0.805$ at $p = 0.7725$, achieved power is $0.0576$, and the smallest
+absolute rate difference detectable at $80\%$ power is $0.0895$, more than twice the overall base
+rate (\texttt{exemplar.confounded\_proxy\_rule12\_vs\_rule34.rule\_1\_2.rate},
+\texttt{exemplar.confounded\_proxy\_rule12\_vs\_rule34.rule\_3\_4.rate},
+\texttt{exemplar.confounded\_proxy\_rule12\_vs\_rule34.fisher\_exact.odds\_ratio},
+\texttt{exemplar.confounded\_proxy\_rule12\_vs\_rule34.fisher\_exact.p\_value},
+\texttt{exemplar.power\_analysis.achieved\_power\_at\_observed\_effect\_rule12\_vs\_rule34},
+\texttt{exemplar.power\_analysis.min\_detectable\_rate\_diff\_80pct\_power\_alpha05.min\_detectable\_abs\_diff}).
+The two mechanism groups are indistinguishable at this sample size, which is not the same as equal.
+Figure~\ref{fig:rule-precision} reports per-rule ranking performance alongside the precision table
+above.
 
 \begin{figure}[!htbp]
 \caption{Per-rule ranking performance on the annotated pairs. Bars give the
@@ -139,7 +153,7 @@ those two rules only.}
 \centering
 \includegraphics[width=0.92\linewidth]{figures/fig-rule-precision.pdf}
 \apanote{Ranking performance per rule, drawn from \texttt{figures/manifest.json}, in addition to
-the pharmacist precision panel in Table~\ref{tab:rule-precision}.}
+the pharmacist precision table in Table~\ref{tab:rule-precision}.}
 \label{fig:rule-precision}
 \end{figure}
 
@@ -169,7 +183,12 @@ key, and on that subset the exemplar is correct on all 23, a wrong rate of 0
 (\texttt{exemplar.rule\_1\_2\_pooled\_exemplar\_correct\_rate\_in\_299.n\_known},
 \texttt{exemplar.rule\_1\_2\_pooled\_exemplar\_correct\_rate\_in\_299.n\_correct}).
 The honest range is therefore 0 to $0.4745$: exact but thin on the join, broad
-but imperfectly calibrated on the reconstruction, and neither is discarded.
+but imperfectly calibrated on the reconstruction, and neither is discarded. A
+separate join, across all four rules rather than Rule 1 and 2 alone, matches
+the $299$-row annotated sample to the rebuilt candidates table on $35$ rows
+(\texttt{exemplar.audit\_to\_candidates\_join.n\_matched\_to\_rebuilt\_candidates\_table});
+that is a different operation with a different denominator, not a third
+reading of the same exemplar-correctness question.
 
 The measured consequence does not depend on that rate. Rules 3 and 4 cannot
 exhibit the defect: Rule 3 selects the maximum-difference dose pair, and Rule 4
@@ -208,7 +227,7 @@ and that defence assumes noise conditionally independent across sources given th
 label; one source whose error is a shifted marginal falls outside the regime.
 
 \begin{table}[H]
-\caption{Predicted-positive counts on the 299 annotated pairs}
+\caption{Predicted-positive counts on the 299 annotated pairs.}
 \centering
 \small
 \begin{tabular}{lrl}
@@ -230,7 +249,7 @@ run; the decontaminated retrain appears in Section~\ref{sec:res-rq4}.}
 \label{tab:marginal}
 \end{table}
 
-Two hundred sixty-one against twelve, on identical inputs, is the finding.
+$261$ against $12$, on identical inputs, is the finding.
 \citet{pangakis2023validation} argue that an automated annotation procedure must
 be validated against human labels on the same items; those items existed here
 before the labelling run, and the comparison was not made.
@@ -262,7 +281,7 @@ class-prior sensitivity documented for in-context learning
 \citep{zhao2021calibrate}.
 
 \begin{table}[H]
-\caption{Per-pair calls on the 253 non-ambiguous pairs}
+\caption{Per-pair calls on the 253 non-ambiguous pairs.}
 \centering
 \small
 \begin{tabular}{lrrrrrr}
@@ -304,8 +323,7 @@ prevalence levels on SNLI, is $3.5000$, reached by \texttt{llama3:8b} under the 
 percent true prevalence; the next highest is $3.4000$, the same model and prompt at 5 percent
 prevalence (\texttt{publicsweep.results.llama3:8b.A\_bare.0.02.over\_call\_ratio},
 \texttt{publicsweep.results.llama3:8b.A\_bare.0.05.over\_call\_ratio}). Both sit well below the
-$15.8196$ to $23.5959$ range of pool over-calling ratios measured on the clinical task in
-Section~\ref{sec:res-rq2}. The magnitude of the failure is therefore not a general property of an
+$15.8196$ to $23.5959$ range of pool over-calling ratios measured above in this section. The magnitude of the failure is therefore not a general property of an
 instruction-tuned labeller asked for a rare positive class; what survives the change of domain is
 the direction, over-calling that does not track the true rate, not the size of it.
 
@@ -359,7 +377,7 @@ between $0.5070$ and $0.5084$, mean $0.5076$
 \texttt{decontam\_gold.aggregate.alpha\_n.mean},
 \texttt{decontam\_gold.aggregate.alpha\_n.min},
 \texttt{decontam\_gold.aggregate.alpha\_n.max}). Both parameters move a small
-fraction of their initial value across seeds. It sits on a branch that is
+fraction of their initial value across seeds. Each sits on a branch that is
 immediately normalised, which removes most of what a per-branch scalar can do
 and drives its gradient towards zero.
 
@@ -433,7 +451,7 @@ validation loss, its seed spread where more than one seed exists, and the loss r
 no-bias arm for all ten.
 
 \begin{table}[H]
-\caption{Ten-arm architecture ablation, mean validation loss}
+\caption{Ten-arm architecture ablation, mean validation loss.}
 \label{tab:ablation}
 \centering
 \small
@@ -468,7 +486,7 @@ ordering among those seven is resolved well outside seed noise. The three single
 seed spread and are shown for completeness rather than as matched comparisons.}
 \end{table}
 
-The control task in the sense Hewitt and Liang (2019) define it holds the label alphabet fixed and
+The control task in the sense \citet{hewitt2019control} define it holds the label alphabet fixed and
 randomises the mapping from tokens to roles. That arm is random roles, not the segment ordinal, and
 it ran at a single seed (\texttt{ablation.random\_roles.n\_seeds}), not one of the seven matched
 three-seed arms, so no significance claim attaches to it. Randomised roles reduce the loss by
@@ -485,9 +503,9 @@ the loss by $0.3380$ nats, 35.7 percent of the segment-index arm's reduction
 
 The segment-index arm changes the feature rather than randomising it: an arbitrary ordinal position
 within the bundle, carrying no provenance meaning at all, in place of role identity. A win for it is
-a competing hypothesis about what the mechanism exploits, not a control task in the Hewitt and Liang
-sense, and not evidence that role semantics contribute nothing. It reduces the loss by $0.9476$
-nats, the largest reduction of any arm, ahead of true role labels' $0.8244$ nats
+a competing hypothesis about what the mechanism exploits, not a control task in the
+\citet{hewitt2019control} sense, and not evidence that role semantics contribute nothing. It reduces the loss by $0.9476$
+nats, the largest reduction of any learned arm, ahead of true role labels' $0.8244$ nats
 (\texttt{ablation.true\_role\_labels.pct\_of\_segment\_index}). Read beside the random-roles result,
 the two findings do not contradict each other; they point the same direction rather than opposite
 ones. On the single seed the random-roles arm ran at, role semantics look worth $0.3277$ nats over
@@ -516,8 +534,8 @@ nats, beating every learned arm including the segment-index bias by $0.1306$ nat
 (\texttt{ablation.learned\_vs\_fixed\_nats}): a mechanism with zero trainable parameters outperforms
 the one credited with learning where the boundary is.
 
-A fourth single-seed arm checks a standing confound directly. Every other arm in this table trains
-without global position information, so the segmentation gain could in principle be a positionally
+One of those single-seed arms checks a standing confound directly. Every other arm in this table
+trains without global position information, so the segmentation gain could in principle be a positionally
 handicapped baseline buying position back rather than a genuine effect of provenance conditioning.
 Restoring global positions on top of the shuffled-segment setup raises the loss to $4.5122$ nats,
 $0.1567$ nats worse than the no-bias arm
@@ -558,7 +576,7 @@ the reported numbers, and the controls show the mechanisms as run do not carry
 the effects attributed to them. Whether asymmetric authority conditioning, an
 auxiliary rule head or guideline-grounded harm scoring is a good idea remains
 open. The control-task logic and the arbitrary-substitute design belong to Hewitt
-and Liang; that attribution covers the design of the comparison, not what running
+and Liang \citep{hewitt2019control}; that attribution covers the design of the comparison, not what running
 it here found. The misaligned-block arm and the global-positions confound check
 are this thesis's own additions to that design. What the ten-arm table
 establishes divides by seed count. Among the seven three-seed arms, every
@@ -581,7 +599,7 @@ committed before the sweep ran, shows the same apparatus resolving a real effect
 \subsection{Three configurations at chance}
 
 \begin{table}[H]
-\caption{Decontaminated detector on the 253 non-ambiguous pairs}
+\caption{Decontaminated detector on the 253 non-ambiguous pairs.}
 \centering
 \small
 \begin{tabular}{lrrrr}
@@ -621,7 +639,7 @@ manufacture signal, because there was none to manufacture.
 
 \begin{table}[H]
 \caption{Control configurations on the full annotated set and the defect-free
-stratum}
+stratum.}
 \centering
 \small
 \begin{tabular}{llrrrr}
@@ -648,9 +666,9 @@ Table~\ref{tab:decontam}; the two are not compared against each other.}
 \label{tab:control299}
 \end{table}
 
-The three configurations agree. A row-level split, a subject-level split and a
-stratum free of the exemplar defect all return a ranking statistic within a few
-points of chance. Restricting to $G_{134}$ raises the ensemble to $0.5469$ and
+The three configurations agree. The contaminated released run, the
+decontaminated ensemble, and the stratum free of the exemplar defect all
+return a ranking statistic within a few points of chance. Restricting to $G_{134}$ raises the ensemble to $0.5469$ and
 raises the bootstrap standard deviation from $0.0937$ to $0.1481$, so halving the
 positive count buys a higher point estimate and a wider spread, and resolves
 nothing either way.
@@ -665,7 +683,7 @@ are indistinguishable from a random draw. For a ranked worklist that is decisive
 \subsection{The paired comparison}
 
 \begin{table}[H]
-\caption{Paired ROC comparisons on the same pairs}
+\caption{Paired ROC comparisons on the same pairs.}
 \centering
 \small
 \begin{tabular}{llrrrrr}
@@ -697,7 +715,7 @@ another.
 \subsection{A bag-of-words baseline}
 
 \begin{table}[H]
-\caption{Reference baselines on the annotated pairs}
+\caption{Reference baselines on the annotated pairs.}
 \centering
 \small
 \begin{tabular}{llrrr}
@@ -733,7 +751,7 @@ domain-pretrained encoder \citep{gu2021biomedbert} with low-rank adaptation
 \subsection{What the instrument could have seen}
 
 \begin{table}[H]
-\caption{Minimum detectable AUROC at 80\% power}
+\caption{Minimum detectable AUROC at 80\% power.}
 \centering
 \small
 \begin{tabular}{lrrrrr}
@@ -749,7 +767,7 @@ $G_{134}$ & 6  & 128 & 0.1210 & 0.3058 & 0.8058 \\
 \apanote{$\alpha = 0.05$, power $0.8$. The SE column is the simple
 null-standard-error approximation, registered for $G_{253}$ as \texttt{power.*}
 and for the other two rows under \texttt{control.power\_ceiling.*}. The Gap and
-Min.\ detectable columns are the full Hanley and McNeil (1982) procedure,
+Min.\ detectable columns are the full \citet{hanley1982meaning} procedure,
 \texttt{accord/stats/recompute\_mde.py}, registered under
 \texttt{mde\_recomputed.*}: the earlier stored value of $0.7382$ for $G_{253}$
 did not reproduce under either the simple formula or the full procedure and is
@@ -770,7 +788,7 @@ a future attempt needs.
 \begin{figure}[!htbp]
 \caption{What each evaluation in this thesis could have seen. The curve gives
 the minimum detectable area under the ROC curve at 80\% power and a two-sided
-$\alpha$ of 0.05, by the method of Hanley and McNeil, as a function of the number
+$\alpha$ of 0.05, by the method of Hanley and McNeil \citep{hanley1982meaning}, as a function of the number
 of positive cases in the evaluation set. The circle marks the contradiction
 evaluation reported in this chapter, which holds 12 positives among 253 pairs. The
 square marks the in-hospital mortality task used elsewhere as a positive control,
@@ -815,7 +833,7 @@ best from-scratch arm closed as the budget grew, the mortality-task null
 would be attributable to under-training, and if not, not.
 
 \begin{table}[H]
-\caption{Convergence sweep: four arms at four training budgets}
+\caption{Convergence sweep: four arms at four training budgets.}
 \centering
 \small
 \begin{tabular}{lrrrr}
@@ -845,7 +863,11 @@ of at least 3.0 accuracy points between the pretrained and best from-scratch
 arm with the standard deviation bands disjoint; Outcome B is a gap below 3.0
 points or an ordering not resolved across seeds; the range 2.5 to 3.5 points is
 declared inconclusive in advance, and the rule itself forbids resolving an
-inconclusive result by adding seeds.}
+inconclusive result by adding seeds. Gaps reported in prose are computed from
+the unrounded registered values, not from the four-decimal cells printed here,
+so subtracting the printed cells directly can differ in the last digit: at 24
+epochs $0.8925 + 0.0454 = 0.9379$ from the printed cells alone, one hundredth
+of a point above the registered gap of $4.53$.}
 \label{tab:conv}
 \end{table}
 
@@ -859,7 +881,7 @@ same harness returns a gap of $0.0031$, reported next.
 
 \begin{table}[H]
 \caption{Pretraining against parameter count, and the same contrast on the
-mortality control task}
+mortality control task.}
 \centering
 \small
 \begin{tabular}{llrr}
@@ -870,7 +892,7 @@ Public benchmark  & Pretrained encoder & 85,648,132 & $0.9396 \pm 0.0010$ \\
 Public benchmark  & Scratch, 100M      & 99,234,820 & $0.8878 \pm 0.0016$ \\
 Public benchmark  & Scratch, 30M       & 31,913,860 & $0.8833 \pm 0.0009$ \\
 Public benchmark  & Scratch, 10M       & 10,649,092 & $0.8790 \pm 0.0040$ \\
-Mortality control  & PubMedBERT         &            & $0.7693 \pm 0.0102$ \\
+Mortality control  & BioMedBERT         &            & $0.7693 \pm 0.0102$ \\
 Mortality control  & From scratch       & 10,638,720 & $0.7662 \pm 0.0073$ \\
 Mortality control  & Gap                &            & $0.0031$ \\
 \bottomrule
@@ -942,7 +964,7 @@ done here is to apply it to these class counts.
 \subsection{The ordering and its intervals}
 
 \begin{table}[H]
-\caption{Matthews correlation on the 253 non-ambiguous pairs}
+\caption{Matthews correlation on the 253 non-ambiguous pairs.}
 \centering
 \small
 \begin{tabular}{lrrr}
@@ -1006,7 +1028,7 @@ $0.0$, which establishes that it is a faithful reproduction rather than a
 different computation.
 
 \begin{table}[H]
-\caption{Signed demographic parity endpoints in three experiments}
+\caption{Signed demographic parity endpoints in three experiments.}
 \centering
 \small
 \begin{tabular}{lrrl}
@@ -1049,19 +1071,19 @@ Does the field run the checks that would have caught the failures above? This
 section reports a prevalence measurement on a deliberately enriched corpus, not
 a finding of the same standing as the ablation in
 Section~\ref{sec:res-rq3} or the pre-registered positive control in
-Section~\ref{sec:res-rq4}: coverage is open-access sources only, one coder
-codes the full set, and a second coder's overlap leaves one cell without a
-defined reliability figure. It is reported because a prevalence measurement on
+Section~\ref{sec:res-rq4}. It is reported because a prevalence measurement on
 its own terms is worth having, and because the survey coding table bound in the supplementary file, listed in Appendix~\ref{app:provenance}, makes
 the full 75-paper coding available for a reader to check rather than take on
-trust. A systematic coding of 75 papers says: rarely on the strict reading, and not much
-more often on the permissive one. Both are reported side by side because the
+trust. Every coded field carries a verbatim quote checked by exact string match against the source
+text, $225$ quoted fields in total (\texttt{survey.n\_quoted\_fields}), so no coded value survives
+without verified textual support. A systematic coding of 75 papers says: rarely on the strict
+reading, and not much more often on the permissive one. Both are reported side by side because the
 choice between them is a judgement call the reader should make independently.
 
 \subsection{Both readings, and the null-attribute distribution}
 
 \begin{table}[H]
-\caption{Coded outcomes across 75 included papers}
+\caption{Coded outcomes across 75 included papers.}
 \centering
 \small
 \begin{tabular}{lr}
@@ -1109,7 +1131,7 @@ agreement is claimed for the remaining $75 - 19 = 56$ papers, which were coded
 once. On the permissive cell agreement is $0.9474$ and Cohen's kappa is
 $0.855$ (\texttt{survey.reliability.audits\_selection\_literal.agreement},
 \texttt{survey.reliability.audits\_selection\_literal.kappa}); on the
-null-attribute-handling coding agreement is $0.7895$ and kappa is $0.73$
+null-attribute-handling coding agreement is $0.7895$ and kappa is $0.730$
 (\texttt{survey.reliability.null\_attribute\_handling.agreement},
 \texttt{survey.reliability.null\_attribute\_handling.kappa}).
 
@@ -1136,7 +1158,7 @@ kappa would be exactly the error the statistic exists to prevent.
 \subsection{What this does not establish}
 
 The survey is not a prevalence estimate for clinical machine learning. The corpus
-is enriched, coverage is limited to the two sources searched, and many
+is enriched, coverage is limited to the three sources searched, and $459$
 screened-in papers were never retrieved. The enrichment runs against the finding
 rather than for it: a corpus that over-samples work already attentive to these
 questions still yields 4 of 75 strictly, so the unenriched rate is not plausibly
