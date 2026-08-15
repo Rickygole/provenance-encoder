@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate Thesis_Figures_PerFigure.ipynb from style.py and the drawing
+"""Regenerate Thesis_Figure_Material.ipynb from style.py and the drawing
 scripts, so the shipping path and the script path cannot differ.
 
 The notebook's palette and helper cells are style.py's own source, copied
@@ -16,7 +16,7 @@ import textwrap
 from pathlib import Path
 
 FIGDIR = Path(__file__).resolve().parent.parent
-NB = FIGDIR / "Thesis_Figures_PerFigure.ipynb"
+NB = FIGDIR / "Thesis_Figure_Material.ipynb"
 BEGIN = "# >>> generated from style.py"
 END = "# <<< generated from style.py"
 

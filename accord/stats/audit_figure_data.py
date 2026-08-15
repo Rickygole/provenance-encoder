@@ -7,7 +7,7 @@ For every number that reaches the canvas in
   accord/thesis/figures/fig_batch2.py
   accord/thesis/figures/fig_threshold_surface.py
   accord/thesis/figures/make_figures_extra.py
-  accord/thesis/figures/Thesis_Figures_PerFigure.ipynb   (the per-figure notebook)
+  accord/thesis/figures/Thesis_Figure_Material.ipynb   (the per-figure notebook)
 this script re-opens the primary result file, re-reads the key, and re-derives
 the value from scratch. It does not trust the figure code, the manifests, or
 results/accord/VERIFIED_FACTS.json.
@@ -739,7 +739,7 @@ doc = {
         "accord/thesis/figures/fig_batch2.py",
         "accord/thesis/figures/fig_threshold_surface.py",
         "accord/thesis/figures/make_figures_extra.py",
-        "accord/thesis/figures/Thesis_Figures_PerFigure.ipynb",
+        "accord/thesis/figures/Thesis_Figure_Material.ipynb",
     ],
     "summary": summary,
     "figures": {f: rs for f, rs in by_fig.items()},

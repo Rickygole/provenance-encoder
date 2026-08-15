@@ -803,7 +803,7 @@ figures/tools/measure_ink.py      NEW. Renders each PDF at 300 dpi, reports
                                   coverage and chroma per §5, and exits non-zero
                                   on any figure under its floor.
 
-figures/Thesis_Figures_PerFigure.ipynb
+figures/Thesis_Figure_Material.ipynb
                                   Cells 1-3 (setup, palette, helpers) are REPLACED
                                   from style.py. Two figure cells deleted, twelve
                                   rewritten. check_parity.py gates the pair.
@@ -886,7 +886,7 @@ Fifteen steps, each independently verifiable. Do not reorder — steps 1–4 are
 `/Users/rickygole/provenance-encoder/accord/thesis/figures/fig_batch2.py` ·
 `/Users/rickygole/provenance-encoder/accord/thesis/figures/make_figures_extra.py` ·
 `/Users/rickygole/provenance-encoder/accord/thesis/figures/fig_threshold_surface.py` ·
-`/Users/rickygole/provenance-encoder/accord/thesis/figures/Thesis_Figures_PerFigure.ipynb` ·
+`/Users/rickygole/provenance-encoder/accord/thesis/figures/Thesis_Figure_Material.ipynb` ·
 `/Users/rickygole/provenance-encoder/accord/thesis/figures/tools/measure_ink.py` *(new)* ·
 `/Users/rickygole/provenance-encoder/accord/thesis/figures/tools/check_parity.py` *(new)* ·
 `/Users/rickygole/provenance-encoder/accord/thesis/main_msu.tex` ·

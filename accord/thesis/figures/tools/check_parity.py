@@ -28,7 +28,7 @@ sys.path.insert(0, str(FIGDIR))
 
 import style  # noqa: E402
 
-NOTEBOOK = FIGDIR / "Thesis_Figures_PerFigure.ipynb"
+NOTEBOOK = FIGDIR / "Thesis_Figure_Material.ipynb"
 SCRIPTS = ["make_figures.py", "fig_batch2.py", "make_figures_extra.py",
            "fig_threshold_surface.py"]
 
