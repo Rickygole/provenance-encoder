@@ -222,19 +222,31 @@ def make_fig_pipeline_status():
         FAULT: (SCARLET_TINT, SCARLET_DEEP, (SCARLET_DEEP, SCARLET_CORE)),
     }
 
-    x_idx, x_name = 13.0, 24.0
-    x_chip, w_chip = 148.0, 58.0
-    x_detail, x_diag = 210.0, 294.0
+    # The columns are laid out as fractions of the plate rather than as absolute
+    # points. The previous version pinned x_detail at 210.0 and x_diag at 294.0,
+    # which meant a longer verdict word or a wider chip pushed text into the
+    # column beside it with nothing to stop it. These positions move with the
+    # canvas and keep their gutters whatever the strings do.
+    plate_w = W * 72
+    x_idx = 0.035 * plate_w
+    x_name = 0.065 * plate_w
+    x_chip, w_chip = 0.400 * plate_w, 0.157 * plate_w
+    x_detail = x_chip + w_chip + 0.022 * plate_w
+    x_diag = 0.795 * plate_w
     band_h, gutter = 29.4, 3.0
     y_top = H * 72 - 30.0
     for i, (name, verdict, detail, diag, state) in enumerate(rows):
         tint, deep, chip_hue = STATE[state]
         y = y_top - (i + 1) * band_h - i * gutter
         mid = y + band_h / 2
+        # Borderless. The band is a flat tint floating on the paper, and the
+        # contrast between the two is what defines its edge. A 1.5pt stroke in
+        # the state's deep tone drew a hard rectangle around every row and made
+        # six of them read as a table with rules rather than as panels.
         ax.add_patch(FancyBboxPatch(
             (1.5, y), W * 72 - 3.0, band_h,
             boxstyle="round,pad=0,rounding_size=2.0", mutation_aspect=1.0,
-            linewidth=LW_NODE, edgecolor=deep, facecolor=tint, zorder=2))
+            linewidth=0, edgecolor="none", facecolor=tint, zorder=2))
         ax.text(x_idx, mid, str(i + 1), ha="center", va="center",
                 fontsize=10.0, color=deep, zorder=5)
         ax.text(x_name, mid, name, ha="left", va="center", fontsize=10.5,
@@ -298,7 +310,8 @@ def make_fig_intro_headline():
     # has left the white right-hand third of the plot; the axes takes back the
     # dead band instead, which is where that ink should have come from anyway.
     # 6.8pt of clearance remains under the headline's second line.
-    fig.subplots_adjust(left=0.300, right=0.985, top=0.752, bottom=0.170)
+    # top makes room for a two-line headline plus the deck beneath it.
+    fig.subplots_adjust(left=0.300, right=0.985, top=0.690, bottom=0.170)
 
     bars = [("Weak labeller, train pool", weak_pos, weak_n, wilson_ci(weak_pos, weak_n)),
             ("Weak labeller, gold set", pred_pos, pred_n, wilson_ci(pred_pos, pred_n)),
@@ -319,17 +332,26 @@ def make_fig_intro_headline():
     # 299 pairs IS the finding, so it is drawn as a region rather than left for
     # the reader to measure off the axis.
     band(ax, pharm_pos / pharm_n, pred_pos / pred_n, SCARLET_WASH, zorder=0)
+    # Flat fills. The 1.0pt DEEP outline fought the cased interval running
+    # through the bar and made three bars read as three outlined boxes; the
+    # CORE fill on paper already has all the edge it needs.
     ax.barh(ypos, rates, color=[h.CORE for h in hues], height=0.62,
-            linewidth=LW_BAR, edgecolor=[h.DEEP for h in hues], zorder=3)
+            linewidth=0, edgecolor="none", zorder=3)
     # A same-colour interval loses its lower half inside the fill, so the
     # estimate reads one-sided and the bar reads as if it were exact. Casing is
     # what keeps both halves readable.
+    # Softened: the casing is 1.0pt of paper rather than 1.4, the cap is the
+    # interval's own weight rather than heavier than it, and the cap is shorter.
+    # The interval should register as a measurement on the bar, not as a bracket
+    # clamped onto it.
+    _cap = ERRBAR["capsize"] * 0.62
     ax.errorbar(rates, ypos, xerr=errs, fmt="none", ecolor=PAPER,
-                elinewidth=LW_INTERVAL + 1.4, capthick=LW_INTERVAL + 1.4,
-                capsize=ERRBAR["capsize"], zorder=4)
+                elinewidth=LW_INTERVAL + 1.0, capthick=LW_INTERVAL + 1.0,
+                capsize=_cap, zorder=4)
+    _eb = {**ERRBAR, "capsize": _cap, "capthick": LW_INTERVAL}
     for y, r, e_lo, e_hi, hue in zip(ypos, rates, errs[0], errs[1], hues):
         ax.errorbar([r], [y], xerr=[[e_lo], [e_hi]], fmt="none",
-                    ecolor=hue.CORE, zorder=5, **ERRBAR)
+                    ecolor=hue.CORE, zorder=5, **_eb)
     for y, b, r, hi, hue in zip(ypos, bars, rates, his, hues):
         # The rate at the bar, the denominators in the row label: two
         # different jobs, and side by side they collided with the bracket.
@@ -352,25 +374,22 @@ def make_fig_intro_headline():
     for y in (ypos[1], ypos[2]):
         ax.plot([x_br, x_br - 0.045], [y, y], color=SCARLET_CORE, lw=LW_DATA,
                 zorder=6)
-    # The sub-line is ONE line, and one line of it is 167pt: it does not fit in
-    # the 94pt between the bracket and the right spine, so it goes BELOW the
-    # bracket, flush to the right spine, and runs left across the empty row
-    # under the pharmacist bar. Set beside the bracket it wrapped to four lines
-    # and the fourth was struck through by the bottom spine. Its left third
-    # crosses the scarlet wash; SCARLET_DEEP on SCARLET_WASH is 6.29:1.
+    # The multiplier sits beside its bracket; what it is a ratio OF is the
+    # figure's deck, under the headline, where a subtitle belongs. Wedged into
+    # the axes it had nowhere to go: beside the bracket it wrapped to four lines
+    # and the last was struck through by the bottom spine, and moved below the
+    # bracket it ran across the wash through empty plot space.
     ax.text(x_br + 0.06, (ypos[1] + ypos[2]) / 2, f"{gold_ratio:.0f}x",
             va="center", ha="left", fontsize=T_CLAIM, fontweight="bold",
             color=SCARLET_DEEP, zorder=6)
-    ax.text(1.817, -0.24,
-            f"the weak labeller's marginal over the pharmacist's, "
-            f"same {pharm_n} pairs",
-            va="top", ha="right", fontsize=T_SERIES, color=SCARLET_DEEP,
-            zorder=6)
+
 
     signature(fig, PLUM_DEEP,
               f"The weak labeller calls {pred_pos/pred_n*100:.0f}% of gold-set "
               f"pairs contradictions.\n"
-              f"The pharmacist calls {pharm_pos/pharm_n*100:.0f}%.")
+              f"The pharmacist calls {pharm_pos/pharm_n*100:.0f}%.",
+              deck=f"{gold_ratio:.0f}x: the weak labeller's marginal over the "
+                   f"pharmacist's, on the same {pharm_n} pairs.")
     fname = "fig-intro-headline.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)

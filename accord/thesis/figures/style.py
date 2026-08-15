@@ -352,7 +352,10 @@ def signature(fig, hue_deep, headline=None, deck=None, headline_x=None):
     if headline:
         fig.text(x, y, headline, ha="left", va="top", fontsize=T_HEADLINE,
                  color=INK, zorder=21)
-        y -= (T_HEADLINE * 1.06) / (72 * h_in)
+        # Advance by the headline's real height. A headline may be two lines,
+        # and advancing one line height put the deck on top of the second.
+        n_lines = headline.count("\n") + 1
+        y -= (T_HEADLINE * 1.06 * n_lines) / (72 * h_in)
     if deck:
         fig.text(x, y, deck, ha="left", va="top", fontsize=T_DECK, color=MUTE,
                  zorder=21)
@@ -396,21 +399,24 @@ def arrow(ax, xy_from, xy_to, color=GRAPHITE, lw=LW_CONNECTOR, zorder=3,
 
 def chip(ax, x, y, w, h, hue, text, fontsize=T_CHIP, radius=3.0, zorder=6,
          ha="center", stroke=None):
-    """F2 SOLID CHIP: X_DEEP fill, X_CORE rim at 1.4pt, PAPER text, bold.
+    """F2 SOLID CHIP: X_DEEP fill, PAPER text, bold, no rim.
 
     hue may be a Ramp or a (fill, rim) pair, so the SLATE/MIST no-verdict state
-    can use the same helper without inventing a seventh ramp.
+    can use the same helper without inventing a seventh ramp. The rim is kept in
+    the signature and ignored by default: a saturated fill on paper needs no
+    outline to hold its shape, and the 1.4pt CORE rim it used to carry made a
+    small chip read as a button. Pass stroke= to draw one deliberately.
     """
     if isinstance(hue, Ramp):
         fill, rim = hue.DEEP, hue.CORE
     else:
         fill, rim = hue
-    if stroke is not None:
-        rim = stroke
+    rim = stroke                      # None unless a caller asks for one
     ax.add_patch(FancyBboxPatch(
         (x, y), w, h,
         boxstyle=f"round,pad=0,rounding_size={radius}", mutation_aspect=1.0,
-        linewidth=LW_CHIP, edgecolor=rim, facecolor=fill, zorder=zorder,
+        linewidth=(LW_CHIP if rim else 0), edgecolor=(rim or "none"),
+        facecolor=fill, zorder=zorder,
         clip_on=False))
     tx = x + w / 2 if ha == "center" else x + 6.0
     t = ax.text(tx, y + h / 2, text, ha=ha, va="center", fontsize=fontsize,

@@ -62,16 +62,24 @@ FLOORS = {
 # only way to raise those numbers is to put CORE stops at area scale, which
 # section 1.5 forbids outright. The floors move; the palette does not.
 LOWERED = {
-    "fig-pipeline-status": ((0.72, 0.25),
+    "fig-pipeline-status": ((0.72, 0.175),
         "coverage clears. chroma: four of six bands are SCARLET_TINT at S=0.233, "
-        "under this metric's own 0.25 gate, so 84% ink measures 0.25 chroma."),
-    "fig-intro-headline": ((0.24, 0.09),
+        "under this metric's own 0.25 gate, so 84% ink measures 0.18 chroma. "
+        "Lowered again when the bands and chips went borderless by the author's "
+        "directive: the 1.5pt DEEP band strokes and the 1.4pt CORE chip rims "
+        "were saturated ink, and removing them is the point of the change."),
+    "fig-intro-headline": ((0.225, 0.08),
         "the scarlet ground is the gap between two measured rates and cannot be "
-        "widened; the claim numeral and its sub-line need the right third of the "
-        "axis. SCARLET_WASH is S=0.108."),
-    "fig-cohort-flow": ((0.60, 0.14),
+        "widened; the claim numeral needs the right third of the axis. "
+        "SCARLET_WASH is S=0.108. Lowered again when the bar outlines went and "
+        "the sub-line moved into the deck: both were saturated ink inside the "
+        "measured box, and both left deliberately."),
+    "fig-cohort-flow": ((0.60, 0.135),
         "coverage clears. chroma: the phase grounds are WASH and MIST, all under "
-        "the 0.25 gate; only the EMERALD_TINT boxes and the solid chip count."),
+        "the 0.25 gate; only the EMERALD_TINT boxes and the solid chip count. "
+        "Lowered marginally when chips went rimless set-wide: this figure's "
+        "terminal box lost its CORE rim with the rest, which is the consistency "
+        "the change was for."),
     "fig-exemplar": ((0.43, 0.08),
         "ten slots on a five-row grid is the whole content. COBALT_TINT is "
         "S=0.206 and MIST S=0.076, so only the one solid chip counts."),
@@ -103,7 +111,7 @@ SET_COVERAGE_FLOOR = 0.28
 SET_CHROMA_FLOOR = 0.10
 # Lowered from 0.18 for the reason stated against LOWERED above: the set-mean
 # is an average over floors that the palette's own saturation cannot reach.
-SET_MEAN_CHROMA_FLOOR = 0.10
+SET_MEAN_CHROMA_FLOOR = 0.095
 
 
 def render(pdf, dpi=300):
