@@ -421,7 +421,7 @@ was specified as that backbone plus four purpose-built components: a cross-note 
 an asymmetric conditioning module, a pharmacological prior conditioning module, and a
 guideline-grounded harm estimator, with three claimed contributions attached to them. What follows
 describes the code that produced the results, because describing the specification instead is the
-error this thesis is about (\texttt{CORRECTIONS.md} C4).
+error this thesis is about (Appendix~\ref{app:corrections}, C4).
 
 The pharmacological prior module was deleted in the second version and replaced by a function
 returning a fixed-length vector of zeros with two positions overwritten, one a danger multiplier
@@ -466,12 +466,12 @@ made. The Stage 0 training script freezes the backbone unconditionally and conta
 that unfreezes any encoder layer, and the parameter total attributed to the wider configuration is
 reconstructible only by counting a pooler module that is off the forward path, which a real forward
 and backward pass confirmed carries gradient flags and no gradient. Both facts are independent of
-what exists on disk (\texttt{CORRECTIONS.md} C54).
+what exists on disk (Appendix~\ref{app:corrections}, C54).
 
 The checkpoint premise originally offered alongside those facts was false and is withdrawn here
 rather than quietly dropped. An earlier audit asserted that no checkpoint existed anywhere; it had
 searched the repository and the data quarantine but not the synced drive mount, where checkpoints
-do exist (\texttt{REVISION\_LOG.md} R6). The rule this produces is stated as a rule: no claim of
+do exist (Appendix~\ref{app:corrections}, R6). The rule this produces is stated as a rule: no claim of
 the form ``X was never trained'' may rest on the absence of a checkpoint, because an artifact is
 not absent merely because the search did not reach where it lives. The claim here rests on the code
 path and the gradient check.
@@ -730,8 +730,9 @@ the final epoch of that schedule rather than by validation-based checkpoint sele
 seeds per cell, for $48$ runs and
 $555$ minutes of compute. The decision rule in
 Table~\ref{tab:m-prereg} was committed before the sweep started and applied by the analysis
-notebook without being edited after the first result landed
-(\texttt{accord/scaling/C44\_PREREGISTRATION.md}).
+notebook without being edited after the first result landed. The rule was
+committed to the project repository at commit \texttt{b048829}, which is what
+fixes it in time relative to the sweep.
 
 \begin{table}[H]
 \caption[Pre-registered decision rule for the control]{Pre-registered decision rule for the pretraining positive control, committed before the
@@ -869,7 +870,7 @@ $(a - 0.5) / \sqrt{\mathrm{Var}(a)} \geq z_{1-\alpha/2} + z_{1-\beta}$ by search
 $\mathrm{Var}(a)$ depends on $a$. An earlier version of this table printed a minimum detectable
 AUROC of $0.7382$ for the primary stratum that reproduced under neither procedure computed
 precisely; \texttt{accord/stats/recompute\_mde.py} implements the full procedure and the values
-below are its output (\texttt{REVISION\_LOG.md} R9). Table~\ref{tab:m-mde} evaluates this under
+below are its output (Appendix~\ref{app:corrections}, R9). Table~\ref{tab:m-mde} evaluates this under
 each treatment of the ambiguous rows and on the defect-free stratum
 (Figure~\ref{fig:power}, Chapter~\ref{ch:results}).
 
@@ -914,7 +915,7 @@ earlier one. And a reference row in any comparison table must be produced by the
 protocol as the rows it is compared against; where that is not true, the comparison is reported as
 directional with no significance claim attached. Finally, every quantity in
 Chapter~\ref{ch:results} maps to the committed artifact that produced it, and that mapping is
-reproduced as an appendix rather than asserted (\texttt{REVISION\_LOG.md} R7).
+reproduced as an appendix rather than asserted (Appendix~\ref{app:corrections}, R7).
 
 \section{Data Use, Ethics, and Compliance}
 \label{sec:m-ethics}

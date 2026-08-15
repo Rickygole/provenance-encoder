@@ -21,8 +21,38 @@ GREEK = {"κ": r"$\kappa$", "ρ": r"$\rho$", "α": r"$\alpha$",
          "≤": r"$\leq$", "×": r"$\times$", "→": r"$\rightarrow$"}
 
 
+# Internal repository filenames must not reach the page. The correction and
+# revision records are working notes and name their own files freely; a bound
+# thesis cites an appendix or a commit, not a path a reader cannot open. Applied
+# in esc(), so any heading text lifted from those records is sanitised on the
+# way in and no future entry can leak one by being written before anyone looks.
+INTERNAL_FILES = {
+    "CORRECTIONS.md": "the correction record",
+    "REVISION_LOG.md": "the revision log",
+    "DESIGN.md": "a design note",
+    "FRAMING.md": "the framing note",
+    "FORMAT.md": "the format specification",
+    "CONTRIBUTION.md": "the contribution note",
+    "THESIS_STATUS.md": "a status note",
+    "PHD_PLAN.md": "a planning note",
+    "C44_PREREGISTRATION.md": "the pre-registered adjudication rule",
+}
+
+
+def strip_internal_paths(s):
+    """Replace any internal .md filename, with or without its directory, by a
+    description of what it is."""
+    for name, phrase in INTERNAL_FILES.items():
+        s = re.sub(r"(?:[\w./-]*/)?" + re.escape(name), phrase, s)
+    # anything else ending .md: describe rather than name
+    s = re.sub(r"(?:[\w./-]*/)?[\w.-]+\.md\b", "a project record", s)
+    return s
+
+
 def esc(s):
-    """LaTeX-safe, and free of the dashes the thesis forbids."""
+    """LaTeX-safe, free of the dashes the thesis forbids, and free of internal
+    repository filenames."""
+    s = strip_internal_paths(s)
     for g, tex in GREEK.items():
         s = s.replace(g, tex)
     s = re.sub(r"\*\*(.+?)\*\*", r"\1", s)
@@ -133,7 +163,7 @@ def main():
          "retired it and to where the corrected version now lives. The remaining corrections changed",
          "the record, not a number surviving into these six chapters, and are named below rather than",
          "repeated in full; their complete text, with artifact and reasoning, is retained in",
-         r"\texttt{CORRECTIONS.md} in the project repository.", "",
+         r"the project\'s correction record, released with the analysis code.", "",
          r"\section{Corrections That Changed a Printed Number}", "", r"\singlespacing",
          r"\renewcommand{\arraystretch}{0.9}",
          r"\footnotesize",
@@ -162,7 +192,8 @@ def main():
           f"{len(remaining)} further corrections were issued during the work. Each withdrew, "
           "narrowed, or confirmed a claim against evidence, but none changed a number that survives "
           "into the six chapters above: " + esc(as_ranges(remaining))
-          + r". Full text for each is in \texttt{CORRECTIONS.md}.", ""]
+          + r". Full text for each is in the project\'s correction record, "
+          r"released with the analysis code.", ""]
 
     if revs:
         a += [r"\section{Revisions After the Record Closed}", "",

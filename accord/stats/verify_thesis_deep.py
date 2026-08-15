@@ -230,6 +230,18 @@ def pass9_template():
             problems += 1
         print(f"   abstract: {n_words} words, {len(paras)} paragraph(s)")
 
+    # No internal repository filename may reach the page. Working notes name
+    # their own files freely; a bound thesis cites an appendix or a commit, not
+    # a path a reader cannot open. Checked on the rendered PDF, because the
+    # generated appendices are the likeliest source and they are not in the tex.
+    pdf = THESIS / "main_msu.pdf"
+    if pdf.exists() and shutil.which("pdftotext"):
+        r = subprocess.run(["pdftotext", str(pdf), "-"],
+                           capture_output=True, text=True)
+        for m in re.finditer(r"\S*\.(?:md|ipynb)\b", r.stdout):
+            print(f"   internal filename on the page: {m.group(0)}")
+            problems += 1
+
     main = (THESIS / "main_msu.tex").read_text()
     for pat, what in [
         (r"\\documentclass\[12pt\]\{report\}", "12pt report class"),
