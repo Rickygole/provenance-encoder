@@ -34,7 +34,10 @@ ROOT = pathlib.Path("/Users/rickygole/provenance-encoder")
 # =============================================================================
 # Fig 5 -- fig-prevalence-response
 # =============================================================================
-d = json.loads((ROOT / "accord/prevalence_replication/results/sweep_results.json").read_text())
+# The copy under results/, not the one under accord/prevalence_replication/.
+# The two files are byte-identical; only this one is inside the tree that gets
+# copied to a runtime, so reading it is what lets this figure build in Colab.
+d = json.loads((ROOT / "results/accord/prevalence_replication/sweep_results.json").read_text())
 models, prompts = d["models"], ["A_bare", "B_baserate_abstain"]
 # The clinical comparison point is recomputed from the same two diagnostic
 # files figures 1 and 2 draw, never typed.
@@ -217,9 +220,15 @@ fam_auroc = [
      _df34["bootstrap"]["ci95"][0] - 0.5, _df34["bootstrap"]["ci95"][1] - 0.5,
      EMERALD),
 ]
-_pb2 = [json.loads((ROOT / f"local_only/task_runs/concat_s{s}.json").read_text())["auroc"] for s in (1, 2, 3)]
-_ou2 = [json.loads(pathlib.Path(f).read_text())["auroc"]
-        for f in sorted(glob.glob(str(ROOT / "local_only/task_runs/ours_current_s*.json")))]
+# The per-seed mortality-task scores read from the committed aggregate rather
+# than from the quarantined per-run files under local_only/. The values are
+# identical (verified seed by seed); the committed file is the one that travels,
+# so the figure builds anywhere the repository does and nothing MIMIC-derived
+# has to leave its quarantine for a figure to be drawn.
+_task_runs = json.loads((ROOT / "results/task_runs.json").read_text())
+_pb2 = [_task_runs[f"concat_s{s}"]["auroc"] for s in (1, 2, 3)]
+_ou2 = [_task_runs[k]["auroc"] for k in sorted(_task_runs)
+        if k.startswith("ours_current_s")]
 _g = st.mean(_pb2) - st.mean(_ou2)
 _se = math.sqrt(st.stdev(_pb2) ** 2 / 3 + st.stdev(_ou2) ** 2 / 3)
 _sc = json.loads((ROOT / "results/accord/scaling/scaling_results.json").read_text())
