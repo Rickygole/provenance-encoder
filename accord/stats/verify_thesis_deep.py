@@ -234,11 +234,18 @@ def pass9_template():
     # their own files freely; a bound thesis cites an appendix or a commit, not
     # a path a reader cannot open. Checked on the rendered PDF, because the
     # generated appendices are the likeliest source and they are not in the tex.
+    #
+    # The gate covered .md and .ipynb only. The author's reading of the bound
+    # draft found eleven script paths still set in \texttt{} inside sentences
+    # ("i dont think a thesis will have the notebook coded in it") and every one
+    # of them was a .py, which this pass would have caught had it looked. It
+    # now looks for .py, .csv and .json as well, so the eleven rewrites cannot
+    # regress one sentence at a time.
     pdf = THESIS / "main_msu.pdf"
     if pdf.exists() and shutil.which("pdftotext"):
         r = subprocess.run(["pdftotext", str(pdf), "-"],
                            capture_output=True, text=True)
-        for m in re.finditer(r"\S*\.(?:md|ipynb)\b", r.stdout):
+        for m in re.finditer(r"\S*\.(?:md|ipynb|py|csv|json)\b", r.stdout):
             print(f"   internal filename on the page: {m.group(0)}")
             problems += 1
 

@@ -154,7 +154,7 @@ the confirmed contradictions inside it, which is what the whole path yields.
 \begin{figure}[!t]
 
 \centering
-\includegraphics[width=0.80\linewidth]{figures/fig-cohort-flow.pdf}
+\includegraphics[width=0.88\linewidth]{figures/fig-cohort-flow.pdf}
 \caption[Cohort flow from the source database to the evaluated sets]{The path
 from the source database to the evaluated sets, with the count at each stage and
 the exclusions recorded as counts. Two intermediate exclusions are not drawn
@@ -277,7 +277,7 @@ T_3(a,d) = \exists\,(m_N, m_D):\
 \mathrm{unit}(m_N) = \mathrm{unit}(m_D)\ \wedge\
 \frac{\max - \min}{\max} > \tau ,
 \]
-with $\tau = 0.20$ as set in \texttt{accord/dictionaries.py}. The threshold is a judgement call
+with $\tau$ fixed at $0.20$ in the mining implementation. The threshold is a judgement call
 with no empirical derivation, it is not tuned, and it is not clinically grounded, since a given
 proportional change in a statin dose and the same change in a warfarin dose are not comparable
 events. Its exemplar selection is correct by construction, because the exemplar is the pair
@@ -493,8 +493,8 @@ model stochasticity and not different training data. The seed setter is called i
 process rather than once at import time, because a documented earlier defect was that reported
 seeds did not control independent runs, and one process is launched per seed so no session state
 carries across runs. Optimisation uses AdamW at learning rate $2\times 10^{-5}$ with weight decay
-$0.01$, batch size 16, three epochs and a maximum sequence length of 160 tokens
-(\texttt{accord/control/train.py}).
+$0.01$, batch size 16, three epochs and a maximum sequence length of 160 tokens, all fixed in
+the control model's training routine rather than swept.
 
 Two floor baselines are trained on the identical pool and split so the comparison is like for like:
 a majority-class predictor assigning every gold row a constant score equal to the training-pool
@@ -689,17 +689,16 @@ disparity has not failed to detect one; it was applied to a model that could not
 The precondition is enforced before the audit runs rather than interpreted afterwards. The
 reference classifier must clear a pre-registered non-degeneracy bar on the validation split: a
 minimum AUROC of $0.65$, a predicted-positive rate strictly inside the interval $0.05$ to $0.50$,
-and a precision lift over the base rate of at least $1.5$
-(\texttt{accord/selection\_experiment/classifier.py}). If any of the three fails, the driver exits
-and the sweep does not run.
+and a precision lift over the base rate of at least $1.5$. All three are asserted in code before
+the sweep begins: if any of them fails, the driver exits and the sweep does not run.
 
 A planted-gap positive control runs immediately afterwards and before any substantive measurement.
 A known logit shift is injected into one group's scores on the full population with no selection
 filtering, and the audit code must recover it: the bootstrap interval on the demographic parity gap
 must exclude zero, and the four-fifths ratio must fall below its threshold with an interval upper
 bound below one. If the audit cannot recover a gap placed there deliberately, every downstream
-number is void and the script aborts rather than reporting them
-(\texttt{accord/selection\_experiment/run\_experiment.py}). The precondition also applies
+number is void, and the experiment driver aborts rather than reporting them. The precondition
+also applies
 retrospectively to an earlier audit in this project and fails there, which is why no subgroup harm
 is demonstrated or claimed anywhere in this thesis.
 
@@ -849,9 +848,9 @@ Two systems scored on the same rows produce correlated ROC curves, so an unpaire
 overstates the variance of their difference. Comparisons between the control model and the
 detector, and between individual seeds and the detector, use the DeLong test for correlated areas
 \citep{delong1988comparing}, which estimates the covariance of the two areas from the same subjects
-and returns a $z$ statistic and a two-sided $p$ value. The implementation is committed at
-\texttt{accord/control/delong.py} and the per-comparison outputs, including the standard error of
-the difference, are written to the control report rather than recomputed in prose.
+and returns a $z$ statistic and a two-sided $p$ value. The implementation is committed with the
+analysis code released alongside this thesis, and the per-comparison outputs, including the standard
+error of the difference, are written to the control report rather than recomputed in prose.
 
 \subsection{Minimum detectable effect}
 
@@ -869,8 +868,8 @@ candidate value $a$ itself rather than at the null, and finds the smallest $a$ s
 $(a - 0.5) / \sqrt{\mathrm{Var}(a)} \geq z_{1-\alpha/2} + z_{1-\beta}$ by search, since
 $\mathrm{Var}(a)$ depends on $a$. An earlier version of this table printed a minimum detectable
 AUROC of $0.7382$ for the primary stratum that reproduced under neither procedure computed
-precisely; \texttt{accord/stats/recompute\_mde.py} implements the full procedure and the values
-below are its output (Appendix~\ref{app:corrections}, R9). Table~\ref{tab:m-mde} evaluates this under
+precisely; the full procedure was reimplemented and rerun for this thesis, and the values below are
+that recomputation's output (Appendix~\ref{app:corrections}, R9). Table~\ref{tab:m-mde} evaluates this under
 each treatment of the ambiguous rows and on the defect-free stratum
 (Figure~\ref{fig:power}, Chapter~\ref{ch:results}).
 
@@ -902,9 +901,8 @@ variability and means they exclude sampling variance.
 Error bars reported as $\pm$ are standard deviations across those three seeds, not standard errors
 and not confidence intervals. The convention has to be stated because it is not uniform in the
 underlying artifacts. The subject-disjoint control computes the across-seed standard deviation with
-$\mathrm{ddof} = 1$, the sample convention (\texttt{accord/control/report.py}), while the
-decontamination analysis computes it with $\mathrm{ddof} = 0$, the population convention
-(\texttt{accord/stats/audit\_recompute.py}). At three seeds the two differ materially, so every
+$\mathrm{ddof} = 1$, the sample convention, while the decontamination analysis computes it with
+$\mathrm{ddof} = 0$, the population convention. At three seeds the two differ materially, so every
 reported spread in Chapter~\ref{ch:results} carries its convention explicitly, and no spread
 computed under one convention is compared against a spread computed under the other.
 

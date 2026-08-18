@@ -49,10 +49,19 @@ TOLERANCE = 0.05
 plt.rcParams["hatch.color"] = SLATE
 plt.rcParams["hatch.linewidth"] = 0.7
 
-fig = plt.figure(figsize=(FIGW, 2.80))
+# 2.85in, not the 3.06 a proportional growth would give: at 0.98 of the measure
+# 3.06 puts the block at 4.50in and this figure into class B, and its whole
+# design brief was a single-page-share float. The width takes the growth
+# instead, and the heatmap field goes from 3.28in wide to 3.77in, which is
+# where the illegibility actually was.
+fig = plt.figure(figsize=(FIGW, 2.85))
 canvas(fig)
-ax = fig.add_axes([0.098, 0.212, 0.612, 0.578])
-cax = fig.add_axes([0.898, 0.212, 0.028, 0.578])
+ax = fig.add_axes([0.08973, 0.20828, 0.64473, 0.60002])
+# The colourbar sits 0.017 further left than an absolute-margin conversion puts
+# it: its rotated label plus its widest tick ran 6.5pt past the right edge and
+# the tight box grew to catch them, which costs the drawn-at-printed-size
+# invariant the whole geometry rests on.
+cax = fig.add_axes([0.89000, 0.20828, 0.02564, 0.60002])
 im = ax.pcolormesh(B, R, Z, cmap=plt.get_cmap("viridis"), shading="nearest",
                    vmin=0, vmax=0.20)
 
@@ -117,16 +126,16 @@ def exit_x_top(cset, y_top, tol=1e-9):
     return sorted(out)
 
 
-AX_X0, AX_Y0, AX_W, AX_H = 0.098, 0.212, 0.612, 0.578
+AX_X0, AX_Y0, AX_W, AX_H = 0.08973, 0.20828, 0.64473, 0.60002
 y_pow = exit_y(ax.contour(B, R, under, levels=[0.5], colors=["none"],
                           linewidths=0, zorder=0))
-margin_x = 0.718
+margin_x = 0.74170
 if y_pow is not None:
     yf = AX_Y0 + AX_H * (y_pow - R.min()) / (R.max() - R.min())
     fig.text(margin_x, yf, "power limit", ha="left", va="center",
              fontsize=T_SERIES, color=GRAPHITE)
     fig.patches.append(plt.Rectangle(
-        (0.710, yf - 0.0022), 0.006, 0.0044, transform=fig.transFigure,
+        (0.73446, yf - 0.0022), 0.005467, 0.0044, transform=fig.transFigure,
         facecolor=GRAPHITE, edgecolor="none", zorder=8))
 
 tol_x = exit_x_top(cs_tol, R.max())
@@ -136,10 +145,10 @@ if tol_x:
     xt = tol_x[-1]
     xf = AX_X0 + AX_W * (xt - B.min()) / (B.max() - B.min())
     fig.patches.append(plt.Rectangle(
-        (xf - 0.0011, AX_Y0 + AX_H), 0.0022, 3.0 / (72 * 2.80),
+        (xf - 0.0010, AX_Y0 + AX_H), 0.0020, 3.0 / (72 * 2.85),
         transform=fig.transFigure, facecolor=GRAPHITE, edgecolor="none",
         zorder=8))
-    fig.text(xf, AX_Y0 + AX_H + 5.0 / (72 * 2.80), f"{TOLERANCE} tolerance",
+    fig.text(xf, AX_Y0 + AX_H + 5.0 / (72 * 2.85), f"{TOLERANCE} tolerance",
              ha="center", va="bottom", fontsize=T_SERIES, color=GRAPHITE)
 
 # The inability statement is carried on canvas by the headline and by the

@@ -89,10 +89,10 @@ from style import (
     ENTITY_HUE, NON_ENTITY_MEASUREMENT,
     T_HEADLINE, T_CLAIM, T_DECK, T_AXIS, T_TICK, T_SERIES, T_NOTE, T_PANEL,
     T_CHIP, T_FLOOR,
-    LW_SIGNATURE, LW_PLATE, LW_SPINE, LW_GRID, LW_DATA, LW_REF, LW_INTERVAL,
+    LW_PLATE, LW_SPINE, LW_GRID, LW_DATA, LW_REF, LW_INTERVAL,
     LW_NODE, LW_CHIP, LW_CONNECTOR, LW_BAR,
     MS_DOT, MS_MARK, MS_BARE, MS_SEED, REF_DASH, ERRBAR, DOT,
-    FIGW, PRINT_W, W90, W80, figw, canvas,
+    FIGW, PRINT_W, W98, W88, figw, canvas,
     frame, plate, signature, panel_label, arrow, chip, node, band, case, cased,
     wilson_ci,
 )
@@ -184,7 +184,7 @@ def make_fig_pipeline_status():
     # order down the page plus the index column carries the sequence, and six
     # arrows on a band chart is noise. Drawn on a strict point grid, one data
     # unit to one typographic point, so the bands are identical by construction.
-    W, H = FIGW, 3.10
+    W, H = FIGW, 3.39
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
     plate(fig)
@@ -233,8 +233,14 @@ def make_fig_pipeline_status():
     x_chip, w_chip = 0.400 * plate_w, 0.157 * plate_w
     x_detail = x_chip + w_chip + 0.022 * plate_w
     x_diag = 0.795 * plate_w
-    band_h, gutter = 29.4, 3.0
+    # The band height is SOLVED for, not set, so that six bands and five
+    # gutters exactly fill the plate between the headline and the bottom inset.
+    # It used to be the constant 29.4, which fitted the old 3.10in canvas to
+    # within 1.8pt by hand; on the taller canvas the author asked for, a
+    # constant would have left a 22pt white shelf under the last row.
     y_top = H * 72 - 30.0
+    gutter, y_floor = 3.3, 6.0
+    band_h = (y_top - y_floor - 5 * gutter) / 6
     for i, (name, verdict, detail, diag, state) in enumerate(rows):
         tint, deep, chip_hue = STATE[state]
         y = y_top - (i + 1) * band_h - i * gutter
@@ -251,7 +257,8 @@ def make_fig_pipeline_status():
                 fontsize=10.0, color=deep, zorder=5)
         ax.text(x_name, mid, name, ha="left", va="center", fontsize=10.5,
                 color=INK, linespacing=1.18, zorder=5)
-        chip(ax, x_chip, mid - 8.0, w_chip, 16.0, chip_hue, verdict,
+        chip_h = band_h * 16.0 / 29.4          # the chip keeps its share of the band
+        chip(ax, x_chip, mid - chip_h / 2, w_chip, chip_h, chip_hue, verdict,
              fontsize=T_CHIP, radius=3.0, zorder=5)
         if detail:
             ax.text(x_detail, mid, detail, ha="left", va="center",
@@ -303,15 +310,14 @@ def make_fig_intro_headline():
     # first family, drawn identically 85 pages later, and Figure 8 is now the
     # one place every headline estimate in this thesis lives. What remains is
     # the number the rest of the thesis follows: a rate of a whole, so bars.
-    fig, ax = plt.subplots(figsize=(FIGW, 2.55))
+    fig, ax = plt.subplots(figsize=(FIGW, 2.78))
     canvas(fig)
-    # top was 0.735, which left 11pt of dead paper between the headline and the
-    # frame. The sub-line is now one line by directive, so 250pt of scarlet type
-    # has left the white right-hand third of the plot; the axes takes back the
-    # dead band instead, which is where that ink should have come from anyway.
-    # 6.8pt of clearance remains under the headline's second line.
-    # top makes room for a two-line headline plus the deck beneath it.
-    fig.subplots_adjust(left=0.300, right=0.985, top=0.690, bottom=0.170)
+    # The margins are held at their old ABSOLUTE size and the whole of the
+    # canvas's growth is given to the axes: the type in the margins is still
+    # 9pt, so a margin that grew with the canvas would only have bought white
+    # paper. The top margin is 3pt smaller than it was, which is the space the
+    # signature bar used to occupy.
+    fig.subplots_adjust(left=0.2747, right=0.9863, top=0.7306, bottom=0.1559)
 
     bars = [("Weak labeller, train pool", weak_pos, weak_n, wilson_ci(weak_pos, weak_n)),
             ("Weak labeller, gold set", pred_pos, pred_n, wilson_ci(pred_pos, pred_n)),
@@ -326,7 +332,12 @@ def make_fig_intro_headline():
     # both of its rows; the pharmacist carries the truth hue.
     hues = [PLUM, PLUM, EMERALD]
 
-    ax.set_xlim(0, 1.86)
+    # 1.56, not 1.86. The right third of the old range held nothing at all: the
+    # bracket and the multiplier end at 1.42 and the ticks stop at 1.0. On a
+    # canvas that is now 9 percent wider that dead band was the largest single
+    # area of white on the sheet, and closing it makes the three measured bars
+    # 19 percent longer without changing one number.
+    ax.set_xlim(0, 1.56)
     ax.set_ylim(-0.66, 2.66)
     # The gap between the pharmacist's rate and the weak labeller's on the same
     # 299 pairs IS the finding, so it is drawn as a region rather than left for
@@ -368,7 +379,7 @@ def make_fig_intro_headline():
     # same 299-pair gold set; the training-pool bar has a different denominator
     # and is not part of the comparison.
     gold_ratio = (pred_pos / pred_n) / (pharm_pos / pharm_n)
-    x_br = 1.14
+    x_br = 1.16
     ax.plot([x_br] * 2, [ypos[2], ypos[1]], color=SCARLET_CORE, lw=LW_DATA,
             solid_capstyle="butt", zorder=6)
     for y in (ypos[1], ypos[2]):
@@ -382,7 +393,6 @@ def make_fig_intro_headline():
     ax.text(x_br + 0.06, (ypos[1] + ypos[2]) / 2, f"{gold_ratio:.0f}x",
             va="center", ha="left", fontsize=T_CLAIM, fontweight="bold",
             color=SCARLET_DEEP, zorder=6)
-
 
     signature(fig, PLUM_DEEP,
               f"The weak labeller calls {pred_pos/pred_n*100:.0f}% of gold-set "
@@ -457,7 +467,7 @@ def make_fig_exemplar():
     # about instruments that mislead, built on a MIMIC-III data agreement, does
     # not put invented clinical text on a canvas where a reader could take it
     # for a record. One data unit is one typographic point.
-    W, H = W80, 2.45
+    W, H = W88, 2.70
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
     plate(fig)
@@ -466,10 +476,15 @@ def make_fig_exemplar():
     ax.set_ylim(0, H * 72)
     ax.axis("off")
 
-    x_nurse, x_disch, box_w = 58.0, 158.0, 84.0
-    x_note = 222.0
-    box_h, pitch = 19.0, 21.8
-    y_row0 = 106.0
+    # Every constant below is a typographic point on the plate, and the plate
+    # is 10 percent wider and taller than it was. The slot grid grows with it
+    # rather than sitting at its old size in a bigger frame: the type inside a
+    # slot is still 9pt, so a bigger slot is a slot with more air in it, which
+    # is what "make it bigger" has to mean when the type cannot move.
+    x_nurse, x_disch, box_w = 64.0, 174.0, 92.0
+    x_note = 244.0
+    box_h, pitch = 21.0, 24.0
+    y_row0 = 116.0
     rows_y = [y_row0 - i * pitch for i in range(5)]
     x_right = W * 72 - 1.5
 
@@ -481,18 +496,18 @@ def make_fig_exemplar():
 
     # The trigger bracket over the two column heads: the rule quantifies over
     # the whole set, which is the fact the positional selector ignores.
-    y_br = 133.0
+    y_br = 148.0
     ax.plot([x_nurse, x_disch], [y_br, y_br], color=COBALT_CORE, lw=LW_DATA,
             solid_capstyle="butt", zorder=4)
     for x in (x_nurse, x_disch):
-        ax.plot([x, x], [y_br - 5.0, y_br], color=COBALT_CORE, lw=LW_DATA,
+        ax.plot([x, x], [y_br - 5.5, y_br], color=COBALT_CORE, lw=LW_DATA,
                 solid_capstyle="butt", zorder=4)
     ax.text(x_disch + 14.0, y_br, "the rule quantifies over the whole set",
             ha="left", va="center", fontsize=T_SERIES, color=COBALT_DEEP,
             zorder=5)
 
     for x, head in ((x_nurse, "Nursing note"), (x_disch, "Discharge summary")):
-        ax.text(x, 120.0, head, ha="center", va="center", fontsize=10.0,
+        ax.text(x, 133.0, head, ha="center", va="center", fontsize=10.0,
                 color=INK, zorder=5)
 
     nurse_tags = ["M1", "M2", "M3", "M4", "M5"]
@@ -768,9 +783,20 @@ def make_fig_met_exchange():
     N = TN0 + FP0
     mcc0 = mcc_from_counts(TP0, TN0, FP0, FN0)
 
-    fig, ax = plt.subplots(figsize=(FIGW, 3.10))
+    fig, ax = plt.subplots(figsize=(FIGW, 3.39))
     canvas(fig)
-    fig.subplots_adjust(left=0.118, right=0.760, top=0.800, bottom=0.150)
+    # The right margin is wide because the three slope labels live in it, and
+    # it is a fixed number of 9pt lines wide however big the canvas gets.
+    # right=0.69626, not the 0.7802 that holds the old margin absolute. The
+    # three slope labels sit in this margin and the longest of them measures
+    # 118.4pt; at 0.7802 it ran 35pt off the right edge of the canvas, savefig's
+    # tight box grew to catch it, and \includegraphics then scaled the whole
+    # figure DOWN by 8.3 percent to fit the measure -- which set this figure's
+    # "9pt" type at 8.3pt on the page, under the set's own floor. The margin now
+    # holds the longest label exactly, the canvas comes out at its nominal
+    # width, and the plot prints 9 percent larger than it did even though its
+    # drawn width is unchanged.
+    fig.subplots_adjust(left=0.1080, right=0.69626, top=0.8294, bottom=0.1372)
     # Zoomed to the occupied wedge. The old range ran to x = 12 only to give the
     # two long leaders somewhere to go, and the leaders are gone. Starting at a
     # negative x is what pulls the boxed left spine off the origin cluster.
@@ -841,7 +867,7 @@ def make_fig_met_exchange():
         (float(dtn_curve[-1]), f"MCC through ACCORD ({mcc0:.3f})"),
     ]
     exits.sort(key=lambda e: -e[0])
-    pt_per_y = (0.800 - 0.150) * 3.10 * 72 / (Y_HI - Y_LO)
+    pt_per_y = (0.8294 - 0.1372) * 3.39 * 72 / (Y_HI - Y_LO)
     placed_y = []
     for y, text in exits:
         yy = y
@@ -1084,7 +1110,7 @@ def make_fig_disc_actionability():
     inside of the band carries the phase names and nothing else. The field
     detail that used to ride these labels in parentheses is in the caption.
     """
-    W, H = FIGW, 1.95
+    W, H = FIGW, 2.13
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
     plate(fig)
@@ -1093,10 +1119,13 @@ def make_fig_disc_actionability():
     ax.set_ylim(0, H * 72)
     ax.axis("off")
 
-    x_nurse, x_order, x_disch, x_summary = 48.0, 150.0, 268.0, 336.0
+    # The point grid moves with the plate, which is 9 percent larger in both
+    # directions than it was; the type on it does not move, so the timeline
+    # gains air rather than size.
+    x_nurse, x_order, x_disch, x_summary = 52.0, 164.0, 293.0, 367.0
     x0, x1 = 1.5, W * 72 - 1.5
-    g_lo, g_hi = 10.0, 112.0
-    band_lo, band_hi = 52.0, 68.0          # the 16pt band
+    g_lo, g_hi = 11.0, 122.0
+    band_lo, band_hi = 57.0, 74.0          # the phase band
     mid = (band_lo + band_hi) / 2
 
     phases = [
@@ -1137,8 +1166,8 @@ def make_fig_disc_actionability():
         ax.text(x1 - 4.0 if ha == "right" else x, band_hi + dy, label, ha=ha,
                 va="bottom", fontsize=T_SERIES, color=tone, zorder=6)
 
-    y_mark = band_lo - 9.0
-    y_note = band_lo - 20.0
+    y_mark = band_lo - 10.0
+    y_note = band_lo - 22.0
     # The point a detector could have fired: a proposal that was measured, so a
     # CORE mark in the entity blue rather than an accent.
     ax.plot([x_order], [y_mark], "o", color=COBALT_CORE, markersize=MS_MARK,
@@ -1218,7 +1247,12 @@ def make_fig_cohort_flow():
     # group reads as a group and the boxes still read as boxes; a band and its
     # boxes in one stop would differ only by their strokes. One data unit is
     # one typographic point.
-    W, H = W80, 3.80
+    # 3.86in, not the 4.18 a proportional growth would give: at 0.88 of the
+    # measure the block height is the printed graphic plus 1.40in of caption
+    # allowance, and 4.18 puts this figure at 5.62in, inside the 5.34 to 6.89
+    # band that produces bottom-gapped pages. The height is what gives; the
+    # type does not.
+    W, H = W88, 3.86
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
     plate(fig)
@@ -1255,10 +1289,10 @@ def make_fig_cohort_flow():
     # short of the gutter: back edge 231.6, box stroke outer edge 226.6, 5.0pt
     # of clear paper between them. The gutter node loses 2pt of the 8pt it had
     # spare on its longest line.
-    box_x, box_w = 24.0, 202.0
-    x_gut = 242.0
+    box_x, box_w = 26.0, 222.0
+    x_gut = 268.0
     stub_gap = 3.0
-    box_h, last_h, gap = 17.0, 28.0, 8.0
+    box_h, last_h, gap = 17.0, 28.0, 8.5
     y_top = H * 72 - 44.0
     tops, y = [], y_top
     for i in range(len(stages)):

@@ -18,6 +18,17 @@ reflex. It is deleted. The rules it stated that are now DEAD:
     no figure carries a title          -> every figure carries a finding headline
     DejaVu Serif pinned                -> STIXGeneral pinned
 
+WHAT v3 ITSELF GOT WRONG, and the author struck out. v3 opened with a 3pt
+coloured rule flush to the top edge of every canvas and called it "the rule that
+makes twelve figures one set". It did not. Read on the page it is a red line
+hanging off the top border with nothing under it but white, and the author asked
+for it off figures 2, 4, 7, 9, 10, 11 and 12 by name. It is gone from all twelve,
+because a set in which six figures carry a coloured rule and six do not is worse
+than either. signature() survives and still sets the headline and the deck; it
+just no longer draws a bar, and the 3pt it occupied is given back to the
+headline. Nothing in this module now claims the bar unifies the set: the claim
+was false and a maintainer who found it here would put the bar back.
+
 WHAT SURVIVED, unchanged and absolute:
 
     No legends. Series are labelled at their own mark in their own DEEP tone.
@@ -168,6 +179,25 @@ ENTITY_HUE = {
 # entity, so they take the structural measurement tone rather than a hue.
 NON_ENTITY_MEASUREMENT = GRAPHITE
 
+# NO HUE WAS RE-BASED FOR THE PREVALENCE GRID, and the arithmetic is why.
+# The author asked figure 5 for "more vibrant colours". Its three series are
+# llama3:8b PLUM, granite3.3:8b AMBER, qwen3:8b COBALT, and PLUM and COBALT are
+# also figures 2, 8 and 12, so any change there is a change to the whole set.
+# The greyscale ladder of the CORE stops is the binding constraint:
+#
+#   COBALT 73.9 · SCARLET 82.8 · PLUM 96.3 · EMERALD 113.1 · SLATE 136.9
+#   · AZURE 146.0 · AMBER 168.9
+#
+# COBALT_CORE already sits at the ladder's minimum adjacent gap of 8.9, against
+# SCARLET; brightening it closes that gap and costs the black-and-white
+# guarantee on figure 7, which draws both. AMBER_CORE is already the lightest
+# stop on the ladder at 2.07:1 on white, so brightening it makes the granite
+# series LESS legible, not more. PLUM has the only real headroom and moving one
+# of three would unbalance the row. Figure 5's vibrancy therefore comes from
+# mark weight and from a y-axis that lets the marks fill the panel, not from
+# new hexes: see fig_batch2.py. The ramps are colour-blind verified and they
+# stay.
+
 # ---------------------------------------------------------------------------
 # 4. TYPE SCALE. Every figure is drawn at its printed size (scale 1.0), so a
 # drawn point is a page point.
@@ -186,7 +216,6 @@ T_FLOOR = 8.5
 # ---------------------------------------------------------------------------
 # 5. LINE WEIGHTS. The whole set, no exceptions.
 # ---------------------------------------------------------------------------
-LW_SIGNATURE = 3.0     # bar height in points
 LW_PLATE = 1.0
 LW_SPINE = 0.9
 LW_GRID = 0.6
@@ -202,6 +231,12 @@ MS_DOT = 6.6
 MS_MARK = 6.2          # marker, non-dot
 MS_BARE = 6.6          # open, 1.2pt edge in X_BARE
 MS_SEED = 3.2          # SLATE, solid
+
+# The headline's top edge, in points below the top edge of the canvas. It was
+# 10.0: a 3.0pt signature bar plus a 7.0pt gap. The bar is gone and the 3.0pt it
+# held is given back, so the headline sits 7.0pt from the top and every figure
+# starts a little higher on the page than it did.
+PAD_HEADLINE = 7.0
 
 REF_DASH = (0, (4, 2.4))
 ERRBAR = dict(elinewidth=LW_INTERVAL, capthick=LW_INTERVAL, capsize=3.2)
@@ -262,10 +297,15 @@ def setup():
 # ---------------------------------------------------------------------------
 # 7. MEASURE
 # ---------------------------------------------------------------------------
-# \textwidth is 433.62pt = 6.014in. Two width classes only, 0.90 and 0.80.
+# \textwidth is 433.62pt = 6.014in. Two width classes only.
+#
+# They were 0.90 and 0.80 of \linewidth. The author asked for every figure to be
+# bigger, on ten of the twelve by name, so they are now 0.98 and 0.88: about a
+# 9 percent linear increase, and 0.98 rather than 1.00 because a graphic set
+# flush to both margins reads as a bleed rather than as a figure. The drawn
+# width moves with the printed width and NOT with a scale factor, which is the
+# invariant that keeps 9pt type actually 9pt on the page.
 TEXTWIDTH_IN = 6.014
-FIGW = 5.36            # the 0.90 class, drawn
-PRINT_W = 5.40
 
 
 def figw(frac):
@@ -278,8 +318,9 @@ def figw(frac):
     return printed - 0.04, printed
 
 
-W90, _ = figw(0.90)    # 5.3726 -> the roster's 5.36 rounds to this
-W80, _ = figw(0.80)    # 4.7712
+W98, PRINT_W = figw(0.98)   # 5.8537 drawn, 5.8937 printed
+W88, PRINT_W88 = figw(0.88)  # 5.2523 drawn, 5.2923 printed
+FIGW = W98                   # the wide class, drawn. Every plot uses it.
 
 
 def canvas(fig):
@@ -335,19 +376,22 @@ def plate(fig):
 
 
 def signature(fig, hue_deep, headline=None, deck=None, headline_x=None):
-    """The rule that makes twelve figures one set.
+    """The headline block: one line stating what the figure FOUND, never what
+    it plots, at 13pt against a 12pt body, so the figure stops reading as an
+    inclusion, plus an optional 9.5pt MUTE deck under it.
 
-    A 3.0pt-tall solid bar flush to the top inside edge of the canvas, running
-    its full width, in this figure's dominant DEEP hue. The headline sits 7pt
-    below it: one line stating what the figure FOUND, never what it plots, at
-    13pt against a 12pt body, so the figure stops reading as an inclusion.
+    It used to draw a 3.0pt bar in hue_deep flush to the top edge as well. That
+    bar is gone by the author's instruction, on all twelve figures rather than
+    on the seven they named, because half a set with a coloured rule and half
+    without is worse than either. hue_deep stays in the signature and is
+    deliberately unused: every call site names the figure's dominant hue, that
+    naming is the one place each figure declares which hue it is built on, and
+    deleting the argument would delete twelve statements of intent to save
+    twelve tokens. The 3.0pt the bar held is given back to the headline, which
+    now sits PAD_HEADLINE from the top instead of 10.0.
     """
     h_in = fig.get_size_inches()[1]
-    bar_h = LW_SIGNATURE / (72 * h_in)
-    fig.patches.append(Rectangle((0, 1 - bar_h), 1, bar_h,
-                                 transform=fig.transFigure, facecolor=hue_deep,
-                                 edgecolor="none", zorder=20, clip_on=False))
-    y = 1 - (LW_SIGNATURE + 7.0) / (72 * h_in)
+    y = 1 - PAD_HEADLINE / (72 * h_in)
     x = 0.012 if headline_x is None else headline_x
     if headline:
         fig.text(x, y, headline, ha="left", va="top", fontsize=T_HEADLINE,

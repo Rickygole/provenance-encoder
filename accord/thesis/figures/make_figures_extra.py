@@ -105,14 +105,32 @@ f1 = [transfer["hf_reference"]["rule_type_f1"], transfer["sepsis"]["rule_type_f1
 n_cand = [transfer["hf_reference"]["n_candidates"], transfer["sepsis"]["n_candidates"],
           transfer["aki"]["n_candidates"]]
 
-fig, (a, b) = plt.subplots(1, 2, figsize=(FIGW, 2.45),
+fig, (a, b) = plt.subplots(1, 2, figsize=(FIGW, 2.68),
                            gridspec_kw={"width_ratios": [1.06, 1.0]})
 canvas(fig)
-fig.subplots_adjust(left=0.128, right=0.985, top=0.700, bottom=0.235, wspace=0.34)
+fig.subplots_adjust(left=0.1172, right=0.9863, top=0.7413, bottom=0.2148,
+                    wspace=0.34)
 
 # ---- (a) the dumbbell ------------------------------------------------------
+# WHAT CAME OFF THIS PANEL, and why. The author called this figure busy. Panel
+# (a) carried a tinted band, a two-line band label, two dumbbells, three seed
+# dots per row, a percentage at each dumbbell's head and a two-line row label:
+# six kinds of thing on two rows of data. Two of them said the same sentence
+# twice. The band label read "neither left a 2% band" and the row labels read
+# "+0.4%" and "+1.5%", which is the same claim in prose and in figures, and the
+# figures are the measurement. THE PROSE WENT AND THE NUMBERS STAYED. The band
+# stays as a ground and is named on the axis instead, where a tolerance belongs;
+# the seed dots stay, because three seeds landing on top of each other is
+# evidence and not decoration.
 TOL = 0.02
-a.axvspan(1 - TOL, 1 + TOL, facecolor=SCARLET_TINT, edgecolor="none",
+# WASH, not TINT. The band covers three quarters of this panel, and at TINT
+# that is a saturated field with two grey dumbbells on it: the ground was
+# louder than the data it exists to locate. At WASH it is the same ground
+# panel (b) uses, so the two panels now say "this is where it fails" in one
+# tone, and it costs nothing measurable -- SCARLET_TINT sits at HSV saturation
+# 0.233, under the 0.25 gate the ink tool counts at, so it registered as
+# chroma 0 either way.
+a.axvspan(1 - TOL, 1 + TOL, facecolor=SCARLET_WASH, edgecolor="none",
           linewidth=0, zorder=0)
 moved = []
 for i, (init, mean, sds) in enumerate(((INIT_N, aN, seed_N),
@@ -125,26 +143,32 @@ for i, (init, mean, sds) in enumerate(((INIT_N, aN, seed_N),
     # own line they were neither hidden nor visible: a grey crescent behind the
     # final dot that reads as a print smudge. They drop to their own sub-row,
     # true x, where three dots read as three seeds.
-    a.plot([s_ / init for s_ in sds], [i - 0.32] * len(sds), "o", color=SLATE,
+    a.plot([s_ / init for s_ in sds], [i - 0.30] * len(sds), "o", color=SLATE,
            ms=MS_SEED, markeredgewidth=0, zorder=5)
     a.plot([1.0], [i], "o", markerfacecolor=PAPER, markeredgecolor=GRAPHITE,
            markeredgewidth=1.2, ms=MS_DOT, zorder=4)
     a.plot([ratio], [i], "o", color=GRAPHITE, ms=MS_DOT, zorder=6)
-    a.text(ratio + 0.0026, i, f"{(ratio - 1) * 100:+.1f}%",
-           fontsize=T_NOTE, color=MUTE, va="center", ha="left", zorder=6)
-case(a.text(1 - TOL + 0.0012, 2.00,
-            f"reported as learned:\nneither left a {TOL * 100:.0f}% band",
-            fontsize=T_NOTE, color=SCARLET_DEEP, ha="left", va="top",
-            linespacing=1.24, zorder=6))
+    # GRAPHITE at 9pt: the movement is a measured quantity that is not an
+    # entity, the dumbbell it labels is drawn in GRAPHITE, and a series is
+    # labelled in its own mark's tone. It was 8.5pt MUTE, which is the tone for
+    # secondary annotation, and this is the panel's primary measurement.
+    a.text(ratio + 0.0030, i, f"{(ratio - 1) * 100:+.1f}%",
+           fontsize=T_SERIES, color=GRAPHITE, va="center", ha="left",
+           zorder=6)
 a.set_yticks([1, 0])
 a.set_yticklabels([r"$\alpha_D$" + "\n(set to 1.00)",
                    r"$\alpha_N$" + "\n(set to 0.50)"],
                   fontsize=T_SERIES, linespacing=1.25)
-a.set_ylim(-0.72, 2.10)
+a.set_ylim(-0.60, 1.45)
 a.set_xlim(0.9755, 1.0295)
 a.set_xticks([0.98, 0.99, 1.00, 1.01, 1.02])
 a.set_xticklabels(["0.98", "0.99", "1.00", "1.01", "1.02"])
-a.set_xlabel("Final value, as a multiple\nof the initialisation",
+# The band is named on the axis, not on the field. A tolerance is a property
+# of the scale, and the two tick labels the band runs between already read
+# 0.98 and 1.02, so this line confirms what the axis shows instead of asserting
+# a second time what the two percentages beside the dumbbells already measure.
+a.set_xlabel("Final value, as a multiple of the initialisation\n"
+             f"(shaded band: within {TOL * 100:.0f}% of it)",
              linespacing=1.25)
 a.tick_params(axis="y", length=0)
 frame(a)
@@ -159,20 +183,22 @@ b.axvspan(0.5, 2.6, facecolor=SCARLET_WASH, edgecolor="none", linewidth=0,
           zorder=0)
 b.bar(xs, f1, width=0.62, color=fills, edgecolor=COBALT_DEEP,
       linewidth=LW_BAR, zorder=3)
-case(b.text(0.58, 0.985, "not fitted\nhere", ha="left", va="top",
-            linespacing=1.24,
-            fontsize=T_NOTE, color=SCARLET_DEEP, zorder=5))
-# The drop itself, from the top of the column the head was fitted on to the
-# top of the first column it was not.
-b.plot([0, 1], [f1[0], f1[1]], color=SCARLET_CORE, lw=LW_DATA, zorder=5)
-# The drop, written as a claim numeral, and written vertically, because that
-# is the shape of the finding. The arrow is a patch: never a dash, never two
-# keyboard characters.
-b.text(1.88, 0.86, f"{f1[0]:.2f}", ha="center", va="center", fontsize=T_CLAIM,
-       fontweight="bold", color=SCARLET_DEEP, zorder=6)
-arrow(b, (1.88, 0.73), (1.88, 0.48), color=SCARLET_CORE, lw=LW_DATA, zorder=6)
-b.text(1.88, 0.35, f"{f1[1]:.2f}", ha="center", va="center", fontsize=T_CLAIM,
-       fontweight="bold", color=SCARLET_DEEP, zorder=6)
+# MUTE, not SCARLET_DEEP. It names the ground it sits on, the ground is a
+# WASH and outside the scarlet budget, and the drop arrow below is this panel's
+# one saturated scarlet element.
+case(b.text(1.5, 0.985, "not fitted here", ha="center", va="top",
+            fontsize=T_NOTE, color=MUTE, zorder=5))
+# THE TWO 22pt NUMERALS CAME OFF. They read 0.96 and 0.07, set one above the
+# other beside a y axis that already runs 0 to 1.00 in quarters with the two
+# columns sitting on those exact values: the same two numbers, twice, a
+# centimetre apart. The author called the panel busy and this is what made it
+# so. The drop stays, because the drop is the geometry that carries the finding
+# and it reads at thumbnail size: a column at the top of the frame, a scarlet
+# line falling almost to the floor, and two columns that are barely there.
+# It starts at the fitted column's top right corner rather than at its centre:
+# from the centre the shaft ran down through the column it is measuring from.
+arrow(b, (0.34, f1[0] - 0.015), (0.97, f1[1] + 0.055), color=SCARLET_CORE,
+      lw=2.2, mutation_scale=15, zorder=6)
 b.set_xticks(xs)
 b.set_xticklabels([f"HF,\nin domain\nn = {n_cand[0]:,}",
                    f"sepsis\nn = {n_cand[1]:,}",

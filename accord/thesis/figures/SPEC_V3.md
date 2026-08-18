@@ -238,16 +238,19 @@ Multi-panel: every panel gets its own box. No outer plate on a plot.
 
 A rounded rectangle covering the full canvas, inset 1.5pt from every edge, corner radius 4pt, fill `PAPER`, stroke `PLATE_EDGE #C4CCDA` at 1.0pt. No inner axes box.
 
-### 3.3 The signature rule — what makes twelve figures one set
+### 3.3 The signature rule — WITHDRAWN BY THE AUTHOR
 
-**Every figure**, plot or schematic, carries a **3.0pt-tall solid bar flush to the top inside edge of the canvas, running its full width**, in that figure's dominant `DEEP` hue (specified per figure). The headline sits 7pt below it.
+This section specified a **3.0pt-tall solid bar flush to the top inside edge of every canvas**, in that figure's dominant `DEEP` hue, and claimed it was "the cheapest possible unification and the single thing that will make the bound set read as designed rather than assembled."
 
-This is the cheapest possible unification and it is the single thing that will make the bound set read as designed rather than assembled. One helper, `style.signature(fig, hue_deep)`.
+**It is withdrawn. There is no bar on any figure.** The author read the bound draft and asked for it off figures 2, 4, 7, 9, 10, 11 and 12 by name — *"the line above which shouldn't be there"*, *"the red line from the top border"* — and it comes off all twelve, because a set in which six figures carry a coloured rule and six do not is worse than either.
+
+The claim above was wrong in a specific way worth recording, because it is the kind of claim this spec makes often. On screen, at 100%, the bar reads as a masthead. On a bound page at 0.98 of the measure it is a 3pt coloured line hanging under the top of a float with nothing beneath it but the white above the headline, and it reads as printer's registration rather than as design. The unification is done by what was already doing it: one headline at 13pt in `INK`, one type scale, one palette, one frame system.
+
+`style.signature(fig, hue_deep, headline, deck)` survives with its whole signature intact and still sets the headline and the deck. `hue_deep` is now unused and is deliberately kept: every call site names the figure's dominant hue, which is the one place each figure declares what it is built on. The 3.0pt the bar occupied is given back — the headline now sits `PAD_HEADLINE` = 7.0pt from the top edge rather than 10.0pt, and each figure's top axes margin is 3pt smaller than it was.
 
 ### 3.4 Line weight table — the whole set, no exceptions
 
 ```
-signature bar         3.0pt tall
 plate stroke          1.0pt   PLATE_EDGE
 axes spine / tick     0.9pt   INK
 value grid            0.6pt   HAIR
@@ -338,9 +341,9 @@ Set-wide floors, gating: **coverage ≥ 0.28 and chroma ≥ 0.10 on every figure
 
 No connectors — top-to-bottom order plus the index column carries sequence, and six arrows on a full-width band chart is noise.
 
-Plate + signature bar in `SCARLET_DEEP`.
+Plate. (No signature bar: §3.3 is withdrawn.)
 **Headline:** *Five of six stages failed the diagnostic that was run on them, or had none.*
-**Draw** 5.36 × 3.10, `width=0.90\linewidth`. **Class B.**
+**Draw** 5.854 × 3.39, `width=0.98\linewidth`. **Class B** (block 4.83in).
 **Targets:** coverage ≥ 0.72, chroma ≥ 0.40.
 
 ---
@@ -358,9 +361,9 @@ Plate + signature bar in `SCARLET_DEEP`.
 - **the claim numeral:** `22x` set at **22pt bold `SCARLET_DEEP`** at the right, with a `SCARLET_CORE` bracket spanning only the two gold-set bars, and a 9pt `SCARLET_DEEP` sub-line *the weak labeller's marginal over the pharmacist's, same 299 pairs*
 - ground: a `SCARLET_WASH` band spanning the full plot height from x = the pharmacist rate to x = the weak-labeller gold rate — the gap *is* the finding, so draw it
 
-Signature bar `PLUM_DEEP`.
+Dominant hue `PLUM_DEEP`, named at the `signature()` call. (No bar: §3.3 is withdrawn.)
 **Headline:** *The weak labeller calls 87% of gold-set pairs contradictions. The pharmacist calls 4%.*
-**Draw** 5.36 × 2.55, `0.90`. **Class A.** Panel letters removed (single panel).
+**Draw** 5.854 × 2.78, `0.98`. **Class A** (block 4.22in). Panel letters removed (single panel). `xlim` closes from 1.86 to 1.56: the old right third held nothing and the bars take it.
 **Targets:** coverage ≥ 0.34, chroma ≥ 0.16.
 
 ---
@@ -384,9 +387,9 @@ Signature bar `PLUM_DEEP`.
 - trunk connectors: `style.arrow`, `GRAPHITE`
 - **exclusion stubs** leave the trunk in the gap between stages and run right into a 34%-width gutter: `SLATE` arrow, and a `MIST` chip (F1, `SLATE` stroke) carrying the count in `GRAPHITE`. **Not scarlet** — an exclusion is accounting, not failure, and scarlet now means one thing.
 
-Plate + signature bar `SCARLET_DEEP`.
+Plate. (No signature bar: §3.3 is withdrawn.)
 **Headline:** *13,608 admissions in; 253 pairs and 12 confirmed contradictions out.*
-**Draw** 4.771 × 3.80, `width=0.80\linewidth`. **Class B.** The 0.80 width is what un-maroons p.54.
+**Draw** 5.252 × 3.86, `width=0.88\linewidth`. **Class B** (block 5.30in). Height REDUCED from the 4.18 a proportional growth gives: 4.18 blocks at 5.62in, inside the forbidden band. The narrower class is still what un-maroons p.54.
 **Targets:** coverage ≥ 0.60, chroma ≥ 0.32.
 
 ---
@@ -407,9 +410,9 @@ Plate + signature bar `SCARLET_DEEP`.
 - right-hand annotations align to their rows, joined by a 1.1pt horizontal rule on the row baseline. No diagonals, no leaders.
 - the position-selection annotation reads **"selected by position (row 1)"**
 
-Plate + signature bar `SCARLET_DEEP`.
+Plate. (No signature bar: §3.3 is withdrawn.)
 **Headline:** *The rule fires on the set. The exemplar shown to everyone is row 1.*
-**Draw** 4.771 × 2.45, `width=0.80\linewidth`. **Class A.**
+**Draw** 5.252 × 2.70, `width=0.88\linewidth`. **Class A** (block 4.14in).
 **Targets:** coverage ≥ 0.48, chroma ≥ 0.26.
 
 ---
@@ -419,15 +422,15 @@ Plate + signature bar `SCARLET_DEEP`.
 
 - 2 × 3 grid, every panel boxed, no grid lines
 - **fill the calibration wedge:** the region above the diagonal in every panel takes `MIST` (over-prediction), labelled once in the top-left panel only, 8.5pt `MUTE`, cased. Six panels of empty white become six panels of read structure.
-- ylim to **0 – 1.0** in all six (currently 0.9, which is what crowds the clinical mark)
+- ~~ylim to **0 – 1.0** in all six~~ — **OVERTURNED BY THE AUTHOR.** *"needs to be more clear use some other vibrant colors."* The 0–1.0 axis is the root cause of the illegibility and it goes. The tallest point on the sweep is 0.17 and the highest Wilson bound anywhere on the canvas is 0.256, so nine tenths of the plot height was holding one off-sweep annotation and every measured series lay flat in the bottom quarter. **ylim is now 0 – 0.38 against an x of 0 – 0.32**, which puts perfect calibration on a diagonal at roughly 45° and makes "does not track prevalence" a shape rather than an assertion. No point was dropped and no interval clipped.
 - column headings in their entity `DEEP`: `llama3:8b` `PLUM_DEEP`, `granite3.3:8b` `AMBER_DEEP`, `qwen3:8b` `COBALT_DEEP`
-- series lines 1.8pt `CORE`, markers 6.6pt, intervals 1.5pt
-- *perfect calibration* moves off its current floating position onto the diagonal itself in panel (1,3): rotated to the line's angle, `SLATE` 8.5pt, cased
-- **the clinical anchor** stays in panel (1,1) as a `SCARLET_CORE` 6.2pt square at (0.04, 0.85), with a **single** cased `SCARLET_DEEP` line beneath it, right-aligned to end at x = 0.29: *clinical: 4% read as 85%*. One line, not two. The ylim change is what buys the room.
+- series lines **2.4pt** `CORE`, markers **7.4pt** faced `CORE` and rimmed `DEEP` at 1.0pt, intervals **1.6pt**, caps 3.6pt. This is the one place in the set that departs from the §3.4 weight table, and it is the author's "vibrant" answered in weight. **No hue was re-based**, and the arithmetic is recorded in `style.py`: `COBALT_CORE` already sits at the greyscale ladder's minimum adjacent gap of 8.9 against `SCARLET`, so brightening it costs the black-and-white guarantee Figure 7 depends on; `AMBER_CORE` is already the lightest stop on the ladder at 2.07:1, so brightening it makes granite *less* legible; and PLUM is one of three, so moving it alone unbalances the row. The palette is colour-blind verified and it stays.
+- *perfect calibration* sits on the diagonal itself, rotated to the line's angle, `MUTE` 8.5pt, cased. It moves from panel (1,3) to panel (2,3), and *over-prediction* moves from panel (1,1) to panel (1,3): panel (1,1) now carries the clinical anchor and nothing else, and the two reference labels take the emptiest panels in the grid
+- **the clinical anchor** stays in panel (1,1) and its label stays one cased `SCARLET_DEEP` line, *clinical: 4% read as 85%*. Its true position is (0.04, 0.85), which the new axis does not reach, so it is drawn as what it is: **a `SCARLET_CORE` 2.4pt arrow at its own x = 0.04, starting above the highest bound in the panel and leaving through the top**, with both of its coordinates in the label beside it. **No marker sits under the arrow.** A square drawn at a y the point does not have would be a false position however it is labelled, and this figure is in a thesis about instruments that mislead. The caption changes to match: *"The scarlet arrow marks this thesis's clinical operating point, which lies above the top of its panel."*
 
-Signature bar `SCARLET_DEEP`.
+Dominant hue `SCARLET_DEEP`, named at the `signature()` call. (No bar: §3.3 is withdrawn.)
 **Headline:** *No labeller tracks prevalence. Stating the base rate does not fix it.*
-**Draw** 5.36 × 3.30, `0.90`. **Class B.**
+**Draw** 5.854 × 3.78, `0.98`. **Class B** (block 5.22in). Taller than proportional, to square the panels up under the new y axis.
 **Targets:** coverage ≥ 0.40, chroma ≥ 0.14.
 
 ---
@@ -437,15 +440,19 @@ Signature bar `SCARLET_DEEP`.
 
 The most dramatizable result in the thesis, currently four dots on white.
 
-**Panel (a) — dumbbell.** For each of α_D and α_N: an open 6.6pt `GRAPHITE` ring at the initialisation, a solid 6.6pt `GRAPHITE` dot at the final value, a 2.4pt `GRAPHITE` connector between them, and the three seeds as 3.2pt `SLATE` dots on the row. Behind both rows, a **`SCARLET_TINT` vertical band spanning ±1% of each initialisation**, labelled once in `SCARLET_DEEP`: *reported as learned; both finish inside 1% of where they were set*. Row labels carry the initialisation. The band is panel (a)'s one scarlet element.
+**Panel (a) — dumbbell.** For each of α_D and α_N: an open 6.6pt `GRAPHITE` ring at the initialisation, a solid 6.6pt `GRAPHITE` dot at the final value, a 2.4pt `GRAPHITE` connector between them, and the three seeds as 3.2pt `SLATE` dots on their own sub-row. Behind both rows, a vertical tolerance band. Row labels carry the initialisation.
 
-**Panel (b) — cliff.** Three filled columns, F1→F3 gradient of drama: HF in-domain at 0.96 in `COBALT_TINT` fill / `COBALT_DEEP` stroke; sepsis 0.07 and AKI 0.06 in `COBALT_BARE` fill / `COBALT_DEEP` stroke (bare = no committed interval, per the surviving rule). Behind the two transfer columns, a `SCARLET_WASH` ground labelled *not fitted here*. A `SCARLET_CORE` 1.8pt drop annotation from the top of the first column to the top of the second, with **`0.96 → 0.07` set at 22pt bold `SCARLET_DEEP`** — written as an arrow glyph the builder must draw as a patch, **never as an en dash or a `->` on canvas**. Candidate counts in each column's foot, 8.5pt `MUTE`.
+**DECLUTTERED ON THE AUTHOR'S READING:** *"looks very busy make it clear."* Panel (a) carried six kinds of thing on two rows of data, and two of them said one sentence twice — the band label *"neither left a 2% band"* and the row labels *"+0.4%"* and *"+1.5%"*. **The prose went and the measurements stayed.** The band is named on the x axis instead, where a tolerance belongs and where the two tick labels it runs between already read 0.98 and 1.02. The movement labels move from 8.5pt `MUTE` to **9pt `GRAPHITE`**, the tone of the dumbbell they label. The band moves from `SCARLET_TINT` to **`SCARLET_WASH`**: it covers three quarters of the panel, and at `TINT` the ground was louder than the two grey dumbbells it exists to locate. The seed dots stay — three seeds landing on each other is evidence, not decoration.
+
+**Panel (b) — cliff.** Three filled columns, F1→F3 gradient of drama: HF in-domain at 0.96 in `COBALT_TINT` fill / `COBALT_DEEP` stroke; sepsis 0.07 and AKI 0.06 in `COBALT_BARE` fill / `COBALT_DEEP` stroke (bare = no committed interval, per the surviving rule). Behind the two transfer columns, a `SCARLET_WASH` ground labelled *not fitted here*. The drop is a **`SCARLET_CORE` 2.2pt arrow patch** from the fitted column's top right corner to just above the first column it was not fitted on — a patch, **never an en dash and never a `->` on canvas**. Candidate counts in each column's foot, 8.5pt `MUTE`.
+
+**~~`0.96 → 0.07` set at 22pt bold `SCARLET_DEEP`~~ — DELETED ON THE AUTHOR'S READING.** The y axis beside it already runs 0 to 1.00 in quarters with the two columns sitting on exactly those values: the same two numbers, twice, a centimetre apart, and it is most of what made the panel busy. The drop survives as pure geometry and still reads at thumbnail size — a column at the top of the frame, a scarlet line falling almost to the floor, two columns that are barely there. The ground label drops from `SCARLET_DEEP` to `MUTE`, which leaves the arrow as this panel's one saturated scarlet element and brings it back inside the §1.6 budget it had been over.
 
 Cohorts are not entities. **All three columns take one hue.** The current SKY/GREEN/PURPLE assignment applies the entity map to things that are not entities and must go.
 
-Both panels boxed; panel letters per §2.4. Signature bar `SCARLET_DEEP`.
+Both panels boxed; panel letters per §2.4. Dominant hue `SCARLET_DEEP`, named at the `signature()` call. (No bar: §3.3 is withdrawn.)
 **Headline:** *Two parameters reported as learned did not move; the rule head does not transfer.*
-**Draw** 5.36 × 2.45, `0.90`, panels side by side. **Class A.**
+**Draw** 5.854 × 2.68, `0.98`, panels side by side. **Class A** (block 4.12in).
 **Targets:** coverage ≥ 0.42, chroma ≥ 0.20.
 
 ---
@@ -460,9 +467,9 @@ Both panels boxed; panel letters per §2.4. Signature bar `SCARLET_DEEP`.
 - mortality control: 6.2pt `SLATE` square, label directly above, cased, `MUTE`. **No leader.**
 - region labels *detectable* / *not detectable at this sample size* set 9pt cased in `EMERALD_DEEP` / `SCARLET_DEEP` at the far corners of their own regions
 
-Signature bar `SCARLET_DEEP`.
+Dominant hue `SCARLET_DEEP`, named at the `signature()` call. (No bar: §3.3 is withdrawn.)
 **Headline:** *At 12 positives, nothing below AUROC 0.735 was ever detectable.*
-**Draw** 5.36 × 2.75, `0.90`. **Class A.**
+**Draw** 5.854 × 2.85, `0.98`. **Class A** (block 4.29in). Height REDUCED from the 3.00 a proportional growth gives, which would have made this a Class B float.
 **Targets:** coverage ≥ 0.62, chroma ≥ 0.18.
 
 ---
@@ -484,9 +491,9 @@ This is now the single place every headline estimate in the thesis appears. Figu
 - boxed axes, **value grid ON** (this plot is read for values)
 - **no scarlet.** Stated in §1.6.
 
-Signature bar `GRAPHITE`.
+Dominant hue `GRAPHITE`, named at the `signature()` call. (No bar: §3.3 is withdrawn.)
 **Headline:** *Every headline estimate in this thesis crosses zero.*
-**Draw** 5.36 × 3.40, `0.90`. **Class B.**
+**Draw** 5.854 × 3.71, `0.98`. **Class B** (block 5.15in).
 **Targets:** coverage ≥ 0.46, chroma ≥ 0.15.
 
 ---
@@ -505,9 +512,9 @@ Single panel, boxed, value grid ON:
 - **no scarlet** (the claim is that the harness works)
 - panel letters removed (single panel)
 
-Signature bar `EMERALD_DEEP`.
+Dominant hue `EMERALD_DEEP`, named at the `signature()` call. (No bar: §3.3 is withdrawn.)
 **Headline:** *The from-scratch arm rises with size and never reaches the pretrained band.*
-**Draw** 5.36 × 2.60, `0.90`. **Class A.**
+**Draw** 5.854 × 2.84, `0.98`. **Class A** (block 4.28in).
 **Targets:** coverage ≥ 0.36, chroma ≥ 0.14.
 
 ---
@@ -524,9 +531,9 @@ Signature bar `EMERALD_DEEP`.
 - boxed axes; colourbar gets a 0.9pt `INK` frame and 9pt ticks
 - viridis is retained: it is sequential and CB-safe, and it is the only heatmap in the set
 
-Signature bar `SCARLET_DEEP`.
+Dominant hue `SCARLET_DEEP`, named at the `signature()` call. (No bar: §3.3 is withdrawn.)
 **Headline:** *The audit passed at an operating point where nothing was detectable.*
-**Draw** 5.36 × 2.80, `0.90`. **Class A.**
+**Draw** 5.854 × 2.85, `0.98`. **Class A** (block 4.29in). Height REDUCED from proportional for the same reason as Figure 7; the width takes the growth and the heatmap field goes from 3.28in to 3.77in.
 **Targets:** coverage ≥ 0.90, chroma ≥ 0.55 (heatmap; already the densest figure).
 
 ---
@@ -545,10 +552,10 @@ The hairline axis becomes a **fat timeline**: a 16pt-tall horizontal band split 
 - event ticks pierce the band, 1.4pt, in the event's own tone; event names above the band, 9pt
 - proposed detection point: `COBALT_CORE` 6.2pt marker + `COBALT_DEEP` label below
 - **the system's trigger point: F2 SOLID `SCARLET_DEEP` diamond** with a white-bold `!` and a `SCARLET_DEEP` 9pt label below. One scarlet mark.
-- plate + signature bar `SCARLET_DEEP`
+- plate; dominant hue `SCARLET_DEEP`. (No bar: §3.3 is withdrawn.)
 
 **Headline:** *The document the system triggers on is finalised at or after the patient leaves.*
-**Draw** 5.36 × 1.95, `0.90`. **Class A.**
+**Draw** 5.854 × 2.13, `0.98`. **Class A** (block 3.57in).
 **Targets:** coverage ≥ 0.44, chroma ≥ 0.24.
 
 ---
@@ -567,9 +574,9 @@ The hairline axis becomes a **fat timeline**: a 16pt-tall horizontal band split 
 5. GPT-4o zero-shot `COBALT` square, few-shot `AZURE` triangle, both 6.2pt with adjacent cased labels in their `DEEP`.
 6. Boxed axes, no grid.
 
-Signature bar `SCARLET_DEEP`.
+Dominant hue `SCARLET_DEEP`, named at the `signature()` call. (No bar: §3.3 is withdrawn.)
 **Headline:** *ACCORD sits on the indifference line: it buys no trade at all.*
-**Draw** 5.36 × 3.10, `0.90`. **Class B.**
+**Draw** 5.854 × 3.39, `0.98`. **Class B** (block 4.83in). The right margin widens to 1.78in so the three slope labels sit INSIDE the canvas: at the old margin they overran it, savefig's tight box grew, and `\includegraphics` then scaled the figure down 8.3% and set its 9pt type at 8.3pt.
 **Targets:** coverage ≥ 0.50, chroma ≥ 0.16.
 
 ---
@@ -699,7 +706,11 @@ def figw(frac):
     return printed - 0.04, printed
 ```
 
-Two width classes only — `0.90` and `0.80`. No figure invents a third.
+Two width classes only — `0.98` and `0.88`. No figure invents a third.
+
+**They were `0.90` and `0.80`.** The author asked for every figure to be bigger, on ten of the twelve by name, and both classes move up one step: about a 9 percent linear increase, 19 percent more area. `0.98` rather than `1.00` because a graphic set flush to both margins reads as a bleed rather than as a figure. `FIGW` and the schematic width constant move with them, so every figure is still **drawn at its printed size** and 9pt type is still 9pt on the page — that invariant is the whole reason the drawn width is not simply left alone and scaled by `\includegraphics`.
+
+**The invariant has to be checked on the saved file, not assumed.** `savefig` crops to a tight box, so any artist that overruns the canvas widens the PDF, and `\includegraphics[width=...]` then scales the whole figure DOWN to fit the measure, taking the type with it. Four figures were already overrunning at v3's original sizes; `fig-met-exchange` was 8.8 percent over and printing its "9pt" labels at 8.3pt, under the 8.5pt floor this spec sets in §2.2. Every one of the twelve now comes out at exactly `frac × 433.62pt`, verified with `pdfinfo`.
 
 **Block height** = printed graphic height + **1.40in** (≤4 caption lines at 14.4pt, the 0.6-baselineskip caption skip, and float separations).
 
@@ -716,18 +727,22 @@ Two width classes only — `0.90` and `0.80`. No figure invents a third.
 
 | Fig | drawn W × H | width | printed H | block | ratio | class | placement |
 |---|---|---|---|---|---|---|---|
-| 1 pipeline | 5.36 × 3.10 | 0.90 | 3.14 | 4.54 | 0.53 | B | `[!t]` |
-| 2 headline | 5.36 × 2.55 | 0.90 | 2.59 | 3.99 | 0.46 | A | `[!ht]` |
-| 3 cohort | 4.771 × 3.80 | 0.80 | 3.84 | 5.24 | 0.61 | B | `[!t]` |
-| 4 exemplar | 4.771 × 2.45 | 0.80 | 2.49 | 3.89 | 0.45 | A | `[!ht]` |
-| 5 prevalence | 5.36 × 3.30 | 0.90 | 3.34 | 4.74 | 0.55 | B | `[!t]` |
-| 6 falsification | 5.36 × 2.45 | 0.90 | 2.49 | 3.89 | 0.45 | A | `[!ht]` |
-| 7 power | 5.36 × 2.75 | 0.90 | 2.79 | 4.19 | 0.49 | A | `[!ht]` |
-| 8 forest | 5.36 × 3.40 | 0.90 | 3.44 | 4.84 | 0.56 | B | `[!t]` |
-| 9 scaling | 5.36 × 2.60 | 0.90 | 2.63 | 4.03 | 0.47 | A | `[!ht]` |
-| 10 threshold | 5.36 × 2.80 | 0.90 | 2.84 | 4.24 | 0.49 | A | `[!ht]` |
-| 11 timeline | 5.36 × 1.95 | 0.90 | 1.98 | 3.38 | 0.39 | A | `[!ht]` |
-| 12 exchange | 5.36 × 3.10 | 0.90 | 3.14 | 4.54 | 0.53 | B | `[!t]` |
+| 1 pipeline | 5.854 × 3.39 | 0.98 | 3.43 | 4.83 | 0.56 | B | `[!t]` |
+| 2 headline | 5.854 × 2.78 | 0.98 | 2.82 | 4.22 | 0.49 | A | `[!ht]` |
+| 3 cohort | 5.252 × 3.86 | 0.88 | 3.90 | 5.30 | 0.62 | B | `[!t]` |
+| 4 exemplar | 5.252 × 2.70 | 0.88 | 2.74 | 4.14 | 0.48 | A | `[!ht]` |
+| 5 prevalence | 5.854 × 3.78 | 0.98 | 3.82 | 5.22 | 0.61 | B | `[!t]` |
+| 6 falsification | 5.854 × 2.68 | 0.98 | 2.72 | 4.12 | 0.48 | A | `[!ht]` |
+| 7 power | 5.854 × 2.85 | 0.98 | 2.89 | 4.29 | 0.50 | A | `[!ht]` |
+| 8 forest | 5.854 × 3.71 | 0.98 | 3.75 | 5.15 | 0.60 | B | `[!t]` |
+| 9 scaling | 5.854 × 2.84 | 0.98 | 2.88 | 4.28 | 0.50 | A | `[!ht]` |
+| 10 threshold | 5.854 × 2.85 | 0.98 | 2.89 | 4.29 | 0.50 | A | `[!ht]` |
+| 11 timeline | 5.854 × 2.13 | 0.98 | 2.17 | 3.57 | 0.41 | A | `[!ht]` |
+| 12 exchange | 5.854 × 3.39 | 0.98 | 3.43 | 4.83 | 0.56 | B | `[!t]` |
+
+**No figure changed class and nothing lands in the forbidden 5.34–6.89in band.** Three heights are deliberately BELOW a proportional growth, and each is named where a reader will look for it: **3 cohort-flow** (3.86 not 4.18; 4.18 blocks at 5.62in, inside the forbidden band), **7 power** and **10 threshold-surface** (2.85 not 3.00 and 3.06; either would have pushed a Class A float into Class B and changed its placement flag). All three still grow, and all three take the full width increase. The rule that decided them: **the height gives, never the type.**
+
+Two heights are deliberately ABOVE proportional. **5 prevalence-response** goes to 3.78 rather than 3.60 because its redesigned y axis wants near-square panels, and **11 timeline** and the schematics carry their point-grid constants scaled with the plate rather than left at their old size inside a bigger frame.
 
 **Preamble** (`main_msu.tex:132–140`) — replace the float-tuning block with:
 
@@ -745,9 +760,11 @@ Two width classes only — `0.90` and `0.80`. No figure invents a third.
 **The two named damage sites:**
 
 - **pp.87–90 run.** p.87 carries 19 lines against a 26-line median because Figure 4's 31-line block on p.86 starved it, and pp.88–89 are back-to-back tables. Fix: Figure 4 drops from a 31-line block to Class A (`3.89in`, ~14 lines) with a 41-word caption, and `textfraction` 0.22 stops the tables from top-stacking. The run repacks to full pages.
-- **p.54, marooned Fig 3.** The figure plus a 187-word caption fills the sheet. Fix: `width=0.80\linewidth` (5.24in block) plus a 38-word caption releases ~9 body lines onto the same page. It is now a Class B float with text under it.
+- **p.54, marooned Fig 3.** The figure plus a 187-word caption fills the sheet. Fix: the narrow class (now `width=0.88\linewidth`, a 5.30in block) plus a 38-word caption releases ~9 body lines onto the same page. It is now a Class B float with text under it, and it still is at the larger size: verified on the current build, where it takes the top of the page with 10 lines of body under the caption.
 
-**Page budget.** The bound document currently runs 145 numbered pages (pdf 160, offset 15) against a 150 ceiling. Twelve caption rewrites drop ~900 words of single-spaced 12pt caption (≈ 2.5 pages), two deleted figure blocks return ≈ 1.5 pages, and the repack returns 1–2 more. Landing zone **139–141**. Framing, fills and signature bars cost nothing.
+**Page budget.** The bound document currently runs 145 numbered pages (pdf 160, offset 15) against a 150 ceiling. Twelve caption rewrites drop ~900 words of single-spaced 12pt caption (≈ 2.5 pages), two deleted figure blocks return ≈ 1.5 pages, and the repack returns 1–2 more. Landing zone **139–141**. Framing and fills cost nothing.
+
+**Measured after the enlargement: 143 numbered pages, pdf 158, offset 15**, against the 150 ceiling. Growing all twelve figures by 9 percent cost **zero** pages, which is what the class table above predicts: no figure changed class, so no float changed the page it lands on. The thin-page profile is byte-for-byte the same as before the enlargement on eight of nine sheets and improves on the ninth (p.116 goes from 9 body lines to 14). Measure it with a temporary `\label{ENDOFDOC}` before `\end{document}` and read the page off `main_msu.aux`; do not count PDF pages and subtract.
 
 ---
 
@@ -758,10 +775,10 @@ Two width classes only — `0.90` and `0.80`. No figure invents a third.
 3. `msu_ch1_introduction.tex:255` — drop *"The ACCORD row in panel (b) is..."* (no panel b). The contamination flag moves to the body sentence above.
 4. `msu_ch1_introduction.tex` figure env — `[!htbp]` → `[!t]` (Fig 1), `[!ht]` (Fig 2).
 5. `msu_ch3_methodology.tex:144` — absorb the cohort-flow reading-down narrative from the old caption.
-6. `msu_ch3_methodology.tex` Fig 3 env — `width=0.9` → `width=0.80\linewidth`, `[!htbp]` → `[!t]`.
+6. `msu_ch3_methodology.tex` Fig 3 env — `width=0.9` → `width=0.88\linewidth` (was `0.80`; §7), `[!htbp]` → `[!t]`.
 7. `msu_ch3_methodology.tex:895` — `\apanote` referencing Fig 7 is on a *table*; leave it.
 8. `msu_ch4_results.tex:156` — absorb the exemplar disagreement-rate range.
-9. `msu_ch4_results.tex` Fig 4 env — `width=0.80\linewidth`, `[!ht]`; caption replaced.
+9. `msu_ch4_results.tex` Fig 4 env — `width=0.88\linewidth` (was `0.80`; §7), `[!ht]`; caption replaced.
 10. `msu_ch4_results.tex` Fig 5, 6, 7, 8 envs — captions replaced; **all `\apanote` lines deleted**; placements per §7.
 11. `msu_ch4_results.tex:957` — replace the survey sentence per §5; **delete the figure env at ~969–985**.
 12. `msu_ch5_discussion.tex:204–206` — replace per §5; **delete the disc-strata figure env at ~208–222**.
@@ -845,7 +862,9 @@ Fifteen steps, each independently verifiable. Do not reorder — steps 1–4 are
 6. **Palette conformance.** Grep every drawing script for `#[0-9A-Fa-f]{6}` — the only permitted hits are inside `style.py`. Grep for `alpha=` — zero hits. Grep for `lean(` — zero hits. Assert every `SLATE` artist is either a dashed line or a marker under 4pt.
 7. **Caption length.** Parse every `\caption{...}` body in the four chapter files; word count ≤ 45. Assert zero `\apanote` inside a `figure` environment.
 8. **Canvas bans.** Extract text from every figure PDF with `pdftotext`; assert no U+2013, U+2014, U+2212, no `.pdf`, no `.json`, no `fig-`, no `.iloc`.
-9. **Placement.** Build, then run the page-line-count script over `pdftotext -layout main_msu.pdf`: **no body page between the first and last numbered page has fewer than 18 non-blank lines**, and no page contains only a float. This is the direct test for failure 6 and it is the one the critic will run.
+
+   **And the same ban on the DOCUMENT, not only the canvases.** The author's reading of the bound draft found eleven repository script paths still set in `\texttt{}` inside sentences — *"i dont think a thesis will have the notebook coded in it"* — and every one was a `.py`, which `verify_thesis_deep.py`'s pass 9 did not look for: it gated `.md` and `.ipynb` only. Pass 9 now gates `.py`, `.csv` and `.json` as well, on the rendered PDF. The extended pattern flags exactly 11 hits on the pre-change PDF and 0 on the current one. A sentence that named a script still says the procedure was implemented; it names the procedure, or says "the analysis code released with this thesis", and nothing about the claim changes.
+9. **Placement.** Build, then run the page-line-count script over `pdftotext -layout main_msu.pdf`: **no body page between the first and last numbered page has fewer than 18 non-blank lines**, and no page contains only a float. Nine sheets are under 18 and every one of them is a chapter opening, a full-page table or a section break rather than a float-damaged page; the check is run as a DIFF against the previous build, because its absolute value has never been zero and the number that matters is whether a change made it worse. This is the direct test for failure 6 and it is the one the critic will run.
 10. **Page count.** `Output written on main_msu.pdf` minus the 15-page front-matter offset ≤ **150**; expected 139–141.
 11. **Parity.** `python figures/tools/check_parity.py` — exit 0.
 12. **Greyscale.** Convert all twelve PDFs to greyscale at 300 dpi and read them. Every series on every canvas must remain separable, by direct label if not by value. This is a human check and it is the last one.
@@ -858,7 +877,7 @@ Fifteen steps, each independently verifiable. Do not reorder — steps 1–4 are
 
 **Rejected: saturated `CORE` fills with white text throughout the schematics.** This is the most literal reading of "vibrant fills, not pastel washes" and it produces the highest chroma numbers. I rejected it because at 9pt serif on a saturated field, white text at 5:1 is legible on a screen and marginal on a laser printer at 600 dpi, and a thesis is printed. The two-level system — `TINT` field with `INK` at 11.3:1, `DEEP` chip with `PAPER` at 7.7:1 — puts the saturation in the chips and the strokes, which is where it survives print. **If the author confirms the thesis will only ever be read as a PDF**, I would move stage boxes from F1 to F2 across all four schematics and take chroma from ~0.35 to ~0.60.
 
-**Rejected: an outer plate on plots as well as boxed axes.** It would make all twelve figures share one enclosure. I rejected it because a plate around a plot that already has a boxed axes is two nested rectangles, and two nested rectangles read as bureaucracy rather than as an exhibit. The signature bar (§3.3) does the unification job instead, at one rectangle per figure. **If a proof shows the schematics and plots still reading as two sets**, the cheap fix is to extend the plate to plots and drop the axes box to 0.7pt — but I would exhaust the signature bar first.
+**Rejected: an outer plate on plots as well as boxed axes.** It would make all twelve figures share one enclosure. I rejected it because a plate around a plot that already has a boxed axes is two nested rectangles, and two nested rectangles read as bureaucracy rather than as an exhibit. The signature bar (§3.3) does the unification job instead, at one rectangle per figure. **If a proof shows the schematics and plots still reading as two sets**, the cheap fix is to extend the plate to plots and drop the axes box to 0.7pt — but I would exhaust the signature bar first. *(Superseded: the bar is withdrawn, §3.3. The proof was made and the two groups do not read as two sets; the headline, the type scale and the palette carry it. The escape hatch in this paragraph is still the right one if that ever stops being true.)*
 
 **Rejected: keeping Okabe-Ito unchanged.** It is the defensible citation and it is what the current `style.py` documents. I re-based it because Okabe-Ito was designed for categorical marks on white, not for a system with four fill stops, and because its blue and the author's scarlet print at greyscale 87 and 83 — indistinguishable in a black-and-white bound copy of a figure that draws both. The re-based set is measurably safer (min ΔE 14.7 across all three dichromacies, min greyscale gap 8.9) and it is vibrant enough to fill an area without looking sick. **If the committee objects to a non-cited palette**, the escape is to keep the Okabe-Ito hue *angles* and publish the ramp derivation — the tints and deeps are mechanical transforms of the cores and the citation still holds.
 

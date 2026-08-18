@@ -23,7 +23,7 @@ from style import (
     PAPER, INK, GRAPHITE, MUTE, SLATE, MIST, HAIR,
     T_HEADLINE, T_CLAIM, T_DECK, T_AXIS, T_TICK, T_SERIES, T_NOTE, T_PANEL,
     LW_SPINE, LW_DATA, LW_REF, LW_INTERVAL, MS_DOT, MS_MARK, MS_SEED,
-    REF_DASH, ERRBAR, DOT, FIGW, canvas, frame, signature, panel_label,
+    REF_DASH, ERRBAR, DOT, FIGW, canvas, frame, signature, panel_label, arrow,
     band, case, cased, wilson_ci)
 style.setup()
 import matplotlib.pyplot as plt
@@ -55,9 +55,31 @@ PL = {"A_bare": "bare prompt", "B_baserate_abstain": "base rate stated,\nabstent
 # is about.
 MODEL_HUE = {"llama3:8b": PLUM, "granite3.3:8b": AMBER, "qwen3:8b": COBALT}
 
-fig, axes = plt.subplots(2, 3, figsize=(FIGW, 3.30), sharex=True, sharey=True)
+# THE Y AXIS. It ran 0 to 1.0 and every measured point sat in the bottom
+# quarter of it, which is why the author could not read this grid. The tallest
+# point on the sweep is 0.17 and the highest Wilson bound anywhere on the canvas
+# is 0.256, so nine tenths of the height was holding one off-sweep annotation.
+#
+# It now runs 0 to 0.38 against an x that runs 0 to 0.32. That single change is
+# what makes this figure legible: the two axes are on very nearly the same
+# scale, so PERFECT CALIBRATION IS A DIAGONAL AT ROUGHLY 45 DEGREES and a
+# labeller that does not track prevalence is a line visibly flat against it. On
+# the old axis the diagonal was a shallow ramp and flatness had no reference to
+# be flat against. No point was dropped and no interval was clipped: the whole
+# sweep, bounds included, clears the frame top by a third of the plot.
+#
+# What did not fit is the clinical operating point at 0.85, and it is drawn
+# where it belongs -- at its own x, running off the top of the panel it belongs
+# to, with both of its coordinates written beside it. An off-scale mark that
+# names its own value states the reader's position honestly; squashing six
+# panels to make room for one point does not.
+Y_HI, X_HI = 0.38, 0.32
+fig, axes = plt.subplots(2, 3, figsize=(FIGW, 3.78), sharex=True, sharey=True)
 canvas(fig)
-fig.subplots_adjust(left=0.150, right=0.988, top=0.800, bottom=0.135,
+# 3.78in against the 3.60 a proportional growth gives: the extra 0.18 is what
+# squares the panels up under a 0 to 0.38 y axis, and the block still lands at
+# 5.22in, inside class B and clear of the forbidden 5.34.
+fig.subplots_adjust(left=0.13735, right=0.98900, top=0.83642, bottom=0.11786,
                     wspace=0.14, hspace=0.20)
 for r, pr in enumerate(prompts):
     for c, m in enumerate(models):
@@ -75,42 +97,59 @@ for r, pr in enumerate(prompts):
         hue = MODEL_HUE[m]
         # The wedge above the diagonal is over-prediction, and it is the whole
         # story of this grid, so it is drawn rather than left as white space.
-        gx = np.linspace(0, 0.32, 2)
-        ax.fill_between(gx, gx, 1.0, facecolor=MIST, edgecolor="none",
+        gx = np.linspace(0, X_HI, 2)
+        ax.fill_between(gx, gx, Y_HI, facecolor=MIST, edgecolor="none",
                         linewidth=0, zorder=0)
-        ax.plot([0, 0.32], [0, 0.32], color=SLATE, linestyle=REF_DASH,
+        ax.plot([0, X_HI], [0, X_HI], color=SLATE, linestyle=REF_DASH,
                 linewidth=LW_REF, zorder=2)
+        # Heavier than the set's 1.8pt data line and 6.6pt dot, and the only
+        # place in the set that departs from that table. The author asked this
+        # figure for vibrancy; no hue on it could be brightened without costing
+        # the greyscale separation the whole palette is verified on (style.py
+        # records the arithmetic), so the vibrancy is bought in WEIGHT instead.
+        # A 2.4pt line and a 7.4pt marker faced in CORE and rimmed in DEEP put
+        # two saturated stops on every point of every series.
         ax.errorbar(xs, ys, yerr=[[y - a for y, a in zip(ys, lo)],
                                   [b - y for y, b in zip(ys, hi)]],
-                    fmt="-o", color=hue.CORE, ms=MS_DOT, lw=LW_DATA, zorder=4,
-                    markeredgewidth=0, ecolor=hue.CORE,
-                    elinewidth=LW_INTERVAL, capthick=LW_INTERVAL, capsize=3.2)
+                    fmt="-o", color=hue.CORE, ms=7.4, lw=2.4, zorder=4,
+                    markerfacecolor=hue.CORE, markeredgecolor=hue.DEEP,
+                    markeredgewidth=1.0, ecolor=hue.CORE,
+                    elinewidth=1.6, capthick=1.6, capsize=3.6)
         if r == 0 and c == 0:
-            case(ax.text(0.305, 0.965, "over-prediction", ha="right", va="top",
-                         fontsize=T_NOTE, color=MUTE, zorder=5))
-            # The clinical operating point: this grid's one scarlet mark, and
-            # it appears once. Its label is a single line, which the ylim
-            # change to 1.0 is what buys room for.
-            ax.plot([clinical_x], [clinical_y], "s", color=SCARLET_CORE,
-                    ms=MS_MARK, markeredgewidth=0, zorder=6)
-            case(ax.text(0.29, clinical_y - 0.075,
+            # The clinical operating point. Its true position is (0.04, 0.85),
+            # which is off the top of a panel whose highest measured bound is
+            # 0.256, so it is drawn as what it is: a mark at its own x, leaving
+            # the panel upward, carrying both of its coordinates in its label.
+            # No marker sits under the arrow. A square drawn at a y the point
+            # does not have would be a false position however it is labelled,
+            # and this figure is in a thesis about instruments that mislead.
+            # The arrow starts above the highest bound in the panel and leaves
+            # through the top.
+            arrow(ax, (clinical_x, 0.272), (clinical_x, Y_HI - 0.010),
+                  color=SCARLET_CORE, lw=2.4, zorder=6)
+            case(ax.text(X_HI - 0.014, 0.348,
                          f"clinical: {clinical_x * 100:.0f}% read as "
                          f"{clinical_y * 100:.0f}%",
-                         ha="right", va="top", fontsize=T_SERIES,
-                         color=SCARLET_DEEP, zorder=6))
+                         ha="right", va="center", fontsize=T_SERIES,
+                         color=SCARLET_DEEP, zorder=7))
         if r == 0 and c == 2:
+            case(ax.text(X_HI - 0.005, Y_HI - 0.012, "over-prediction",
+                         ha="right", va="top", fontsize=T_NOTE, color=MUTE,
+                         zorder=5))
+        if r == 1 and c == 2:
             # The diagonal's angle on the page, not 45 degrees: the panel is
-            # not square and the two axes do not share a range.
+            # not square and the two axes do not share a range. It is close to
+            # 45 now, which is the point of the new axis.
             bb = ax.get_window_extent()
-            ang = math.degrees(math.atan2(0.32 / 1.0 * bb.height,
-                                          0.32 / 0.32 * bb.width))
+            ang = math.degrees(math.atan2(X_HI / Y_HI * bb.height,
+                                          bb.width))
             # MUTE, not the SLATE of the line it names: SLATE is 3.48:1 on
             # white and this set does not set type in it.
-            case(ax.text(0.175, 0.180, "perfect calibration", fontsize=T_NOTE,
+            case(ax.text(0.150, 0.156, "perfect calibration", fontsize=T_NOTE,
                          color=MUTE, ha="center", va="bottom", rotation=ang,
                          rotation_mode="anchor", zorder=5))
-        ax.set_xlim(0, 0.32); ax.set_ylim(0, 1.0)
-        ax.set_xticks([0, 0.1, 0.2, 0.3]); ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
+        ax.set_xlim(0, X_HI); ax.set_ylim(0, Y_HI)
+        ax.set_xticks([0, 0.1, 0.2, 0.3]); ax.set_yticks([0, 0.1, 0.2, 0.3])
         if r == 0:
             ax.set_title(m, fontsize=T_SERIES, pad=5, color=MODEL_HUE[m].DEEP)
         if c == 0:
@@ -136,9 +175,10 @@ xs = [pr_[t] for t in tags]; mu = [st.mean(by[t]) for t in tags]
 sd = [st.stdev(by[t]) for t in tags]
 pm, ps, pp = st.mean(by["pretrained_bert"]), st.stdev(by["pretrained_bert"]), pr_["pretrained_bert"]
 
-fig, ax = plt.subplots(figsize=(FIGW, 2.60))
+fig, ax = plt.subplots(figsize=(FIGW, 2.84))
 canvas(fig)
-fig.subplots_adjust(left=0.132, right=0.988, top=0.755, bottom=0.180)
+# Absolute margins held; the whole of the canvas's growth goes to the plot.
+fig.subplots_adjust(left=0.1209, right=0.9890, top=0.7904, bottom=0.1648)
 # The pretrained arm is a measured arm with three seeds and a spread of its
 # own, not a chance line, so its band, its centre line and its label are all
 # one hue and that hue is the reference-standard green.
@@ -261,9 +301,9 @@ for fi, (fam, rs, bg) in enumerate(reversed(FAMILIES)):
 rows = [r for _, r in placed]
 y_ceiling = placed[-1][0] + 1.10
 
-fig, ax = plt.subplots(figsize=(FIGW, 3.40))
+fig, ax = plt.subplots(figsize=(FIGW, 3.71))
 canvas(fig)
-fig.subplots_adjust(left=0.325, right=0.988, top=0.855, bottom=0.128)
+fig.subplots_adjust(left=0.2976, right=0.9890, top=0.8783, bottom=0.1173)
 X_LO, X_HI = -0.40, 1.06
 ax.set_xlim(X_LO, X_HI)
 ax.set_ylim(-0.80, y_ceiling)
@@ -278,7 +318,7 @@ ax.axvline(0, color=GRAPHITE, lw=1.2, zorder=2)
 # rule fires. Anything under 1.5pt is invisible beside its own marker, and an
 # invisible interval with no cue is the failure this set's first rule exists to
 # prevent.
-plot_w_pt = (0.988 - 0.325) * FIGW * 72
+plot_w_pt = (0.9890 - 0.2976) * FIGW * 72
 sliver = []
 for yy, (lab, e, lo, hi, hue) in placed:
     half_pt = (hi - lo) / 2 / (X_HI - X_LO) * plot_w_pt
@@ -356,9 +396,9 @@ mde_study = hanley_mde([n_pos_study], [n_neg_study], alpha_level=alpha_study,
 mde_mort = hanley_mde([mort_n_pos], [mort_n_neg], alpha_level=alpha_study,
                       power=power_study)[0]
 
-fig, ax = plt.subplots(figsize=(FIGW, 2.75))
+fig, ax = plt.subplots(figsize=(FIGW, 2.85))
 canvas(fig)
-fig.subplots_adjust(left=0.128, right=0.988, top=0.795, bottom=0.180)
+fig.subplots_adjust(left=0.1172, right=0.9890, top=0.8168, bottom=0.1737)
 curve = np.clip(mde, 0.5, 1.0)
 # Two grounds, hard boundary at the curve. The region above the curve is what
 # this evaluation could have resolved; the region under it is what it could
