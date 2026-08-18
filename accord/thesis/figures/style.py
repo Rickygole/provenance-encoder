@@ -122,7 +122,29 @@ AMBER = Ramp("AMBER",    "#714B00", "#F5A300", "#F9C765", "#FCE4B6", "#F6AC1A")
 PLUM = Ramp("PLUM",      "#971D6B", "#C3268A", "#EEC2DE", "#F7E1EF", "#E296C6")
 SCARLET = Ramp("SCARLET", "#A41704", "#D81E05", "#F5C2BC", "#FAE2DF", "#EE9A8F")
 
-RAMPS = {r.name: r for r in (COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET)}
+# The three sweep labellers on Figure 5, at higher chroma. The author asked that
+# figure for vibrant colour and got weight instead on the first pass, on the
+# reasoning that brightening a hue inside its own family costs the greyscale
+# separation the palette is verified on. That reasoning was wrong in one
+# direction and it is worth recording why: it assumed each hue had to stay at
+# its own place on the luminance ladder. Moving qwen off deep blue entirely, to
+# cyan, moves it UP the ladder and AWAY from the scarlet it used to sit 8.9
+# apart from. Measured on the four marks that share that canvas, scarlet,
+# magenta, cyan and orange, the minimum adjacent greyscale gap goes from 8.9 to
+# 19.3. The brighter set is the safer set in black and white, not the riskier
+# one.
+#
+# Magenta and orange stay inside the PLUM and AMBER families, so the weak
+# labeller and its sweep counterpart still read as the same colour idea across
+# figures. Cyan frees qwen from COBALT, which is GPT-4o zero-shot's hue
+# everywhere else; the two never co-occurred, but a labeller borrowing another
+# system's colour was a coincidence waiting to be read as a claim.
+MAGENTA = Ramp("MAGENTA", "#8E1257", "#E0218A", "#F6C4DF", "#FBE6F1", "#EE8CC0")
+TANGERINE = Ramp("TANGERINE", "#7A4200", "#FF8A00", "#FFCC8F", "#FFE9D2", "#FFAE52")
+CYAN = Ramp("CYAN",      "#0A5570", "#00A6D6", "#A8DEEF", "#D6F0F8", "#63C6E4")
+
+RAMPS = {r.name: r for r in (COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET,
+                             MAGENTA, TANGERINE, CYAN)}
 
 # Flat names, because a drawing script reads better as SCARLET_DEEP than as
 # SCARLET.DEEP inside an f-string-heavy layout block.

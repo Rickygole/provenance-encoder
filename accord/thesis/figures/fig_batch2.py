@@ -14,7 +14,7 @@ import json, pathlib, glob, math, statistics as st
 import numpy as np
 import style
 from style import (
-    COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET,
+    COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET, MAGENTA, TANGERINE, CYAN,
     COBALT_DEEP, COBALT_CORE, COBALT_TINT, COBALT_WASH, COBALT_BARE,
     AZURE_DEEP, AZURE_CORE, EMERALD_DEEP, EMERALD_CORE, EMERALD_TINT,
     EMERALD_WASH, AMBER_DEEP, AMBER_CORE, AMBER_TINT, AMBER_WASH,
@@ -53,7 +53,8 @@ PL = {"A_bare": "bare prompt", "B_baserate_abstain": "base rate stated,\nabstent
 # AMBER: it used to draw in the green this set reserves for pharmacist truth,
 # and a weak labeller wearing the truth colour is the kind of thing this thesis
 # is about.
-MODEL_HUE = {"llama3:8b": PLUM, "granite3.3:8b": AMBER, "qwen3:8b": COBALT}
+MODEL_HUE = {"llama3:8b": MAGENTA, "granite3.3:8b": TANGERINE,
+             "qwen3:8b": CYAN}
 
 # THE Y AXIS. It ran 0 to 1.0 and every measured point sat in the bottom
 # quarter of it, which is why the author could not read this grid. The tallest
