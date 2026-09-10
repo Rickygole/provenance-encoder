@@ -3,9 +3,15 @@
 WHY THIS EXISTS
 ---------------
 The frontier labeller does not accept a temperature parameter, so each per-pair
-label is one draw from a distribution rather than a fixed value. One pair
-returned opposite labels on two runs of an identical prompt, at the same token
-budget and with the same temperature fallback, so the instability is real.
+label is one draw from a distribution rather than a fixed value. That much is
+recorded in the run artifacts, which carry temperature_supported: false.
+
+The instability was also observed directly: one pair returned opposite labels on
+two invocations of the diagnose path at the same token budget. That path prints
+to the console and writes nothing, by design, so no committed artifact records
+it and it is stated here as an observation rather than as evidence. Nothing in
+the thesis rests on it; p below is swept as a hypothetical over the whole range,
+which is the conservative treatment and does not need the observation to hold.
 
 The committed bootstrap resamples PAIRS with the labels held fixed. It therefore
 measures pair-sampling uncertainty and nothing else, and understates the total.

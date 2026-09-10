@@ -345,12 +345,14 @@ design behind that sentence varied two things, the domain and the prevalence, wh
 fixed at eight billion parameters across all three labellers. With the model held constant, a
 difference between the clinical pool and the public-text sweep can only be attributed to the pool.
 The attribution was an artifact of the cell the design did not contain. Section~\ref{sec:r-frontier}
-fills it: a frontier model, on this clinical pool, at this base rate, with this prompt, over-calls
-by $4.00$ times. That is above the public-text sweep's maximum of $3.5000$ and not inside it, so the
-domain still costs something. But it is nearer that ceiling than to the $15.8196$ to $23.5959$ range
-this same pool produced at eight billion parameters, and the gap it closes is most of the distance.
-A design that attributed the whole of that distance to the pool cannot survive a labeller that
-removes most of it without the pool changing at all.
+fills it. On $G_{299}$, the set Table~\ref{tab:overcalling} measures every labeller on, a frontier
+model over-calls by $5.3333$ times zero-shot and $4.5000$ times few-shot, against $15.4167$ to
+$23.7500$ for the same three 8B labellers on that same set. Both frontier figures sit above the
+public-text sweep's maximum of $3.5000$, so the domain still costs something and the cost is not
+bounded by that ceiling. What does not survive is the attribution of the whole distance to the pool:
+the pool did not change, the base rate did not change, the prompt did not change, and the multiplier
+fell by roughly three quarters. A design that never varied capability could not have seen that,
+which is the point of Figure~\ref{fig:missing-cell}.
 
 What survives is narrower and still worth having: an over-calling multiplier reported without naming
 both the base rate it was measured against and the model that produced it is uninterpretable. What
@@ -442,17 +444,23 @@ Table~\ref{tab:frontier253} gives the cells and Figure~\ref{fig:capability}
 places them against every other labeller measured here. Three things follow, and
 the first is a correction.
 
-The over-calling multiplier at frontier scale is $4.00$ times the confirmed rate
-zero-shot and $3.25$ times few-shot. The public-text sweep's maximum was $3.5000$.
-On the clinical pool at eight billion parameters the range was $15.8196$ to
-$23.5959$. The few-shot value falls below that public-text maximum and the
-zero-shot value sits just above it, so neither lands where this pool landed at
-smaller scale, and the domain penalty the earlier design measured is at most the
-small distance from $3.5000$ to $4.00$ rather than the whole distance from
-$3.5000$ to $23.5959$. The
-attribution of magnitude to the pool's base rate in
-Section~\ref{sec:res-rq2} does not survive it. Over-calling attenuates with
-capability. The direction still transfers; the size is a property of the labeller.
+The over-calling multiplier at frontier scale is $5.3333$ times the confirmed
+rate zero-shot and $4.5000$ times few-shot on $G_{299}$, which is the basis
+Table~\ref{tab:overcalling} and Figure~\ref{fig:capability} use for every
+labeller. On $G_{253}$, the basis this chapter's system comparisons use, the same
+two runs give $4.00$ and $3.25$ against that set's own confirmed rate. Both
+readings are reported because both are correct on their own set, and the $G_{299}$
+pair is quoted here because Section~\ref{sec:r-ambiguity} shows $G_{253}$ removes
+the rows this labeller is most likely to flag and therefore charges it less.
+
+Against $15.4167$ to $23.7500$ for the three 8B labellers on that same $G_{299}$
+set, the frontier values are lower by roughly three quarters. They remain above
+the public-text sweep's maximum of $3.5000$, so the domain still costs something
+and the cost is not bounded by that ceiling. The attribution of magnitude to the
+pool's base rate in Section~\ref{sec:res-rq2} does not survive: the pool, the
+base rate and the prompt were all held constant and the multiplier moved anyway.
+Over-calling attenuates with capability. The direction transfers; the size is a
+property of the labeller.
 
 Second, this evaluation's resolution limit is no longer only a calculation. The
 minimum detectable effect derived for the twelve-positive evaluation is an AUROC
@@ -472,18 +480,27 @@ false-positive rates, $0.1618$ against $0.9253$, are measured on $241$ clear
 negatives, and that is the best-powered comparison in this chapter.
 
 \subsection{What the false positives land on}
+\label{sec:r-ambiguity}
 
 The $39$ false positives are not distributed evenly across the pairs the
 pharmacist declined to call contradictions. Of the $46$ pairs marked ambiguous,
 $16$ are flagged, a rate of $0.3478$; of the $241$ clear negatives, $39$ are
 flagged, a rate of $0.1618$. The odds ratio is $2.76$ with a one-sided Fisher
-$p$ of $0.0046$. The few-shot run reproduces it independently at $15$ of $46$
-against $33$ of $241$, an odds ratio of $3.05$ and $p$ of $0.0029$.
+$p$ of $0.0046$. The few-shot run shows the same gradient at $15$ of $46$ against $33$ of $241$, an
+odds ratio of $3.05$ and $p$ of $0.0029$. That is not an independent replication:
+it is the same model on the same items under a different prompt, and the two
+decision vectors agree on most pairs, so the second $p$ value carries much less
+than its face value.
 
-Two runs, the same direction, measured on $287$ negatives rather than 12
-positives. The ambiguous category is therefore measuring evidential difficulty
-rather than annotator inattention, which is what
-Section~\ref{sec:m-gold} assumed of it without testing. It also means
+Two prompts of one model, the same direction, measured on $287$ negatives rather
+than 12 positives. The reading this supports is correlational: the pairs the pharmacist declined to
+call either way are the pairs this labeller is most likely to flag. That is
+consistent with the ambiguous category tracking evidential difficulty, which is
+what Section~\ref{sec:m-gold} assumed of it without testing. It does not
+establish it. A gradient measured on one labeller's flags cannot separate
+``these pairs are genuinely harder'' from ``the labeller and the annotator
+respond to the same surface cues'', and that is the construct distinction this
+thesis cites \citet{jacobs2021measurement} for everywhere else. It also means
 $G_{253}$, which exists to keep ambiguity out of the primary comparison, removes
 the rows a more sensitive labeller is most likely to flag, and so charges that
 labeller less for its hardest errors than $G_{299}$ does.
@@ -497,7 +514,9 @@ is the mechanism, that an instruction-tuned labeller carries a class prior which
 does not track the task's base rate, and the prescription that follows, which is
 to measure the marginal against a human-labelled sample first. Nothing here shows
 the labeller reasons badly about medication conflict; its recall on the 12
-confirmed contradictions is high in every configuration measured. The failure is
+confirmed contradictions is high in most configurations measured, though not in
+all of them: the frontier few-shot run recalls $0.5000$, the same figure this
+chapter treats as a failure for GPT-4o zero-shot. The failure is
 calibration, invisible to any evaluation that does not report the marginal.
 
 Two limits bound the frontier row specifically. Its labels are single draws from a
@@ -510,6 +529,7 @@ this project's own annotation file, so contamination is an unlikely explanation 
 the gap reported here, but it is unmeasured and is named as such.
 
 \subsection{What the instability costs, and what it does not}
+\label{sec:r-labelnoise}
 
 The bootstrap behind every interval in this chapter resamples pairs with the
 labels held fixed. For a labeller whose labels are themselves draws, that
@@ -527,8 +547,12 @@ probability $p$, the flip count on each class is binomial, and carrying that
 variance into the Matthews correlation through the observed matrix's per-flip
 sensitivity gives a total interval as a function of $p$ alone. One flip on a
 positive moves the zero-shot value by $0.0426$; one flip on a negative moves it by
-$0.0048$. The worst case any model can assert is $p = 0.5$, every label an
-independent fair coin.
+$0.0048$. The worst case any model can assert is $p = 0.5$, every label an independent fair
+coin. Two limits of the construction have to travel with it. The per-flip
+sensitivity is a first-order central difference taken at the observed matrix, so
+the far end of the sweep extrapolates a local derivative rather than evaluating
+the statistic there. And the model carries only the variance of the flip count,
+not its mean, which is why the point estimate does not move.
 
 Figure~\ref{fig:labelnoise} sweeps $p$ for both runs. At that worst case the
 zero-shot interval is $+0.0829$ to $+0.5353$. It still excludes zero. Within this analysis, which widens the interval and holds the
@@ -1121,6 +1145,7 @@ to be checked numerically. None of this is new
 done here is to apply it to these class counts.
 
 \subsection{The ordering and its intervals}
+\label{sec:r-ordering}
 
 \begin{table}[H]
 \caption[Matthews correlation with bootstrap intervals]{Matthews correlation on the 253 non-ambiguous pairs.}
@@ -1155,9 +1180,13 @@ rests on the ordering among those four.
 An earlier version of this section gave a reason for that which was wrong, and
 the error is worth stating because it is the kind this thesis exists to catch. It
 said none of the systems was distinguishable from chance \emph{because} there are
-12 positives. Sample size was not the reason. The two Claude rows are separated
-from chance on the same 12 positives, at $+0.3189$ with an interval of $+0.1473$
-to $0.4622$ and at $+0.2137$ with $+0.0314$ to $0.3838$. What the four systems
+12 positives. Sample size was not the reason. The Claude zero-shot row is
+separated from chance on the same 12 positives, at $+0.3189$ with an interval of
+$+0.1473$ to $0.4622$, and that separation survives the instability analysis of
+Section~\ref{sec:r-labelnoise}. One row is enough to refute a claim about what 12
+positives can resolve. The few-shot row is not recruited here: its interval
+excludes zero as bootstrapped but does not survive that analysis, and no claim in
+this thesis rests on it. What the four systems
 had in common was not a shortage of rows but a shortage of signal: they were all
 bad. The distinction matters because the sample-size reading licenses treating
 every ordering in this thesis as noise, and that shield is too broad. It covers

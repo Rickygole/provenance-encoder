@@ -389,7 +389,10 @@ from the committed prompt table rather than rewritten, and reused unchanged acro
 is greedy at temperature zero for the local models, so a model's label for a row is deterministic
 within a model. That guarantee does not extend to the hosted frontier model reported alongside them
 in Chapter~\ref{ch:results}: it does not accept a temperature parameter, its artifacts record the
-fact, and one pair returned opposite labels on two runs of an identical prompt during diagnosis. Its
+fact. One pair was also observed returning opposite labels on two invocations of
+the diagnostic path at the same token budget; that path writes nothing by design,
+so the observation has no committed artifact and is reported as an observation
+rather than as evidence. Nothing here rests on it. Its
 per-pair labels are therefore single draws from a distribution rather than fixed values, and
 Section~\ref{sec:r-frontier} states what that does to the precision of the figures derived from
 them.
@@ -1041,6 +1044,15 @@ clinical use. The system is a research artifact evaluated on retrospective, de-i
 a clinical decision support tool; its measured performance, reported in Chapter~\ref{ch:results},
 does not support deployment in any care setting, and Chapter~\ref{ch:discussion} states what that
 performance would mean if the system were deployed regardless. Separately, the data use agreement
-obliges contributing analysis code back to the community rather than keeping it private; the code
-behind every result here is released alongside it, in the repository the verified-fact register and
-the appendices already point to.
+obliges contributing analysis code back to the community rather than keeping it private. The
+analysis code is released in the repository the verified-fact register and the appendices point to,
+and that release is not complete. Two gaps are named rather than left for a reader to discover. The
+script that made the original GPT-4o calls is not in it, for the reason given above. Nor is the
+detector's model and training source: the architectural findings of
+Section~\ref{sec:res-rq3} rest on reading that code, the result files it produced are committed and
+the figures rebuild from them, but a reader cannot at present open the module and check the
+readings for themselves. Every other result in this thesis has a committed script, and
+Appendix~\ref{app:provenance} names the file each group of quantities was read from. Recovering and
+releasing the detector source is the first obligation on any continuation of this work, because an
+architectural claim established by code inspection is worth what the code's availability makes it
+worth.
