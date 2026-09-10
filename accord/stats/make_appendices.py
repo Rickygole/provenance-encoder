@@ -238,7 +238,39 @@ def main():
         a += [f"{rid} & {d} & {esc(t.strip())}\\\\" for rid, d, t in revs]
         a += [r"\end{longtable}", r"\normalsize", r"\doublespacing", ""]
 
-    (THESIS / "msu_appA_corrections.tex").write_text("\n".join(a) + "\n")
+    # The full record goes to the supplement, which is where the other four
+    # reference appendices already live, and the bound thesis carries a pointer
+    # to it. The tables are 21 rows of paragraph-length prose and ran to twenty
+    # pages of a document nobody reads sequentially; the supplement is the right
+    # home for that, and the generator owns both files so they cannot drift.
+    (THESIS / "msu_appA_full.tex").write_text("\n".join(a) + "\n")
+
+    changed = [e for e in entries if e[0] in HEADLINE] if "HEADLINE" in dir() else []
+    ptr = [r"\chapter{The Correction Record}", r"\label{app:corrections}", "",
+           f"This work issued {len(entries)} numbered corrections and {len(revs)} "
+           "post-freeze revisions. Each withdrew, narrowed or confirmed a claim "
+           "against evidence, and each is reproduced in full, with its date and "
+           "the claim it changed, in the supplementary file that accompanies "
+           "this document. They are summarised rather than reprinted here "
+           "because the complete record runs to twenty pages of table that no "
+           "reader reads in sequence, and because the same treatment is already "
+           "given to the register, the claim trace and the survey coding table "
+           "in Section~\\ref{app:provenance}.", "",
+           "Ten of them changed a number this thesis prints, and those ten are "
+           "the ones a reader is most likely to want to follow: they are named "
+           "by identifier in the supplementary record and cross-referenced from "
+           "the chapters that carry their corrected values. The most "
+           "consequential is the last. C63 established that the replication "
+           "behind Chapter~\\ref{ch:results}'s weak-supervision finding varied "
+           "domain and model family while holding capability fixed, so the cell "
+           "that would have decided whether over-calling magnitude belongs to "
+           "the pool or to the labeller was never built. Filling it withdrew "
+           "four claims, moved this thesis's answer to its fourth research "
+           "question, and produced Section~\\ref{sec:r-frontier}.", "",
+           "The record is kept because a thesis about controls that reported no "
+           "failures of its own would be evidence of a project that had stopped "
+           "checking, not of one that had nothing to find.", ""]
+    (THESIS / "msu_appA_corrections.tex").write_text("\n".join(ptr) + "\n")
 
     F = json.loads((ROOT / "results" / "accord" / "VERIFIED_FACTS.json").read_text())
     groups = {}

@@ -1,0 +1,73 @@
+\chapter{The Correction Record}
+\label{app:corrections}
+
+This appendix lists the ten corrections issued during the work that changed a number this
+thesis still prints, each traced from the claim as originally stated to the evidence that
+retired it and to where the corrected version now lives. The remaining corrections changed
+the record, not a number surviving into these six chapters, and are named below rather than
+repeated in full; their complete text, with artifact and reasoning, is retained in
+the project's correction record, released with the analysis code.
+
+\section{Corrections That Changed a Printed Number}
+
+\singlespacing
+\renewcommand{\arraystretch}{0.9}
+\footnotesize
+\begin{longtable}{@{}p{1.9in}p{1.9in}p{1.9in}@{}}
+\textbf{Claim as stated} & \textbf{Evidence that retired it} & \textbf{Where it lives now}\\
+\midrule
+\endhead
+\textbf{C1}: The authority parameters converge during training to reflect clinical note hierarchy. & Initialised at the exact pair of values later reported as discovered (1.0, 0.5); across three seeds they move to 1.0038 and 0.5076, behind a normalisation layer removing most gradient. & Ch. 4, Architecture: authority conditioning is an initialisation artifact.\\
+\addlinespace
+\textbf{C2}: Rule-type head macro F1 of 0.9603 shows the auxiliary head learned rule structure. & The rule identifier is written into the input feature vector one layer from the head predicting it; out-of-domain transfer collapses to 0.0654 (sepsis) and 0.0595 (AKI). & Ch. 4, Architecture: the rule-type head is label leakage.\\
+\addlinespace
+\textbf{C3}: Kappa of 1.000 between two independent pharmacist instruments established reliability. & The two instruments were the binary label and the ordinal danger rating; a non-contradiction has no danger by definition, so agreement was guaranteed by construction, not measured. & Ch. 3, Gold Standard: what this design can and cannot establish.\\
+\addlinespace
+\textbf{C5}: The detector's evaluation AUROC on the gold set is a clean measurement. & Evaluated rows overlapped the training pool; the contaminated run reads 0.4595 on the same 253 pairs the decontaminated ensemble reads 0.5145 on. & Ch. 4, decontaminated-detector table.\\
+\addlinespace
+\textbf{C8}: The candidate pool was split into train, validation and test sets appropriately. & Splits were row-level, placing candidates sharing a subject on both sides; every split is now subject-disjoint, asserted in code. & Ch. 3, extraction and splitting.\\
+\addlinespace
+\textbf{C18}: Decontamination excluded every gold-set subject from the training pool. & 158 of 266 gold subjects were also in the training pool under the original row-level exclusion; exclusion is now subject-level, asserted in code. & Ch. 3, extraction and splitting; Ch. 4, decontaminated tables.\\
+\addlinespace
+\textbf{C37}: Domain pretraining materially improves the detector over a from-scratch encoder. & At three seeds each, the pretrained encoder reaches 0.7693 (SD 0.0102) AUROC on the mortality control task and a tenth-the-parameters from-scratch encoder reaches 0.7662 (SD 0.0073). & Ch. 4, mortality control task table.\\
+\addlinespace
+\textbf{C44}: The AG News pretraining benefit at one training budget generalises without a check. & A pre-registered 48-run, four-budget sweep shows the 4.53-point gap persists at 24 epochs and both arms are converged, closing the under-training objection. & Ch. 4, positive control; Ch. 3, decision-rule table.\\
+\addlinespace
+\textbf{C49}: The survey's strict and permissive audit counts rest on a per-paper coding table. & No per-paper coding table existed on disk when the counts were first reported; it and the coding behind it were rebuilt from the written instrument. & Ch. 4, Practice; coding table in the supplement.\\
+\addlinespace
+\textbf{C54}: A wider, roughly 22.4-million-parameter configuration tested whether capacity, not architecture, was the constraint. & The Stage 0 script freezes the backbone unconditionally with no unfreeze path, and part of the parameter total is a pooler off the forward path that carries no gradient. & Ch. 3: a configuration that was never trained.\\
+\addlinespace
+\end{longtable}
+\normalsize
+\doublespacing
+
+\section{The Remaining Corrections}
+
+53 further corrections were issued during the work: C4, C6 to C7, C9 to C17, C19 to C36, C38 to C43, C45 to C48, C50 to C53, C55 to C63. Each withdrew, narrowed or confirmed a claim against evidence. They are named rather than reproduced because the table above traces the ten whose corrected value a reader is most likely to want to follow, not because the rest left every printed number untouched: several of them produced numbers this thesis still prints. C16 identified the contaminated evaluation run and produced the recall of 0.7778 and precision of 0.0424 reported in Chapters 1, 5 and 6. C39 corrected the mortality control task's dataset to 34,018 examples, 2,975 positives and 570 test positives, the last of which is printed seven times across five chapters. C19 produced the defect-free control model's scores, C36 the four Matthews correlation intervals, C42 the public-text over-calling ratio, C55 the survey's strict and permissive counts, C57 the drift-slope flip count, C59 the survey reliability coefficients and C62 the convergence sweep's adjudication. No claim is made here that this list is exhaustive. Full text for each is in the project's correction record, released with the analysis code.
+
+\section{Revisions After the Record Closed}
+
+The correction record was closed once the frame was frozen. Findings after that point
+change a number, a chapter, or a stated limitation, and by rule cannot change the
+thesis statement. They are listed separately for that reason.
+
+\singlespacing
+\renewcommand{\arraystretch}{0.9}
+\footnotesize
+\begin{longtable}{@{}p{0.35in}p{0.7in}p{4.5in}@{}}
+\textbf{ID} & \textbf{Date} & \textbf{Revision}\\
+\midrule
+\endhead
+R1 & 2026-08-10 & the self-audit statistic is retracted; it is unreproducible and wrong in membership\\
+R2 & 2026-08-10 & the gate-vs-checklist comparison is retracted; its treatment arm has no positives\\
+R3 & 2026-08-10 & a design note carries numbers C39 corrected\\
+R4 & 2026-08-10 & the round-two novelty pass closes the self-audit frame; the general proposition is occupied in five literatures\\
+R5 & 2026-08-10 & C62 is a positive control, not a contribution\\
+R6 & 2026-08-10 & C54's checkpoint premise is false; 23 checkpoints exist on the Drive mount\\
+R7 & 2026-08-10 & the number audit: 15 mismatches, 9 of them abstract-level; the introduction inverts the central claim\\
+R8 & 2026-08-11 & three source conflicts resolved before they reached the page\\
+R9 & 2026-08-13 & the minimum detectable AUROC is unreproducible; the full Hanley and McNeil procedure supersedes it\\
+\end{longtable}
+\normalsize
+\doublespacing
+
