@@ -236,7 +236,7 @@ readings of one quantity.
 \label{tab:overcalling}
 \centering
 \small
-\begin{tabular}{llrrr}
+\begin{tabular}{@{}p{1.55in}p{1.15in}rrr@{}}
 \toprule
 \textbf{Labeller} & \textbf{Evaluation set} & \textbf{Positive rate} & \textbf{Ratio to $0.0401$} & \textbf{$n$} \\
 \midrule
@@ -246,7 +246,7 @@ readings of one quantity.
 \texttt{granite3.3:8b} & $G_{299}$, gold set                & 0.7425 & 18.5    & 299   \\
 \texttt{qwen3:8b}      & Candidate pool                    & 0.6349 & 15.8196 & 1,679 \\
 \texttt{qwen3:8b}      & $G_{299}$, gold set                & 0.6187 & 15.4167 & 299   \\
-Llama 3, originally deployed calibration run & Candidate pool, calibration join & $1425/1679$ & 21.1473 & 1,679 \\
+Llama 3, originally deployed & Pool, calibration join & $1425/1679$ & 21.1473 & 1,679 \\
 \addlinespace
 Claude Sonnet 5, zero-shot & $G_{299}$, gold set & 0.2140 & 5.3333 & 299 \\
 Claude Sonnet 5, few-shot  & $G_{299}$, gold set & 0.1806 & 4.5000 & 299 \\
@@ -325,7 +325,7 @@ varied and its marginal recorded at each setting. It under-responds to prevalenc
 everywhere, and the mismatch on public text is far smaller than the mismatch
 here.
 
-The maximum over-calling ratio measured across the full sweep, three models, two prompts and four
+Figure~\ref{fig:prevalence-response} shows the sweep in full. The maximum over-calling ratio measured across it, three models, two prompts and four
 prevalence levels on SNLI, is $3.5000$, reached by \texttt{llama3:8b} under the bare prompt at 2
 percent true prevalence; the next highest is $3.4000$, the same model and prompt at 5 percent
 prevalence. Both sit well below the
@@ -380,6 +380,7 @@ All three labellers are eight-billion-parameter instruction-tuned models, so the
 design is a two-by-two in domain and prevalence with capability held fixed, and
 the cell it does not contain is a frontier-scale labeller on the clinical pool.
 
+Figure~\ref{fig:missing-cell} is that design, and the hole in it.
 That cell was filled for an unrelated reason. The GPT-4o rows came from the
 transmission disclosed in Section~\ref{sec:m-ethics}, and re-running the
 comparison through a different channel required a different model. The
@@ -427,17 +428,19 @@ they sit beside those rows rather than replacing them.}
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.98\linewidth]{figures/fig-capability.pdf}
-\caption[Over-calling against labeller capability]{Over-calling ratio for every
-labeller measured in this thesis. Circles are ratios on the $1{,}679$-row
-candidate pool; diamonds are ratios on the $G_{299}$ gold set, and the marker
-shape carries that distinction because the two bases are not interchangeable.
-The shaded band runs from the pharmacist's $1.0$ to the public-text sweep's
-maximum of $3.5000$. Both frontier points sit just above that band rather than
-inside it.}
+\caption[Over-calling against labeller capability]{Over-calling ratio on
+$G_{299}$ for the five labellers the register carries a gold-set ratio for, with
+Wilson intervals. The solid rule is the pharmacist's $1.0$; the dashed rule is
+the public-text sweep's maximum of $3.5000$, a measured ceiling rather than a
+tolerance. The two groups are separated on the axis because the claim is that
+they are two groups. GPT-4o is not drawn: its committed cells are on $G_{253}$
+only, and Table~\ref{tab:systems253} reports them there.}
 \label{fig:capability}
 \end{figure}
 
-Three things follow, and the first is a correction.
+Table~\ref{tab:frontier253} gives the cells and Figure~\ref{fig:capability}
+places them against every other labeller measured here. Three things follow, and
+the first is a correction.
 
 The over-calling multiplier at frontier scale is $4.00$ times the confirmed rate
 zero-shot and $3.25$ times few-shot. The public-text sweep's maximum was $3.5000$.
@@ -527,8 +530,8 @@ positive moves the zero-shot value by $0.0426$; one flip on a negative moves it 
 $0.0048$. The worst case any model can assert is $p = 0.5$, every label an
 independent fair coin.
 
-At that worst case the zero-shot interval is $+0.0829$ to $+0.5353$. It still
-excludes zero. Within this analysis, which widens the interval and holds the
+Figure~\ref{fig:labelnoise} sweeps $p$ for both runs. At that worst case the
+zero-shot interval is $+0.0829$ to $+0.5353$. It still excludes zero. Within this analysis, which widens the interval and holds the
 point estimate where the run put it, no assumption about instability moves the
 zero-shot result to chance. The qualification below says what that leaves open.
 
@@ -549,12 +552,13 @@ posterior over the underlying value, and the claim above is scoped to it.
 \centering
 \includegraphics[width=0.98\linewidth]{figures/fig-labelnoise.pdf}
 \caption[Matthews interval against assumed label instability]{The $95$ percent
-Matthews interval for both frontier runs as a function of $p$, the assumed
-probability that any one label flips between draws. The dot at $p = 0$ is the
-point estimate, which is held fixed throughout; only the interval widens, so
-the figure is a sensitivity bound and not a posterior. The zero-shot lower
-bound stays above chance out to $p = 0.5$, where every label is an independent
-fair coin. The few-shot bound reaches chance at $p = 0.20$.}
+Matthews interval for each frontier run as a function of $p$, the assumed
+probability that any one label flips between draws, one panel per run so that
+neither band occludes the other. The dot at $p = 0$ is the point estimate, held
+fixed throughout; only the interval widens, so this is a sensitivity bound on an
+interval and not a posterior. The zero-shot lower bound stays above chance out to
+$p = 0.5$, where every label is an independent fair coin. The few-shot bound
+reaches chance at $p = 0.1159$.}
 \label{fig:labelnoise}
 \end{figure}
 
@@ -626,6 +630,8 @@ $\rho = -0.0001$, $p = 0.9991$. The
 severity-ranking question was therefore not tested here, and any null reported
 against that head measures an untrained module rather than the underlying
 question.
+
+Figure~\ref{fig:falsification} draws the parameter trajectories.
 
 \begin{figure}[!ht]
 
@@ -887,6 +893,8 @@ the difference. Every row has that shape, and at 12 positives none could have
 another.
 
 \subsection{A bag-of-words baseline}
+
+Table~\ref{tab:baselines} carries the comparison.
 
 \begin{table}[H]
 \caption[Reference baselines on annotated pairs]{Reference baselines on the annotated pairs.}
@@ -1181,6 +1189,8 @@ Values are printed at right because one interval is narrower than its marker.}
 \end{figure}
 
 \subsection{Sign provenance}
+
+Table~\ref{tab:signed} records the recomputation.
 
 The three experiments in this subsection, the selection experiment and the two
 PUMS regimes, run on simulated populations rather than the clinical pipeline,
