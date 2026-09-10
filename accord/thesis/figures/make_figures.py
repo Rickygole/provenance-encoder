@@ -1774,6 +1774,19 @@ def make_fig_survey_audit():
 # ============================================================================
 SKIPPED = [
     {
+        "label": "fig:met-sharpened",
+        "chapter": "retired",
+        "reason": (
+            "Retired rather than repaired. The figure's headline was a hardcoded "
+            "string, \"no MCC interval excludes chance\", and its system list was a "
+            "hardcoded four, so it could not track intervals.json. When the two "
+            "frontier rows were added it went on asserting a claim Chapter 4 had "
+            "withdrawn, in a committed PDF that no chapter bound. fig:forest shows "
+            "the same Matthews family from the artifact, with every system and a "
+            "computed headline, so this one is deleted rather than kept in step."
+        ),
+    },
+    {
         "label": "fig:asymmetry",
         "chapter": "ch3_data.tex",
         "reason": (
@@ -1827,7 +1840,14 @@ def main():
     make_fig_prevalence()
     make_fig_tracking()
     make_fig_met_exchange()
-    make_fig_met_sharpened()
+    # make_fig_met_sharpened() is retired, not merely unbound. Its headline
+    # was the literal string "no MCC interval excludes chance" and its system
+    # list was a hardcoded four, so it could not follow the data: after the
+    # frontier rows were added to intervals.json it kept asserting a claim the
+    # results chapter had withdrawn, and it shipped that claim in a committed
+    # PDF. fig:forest draws the same Matthews family from the artifact, with
+    # all six systems and a headline it computes, so nothing is lost by
+    # deleting this one and a stale duplicate is removed.
     # make_fig_disc_strata() and make_fig_survey_audit() are no longer bound.
     # disc-strata redrew fig:forest's second family identically, sixty pages
     # apart; survey-audit was cut by the author and its content is one sentence

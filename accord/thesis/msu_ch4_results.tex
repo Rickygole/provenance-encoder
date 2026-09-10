@@ -301,7 +301,7 @@ Llama 3 8B evaluation baseline & 11 & 1 & 231 & 10  & 0.0455 & 0.9167 \\
 \label{tab:systems253}
 \end{table}
 
-The three systems at recall $0.9167$ reach it the same way, by predicting the
+The two systems at recall $0.9167$ reach it the same way, by predicting the
 positive class for almost every pair. Recall alone is the least informative
 statistic here, because a constant-positive predictor attains recall $1.0$ by
 construction at precision exactly equal to the base rate of whichever set it
@@ -456,7 +456,8 @@ minimum detectable effect derived for the twelve-positive evaluation is an AUROC
 of $0.7355$, and Section~\ref{sec:res-rq4} records three configurations sitting at
 chance beneath it. Claude Sonnet 5 zero-shot reaches a balanced accuracy of
 $0.7941$ on the same rows, and its Matthews correlation of $+0.3189$ carries an
-interval of $+0.1473$ to $0.4622$, the only one on this set that excludes zero.
+interval of $+0.1473$ to $0.4622$, which excludes zero where none of the four
+systems this pipeline produced does.
 The claim that an effect above the stated line would have been visible had one
 been present is now demonstrated on the actual rows rather than argued from the
 class counts.
@@ -513,7 +514,9 @@ measures pair-sampling uncertainty and omits the rest, so the frontier intervals
 above are narrower than the truth. The direct remedy, re-running every pair
 several times, buys little here: the binding constraint is $12$ positives, not the
 number of draws, and at that sample size the pair-sampling term alone already
-carries a standard deviation of $0.0803$ on the zero-shot Matthews correlation.
+carries a standard deviation of $0.0875$ on the lower arm of the zero-shot
+Matthews interval, which is not symmetric about its point estimate and is
+therefore carried arm by arm throughout.
 
 The question worth asking instead is how unstable the labels would have to be
 before a conclusion changes. Treating each label as flipping independently with
@@ -524,22 +527,23 @@ positive moves the zero-shot value by $0.0426$; one flip on a negative moves it 
 $0.0048$. The worst case any model can assert is $p = 0.5$, every label an
 independent fair coin.
 
-At that worst case the zero-shot interval is $+0.0929$ to $+0.5448$. It still
-excludes zero. No assumption about this model's instability, however extreme,
-moves the zero-shot result to chance, and the above-chance reading therefore does
-not depend on the decoding being pinned.
+At that worst case the zero-shot interval is $+0.0829$ to $+0.5353$. It still
+excludes zero. Within this analysis, which widens the interval and holds the
+point estimate where the run put it, no assumption about instability moves the
+zero-shot result to chance. The qualification below says what that leaves open.
 
 The few-shot row does not survive the same test. Its interval admits zero once $p$
-reaches $0.20$, so its reported exclusion of zero at $+0.0314$ holds only under an
-assumption of near-stable labels that this run cannot support. The few-shot value
+reaches $0.1159$, so its reported exclusion of zero at $+0.0314$ holds only under
+an assumption of near-stable labels that this run cannot support. The few-shot value
 is therefore reported here as positive but not as distinguishable from chance, and
 no claim in this thesis rests on it.
 
 One qualification, stated because the distinction is the kind this thesis exists
-to enforce: this analysis bounds the interval with the point estimate held fixed.
-A model that also propagated label noise into the point estimate would shrink it
-toward chance as well, so what is established is a sensitivity bound and not a
-posterior.
+to enforce. This analysis widens the interval and holds the point estimate fixed.
+A model that also propagated label noise into the point estimate would move that
+estimate toward chance as well, and nothing here bounds how far. What is
+established is therefore a statement about this interval under instability, not a
+posterior over the underlying value, and the claim above is scoped to it.
 
 \begin{figure}[H]
 \centering
@@ -627,10 +631,11 @@ question.
 
 \centering
 \includegraphics[width=0.98\linewidth]{figures/fig-falsification.pdf}
-\caption[Two architecture components falsified]{Panel (a): each authority scale
-parameter from its initialisation to its final value, with the three seeds.
-Panel (b): the rule-type head's macro $F_1$ in the domain it was fitted on and
-on two it was not. Transfer scores carry no committed interval.}
+\caption[The authority parameters falsified]{Each authority scale parameter from
+its initialisation to its final value, with the three seeds. The rule-type head's
+transfer result, which an earlier version of this figure carried as a second
+panel, is now Table~\ref{tab:transfer}: those scores have no committed interval
+and were the one quantity in this set drawn as a bar with no sampling spread.}
 \label{fig:falsification}
 \end{figure}
 
@@ -1125,7 +1130,7 @@ ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ & $-0.1626$ to $0.
 Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ & $-0.2337$ to $0.0563$ \\
 \bottomrule
 \end{tabular}
-\apanote{Cells from Table~\ref{tab:systems253} and, for the two Claude rows, from the frontier metrics artifact; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. Four of the six contain zero. The two Claude intervals do not, but only the zero-shot exclusion is robust to the label instability documented in Section~\ref{sec:r-frontier}: the few-shot interval admits zero once the per-draw flip probability reaches $0.20$, and no claim rests on it. The Claude rows are single-draw labels from a model that does not accept a temperature parameter, and were run at a larger token budget than the GPT-4o rows, so they are not a paired protocol replacement for them.}
+\apanote{Cells from Table~\ref{tab:systems253} and, for the two Claude rows, from the frontier metrics artifact; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. Four of the six contain zero. The two Claude intervals do not, but only the zero-shot exclusion is robust to the label instability documented in Section~\ref{sec:r-frontier}: the few-shot interval admits zero once the per-draw flip probability reaches $0.1159$, and no claim rests on it. The Claude rows are single-draw labels from a model that does not accept a temperature parameter, and were run at a larger token budget than the GPT-4o rows, so they are not a paired protocol replacement for them.}
 \label{tab:mcc}
 \end{table}
 

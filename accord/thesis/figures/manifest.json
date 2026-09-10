@@ -64,15 +64,6 @@
       "note": "Indifference lines are closed-form (PABAK, balanced accuracy) or numerically root-solved (MCC, scipy.optimize.brentq) from the confusion-matrix class counts in diag/step3_baselines.json; not fabricated curve shapes."
     },
     {
-      "file": "figures/fig-met-sharpened.pdf",
-      "label": "fig:met-sharpened",
-      "sources": [
-        "results/accord/diag/step3_baselines.json",
-        "results/accord/stats/intervals.json"
-      ],
-      "note": "Recall CIs are Wilson score on (tp, 12) -- not in the original spec, added per the CI non-negotiable. MCC CIs from stats/intervals.json E2 (all four contain zero, per CORRECTIONS.md C36)."
-    },
-    {
       "file": "figures/fig-disc-actionability.pdf",
       "label": "fig:disc-actionability",
       "sources": [
@@ -93,6 +84,11 @@
     }
   ],
   "skipped": [
+    {
+      "label": "fig:met-sharpened",
+      "chapter": "retired",
+      "reason": "Retired rather than repaired. The figure's headline was a hardcoded string, \"no MCC interval excludes chance\", and its system list was a hardcoded four, so it could not track intervals.json. When the two frontier rows were added it went on asserting a claim Chapter 4 had withdrawn, in a committed PDF that no chapter bound. fig:forest shows the same Matthews family from the artifact, with every system and a computed headline, so this one is deleted rather than kept in step."
+    },
     {
       "label": "fig:asymmetry",
       "chapter": "ch3_data.tex",

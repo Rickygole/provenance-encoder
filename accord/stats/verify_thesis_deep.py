@@ -45,9 +45,11 @@ THESIS_FIGS = [
     "fig-prevalence-response", "fig-falsification", "fig-power", "fig-forest",
     "fig-scaling", "fig-threshold-surface",
     "fig-disc-actionability", "fig-met-exchange", "fig-exemplar",
+    "fig-capability", "fig-missing-cell", "fig-labelnoise",
 ]
 FIG_SCRIPTS = ["make_figures.py", "fig_batch2.py",
-               "fig_threshold_surface.py", "make_figures_extra.py"]
+               "fig_threshold_surface.py", "make_figures_extra.py",
+               "fig_frontier.py"]
 
 # Pass 6. Hard verbs gate; soft verbs are reported for review. A match whose
 # preceding thirty characters contain a negation is legitimate hedging, not an
