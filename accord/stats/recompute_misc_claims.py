@@ -1,7 +1,7 @@
 """Recomputations for the remaining audited prose claims."""
 import json, math, statistics as st
 from pathlib import Path
-ROOT = Path("/Users/rickygole/provenance-encoder")
+ROOT = Path(__file__).resolve().parents[2]
 
 # 1. MCC interval overlap claim (ch4 L807-808: "overlap by more than half their width")
 iv = json.load(open(ROOT/"results/accord/stats/intervals.json"))["E2_mcc_intervals"]

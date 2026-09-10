@@ -129,8 +129,8 @@ for r, pr in enumerate(prompts):
             arrow(ax, (clinical_x, 0.272), (clinical_x, Y_HI - 0.010),
                   color=SCARLET_CORE, lw=2.4, zorder=6)
             case(ax.text(X_HI - 0.014, 0.348,
-                         f"clinical: {clinical_x * 100:.0f}% read as "
-                         f"{clinical_y * 100:.0f}%",
+                         f"clinical: {clinical_x:.4f} read as "
+                         f"{clinical_y:.4f}",
                          ha="right", va="center", fontsize=T_SERIES,
                          color=SCARLET_DEEP, zorder=7))
         if r == 0 and c == 2:
@@ -243,11 +243,17 @@ print("wrote fig-scaling.pdf")
 iv = json.loads((ROOT / "results/accord/stats/intervals.json").read_text())["E2_mcc_intervals"]
 NICE = {"gpt4o_zeroshot": "GPT-4o zero-shot", "gpt4o_fewshot": "GPT-4o few-shot",
         "accord_binary_at_0.5_253core": "ACCORD at 0.5",
-        "llama_baseline": "Llama 3 8B"}
+        "llama_baseline": "Llama 3 8B",
+        "claude_sonnet5_zeroshot": "Claude Sonnet 5 zero-shot",
+        "claude_sonnet5_fewshot": "Claude Sonnet 5 few-shot"}
 # Rows take their ENTITY hue, which they did not before: family 1's four rows
 # all drew one blue, contradicting the graphical abstract 85 pages earlier.
+# EMERALD and CYAN for the two frontier rows: both are unused by family 1 and
+# neither collides with GPT-4o's cobalt, which is the confusion this map was
+# introduced to stop.
 ROW_HUE = {"gpt4o_zeroshot": COBALT, "gpt4o_fewshot": AZURE,
-           "accord_binary_at_0.5_253core": AMBER, "llama_baseline": PLUM}
+           "accord_binary_at_0.5_253core": AMBER, "llama_baseline": PLUM,
+           "claude_sonnet5_zeroshot": EMERALD, "claude_sonnet5_fewshot": CYAN}
 fam_mcc = [((NICE.get(k, k) + f" ({v['n']} pairs)") if k.startswith("accord")
             else NICE.get(k, k), v["mcc"], v["ci95"][0], v["ci95"][1],
             ROW_HUE[k]) for k, v in iv.items()]
@@ -277,9 +283,18 @@ _p100 = [x["accuracy"] for x in _sc if x["tag"] == "scratch_100M"]
 _pbert = [x["accuracy"] for x in _sc if x["tag"] == "pretrained_bert"]
 _g44 = st.mean(_pbert) - st.mean(_p100)
 _se44 = math.sqrt(st.stdev(_pbert) ** 2 / 3 + st.stdev(_p100) ** 2 / 3)
+# "In-hospital mortality, AUROC" not "... AUROC (3 seeds each)": that longer
+# label is the one D1 traced as the cause of fig-forest's tight-bbox overflow
+# (see the note at fig.subplots_adjust below). Raising `left` to fit it costs
+# this figure's ink coverage its own 0.46 floor in tools/measure_ink.py (0.530
+# to 0.458), so the label is shortened instead and "3 seeds each" is dropped
+# from the row name. It is still true and still in the data (task_runs.json
+# carries exactly 3 seeds per arm); it just is not on this canvas any more. The
+# caption owner needs to say it: "In-hospital mortality, AUROC (3 seeds each)".
 fam_gap = [
-    ("In-hospital mortality, AUROC", _g, _g - 1.96 * _se, _g + 1.96 * _se, EMERALD),
-    ("AG News at 100M, accuracy", _g44, _g44 - 1.96 * _se44, _g44 + 1.96 * _se44,
+    ("In-hospital mortality, AUROC", _g, _g - 1.96 * _se,
+     _g + 1.96 * _se, EMERALD),
+    ("AG News at 100M, single budget", _g44, _g44 - 1.96 * _se44, _g44 + 1.96 * _se44,
      EMERALD),
 ]
 # A family is not an entity, so the family band is a structural ground and the
@@ -304,6 +319,22 @@ y_ceiling = placed[-1][0] + 1.10
 
 fig, ax = plt.subplots(figsize=(FIGW, 3.71))
 canvas(fig)
+# left is unchanged at 0.2976. canvas() pins the bbox to the figure rectangle,
+# but savefig(bbox="tight") still EXPANDS for artists outside it, and with the
+# longer "(3 seeds each)" row label this margin let the y tick labels overflow
+# it by about 0.58in. The tight box grew LEFT to catch that, saved at
+# 465.919pt against this class's 424.348, and \includegraphics then scaled the
+# whole figure down by 8.9 percent to fit the measure -- which put this
+# figure's 8.5pt note type under the set's own floor. Exactly this defect,
+# same cause, was already diagnosed and fixed for fig:met-exchange in
+# make_figures.py by widening its overflowing margin; that remedy was tried
+# here first (left raised to 0.398, which does hold the label), but it also
+# narrows the plot rectangle by 14.5%, and this figure's family bands fill
+# that rectangle, so its ink coverage fell from 0.530 to 0.458, under
+# tools/measure_ink.py's 0.46 floor. The other remedy the same diagnosis
+# offers is the one actually applied: shorten the overflowing label instead
+# (above, at fam_gap) so the existing margin already holds it, which is the
+# state this figure was in before that label grew.
 fig.subplots_adjust(left=0.2976, right=0.9890, top=0.8783, bottom=0.1173)
 X_LO, X_HI = -0.40, 1.06
 ax.set_xlim(X_LO, X_HI)
@@ -332,7 +363,7 @@ for yy, (lab, e, lo, hi, hue) in placed:
                     solid_capstyle="butt", zorder=6)
         mark = "‡ "
         sliver.append(lab)
-    ax.text(X_HI - 0.02, yy, f"{mark}{e:+.4f}  [{lo:+.3f}, {hi:+.3f}]",
+    ax.text(X_HI - 0.02, yy, f"{mark}{e:+.4f}  [{lo:+.4f}, {hi:+.4f}]",
             ha="right", va="center", fontsize=T_SERIES, color=hue.DEEP,
             zorder=6)
 
@@ -424,7 +455,13 @@ case(ax.text(6.0, 0.515, "not detectable at this sample size",
              fontsize=T_SERIES, color=SCARLET_DEEP, ha="left", va="bottom",
              zorder=5))
 # Both marks are labelled adjacent to themselves. No leaders anywhere.
-ax.plot([mort_n_pos], [mde_mort], "s", color=SLATE, ms=MS_MARK,
+# GRAPHITE, not the SLATE this used to carry: SLATE is 3.48:1 on paper and this
+# set does not set type in it, and the checker that enforces that ban counts a
+# marker inside a text call's own window as type. The mortality control point
+# is a second measured quantity on this GRAPHITE curve, not an entity, so it
+# takes the same structural measurement tone as the curve it sits on rather
+# than SLATE's reference-line-and-seed-dot role. GRAPHITE on paper is 12.49:1.
+ax.plot([mort_n_pos], [mde_mort], "s", color=GRAPHITE, ms=MS_MARK,
         markeredgewidth=0, zorder=6)
 case(ax.text(mort_n_pos, mde_mort + 0.022,
              f"mortality control, {mort_n_pos} positives", fontsize=T_SERIES,
@@ -436,7 +473,7 @@ case(ax.text(n_pos_study * 1.5, mde_study + 0.030,
              color=SCARLET_DEEP, ha="left", va="bottom", zorder=6))
 frame(ax)
 signature(fig, SCARLET_DEEP,
-          f"At {n_pos_study} positives, nothing below AUROC {mde_study:.3f} "
+          f"At {n_pos_study} positives, nothing below AUROC {mde_study:.4f} "
           f"was ever detectable.")
 fig.savefig(HERE / "fig-power.pdf"); plt.close(fig)
 print("wrote fig-power.pdf")

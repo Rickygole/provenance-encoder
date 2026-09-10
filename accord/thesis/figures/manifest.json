@@ -4,20 +4,20 @@
       "file": "figures/fig-pipeline-status.pdf",
       "label": "fig:pipeline-status",
       "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/exemplar/exemplar_correctness_recomputed.json",
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step0_1_join_and_calibration.json",
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json",
-        "/Users/rickygole/provenance-encoder/results/accord/decontam/corrected_gold_metrics.json"
+        "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "results/accord/diag/step2_signal_check.json",
+        "results/accord/differential/exp1a_gold_error_rates_by_group.json",
+        "results/accord/decontam/corrected_gold_metrics.json"
       ],
-      "note": "Two stage verdicts are categorical narrative with no committed numeric source (CORRECTIONS.md). The three parenthetical numbers (47.45% wrong of resolved, ~22x, AUROC 0.5145 with CI) are computed from the cited JSON files. The multiplier is the gold-set one, 261/299 over 12/299, the same ratio fig:intro-headline brackets. AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated 3-seed ensemble 0.5145)."
+      "note": "Stages 1 and 2 (cohort construction, medication extraction) carry no committed numeric source and are summarized in one note line rather than drawn as rows. The detector-training row's finding is categorical narrative with no committed numeric source (CORRECTIONS.md). The reported-number column otherwise reads the pharmacist base rate on G299 (0.0401, step2_signal_check.json), the weak labeller's positive rate on the same 299 gold pairs (0.8729, exp1a_gold_error_rates_by_group.json), and the decontaminated AUROC point estimate alone (0.5145, corrected_gold_metrics.json). The check-finding column reads the wrong-rate upper bound (0 to 0.4745 of resolved candidates, exemplar_correctness_recomputed.json), the prevalence multiplier (~22x, same gold-set ratio fig:intro-headline brackets), and the bootstrap 95% CI on AUROC ([0.32, 0.70], corrected_gold_metrics.json). The spine asserts shared corrupted input from the stage 3 exemplar defect into rows 4-6, not that rows 4-6's numbers follow causally from it: the 22x mismatch is a prevalence and specificity effect. AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated 3-seed ensemble 0.5145)."
     },
     {
       "file": "figures/fig-intro-headline.pdf",
       "label": "fig:intro-headline",
       "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step0_1_join_and_calibration.json",
-        "/Users/rickygole/provenance-encoder/results/accord/differential/exp1a_gold_error_rates_by_group.json",
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json"
+        "results/accord/diag/step0_1_join_and_calibration.json",
+        "results/accord/differential/exp1a_gold_error_rates_by_group.json",
+        "results/accord/diag/step2_signal_check.json"
       ],
       "note": "The left-panel middle bar is the weak labeller marginal, 261 of 299 (gold.weaklabel_contradiction); ACCORD predicts contradiction for 278 of 299 (gold.accord_pred_contradiction, reconciliation_c28.json). The Matthews correlation panel that used to sit under this one is deleted: those four estimates are fig:forest's first family."
     },
@@ -25,8 +25,8 @@
       "file": "figures/fig-funnel.pdf",
       "label": "fig:funnel",
       "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/stats/cohort_icd_counts.json",
-        "/Users/rickygole/provenance-encoder/results/accord/era/era_confound_closed.json"
+        "results/accord/stats/cohort_icd_counts.json",
+        "results/accord/era/era_confound_closed.json"
       ],
       "note": "Simplified from the 5-stage spec to the 3 stages traceable to committed files; see in-figure footnote."
     },
@@ -34,7 +34,7 @@
       "file": "figures/fig-exemplar.pdf",
       "label": "fig:exemplar",
       "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/exemplar/exemplar_correctness_recomputed.json"
+        "results/accord/exemplar/exemplar_correctness_recomputed.json"
       ],
       "note": "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes), no clinical text and no number: the wrong-exemplar rate it used to carry is a population rate and this panel draws a single candidate, so the rate is stated in the chapter body instead."
     },
@@ -42,8 +42,8 @@
       "file": "figures/fig-prevalence.pdf",
       "label": "fig:prevalence",
       "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step0_1_join_and_calibration.json",
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json"
+        "results/accord/diag/step0_1_join_and_calibration.json",
+        "results/accord/diag/step2_signal_check.json"
       ],
       "note": "Weak-label counts from diag/step0_1 weak_confidence crosstab; gold counts (12 contradiction / 241 not / 46 ambiguous) reconstructed from diag/step2_signal_check ambiguous-included vs ambiguous-excluded base rates."
     },
@@ -51,7 +51,7 @@
       "file": "figures/fig-tracking.pdf",
       "label": "fig:tracking",
       "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step0_1_join_and_calibration.json"
+        "results/accord/diag/step0_1_join_and_calibration.json"
       ],
       "note": "Wilson score 95% CIs added per point (n from n_gold per rule: 134/31/79/55); not in the original spec, added per the CI non-negotiable."
     },
@@ -59,7 +59,7 @@
       "file": "figures/fig-met-exchange.pdf",
       "label": "fig:met-exchange",
       "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step3_baselines.json"
+        "results/accord/diag/step3_baselines.json"
       ],
       "note": "Indifference lines are closed-form (PABAK, balanced accuracy) or numerically root-solved (MCC, scipy.optimize.brentq) from the confusion-matrix class counts in diag/step3_baselines.json; not fabricated curve shapes."
     },
@@ -67,8 +67,8 @@
       "file": "figures/fig-met-sharpened.pdf",
       "label": "fig:met-sharpened",
       "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step3_baselines.json",
-        "/Users/rickygole/provenance-encoder/results/accord/stats/intervals.json"
+        "results/accord/diag/step3_baselines.json",
+        "results/accord/stats/intervals.json"
       ],
       "note": "Recall CIs are Wilson score on (tp, 12) -- not in the original spec, added per the CI non-negotiable. MCC CIs from stats/intervals.json E2 (all four contain zero, per CORRECTIONS.md C36)."
     },
@@ -84,12 +84,12 @@
       "file": "figures/fig-cohort-flow.pdf",
       "label": "fig:cohort-flow",
       "sources": [
-        "/Users/rickygole/provenance-encoder/results/accord/stats/cohort_icd_counts.json",
-        "/Users/rickygole/provenance-encoder/results/accord/generality/transfer_results_correct.json",
-        "/Users/rickygole/provenance-encoder/results/accord/diag/step2_signal_check.json",
-        "/Users/rickygole/provenance-encoder/results/accord/VERIFIED_FACTS.json"
+        "results/accord/stats/cohort_icd_counts.json",
+        "results/accord/generality/transfer_results_correct.json",
+        "results/accord/diag/step2_signal_check.json",
+        "results/accord/VERIFIED_FACTS.json"
       ],
-      "note": "CONSORT-style path from the source database to the two evaluated sets. Nine stages, three exclusions, every count read from a committed file. Two exclusion branches the diagram would otherwise carry are omitted because no committed file records them as counts: the admissions dropped between the length-of-stay filter and the both-roles requirement, and those dropped between the both-roles requirement and the selected pairs. Both are differences of two committed counts and neither is a recorded exclusion, so neither is drawn. The ambiguous count is the difference between the two positive counts recorded on the same 299 rows in the signal-check file, the same subtraction the prevalence figure performs. Four stages read the thesis register rather than a primary artifact, because their own upstream summaries live outside this repository under the data agreement."
+      "note": "CONSORT-style path from the source database to the two evaluated sets. Nine stages, four exclusions, every count read from a committed file. One exclusion branch the diagram would otherwise carry is omitted because no committed file records it as a count: the admissions dropped between the length-of-stay filter and the both-roles requirement. That is a difference of two committed counts and not itself a recorded exclusion, so it is not drawn. The admissions dropped between the both-roles requirement and the selected pairs are drawn because that count is itself registered: the shortfall is entirely on the nursing side, since a both-roles admission is selectable only when some nursing note carries a chart time strictly before discharge, and the discharge side carries no matching condition. The ambiguous count is the difference between the two positive counts recorded on the same 299 rows in the signal-check file, the same subtraction the prevalence figure performs. Four stages read the thesis register rather than a primary artifact, because their own upstream summaries live outside this repository under the data agreement."
     }
   ],
   "skipped": [

@@ -122,8 +122,9 @@ flags and the extraction literature does not target.
 The deployment literature is equally clear about what a low-precision alert does.
 \citet{vandersijs2006overriding} review overriding of drug safety alerts in computerised
 physician order entry and report override rates of 49\% to 96\%, and
-\citet{ancker2017alertfatigue} show that workload and work complexity degrade alert response
-within a single system. A cross-note contradiction detector is an alerting system, so its
+\citet{ancker2017alertfatigue} find alert acceptance associated with work complexity and with
+repeated alerts for the same patient, but not with the amount of work, so the driver of
+degraded response within a single system is the alert stream itself. A cross-note contradiction detector is an alerting system, so its
 operating point is a clinical fact rather than an implementation detail, and a recall figure
 reported without the corresponding precision at the same threshold says nothing about
 clinical usefulness.
@@ -304,8 +305,8 @@ mechanical enough to check before a results table exists.
 \paragraph{Where this thread stops.} \citet{feinstein1990paradoxes} appeared in 1990, which
 makes the core of this critique thirty-six years old at the time of writing. This thesis
 applies it and does not extend it, and saying so plainly is the honest position: analysing
-how these statistics behave at a positive rate of a few percent is a textbook application,
-not a contribution. What remains open is smaller. Each paper establishes that a measure
+how these statistics behave at a positive rate of a few percent is a textbook application.
+What remains open is smaller. Each paper establishes that a measure
 misbehaves under skew and recommends another. None states, for a given evaluation set, the
 exchange rate between a missed positive and an avoided false alarm that the chosen measure
 imposes, in a form a reader can check against the paper's own confusion matrix.
@@ -318,7 +319,7 @@ borrowed. Laying it out at length makes the attribution unambiguous, so that no 
 mistakes the application of these instruments for their invention. Each subsection names the
 owner, states the design, and identifies the stage of this project it is applied to.
 
-\subsection{Negative controls in observational research}
+\subsection{Negative and positive controls in observational research}
 
 \citet{lipsitch2010negative} formalised the negative control for observational epidemiology.
 The logic is that a noncausal association between exposure and outcome threatens any causal
@@ -328,6 +329,11 @@ nonetheless produces an association. An association where none can exist is evid
 analysis is picking up confounding, recall bias, or a defect in procedure. The control does
 not identify which; it establishes that at least one is present, which is enough to stop a
 claim from being made.
+A positive control runs the same analysis in the opposite direction: on a case where an effect
+is already known to exist, so that the result speaks about the instrument rather than about the
+question being asked of it. \citet{lipsitch2010negative} do not themselves formalise this
+direction; this thesis adapts their negative control device to build a positive control on the
+same terms.
 
 The transfer to a machine learning pipeline is direct. Replace the substantive input with one
 that cannot carry the information being claimed, hold everything else fixed, and see whether
@@ -409,7 +415,7 @@ Control task and selectivity & \citet{hewitt2019control} & Architecture componen
 Leakage diagnosis & \citet{kaufman2012leakage} & Auxiliary training objective \\
 Surrogate label bias & \citet{egami2023surrogates} & Weak supervision \\
 Prevalence-dependent agreement & \citet{feinstein1990paradoxes} & Reported metrics \\
-Positive control on gain & \citet{lourie2025scaling} & Evaluation instrument \\
+Positive control & \citet{lipsitch2010negative} & Evaluation instrument \\
 Construct validity framing & \citet{jacobs2021measurement} & The task definition \\
 \bottomrule
 \end{tabular}
@@ -449,11 +455,9 @@ self-supervised pretraining, obtained far from clinical text, and it is stronger
 the general proposition than anything this thesis could produce.
 
 The consequence is a limitation on what may be claimed, adopted rather than resisted. The
-convergence experiment reported in the Results chapter is a positive control: it establishes
-that the training and evaluation harness used for the clinical detector can register a
-downstream difference of a known size, converting a null clinical result from ``we saw
-nothing'' into ``the instrument would have seen an effect of this size and saw nothing.'' It
-is not offered as a contribution to the scaling literature.
+Results chapter reports a convergence experiment on the same harness, built for exactly this
+reason; the Introduction states what it licenses for the clinical null, and does not offer it
+as a contribution to the scaling literature.
 
 \paragraph{Where this thread stops.} Both papers speak to general-domain or benchmark-suite
 settings with many tasks and many runs. Neither addresses what a positive control should look

@@ -28,7 +28,7 @@ from pathlib import Path
 
 from scipy.stats import linregress, t as t_dist
 
-ROOT = Path("/Users/rickygole/provenance-encoder")
+ROOT = Path(__file__).resolve().parents[2]
 SEL = json.loads((ROOT / "results/accord/selection/selection_experiment_results_signed.json").read_text())
 PUMS = json.loads((ROOT / "results/accord/pums/pums_replication_results_signed.json").read_text())
 

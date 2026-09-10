@@ -12,14 +12,30 @@
 
 set -euo pipefail
 
-REPO="/Users/rickygole/provenance-encoder"
+# DRIVE_ROOT holds the author's Google Drive mount path, which embeds an
+# institutional email address, so it is not hardcoded here. Set it in the
+# environment before running this script, e.g.:
+#   export DRIVE_ROOT="/Users/you/Library/CloudStorage/GoogleDrive-you@example.edu/My Drive/thesis"
+: "${DRIVE_ROOT:?DRIVE_ROOT is not set. Export DRIVE_ROOT to the thesis folder inside your Google Drive mount before running this script.}"
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOCAL="/Users/rickygole/mimic_local_only"
-DRIVE="/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/results_2026-08"
-DRIVE_CODE="/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/code_2026-08"
+DRIVE="$DRIVE_ROOT/results_2026-08"
+DRIVE_CODE="$DRIVE_ROOT/code_2026-08"
 
 # MIMIC-III de-identification surrogates and the section headers that would
 # only appear inside a real note.
 TEXT_MARKERS='\[\*\*|admission date|chief complaint|discharge medications|nursing_sentence|discharge_sentence'
+
+# The code gate needs a narrower set than the data gate. `nursing_sentence` and
+# `discharge_sentence` are column names, and the pipeline scripts that build
+# those columns necessarily contain the strings: phase3_mining.py,
+# run_multillm_replication.py and run_frontier_compliant.py all do. Scanning
+# code with the full data set aborts on the project's own source every run, and
+# a gate that always fires is a gate that gets commented out. What must never
+# appear in a .py is note CONTENT, so the code gate keeps the surrogate and
+# section-header markers and drops the two column names.
+CODE_TEXT_MARKERS='\[\*\*|admission date|chief complaint|discharge medications'
 
 # Identifiers matter as much as text -- HADM_ID joined to anything is restricted
 # data, not a derived aggregate -- but only when they are a DATA KEY. These
@@ -27,7 +43,10 @@ TEXT_MARKERS='\[\*\*|admission date|chief complaint|discharge medications|nursin
 # HADM_ID+drug"), and a gate that fires on prose gets ignored, which is worse
 # than no gate. So match the structural forms only: a JSON key, or a CSV header
 # at the start of a line.
-ID_MARKERS='"(HADM_ID|SUBJECT_ID)"[[:space:]]*:|^(HADM_ID|SUBJECT_ID),|,(HADM_ID|SUBJECT_ID),'
+# The trailing-column alternative matters: a header ending in the identifier,
+# such as pair_id,drug,HADM_ID, matched none of the first three forms and passed
+# the gate clean.
+ID_MARKERS='"(HADM_ID|SUBJECT_ID)"[[:space:]]*:|^(HADM_ID|SUBJECT_ID),|,(HADM_ID|SUBJECT_ID),|,(HADM_ID|SUBJECT_ID)[[:space:]]*$'
 
 # Structural exclusion beats pattern matching: a note sentence carrying no
 # surrogate and no section header would pass a content scan. Row-level formats
@@ -75,7 +94,11 @@ PY
 # that predate this script and are one-way marginals with no identifiers. Those
 # are content-checked here rather than excluded by extension -- blanket-blocking
 # .csv in the tree would abort on legitimate aggregates every run.
-for p in $(find results/accord -type f); do
+# -print0 with a null-delimited read, not $(find ...). Unquoted command
+# substitution word-splits on spaces, so a filename containing a space became
+# two nonexistent paths, grep failed on both, 2>/dev/null swallowed the error and
+# the file was never scanned at all.
+while IFS= read -r -d '' p; do
   if grep -qiE "$TEXT_MARKERS" "$p" 2>/dev/null; then
     echo "ABORT: note text in $p"
     exit 1
@@ -84,10 +107,30 @@ for p in $(find results/accord -type f); do
     echo "ABORT: identifier used as a data key in $p"
     exit 1
   fi
-done
+done < <(find results/accord -type f -print0)
 
 mkdir -p "$DRIVE"
 cp -R results/accord/. "$DRIVE/"
+
+# Gate the code BEFORE it is copied, scanning the source tree. An earlier
+# version scanned $DRIVE_CODE after the rsync and carried a comment claiming
+# that meant "what is ON Drive is what passed". That was backwards: the copy had
+# already happened and nothing was removed on abort, so a failing file reached
+# Drive and stayed there. Aborting here costs a re-run; aborting after the copy
+# cost nothing and prevented nothing.
+while IFS= read -r -d '' p; do
+  case "$p" in
+    # These hold the markers as patterns, not as content. stage0/data.py:45 is
+    # the section-header regex the note splitter matches on; it has to contain
+    # the string in order to find it.
+    */sync_results.sh|*/export_results.py|*/stage0/data.py) continue ;;
+  esac
+  if grep -qiE "$CODE_TEXT_MARKERS" "$p" 2>/dev/null; then
+    echo "ABORT: note text in code file $p (nothing was copied to $DRIVE_CODE)"
+    exit 1
+  fi
+done < <(find accord scripts src tests -type f \
+           \( -name '*.py' -o -name '*.sh' -o -name '*.tex' \) -print0)
 
 # Code goes to Drive too, so the evidence and the thing that produced it stay
 # together. Code is not just safe to share -- PhysioNet License 1.5.0 Clause 8
@@ -105,18 +148,6 @@ rsync -a --delete \
     done
   }
 find "$DRIVE_CODE" \( -name '__pycache__' -o -name '*.pyc' \) -prune -exec rm -rf {} + 2>/dev/null
-
-# Same standard for code as for results: a script that embeds sample rows is a
-# leak in a .py file. Checked after the copy so what is ON Drive is what passed.
-for p in $(find "$DRIVE_CODE" -type f \( -name '*.py' -o -name '*.sh' -o -name '*.tex' \)); do
-  case "$p" in
-    */sync_results.sh|*/export_results.py) continue ;;   # these hold the markers as patterns
-  esac
-  if grep -qiE "$TEXT_MARKERS" "$p" 2>/dev/null; then
-    echo "ABORT: note text in code file $p"
-    exit 1
-  fi
-done
 
 echo "repo:    $(find results/accord -type f | wc -l | tr -d ' ') result files"
 echo "drive:   $(find "$DRIVE" -type f | wc -l | tr -d ' ') result files -> $DRIVE"

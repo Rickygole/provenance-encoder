@@ -38,10 +38,50 @@ INTERNAL_FILES = {
     "C44_PREREGISTRATION.md": "the pre-registered adjudication rule",
 }
 
+# Absolute filesystem paths, same rule as above but for a live machine path
+# rather than a repository filename: a path under this repository is a
+# citation nobody outside this machine can open, a path under the credentialed
+# local-only directory names where restricted data sits, and a path under the
+# Google Drive mount carries the operator's institutional email address. The
+# register (results/accord/VERIFIED_FACTS.json) is normalised at the source so
+# these patterns should not occur in an artifact string reaching this module;
+# these are matched here too, as the second line of defense, so a future
+# entry written straight from a live filesystem path is still caught.
+_DRIVE_RE = re.compile(r"GoogleDrive-[^/]+/My Drive/(.*)")
+_LOCAL_ONLY_RE = re.compile(r"/mimic_local_only/(.*)")
+_REPO_RE = re.compile(r"/provenance-encoder/(.*)")
+
+
+def normalize_artifact_path(s):
+    """Rewrite the leading absolute filesystem path in an artifact string, if
+    any, to a form safe to publish. A path under this repository becomes
+    repo-relative; a path under the credentialed local-only directory or the
+    Google Drive mount becomes a bracketed token. Only the directory prefix
+    changes: the filename and any trailing ", derived: ..." explanation
+    survive unchanged."""
+    if "/Users/" not in s and "/home/" not in s:
+        return s
+    head, sep, tail = s.partition(", ")
+    m = _DRIVE_RE.search(head)
+    if m:
+        head = "[DRIVE]/" + m.group(1)
+    else:
+        m = _LOCAL_ONLY_RE.search(head)
+        if m:
+            head = "[LOCAL]/" + m.group(1)
+        else:
+            m = _REPO_RE.search(head)
+            if m:
+                head = m.group(1)
+    return head + sep + tail
+
 
 def strip_internal_paths(s):
     """Replace any internal .md filename, with or without its directory, by a
-    description of what it is."""
+    description of what it is, and normalise any absolute filesystem path (see
+    normalize_artifact_path) so no machine path or institutional email address
+    reaches the page."""
+    s = normalize_artifact_path(s)
     for name, phrase in INTERNAL_FILES.items():
         s = re.sub(r"(?:[\w./-]*/)?" + re.escape(name), phrase, s)
     # anything else ending .md: describe rather than name
@@ -73,25 +113,6 @@ def esc_breakable(s):
     s = esc(s)
     s = s.replace(".", r".\allowbreak{}")
     s = s.replace("/", r"/\allowbreak{}")
-    return s
-
-
-# The two absolute local filesystem paths long enough, and space-free enough,
-# to risk overrunning the page in both outputs -- \allowbreak fixes pdflatex,
-# but pandoc drops it, so a plain-text table cell in Word is one long unbroken
-# run. Abbreviate the shared, uninformative directory prefix; the full path is
-# spelled out once, in a note under the table, so nothing is actually lost.
-PATH_ABBREV = [
-    ("/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu"
-     "/My Drive/thesis/outputs/", "[GDRIVE]/"),
-    ("/Users/rickygole/mimic_local_only/", "[MIMIC]/"),
-]
-
-
-def abbreviate_path(s):
-    for full, short in PATH_ABBREV:
-        if s.startswith(full):
-            return short + s[len(full):]
     return s
 
 
@@ -163,7 +184,7 @@ def main():
          "retired it and to where the corrected version now lives. The remaining corrections changed",
          "the record, not a number surviving into these six chapters, and are named below rather than",
          "repeated in full; their complete text, with artifact and reasoning, is retained in",
-         r"the project\'s correction record, released with the analysis code.", "",
+         "the project's correction record, released with the analysis code.", "",
          r"\section{Corrections That Changed a Printed Number}", "", r"\singlespacing",
          r"\renewcommand{\arraystretch}{0.9}",
          r"\footnotesize",
@@ -189,11 +210,22 @@ def main():
         return ", ".join(f"C{a}" if a == b else f"C{a} to C{b}" for a, b in runs)
 
     a += [r"\section{The Remaining Corrections}", "",
-          f"{len(remaining)} further corrections were issued during the work. Each withdrew, "
-          "narrowed, or confirmed a claim against evidence, but none changed a number that survives "
-          "into the six chapters above: " + esc(as_ranges(remaining))
-          + r". Full text for each is in the project\'s correction record, "
-          r"released with the analysis code.", ""]
+          f"{len(remaining)} further corrections were issued during the work: "
+          + esc(as_ranges(remaining))
+          + ". Each withdrew, narrowed or confirmed a claim against evidence. They are named "
+          "rather than reproduced because the table above traces the ten whose corrected value "
+          "a reader is most likely to want to follow, not because the rest left every printed "
+          "number untouched: several of them produced numbers this thesis still prints. C16 "
+          "identified the contaminated evaluation run and produced the recall of 0.7778 and "
+          "precision of 0.0424 reported in Chapters 1, 5 and 6. C39 corrected the mortality "
+          "control task's dataset to 34,018 examples, 2,975 positives and 570 test positives, "
+          "the last of which is printed seven times across five chapters. C19 produced the "
+          "defect-free control model's "
+          "scores, C36 the four Matthews correlation intervals, C42 the public-text over-calling "
+          "ratio, C55 the survey's strict and permissive counts, C57 the drift-slope flip count, "
+          "C59 the survey reliability coefficients and C62 the convergence sweep's adjudication. "
+          "No claim is made here that this list is exhaustive. Full text for each is in the "
+          "project's correction record, released with the analysis code.", ""]
 
     if revs:
         a += [r"\section{Revisions After the Record Closed}", "",
@@ -219,20 +251,11 @@ def main():
          "grouped below by the experiment that produced it, with the file each group was read from.", "",
          r"\singlespacing", r"\renewcommand{\arraystretch}{0.9}", r"\footnotesize", r"\begin{longtable}{@{}p{1.6in}p{0.6in}p{3.6in}@{}}",
          r"\textbf{Group} & \textbf{Values} & \textbf{Source file}\\", r"\midrule", r"\endhead"]
-    abbreviated = False
     for g, items in sorted(groups.items()):
         arts = sorted({i["artifact"] for i in items})
-        shown = abbreviate_path(arts[0])
-        abbreviated = abbreviated or (shown != arts[0])
         extra = f" and {len(arts) - 1} more" if len(arts) > 1 else ""
-        b.append(f"{esc(g)} & {len(items)} & {esc_breakable(shown)}{extra}\\\\")
-    b += [r"\end{longtable}"]
-    if abbreviated:
-        prefixes = "; ".join(f"{short} is {esc_breakable(full)}"
-                              for full, short in PATH_ABBREV)
-        b.append(r"\apanote{Two source paths are absolute paths on the machine the analysis "
-                  f"was run on and are abbreviated above so the column fits the page: {prefixes}.}}")
-    b += [r"\doublespacing", ""]
+        b.append(f"{esc(g)} & {len(items)} & {esc_breakable(arts[0])}{extra}\\\\")
+    b += [r"\end{longtable}", r"\doublespacing", ""]
     (THESIS / "msu_appB_provenance.tex").write_text("\n".join(b) + "\n")
 
     print(f"Appendix A: {len(entries)} corrections, {len(revs)} revisions")

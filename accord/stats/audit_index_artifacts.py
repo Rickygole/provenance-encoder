@@ -9,11 +9,12 @@ SUBJECT_ID values. Identifier-named columns are skipped entirely.
 import csv, json, os, re, sys
 from collections import defaultdict
 
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ROOTS = [
-    "/Users/rickygole/provenance-encoder/results",
-    "/Users/rickygole/provenance-encoder/accord",
+    os.path.join(_REPO_ROOT, "results"),
+    os.path.join(_REPO_ROOT, "accord"),
 ]
-OUT = "/Users/rickygole/provenance-encoder/results/accord/_audit_artifact_index.json"
+OUT = os.path.join(_REPO_ROOT, "results/accord/_audit_artifact_index.json")
 BANNED_COL = re.compile(r"(hadm|subject|row_id|note_id|text|_id$|^id$)", re.I)
 
 def walk_json(obj, path, sink, src):

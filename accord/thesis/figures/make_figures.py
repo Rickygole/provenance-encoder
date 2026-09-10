@@ -37,6 +37,7 @@ Rough / non-negotiable notes (read before trusting a number here):
 
 import json
 import os
+import pathlib
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -56,7 +57,10 @@ np.random.seed(42)
 # ----------------------------------------------------------------------------
 # Paths
 # ----------------------------------------------------------------------------
-REPO = "/Users/rickygole/provenance-encoder"
+# Resolved from this file's own location rather than hardcoded. A literal path
+# here put the author's home directory into manifest.json's source list, and
+# from there into the published supplement, every time this script was run.
+REPO = str(pathlib.Path(__file__).resolve().parents[3])
 RESULTS = os.path.join(REPO, "results", "accord")
 FIGDIR = os.path.join(REPO, "accord", "thesis", "figures")
 os.makedirs(FIGDIR, exist_ok=True)
@@ -125,11 +129,26 @@ CHANCE_STYLE = dict(color=SLATE, linestyle=REF_DASH, linewidth=LW_REF, zorder=1)
 MANIFEST = []
 
 
+def _relative_to_repo(p):
+    """Source paths go into the published supplement, so they must not carry
+    this machine's home directory. Anything under the repository is recorded
+    repo-relative; anything outside it (credentialed local-only data, the Drive
+    mount) is recorded as a bracketed token rather than a live path."""
+    s = str(p)
+    if s.startswith(REPO + os.sep):
+        return s[len(REPO) + 1:]
+    if "/mimic_local_only/" in s:
+        return "[LOCAL]/" + s.split("/mimic_local_only/", 1)[1]
+    if "/My Drive/" in s:
+        return "[DRIVE]/" + s.split("/My Drive/", 1)[1]
+    return s
+
+
 def register(fname, label, sources, note=""):
     MANIFEST.append({
         "file": os.path.join("figures", fname),
         "label": label,
-        "sources": sources,
+        "sources": [_relative_to_repo(s) for s in sources],
         "note": note,
     })
 
@@ -145,6 +164,80 @@ def mcc_from_counts(tp, tn, fp, fn):
 # ============================================================================
 # Figure 1 -- fig:pipeline-status  (ch1_introduction.tex)
 # ============================================================================
+# v4 REFRAME (second-round review). The v3 figure was a verdict table: a
+# coloured Works/Unvalidated/Fails/Falsified chip per stage, with the number
+# and the diagnostic both reduced to small italic text beside it. Chapter 1
+# Section 1.2 no longer argues "most stages failed"; it argues that four of
+# those failures were METRIC-BLIND -- each produced a number that would have
+# passed peer review, because no standard reported metric was sensitive to
+# the defect behind it, and each has a one-line check that is. The figure has
+# to carry that argument, not the verdict it used to carry. Three changes:
+#   (1) the verdict chip is gone. A stage's status is no longer a coloured
+#       box; it is the content of the row. The row's pale tint (a WASH, not a
+#       SOLID chip) is the only colour-coded state left, and it is reserved
+#       for a glance, not a claim.
+#   (2) the "reported number" -- what looked fine -- is now set in plain INK
+#       beside the stage, each one ending in the word "unflagged", stated
+#       once per row rather than as a separate sentence, because the four
+#       rows read as a set and the repetition is the point.
+#   (3) the check is the chip now: a solid INK box naming the one-line test,
+#       with the number it actually catches given underneath in SCARLET_DEEP
+#       -- the one semantic that colour carries in this set, the exact mark
+#       where the pipeline is broken, now attached to the check's finding
+#       rather than to a verdict word.
+#
+# v5 (third-round review, six verified defects). v4's INK-box-on-the-check
+# design got four things wrong at once:
+#   (1) CONTRAST. The finding line sat in SCARLET_DEEP directly on the row's
+#       SCARLET_TINT wash. Measured under WCAG's own formula that is 4.93:1,
+#       which clears the 4.5:1 AA floor for this pairing on paper, but the
+#       reviewer's tooling read it closer to 4:1 and flagged it as the
+#       figure's most serious defect twice running -- on a schematic where
+#       small italic type sits directly on a tinted fill, a nominal pass with
+#       no margin is not a fix. The finding no longer sits as coloured text
+#       on a tint at all: see (3).
+#   (2) PALETTE. Three washes (EMERALD_TINT row 1, MIST row 2, SCARLET_TINT
+#       rows 3-6) was the original traffic-light problem back, and worse in
+#       grayscale: TINT stops are pale by construction, so any two of them
+#       convert to nearly the same light grey (measured below) regardless of
+#       hue. A background wash cannot carry this distinction at the TINT
+#       stop, in any hue. It is now binary and it is not carried by the wash
+#       alone: FAULT rows keep a SCARLET_TINT ground (state is data on a
+#       schematic, and SCARLET's one semantic is exactly "the failure this
+#       thesis is reporting"); PASS/NONE rows carry no wash at all, which is
+#       maximally separable from a tint in luminance terms rather than
+#       marginally so. The real, greyscale-and-colour-blind-safe separator is
+#       (3): a solid chip appears on a fault row and nowhere else.
+#   (3) WEIGHT. The solid chip -- the highest-weight mark on the canvas --
+#       used to wrap the check (the diagnostic procedure, the least
+#       interesting column) while the finding it catches sat underneath as
+#       small plain text. That is backwards: the finding is the figure's
+#       point. The chip now wraps the finding, in SCARLET (the fault
+#       semantic, and F2 SOLID CHIP already buys >=7.7:1 for PAPER text on
+#       SCARLET_DEEP with no new colour needed); the check is demoted to
+#       plain italic text, the same voice every non-fault row's check column
+#       already used, because it is genuinely the supporting column now. It
+#       is GRAPHITE rather than MUTE on a FAULT row specifically, because it
+#       now sits directly on the row's own SCARLET_TINT wash rather than
+#       inside an opaque chip, and MUTE-on-SCARLET_TINT measures 3.98:1,
+#       under the 4.5:1 AA floor for 8.5pt text; GRAPHITE-on-SCARLET_TINT
+#       measures 7.93:1, and GRAPHITE is already this system's structural
+#       measurement tone, not a new colour.
+#   (4) Three correctness/consistency fixes that do not touch layout: row 2's
+#       reported and check columns said the same thing twice (dropped the
+#       check column's copy, since the reported column already carries "why
+#       there is nothing to report" for every PASS/NONE row); row 1's
+#       reported column no longer claims "no defect found" (Sec.3.2.2 records
+#       that the LOS filter was computed and never applied, so the note joins
+#       ran unfiltered -- "counts reconcile" is what the section supports,
+#       and the check column is reworded to name the reconciliation check
+#       rather than restate that same conclusion); and the rule-generation
+#       finding is now printed as the decimal, "0 to 0.4745", in the same
+#       plain digits as the pharmacist base rate two lines above it in the
+#       same row, rather than as a percentage that truncates instead of
+#       rounds.
+# Every number below is read from the same four files the v3 figure read;
+# nothing new is loaded and nothing is typed in.
 def make_fig_pipeline_status():
     exemplar, p_exemplar = load("exemplar", "exemplar_correctness_recomputed.json")
     # The former reference rate was supplied by a task description, never measured
@@ -152,14 +245,16 @@ def make_fig_pipeline_status():
     _ex = exemplar["rule_1_2_pooled"]
     defect_rate = _ex["n_wrong"] / _ex["n_resolved"]
 
-    step01, p_step01 = load("diag", "step0_1_join_and_calibration.json")
-    xtab = step01["weak_confidence_is_degenerate"]["crosstab_label_x_confidence"]
-    weak_pos = xtab["0.95"]["contradiction"]
-    weak_neg = xtab["1.0"]["not_contradiction"]
-    weak_pos_rate = weak_pos / (weak_pos + weak_neg)
-
+    # v7 (fourth-round review, external reviewer). step0_1_join_and_calibration.json
+    # used to be loaded here for weak_pos_rate, and step2_signal_check.json's
+    # ambiguous-excluded base rate for pharm_rate -- neither is read anywhere in
+    # this function, only assigned once and never referenced again. That dead
+    # pair put a source into this figure's own manifest entry that contributes
+    # nothing to the canvas, which is exactly the class of provenance rot the
+    # thesis is about; it should not be in the thesis's own manifest. Both loads
+    # and both dead variables are gone. step2 itself stays: pharm_rate_all below
+    # IS read, from the same file.
     step2, p_step2 = load("diag", "step2_signal_check.json")
-    pharm_rate = step2["contra_prob_vs_pharm_label__ambiguous_excluded_n253"]["base_rate"]
     # One multiplier for the whole thesis, and it is the gold-set one: the weak
     # labeller's marginal on the 299 annotated pairs over the pharmacist's base
     # rate on those same 299 pairs. Both terms are measured on the same rows,
@@ -175,15 +270,33 @@ def make_fig_pipeline_status():
     _d299 = step2["contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]
     pharm_rate_all = _d299["base_rate"]
     ratio = (gold_weak_pos / gold_n) / pharm_rate_all
+    gold_weak_rate = gold_weak_pos / gold_n
 
     decontam, p_decontam = load("decontam", "corrected_gold_metrics.json")
     auroc = decontam["aggregate"]["ensemble_auroc"]
     ci = decontam["aggregate"]["ensemble_ci95"]
 
-    # Six full-canvas-width row bands, no box column and no connectors: reading
-    # order down the page plus the index column carries the sequence, and six
-    # arrows on a band chart is noise. Drawn on a strict point grid, one data
-    # unit to one typographic point, so the bands are identical by construction.
+    # v7 REDESIGN (fourth-round review, external reviewer, rejected on all three
+    # prior rounds). v6 read as "a table with a headline": six uniform row
+    # bands, three of them a wash whose only job was fault/non-fault, and
+    # nothing on the canvas said that the stage 3 exemplar defect is the shared
+    # corrupted input the three stages after it then each independently
+    # mishandled -- the propagation claim the chapter actually rests on. Three
+    # changes:
+    #   (1) rows 1 and 2 (Cohort construction, Medication extraction) carried no
+    #       number and no finding; they are dropped from the row list entirely
+    #       and replaced by one grey stub line under the headline.
+    #   (2) a spine at x=22 runs the row column: a clean grey segment for
+    #       stages 1-2, a scarlet origin dot on row 3 (the defect enters here),
+    #       a heavier scarlet carrier down to row 6, and a delivery arrow into
+    #       rows 4/5/6 only -- row 3 gets no arrow, because it is the source,
+    #       not a recipient. Vertical position now reads as causal order,
+    #       which it did not before. This is the whole redesign.
+    #   (3) the row washes are gone. With rows 1-2 gone, all four remaining
+    #       rows are faults, so a wash on all four encoded nothing, added ink,
+    #       and reintroduced the MUTE-on-SCARLET_TINT contrast problem already
+    #       fixed once (v5). The finding chip is the only colour-coded mark
+    #       left, and it is sized to its own text rather than to the column.
     W, H = FIGW, 3.39
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
@@ -192,97 +305,165 @@ def make_fig_pipeline_status():
     ax.set_xlim(0, W * 72)
     ax.set_ylim(0, H * 72)
     ax.axis("off")
+    # A renderer has to exist before any text's get_window_extent() call below
+    # can measure anything; draw() once, on the still-empty axis, to get one.
+    fig.canvas.draw()
 
-    # (stage, verdict word, numeric detail, diagnostic, state)
-    PASS, NONE, FAULT = "pass", "none", "fault"
+    # Four rows only -- stages 3 through 6, the four that hid a failure behind
+    # an unflagged number. The stage numeral keeps the six-stage pipeline's own
+    # numbering (3, 4, 5, 6), not a renumbering to 1-4, so it still names which
+    # stage this is in the same pipeline the stub line below summarizes stages
+    # 1-2 of.
     rows = [
-        ("Cohort construction", "Works", "",
-         "cohort counts\nreconcile", PASS),
-        ("Medication extraction", "Unvalidated", "",
-         "no diagnostic run", NONE),
-        ("Rule-based candidate\ngeneration", "Fails",
-         f"{defect_rate*100:.1f}% wrong of\nresolved candidates",
-         "action-set match vs\nposition index", FAULT),
-        ("LLM weak supervision", "Fails",
-         f"{ratio:.0f}x prevalence\nmismatch, gold set",
-         "weak-label marginal\nvs gold marginal", FAULT),
-        ("Detector training", "Falsified", "three claims",
-         r"$\|\Delta\theta\|$ from init," + "\n" + r"OOD transfer $F_1$", FAULT),
-        ("Evaluation", "Fails",
-         f"AUROC {auroc:.3f},\n95% CI [{ci[0]:.2f}, {ci[1]:.2f}]",
-         "bootstrap CI on\nAUROC before write-up", FAULT),
+        (3, "Rule-based candidate\ngeneration",
+         f"{pharm_rate_all:.4f} reported\nprecision",
+         "Action-set match vs position index",
+         # An upper bound, not a point estimate: only 137 of 165 Rule 1/2
+         # candidates were resolved. Four chapters read it this way; the
+         # figure must not contradict them. Printed as the decimal (0.4745),
+         # not the percentage: 0.4744525... is 47.45% truncated to two
+         # places, which rounds to 47.5%, not the 47.4% a direct percentage
+         # format would print. The decimal removes the rounding question and
+         # matches the base rate two lines above it in this same row.
+         f"0 to {defect_rate:.4f} wrong"),
+        (4, "LLM weak supervision",
+         # Rewrapped (v7): the old "0.8729 positive on\ngold set" put 76.5pt
+         # of "0.8729 positive on" against an 80pt column, one of the
+         # tightest margins on the canvas. "0.8729 positive\non gold set"
+         # measures 55.6pt on its first line instead.
+         f"{gold_weak_rate:.4f} positive\non gold set",
+         "Weak-label marginal vs gold marginal",
+         # Also kept as printed: 21.768... rounded with the same .0f used at
+         # fig:intro-headline for the identical ratio, so the two figures
+         # agree; no chapter states this multiplier to four decimals for
+         # that rounding to conflict with.
+         f"{ratio:.0f}x mismatch"),
+        (5, "Detector training",
+         "Three ablation\nclaims held",
+         r"$\|\Delta\theta\|$ from init, OOD transfer $F_1$",
+         # No committed numeric value exists for this stage -- the finding
+         # is categorical, not a number, so it is reported in the thesis's
+         # own words for it: a component "whose credited mechanism is
+         # reproduced by a deliberately meaningless substitute has been
+         # falsified" (Ch.5, "Architecture: reversed, and positively";
+         # Ch.4 Sec."Architecture" audits the same two components).
+         "Credited mechanisms falsified"),
+        (6, "Evaluation",
+         f"AUROC {auroc:.4f}\nalone",
+         "Bootstrap CI on AUROC before write-up",
+         # Not a percentage and not borderline (0.3210 and 0.7034 each round
+         # to their printed 2dp without ambiguity).
+         f"[{ci[0]:.2f}, {ci[1]:.2f}]"),
     ]
-    # Band fill F1, chip fill F2. The no-diagnostic chip is MUTE rather than the
-    # SLATE its band stroke uses: white text on SLATE is 3.48:1, under this
-    # set's own floor, and on MUTE it is 4.83:1. The band still reads as the
-    # quiet state because the band, not the chip, carries the area.
-    STATE = {
-        PASS:  (EMERALD_TINT, EMERALD_DEEP, (EMERALD_DEEP, EMERALD_CORE)),
-        NONE:  (MIST, SLATE, (MUTE, SLATE)),
-        FAULT: (SCARLET_TINT, SCARLET_DEEP, (SCARLET_DEEP, SCARLET_CORE)),
-    }
+    # Vertical grid, points from the bottom. y_top=172.0, band_h=38.5,
+    # gutter=4.0, floor=6.0 solve to these four mids; written as a literal
+    # dict rather than re-derived, because the numeral (3, 4, 5, 6) is the row
+    # key everywhere below, not a 0-based loop index.
+    row_mid = {3: 152.75, 4: 110.25, 5: 67.75, 6: 25.25}
 
-    # The columns are laid out as fractions of the plate rather than as absolute
-    # points. The previous version pinned x_detail at 210.0 and x_diag at 294.0,
-    # which meant a longer verdict word or a wider chip pushed text into the
-    # column beside it with nothing to stop it. These positions move with the
-    # canvas and keep their gutters whatever the strings do.
-    plate_w = W * 72
-    x_idx = 0.035 * plate_w
-    x_name = 0.065 * plate_w
-    x_chip, w_chip = 0.400 * plate_w, 0.157 * plate_w
-    x_detail = x_chip + w_chip + 0.022 * plate_w
-    x_diag = 0.795 * plate_w
-    # The band height is SOLVED for, not set, so that six bands and five
-    # gutters exactly fill the plate between the headline and the bottom inset.
-    # It used to be the constant 29.4, which fitted the old 3.10in canvas to
-    # within 1.8pt by hand; on the taller canvas the author asked for, a
-    # constant would have left a 22pt white shelf under the last row.
-    y_top = H * 72 - 30.0
-    gutter, y_floor = 3.3, 6.0
-    band_h = (y_top - y_floor - 5 * gutter) / 6
-    for i, (name, verdict, detail, diag, state) in enumerate(rows):
-        tint, deep, chip_hue = STATE[state]
-        y = y_top - (i + 1) * band_h - i * gutter
-        mid = y + band_h / 2
-        # Borderless. The band is a flat tint floating on the paper, and the
-        # contrast between the two is what defines its edge. A 1.5pt stroke in
-        # the state's deep tone drew a hard rectangle around every row and made
-        # six of them read as a table with rules rather than as panels.
-        ax.add_patch(FancyBboxPatch(
-            (1.5, y), W * 72 - 3.0, band_h,
-            boxstyle="round,pad=0,rounding_size=2.0", mutation_aspect=1.0,
-            linewidth=0, edgecolor="none", facecolor=tint, zorder=2))
-        ax.text(x_idx, mid, str(i + 1), ha="center", va="center",
-                fontsize=10.0, color=deep, zorder=5)
-        ax.text(x_name, mid, name, ha="left", va="center", fontsize=10.5,
+    # --- The spine: the load-bearing element, and the whole of the redesign.
+    # Vertical position now reads as causal order because the rail changes
+    # tone AND weight at the exact point the defect enters, and only rows 4-6
+    # -- the stages that consumed it -- get an arrowhead; row 3 alone has
+    # none, and that asymmetry IS the claim. GRAPHITE/thin above the origin is
+    # stages 1-2 (clean, unrelated to the defect); SCARLET_CORE/thick from the
+    # origin down is "this carries the stage 3 defect".
+    #
+    # OVERCLAIM GUARD: this rail asserts SHARED CORRUPTED INPUT into rows
+    # 4-6, not that rows 4-6's numbers follow causally from row 3's. The 22x
+    # mismatch at row 4 is a prevalence and specificity effect, not an effect
+    # of the exemplar defect, and nothing drawn here says or implies
+    # otherwise -- the rail only ever claims the same wrong exemplar reached
+    # all three, which is the carrier label's own words.
+    ax.plot([22, 22], [202.0, row_mid[3]], color=GRAPHITE, lw=1.2,
+            solid_capstyle="butt", zorder=3)
+    ax.add_patch(mpatches.Circle((22, 202.0), 2.5, facecolor=GRAPHITE,
+                                  edgecolor="none", zorder=3))
+    ax.add_patch(mpatches.Circle((22, row_mid[3]), 4.0, facecolor=SCARLET_DEEP,
+                                  edgecolor="none", zorder=6))
+    ax.plot([22, 22], [row_mid[3], row_mid[6]], color=SCARLET_CORE, lw=2.6,
+            zorder=4)
+    for n in (4, 5, 6):
+        arrow(ax, (22.0, row_mid[n]), (46.0, row_mid[n]), color=SCARLET_CORE,
+              lw=2.0, mutation_scale=11)
+    ax.text(11.0, 89.0, "the same wrong exemplar", rotation=90, ha="center",
+            va="center", fontsize=T_NOTE, style="italic", color=SCARLET_DEEP,
+            zorder=5)
+
+    # --- The four rows.
+    for n, name, reported, check, finding in rows:
+        mid = row_mid[n]
+        ax.text(54.0, mid, str(n), ha="center", va="center", fontsize=10.0,
+                color=INK, zorder=5)
+        ax.text(66.0, mid, name, ha="left", va="center", fontsize=10.5,
                 color=INK, linespacing=1.18, zorder=5)
-        chip_h = band_h * 16.0 / 29.4          # the chip keeps its share of the band
-        chip(ax, x_chip, mid - chip_h / 2, w_chip, chip_h, chip_hue, verdict,
-             fontsize=T_CHIP, radius=3.0, zorder=5)
-        if detail:
-            ax.text(x_detail, mid, detail, ha="left", va="center",
-                    fontsize=T_SERIES, color=INK, linespacing=1.22, zorder=5)
-        ax.text(x_diag, mid, diag, ha="left", va="center", fontsize=T_NOTE,
-                style="italic", color=MUTE, linespacing=1.22, zorder=5)
+        ax.text(176.0, mid, reported, ha="left", va="center",
+                fontsize=T_SERIES, color=INK, linespacing=1.22, zorder=5)
+        ax.text(256.0, mid + 10.5, check, ha="left", va="center",
+                fontsize=T_NOTE, style="italic", color=MUTE, zorder=5)
+        # Chips are sized to their own text, not to the column: a uniform
+        # chip wide enough for "Credited mechanisms falsified" left
+        # "[0.32, 0.70]" sitting in mostly-empty scarlet and reading as a
+        # table cell again. Measured once with a throwaway text artist at the
+        # chip's own font and weight, then discarded; style.chip stays the
+        # only call site that actually draws a chip, so tools/check_parity.py
+        # still sees one drawer.
+        probe = ax.text(0, 0, finding, fontsize=T_CHIP, fontweight="bold")
+        bbox = probe.get_window_extent(fig.canvas.get_renderer())
+        w_i = bbox.width * 72.0 / fig.dpi + 12.0
+        probe.remove()
+        chip(ax, 256.0, mid - 14.0, w_i, 12.5, SCARLET, finding,
+             fontsize=T_CHIP, radius=3.0, ha="left")
 
-    # 335.6pt at 13pt against 380pt of inner plate: the longer wording ran to
-    # 381.8pt and set its terminal period on the plate's rounded right corner.
+    # Stages 1 and 2 carried no number and no finding; two full row bands to
+    # say "counts reconcile" and "never diagnosed" cost a third of the canvas
+    # for two facts that are not this figure's argument. One grey stub line,
+    # at the spine's clean-segment cap, replaces both rows.
+    ax.text(32.0, 202.0,
+            "1, 2   Cohort construction and medication extraction: counts "
+            "reconcile, never diagnosed.",
+            ha="left", va="center", fontsize=T_NOTE, style="italic",
+            color=MUTE, zorder=5)
+
+    # Column headers. This pipeline's font (STIXGeneral, Agg/pdf backend) has
+    # no reliable small-caps rendering, so terse upper-case at a reduced size
+    # stands in for the "small caps" header treatment.
+    ax.text(176.0, 183.0, "REPORTED", ha="left", va="center",
+            fontsize=T_FLOOR, color=MUTE, zorder=5)
+    ax.text(256.0, 183.0, "CHECK", ha="left", va="center",
+            fontsize=T_FLOOR, color=MUTE, zorder=5)
+
+    # Headline now states the propagation claim as well as the metric-blind
+    # one: four of six stages hid a failure behind an unflagged number, and
+    # the one at stage 3 is the input every stage after it consumed.
     signature(fig, SCARLET_DEEP,
-              "Five of six stages failed the diagnostic run on them, "
-              "or had none.")
+              headline="Four of six stages hid a failure behind an "
+              "unflagged number.\nThe stage 3 exemplar defect was consumed "
+              "by every stage after it.")
     fname = "fig-pipeline-status.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
     register(fname, "fig:pipeline-status",
-             [p_exemplar, p_step01, p_step2, p_decontam],
-             "Two stage verdicts are categorical narrative with no committed numeric source "
-             "(CORRECTIONS.md). The three parenthetical numbers "
-             "(47.45% wrong of resolved, ~22x, AUROC 0.5145 with CI) are computed from the cited JSON files. "
-             "The multiplier is the gold-set one, 261/299 over 12/299, the same ratio "
-             "fig:intro-headline brackets. "
-             "AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated "
-             "3-seed ensemble 0.5145).")
+             [p_exemplar, p_step2, p_exp1a, p_decontam],
+             "Stages 1 and 2 (cohort construction, medication extraction) carry no "
+             "committed numeric source and are summarized in one note line rather "
+             "than drawn as rows. The detector-training row's finding is categorical "
+             "narrative with no committed numeric source (CORRECTIONS.md). The "
+             "reported-number column otherwise reads the pharmacist base rate on "
+             "G299 (0.0401, step2_signal_check.json), the weak labeller's positive "
+             "rate on the same 299 gold pairs (0.8729, "
+             "exp1a_gold_error_rates_by_group.json), and the decontaminated AUROC "
+             "point estimate alone (0.5145, corrected_gold_metrics.json). The "
+             "check-finding column reads the wrong-rate upper bound (0 to 0.4745 of "
+             "resolved candidates, exemplar_correctness_recomputed.json), the "
+             "prevalence multiplier (~22x, same gold-set ratio fig:intro-headline "
+             "brackets), and the bootstrap 95% CI on AUROC ([0.32, 0.70], "
+             "corrected_gold_metrics.json). The spine asserts shared corrupted "
+             "input from the stage 3 exemplar defect into rows 4-6, not that rows "
+             "4-6's numbers follow causally from it: the 22x mismatch is a "
+             "prevalence and specificity effect. AUROC corrected per "
+             "CORRECTIONS.md C16 (was 0.460, now the decontaminated 3-seed ensemble "
+             "0.5145).")
 
 
 # ============================================================================
@@ -319,7 +500,11 @@ def make_fig_intro_headline():
     # signature bar used to occupy.
     fig.subplots_adjust(left=0.2747, right=0.9863, top=0.7306, bottom=0.1559)
 
-    bars = [("Weak labeller, train pool", weak_pos, weak_n, wilson_ci(weak_pos, weak_n)),
+    # "candidate pool", not "train pool": weak_n is the full weak-labelled
+    # candidate pool, which is a different and larger denominator than the
+    # training pool the detector was actually fit on. Chapter 1's caption
+    # prose says exactly this, and the old label contradicted it.
+    bars = [("Weak labeller, candidate pool", weak_pos, weak_n, wilson_ci(weak_pos, weak_n)),
             ("Weak labeller, gold set", pred_pos, pred_n, wilson_ci(pred_pos, pred_n)),
             ("Pharmacist truth, gold set", pharm_pos, pharm_n, wilson_ci(pharm_pos, pharm_n))]
     ypos = np.arange(len(bars))[::-1]
@@ -348,25 +533,39 @@ def make_fig_intro_headline():
     # CORE fill on paper already has all the edge it needs.
     ax.barh(ypos, rates, color=[h.CORE for h in hues], height=0.62,
             linewidth=0, edgecolor="none", zorder=3)
-    # A same-colour interval loses its lower half inside the fill, so the
-    # estimate reads one-sided and the bar reads as if it were exact. Casing is
-    # what keeps both halves readable.
-    # Softened: the casing is 1.0pt of paper rather than 1.4, the cap is the
-    # interval's own weight rather than heavier than it, and the cap is shorter.
-    # The interval should register as a measurement on the bar, not as a bracket
-    # clamped onto it.
-    _cap = ERRBAR["capsize"] * 0.62
-    ax.errorbar(rates, ypos, xerr=errs, fmt="none", ecolor=PAPER,
-                elinewidth=LW_INTERVAL + 1.0, capthick=LW_INTERVAL + 1.0,
-                capsize=_cap, zorder=4)
-    _eb = {**ERRBAR, "capsize": _cap, "capthick": LW_INTERVAL}
-    for y, r, e_lo, e_hi, hue in zip(ypos, rates, errs[0], errs[1], hues):
-        ax.errorbar([r], [y], xerr=[[e_lo], [e_hi]], fmt="none",
-                    ecolor=hue.CORE, zorder=5, **_eb)
-    for y, b, r, hi, hue in zip(ypos, bars, rates, his, hues):
-        # The rate at the bar, the denominators in the row label: two
-        # different jobs, and side by side they collided with the bracket.
-        ax.text(hi + 0.030, y, f"{r*100:.1f}%", va="center", ha="left",
+    # v3 (this round): drawing the interval through the bar is the defect,
+    # not the stop it was drawn in. Measured WCAG contrast of the foreground
+    # line against the CORE fill it crossed: hue.DEEP on the plum bar 2.00:1,
+    # on the emerald bar 2.56:1; INK on the plum bar 4.02:1; PAPER on the plum
+    # bar 4.42:1. None of the tones this system has clear the 4.5:1 a thin
+    # line needs to read at this figure's print size (0.98 linewidth) -- the
+    # bar fill itself is the problem, not the line colour drawn on it. The
+    # interval is moved clear of the bar instead: a floating I-beam on bare
+    # paper, directly above each bar, aligned to the same x-range as its own
+    # estimate (same lo/hi, same rate) so it is read as that bar's
+    # uncertainty and nothing else's. INK on PAPER is 17.76:1 and no hue can
+    # swallow it, so this needs no casing -- there is no fill under it to
+    # case against. _iv_dy clears the bar's own half-height (0.31 data units)
+    # by about two points at this axis's scale, and stays well inside the
+    # 0.38-unit gap to the row above, so the cap never touches a bar edge.
+    _iv_dy = 0.46
+    for y, r, e_lo, e_hi in zip(ypos, rates, errs[0], errs[1]):
+        ax.errorbar([r], [y + _iv_dy], xerr=[[e_lo], [e_hi]], fmt="none",
+                    ecolor=INK, zorder=5, **ERRBAR)
+    # One format for every bar on this axis, not one per bar. The x axis
+    # itself is ticked in decimals (0.00 .. 1.00, labelled "Positive rate"),
+    # so a bar label in percent form disagrees with the axis it sits on -- a
+    # reader reads "87.3%" against tick marks reading "0.75, 1.00" and has to
+    # convert one of them. This used to print the pharmacist's row (index 2)
+    # as a decimal, matching the 0.0401 fixed in the chapters' prose, and the
+    # two weak-labeller rows as one-decimal percentages; that is two formats
+    # on one decimal-ticked axis. All three are now the same four-decimal
+    # form the pharmacist's rate already had, computed from the same counts
+    # loaded above (1,425/1,679, 261/299, 12/299), so nothing is hardcoded and
+    # nothing on this axis needs converting to read the other two.
+    for i, (y, b, r, hi, hue) in enumerate(zip(ypos, bars, rates, his, hues)):
+        label = f"{r:.4f}"
+        ax.text(hi + 0.030, y, label, va="center", ha="left",
                 fontsize=T_SERIES, color=hue.DEEP, zorder=6)
     ax.set_yticks(ypos)
     ax.set_yticklabels([f"{b[0]}\n({b[1]:,} of {b[2]:,})" for b in bars],
@@ -394,10 +593,20 @@ def make_fig_intro_headline():
             va="center", ha="left", fontsize=T_CLAIM, fontweight="bold",
             color=SCARLET_DEEP, zorder=6)
 
+    # The bars above are now all four-decimal rates (fix for the mixed-format
+    # defect: percent labels on a decimal-ticked axis). Restating the weak
+    # labeller's clause here as "87.3%" would reintroduce exactly that
+    # mismatch one level up, between the bar and the headline that names it,
+    # so this line is stated in the raw counts instead -- the same counts
+    # already printed on the y-axis tick labels below each bar ("261 of
+    # 299"), which cannot conflict with a rate format because they are not a
+    # rate. The pharmacist's clause keeps 0.0401, the same four-decimal
+    # fraction its own bar now carries and the one already fixed by the
+    # surrounding prose, so nothing here is in two formats.
     signature(fig, PLUM_DEEP,
-              f"The weak labeller calls {pred_pos/pred_n*100:.0f}% of gold-set "
+              f"The weak labeller calls {pred_pos} of {pred_n} gold-set "
               f"pairs contradictions.\n"
-              f"The pharmacist calls {pharm_pos/pharm_n*100:.0f}%.",
+              f"The pharmacist's base rate is {pharm_pos/pharm_n:.4f}.",
               deck=f"{gold_ratio:.0f}x: the weak labeller's marginal over the "
                    f"pharmacist's, on the same {pharm_n} pairs.")
     fname = "fig-intro-headline.pdf"
@@ -510,6 +719,16 @@ def make_fig_exemplar():
         ax.text(x, 133.0, head, ha="center", va="center", fontsize=10.0,
                 color=INK, zorder=5)
 
+    # M1..M5 are mention identifiers (which slot); CONT/CESS are action
+    # classes (what the rule reads off that slot) -- a different kind of
+    # thing, and the two used to be set in identical plain weight, so a
+    # reader's eye read the two columns as one series rather than two kinds
+    # of label. No new colour: the fix is weight. The action-class column now
+    # carries the same bold that its one CESS cell already got for free from
+    # chip()'s F2 SOLID CHIP text, so all five rows of that column read as one
+    # typographic family (bold, the finding's own weight) and the identifier
+    # column stays plain, which also keeps M1..M5 from reading louder than
+    # the action classes that carry the finding.
     nurse_tags = ["M1", "M2", "M3", "M4", "M5"]
     disch_tags = ["CONT", "CONT", "CONT", "CONT", "CESS"]
     for i, y in enumerate(rows_y):
@@ -521,7 +740,7 @@ def make_fig_exemplar():
             node(ax, x_disch - box_w / 2, y - box_h / 2, box_w, box_h,
                  MIST, SLATE, radius=2.5, zorder=3)
             ax.text(x_disch, y, disch_tags[i], ha="center", va="center",
-                    fontsize=T_SERIES, color=INK, zorder=5)
+                    fontsize=T_SERIES, color=INK, fontweight="bold", zorder=5)
         else:
             # The one loud element on the canvas.
             chip(ax, x_disch - box_w / 2, y - box_h / 2, box_w, box_h,
@@ -530,11 +749,27 @@ def make_fig_exemplar():
 
     # Annotations align to their own row and are joined to it by a rule on the
     # row's own baseline. No diagonals, no leaders.
+    #
+    # Row 4's note used to be set in SCARLET_DEEP. Its ground is NOT
+    # SCARLET_TINT (the row band drawn above is SCARLET_WASH, a paler stop):
+    # measured under WCAG, SCARLET_DEEP on SCARLET_WASH is 6.29:1, not the
+    # 4.93:1 that pairing measures on SCARLET_TINT. But the note still sits on
+    # a saturated ground rather than on paper, it is the same category of
+    # defect the pipeline figure already carried and fixed (coloured text
+    # directly on a coloured fill, at a margin a reviewer's tooling read as
+    # thinner than it is), and the row's one loud element -- the CESS chip
+    # this note explains -- already carries SCARLET at F2's >=7.7:1. The note
+    # itself does not need to repeat the hue to make the point, so it is
+    # retoned to GRAPHITE, this system's structural measurement tone rather
+    # than a new colour, matching the pipeline figure's own precedent for
+    # exactly this pairing (GRAPHITE on a SCARLET ground, not MUTE, because
+    # MUTE-on-SCARLET_TINT measures 3.98:1 and fails 4.5:1 outright).
+    # Measured: GRAPHITE on SCARLET_WASH = 10.12:1 (up from 6.29:1).
     notes = [
         (0, "selected by position (row 1):\nwhat the annotator, the weak\n"
             "labeller and the model saw", MUTE),
         (4, "the mention the rule\nactually fired on:\naction matched, dose adjacent",
-         SCARLET_DEEP),
+         GRAPHITE),
     ]
     for i, text, tone in notes:
         y = rows_y[i]
@@ -910,7 +1145,8 @@ def make_fig_met_exchange():
     ax.set_yticks([0, 50, 100, 150, Y_HI])
     frame(ax)
     signature(fig, SCARLET_DEEP,
-              "ACCORD sits on the indifference line: it buys no trade at all.")
+              "Two of three systems clear every exchange rate ACCORD's "
+              "counts define.")
     fname = "fig-met-exchange.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -1197,19 +1433,23 @@ def make_fig_disc_actionability():
 # ============================================================================
 # Figure 12 -- fig:cohort-flow  (ch3_methodology.tex)
 #   The CONSORT-style path from the source database to the two evaluated sets.
-#   Nine stages, three exclusions. Every count is read from a committed file:
+#   Nine stages, four exclusions. Every count is read from a committed file:
 #   the ICD and length-of-stay counts from stats/cohort_icd_counts.json, the
 #   candidate count from generality/transfer_results_correct.json, the gold
 #   counts from diag/step2_signal_check.json, and the four stages whose own
 #   upstream artifact is quarantined off this repository (note-role coverage,
 #   pair selection, mention extraction, the drawn annotation sample) from the
-#   thesis register, which is itself committed under results/accord.
+#   thesis register, which is itself committed under results/accord. The
+#   both-roles-to-pairs exclusion is also read from the register: it is the
+#   entire shortfall between has_both_roles and valid_admissions_both_selected,
+#   and it is entirely on the nursing side, since a nursing-role admission is
+#   selectable only when some nursing note carries a chart time strictly
+#   before discharge, and the discharge side carries no matching condition.
 #
-#   Two stages the funnel would normally carry are skipped for want of a
-#   committed count and are named in the register note: the exclusion between
-#   the length-of-stay filter and the both-roles stage, and the exclusion
-#   between the both-roles stage and the selected pairs. Both differences are
-#   arithmetic on two committed counts, but neither is itself a recorded
+#   One stage the funnel would normally carry is still skipped for want of a
+#   committed count and is named in the register note: the exclusion between
+#   the length-of-stay filter and the both-roles stage. That difference is
+#   arithmetic on two committed counts, but it is not itself a recorded
 #   exclusion count, and a funnel that invents its own subtractions is the
 #   thing this set exists to avoid.
 # ============================================================================
@@ -1236,6 +1476,13 @@ def make_fig_cohort_flow():
 
     n_both_roles = fact("cohort_chain.has_both_roles")
     n_pairs = fact("cohort_chain.valid_admissions_both_selected")
+    # Registered directly rather than re-derived: has_both_roles holds the
+    # nursing role on any nursing-labelled note, but a nursing note is
+    # selectable only if its chart time is recorded and falls strictly before
+    # discharge. The discharge side applies no such condition, so the whole
+    # shortfall from has_both_roles to valid_admissions_both_selected is on
+    # the nursing side.
+    n_not_selectable = fact("cohort_chain.both_roles_not_selectable")
     n_note_rows = fact("cohort_chain.total_note_pair_rows")
     n_mentions = fact("extraction.medication_extraction.total_mentions")
     n_classified = fact("extraction.medication_extraction.classified_mentions")
@@ -1267,7 +1514,8 @@ def make_fig_cohort_flow():
         ("Heart failure admissions, ICD-9 prefix", f"{hf['pre_los']:,}",
          f"{hf['removed']:,} admissions with no\npositive length of stay"),
         ("After the length-of-stay filter", f"{hf['post_los']:,}", None),
-        ("Admissions carrying both note roles", f"{n_both_roles:,}", None),
+        ("Admissions carrying both note roles", f"{n_both_roles:,}",
+         f"{n_not_selectable:,} admissions, no nursing\nnote before discharge"),
         ("Note pair selected, one per role", f"{n_pairs:,} pairs", None),
         ("Medication mentions extracted", f"{n_mentions:,}",
          f"{n_unclassified:,} mentions with no\naction class assigned"),
@@ -1346,8 +1594,38 @@ def make_fig_cohort_flow():
             # An exclusion is accounting, not failure: SLATE and MIST, never
             # scarlet. It leaves the trunk in the gap between two stages, so it
             # reads as taken out between them.
+            #
+            # It used to leave the trunk arrow itself, at the vertical middle
+            # of the gap. That point sits inside the trunk arrowhead: the head
+            # is 7.4pt of an 8.5pt gap, so a stub drawn there fuses with the
+            # black head instead of reading as its own branch, and it reads as
+            # feeding the stage below rather than being taken from the stage
+            # above. A later pass moved the stub off the trunk (x_stem + 20)
+            # and dropped it from the box's own bottom edge to the gap's
+            # mid-line before turning right. That cleared the arrowhead, but
+            # the turn itself still landed on the seam between two rows: the
+            # stub above it was only gap/2 = 4.25pt tall, so the joint read as
+            # sitting in the gap, equidistant from the row above and the row
+            # below, rather than belonging to either.
+            #
+            # The connector now leaves the row's own right edge -- a physical
+            # join to the box, not a line dropped from underneath it -- at
+            # that row's own vertical centre, `mid`, the same height its name
+            # and count already sit at. It runs clear of the box before it
+            # ever turns, so the first thing a reader sees is a tap off THIS
+            # row's own side, and only then does it drop to the gutter's
+            # height and turn again for the excluded node. The whole path sits
+            # at x >= box_x + box_w = 248, more than 100pt clear of the trunk
+            # arrowhead centred on x_stem (137, +/-3.6 for its 7.2pt width):
+            # it cannot fuse with that head at any y, not because the two are
+            # offset by a margin but because they never share an x at all.
+            x_elbow = box_x + box_w + 6.0
             y_gap = t - h - gap / 2
-            arrow(ax, (x_stem + 4.0, y_gap), (x_gut - stub_gap, y_gap),
+            ax.plot([box_x + box_w, x_elbow], [mid, mid], color=SLATE,
+                    lw=LW_CONNECTOR, zorder=6, solid_capstyle="butt")
+            ax.plot([x_elbow, x_elbow], [mid, y_gap], color=SLATE,
+                    lw=LW_CONNECTOR, zorder=6, solid_capstyle="butt")
+            arrow(ax, (x_elbow, y_gap), (x_gut - stub_gap, y_gap),
                   color=SLATE, lw=LW_CONNECTOR, zorder=6)
             lines = excl.count("\n") + 1
             ch = 11.0 * lines + 7.0
@@ -1368,16 +1646,20 @@ def make_fig_cohort_flow():
     register(fname, "fig:cohort-flow",
              [p_icd, p_transfer, p_step2, p_facts],
              "CONSORT-style path from the source database to the two evaluated sets. Nine "
-             "stages, three exclusions, every count read from a committed file. Two exclusion "
-             "branches the diagram would otherwise carry are omitted because no committed file "
-             "records them as counts: the admissions dropped between the length-of-stay filter "
-             "and the both-roles requirement, and those dropped between the both-roles "
-             "requirement and the selected pairs. Both are differences of two committed counts "
-             "and neither is a recorded exclusion, so neither is drawn. The ambiguous count is "
-             "the difference between the two positive counts recorded on the same 299 rows in "
-             "the signal-check file, the same subtraction the prevalence figure performs. Four "
-             "stages read the thesis register rather than a primary artifact, because their own "
-             "upstream summaries live outside this repository under the data agreement.")
+             "stages, four exclusions, every count read from a committed file. One exclusion "
+             "branch the diagram would otherwise carry is omitted because no committed file "
+             "records it as a count: the admissions dropped between the length-of-stay filter "
+             "and the both-roles requirement. That is a difference of two committed counts and "
+             "not itself a recorded exclusion, so it is not drawn. The admissions dropped "
+             "between the both-roles requirement and the selected pairs are drawn because that "
+             "count is itself registered: the shortfall is entirely on the nursing side, since a "
+             "both-roles admission is selectable only when some nursing note carries a chart "
+             "time strictly before discharge, and the discharge side carries no matching "
+             "condition. The ambiguous count is the difference between the two positive counts "
+             "recorded on the same 299 rows in the signal-check file, the same subtraction the "
+             "prevalence figure performs. Four stages read the thesis register rather than a "
+             "primary artifact, because their own upstream summaries live outside this "
+             "repository under the data agreement.")
 
 
 # ============================================================================
@@ -1523,10 +1805,14 @@ SKIPPED = [
 
 # fig:falsification used to be listed above as unbuildable, on the grounds that
 # transfer_results_correct.json did not exist here. It does exist, at
-# results/accord/generality/, and make_figures_extra.py builds the figure from
-# it. The one number that entry was right about is the held-out 45.2%: 0.4515
-# appears in no result file anywhere, so that reference line was removed from
-# the figure rather than sourced.
+# results/accord/generality/, but make_figures_extra.py no longer reads it:
+# the rule-head transfer panel that once drew from that file was dropped from
+# fig:falsification and its numbers moved to a table in the results chapter.
+# The figure make_figures_extra.py builds now loads only the authority-scale
+# aggregate (accord_v2_decontam_gold_aggregate.json). The one number the
+# original entry was right about is the held-out 45.2%: 0.4515 appears in no
+# result file anywhere, so that reference line was removed rather than
+# sourced.
 
 
 def main():

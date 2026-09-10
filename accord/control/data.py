@@ -38,7 +38,9 @@ import pandas as pd
 MENTIONS_PATH = "/Users/rickygole/mimic_local_only/accord/hf_medication_mentions.csv.gz"
 WS_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_weak_supervision_labels_decontam.csv"
 GOLD_PATH = "/Users/rickygole/Downloads/gold_standard_accord_results.csv"
-SAMP_PATH = "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/annotation_sample_300.csv"
+# Repointed off the Google Drive mount: this file joins verbatim note
+# sentences to HADM_ID, which must not sit in cloud storage.
+SAMP_PATH = "/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv"
 AUDIT_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_decontamination_audit.csv"
 
 SPLIT_SEED = 1337   # fixed train/val subject split, independent of model seed

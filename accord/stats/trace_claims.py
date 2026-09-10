@@ -27,6 +27,13 @@ THESIS = ROOT / "accord" / "thesis"
 FACTS = json.loads((ROOT / "results" / "accord" / "VERIFIED_FACTS.json").read_text())
 CHAPTERS = sorted(THESIS.glob("msu_ch*.tex"))
 
+# esc() and esc_breakable() are defined once, in make_appendices.py, and imported
+# from there rather than redefined here: two independent escaping paths is how a
+# raw artifact path reached this appendix before (make_appendices.py's redaction
+# lived only in its own copy of esc(), and this script never called it).
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from make_appendices import esc, esc_breakable
+
 # Numbers that are settings, structure or ordinary prose, not findings.
 EXEMPT = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
           "95", "100", "1000", "0.05", "0.5", "1.0", "2.0", "42", "123", "2024"}
@@ -128,21 +135,6 @@ def main():
             continue
         seen.add(r["register_key"])
         rows.append(r)
-
-    def esc(s):
-        for a, b in (("\\", " "), ("&", r"\&"), ("%", r"\%"), ("_", r"\_"),
-                     ("#", r"\#"), ("$", r"\$"), ("{", " "), ("}", " "), ("~", " ")):
-            s = s.replace(a, b)
-        return re.sub(r"[^\x00-\x7f]", "", s)
-
-    def esc_breakable(s):
-        """Like esc(), but for the long dotted register keys and file paths: insert
-        \\allowbreak after every '.' and '/' so the longtable columns can wrap them
-        instead of overrunning the margin (this project has no xurl installed)."""
-        s = esc(s)
-        s = s.replace(".", r".\allowbreak{}")
-        s = s.replace("/", r"/\allowbreak{}")
-        return s
 
     tex = [r"\chapter{Claim and Evidence Trace}", r"\label{app:trace}", "",
            f"Every quantity printed in this thesis is listed below with the file it was read from.",

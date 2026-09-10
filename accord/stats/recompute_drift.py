@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-ROOT = Path("/Users/rickygole/provenance-encoder")
+ROOT = Path(__file__).resolve().parents[2]
 d = json.load(open(ROOT/"results/accord/sign_provenance_drift_recomputation.json"))
 n_metrics = n_flips = n_credcall = 0
 maxdisc = 0.0

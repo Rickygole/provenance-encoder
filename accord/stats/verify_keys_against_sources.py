@@ -7,7 +7,7 @@ Emits per-key resolution status. Nothing is typed by hand.
 import json, re, glob, os, sys
 from pathlib import Path
 
-ROOT = Path("/Users/rickygole/provenance-encoder")
+ROOT = Path(__file__).resolve().parents[2]
 THESIS = ROOT / "accord" / "thesis"
 REG = json.load(open(ROOT / "results" / "accord" / "VERIFIED_FACTS.json"))
 

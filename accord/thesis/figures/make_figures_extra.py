@@ -3,14 +3,20 @@ Drive quarantine (from_drive_2026-08-08/) rather than results/accord/.
 
 fig-asymmetry     -- fully sourced from hf_medication_mentions.csv. Not bound
                      into the thesis; kept buildable.
-fig-falsification -- panel (a) sourced from the decontaminated 3-seed
-                     aggregate; panel (b)'s transfer F1 read from
-                     results/accord/generality/transfer_results_correct.json.
+fig-falsification -- single panel, sourced from the decontaminated 3-seed
+                     aggregate. It used to carry a second panel drawing the
+                     rule head's transfer F1 from three cohorts as bars from
+                     zero with no interval; a reviewer flagged that as the one
+                     place in the set where a quantity with real sampling
+                     spread was drawn with none, and separately rejected the
+                     two panels as sharing a caption without sharing a claim.
+                     That data moved to a table the author builds directly in
+                     the .tex; this script no longer reads
+                     transfer_results_correct.json and the figure is now a
+                     single coherent claim: two parameters reported as
+                     learned did not move.
 
-The 45.2% held-out rule-accuracy reference line that used to sit on the right
-panel is gone: 0.4515 appears in no result file anywhere on disk.
-
-Panel (a) is a dumbbell on a RELATIVE axis: each parameter's final value as a
+The dumbbell is drawn on a RELATIVE axis: each parameter's final value as a
 multiple of the value it was initialised to. Both parameters were set to
 different constants (0.5 and 1.0), so an absolute axis puts the two rows two
 units apart and compresses the movement -- which is the claim -- to under a
@@ -27,13 +33,13 @@ import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import style
 from style import (FIGW, INK, PAPER, GRAPHITE, MUTE, SLATE, MIST, HAIR,
-                   COBALT, COBALT_DEEP, COBALT_CORE, COBALT_TINT, COBALT_BARE,
+                   COBALT, COBALT_CORE,
                    EMERALD_CORE, PLUM_CORE,
-                   SCARLET_DEEP, SCARLET_CORE, SCARLET_TINT, SCARLET_WASH,
-                   T_CLAIM, T_AXIS, T_TICK, T_SERIES, T_NOTE,
-                   LW_DATA, LW_BAR, LW_INTERVAL, MS_DOT, MS_MARK, MS_SEED,
-                   ERRBAR, DOT, canvas, frame, signature, panel_label, arrow,
-                   case, cased)
+                   SCARLET_DEEP, SCARLET_TINT, SCARLET_WASH,
+                   T_CLAIM, T_AXIS, T_TICK, T_SERIES,
+                   LW_DATA, LW_INTERVAL, MS_DOT, MS_MARK, MS_SEED,
+                   ERRBAR, DOT, canvas, frame, signature,
+                   cased)
 setup = style.setup
 BLUE = BLUE2 = COBALT_CORE
 GREEN = EMERALD_CORE
@@ -49,7 +55,6 @@ import pandas as pd
 
 setup()
 HERE = pathlib.Path(__file__).parent
-REPO = pathlib.Path("/Users/rickygole/provenance-encoder")
 Q = pathlib.Path("/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs")
 S = pathlib.Path("/Users/rickygole/mimic_local_only/accord_supp/results")
 man = {}
@@ -99,21 +104,28 @@ seed_N = [agg_all["per_seed"][s_]["authority_scale"]["alpha_nursing"] for s_ in 
 seed_D = [agg_all["per_seed"][s_]["authority_scale"]["alpha_discharge"] for s_ in seeds]
 INIT_N, INIT_D = 0.5, 1.0          # design constants, CORRECTIONS.md C1
 
-transfer = json.loads((REPO / "results/accord/generality/transfer_results_correct.json").read_text())
-f1 = [transfer["hf_reference"]["rule_type_f1"], transfer["sepsis"]["rule_type_f1"],
-      transfer["aki"]["rule_type_f1"]]
-n_cand = [transfer["hf_reference"]["n_candidates"], transfer["sepsis"]["n_candidates"],
-          transfer["aki"]["n_candidates"]]
-
-fig, (a, b) = plt.subplots(1, 2, figsize=(FIGW, 2.68),
-                           gridspec_kw={"width_ratios": [1.06, 1.0]})
+# The transfer F1 panel that used to sit here (a bar chart of rule-head F1
+# across three cohorts, drawn from zero with no interval) moved to a table the
+# author builds in the .tex, so this script no longer reads
+# transfer_results_correct.json. This is now a single-panel figure: one
+# canvas, one claim, no gutter to widen or narrow.
+fig, a = plt.subplots(figsize=(FIGW, 2.35))
 canvas(fig)
-fig.subplots_adjust(left=0.1172, right=0.9863, top=0.7413, bottom=0.2148,
-                    wspace=0.34)
+# Height dropped from 2.68in to 2.35in: the removed panel's own width, not its
+# height, funded the freed space, so the cut here is the vertical budget a
+# two-line "(a)...(b)..." headline and a panel-letter label no longer need
+# (one declarative headline sits at 0.19in of text against the old 0.4in of
+# two lines, and there is no second panel_label() call to clear at all). The
+# axes keep their former height (top-bottom fraction * 2.35in = 1.35in,
+# against 1.41in before): the dumbbell's own row spacing did not shrink. What
+# widened is the axes: with no second panel and no wspace gutter to share the
+# canvas with, this panel now runs left=0.1172 (unchanged absolute margin,
+# same width class) to right=0.9850, versus roughly half that width before.
+fig.subplots_adjust(left=0.1172, right=0.9850, top=0.8181, bottom=0.2450)
 
-# ---- (a) the dumbbell ------------------------------------------------------
-# WHAT CAME OFF THIS PANEL, and why. The author called this figure busy. Panel
-# (a) carried a tinted band, a two-line band label, two dumbbells, three seed
+# ---- the dumbbell -----------------------------------------------------------
+# WHAT CAME OFF THIS PANEL, and why. The author called this figure busy. This
+# panel carried a tinted band, a two-line band label, two dumbbells, three seed
 # dots per row, a percentage at each dumbbell's head and a two-line row label:
 # six kinds of thing on two rows of data. Two of them said the same sentence
 # twice. The band label read "neither left a 2% band" and the row labels read
@@ -125,11 +137,9 @@ fig.subplots_adjust(left=0.1172, right=0.9863, top=0.7413, bottom=0.2148,
 TOL = 0.02
 # WASH, not TINT. The band covers three quarters of this panel, and at TINT
 # that is a saturated field with two grey dumbbells on it: the ground was
-# louder than the data it exists to locate. At WASH it is the same ground
-# panel (b) uses, so the two panels now say "this is where it fails" in one
-# tone, and it costs nothing measurable -- SCARLET_TINT sits at HSV saturation
-# 0.233, under the 0.25 gate the ink tool counts at, so it registered as
-# chroma 0 either way.
+# louder than the data it exists to locate. It costs nothing measurable --
+# SCARLET_TINT sits at HSV saturation 0.233, under the 0.25 gate the ink tool
+# counts at, so it registered as chroma 0 either way.
 a.axvspan(1 - TOL, 1 + TOL, facecolor=SCARLET_WASH, edgecolor="none",
           linewidth=0, zorder=0)
 moved = []
@@ -173,58 +183,19 @@ a.set_xlabel("Final value, as a multiple of the initialisation\n"
 a.tick_params(axis="y", length=0)
 frame(a)
 
-# ---- (b) the cliff ---------------------------------------------------------
-# Cohorts are not entities, so all three columns take one hue. The two the head
-# was never fitted on are BARE: no interval for either is committed anywhere,
-# because the per-pair scores they would be resampled from are not released.
-xs = [0, 1, 2]
-fills = [COBALT_TINT, COBALT_BARE, COBALT_BARE]
-b.axvspan(0.5, 2.6, facecolor=SCARLET_WASH, edgecolor="none", linewidth=0,
-          zorder=0)
-b.bar(xs, f1, width=0.62, color=fills, edgecolor=COBALT_DEEP,
-      linewidth=LW_BAR, zorder=3)
-# MUTE, not SCARLET_DEEP. It names the ground it sits on, the ground is a
-# WASH and outside the scarlet budget, and the drop arrow below is this panel's
-# one saturated scarlet element.
-case(b.text(1.5, 0.985, "not fitted here", ha="center", va="top",
-            fontsize=T_NOTE, color=MUTE, zorder=5))
-# THE TWO 22pt NUMERALS CAME OFF. They read 0.96 and 0.07, set one above the
-# other beside a y axis that already runs 0 to 1.00 in quarters with the two
-# columns sitting on those exact values: the same two numbers, twice, a
-# centimetre apart. The author called the panel busy and this is what made it
-# so. The drop stays, because the drop is the geometry that carries the finding
-# and it reads at thumbnail size: a column at the top of the frame, a scarlet
-# line falling almost to the floor, and two columns that are barely there.
-# It starts at the fitted column's top right corner rather than at its centre:
-# from the centre the shaft ran down through the column it is measuring from.
-arrow(b, (0.34, f1[0] - 0.015), (0.97, f1[1] + 0.055), color=SCARLET_CORE,
-      lw=2.2, mutation_scale=15, zorder=6)
-b.set_xticks(xs)
-b.set_xticklabels([f"HF,\nin domain\nn = {n_cand[0]:,}",
-                   f"sepsis\nn = {n_cand[1]:,}",
-                   f"AKI\nn = {n_cand[2]:,}"], fontsize=T_NOTE,
-                  linespacing=1.28)
-b.set_xlim(-0.62, 2.6)
-b.set_ylim(0, 1.02)
-b.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
-b.set_ylabel(r"Rule-type $F_1$")
-frame(b)
-
-for ax_, tag in ((a, "(a)"), (b, "(b)")):
-    panel_label(fig, ax_, tag)
 signature(fig, SCARLET_DEEP,
-          "Two parameters reported as learned did not move;\n"
-          "the rule head does not transfer.")
+          "Two parameters reported as learned did not move.")
 fig.savefig(HERE / "fig-falsification.pdf"); plt.close(fig)
 man["fig:falsification"] = {"file": "fig-falsification.pdf",
-    "source": "accord_supp/results/accord_v2_decontam_gold_aggregate.json (a); "
-              "results/accord/generality/transfer_results_correct.json (b)",
+    "source": "accord_supp/results/accord_v2_decontam_gold_aggregate.json",
     "values": {"alpha_n": aN, "alpha_d": aD, "alpha_n_per_seed": seed_N,
-               "alpha_d_per_seed": seed_D, "rule_type_f1": f1,
-               "n_candidates": n_cand,
+               "alpha_d_per_seed": seed_D,
                "alpha_init_stated_design_constant": [INIT_N, INIT_D],
                "alpha_n_ratio": aN / INIT_N, "alpha_d_ratio": aD / INIT_D},
-    "removed": "45.2% held-out rule-accuracy reference line (0.4515 is in no result file)"}
+    "removed": "the rule-head transfer F1 panel (moved to a table in the .tex; "
+               "see results/accord/generality/transfer_results_correct.json) "
+               "and the 45.2% held-out rule-accuracy reference line dropped in "
+               "an earlier pass (0.4515 is in no result file)"}
 
 p = HERE / "manifest_extra.json"; p.write_text(json.dumps(man, indent=2))
 print(json.dumps(man, indent=2))

@@ -34,7 +34,7 @@ from datetime import datetime, timezone
 
 import torch
 
-REPO = "/Users/rickygole/provenance-encoder"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_PATH = os.path.join(REPO, "results/accord/param_count_audit.json")
 TARGET = 22_446_855
 

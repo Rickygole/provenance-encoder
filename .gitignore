@@ -55,3 +55,36 @@ accord/thesis/*.out
 accord/thesis/*.toc
 accord/thesis/*.lot
 accord/thesis/*.lof
+
+# Build/run logs anywhere, which can carry absolute local paths.
+*.log
+
+# results/accord/fairness/ and results/accord/survey/ hold hand-placed,
+# content-checked aggregate CSVs (chi-square tables, cohort composition,
+# and the survey coding tables) that predate the blanket *.csv rule above
+# and carry no identifiers or note text -- verified against the same
+# note-text/identifier markers scripts/sync_results.sh checks for. Each file
+# is named explicitly, rather than un-blocking the whole directory by
+# wildcard, so a future MIMIC-named file (NOTEEVENTS*, PATIENTS*, etc.)
+# dropped into either directory stays blocked by the rules above.
+!/results/accord/fairness/section1_chisquare_gof.csv
+!/results/accord/fairness/section1_cohort_composition.csv
+!/results/accord/fairness/section2_ambiguity_by_group.csv
+!/results/accord/fairness/section2_ambiguity_chisquare.csv
+!/results/accord/fairness/section3_fp_and_weak_positive_rates_by_group.csv
+!/results/accord/fairness/section3_weak_label_chisquare.csv
+!/results/accord/fairness/section4_outcomes_by_group.csv
+!/results/accord/fairness/section4_outcomes_chisquare.csv
+!/results/accord/fairness/section5_kappa_power_reproduction.csv
+!/results/accord/survey/coding_table.csv
+!/results/accord/survey/screening_log.csv
+!/results/accord/survey/second_coder_table.csv
+
+# Private correspondence, never publish. This is a draft to the thesis chair
+# and the institutional data steward about two data-use-agreement questions.
+# Publishing it would broadcast an unresolved compliance matter to the same
+# audience that has already raised one.
+accord/thesis/COMPLIANCE_EMAIL_DRAFT.md
+
+# Agent and tooling scratch, not part of the release.
+.claude/

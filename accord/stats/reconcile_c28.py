@@ -29,7 +29,7 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 
-REPO = "/Users/rickygole/provenance-encoder"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_PATH = os.path.join(REPO, "results/accord/reconciliation_c28.json")
 
 # The released per-pair ACCORD decision file (the "raw file" of C28 item 2).
@@ -38,10 +38,9 @@ GOLD_PATH = "/Users/rickygole/Downloads/gold_standard_accord_results.csv"
 # pair_id -> HADM_ID/drug/rule/sentences bridge, and the weak-label carrier.
 # run_experiments.py referenced the Google Drive copy; the Drive mount is gone
 # (quarantine move), so the local copy of the identical file is used and both
-# candidates are probed in order.
+# candidates are probed in order. The Google Drive candidate was removed:
+# it joins note sentences to HADM_ID and must not be read from cloud storage.
 SAMP_CANDIDATES = [
-    "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/"
-    "My Drive/thesis/outputs/annotation_sample_300.csv",
     "/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv",
 ]
 AUDIT_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_decontamination_audit.csv"

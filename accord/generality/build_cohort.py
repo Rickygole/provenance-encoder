@@ -35,7 +35,7 @@ import numpy as np
 import pandas as pd
 import spacy
 
-REPO_ACCORD = Path("/Users/rickygole/provenance-encoder/accord")
+REPO_ACCORD = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ACCORD))
 from dictionaries import ABBREV, ACTION_PATTERNS, ALL_DRUGS, NEGATION, VARIANTS, parse_dose, resolve_action  # noqa: E402
 

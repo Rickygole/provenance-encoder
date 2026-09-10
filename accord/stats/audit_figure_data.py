@@ -29,7 +29,7 @@ import statistics as st
 import numpy as np
 from scipy.stats import norm
 
-REPO = "/Users/rickygole/provenance-encoder"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RES = os.path.join(REPO, "results")
 RA = os.path.join(RES, "accord")
 OUT = os.path.join(RA, "figure_data_audit.json")
@@ -313,14 +313,19 @@ rec(F, "movement label alpha_D", "DERIVED", round(pctD, 4), "FAIL(dependency)", 
 for cohort, key in [("HF (in domain)", "hf_reference"), ("sepsis", "sepsis"), ("AKI", "aki")]:
     v = trans[key]["rule_type_f1"]
     rec(F, f"rule-type F1 {cohort}", "LOADED", v, "PASS", P_TRANS, f"{key}.rule_type_f1",
-        None, "notebook cell 16 loads this; make_figures_extra.py:71 types it as a literal")
+        None, "notebook cell 16 loads this; no figure now consumes it, see the record below")
 rec(F, "rule-type F1 list (make_figures_extra.py)", "LOADED",
     [trans[k]["rule_type_f1"] for k in ("hf_reference", "sepsis", "aki")],
     "PASS", P_TRANS, "hf_reference/sepsis/aki .rule_type_f1",
     "f1 = [transfer[k]['rule_type_f1'] for k in ...]",
-    "The three literals are gone: make_figures_extra.py reads all three from the transfer file, "
-    "as the notebook does. hf_reference.rule_type_f1 is itself stored only to 4dp (0.9603) while "
-    "sepsis and aki are full precision, which is a property of the source file, not of the figure.")
+    "SUPERSEDED: these three no longer reach any figure. The rule-head transfer panel was "
+    "removed from fig:falsification after review, on the grounds that it shared a caption with "
+    "the authority-scale dumbbell and nothing else, and that drawing a quantity with real "
+    "sampling spread as a bar from zero implied a precision none of the three carries. They are "
+    "now a table in the results chapter, which states outright that no interval is committed for "
+    "any of them. The values and this file are unchanged; what changed is that the consumer is a "
+    "table rather than a canvas. hf_reference.rule_type_f1 is stored only to 4dp (0.9603) while "
+    "sepsis and aki are full precision, which is a property of the source file.")
 claim = next(r for r in npa["records"] if "45.2" in r["claim"])
 rec(F, "held-out rule accuracy reference line 0.4515", "SETTING", None, "PASS", None, None,
     "removed from the figure",

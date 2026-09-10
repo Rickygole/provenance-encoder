@@ -78,11 +78,15 @@ count that would fix a biased prevalence estimate needs the labeller's error
 rates on the same distribution \citep{forman2008quantifying}, and the
 doubly robust correction for surrogate label bias needs a gold-labelled
 subsample \citep{egami2023surrogates}, which is the resource the workflow
-existed to avoid spending. The failure has a floor: the strongest labeller tested, on the $253$
-non-ambiguous pairs, flagged $71$ zero shot and was right about $6$, and flagged
-$141$ few shot and was right about $7$. Better prompting moves the multiplier
-without removing it, and the magnitude belongs to this pool's base rate rather
-than transferring.
+existed to avoid spending. Substitution fails at every scale tested, but not by
+the same amount. GPT-4o, on the $253$ non-ambiguous pairs, flagged $71$ zero shot
+and was right about $6$, and flagged $141$ few shot and was right about $7$. A
+frontier labeller on the same pairs flagged $48$ and was right about $9$, which is
+$4.00$ times the confirmed rate against the $15.8196$ to $23.5959$ range the local
+8B labellers produced. An earlier version of this conclusion read the GPT-4o
+figures as a floor and assigned the magnitude to this pool's base rate. The
+magnitude tracks the labeller; what does not move is that no labeller tested is
+calibrated at this base rate.
 
 \textbf{RQ3, architecture.} None of the proposed components contributes what it
 was credited with, and the controls establish this positively rather than by
@@ -111,10 +115,11 @@ $253$ non-ambiguous pairs with $12$ positives, the decontaminated three seed ens
 reaches AUROC $0.5145$ with Mann-Whitney $p = 0.8668$, and the per seed mean is
 $0.5211 \pm 0.0201$. On the $299$ annotated pairs with the same $12$ positives,
 under subject-disjoint splits, the three seed mean AUROC is $0.4967 \pm 0.0350$,
-and a DeLong test between the seed ensemble and the single model, which is the
-correlated comparison the two share their cases with
-\citep{delong1988comparing}, gives $p = 0.930$. On the $253$-pair core the score distributions
-overlap: positives average $0.4198$ and
+and a DeLong test between the control model's seed ensemble and ACCORD's
+contaminated released run, which is the correlated comparison the two share
+their cases with \citep{delong1988comparing}, gives $p = 0.930$. Under that
+contaminated run, and not under the decontaminated ensemble above, the score
+distributions on the $253$-pair core overlap: positives average $0.4198$ and
 negatives $0.4282$, with Mann-Whitney $p = 0.6418$, so the positives score
 marginally lower. A TF-IDF logistic regression on the $299$ annotated pairs reaches
 AUROC $0.5761$ and average precision $0.1571$, above both neural
@@ -137,8 +142,9 @@ the operating point rather than as evidence on its own.
 
 \textbf{RQ5, practice.} On a $75$ paper corpus deliberately enriched toward work
 that attends to selection, $4$ papers audit the selection step under the strict
-reading and $14$ under the permissive one, across $225$ quoted fields verified
-against their sources (Section~\ref{sec:res-rq5}). A blind second coder on $19$ overlapping papers gives
+reading and $14$ under the permissive one, across $502$ of $525$ coded fields
+verified against their sources, the remaining $23$ being codings of absence
+that carry no quote by construction (Section~\ref{sec:res-rq5}). A blind second coder on $19$ overlapping papers gives
 $\kappa = 0.855$ at $0.9474$ agreement on the permissive field and
 $\kappa = 0.730$ at $0.7895$ on null attribute handling. On the strict field
 both coders returned the same value on all $19$ papers, so agreement is $1.0$
@@ -162,30 +168,22 @@ observational epidemiology formalised decades ago
 \citep{lipsitch2010negative}: run the analysis where the answer is known, and
 read the result as a statement about the instrument. Run on AG News with the
 identical training harness and an adjudication rule committed before any run,
-the pretraining benefit is $4.53$ accuracy points at $24$ epochs, with seed
-standard deviations at or below $0.0036$ and non overlapping bands; eight times
-the training budget bought the from-scratch arm $0.41$ points on that public
-task, so the AG News arms were converged rather than starved. The same
-harness, on a task built for this control, in-hospital mortality predicted
-from a patient's first $48$ hours of notes on $6{,}776$ held out admissions
-holding $570$ positives, a different task on a different cohort from the
-$253$-pair contradiction evaluation, returns $0.0031$, between
-$0.7693 \pm 0.0102$ and $0.7662 \pm 0.0073$: a null there, not a failure to
-look. This licenses a narrower reading than it can sound: the harness resolves
-real differences at the sample sizes it was given, and the contradiction
-evaluation's own sensitivity is a separate question, checked directly by
-injection against its own minimum detectable AUROC in
-Chapter~\ref{ch:results}. The general proposition that a pretraining objective
-predicts downstream utility poorly is not established here; it is established
-elsewhere and at a scale this project cannot approach
-\citep{lourie2025scaling,feng2026tessera}. The sweep is a control, not a
-contribution.
+the resolved pretraining benefit is $4.53$ accuracy points at convergence; the
+same harness, on the in-hospital mortality task built for this control,
+returns a null, $+0.0031$. What that pairing licenses, and does not, for the
+contradiction evaluation's own sensitivity is argued in
+Chapter~\ref{ch:discussion}, Section~\ref{sec:disc-null}, not repeated here.
+The general proposition that a pretraining objective predicts downstream
+utility poorly is not established here; it is established elsewhere and at a
+scale this project cannot approach \citep{lourie2025scaling,feng2026tessera}.
+The sweep is a control, not a contribution.
 
 The decontamination control changed the headline. Excluding the evaluation
 identifiers at load time moved AUROC on the same $253$ pairs from $0.4595$ to an
-ensemble $0.5145$, from one side of chance to the other and nowhere useful in
-either direction. The value of the control is not that change. It is that the
-number reported before it was contaminated, and nothing in the metrics said so.
+ensemble $0.5145$, a move of $0.0550$ that Chapter~\ref{ch:discussion} reports as
+untested and that lands nowhere useful in either direction. The value of the
+control is not that move. It is that the number reported before it was
+contaminated, and nothing in the metrics said so.
 
 The sign provenance control changed no value and several conclusions.
 Retrofitting signed storage for quantities persisted through an absolute value
@@ -195,11 +193,10 @@ slope is $-0.0078$ signed under one selection regime and $+0.0118$ under the
 other, and both invert when stored as magnitudes. A quantity stored as a
 magnitude licenses no directional claim.
 
-The randomisation controls changed the sign of the architecture argument, but
-not through the arm built for that purpose. The pre-specified control,
-randomising the role-label alphabet while holding it fixed, ran at a single
-seed and lost to true role labels by $0.3277$ nats with no significance claim
-attached: a control that ran underpowered, not a falsifier. The falsifier is
+The randomisation controls changed the sign of the architecture argument on
+the second system, not on the clinical detector, but not through the arm built
+for that purpose: the pre-specified role-label control ran underpowered
+(RQ3 above), not falsified. The sharper result is
 the segment-index arm, an arbitrary ordinal carrying no provenance meaning,
 which reduces the loss by $0.9476$ nats against true role labels' $0.8244$
 nats: a substitute with no provenance content outperforming the credited
@@ -207,11 +204,12 @@ component is not consistent with that component working as credited, the way
 a mere ablation drop would be. Chapter~\ref{ch:results} reports both comparisons, which is why RQ3
 is answered negatively rather than left open.
 
-The controls were cheap. Logged control compute totals $1181.5$ GPU minutes across $67$ runs: the
-AG News convergence sweep $555$ minutes over $48$ runs (of which a $3$-epoch
-subset cost $34.9$ minutes over $12$ runs), the clinical comparison $612.3$
-minutes over $17$ runs, and the two signed storage re-runs $0.7$ and $13.5$
-minutes. Person hours were never logged, so this is a compute only claim.
+The controls were cheap. Logged control compute totals $1216.4$ GPU minutes across $79$ runs: the
+AG News convergence sweep $555$ minutes over $48$ runs, a separate
+single-budget comparison of the same four arms $34.9$ minutes over $12$ runs,
+the clinical comparison $612.3$ minutes over $17$ runs, and the two signed
+storage re-runs $0.7$ and $13.5$ minutes. Person hours were never logged, so
+this is a compute only claim.
 
 \section{Things to Check If You Are Building This}
 \label{sec:conc-practice}
@@ -226,9 +224,7 @@ mentions, an exemplar selector that indexes into that set positionally, and
 nothing in between forcing the two to agree. The check is an assertion over two
 data structures, and on the Rule 1 and Rule 2 gold stratum it is the check that
 would have caught the largest upstream defect in this project before any
-annotation was commissioned: $65$ of $137$ resolved candidates carry the wrong
-exemplar by reconstruction, a rate of $0.4745$, against none wrong on a smaller,
-exactly joined subset of $23$; Chapter~\ref{ch:results} reports both.
+annotation was commissioned, a wrong rate as high as $0.4745$ (RQ1 above).
 
 Estimate the base rate on a human labelled sample before generating weak labels,
 and print the labeller's marginal beside it. A labeller positive on $261$ of
@@ -253,8 +249,9 @@ agreeing to two decimals across seeds, is reporting its initialisation.
 
 Run a positive control on the instrument before reporting a null from it, and
 report achieved power alongside any comparison that returns no difference. The
-positive control here cost $34.9$ minutes over $12$ runs, and the strata
-comparison has $p = 0.7725$ at achieved power $0.0576$, where the first number
+positive control here, the pre-registered convergence sweep, cost $555$ minutes
+over $48$ runs, and the strata comparison has $p = 0.7725$ at achieved power
+$0.0576$, where the first number
 without the second reads as evidence of no effect.
 
 Keep the denominators separate and state them with every metric. The $299$
@@ -268,9 +265,9 @@ several rounds of internal review.
 Three pieces of work follow directly from the limitations, and they are named as
 work rather than as hedges.
 
-\textbf{Re-annotate against corrected exemplars.} The base rate of $0.0401$ is
-an upper bound on annotation validity because the exemplar defect is measured
-two ways and they disagree. By reconstruction the exemplar matched the trigger
+\textbf{Re-annotate against corrected exemplars.} The base rate of $0.0401$
+remains an upper bound rather than an estimate (RQ1 above). By reconstruction
+the exemplar matched the trigger
 for $72$ of the $137$ resolved Rule 1 and Rule 2 candidates, a rate of
 $0.5255$; by an exact join covering far fewer rows, all $23$ of the $23$ it can
 resolve match. A separate join across all four rules matches $35$ rows of the
@@ -307,8 +304,10 @@ pipeline built for them does not detect them. Rule based mining produces a
 pool at $0.0401$, a property of applying high-recall rules to an event this
 rare, and weak supervision produces a labeller positive on $261$ of $299$
 pairs against $12$ true positives, a property of asking an instruction-tuned
-model to flag a rare class at low prevalence; both should recur in a
-differently built version of this pipeline. What would not necessarily recur
+model to flag a rare class at low prevalence; both should recur in direction in a
+differently built version of this pipeline, and neither magnitude should be
+carried across, because a frontier labeller asked the same question on the same
+pairs was positive on $64$ of $299$ rather than $261$. What would not necessarily recur
 belongs to this build specifically: on the range measured, $0$ to $0.4745$ of
 resolved Rule 1 and Rule 2 candidates carry
 the wrong exemplar because this project's selector indexed positionally, the
@@ -324,16 +323,14 @@ illustrates the same point rather than adding independent evidence, since the
 margin between precision and base rate, $0.0051$, is smaller than the
 binomial standard error on $12$ of $253$ pairs, $0.0134$.
 
-None of that establishes that the task cannot be done. At $12$ positives the
-design cannot see an effect below AUROC $0.7355$, and the thesis says so in its
-introduction as well as here. What it establishes is narrower and more useful:
-each failure has a located mechanism, and each was separated from measurement
-artifact by a control that fired.
+None of that establishes that the task cannot be done, a limit stated once
+and not re-argued here (Section~\ref{sec:disc-null}). What it establishes is
+narrower and more useful: each failure has a located mechanism, and each was
+separated from measurement artifact by a control that fired.
 
-A negative result that has been diagnosed is worth more than one that has not.
-The difference between the two, in this project, was a set of controls that
-belong to other people's papers
+A negative result that has been diagnosed is worth more than one that has not. Part of that diagnosis, in this project, was a set of controls that belong to other people's papers
 \citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,egami2023surrogates,feinstein1990paradoxes},
-cost $1181.5$ GPU minutes in total, and had not
-been run on this pipeline before this work. That is the contribution, and it is
-offered so the next attempt starts further along than this one did.
+cost $1216.4$ GPU minutes in total, and had not been run on this pipeline before this work; running someone else's instrument is not inventing it. The rest of what this project leaves
+behind is three checks of its own, named for what each one does: trigger-exemplar dissociation, the degeneracy precondition, and sign provenance. What the three share is that each is
+cheap, each is a one-line assertion or a pre-registered gate, and each catches a defect that no reported metric here was sensitive to. Neither half is a new method, and this thesis
+does not claim one; both are small, transferable checks, offered together so the next attempt starts further along than this one did.

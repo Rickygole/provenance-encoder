@@ -5,7 +5,7 @@ chapter's numerator can be identified rather than assumed.
 import json, statistics as st
 from pathlib import Path
 from collections import defaultdict
-ROOT = Path("/Users/rickygole/provenance-encoder")
+ROOT = Path(__file__).resolve().parents[2]
 
 conv = json.load(open(ROOT/"results/accord/scaling/convergence_results.json"))
 print("n_runs =", len(conv), " keys per run:", sorted(conv[0].keys()))

@@ -7,8 +7,9 @@ recomputation scripts in the same directory.
 """
 import json, os, re, sys
 
-THESIS = "/Users/rickygole/provenance-encoder/accord/thesis"
-OUT = "/Users/rickygole/provenance-encoder/results/accord/_audit_claims_raw.json"
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+THESIS = os.path.join(_REPO_ROOT, "accord/thesis")
+OUT = os.path.join(_REPO_ROOT, "results/accord/_audit_claims_raw.json")
 
 # numbers like 1{,}978  0.5145  41.4\%  83.90  -0.007  20.08  8.9
 NUM = re.compile(r"(?<![A-Za-z0-9])[-+]?\d[\d,]*(?:\{,\})?[\d,]*(?:\.\d+)?")

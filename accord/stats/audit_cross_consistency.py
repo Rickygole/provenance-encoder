@@ -6,8 +6,9 @@ Re-run: python3 accord/stats/audit_cross_consistency.py
 """
 import json, os, re, collections
 
-THESIS = "/Users/rickygole/provenance-encoder/accord/thesis"
-OUT = "/Users/rickygole/provenance-encoder/results/accord/_audit_cross_consistency.json"
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+THESIS = os.path.join(_REPO_ROOT, "accord/thesis")
+OUT = os.path.join(_REPO_ROOT, "results/accord/_audit_cross_consistency.json")
 
 # (probe name, regex over the raw line, group index holding the number)
 PROBES = [

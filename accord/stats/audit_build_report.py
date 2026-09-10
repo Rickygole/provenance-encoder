@@ -13,7 +13,8 @@ Every `recomputed` value below is read from the recompute artifact, never typed.
 """
 import json, os, re, collections
 
-R = "/Users/rickygole/provenance-encoder/results/accord"
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+R = os.path.join(_REPO_ROOT, "results/accord")
 DRIVE = ("/Users/rickygole/Library/CloudStorage/"
          "GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs")
 RC = json.load(open(f"{R}/_audit_recompute.json"))
@@ -315,10 +316,11 @@ add("45.2% held-out rule-prediction accuracy (recomputes to 0.4515)", "ch6:291",
 
 # ---------------------------------------------------------------- TODO audit
 todo = collections.defaultdict(list)
-for fn in sorted(os.listdir("/Users/rickygole/provenance-encoder/accord/thesis")):
+_THESIS_DIR = os.path.join(_REPO_ROOT, "accord/thesis")
+for fn in sorted(os.listdir(_THESIS_DIR)):
     if not fn.endswith(".tex"):
         continue
-    for i, line in enumerate(open(f"/Users/rickygole/provenance-encoder/accord/thesis/{fn}"), 1):
+    for i, line in enumerate(open(os.path.join(_THESIS_DIR, fn)), 1):
         for _ in re.finditer(r"TODO", line):
             todo[fn].append({"line": i, "text": line.strip()[:200]})
 n_todo = sum(len(v) for v in todo.values())

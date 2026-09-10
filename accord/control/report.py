@@ -24,6 +24,7 @@ Aggregates only -- pair_id + numeric scores/labels, no note text.
 import glob
 import json
 import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -34,7 +35,7 @@ from delong import delong_roc_test
 
 OUT_DIR = "/Users/rickygole/mimic_local_only/accord_control"
 GOLD_PATH = "/Users/rickygole/Downloads/gold_standard_accord_results.csv"
-POWER_REF_PATH = "/Users/rickygole/provenance-encoder/results/accord/section6_auroc_power.json"
+POWER_REF_PATH = str(Path(__file__).resolve().parents[2] / "results/accord/section6_auroc_power.json")
 
 N_BOOT = 10_000
 BOOT_SEED = 20260806  # fixed, documented

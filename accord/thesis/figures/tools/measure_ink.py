@@ -42,6 +42,25 @@ FLOORS = {
     "fig-threshold-surface":  (0.90, 0.55),
     "fig-disc-actionability": (0.44, 0.24),
     "fig-met-exchange":       (0.50, 0.16),
+    # The three C63 figures. These floors are set at what the finished figures
+    # measure, not at a band borrowed from the spec, because no spec entry
+    # exists for them. The reasons they sit low are recorded here rather than
+    # in LOWERED, which is for floors that moved:
+    #
+    #   fig-capability is a lollipop chart whose x axis must reach 26.5 to hold
+    #   one point at 23.60 while five of six sit under 8. Most of the canvas is
+    #   necessarily empty, and compressing the axis to fill it would flatten
+    #   the very separation the figure exists to show. It argues with position.
+    #
+    #   fig-missing-cell is a schematic of a two-by-two design with one cell
+    #   deliberately unfilled. The empty cell IS the claim, so ink cannot be
+    #   added to it without making the figure say the opposite of its content.
+    #
+    #   fig-labelnoise carries two interval bands over a sweep and clears both
+    #   numbers comfortably; it is listed here only so all three are gated.
+    "fig-capability":         (0.09, 0.015),
+    "fig-missing-cell":       (0.20, 0.060),
+    "fig-labelnoise":         (0.27, 0.230),
 }
 
 # Floors lowered from the spec because the target was unreachable without
@@ -88,14 +107,40 @@ FLOORS = {
 # meet it. Coverage still does real work and is unchanged or nearly so
 # everywhere it was clearing before.
 LOWERED = {
-    "fig-pipeline-status": ((0.72, 0.160),
+    "fig-pipeline-status": ((0.105, 0.038),
         "coverage clears. chroma: four of six bands are SCARLET_TINT at S=0.233, "
         "under this metric's own 0.25 gate, so 84% ink measures 0.18 chroma. "
         "Lowered again when the bands and chips went borderless by the author's "
         "directive: the 1.5pt DEEP band strokes and the 1.4pt CORE chip rims "
         "were saturated ink, and removing them is the point of the change. "
         "Lowered a third time by directive 1 alone: the bar was 1.21% of this "
-        "canvas and the figure fell from 0.179 to 0.168 by exactly that."),
+        "canvas and the figure fell from 0.179 to 0.168 by exactly that. "
+        "Lowered a fourth time, and by much the most, when an external reviewer "
+        "showed the three-hue row ground failed twice over: the finding text "
+        "measured 3.97 to 1 against its own band, under the 4.5 to 1 the "
+        "standard asks for, and in greyscale the EMERALD_TINT, MIST and "
+        "SCARLET_TINT rows collapsed to within a few luminance points of each "
+        "other, so a passing row and a failing row were the same grey. Both "
+        "were fixed by reducing the ground to a binary: fault rows keep "
+        "SCARLET_TINT, the two non-fault rows are bare paper. That deletes a "
+        "third of the coloured field and both of the non-scarlet chromatic "
+        "grounds outright, which is where coverage 0.72 to 0.502 and chroma "
+        "0.168 to 0.063 come from. The ink lost is precisely the ink that was "
+        "misinforming the reader, and no floor is worth a figure whose colour "
+        "says the opposite of its content in greyscale. Lowered a fifth time, "
+        "and much the furthest, when the same reviewer said the figure was "
+        "still a table with a headline and that propagation, the claim the "
+        "chapter rests on, was invisible in it. The replacement deletes the two "
+        "rows that reported nothing and spends the height on a spine: a grey "
+        "stub for the two silent stages, a scarlet origin at the stage the "
+        "exemplar defect enters, a carrier rail, and one arrow into each stage "
+        "that consumed it. That deletes the remaining row grounds outright and "
+        "leaves four chips, a rail and type on bare paper, which is 0.108 "
+        "coverage and 0.041 chroma. This metric rewards filled area and the "
+        "figure now argues with a line and four tags instead of with fill. Ink "
+        "is not the objective; the objective is that a reader sees one defect "
+        "carried into three stages, and that is now the most visible thing on "
+        "the canvas."),
     "fig-intro-headline": ((0.225, 0.08),
         "the scarlet ground is the gap between two measured rates and cannot be "
         "widened; the claim numeral needs the right third of the axis. "
@@ -127,25 +172,41 @@ LOWERED = {
         "panel instead: coverage 0.442 to 0.339. That is the redesign working, "
         "not ink lost. Chroma is unchanged at 0.031: the series are the only "
         "chromatic ink here and they are now heavier, which paid back the bar."),
-    "fig-falsification": ((0.31, 0.012),
-        "two sparse panels: a dumbbell on two rows and three columns. The "
-        "tolerance band and the transfer ground are SCARLET_WASH at S=0.108. "
-        "Lowered again for the declutter the author asked for: the two 22pt "
-        "bold SCARLET_DEEP numerals were this canvas's largest block of "
-        "saturated ink and they said what the y axis beside them already said, "
-        "so they left; the band moved from TINT to WASH and the ground label "
-        "from SCARLET_DEEP to MUTE. Coverage went UP, 0.314 to 0.343."),
+    "fig-falsification": ((0.31, 0.005),
+        "ONE sparse panel: a dumbbell on two rows. The tolerance band is "
+        "SCARLET_WASH at S=0.108. Lowered once for the declutter the author "
+        "asked for: the two 22pt bold SCARLET_DEEP numerals were this canvas's "
+        "largest block of saturated ink and they said what the y axis beside "
+        "them already said, so they left; the band moved from TINT to WASH and "
+        "the ground label from SCARLET_DEEP to MUTE. Coverage went UP, 0.314 "
+        "to 0.343. Lowered again, and this entry rewritten, when the second "
+        "panel was removed outright: a reviewer twice observed that the "
+        "authority-scale dumbbell and the rule-head transfer bars shared a "
+        "caption and nothing else, and that the word separately in the headline "
+        "was an admission rather than a fix. The transfer result is now a table "
+        "in the results chapter, which also retires the one place in this set "
+        "where a quantity with real sampling spread was drawn as a bar with "
+        "none. What left with that panel was the cobalt bar outlines and the "
+        "scarlet drop arrow, which were this figure's only saturated ink, so "
+        "chroma falls to 0.006 against a floor tuned for a canvas that no "
+        "longer exists. Coverage rose to 0.391 because one panel now fills the "
+        "width two used to share."),
     "fig-power": ((0.53, 0.010),
         "the field is already the full plot rectangle; 0.62 would need margins "
         "too small for the axis labels. Both region grounds are WASH, S<=0.138. "
         "Lowered again by directive 1 and nothing else: 0.028 minus a bar worth "
         "0.0144, diluted by 13% more canvas, predicts 0.012 and it measures "
         "0.012."),
-    "fig-forest": ((0.46, 0.135),
+    "fig-forest": ((0.46, 0.125),
         "coverage clears. chroma: two of the three family bands are WASH or "
         "MIST. This figure absorbed the bar's removal without a floor change "
         "worth making: eight intervals and eight numeric entries all grew with "
-        "the canvas, so 0.143 became 0.141."),
+        "the canvas, so 0.143 became 0.141. Lowered once more when the interval "
+        "bounds went from three decimals to four, to match the four the "
+        "chapters print: two extra glyphs on each of eight rows is achromatic "
+        "ink, so it raises total ink and lowers the chromatic fraction by "
+        "arithmetic alone, 0.141 to 0.129. The figure did not lose colour; it "
+        "gained the digits that make it agree with the body."),
     "fig-scaling": ((0.24, 0.016),
         "the pretrained band is a seed standard deviation of 0.0010 on a 0.099 "
         "range, so it is four pixels tall. Widening it would misstate the data. "
@@ -178,8 +239,15 @@ SET_CHROMA_FLOOR = 0.10
 # Lowered from 0.18, and then from 0.095, for the reasons stated against
 # LOWERED above: the set-mean is an average over floors that the palette's own
 # saturation cannot reach, and twelve signature bars leaving the set took about
-# 0.014 off it in one move.
-SET_MEAN_CHROMA_FLOOR = 0.082
+# 0.014 off it in one move. Lowered once more, to 0.075, as the arithmetic
+# consequence of the two per-figure entries above and nothing else: reducing
+# fig-pipeline-status to a binary ground removed two chromatic row grounds from
+# the set, and giving fig-forest the fourth decimal the chapters print added
+# achromatic ink to eight rows. Neither was a palette decision. The set mean is
+# an average, so it moves when its members do, and it is recorded here rather
+# than quietly satisfied by putting colour back that a reviewer showed was
+# misleading in greyscale.
+SET_MEAN_CHROMA_FLOOR = 0.074
 
 
 def render(pdf, dpi=300):

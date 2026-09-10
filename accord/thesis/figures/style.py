@@ -189,12 +189,19 @@ ENTITY_HUE = {
     "gpt4o_zeroshot":       COBALT,
     "gpt4o_fewshot":        AZURE,    # same model, other prompt -> same family
     "accord":               AMBER,
-    "llama3_8b":            PLUM,
+    # llama3_8b, qwen3_8b and granite33_8b are MAGENTA, CYAN and TANGERINE, not
+    # PLUM, COBALT and AMBER. fig_batch2.py's prevalence-response grid (its
+    # MODEL_HUE) is the canvas that actually draws these three and it is the
+    # correct side: moving qwen off COBALT to CYAN, measured on that canvas's
+    # four marks (scarlet, magenta, cyan, orange), takes the minimum adjacent
+    # greyscale gap from 8.9 to 19.3. This map is what check_figure_invariants.py
+    # enforces stays in sync with MODEL_HUE; if you touch either side, run it.
+    "llama3_8b":            MAGENTA,
     "weak_labeller":        PLUM,     # the production weak labeller IS Llama 3 8B
     "pharmacist_truth":     EMERALD,
     "pretrained_reference": EMERALD,
-    "qwen3_8b":             COBALT,   # no GPT-4o series on that canvas
-    "granite33_8b":         AMBER,    # no ACCORD series on that canvas
+    "qwen3_8b":             CYAN,     # no GPT-4o series on that canvas
+    "granite33_8b":         TANGERINE,  # no ACCORD series on that canvas
     "control_model":        EMERALD,
 }
 # Alpha parameters, the MDE curve, coded-corpus counts: measured, but not an

@@ -8,7 +8,8 @@ Re-run:  python3 accord/stats/audit_recompute.py
 import csv, json, math, os, sys
 import numpy as np
 
-R = "/Users/rickygole/provenance-encoder/results/accord"
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+R = os.path.join(_REPO_ROOT, "results/accord")
 Q = "/Users/rickygole/mimic_local_only/accord_supp/results"
 OUT = {}
 

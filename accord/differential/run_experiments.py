@@ -189,7 +189,11 @@ log("(admission-level covariate table kept in-memory only; not written to disk p
 #    for the gold-evaluated pairs).
 # ---------------------------------------------------------------------------
 GOLD_PATH = "/Users/rickygole/Downloads/gold_standard_accord_results.csv"
-SAMP_PATH = "/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs/annotation_sample_300.csv"
+# Repointed off the Google Drive mount. This file carries verbatim note
+# sentences joined to HADM_ID, so a cloud-synced path was the one thing
+# the .gitignore rules and sync gate exist to prevent, and README.md
+# asserted it was not happening while these two lines said otherwise.
+SAMP_PATH = "/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv"
 AUDIT_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_decontamination_audit.csv"
 WS_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_weak_supervision_labels_decontam.csv"
 

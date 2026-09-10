@@ -15,13 +15,14 @@ Output: /Users/rickygole/mimic_local_only/accord_opsweep/gold_scores_language.cs
 """
 import os
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 
-sys.path.insert(0, "/Users/rickygole/provenance-encoder/accord/control")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "control"))
 from data import build_splits  # noqa: E402
 
 OUT_DIR = "/Users/rickygole/mimic_local_only/accord_opsweep"

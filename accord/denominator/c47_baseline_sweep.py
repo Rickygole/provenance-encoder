@@ -154,7 +154,8 @@ verdict = {
             "'the audit invents/erases' rhetoric. See the pre-registration above.",
 }
 
-out = pathlib.Path("/Users/rickygole/provenance-encoder/results/accord/c47_baseline_sweep.json")
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
+out = REPO_ROOT / "results/accord/c47_baseline_sweep.json"
 out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(json.dumps({"verdict": verdict, "summary": summary, "rows": rows}, indent=2))
 

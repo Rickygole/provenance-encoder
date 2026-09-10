@@ -27,7 +27,10 @@ STRUCTURAL = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
               "100", "1000", "0.05", "0.5", "1.0", "2.0", "95",
               # random seeds and pre-registered thresholds, which are settings not findings
               "42", "123", "2024", "20260806", "20260809",
-              "2.5", "3.0", "3.5", "0.15", "0.20", "0.65", "1.5", "160", "5000"}
+              "2.5", "3.0", "3.5", "0.15", "0.20", "0.65", "1.5", "160", "5000",
+              # standard normal critical value, a setting in an interval formula
+              # rather than a finding, exactly as 0.05 above is
+              "1.96"}
 
 
 def fact_values():

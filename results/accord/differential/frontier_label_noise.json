@@ -1,0 +1,157 @@
+{
+ "by_strategy": {
+  "few_shot": {
+   "cells": {
+    "fn": 6,
+    "fp": 33,
+    "tn": 208,
+    "tp": 6
+   },
+   "flip_probability_at_which_zero_enters": 0.2,
+   "mcc_change_per_negative_flip": 0.00468479928811745,
+   "mcc_change_per_positive_flip": 0.04682381236409737,
+   "mcc_point": 0.21372285378567948,
+   "pair_sampling_sd": 0.08989250543308344,
+   "survives_any_label_noise": false,
+   "sweep": [
+    {
+     "ci_hi": 0.3899089269559398,
+     "ci_lo": 0.037536780615419124,
+     "excludes_zero": true,
+     "label_sd": 0.0,
+     "p": 0.0,
+     "total_sd": 0.08989250543308344
+    },
+    {
+     "ci_hi": 0.4055753209925712,
+     "ci_lo": 0.02187038657878773,
+     "excludes_zero": true,
+     "label_sd": 0.038742093195007245,
+     "p": 0.05,
+     "total_sd": 0.09788571049018116
+    },
+    {
+     "ci_hi": 0.41857957390665057,
+     "ci_lo": 0.008866133664708398,
+     "excludes_zero": true,
+     "label_sd": 0.05332827445208571,
+     "p": 0.1,
+     "total_sd": 0.10452065532263904
+    },
+    {
+     "ci_hi": 0.438363229548427,
+     "ci_lo": -0.010917521977067995,
+     "excludes_zero": false,
+     "label_sd": 0.07110436593611427,
+     "p": 0.2,
+     "total_sd": 0.11461454265586798
+    },
+    {
+     "ci_hi": 0.45148870564728705,
+     "ci_lo": -0.024042998075928107,
+     "excludes_zero": false,
+     "label_sd": 0.08146028478602081,
+     "p": 0.3,
+     "total_sd": 0.12131133718847778
+    },
+    {
+     "ci_hi": 0.4590271167830119,
+     "ci_lo": -0.03158140921165292,
+     "excludes_zero": false,
+     "label_sd": 0.08708470751380677,
+     "p": 0.4,
+     "total_sd": 0.12515753599285265
+    },
+    {
+     "ci_hi": 0.46148895683933355,
+     "ci_lo": -0.03404324926797461,
+     "excludes_zero": false,
+     "label_sd": 0.08888045742014285,
+     "p": 0.5,
+     "total_sd": 0.12641359991808937
+    }
+   ],
+   "worst_case_ci_lo": -0.03404324926797461
+  },
+  "zero_shot": {
+   "cells": {
+    "fn": 3,
+    "fp": 39,
+    "tn": 202,
+    "tp": 9
+   },
+   "flip_probability_at_which_zero_enters": null,
+   "mcc_change_per_negative_flip": 0.0047944098561588655,
+   "mcc_change_per_positive_flip": 0.04263933031233827,
+   "mcc_point": 0.31886556407146305,
+   "pair_sampling_sd": 0.08034000751046942,
+   "survives_any_label_noise": true,
+   "sweep": [
+    {
+     "ci_hi": 0.4763290853466126,
+     "ci_lo": 0.16140204279631348,
+     "excludes_zero": true,
+     "label_sd": 0.0,
+     "p": 0.0,
+     "total_sd": 0.08034000751046942
+    },
+    {
+     "ci_hi": 0.4914534683319739,
+     "ci_lo": 0.14627765981095223,
+     "excludes_zero": true,
+     "label_sd": 0.03604803104594954,
+     "p": 0.05,
+     "total_sd": 0.08805667123547213
+    },
+    {
+     "ci_hi": 0.5039410991550419,
+     "ci_lo": 0.13379002898788414,
+     "excludes_zero": true,
+     "label_sd": 0.049619912981971846,
+     "p": 0.1,
+     "total_sd": 0.09442802852501339
+    },
+    {
+     "ci_hi": 0.5228492059147851,
+     "ci_lo": 0.11488192222814098,
+     "excludes_zero": true,
+     "label_sd": 0.06615988397596245,
+     "p": 0.2,
+     "total_sd": 0.10407519903653846
+    },
+    {
+     "ci_hi": 0.535346228085468,
+     "ci_lo": 0.1023849000574582,
+     "excludes_zero": true,
+     "label_sd": 0.07579566907233598,
+     "p": 0.3,
+     "total_sd": 0.11045134791801027
+    },
+    {
+     "ci_hi": 0.5425094974640599,
+     "ci_lo": 0.09522163067886619,
+     "excludes_zero": true,
+     "label_sd": 0.08102897859142259,
+     "p": 0.4,
+     "total_sd": 0.11410614434968655
+    },
+    {
+     "ci_hi": 0.5448468006681509,
+     "ci_lo": 0.09288432747477512,
+     "excludes_zero": true,
+     "label_sd": 0.08269985496995307,
+     "p": 0.5,
+     "total_sd": 0.11529866789704707
+    }
+   ],
+   "worst_case_ci_lo": 0.09288432747477512
+  }
+ },
+ "provenance": {
+  "basis": "G_253",
+  "generated_by": "accord/differential/frontier_label_noise.py",
+  "input": "results/accord/differential/frontier_anthropic_metrics.json",
+  "method": "Total variance is pair-sampling plus label noise. The pair-sampling standard deviation is recovered from the committed percentile bootstrap interval as its half-width divided by the normal quantile. Label noise is modelled as an independent flip with probability p per label, so the flip count on each class is binomial and its variance is n*p*(1-p); that count is carried into MCC by the per-flip sensitivity of the observed confusion matrix. The point estimate is held fixed, so this bounds the interval and is not a posterior.",
+  "worst_case": "p = 0.5 makes every label an independent fair coin, which is the largest label noise any model can assert."
+ }
+}

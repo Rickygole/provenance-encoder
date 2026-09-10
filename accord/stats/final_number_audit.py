@@ -14,7 +14,7 @@ import json, re, math, statistics as st, os
 from pathlib import Path
 from collections import defaultdict
 
-ROOT = Path("/Users/rickygole/provenance-encoder")
+ROOT = Path(__file__).resolve().parents[2]
 TEX  = ROOT/"accord/thesis"
 OUT  = ROOT/"results/accord/final_number_audit.json"
 QUAR = Path("/Users/rickygole/mimic_local_only")

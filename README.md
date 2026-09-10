@@ -118,13 +118,38 @@ python3 scripts/analyze_sweep.py          # paired comparison
 
 MIMIC-III is PhysioNet credentialed data. Everything touching it runs locally
 and emits aggregates only — no note text is printed, logged, or sent anywhere.
-LLM baselines run through Ollama on localhost rather than a hosted API, which
-PhysioNet's published guidance prohibits for restricted data. `local_only/` is
-gitignored, as are the MIMIC table names, and `/Users/rickygole` is itself a git
-repository, which is why those rules are aggressive.
+For the provenance-encoder experiments in this repository, LLM baselines run
+through Ollama on localhost rather than a hosted API, consistent with
+PhysioNet's published guidance, which treats unconditioned transmission of
+restricted data to a general-purpose hosted API as inconsistent with the data
+use agreement. One earlier comparison is an exception and is disclosed rather
+than hidden: ACCORD's GPT-4o baseline did transmit note excerpts to a hosted
+commercial API, and that departure, including why the rows were kept, is
+documented in the thesis methodology chapter's data-use section
+(`accord/thesis/msu_ch3_methodology.tex`). `local_only/` is gitignored, as are
+the MIMIC table names, and `/Users/rickygole` is itself a git repository,
+which is why those rules are aggressive.
 
 Pretraining corpora, if used, are open (PubMed / PMC OA, CC0 and CC BY only).
-No MIMIC-derived artifact is cloud-synced.
+
+One correction to an earlier version of this file, which claimed that no MIMIC
+data and no note-derived row-level artifact is cloud-synced. That was false.
+`accord/differential/run_multillm_replication.py` reads
+`annotation_sample_300.csv` from a Google Drive mount, and that file carries
+verbatim note sentences joined to `HADM_ID`. Raw MIMIC tables were also read
+from `~/Downloads`. Those paths are being moved under `mimic_local_only/` and
+the claim is withdrawn rather than restated, because the file that falsified it
+was committed in this repository while the claim stood.
+
+`scripts/sync_results.sh` is the intended path from `local_only/` (credentialed
+data) to this repository or to Drive: it admits only `.json`, `.txt`, and
+`.md` files from `local_only/`, so no row-level format can enter the tree
+from there at all; every candidate file is scanned for note-text markers and
+for identifiers used as a data key before it is written; and the same two
+scans run again over everything already sitting in `results/accord/`
+immediately before the Drive copy, aborting the run on a single hit. What
+reaches Drive is scalar aggregates that pass that gate, plus the analysis
+code that produced them.
 
 ## Invariants
 

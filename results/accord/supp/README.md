@@ -6,6 +6,18 @@
 
 This folder contains everything a reviewer needs to verify the numbers reported in the paper. The folder is organized into a flat top level for the core artifacts that reviewers will look at first, and a results subfolder for the raw per-configuration JSON outputs.
 
+## What is, and is not, in this package
+
+This package distributes only pair-level predictions, prompts, parsing code, and aggregate
+result files. It does not, and will not, include row-level files that join a MIMIC-III
+identifier (such as `HADM_ID`) to verbatim note text. Two such files existed during earlier
+preparation of this package (a weak-supervision label pool and a decontamination audit trail,
+both keyed on `HADM_ID` with verbatim nursing-note and discharge-summary sentences attached);
+they have been removed from distribution and are not present anywhere in this repository. They
+remain, credentialed-access-only, outside version control, alongside the MIMIC-III source data
+they were derived from. See "Data Access" below for what that means for reproducing the
+decontaminated retrain from scratch.
+
 ## Repository Structure
 
 supplemental/
@@ -15,8 +27,6 @@ supplemental/
   prompts_existing.csv                            verbatim prompts and model version strings
   parser.py                                       exact parser used to convert raw model outputs into binary labels
   error_inventory_12.csv                          all 12 true contradictions with caught/missed status (corrected v2)
-  accord_weak_supervision_labels_decontam.csv     1,679-pair weak-supervision pool used to retrain the decontaminated ACCORD
-  accord_decontamination_audit.csv                full audit trail of the 299 pharmacist pairs that were removed and why
 
   results/
 
@@ -35,10 +45,8 @@ supplemental/
 
 ## Decontaminated ACCORD: how to verify the main paper numbers
 
-The primary ACCORD result in Table 1 of the paper is the decontaminated retrain. Three random seeds were trained from scratch on a weak-supervision pool with all 299 pharmacist-annotated pairs removed. The relevant artifacts are:
+The primary ACCORD result in Table 1 of the paper is the decontaminated retrain. Three random seeds were trained from scratch on a weak-supervision pool with all 299 pharmacist-annotated pairs removed. The training pool itself and the audit trail of removed pairs are row-level, `HADM_ID`-joined artifacts and are not distributed in this package (see "What is, and is not, in this package" above). The relevant distributable artifacts are the aggregate outputs built from that training run:
 
-  accord_weak_supervision_labels_decontam.csv (top level): the 1,679 training pairs after removing the pharmacist set
-  accord_decontamination_audit.csv (top level): the 299 pairs removed with the reason for removal in the removal_reason column
   results/accord_v2_decontam_gold_aggregate.json: per-seed confusion matrices, recall, MCC, kappa, F-beta, PR-AUC, ECE, and authority scales for all three decontaminated seeds, plus aggregate means and bootstrap CIs
   results/accord_v2_decontam_results.json: the raw per-seed result records that the aggregate file is built from
   results/accord_decontamination_paper_table.csv: the side-by-side comparison of the contaminated single-run and the decontaminated three-seed mean
@@ -93,7 +101,9 @@ All Llama and ACCORD values in both files were correct in the original version a
 
 The MIMIC-III dataset requires credentialed access via PhysioNet. Registration is at https://physionet.org/content/mimiciii/1.4/
 
-The annotation file (annotation_pharmacist_complete.xlsx) contains derived features from MIMIC-III note pairs and cannot be redistributed under the data use agreement. The pair IDs (PAIR_0001 through PAIR_0299) correspond to the annotated subset described in Section 3 of the paper. Researchers with PhysioNet access can reconstruct the note pair text using these IDs.
+The annotation file (annotation_pharmacist_complete.xlsx) contains verbatim de-identified MIMIC-III note sentences, not derived features, and is therefore restricted data under the data use agreement rather than a derived artifact. It is not redistributed here in any form. The pair IDs (PAIR_0001 through PAIR_0299) correspond to the annotated subset described in Section 3 of the paper, but they are an internal identifier local to this project's own pipeline, not a MIMIC-III admission or subject identifier, and no crosswalk from a pair ID back to the source note text or to `HADM_ID`/`SUBJECT_ID` is distributed or retained outside the credentialed environment. A researcher with PhysioNet access cannot use the pair IDs alone to reconstruct the note pair text; doing so would require re-running this project's own note-pairing pipeline against the credentialed MIMIC-III release.
+
+Files containing verbatim note text or MIMIC-III admission/subject identifiers are not redistributable under the PhysioNet data use agreement and are not included in this package, in any form, at any level.
 
 ## predictions_253_core.csv
 
@@ -131,14 +141,6 @@ Columns:
 ## parser.py
 
 The exact function used to convert raw model output strings into binary contradiction labels. Case-insensitive string match on the first word. A re-run of chain-of-thought with verbatim prompts produced a 20% parse failure rate, which is documented in Section 9 of the paper.
-
-## accord_weak_supervision_labels_decontam.csv
-
-The 1,679-pair weak-supervision pool used to train the decontaminated ACCORD across three random seeds. Each row has the candidate pair information plus the Llama 3 8B weak label and the model's free-text reasoning. This file is the union of the four temporal mining rules (Rule 1 through Rule 4) minus the 299 pairs that overlapped with the pharmacist-annotated set.
-
-## accord_decontamination_audit.csv
-
-The audit trail of the 299 pharmacist-annotated pairs that were removed from the original 1,978-pair candidate pool before retraining. Identical column structure to the weak-supervision file plus a removal_reason column. The removal_reason value pharmacist_overlap means the pair was annotated by the pharmacist and therefore had to be removed to avoid evaluation contamination.
 
 ## results/accord_v2_decontam_gold_aggregate.json
 

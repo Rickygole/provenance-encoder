@@ -50,12 +50,12 @@ and chart date.
 No clinical note text appears in this thesis, in any table, figure, appendix or released artifact,
 and no admission or subject identifier is printed anywhere. Note-derived intermediate files live
 outside the version-controlled tree and never leave the analysis machine, and the export script
-scans candidate files for note-text markers and aborts rather than filtering on a hit. One
-departure is recorded rather than concealed: the comparison against a hosted commercial model
-\citep{openai2023gpt4} transmitted note excerpts to a third-party API inside its prompt, which
-guidance issued during the project's lifetime treats as inconsistent with the data use agreement.
-Those rows are retained with the caveat attached, because deleting them would misrepresent the
-comparison actually run.
+scans candidate files for note-text markers and aborts rather than filtering on a hit. Two
+departures are recorded rather than concealed: a comparison against a hosted commercial model, and
+a calibration run through a hosted inference API, both of which placed note sentences in prompts
+sent to a third party. Section~\ref{sec:m-ethics} states which models, what was sent, what can and
+cannot be established about the payload from the project record, how the data use agreement bears
+on both, and why those rows are retained rather than deleted.
 
 MIMIC-III notes are de-identified by an automated system that replaces protected health information
 with bracketed surrogate tokens \citep{neamatullah2008deid}. That is not neutral for a model
@@ -139,7 +139,13 @@ Section~\ref{sec:m-candidates} reports it directly.
 
 This selection returns 9,783 admissions with a selected nursing note and 9,783 with a selected
 discharge summary, the same 9,783 admissions counted both ways, for 19,566 note rows across 9,783
-pairs in total.
+pairs in total. That is 37 fewer than the 9,820 admissions carrying both roles, and the shortfall
+is entirely nursing-side. Holding the nursing role means holding at least one note labelled
+nursing; being selectable means holding one whose chart time is recorded and falls strictly before
+the discharge time. An admission whose nursing notes all carry a null chart time, or all fall at
+or after discharge, therefore has the role and no selectable note. The discharge side applies no
+such condition, so it loses nothing. The 37 are named here because every other reduction in
+Figure~\ref{fig:cohort-flow} carries its reason and this one was previously left to inference.
 That is the cohort the mining rules of Section~\ref{sec:m-candidates} run against.
 Figure~\ref{fig:cohort-flow} carries the whole path in one view. Reading down:
 admissions selected by billing code, filtered on length of stay, reduced to
@@ -373,13 +379,20 @@ template with no demonstrations and no chain-of-thought elicitation, and it name
 before asking whether a conflict is present. The labelled pool is the candidate pool minus the
 pairs sent to the pharmacist, so the two are disjoint at the row level by construction;
 Section~\ref{sec:m-data} explains why that was insufficient. The weak-labelled candidate pool from
-this calibration join holds 1,679 rows before subject-disjoint exclusion; removing rows whose
-subject also appears in an evaluation split narrows that pool to the 1,183-row training pool
-reported in Table~\ref{tab:m-strata} and used to fit the detector.
+this calibration join holds 1,679 rows before subject-disjoint exclusion. Removing the 291 rows
+whose subject also appears in an evaluation split leaves 1,388, which is then split into the
+1,183-row training pool reported in Table~\ref{tab:m-strata} and used to fit the detector, and a
+205-row validation pool used for nothing but monitoring the training loss.
 
 For the replication in Section~\ref{sec:m-control-rq2} the original prompt was recovered verbatim
 from the committed prompt table rather than rewritten, and reused unchanged across models. Decoding
-is greedy at temperature zero, so a model's label for a row is deterministic within a model.
+is greedy at temperature zero for the local models, so a model's label for a row is deterministic
+within a model. That guarantee does not extend to the hosted frontier model reported alongside them
+in Chapter~\ref{ch:results}: it does not accept a temperature parameter, its artifacts record the
+fact, and one pair returned opposite labels on two runs of an identical prompt during diagnosis. Its
+per-pair labels are therefore single draws from a distribution rather than fixed values, and
+Section~\ref{sec:r-frontier} states what that does to the precision of the figures derived from
+them.
 Generations that do not parse are recorded in their own category and never defaulted to a class,
 because an earlier component of this project scored every unparseable generation and every
 exception as a positive prediction, which inflates a positive rate mechanically and silently.
@@ -421,7 +434,9 @@ was specified as that backbone plus four purpose-built components: a cross-note 
 an asymmetric conditioning module, a pharmacological prior conditioning module, and a
 guideline-grounded harm estimator, with three claimed contributions attached to them. What follows
 describes the code that produced the results, because describing the specification instead is the
-error this thesis is about (Appendix~\ref{app:corrections}, C4).
+error this thesis is about; the correction that established it is recorded as C4 in the
+correction record released with the analysis code, and is one of the entries named but not
+reproduced in Appendix~\ref{app:corrections}.
 
 The pharmacological prior module was deleted in the second version and replaced by a function
 returning a fixed-length vector of zeros with two positions overwritten, one a danger multiplier
@@ -680,27 +695,29 @@ nose.
 
 \subsection{The degeneracy precondition}
 
-\textbf{Condition.} A parity or subgroup audit can only detect a disparity the audited model has
-room to exhibit. A classifier predicting one class for almost every input satisfies demographic
-parity nearly by construction, because the maximum spread available across groups is bounded by how
-far its predicted-positive rate can move. An audit applied to such a model that reports no
-disparity has not failed to detect one; it was applied to a model that could not display one.
+\textbf{Condition.} Demographic parity compares the predicted-positive rate across groups, so a
+classifier that predicts one class for nearly every input has the same predicted-positive rate in
+every group by construction and cannot exhibit a parity disparity, whatever the underlying data. An
+audit that reports no disparity on such a classifier is therefore reporting its own operating point,
+not a property of the model or of the data it was run against. This is the degeneracy precondition:
+a check on the validity of a parity-style audit over a binary classifier, checkable before the audit
+runs. It is a precondition, not a general result about fairness metrics, and beyond what the rest of
+this chapter already reports it establishes nothing about this thesis's contradiction detector.
 
-The precondition is enforced before the audit runs rather than interpreted afterwards. The
-reference classifier must clear a pre-registered non-degeneracy bar on the validation split: a
-minimum AUROC of $0.65$, a predicted-positive rate strictly inside the interval $0.05$ to $0.50$,
-and a precision lift over the base rate of at least $1.5$. All three are asserted in code before
-the sweep begins: if any of them fails, the driver exits and the sweep does not run.
-
-A planted-gap positive control runs immediately afterwards and before any substantive measurement.
-A known logit shift is injected into one group's scores on the full population with no selection
-filtering, and the audit code must recover it: the bootstrap interval on the demographic parity gap
-must exclude zero, and the four-fifths ratio must fall below its threshold with an interval upper
-bound below one. If the audit cannot recover a gap placed there deliberately, every downstream
-number is void, and the experiment driver aborts rather than reporting them. The precondition
-also applies
-retrospectively to an earlier audit in this project and fails there, which is why no subgroup harm
-is demonstrated or claimed anywhere in this thesis.
+The precondition is enforced by two mechanisms, run in order and both before the audit produces any
+substantive measurement. First, a pre-registered non-degeneracy bar: the reference classifier must
+clear a minimum AUROC of $0.65$, a predicted-positive rate strictly inside the interval $0.05$ to
+$0.50$, and a precision lift over the base rate of at least $1.5$, all on the validation split and
+all asserted in code before the sweep begins; if any of them fails, the driver exits and the sweep
+does not run. Second, a planted-gap positive control, which runs immediately afterwards and checks
+that the audit can detect a disparity known to be present: a known logit shift is injected into one
+group's scores on the full population with no selection filtering, and the audit code must recover
+it, the bootstrap interval on the demographic parity gap must exclude zero and the four-fifths ratio
+must fall below its threshold with an interval upper bound below one. If the audit cannot recover a
+gap placed there deliberately, every downstream number is void, and the experiment driver aborts
+rather than reporting them. The precondition also applies retrospectively to an earlier audit in
+this project and fails there, which is why no subgroup harm is demonstrated or claimed anywhere in
+this thesis.
 
 \subsection{RQ4: is the null a property of the task or of the instrument?}
 
@@ -716,8 +733,18 @@ on a task built for this control rather than on the contradiction detector: in-h
 predicted from a bundle of a patient's first 48 hours of notes, evaluated on $6{,}776$ held-out
 admissions holding $570$ positives, a different task and cohort from the $253$-pair
 contradiction evaluation. The comparison there is a from-scratch encoder against a
-domain-pretrained encoder under a matched fine-tuning protocol at three seeds, with the
-from-scratch arm carrying $10{,}638{,}720$ non-embedding parameters. On the public side the same comparison runs on
+domain-pretrained encoder under a matched fine-tuning protocol at three seeds each, with the
+from-scratch arm carrying $10{,}638{,}720$ non-embedding parameters. Three properties of that
+comparison are disclosed here rather than left to be inferred. The two arms do not share a seed
+set: the pretrained arm is seeds $1$, $2$ and $3$ and the from-scratch arm is seeds $0$, $1$ and
+$2$, so the comparison is unpaired and no per-seed difference is meaningful. Five of the six runs
+carry a recorded split lineage naming the same split hash and the same $6{,}776$-row test set
+holding $570$ positives; the from-scratch seed $0$ run carries no lineage record at all, so its
+split is consistent with the others by configuration but is not pinned by a stored hash. And one
+pretrained run took roughly four times the wall clock of the other two, $251.8$ minutes against
+$62.2$ and $62.3$, a difference the record does not explain. Chapter~\ref{ch:results} reports the
+three-seed gap as primary and the two-seed gap over the lineage-pinned runs alone beside it.
+On the public side the same comparison runs on
 AG News across four arms, a pretrained BERT encoder at $85{,}648{,}132$ parameters and three
 from-scratch encoders at $10{,}649{,}092$, $31{,}913{,}860$ and $99{,}234{,}820$ parameters.
 
@@ -818,7 +845,7 @@ location, and a verification script re-checks each quote by exact string match a
 text; a quote that fails to match is rejected and its field forced to unclear, so no coded value
 survives without verified textual support.
 
-Two design limitations bound what the instrument can measure. Each paper was coded once by the
+Three design limitations bound what the instrument can measure. Each paper was coded once by the
 primary coder under a shared written rule set. A blind second coder independently re-coded a
 deterministic subsample of nineteen papers, the basis for the agreement statistics reported in
 Chapter~\ref{ch:results}; no agreement figure is claimed for the fifty-six papers outside that
@@ -830,6 +857,15 @@ already audit a model also audit the selection step. The keyword-density ranking
 corpus toward fairness-forward work, stated plainly because the enrichment runs against the
 direction of the finding rather than toward it.
 
+Third, the limitation is one of construct rather than of implementation. The coded question is
+only whether a paper audits the selection step upstream of the model it evaluates, a single check.
+It is not the exemplar-correctness check, the weak-label marginal check, the architecture
+randomisation control, or the positive control for evaluation sensitivity, four of the five controls
+this thesis runs, and the survey measures none of them. Together with the collapse just described,
+the corpus supports only the prevalence of this one adjacent practice among papers that already
+audit a model on their pool, not a claim about whether the field runs the controls that would have
+caught this pipeline's own failures.
+
 \section{Statistical Procedures}
 \label{sec:m-stats}
 
@@ -839,10 +875,23 @@ Interval estimates on AUROC and average precision are nonparametric percentile b
 evaluation rows \citep{efron1994bootstrap}. The main control uses $10{,}000$ resamples at a fixed
 generator seed of $20260806$; the decontamination analysis uses $10{,}000$ resamples at seed
 $42$. Seeds
-are recorded so that every interval is reproducible to the digit. Degenerate resamples are handled
+are recorded so that every interval computed here is reproducible to the digit. The qualification
+matters for one family of rows: an interval bootstrapped over hosted-model labels is reproducible
+from the recorded labels, but the labels themselves are not reproducible by re-running the model,
+for the reason given in Section~\ref{sec:m-control-rq2}. Degenerate resamples are handled
 explicitly rather than by imputation: with few positives a resample can contain none, in which case
-AUROC is undefined, so such resamples are discarded, do not count toward the requested total, and
-the count of valid resamples is reported beside each interval.
+AUROC is undefined, so such resamples are discarded and do not count toward the requested total.
+The count is reported beside an interval only where that interval's own artifact stored it, which
+is not everywhere: among the intervals printed in Chapters~\ref{ch:results}
+and~\ref{ch:discussion}, those computed for the control model carry a recorded count of valid
+resamples, in every case the full $10{,}000$ requested, while the decontaminated ensemble's
+intervals and the Matthews correlation intervals store no count of either kind. Where no count is
+stored, none is quoted, and those intervals should be read as computed over the requested number
+of resamples less an unrecorded number of degenerate draws. A separate bootstrap of the
+defect-free stratum, run at a different setting and not printed in this thesis, does record its
+discards, $20$ of $10{,}000$, a rate of $0.002$, which is the only direct measurement of that
+rate anywhere in this work and is the order of magnitude the unrecorded cases should be assumed
+to sit at.
 
 Two systems scored on the same rows produce correlated ROC curves, so an unpaired comparison
 overstates the variance of their difference. Comparisons between the control model and the
@@ -913,7 +962,8 @@ earlier one. And a reference row in any comparison table must be produced by the
 protocol as the rows it is compared against; where that is not true, the comparison is reported as
 directional with no significance claim attached. Finally, every quantity in
 Chapter~\ref{ch:results} maps to the committed artifact that produced it, and that mapping is
-reproduced as an appendix rather than asserted (Appendix~\ref{app:corrections}, R7).
+reproduced as a reference table in the supplementary file rather than asserted
+(Appendix~\ref{app:provenance}).
 
 \section{Data Use, Ethics, and Compliance}
 \label{sec:m-ethics}
@@ -925,14 +975,59 @@ rather than from a general good-practice statement.
 \paragraph{Note text, and third-party transmission.} No clinical note text, and no admission or
 subject identifier, appears anywhere in this document or any released artifact; note-derived
 intermediate files stay outside the version-controlled tree, and the export script scans every
-candidate file for note-text markers and aborts on a hit. One departure is disclosed rather than
-concealed: the comparison against a hosted commercial model \citep{openai2023gpt4} (Section
-\ref{sec:m-data}) transmitted note excerpts to a third-party API inside its prompt. The data use
-agreement is the instrument that departure is judged against; guidance issued during this project's
-lifetime treats unconditioned transmission of credentialed data to a general-purpose hosted API as
-inconsistent with it, specifying zero-retention alternatives not in force for these calls. Those
-rows are retained with the caveat attached, because deleting them would misrepresent the comparison
-actually run, and no further transmission occurred or is planned.
+candidate file for note-text markers and aborts on a hit. Two departures are disclosed rather than
+concealed, and the count was wrong in an earlier draft of this section, which said one.
+
+The first is the comparison against GPT-4o, a hosted commercial model this bibliography carries no
+reference for and which is therefore named rather than cited, which placed verbatim de-identified
+note sentences in the body of a prompt sent to a third-party API. The scope has to be stated
+carefully, in both directions, because an earlier draft first overstated it and then rested the
+narrower account on the wrong evidence. What can be established is this. The columns the prompt was
+filled from hold one sentence per note side, segmented by the mining stage and selected by it, the
+same exemplar text the weak labeller and the detector received; under the omission rule the
+discharge side is empty. The prompt template's placeholders are named \texttt{nursing\_note} and
+\texttt{discharge\_summary}, and that naming is what two separate readings of this project took for
+whole-note transmission. What cannot be established is the payload of that specific run from the
+project record, because the script that made those calls is not in the repository. The narrower
+account is therefore a reconstruction from the annotation sheet's columns and the archived prompt
+template, not a verified reading of the transmitting code, and it is labelled as one here. It is in
+any case not a defence: a verbatim sentence from a credentialed note is restricted data on the same
+footing as the annotation spreadsheet discussed below, and the prohibition on sharing access is not
+scaled by quantity, so the departure stands as a departure whatever its exact span.
+
+The second is a calibration run of Llama 3 8B through the Hugging Face Inference API, over the full
+candidate pool rather than the annotated subset, and therefore over more rows than the first. It is
+reported in Chapter~\ref{ch:results} as the originally deployed calibration figure. It was omitted
+from an earlier version of this section, which is why the count moved from one to two.
+
+The data use agreement is the instrument both are judged against; guidance issued during this
+project's lifetime treats transmission of credentialed data to a general-purpose hosted API as
+prohibited under it, specifying zero-retention alternatives that were not in force for these calls.
+The GPT-4o comparison has since been re-run through a channel that guidance treats differently, and
+Chapter~\ref{ch:results} reports both the original rows and the replacement side by side rather than
+substituting one for the other, because they are different models run under different token budgets
+and this thesis does not treat such rows as interchangeable. The original rows are retained with the
+caveat attached, because deleting them would misrepresent the comparison actually run, and no
+further transmission through either original channel occurred or is planned.
+
+\paragraph{The annotator, and credentialed access.} The gold standard was produced by one
+board-certified pharmacist working remotely from a spreadsheet of candidate pairs. That spreadsheet
+carried verbatim de-identified note sentences, the same exemplar evidence the weak labeller and the
+detector received, so it is restricted data under the data use agreement rather than a derived
+artifact. Whether the annotator held credentialed access at the time of annotation was not verified
+in writing and cannot be established from the project record: the written protocol governing the
+engagement addressed confidentiality and de-identification but did not record credentialing status.
+That is a documentation failure on the author's part, and it is disclosed here rather than omitted,
+because the agreement obliges the licensee not to share access to restricted data. Three facts
+bound the exposure and none of them cures it. The material carried no admission identifier and no
+subject identifier; rows were keyed by a project-internal pair identifier, and the crosswalk from
+that identifier back to the admission was never transferred, so the recipient could not re-link a
+row to a record. The transfer was to a single clinician, for the sole purpose of producing the
+labels reported in Chapter~\ref{ch:results}, under a written instruction not to share the file or
+any pair contents beyond the research team, and no onward transmission occurred or is planned. The
+correct procedure, which any continuation of this work will follow, is to verify and record a
+collaborator's credentialed status before restricted material is transferred, and to register that
+collaborator against the agreement.
 
 \paragraph{Re-identification and small cells.} No re-identification was attempted and no auxiliary
 dataset was joined against MIMIC-III at the patient level. Subgroup results are one-way marginals

@@ -1,6 +1,6 @@
 import csv, json, collections
 from pathlib import Path
-ROOT = Path("/Users/rickygole/provenance-encoder")
+ROOT = Path(__file__).resolve().parents[2]
 S = ROOT/"results/accord/survey"
 
 rows = list(csv.DictReader(open(S/"coding_table.csv")))
