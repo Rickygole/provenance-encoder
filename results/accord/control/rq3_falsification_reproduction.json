@@ -1,0 +1,55 @@
+{
+ "all_three_falsified": true,
+ "authority_scale": {
+  "claim": "authority parameters converge to a clinical hierarchy",
+  "drift": [
+   0.0076,
+   0.0038
+  ],
+  "drift_pct_of_init": [
+   1.52,
+   0.38
+  ],
+  "falsified": true,
+  "initialised_at": [
+   0.5,
+   1.0
+  ],
+  "reported_as_learned": [
+   0.5076,
+   1.0038
+  ],
+  "why": "The reported values are the initialisation plus less than one percent. A parameter that agrees with its own starting point to two decimals across independent seeds was not discovered by training."
+ },
+ "guideline_bank": {
+  "claim": "retrieval over a bank of clinical guidelines",
+  "corpus_present": false,
+  "declaration": "nn.Parameter(torch.randn(20, 768))",
+  "falsified": true,
+  "is_randomly_initialised": true,
+  "retrieval_step_present": false,
+  "shape": [
+   20,
+   768
+  ],
+  "why": "The bank is a randomly initialised parameter matrix. There is no corpus, no guideline text and no retrieval: attention is computed against learned noise, so nothing about clinical guidelines enters the model through it."
+ },
+ "harm_head": {
+  "claim": "a harm head predicting clinical severity",
+  "falsified": true,
+  "harm_head_forward_executed": true,
+  "harm_head_received_gradient": false,
+  "harm_term_in_loss": false,
+  "loss_terms": [
+   "contradiction",
+   "rule_type"
+  ],
+  "why": "The head runs in the forward pass and its output is returned, but the objective is a weighted sum of the contradiction and rule-type losses only. No gradient reaches it, so its scores are those of an untrained sigmoid at every step of training."
+ },
+ "provenance": {
+  "generated_by": "accord/control/verify_rq3_falsifications.py",
+  "limitation": "Verifies the source as recovered. It does not establish that these notebooks are the code that produced the reported checkpoint, which no surviving artifact records.",
+  "requires": "no MIMIC data, no network, no GPU, no checkpoint",
+  "source_recovered_from": "ACCORD_Phase3_V2_Ablations and ACCORD_Phase3_V2_Architecture"
+ }
+}
