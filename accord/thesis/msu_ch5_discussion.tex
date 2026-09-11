@@ -140,14 +140,14 @@ source \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}.
 
 Two further controls bound the reading. Three local 8B-parameter models reproduce
 the miscalibration, so this is not one model misbehaving. The per-model over-calling ratios are reported in Chapter~\ref{ch:results}. A stronger labeller shifts the magnitude without removing
-the failure: GPT-4o zero-shot returned $71$ positives among $253$ pairs holding
-$12$ true positives ($6$ true, $65$ false) at precision $0.0845$, and few-shot
-returned $141$ ($7$ true, $134$ false) at precision $0.0496$. How far the
-magnitude shifts is the part this thesis initially got wrong. A frontier labeller
-on the $253$ pairs returned $48$ positives, $4.00$ times that set's confirmed
-rate, against the $15.8196$ to $23.5959$ range the 8B labellers produced on the
-candidate pool. The two are different denominators and the comparison is of order
-of magnitude, but the shift is large and it tracks capability. The surviving claim
+the failure. How far it shifts is the part this thesis initially got wrong. A
+frontier labeller on the $253$ pairs returned $48$ positives, $4.00$ times that
+set's confirmed rate, against the $15.8196$ to $23.5959$ range the 8B labellers
+produced on the candidate pool. The two are different denominators and the
+comparison is of order of magnitude, but the shift is large and it tracks
+capability. An intermediate comparison once sat between those two figures and has
+been withdrawn: it came from a channel Section~\ref{sec:m-ethics} records as a
+departure from the data use agreement, and no claim here now rests on it. The surviving claim
 is narrow. Not that language models cannot reason about clinical text, but that
 the labeller's marginal was a property nobody checked, and the failure is
 invisible to any evaluation that never compares it to a human-established base
@@ -729,15 +729,15 @@ alarm. That question is clinical and it was never posed.
 \caption[Exchange rates of summary statistics]{What each summary statistic
 trades on this evaluation set: forgone true positives against gained true
 negatives, with four systems in the same coordinates. The indifference slopes
-follow from the class counts alone and are reference structure. Take GPT-4o
-zero-shot as one worked example: its confusion matrix carries 6 true positives
-and 176 true negatives against ACCORD's 11 true positives and 18 true
-negatives (Table~\ref{tab:systems253}), so its marker sits well to the right
+follow from the class counts alone and are reference structure. Take Claude
+Sonnet 5 zero-shot as one worked example: its confusion matrix carries 9 true
+positives and 202 true negatives against ACCORD's 11 true positives and 18 true
+negatives (Table~\ref{tab:systems253}), so its marker sits to the right
 of ACCORD's origin point on the forgone-true-positive axis and far up the
 gained-true-negative axis, past all three indifference lines rather than
 between them. A reader can place it above every one of the three exchange
-rates drawn here, which is why GPT-4o zero-shot's Matthews correlation of
-$+0.1089$ is positive on this set where ACCORD's $-0.0070$ is not, even
+rates drawn here, which is why that system's Matthews correlation of
+$+0.3189$ is positive on this set where ACCORD's $-0.0070$ is not, even
 though the class counts are what move each summary statistic, not a clinical
 judgement of which errors matter more. That is what the figure is for: the same
 four confusion matrices support opposite readings of the same system depending

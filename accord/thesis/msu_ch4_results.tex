@@ -246,13 +246,12 @@ readings of one quantity.
 \texttt{granite3.3:8b} & $G_{299}$, gold set                & 0.7425 & 18.5    & 299   \\
 \texttt{qwen3:8b}      & Candidate pool                    & 0.6349 & 15.8196 & 1,679 \\
 \texttt{qwen3:8b}      & $G_{299}$, gold set                & 0.6187 & 15.4167 & 299   \\
-Llama 3, originally deployed & Pool, calibration join & $1425/1679$ & 21.1473 & 1,679 \\
 \addlinespace
 Claude Sonnet 5, zero-shot & $G_{299}$, gold set & 0.2140 & 5.3333 & 299 \\
 Claude Sonnet 5, few-shot  & $G_{299}$, gold set & 0.1806 & 4.5000 & 299 \\
 \bottomrule
 \end{tabular}
-\apanote{The first seven rows divide a positive rate by the same $0.0401$ gold base rate; they are not seven readings of one quantity. The divisor used is the unrounded gold base rate $12/299$, of which $0.0401$ is the four-decimal display; recomputing a ratio from the printed $0.0401$ will not reproduce the printed ratios exactly. The first six rows are three labellers each measured twice, once on the 1,679-row candidate pool and once on the 299-pair gold set; the seventh row is a separate, originally deployed configuration measured on the pool at the confidence threshold it shipped at. Rows are not to be reconciled to a single figure. The $15.8196$ to $23.5959$ range quoted elsewhere in this thesis is the across-model range on the candidate pool alone, not a summary of every row above. The last two rows are the frontier labeller of Section~\ref{sec:r-frontier}, shown on $G_{299}$ so that they divide the same $0.0401$ as every row above them; on $G_{253}$, against that set's own $0.0474$ base rate, the same two runs give $4.00$ and $3.25$, which are the figures Section~\ref{sec:r-frontier} quotes because its comparisons are on $G_{253}$. Both readings are correct and neither is a correction of the other.}
+\apanote{Every row divides a positive rate by the same $0.0401$ gold base rate; they are not several readings of one quantity. The divisor used is the unrounded gold base rate $12/299$, of which $0.0401$ is the four-decimal display; recomputing a ratio from the printed $0.0401$ will not reproduce the printed ratios exactly. The first six rows are three labellers each measured twice, once on the 1,679-row candidate pool and once on the 299-pair gold set. A seventh row, an originally deployed Llama 3 configuration measured on the pool, has been withdrawn: it was produced through a hosted inference API that Section~\ref{sec:m-ethics} records as a departure from the data use agreement, and the local run of the same model on the same pool reported above covers what it showed. Rows are not to be reconciled to a single figure. The $15.8196$ to $23.5959$ range quoted elsewhere in this thesis is the across-model range on the candidate pool alone, not a summary of every row above. The last two rows are the frontier labeller of Section~\ref{sec:r-frontier}, shown on $G_{299}$ so that they divide the same $0.0401$ as every row above them; on $G_{253}$, against that set's own $0.0474$ base rate, the same two runs give $4.00$ and $3.25$, which are the figures Section~\ref{sec:r-frontier} quotes because its comparisons are on $G_{253}$. Both readings are correct and neither is a correction of the other.}
 \end{table}
 
 Every ratio measured is well above 1, so no local 8B labeller tested is close
@@ -261,26 +260,26 @@ to calibrated at this base rate.
 \subsection{Whether a stronger labeller removes it}
 
 If the over-calling were an artifact of a small open-weights model, a stronger
-labeller would remove it. GPT-4o zero-shot, named without a citation because this bibliography carries no reference for that model release, returns $6 + 65 = 71$
-positive calls against 12 true contradictions, and few-shot prompting made it less
-selective rather than more, at $7 + 134 = 141$ positive calls, which is the
-class-prior sensitivity documented for in-context learning
-\citep{zhao2021calibrate}.
+labeller would remove it. Section~\ref{sec:r-frontier} answers that directly, and
+the answer is that a stronger labeller moves the multiplier a long way without
+removing it.
 
-An earlier version of this subsection was titled ``the floor'' and read those two
-figures as a bound: better prompting moves the multiplier without removing it. Two
-things withdraw that reading. The first is that the rows it rested on came from
-the departure disclosed in Section~\ref{sec:m-ethics}, and when the same
-comparison was run through a different channel the prompting effect did not
-replicate, so the mechanism cited above does not carry the weight the sentence put
-on it. The replacement run moved in the opposite direction, but that difference
-rests on three positives out of twelve and is not separable from the draw-to-draw
-variation Section~\ref{sec:r-frontier} measures, so it is reported as a failure to
-replicate and not as a reversal. The second is that a stronger labeller
-than GPT-4o does move the multiplier substantially, which
-Section~\ref{sec:r-frontier} reports. Neither observation rescues weak
-supervision at this base rate. Both remove the claim that the failure has a bound
-below which capability cannot take it.
+An earlier version of this subsection answered it with a different comparison,
+and that comparison has been withdrawn rather than qualified. It rested on a
+GPT-4o run carried out through a hosted commercial API, which
+Section~\ref{sec:m-ethics} records as a departure from the data use agreement.
+The transmission is disclosed there and stays disclosed; what has gone is this
+thesis's reliance on what it returned. No number in this chapter now derives from
+it. The subsection also once carried the title ``the floor'' and read that run's
+two figures as a bound on how far better prompting could take the multiplier.
+That reading was withdrawn on independent grounds before the rows were, because
+the frontier comparison refuted it, and nothing of it is retained here.
+
+What survives, and what it rests on, is stated in
+Section~\ref{sec:r-frontier}: every labeller measured on this pool over-calls,
+and the multiplier falls with capability rather than bottoming out. That claim is
+carried entirely by runs this project can account for, which is the condition a
+reader should hold any of these numbers to.
 
 \begin{table}[H]
 \caption[Per-pair calls on the core evaluation set]{Per-pair calls on the 253 non-ambiguous pairs.}
@@ -291,8 +290,6 @@ below which capability cannot take it.
 \textbf{System} & \textbf{TP} & \textbf{FN} & \textbf{FP} & \textbf{TN} &
 \textbf{Precision} & \textbf{Recall} \\
 \midrule
-GPT-4o, zero-shot              & 6  & 6 & 65  & 176 & 0.0845 & 0.5000 \\
-GPT-4o, few-shot               & 7  & 5 & 134 & 107 & 0.0496 & 0.5833 \\
 ACCORD at $\tau = 0.5$         & 11 & 1 & 223 & 18  & 0.0470 & 0.9167 \\
 Llama 3 8B evaluation baseline & 11 & 1 & 231 & 10  & 0.0455 & 0.9167 \\
 \bottomrule
@@ -383,11 +380,12 @@ design is a two-by-two in domain and prevalence with capability held fixed, and
 the cell it does not contain is a frontier-scale labeller on the clinical pool.
 
 Figure~\ref{fig:missing-cell} is that design, and the hole in it.
-That cell was filled for an unrelated reason. The GPT-4o rows came from the
-transmission disclosed in Section~\ref{sec:m-ethics}, and re-running the
-comparison through a different channel required a different model. The
+That cell was filled for an unrelated reason. An earlier comparison had been run
+through a channel Section~\ref{sec:m-ethics} records as a departure from the data
+use agreement, and re-running it compliantly required a different model. The
 replacement is Claude Sonnet 5, run with the same recovered prompt, the same
-synthetic demonstrations, and the same pairs.
+synthetic demonstrations, and the same pairs. The rows it replaced have since
+been withdrawn from this thesis entirely rather than retained with a caveat.
 
 \begin{figure}[H]
 \centering
@@ -415,7 +413,6 @@ two runs on $G_{253}$, where they read $4.00$ and $3.25$.}
 \midrule
 Claude Sonnet 5, zero-shot     & $48$  & $4.00\times$  & $0.7500$ & $0.1618$ & $+0.3189$ \\
 Claude Sonnet 5, few-shot      & $39$  & $3.25\times$  & $0.5000$ & $0.1369$ & $+0.2137$ \\
-GPT-4o, zero-shot              & $71$  & ---           & $0.5000$ & ---      & $+0.1089$ \\
 ACCORD at $\tau = 0.5$         & $234$ & ---           & $0.9167$ & $0.9253$ & $-0.0070$ \\
 \bottomrule
 \end{tabular}
@@ -424,8 +421,9 @@ $12/253$ on the same set. Every Claude cell is computed from the committed
 prediction artifacts by a single released script rather than by hand;
 Appendix~\ref{app:provenance} gives the key for each value. Dashes mark
 quantities not recomputed on this basis for the archived rows. The two Claude rows are single draws from a model that does not accept a
-temperature parameter, and ran at a larger token budget than the GPT-4o rows, so
-they sit beside those rows rather than replacing them.}
+temperature parameter, and ran at a larger token budget than the withdrawn rows
+did, which is one reason those rows could not simply have been carried forward
+with a note attached.}
 \label{tab:frontier253}
 \end{table}
 
@@ -437,8 +435,7 @@ $G_{299}$ for the five labellers the register carries a gold-set ratio for, with
 Wilson intervals. The solid rule is the pharmacist's $1.0$; the dashed rule is
 the public-text sweep's maximum of $3.5000$, a measured ceiling rather than a
 tolerance. The two groups are separated on the axis because the claim is that
-they are two groups. GPT-4o is not drawn: its committed cells are on $G_{253}$
-only, and Table~\ref{tab:systems253} reports them there.}
+they are two groups.}
 \label{fig:capability}
 \end{figure}
 
@@ -518,7 +515,7 @@ to measure the marginal against a human-labelled sample first. Nothing here show
 the labeller reasons badly about medication conflict; its recall on the 12
 confirmed contradictions is high in most configurations measured, though not in
 all of them: the frontier few-shot run recalls $0.5000$, the same figure this
-chapter treats as a failure for GPT-4o zero-shot. The failure is
+chapter treats as a failure elsewhere. The failure is
 calibration, invisible to any evaluation that does not report the marginal.
 
 Two limits bound the frontier row specifically. Its labels are single draws from a
@@ -1012,13 +1009,14 @@ This chapter reports fourteen hypothesis tests: five Mann-Whitney tests in
 Table~\ref{tab:decontam}, five DeLong tests in Table~\ref{tab:delong}, one Fisher exact test on
 the mechanism split, one Welch two-sample $t$ test on the anisotropy control, and two Spearman
 rank correlations against the pharmacist's danger rating, one reported above and one reported
-for the first time at the end of this subsection. It also reports ten interval estimates read
-against a null value, zero for the six Matthews correlations of Table~\ref{tab:mcc} and for the
-two pretraining gaps, and $0.5$ for the two AUROCs; seven of the ten fail to exclude that null,
-the exceptions being the AG News gap and the two frontier rows, and all ten appear in
-Figure~\ref{fig:forest}. The count moved from eight to ten, and the number failing to exclude
-stayed at seven, when the frontier comparison of Section~\ref{sec:r-frontier} was added; an
-earlier version of this paragraph reported the smaller set.
+for the first time at the end of this subsection. It also reports eight interval estimates read
+against a null value, zero for the four Matthews correlations of Table~\ref{tab:mcc} and for the
+two pretraining gaps, and $0.5$ for the two AUROCs; five of the eight fail to exclude that null,
+the exceptions being the AG News gap and the two frontier rows, and all eight appear in
+Figure~\ref{fig:forest}. This count has moved twice. It was eight before the frontier comparison
+of Section~\ref{sec:r-frontier} was added, ten after, and eight again once the two GPT-4o rows
+were withdrawn for the reason Section~\ref{sec:m-ethics} gives. The number failing to exclude the
+null fell from seven to five with them, because both withdrawn intervals contained zero.
 \textbf{No multiple-comparison correction is applied anywhere in this thesis, and none of the
 reported $p$ values should be read as if one had been.} Were the fourteen tests independent, a
 global null at $\alpha = 0.05$ would produce at least one rejection with probability $0.51$. They
@@ -1159,30 +1157,26 @@ done here is to apply it to these class counts.
 \midrule
 Claude Sonnet 5, zero-shot     & $9 + 39 = 48$    & $+0.3189$ & $+0.1473$ to $0.4622$ \\
 Claude Sonnet 5, few-shot      & $6 + 33 = 39$    & $+0.2137$ & $+0.0314$ to $0.3838$ \\
-GPT-4o, zero-shot              & $6 + 65 = 71$    & $+0.1089$ & $-0.0319$ to $0.2484$ \\
-GPT-4o, few-shot               & $7 + 134 = 141$  & $+0.0117$ & $-0.1120$ to $0.1319$ \\
 ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ & $-0.1626$ to $0.0753$ \\
 Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ & $-0.2337$ to $0.0563$ \\
 \bottomrule
 \end{tabular}
-\apanote{Cells from Table~\ref{tab:systems253} and, for the two Claude rows, from the frontier metrics artifact; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. Four of the six contain zero. The two Claude intervals do not, but only the zero-shot exclusion is robust to the label instability documented in Section~\ref{sec:r-frontier}: the few-shot interval admits zero once the per-draw flip probability reaches $0.1159$, and no claim rests on it. The Claude rows are single-draw labels from a model that does not accept a temperature parameter, and were run at a larger token budget than the GPT-4o rows, so they are not a paired protocol replacement for them.}
+\apanote{Cells from Table~\ref{tab:systems253} and, for the two Claude rows, from the frontier metrics artifact. Two further rows, a GPT-4o run in both prompt conditions, have been withdrawn for the reason given in Section~\ref{sec:m-ethics}; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. The two Claude intervals do not, but only the zero-shot exclusion is robust to the label instability documented in Section~\ref{sec:r-frontier}: the few-shot interval admits zero once the per-draw flip probability reaches $0.1159$, and no claim rests on it. The Claude rows are single-draw labels from a model that does not accept a temperature parameter, and were run at a larger token budget than the GPT-4o rows, so they are not a paired protocol replacement for them.}
 \label{tab:mcc}
 \end{table}
 
-Among the four systems that were compared before the frontier row was added, the
-point estimates induce an ordering over predicted-positive counts running from 71
-to 242 against 12 true positives, three of which differ from zero by less than
-$0.05$. All four of those 95 percent bootstrap intervals contain zero, including
-the widest-separated pair, GPT-4o zero-shot at $+0.1089$ against the Llama 3 8B
-evaluation baseline at $-0.0436$, whose intervals, $-0.0319$ to $0.2484$ and
-$-0.2337$ to $0.0563$, overlap over the range $-0.0319$ to $0.0563$.
+The two systems this pipeline produced, ACCORD at $\tau = 0.5$ and the Llama 3 8B
+evaluation baseline, induce an ordering over predicted-positive counts of $234$
+and $242$ against 12 true positives, and both differ from zero by less than
+$0.05$. Both 95 percent bootstrap intervals contain zero, $-0.1626$ to $0.0753$
+and $-0.2337$ to $0.0563$, overlapping over almost their whole length.
 Figure~\ref{fig:forest} is that analysis in one view. No claim in this thesis
-rests on the ordering among those four.
+rests on the ordering between them.
 
 An earlier version of this section gave a reason for that which was wrong, and
 the error is worth stating because it is the kind this thesis exists to catch. It
-said none of the systems was distinguishable from chance \emph{because} there are
-12 positives. Sample size was not the reason. The Claude zero-shot row is
+said none of the systems then compared was distinguishable from chance
+\emph{because} there are 12 positives. Sample size was not the reason. The Claude zero-shot row is
 separated from chance on the same 12 positives, at $+0.3189$ with an interval of
 $+0.1473$ to $0.4622$, and that separation survives the instability analysis of
 Section~\ref{sec:r-labelnoise}. One row is enough to refute a claim about what 12

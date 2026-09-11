@@ -354,7 +354,14 @@ def main():
     # run is what the thesis should quote, and the difference between them is
     # itself the finding.
     suffix = f"_rep{args.replicates}" if args.replicates > 1 else ""
-    out = OUT_DIR / f"frontier_{args.provider}_{args.strategy}{suffix}.json"
+    # Tag the filename with the model whenever it is not the default. Without
+    # this, running a second model writes over the first: a Haiku run would
+    # silently destroy the committed Sonnet artifacts that Chapter 4 depends
+    # on, and the loss would not be visible until the metrics were recomputed.
+    model_tag = ""
+    if args.provider == "anthropic" and model_label != DEFAULT_ANTHROPIC_MODEL:
+        model_tag = "_" + model_label.replace("-", "").replace(".", "")
+    out = OUT_DIR / f"frontier_{args.provider}{model_tag}_{args.strategy}{suffix}.json"
 
     stability = None
     if args.replicates > 1:

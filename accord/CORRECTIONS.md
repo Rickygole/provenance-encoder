@@ -3077,3 +3077,48 @@ of it reached two wrong answers.
 **What does not change.** The GPT-4o and Hugging Face transmissions remain departures and remain
 disclosed. The annotation is not one of them, and Section 3.9 now says so rather than leaving the
 two to be read as alike.
+
+---
+
+## C65. Every result obtained through a non-compliant channel is withdrawn, and the argument for keeping them is withdrawn with them
+
+**What goes.** Three runs, two channels. GPT-4o zero-shot and few-shot over roughly 300 annotated
+pairs through OpenAI's public API, and a Llama 3 8B calibration run over 1,679 candidate-pool rows
+through the Hugging Face Inference API. PhysioNet's guidance of 18 April 2023 treats transmission of
+credentialed data to either as prohibited.
+
+**What stays.** The disclosure. Section 3.9 records both transmissions, and records them more fully
+than it did: the count was wrong at one departure before this work, and the second channel carried
+more rows than the first.
+
+**Where each row was, and what replaced it.** The GPT-4o rows appeared in the per-pair comparison
+table, the Matthews table, the frontier table, the forest figure, the exchange-rate figure and about
+twenty prose sites across Chapters 4, 5 and 6. They are replaced by the Claude Sonnet 5 runs, which
+are a different model and therefore a new measurement rather than a reproduction. The Llama 3
+calibration row appeared once, in the over-calling table, and is replaced by the local run of the
+same model on the same pool, which is a genuine reproduction and was already committed.
+
+**The subsection that had to be rebuilt rather than edited.** "Whether a stronger labeller removes
+it" was built entirely on the GPT-4o figures. Its question is now answered from the frontier
+comparison alone.
+
+**Counts that moved, recorded because a silent recount is how this kind of edit goes wrong.** The
+Matthews table note went from four of six intervals containing zero to two of four. The multiplicity
+disclosure went from ten interval estimates with seven failing to exclude the null, to eight with
+five; both withdrawn intervals contained zero, which is why the second number fell with the first.
+The forest figure's computed headline went from seven of ten crossing zero to five of eight. The
+ordering passage lost its worked example, which was the widest-separated pair, and now uses the two
+systems this pipeline produced.
+
+**The position this reverses.** Section 3.9 previously retained the rows and argued that deleting
+them would misrepresent the comparison actually run. That argument was right about record-keeping
+and wrong about the thesis. The withdrawn values survive in this record and in the project's
+artifacts, where an auditor can find them; what has gone is the request that a reader rely on them.
+Reporting a result is asking for reliance, and asking for reliance on data obtained through a
+prohibited channel is a different act from recording that the channel was used.
+
+**What this costs.** The capability comparison loses its middle point. Three 8B labellers sit at
+15.4167 to 23.7500 on the gold set and the frontier labeller at 4.5000 and 5.3333, with nothing
+between them. Two clusters support the claim that they differ. Whether they support a claim about a
+trend with capability is a weaker question, and filling that gap needs a mid-capability run through
+the compliant channel rather than an argument.

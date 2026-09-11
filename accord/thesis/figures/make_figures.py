@@ -82,7 +82,7 @@ import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
 import style
 from style import (
-    COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET,
+    COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET, CYAN,
     COBALT_DEEP, COBALT_CORE, COBALT_TINT, COBALT_WASH, COBALT_BARE,
     AZURE_DEEP, AZURE_CORE, AZURE_TINT, AZURE_WASH, AZURE_BARE,
     EMERALD_DEEP, EMERALD_CORE, EMERALD_TINT, EMERALD_WASH, EMERALD_BARE,
@@ -1006,10 +1006,21 @@ def make_fig_tracking():
 # ============================================================================
 def make_fig_met_exchange():
     baselines, p_baselines = load("diag", "step3_baselines.json")
+    # The two GPT-4o systems were withdrawn: they came from a hosted API that
+    # the methodology chapter records as a departure from the data use
+    # agreement, and no reported number in this thesis derives from them any
+    # more. The frontier rows replace them, read from the compliant run's own
+    # metrics artifact rather than from step3_baselines.json.
+    fm = json.loads(open(os.path.join(
+        REPO, "results/accord/differential/"
+              "frontier_anthropic_metrics.json")).read())
+    def _cells(strategy):
+        c = fm["by_strategy"][strategy]["G_253"]
+        return {"tp": c["tp"], "tn": c["tn"], "fp": c["fp"], "fn": c["fn"]}
     systems = {
         "ACCORD": baselines["accord_binary_at_0.5_253core"],
-        "GPT-4o zero-shot": baselines["gpt4o_zeroshot"],
-        "GPT-4o few-shot": baselines["gpt4o_fewshot"],
+        "Claude Sonnet 5 zero-shot": _cells("zero_shot"),
+        "Claude Sonnet 5 few-shot": _cells("few_shot"),
         "Llama 3 8B": baselines["llama_baseline"],
     }
     ref = systems["ACCORD"]
@@ -1123,10 +1134,13 @@ def make_fig_met_exchange():
                    (-6, 7), "right", "bottom"),
         "Llama 3 8B": ("D", PAPER, PLUM_CORE, PLUM_DEEP, MS_MARK,
                        (8, -6), "left", "top"),
-        "GPT-4o zero-shot": ("s", PAPER, COBALT_CORE, COBALT_DEEP, MS_MARK,
-                             (7, 4), "left", "bottom"),
-        "GPT-4o few-shot": ("^", PAPER, AZURE_CORE, AZURE_DEEP, MS_MARK,
-                            (7, -5), "left", "top"),
+        # EMERALD and CYAN, matching the hues fig-forest gives these two rows.
+        # COBALT and AZURE belonged to the withdrawn GPT-4o systems and are not
+        # reused, so a reader who learned the palette earlier is not misled.
+        "Claude Sonnet 5 zero-shot": ("s", PAPER, EMERALD.CORE, EMERALD.DEEP,
+                                      MS_MARK, (7, 4), "left", "bottom"),
+        "Claude Sonnet 5 few-shot": ("^", PAPER, CYAN.CORE, CYAN.DEEP,
+                                     MS_MARK, (7, -5), "left", "top"),
     }
     for name, s_ in systems.items():
         delta = TP0 - s_["tp"]
