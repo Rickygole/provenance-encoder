@@ -3298,3 +3298,62 @@ centre line, which is what a figure looks like when the analysis behind it holds
 it now draws the mean as a dashed line in each panel, and the end of that line, on the chance rule
 at a fair coin, is the correction made visible. The figure's ink floors are lowered with the reason
 recorded: the band area the old figure filled was the overstatement, so losing it is the fix.
+
+## C70. The within-vendor test returns Outcome A, and the replication attempts it carried take the ambiguity gradient below correction
+
+**The pre-registered test.** C68, committed at `b249eeb` before any pair was sent, asked whether
+over-calling attenuates with capability or whether the ordering was an artifact of vendor or serving
+channel. Every low-capability point in the earlier comparison was an open-weights model served
+locally and every high-capability point a hosted API from one vendor, so the three varied together.
+The test held family and maker fixed and varied the channel: `meta.llama3-70b-instruct-v1:0` on AWS
+Bedrock, in the author's own account, against the `llama3:8b` already measured locally.
+
+**Outcome A.** The G_299 zero-shot over-calling ratio is 10.5000, strictly inside the pre-registered
+window of 6.2500 to 15.4167. Both conditions ran once over the 300 pairs, no restart, no splice, 0
+unparseable replies and 0 pairs without a usable draw. The within-family step is 2.2619 against the
+2.4667 measured across families and vendors, so vendor was not carrying the earlier result and the
+attenuation claim may stand in Chapters 1, 4, 5 and 6.
+
+**The awkward number in the same run.** The 70B's few-shot ratio is 6.2500, exactly Haiku's
+zero-shot value and above Sonnet's. A prompt change moves one model by 1.6800, a large share of the
+capability span the run was built to probe. The pre-registration named prompt sensitivity as what it
+could not settle and the result confirms that rather than escaping it. Both factors are now reported
+together and the attenuation claim is scoped to a fixed prompt.
+
+**What the run did to a different claim.** It also measured the ambiguity gradient, and so did the
+Haiku run. Six Fisher tests now exist where two did. Haiku reproduces the gradient under few-shot
+prompting at an odds ratio of 2.9046 and p = 0.0019, the smallest of the six, so the gradient is not
+one model's quirk. But it falls monotonically as the labeller weakens, at both prompts, and on the
+70B neither condition reaches significance: 1.6756 at p = 0.0996 few-shot, 1.2257 at p = 0.3190
+zero-shot. That ordering cuts against the item-property reading. If the pharmacist's ambiguous
+category tracked difficulty in the items, a weaker labeller should find those pairs at least as
+hard; it finds them less distinguishable. The claim is now scoped to labellers rather than items.
+
+**And what it did to the multiplicity arithmetic, which is the part worth recording at length.**
+Reporting the four replication tests takes the family from sixteen to twenty and the Bonferroni
+threshold from 0.0031 to 0.0025. At that threshold two tests clear: the anisotropy Welch test, which
+Chapter 4 already declines to read as support for the mechanism, and Haiku's few-shot gradient.
+Sonnet's few-shot gradient at 0.0029 cleared sixteen and does not clear twenty. Its zero-shot
+gradient at 0.0046, which Chapter 4 leads with, cleared neither and cleared the fourteen the chapter
+originally claimed. So the headline gradient has now failed correction under every count that has
+been correctly computed, and the count grew precisely because the claim was tested again. That is
+the register of C68 working as intended on the first new result to reach it, and it is the argument
+for building it: a hand-typed count would have stayed at sixteen, or at fourteen, and the four new
+tests would have been reported as four more pieces of support rather than as four more divisions of
+alpha.
+
+**Two generating scripts, so none of this is typed.**
+`accord/differential/capability_ladder.py` builds the four-row ladder on one denominator and one
+prompt condition and computes the three derived ratios the chapter quotes, each a quotient across
+four artifacts and exactly the shape of number that gets typed once and never moves.
+`accord/differential/frontier_metrics.py` now rewrites its own block of the fact register under a
+per-provider, per-model prefix, so a second labeller cannot overwrite the first's numbers in the
+register any more than it can overwrite its artifacts. The first version of that function wrote a
+chosen subset of fields and deleted by prefix, which removed the Matthews interval bounds the
+chapter cites and replaced them with nothing; the deletion cannot be selective, so the write is now
+total.
+
+**Verified before publishing:** the two Bedrock artifacts carry pair identifiers and integer labels
+only. No note text, no admission or subject identifier, no free text of any kind, and the runner
+echoes no exception body, because a client error can quote the request back and the request carries
+note sentences.

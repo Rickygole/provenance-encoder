@@ -1,13 +1,21 @@
 {
- "bonferroni_threshold": 0.003125,
+ "bonferroni_threshold": 0.0025,
  "clears_bonferroni": [
   "welch_anisotropy",
-  "fisher_ambiguity_fs"
+  "fisher_ambiguity_haiku_fs"
  ],
  "dependence_groups": {
   "ambiguity_gradient": [
    "fisher_ambiguity_zs",
    "fisher_ambiguity_fs"
+  ],
+  "ambiguity_gradient_haiku": [
+   "fisher_ambiguity_haiku_zs",
+   "fisher_ambiguity_haiku_fs"
+  ],
+  "ambiguity_gradient_llama70b": [
+   "fisher_ambiguity_llama70b_zs",
+   "fisher_ambiguity_llama70b_fs"
   ],
   "anisotropy": [
    "welch_anisotropy"
@@ -35,15 +43,16 @@
   ]
  },
  "familywise_bound_is_upper_only_because": "the tests are positively dependent: five Mann-Whitney tests on one set of 253 rows, five DeLong tests against a single reference run, two Fisher tests on one model under two prompts, and two Spearman correlations against one rating. The true familywise rate is lower and this thesis does not compute it.",
- "familywise_upper_bound": 0.5598733313482347,
+ "familywise_upper_bound": 0.6415140775914581,
  "holm_rejections_for_reference": [
   "welch_anisotropy",
-  "fisher_ambiguity_fs"
+  "fisher_ambiguity_haiku_fs"
  ],
- "n_dependence_groups": 6,
- "n_tests": 16,
+ "n_dependence_groups": 8,
+ "n_tests": 20,
  "nominally_significant_uncorrected": [
   "welch_anisotropy",
+  "fisher_ambiguity_haiku_fs",
   "fisher_ambiguity_fs",
   "fisher_ambiguity_zs",
   "spearman_pos12_harm"
@@ -213,6 +222,46 @@
    "source": "results/accord/differential/frontier_anthropic_metrics.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
    "what": "ambiguous vs clear negatives, few-shot",
+   "where": "sec:r-ambiguity"
+  },
+  {
+   "group": "ambiguity_gradient_haiku",
+   "id": "fisher_ambiguity_haiku_zs",
+   "p": 0.07904866533779949,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
+   "test": "Fisher exact, one-sided",
+   "what": "gradient replication, Haiku 4.5, zero-shot",
+   "where": "sec:r-ambiguity"
+  },
+  {
+   "group": "ambiguity_gradient_haiku",
+   "id": "fisher_ambiguity_haiku_fs",
+   "p": 0.0018908897281414614,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
+   "test": "Fisher exact, one-sided",
+   "what": "gradient replication, Haiku 4.5, few-shot",
+   "where": "sec:r-ambiguity"
+  },
+  {
+   "group": "ambiguity_gradient_llama70b",
+   "id": "fisher_ambiguity_llama70b_zs",
+   "p": 0.3190002333148902,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
+   "test": "Fisher exact, one-sided",
+   "what": "gradient replication, Llama 3 70B, zero-shot",
+   "where": "sec:r-ambiguity"
+  },
+  {
+   "group": "ambiguity_gradient_llama70b",
+   "id": "fisher_ambiguity_llama70b_fs",
+   "p": 0.09963842045818058,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
+   "test": "Fisher exact, one-sided",
+   "what": "gradient replication, Llama 3 70B, few-shot",
    "where": "sec:r-ambiguity"
   }
  ]

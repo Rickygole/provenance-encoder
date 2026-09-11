@@ -33,6 +33,7 @@ error tab:denoms exists to prevent:
 
 import json
 import math
+import collections
 import os
 import sys
 
@@ -103,6 +104,54 @@ def evaluate(y, yh):
         "hypergeom_expected_tp_under_null": n_pos * n_flag / n,
         "hypergeom_p_one_sided": float(hypergeom.sf(tp - 1, n, n_pos, n_flag)),
     }
+
+
+FACTS = "results/accord/VERIFIED_FACTS.json"
+# One prefix per labelled run. The default Anthropic run owns the bare prefix
+# because the chapters already cite it; every other provider and model tag gets
+# its own, so a second labeller cannot overwrite the first's numbers in the
+# register any more than it can overwrite its artifacts. Hand-maintained keys
+# are what let a withdrawn label-noise construction keep 96 live keys in this
+# file after the script behind them was replaced; see CORRECTIONS.md C69.
+PREFIX = ("frontier" if PROVIDER == "anthropic" and not MODEL_TAG
+          else f"frontier_{PROVIDER}{MODEL_TAG}")
+
+
+def update_register(out):
+    """Rewrite this run's block of the fact register from what it just computed."""
+    facts = json.load(open(FACTS), object_pairs_hook=collections.OrderedDict)
+    for k in [k for k in facts if k.split(".")[0] == PREFIX]:
+        del facts[k]
+
+    def put(key, value):
+        facts[f"{PREFIX}.{key}"] = collections.OrderedDict(
+            [("artifact", OUT), ("value", value)])
+
+    n = 0
+    for strat, sd in out["by_strategy"].items():
+        for basis in ("G_299", "G_253"):
+            if basis not in sd:
+                continue
+            # Every scalar, not a chosen subset. Choosing a subset is how the
+            # first version of this function deleted keys the chapters cite,
+            # including the Matthews interval bounds, and replaced them with
+            # nothing: the deletion is by prefix and cannot be selective, so the
+            # write has to be total.
+            for field, value in sd[basis].items():
+                if isinstance(value, (int, float, bool)) and (
+                        value == value):        # drop NaN, which has no fact
+                    put(f"{strat}.{basis}.{field}", value)
+                    n += 1
+    for strat, g in out.get("ambiguity_gradient", {}).items():
+        for field in ("odds_ratio", "fisher_p_one_sided", "flagged_ambiguous",
+                      "flagged_clear_negative", "n_ambiguous",
+                      "n_clear_negative", "rate_ambiguous",
+                      "rate_clear_negative"):
+            if field in g:
+                put(f"ambiguity_gradient.{strat}.{field}", g[field])
+                n += 1
+    json.dump(facts, open(FACTS, "w"), indent=1)
+    return n
 
 
 def main():
@@ -176,6 +225,7 @@ def main():
             "odds_ratio": float(odds), "fisher_p_one_sided": float(p),
         }
 
+    print(f"register keys under {PREFIX}.*: {update_register(out)} written")
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as fh:
         json.dump(out, fh, indent=1, sort_keys=True)

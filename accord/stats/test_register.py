@@ -127,6 +127,29 @@ FAMILY = [
          where="sec:r-ambiguity", what="ambiguous vs clear negatives, few-shot",
          group="ambiguity_gradient",
          source="results/accord/differential/frontier_anthropic_metrics.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+
+    # Four replication attempts of the gradient, on a second Anthropic model and
+    # on a Llama 3 70B through Bedrock. They are in the family because the
+    # chapter reports them. Adding them takes the count from sixteen to twenty
+    # and the threshold from 0.0031 to 0.0025, at which Sonnet's few-shot
+    # gradient stops clearing; that is the register doing the job a prose count
+    # could not, and is recorded as C70.
+    dict(id="fisher_ambiguity_haiku_zs", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="gradient replication, Haiku 4.5, zero-shot",
+         group="ambiguity_gradient_haiku",
+         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_haiku_fs", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="gradient replication, Haiku 4.5, few-shot",
+         group="ambiguity_gradient_haiku",
+         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_llama70b_zs", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="gradient replication, Llama 3 70B, zero-shot",
+         group="ambiguity_gradient_llama70b",
+         source="results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_llama70b_fs", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="gradient replication, Llama 3 70B, few-shot",
+         group="ambiguity_gradient_llama70b",
+         source="results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
 ]
 
 
