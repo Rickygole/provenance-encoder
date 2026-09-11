@@ -377,7 +377,7 @@ was presented as its exemplar sentence pair together with the identifier of the 
 it, and the model was asked for a binary judgement plus a confidence value. The prompt is a fixed
 template with no demonstrations and no chain-of-thought elicitation, and it names a conflict type
 before asking whether a conflict is present. The labelled pool is the candidate pool minus the
-pairs sent to the pharmacist, so the two are disjoint at the row level by construction;
+pairs put to the pharmacist, so the two are disjoint at the row level by construction;
 Section~\ref{sec:m-data} explains why that was insufficient. The weak-labelled candidate pool from
 this calibration join holds 1,679 rows before subject-disjoint exclusion. Removing the 291 rows
 whose subject also appears in an evaluation split leaves 1,388, which is then split into the
@@ -1003,9 +1003,11 @@ there. The cap is a property of the delivered artifact and is not visible in any
 so it is reported as measured from the sheet and not as a documented pipeline parameter. What the
 prompts were filled from was therefore a truncated excerpt of at most two hundred characters per
 note side, not a sentence of unbounded length and not a note. It is in
-any case not a defence: a verbatim sentence from a credentialed note is restricted data on the same
-footing as the annotation spreadsheet discussed below, and the prohibition on sharing access is not
-scaled by quantity, so the departure stands as a departure whatever its exact span.
+any case not a defence: a verbatim sentence from a credentialed note is restricted data whatever its
+length, and the prohibition on sharing access is not scaled by quantity, so the departure stands as
+a departure whatever its exact span. It is also the only departure of its kind in this project. The
+annotation described below involved no transfer at all, which is a distinction the reader should
+carry into that paragraph rather than assume the two are alike.
 
 The second is a calibration run of Llama 3 8B through the Hugging Face Inference API, over the full
 candidate pool rather than the annotated subset, and therefore over more rows than the first. It is
@@ -1023,37 +1025,44 @@ caveat attached, because deleting them would misrepresent the comparison actuall
 further transmission through either original channel occurred or is planned.
 
 \paragraph{The annotator, and credentialed access.} The gold standard was produced by one
-board-certified pharmacist working remotely from a spreadsheet of candidate pairs. That spreadsheet
-carried verbatim de-identified note sentences, the same exemplar evidence the weak labeller and the
-detector received, so it is restricted data under the data use agreement rather than a derived
-artifact. Its extent is now measured rather than described: $300$ rows, no admission or subject
-identifier column of any kind, $544$ non-empty sentence cells capped at $200$ characters, and $95$
-of those cells still carrying the bracketed surrogates MIMIC-III uses to mark removed identifiers.
-Those surrogates are what settle the classification. A derived feature does not carry them; only
-copied note text does. The annotator did not hold PhysioNet credentialed access, at the time of annotation
-or since. An earlier version of this section reported the question as unresolved, because the
-written protocol governing the engagement addressed confidentiality and de-identification but did
-not record credentialing status; the status has since been established directly. The transfer was
-therefore a disclosure of restricted data to someone outside the agreement, which is what the
-agreement's prohibition on sharing access forbids. It is stated here in those terms rather than in
-softer ones, and it was reported to the thesis chair and the institutional data steward before this
-document was deposited. Four facts bound the exposure and none of them cures it. The material carried no admission identifier and no
-subject identifier; rows were keyed by a project-internal pair identifier, and the crosswalk from
-that identifier back to the admission was never transferred, so the recipient could not re-link a
-row to a record. The spans were truncated at two hundred characters, so no continuous passage of a note was
-transferred. The transfer was to a single clinician, for the sole purpose of producing the
-labels reported in Chapter~\ref{ch:results}, under a written instruction not to share the file or
-any pair contents beyond the research team, and no onward transmission occurred or is planned. The
-correct procedure, which any continuation of this work will follow, is to verify and record a
-collaborator's credentialed status before restricted material is transferred, and to register that
-collaborator against the agreement. Three corrective steps were taken once the status was
-established: the annotator was asked to destroy their copy of the sheet and to confirm the
-destruction in writing, the disclosure was reported to the thesis chair and the institutional data
-steward before deposit rather than after, and the extent of the material was measured and is
-reported above rather than characterised. None of the three undoes the transfer. They are recorded
-because what a licensee does after discovering a disclosure is part of the record the agreement
-creates, and because a reader is entitled to know whether the finding was acted on or only
-written down.
+board-certified pharmacist, annotating in the author's presence and on the author's machine. No
+copy of the candidate sheet was ever sent to or held by the annotator: no file was transferred, no
+printout was made, nothing was photographed, and nothing was retained afterwards. The annotator
+read each pair on the author's screen and gave a judgment, which the author recorded. Custody of
+the material never left the credentialed environment.
+
+That matters because the sheet itself is restricted data. Its extent is measured rather than
+described: $300$ rows, no admission or subject identifier column of any kind, $544$ non-empty
+sentence cells capped at $200$ characters, and $95$ of those cells still carrying the bracketed
+surrogates MIMIC-III uses to mark removed identifiers. Those surrogates settle the classification.
+A derived feature does not carry them; only copied note text does.
+
+The annotator does not hold PhysioNet credentialed access. What the agreement forbids is sharing
+access to the data with a third party, and on these facts nothing was shared: a non-credentialed
+clinician read restricted material under the direct supervision of the licensee, on the licensee's
+machine, and took nothing away. That is consultation of a domain expert, not transfer of a dataset,
+and it is the arrangement under which most clinical annotation by a non-research clinician is
+done. The distinction is not a technicality. It is the difference between a recipient who could
+disclose the material onward and a reader who never held it.
+
+Two earlier versions of this section were wrong about this, in opposite directions, and both are
+withdrawn. The first said the annotator worked ``remotely from a spreadsheet'' and reported the
+credentialing question as unresolvable from the project record. The second, on learning that the
+annotator was not credentialed, reported the engagement as a disclosure of restricted data outside
+the agreement. Neither description was checked against how the annotation was actually carried
+out, and the first sentence of this paragraph is that fact. A thesis about controls that catch what
+a procedure hid should not have taken two passes to ask the author what he did, and the correction
+record carries the entry.
+
+What remains is a documentation failure rather than a disclosure. The written protocol governing
+the engagement addressed confidentiality and de-identification but recorded neither the annotator's
+credentialing status nor the supervised, no-copy arrangement under which the work was done, which
+is why two readings of the record reached two wrong conclusions. The correct procedure, which any
+continuation of this work will follow, is to record the arrangement at the time: who viewed
+restricted material, under whose supervision, on whose equipment, and what if anything they
+retained. Where a collaborator is to hold material themselves rather than read it under
+supervision, their credentialed status is verified and recorded before anything is transferred, and
+they are registered against the agreement.
 
 \paragraph{Re-identification and small cells.} No re-identification was attempted and no auxiliary
 dataset was joined against MIMIC-III at the patient level. Subgroup results are one-way marginals

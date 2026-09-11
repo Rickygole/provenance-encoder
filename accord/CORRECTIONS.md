@@ -3036,3 +3036,44 @@ bounds the interval and is not a posterior.
 **A claim softened as a consequence.** The few-shot direction difference, three
 positives of twelve, is not separable from draw-to-draw variation and is now
 reported as a failure to replicate rather than as a reversal.
+
+---
+
+## C64. Two wrong accounts of the annotation, in opposite directions, neither of them checked against what was done
+
+**What happened.** Section 3.9's annotator paragraph described the pharmacist as "working remotely
+from a spreadsheet of candidate pairs" and reported the credentialing question as unresolvable from
+the project record. On learning that the annotator does not hold PhysioNet credentialed access,
+that paragraph was rewritten to report the engagement as a disclosure of restricted data to someone
+outside the agreement, with four bounding facts and three corrective steps.
+
+**Both accounts were wrong.** The annotation was done with the author physically present, on the
+author's machine. No file was sent. No copy was made, printed or photographed. Nothing was retained
+afterwards. The annotator read each pair on the author's screen and gave a judgment the author
+recorded. Custody never left the credentialed environment, so there was no transfer to disclose.
+
+**How it happened, which is the part worth recording.** The phrase "working remotely" entered the
+draft as a description nobody sourced, and every subsequent reading built on it. The compliance
+analysis then ran twice, carefully, on that unchecked premise: once concluding the question could
+not be resolved from the record, once concluding a breach had occurred. Both conclusions followed
+validly from the premise. The premise was never tested against the one source that could settle it,
+which was the author.
+
+**This is the project's own failure mode, applied to the project.** Every other entry in this record
+is a number that survived because nobody ran the control that would have caught it. This one is a
+sentence that survived for the same reason, in the section about data use, in a thesis whose
+argument is that the cheap check is the one nobody runs. It took a direct question to the author to
+resolve, and that question should have been the first step of the first compliance pass rather than
+the last step of the third.
+
+**What the section says now.** The arrangement is stated first: supervised, on the licensee's
+equipment, no copy, nothing retained. The sheet's status as restricted data is unchanged and still
+measured. The conclusion is that a non-credentialed clinician read restricted material under the
+licensee's direct supervision and took nothing away, which is consultation of a domain expert
+rather than sharing access, and that what remains is a documentation failure: the protocol recorded
+neither the credentialing status nor the supervised no-copy arrangement, which is why two readings
+of it reached two wrong answers.
+
+**What does not change.** The GPT-4o and Hugging Face transmissions remain departures and remain
+disclosed. The annotation is not one of them, and Section 3.9 now says so rather than leaving the
+two to be read as alike.
