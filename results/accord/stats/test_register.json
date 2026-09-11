@@ -1,0 +1,219 @@
+{
+ "bonferroni_threshold": 0.003125,
+ "clears_bonferroni": [
+  "welch_anisotropy",
+  "fisher_ambiguity_fs"
+ ],
+ "dependence_groups": {
+  "ambiguity_gradient": [
+   "fisher_ambiguity_zs",
+   "fisher_ambiguity_fs"
+  ],
+  "anisotropy": [
+   "welch_anisotropy"
+  ],
+  "danger_rating": [
+   "spearman_full299_harm",
+   "spearman_pos12_harm"
+  ],
+  "decontam_253": [
+   "mw_seed0",
+   "mw_seed1",
+   "mw_seed2",
+   "mw_ensemble",
+   "mw_contaminated"
+  ],
+  "delong_vs_one_ref": [
+   "delong_ensemble_299",
+   "delong_seed42_299",
+   "delong_seed123_299",
+   "delong_seed2024_299",
+   "delong_ensemble_134"
+  ],
+  "mechanism": [
+   "fisher_mechanism"
+  ]
+ },
+ "familywise_bound_is_upper_only_because": "the tests are positively dependent: five Mann-Whitney tests on one set of 253 rows, five DeLong tests against a single reference run, two Fisher tests on one model under two prompts, and two Spearman correlations against one rating. The true familywise rate is lower and this thesis does not compute it.",
+ "familywise_upper_bound": 0.5598733313482347,
+ "holm_rejections_for_reference": [
+  "welch_anisotropy",
+  "fisher_ambiguity_fs"
+ ],
+ "n_dependence_groups": 6,
+ "n_tests": 16,
+ "nominally_significant_uncorrected": [
+  "welch_anisotropy",
+  "fisher_ambiguity_fs",
+  "fisher_ambiguity_zs",
+  "spearman_pos12_harm"
+ ],
+ "provenance": {
+  "alpha": 0.05,
+  "correction_applied_in_thesis": "none; Chapter 4 states this explicitly and no reported p value is to be read as corrected",
+  "generated_by": "accord/stats/test_register.py",
+  "method": "The family is enumerated in the script, one entry per test, each bound to the artifact and key its p value is read from. The count and every threshold derived from it are computed from that list, so a test added to the chapter moves them. A prose count cannot."
+ },
+ "tests": [
+  {
+   "group": "decontam_253",
+   "id": "mw_seed0",
+   "p": 0.5646446188022769,
+   "p_is_derived": false,
+   "source": "results/accord/decontam/corrected_gold_metrics.json::per_seed.seed0.mannwhitney_p",
+   "test": "Mann-Whitney U",
+   "what": "control model seed 0, scores on G_253",
+   "where": "tab:decontam"
+  },
+  {
+   "group": "decontam_253",
+   "id": "mw_seed1",
+   "p": 0.9179106759185339,
+   "p_is_derived": false,
+   "source": "results/accord/decontam/corrected_gold_metrics.json::per_seed.seed1.mannwhitney_p",
+   "test": "Mann-Whitney U",
+   "what": "control model seed 1, scores on G_253",
+   "where": "tab:decontam"
+  },
+  {
+   "group": "decontam_253",
+   "id": "mw_seed2",
+   "p": 0.9564855846684651,
+   "p_is_derived": false,
+   "source": "results/accord/decontam/corrected_gold_metrics.json::per_seed.seed2.mannwhitney_p",
+   "test": "Mann-Whitney U",
+   "what": "control model seed 2, scores on G_253",
+   "where": "tab:decontam"
+  },
+  {
+   "group": "decontam_253",
+   "id": "mw_ensemble",
+   "p": 0.8667920078913933,
+   "p_is_derived": false,
+   "source": "results/accord/decontam/corrected_gold_metrics.json::aggregate.ensemble_mannwhitney_p",
+   "test": "Mann-Whitney U",
+   "what": "three-seed ensemble, scores on G_253",
+   "where": "tab:decontam"
+  },
+  {
+   "group": "decontam_253",
+   "id": "mw_contaminated",
+   "p": 0.6418,
+   "p_is_derived": false,
+   "source": "results/accord/step2_signal_check.json::accord_contra_prob_distribution_by_group.mann_whitney_u_p_value_pos_vs_neg",
+   "test": "Mann-Whitney U",
+   "what": "contaminated released run, same 253 pairs",
+   "where": "tab:decontam"
+  },
+  {
+   "group": "delong_vs_one_ref",
+   "id": "delong_ensemble_299",
+   "p": 0.9300329582352953,
+   "p_is_derived": false,
+   "source": "results/accord/control/final_report.json::delong_ensemble_vs_accord.gold_all.p",
+   "test": "DeLong",
+   "what": "control ensemble vs ACCORD, G_299",
+   "where": "tab:delong"
+  },
+  {
+   "group": "delong_vs_one_ref",
+   "id": "delong_seed42_299",
+   "p": 0.991188873943635,
+   "p_is_derived": false,
+   "source": "results/accord/control/final_report.json::delong_per_seed_vs_accord_gold_all.42.p",
+   "test": "DeLong",
+   "what": "control seed 42 vs ACCORD, G_299",
+   "where": "tab:delong"
+  },
+  {
+   "group": "delong_vs_one_ref",
+   "id": "delong_seed123_299",
+   "p": 0.66298787819815,
+   "p_is_derived": false,
+   "source": "results/accord/control/final_report.json::delong_per_seed_vs_accord_gold_all.123.p",
+   "test": "DeLong",
+   "what": "control seed 123 vs ACCORD, G_299",
+   "where": "tab:delong"
+  },
+  {
+   "group": "delong_vs_one_ref",
+   "id": "delong_seed2024_299",
+   "p": 0.4821647608553734,
+   "p_is_derived": false,
+   "source": "results/accord/control/final_report.json::delong_per_seed_vs_accord_gold_all.2024.p",
+   "test": "DeLong",
+   "what": "control seed 2024 vs ACCORD, G_299",
+   "where": "tab:delong"
+  },
+  {
+   "group": "delong_vs_one_ref",
+   "id": "delong_ensemble_134",
+   "p": 0.4306143435685692,
+   "p_is_derived": false,
+   "source": "results/accord/control/final_report.json::delong_ensemble_vs_accord.gold_defect_free_rule34.p",
+   "test": "DeLong",
+   "what": "control ensemble vs ACCORD, G_134",
+   "where": "tab:delong"
+  },
+  {
+   "group": "mechanism",
+   "id": "fisher_mechanism",
+   "p": 0.7725,
+   "p_is_derived": false,
+   "source": "results/accord/exemplar/step2plus_results.json::confounded_proxy_rule12_vs_rule34.fisher_exact.p_value",
+   "test": "Fisher exact, two-sided",
+   "what": "rules 1 and 2 against rules 3 and 4",
+   "where": "sec:r-rule-mechanism"
+  },
+  {
+   "group": "anisotropy",
+   "id": "welch_anisotropy",
+   "p": 8.48e-05,
+   "p_is_derived": true,
+   "source": "derived: Welch two-sample t on the registered anisotropy summaries, control mean/std/n against the matched clinical mean/std/n; see stats.anisotropy_welch.* in VERIFIED_FACTS",
+   "test": "Welch two-sample t",
+   "what": "control condition vs matched clinical pairs",
+   "where": "sec:res-rq3"
+  },
+  {
+   "group": "danger_rating",
+   "id": "spearman_full299_harm",
+   "p": 0.9991,
+   "p_is_derived": false,
+   "source": "results/accord/step5_ranking.json::full_299_harm_score_vs_danger_rating.p_value",
+   "test": "Spearman rank correlation",
+   "what": "harm score vs danger rating, all 299",
+   "where": "sec:r-ranking"
+  },
+  {
+   "group": "danger_rating",
+   "id": "spearman_pos12_harm",
+   "p": 0.019,
+   "p_is_derived": false,
+   "source": "results/accord/step5_ranking.json::positives_only_n12_harm_score_vs_danger_rating.p_value",
+   "test": "Spearman rank correlation",
+   "what": "harm score vs danger rating, 12 positives",
+   "where": "sec:r-multiplicity"
+  },
+  {
+   "group": "ambiguity_gradient",
+   "id": "fisher_ambiguity_zs",
+   "p": 0.0046399972977238,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_anthropic_metrics.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
+   "test": "Fisher exact, one-sided",
+   "what": "ambiguous vs clear negatives, zero-shot",
+   "where": "sec:r-ambiguity"
+  },
+  {
+   "group": "ambiguity_gradient",
+   "id": "fisher_ambiguity_fs",
+   "p": 0.0028501877096293034,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_anthropic_metrics.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
+   "test": "Fisher exact, one-sided",
+   "what": "ambiguous vs clear negatives, few-shot",
+   "where": "sec:r-ambiguity"
+  }
+ ]
+}

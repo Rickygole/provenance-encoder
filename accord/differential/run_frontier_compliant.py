@@ -12,6 +12,11 @@ of the agreement signed on 25 February 2026.
 That guidance also names the routes that ARE acceptable. This script uses two
 of them:
 
+  bedrock               AWS Bedrock, in an account the author owns. Inference
+                        runs inside the licensee's own tenancy and inputs are
+                        not used for training. Used to hold the model family
+                        constant against the local llama3:8b measurement while
+                        varying vendor and channel; see C68.
   anthropic  (default)  Named as not training on prompts and not performing
                         routine human review by default. Needs no opt-out
                         form, no cloud account, no approval queue.
@@ -52,6 +57,12 @@ never logs one:
     AZURE_OPENAI_KEY
     AZURE_OPENAI_DEPLOYMENT
     AZURE_OPENAI_API_VERSION  optional, defaults below
+    AWS_PROFILE               for --provider bedrock, defaults to "bedrock".
+                              boto3 reads the credentials; this script does not
+                              touch them. The profile must point at an account
+                              the licensee owns.
+    AWS_REGION                optional, defaults to us-east-1
+    BEDROCK_MODEL             optional, defaults to meta.llama3-70b-instruct-v1:0
     ACCORD_SHEET              path to annotation_sheet_for_pharmacist_clean.csv
     ACCORD_PROMPTS            path to prompts_existing.csv
 
@@ -86,6 +97,12 @@ COMPLIANCE_NOTE = {
     "azure": ("Run through Azure OpenAI with human review opted out, the route "
               "named in PhysioNet's guidance of 18 April 2023. Supersedes the "
               "original public-API run, which breached Clause 3."),
+    "bedrock": ("Run through AWS Bedrock in the author's own account, one of the "
+                "routes PhysioNet's guidance of 18 April 2023 names as "
+                "acceptable on the grounds that inference runs inside a tenancy "
+                "the licensee controls and inputs are not used for training. "
+                "Added to vary vendor and channel while holding the model "
+                "family constant; see C68."),
 }
 
 POSITIVE = "contradiction"
@@ -129,6 +146,30 @@ def call(cfg, system, user, temperature, max_tokens, retries=4):
     be opted out first; Anthropic is listed as not training on prompts and not
     performing routine human review by default, so it needs no such form.
     """
+    if cfg["provider"] == "bedrock":
+        # Llama 3 instruct wants its own chat template; the system and user
+        # blocks are the same strings every other route sends.
+        prompt = ("<|begin_of_text|><|start_header_id|>system<|end_header_id|>"
+                  f"\n\n{system}<|eot_id|>"
+                  "<|start_header_id|>user<|end_header_id|>"
+                  f"\n\n{user}<|eot_id|>"
+                  "<|start_header_id|>assistant<|end_header_id|>\n\n")
+        body = {"prompt": prompt, "max_gen_len": min(max_tokens, 512),
+                "temperature": temperature}
+        for attempt in range(retries):
+            try:
+                r = cfg["client"].invoke_model(
+                    modelId=cfg["model"], body=json.dumps(body))
+                return json.loads(r["body"].read()).get("generation")
+            except Exception as exc:
+                # Never echo the exception: a client error can quote the request
+                # back, and the request carries note sentences.
+                if attempt == retries - 1:
+                    print(f"      bedrock {type(exc).__name__} after "
+                          f"{retries} attempts", file=sys.stderr)
+                    return None
+                time.sleep(2 ** attempt)
+
     if cfg["provider"] == "azure":
         url = (f"{cfg['endpoint'].rstrip('/')}/openai/deployments/"
                f"{cfg['deployment']}/chat/completions"
@@ -221,7 +262,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--strategy", choices=["zero_shot", "few_shot"],
                     required=True)
-    ap.add_argument("--provider", choices=["anthropic", "azure"],
+    ap.add_argument("--provider", choices=["anthropic", "azure", "bedrock"],
                     default="anthropic",
                     help="which compliant route to use. anthropic needs no "
                          "opt-out form; azure requires Modified Abuse "
@@ -256,6 +297,18 @@ def main():
                "api_version": os.environ.get("AZURE_OPENAI_API_VERSION",
                                              DEFAULT_API_VERSION)}
         model_label = cfg["deployment"]
+    elif args.provider == "bedrock":
+        # boto3 resolves the profile's credentials itself; no key is read or
+        # logged here, exactly as for the other two routes.
+        import boto3
+        cfg = {"provider": "bedrock",
+               "client": boto3.Session(
+                   profile_name=os.environ.get("AWS_PROFILE", "bedrock"))
+                   .client("bedrock-runtime",
+                           region_name=os.environ.get("AWS_REGION", "us-east-1")),
+               "model": os.environ.get("BEDROCK_MODEL",
+                                       "meta.llama3-70b-instruct-v1:0")}
+        model_label = cfg["model"]
     else:
         cfg = {"provider": "anthropic",
                "key": need("ANTHROPIC_API_KEY"),
@@ -358,9 +411,15 @@ def main():
     # this, running a second model writes over the first: a Haiku run would
     # silently destroy the committed Sonnet artifacts that Chapter 4 depends
     # on, and the loss would not be visible until the metrics were recomputed.
+    # A second model on the same provider must not overwrite the first, so the
+    # non-default model goes in the filename. Bedrock has no default: every
+    # model there is tagged, because the family is the variable under test.
     model_tag = ""
     if args.provider == "anthropic" and model_label != DEFAULT_ANTHROPIC_MODEL:
         model_tag = "_" + model_label.replace("-", "").replace(".", "")
+    elif args.provider == "bedrock":
+        model_tag = "_" + (model_label.split("/")[-1].split(":")[0]
+                           .replace("-", "").replace(".", ""))
     out = OUT_DIR / f"frontier_{args.provider}{model_tag}_{args.strategy}{suffix}.json"
 
     stability = None

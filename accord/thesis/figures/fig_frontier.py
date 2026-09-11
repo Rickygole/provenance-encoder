@@ -248,9 +248,16 @@ print("wrote fig-missing-cell.pdf (3 filled cells, 1 empty)")
 # fills, and with alpha banned by the style system the second fill painted the
 # first out entirely: the zero-shot band, which is the subject of the headline,
 # was invisible under the few-shot band. Separate panels also give each series
-# its own zero rule, so "stays above chance" and "reaches chance" are each read
-# against a line inside their own frame, and they end the label collisions at
-# the right spine, where a clipped plus sign printed +0.0829 as -0.0829.
+# its own zero rule, so each crossing is read against a line inside its own
+# frame, and they end the label collisions at the right spine, where a clipped
+# plus sign once printed a positive bound as a negative one.
+#
+# The mean is drawn as well as the interval. The earlier version of this figure
+# plotted a single dot at p = 0 and no centre line, because the analysis behind
+# it held the point estimate fixed and moved only the bounds. That was the
+# error: the centre is where most of the movement is. A figure that shows only
+# widening bounds cannot be read against a fair coin, which is exactly the
+# reading the withdrawn claim rested on.
 SER = [("zero_shot", "Claude Sonnet 5, zero-shot", EMERALD),
        ("few_shot", "Claude Sonnet 5, few-shot", AZURE)]
 
@@ -267,18 +274,25 @@ for ax, (key, label, hue) in zip(axes, SER):
     ax.plot(ps, lo, color=hue.DEEP, lw=LW_DATA, zorder=3)
     ax.plot(ps, hi, color=hue.DEEP, lw=LW_DATA, zorder=3)
     ax.axhline(0.0, color=INK, lw=LW_REF, zorder=4)
+    means = [row["mean"] for row in r["sweep"]]
+    ax.plot(ps, means, color=hue.DEEP, lw=LW_DATA, ls="--", zorder=5)
     ax.plot([0.0], [r["mcc_point"]], marker="o", ms=MS_DOT, color=hue.DEEP,
             zorder=6)
     ax.text(0.012, r["mcc_point"], f"  {r['mcc_point']:+.4f} at $p=0$",
             color=hue.DEEP, ha="left", va="center", zorder=6,
             **cased(T_NOTE))
+    # The end of the dashed line is the whole point of the correction: at a fair
+    # coin the centre is on the chance rule, not above it.
+    ax.text(0.5, means[-1], f"{means[-1]:+.4f}  ", color=hue.DEEP,
+            ha="right", va="bottom", zorder=6, **cased(T_NOTE))
     # Series name and worst case inside the panel, well clear of both spines.
     ax.text(0.485, 0.90, label, transform=ax.transAxes,
             color=hue.DEEP, ha="right", va="top", zorder=6, **cased())
-    end = r["sweep"][-1]
     cross = r["flip_probability_at_which_zero_enters"]
     if cross is None:
-        ax.text(0.485, 0.13, f"worst case {end['ci_lo']:+.4f}, still above chance",
+        end = r["sweep"][-1]
+        ax.text(0.485, 0.13,
+                f"admits chance nowhere below $p = {end['p']:.2f}$",
                 transform=ax.transAxes, color=hue.DEEP,
                 ha="right", va="bottom", zorder=6, **cased(T_NOTE))
     else:
@@ -297,16 +311,17 @@ axes[-1].set_xticks([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
 axes[-1].set_xlabel("Assumed per-draw probability that any one label flips",
                     fontsize=T_AXIS)
 signature(fig, EMERALD_DEEP,
-          headline="One result survives any instability; the other does not",
-          deck=("Each interval widens with assumed label noise while its point "
-                "estimate is held fixed.\nThe upper panel never reaches chance. "
-                "The lower one does."))
+          headline="Neither result survives arbitrary label instability",
+          deck=("Solid bounds are the 95 percent interval, dashed is the mean; "
+                "both move, because labels are flipped and pairs\nresampled "
+                "jointly. The zero-shot interval admits chance at one label in "
+                "four, the few-shot at one in eleven."))
 fig.subplots_adjust(left=0.155, right=0.965, top=0.755, bottom=0.115,
                     hspace=0.20)
 fig.savefig(HERE / "fig-labelnoise.pdf")
 plt.close(fig)
 z = NOISE["by_strategy"]["zero_shot"]
 f = NOISE["by_strategy"]["few_shot"]
-print(f"wrote fig-labelnoise.pdf (zero-shot worst case "
-      f"{z['worst_case_ci_lo']:+.4f}, few-shot crosses at "
+print(f"wrote fig-labelnoise.pdf (zero-shot crosses at "
+      f"{z['flip_probability_at_which_zero_enters']:.4f}, few-shot at "
       f"{f['flip_probability_at_which_zero_enters']:.4f})")

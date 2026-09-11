@@ -537,40 +537,54 @@ measures pair-sampling uncertainty and omits the rest, so the frontier intervals
 above are narrower than the truth. The direct remedy, re-running every pair
 several times, buys little here: the binding constraint is $12$ positives, not the
 number of draws, and at that sample size the pair-sampling term alone already
-carries a standard deviation of $0.0875$ on the lower arm of the zero-shot
-Matthews interval, which is not symmetric about its point estimate and is
-therefore carried arm by arm throughout.
+carries a standard deviation of $0.0525$ among the zero-shot draws that fall
+below the point estimate against $0.0449$ among those above it. The interval is
+not symmetric about its point estimate and is therefore carried arm by arm
+throughout.
 
 The question worth asking instead is how unstable the labels would have to be
-before a conclusion changes. Treating each label as flipping independently with
-probability $p$, the flip count on each class is binomial, and carrying that
-variance into the Matthews correlation through the observed matrix's per-flip
-sensitivity gives a total interval as a function of $p$ alone. One flip on a
-positive moves the zero-shot value by $0.0426$; one flip on a negative moves it by
-$0.0048$. The worst case any model can assert is $p = 0.5$, every label an independent fair
-coin. Two limits of the construction have to travel with it. The per-flip
-sensitivity is a first-order central difference taken at the observed matrix, so
-the far end of the sweep extrapolates a local derivative rather than evaluating
-the statistic there. And the model carries only the variance of the flip count,
-not its mean, which is why the point estimate does not move.
+before a conclusion changes. The mechanism is simulated directly rather than
+linearised: resample the $253$ pairs, then flip each predicted label
+independently with probability $p$, and recompute the Matthews correlation, at
+$B = 10{,}000$ draws per value of $p$. Both terms the mechanism produces
+therefore travel, the widening of the interval and the shift of its centre.
 
-Figure~\ref{fig:labelnoise} sweeps $p$ for both runs. At that worst case the
-zero-shot interval is $+0.0829$ to $+0.5353$. It still excludes zero. Within this analysis, which widens the interval and holds the
-point estimate where the run put it, no assumption about instability moves the
-zero-shot result to chance. The qualification below says what that leaves open.
+An earlier version of this analysis carried only the first. It held the point
+estimate at the value the run put it and added the binomial variance of the flip
+count through a per-flip central difference at the observed matrix. That
+construction is wrong in the direction that flatters the result: flipping labels
+does not merely widen the interval, it destroys the association, and the shift of
+the centre is the dominant term. At $p = 0.5$, where every label is an
+independent fair coin and the Matthews correlation is necessarily centred on
+zero, it reported an interval of $+0.0829$ to $+0.5353$ and the conclusion that
+the zero-shot result survives the fair-coin worst case. The simulation returns
+$-0.1223$ to $+0.1226$ at that point, with a mean of $+0.0001$ and the statistic
+at or below zero in $0.502$ of draws, which is the fair coin behaving as a fair
+coin. The earlier conclusion was an artifact of the missing term and is
+withdrawn; the correction is recorded as C69.
 
-The few-shot row does not survive the same test. Its interval admits zero once $p$
-reaches $0.1159$, so its reported exclusion of zero at $+0.0314$ holds only under
-an assumption of near-stable labels that this run cannot support. The few-shot value
-is therefore reported here as positive but not as distinguishable from chance, and
-no claim in this thesis rests on it.
+Figure~\ref{fig:labelnoise} sweeps $p$ for both runs. Neither run survives
+arbitrary instability, and the question is how much each tolerates. The
+zero-shot interval admits zero once $p$ reaches $0.2467$: roughly one label in
+four would have to flip between draws before its exclusion of zero fails. The
+few-shot interval admits zero at $0.0941$, roughly one in eleven. So the two runs
+differ by a factor of about two and a half in how much label instability they
+tolerate, and both bounds are assumptions about a quantity this thesis did not
+measure for Sonnet, which does not accept a temperature parameter and was drawn
+once per pair.
 
-One qualification, stated because the distinction is the kind this thesis exists
-to enforce. This analysis widens the interval and holds the point estimate fixed.
-A model that also propagated label noise into the point estimate would move that
-estimate toward chance as well, and nothing here bounds how far. What is
-established is therefore a statement about this interval under instability, not a
-posterior over the underlying value, and the claim above is scoped to it.
+What that supports is narrow. The zero-shot exclusion of zero holds under label
+instability up to $0.2467$ and not beyond it. The few-shot exclusion, whose
+interval at $p = 0$ runs from $+0.0309$, holds only under an assumption of
+near-stable labels that this run cannot support, so the few-shot value is
+reported as positive but not as distinguishable from chance, and no claim in this
+thesis rests on it. Neither figure is a posterior over the underlying value. Each
+is the behaviour of one interval under one stated noise mechanism, and the
+mechanism, independent flips at a constant rate, is itself an assumption: a model
+whose errors concentrate on the ambiguous pairs, which Section~\ref{sec:r-ambiguity}
+gives reason to expect of this one, would not flip labels independently, and
+nothing here bounds what that would do.
+
 
 \begin{figure}[H]
 \centering
@@ -578,11 +592,15 @@ posterior over the underlying value, and the claim above is scoped to it.
 \caption[Matthews interval against assumed label instability]{The $95$ percent
 Matthews interval for each frontier run as a function of $p$, the assumed
 probability that any one label flips between draws, one panel per run so that
-neither band occludes the other. The dot at $p = 0$ is the point estimate, held
-fixed throughout; only the interval widens, so this is a sensitivity bound on an
-interval and not a posterior. The zero-shot lower bound stays above chance out to
-$p = 0.5$, where every label is an independent fair coin. The few-shot bound
-reaches chance at $p = 0.1159$.}
+neither band occludes the other. Both the interval and its centre move with $p$:
+the mechanism is simulated directly, resampling pairs and flipping labels
+jointly at $B = 10{,}000$ draws per value of $p$, rather than propagating the
+variance of the flip count about a fixed point estimate. The zero-shot interval
+admits chance at $p = 0.2467$ and the few-shot interval at $p = 0.0941$. At
+$p = 0.5$, where every label is an independent fair coin, both are centred on
+zero, which is what that configuration requires. This is the behaviour of an
+interval under one stated noise mechanism and not a posterior over the
+underlying value.}
 \label{fig:labelnoise}
 \end{figure}
 
@@ -1006,37 +1024,63 @@ informative about true AUROC values at or above $0.7355$ and silent below that l
 
 \subsection{Multiplicity, and what is not corrected for}
 
-This chapter reports fourteen hypothesis tests: five Mann-Whitney tests in
-Table~\ref{tab:decontam}, five DeLong tests in Table~\ref{tab:delong}, one Fisher exact test on
-the mechanism split, one Welch two-sample $t$ test on the anisotropy control, and two Spearman
-rank correlations against the pharmacist's danger rating, one reported above and one reported
-for the first time at the end of this subsection. It also reports eight interval estimates read
+This chapter reports sixteen hypothesis tests. The family is enumerated in
+\texttt{accord/stats/test\_register.py}, one entry per test, each bound to the
+artifact and key its $p$ value is read from, and the count and every threshold
+derived from it are computed from that list rather than typed here: five
+Mann-Whitney tests in Table~\ref{tab:decontam}, five DeLong tests in
+Table~\ref{tab:delong}, one Fisher exact test on the mechanism split, two
+one-sided Fisher exact tests on the ambiguity gradient of
+Section~\ref{sec:r-ambiguity}, one Welch two-sample $t$ test on the anisotropy
+control, and two Spearman rank correlations against the pharmacist's danger
+rating, one reported above and one reported for the first time at the end of
+this subsection. Earlier drafts of this subsection stated fourteen and
+enumerated a family that omitted the two ambiguity-gradient tests; the
+correction, and why the direction of the error matters, is recorded as C68. It
+also reports eight interval estimates read
 against a null value, zero for the four Matthews correlations of Table~\ref{tab:mcc} and for the
 two pretraining gaps, and $0.5$ for the two AUROCs; five of the eight fail to exclude that null,
 the exceptions being the AG News gap and the two frontier rows, and all eight appear in
-Figure~\ref{fig:forest}. This count has moved twice. It was eight before the frontier comparison
+Figure~\ref{fig:forest}. That interval count has moved twice. It was eight before the frontier comparison
 of Section~\ref{sec:r-frontier} was added, ten after, and eight again once the two GPT-4o rows
 were withdrawn for the reason Section~\ref{sec:m-ethics} gives. The number failing to exclude the
 null fell from seven to five with them, because both withdrawn intervals contained zero.
 \textbf{No multiple-comparison correction is applied anywhere in this thesis, and none of the
-reported $p$ values should be read as if one had been.} Were the fourteen tests independent, a
-global null at $\alpha = 0.05$ would produce at least one rejection with probability $0.51$. They
-are not independent: the five Mann-Whitney tests are three seeds of one model, their ensemble and
-one further run all scored on the same $253$ rows, and the five DeLong tests are five comparisons
-against a single reference run. So $0.51$ is an upper bound, the true familywise rate is lower,
+reported $p$ values should be read as if one had been.} Were the sixteen tests independent, a
+global null at $\alpha = 0.05$ would produce at least one rejection with probability $0.5599$. They
+are not independent, and the register groups them into the six blocks within which they are not:
+the five Mann-Whitney tests are three seeds of one model, their ensemble and
+one further run all scored on the same $253$ rows, the five DeLong tests are five comparisons
+against a single reference run, and the two ambiguity-gradient tests are one model on one set of
+items under two prompts. So $0.5599$ is an upper bound, the true familywise rate is lower,
 and this thesis does not compute it. The direction of the inference is what survives that
 imprecision: the absence of a rejection across a correlated family of this size is weaker
 evidence than the same absence would be for a single pre-specified test, and any single rejection
-inside it would be correspondingly weaker evidence of an effect. The Bonferroni threshold is
-valid under dependence, and one test clears it: the Welch test on the anisotropy control, at
-$t = 4.0001$ on $235.84$ degrees of freedom for a two-sided $p$ of $0.000085$, against a
-threshold of $0.05/14 = 0.0036$. Section~\ref{sec:res-rq3} already declines to read that as
-support for the mechanism, on effect-size grounds rather than on multiplicity grounds. The
-selection of which tests reach the page is disclosed rather than left implicit: four Spearman
+inside it would be correspondingly weaker evidence of an effect.
+
+The Bonferroni threshold is valid under dependence, and at $0.05/16 = 0.0031$ two of the sixteen
+tests clear it. One is the Welch test on the anisotropy control, at
+$t = 4.0001$ on $235.84$ degrees of freedom for a two-sided $p$ of $0.000085$;
+Section~\ref{sec:res-rq3} already declines to read that as
+support for the mechanism, on effect-size grounds rather than on multiplicity grounds. The other
+is the few-shot ambiguity gradient at $p = 0.0029$. That one requires care, because the
+zero-shot gradient, which is the reading Section~\ref{sec:r-ambiguity} leads with, sits at
+$p = 0.0046$ and does \emph{not} clear the threshold. Under the count this subsection previously
+stated the threshold was $0.05/14 = 0.0036$ and the zero-shot gradient cleared it, so the
+understated count was the count under which the headline figure survived correction. The
+corrected reading is the weaker one: of the two gradient tests, the one that clears Bonferroni is
+the dependent replicate, the same model on the same items under a second prompt, whose $p$ value
+Section~\ref{sec:r-ambiguity} already says carries much less than its face value. A family in
+which the only surviving member is the dependent replicate of a test that did not survive is not
+a family that establishes the gradient, and Section~\ref{sec:r-ambiguity} claims only a
+correlational reading from it.
+
+The selection of which tests reach the page is disclosed rather than left implicit: four Spearman
 correlations against the danger rating were computed and one is reported above. Of the three not
 reported there, one, the harm head against the danger rating restricted to the $12$ positives,
-returns $\rho = -0.6621$ at $p = 0.019$. That is the fourteenth test counted here. It is
-nominally significant at $\alpha = 0.05$ and is not significant under any correction over even
+returns $\rho = -0.6621$ at $p = 0.019$. That is the sixteenth test counted here. It is
+nominally significant at $\alpha = 0.05$, does not clear $0.0031$, and is not significant under
+any correction over even
 the four Spearman tests alone. It measures an untrained module on twelve cases and no claim is
 made from it in either direction, but it is named because reporting only the null member of a
 family the reader cannot see is the reporting defect this thesis is about.
@@ -1162,7 +1206,7 @@ ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ & $-0.1626$ to $0.
 Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ & $-0.2337$ to $0.0563$ \\
 \bottomrule
 \end{tabular}
-\apanote{Cells from Table~\ref{tab:systems253} and, for the two Claude rows, from the frontier metrics artifact. Two further rows, a GPT-4o run in both prompt conditions, have been withdrawn for the reason given in Section~\ref{sec:m-ethics}; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. The two Claude intervals do not, but only the zero-shot exclusion is robust to the label instability documented in Section~\ref{sec:r-frontier}: the few-shot interval admits zero once the per-draw flip probability reaches $0.1159$, and no claim rests on it. The Claude rows are single-draw labels from a model that does not accept a temperature parameter, and were run at a larger token budget than the GPT-4o rows, so they are not a paired protocol replacement for them.}
+\apanote{Cells from Table~\ref{tab:systems253} and, for the two Claude rows, from the frontier metrics artifact. Two further rows, a GPT-4o run in both prompt conditions, have been withdrawn for the reason given in Section~\ref{sec:m-ethics}; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. The two Claude intervals do not, but neither survives arbitrary label instability and they differ in how much they tolerate (Section~\ref{sec:r-frontier}): the zero-shot interval admits zero once the per-draw flip probability reaches $0.2467$ and the few-shot interval at $0.0941$, so no claim rests on the few-shot row. The Claude rows are single-draw labels from a model that does not accept a temperature parameter, and were run at a larger token budget than the GPT-4o rows, so they are not a paired protocol replacement for them.}
 \label{tab:mcc}
 \end{table}
 

@@ -28,15 +28,27 @@ the fair-coin worst case", was an artifact of the missing term and is withdrawn.
 
 Reads:  results/accord/differential/frontier_anthropic_metrics{TAG}.json
 Writes: results/accord/differential/frontier_label_noise{TAG}.json
+        and the labelnoise.* block of results/accord/VERIFIED_FACTS.json
+
+The register block is rewritten here rather than maintained by hand. It was
+maintained by hand, and when this script was corrected every labelnoise.* key in
+the register stayed behind on the withdrawn linearised artifact, including
+labelnoise.zero_shot.survives_any_label_noise = True, which is the claim the
+correction withdrew. Keys from the old construction that this one does not
+produce, the per-flip sensitivities and the arm-wise standard deviations, are
+deleted rather than left to resolve; see CORRECTIONS.md C68.
 
     python3 accord/differential/frontier_label_noise.py
 """
 
+import collections
 import json
 import math
 import os
 
 import numpy as np
+
+FACTS = "results/accord/VERIFIED_FACTS.json"
 
 TAG = os.environ.get("ACCORD_FRONTIER_MODEL_TAG", "")
 IN = f"results/accord/differential/frontier_anthropic_metrics{TAG}.json"
@@ -67,6 +79,46 @@ def simulate(y, yh, p, rng, B=B):
     return out
 
 
+# The untagged run is the one the chapters cite, so it owns the bare prefix. A
+# tagged run writes under its own prefix instead of overwriting it.
+PREFIX = "labelnoise" + (TAG or "")
+
+
+def update_register(out):
+    """Rewrite this script's block of the fact register from what it just wrote.
+
+    Every key under PREFIX is dropped first, so a key the old construction
+    produced and this one does not cannot survive as a resolvable number with no
+    artifact behind it.
+    """
+    facts = json.load(open(FACTS), object_pairs_hook=collections.OrderedDict)
+    for k in [k for k in facts if k.split(".")[0] == PREFIX]:
+        del facts[k]
+
+    def put(key, value):
+        facts[f"{PREFIX}.{key}"] = collections.OrderedDict(
+            [("artifact", OUT), ("value", value)])
+
+    n = 0
+    for strat, r in out["by_strategy"].items():
+        put(f"{strat}.mcc_point", r["mcc_point"])
+        for arm in ("pair_sampling_sd_lower_arm", "pair_sampling_sd_upper_arm"):
+            put(f"{strat}.{arm}", r[arm])
+            n += 1
+        put(f"{strat}.flip_probability_at_which_zero_enters",
+            r["flip_probability_at_which_zero_enters"])
+        put(f"{strat}.survives_any_label_noise", r["survives_any_label_noise"])
+        n += 3
+        for row in r["sweep"]:
+            tag = f"p{int(round(row['p'] * 100)):02d}"
+            for field in ("ci_lo", "ci_hi", "mean", "p_mcc_le_zero",
+                          "excludes_zero"):
+                put(f"{strat}.sweep.{tag}.{field}", row[field])
+                n += 1
+    json.dump(facts, open(FACTS, "w"), indent=1)
+    return n
+
+
 def main():
     src = json.load(open(IN))
     out = {"provenance": {
@@ -95,6 +147,21 @@ def main():
                          "mean": float(s.mean()),
                          "p_mcc_le_zero": float((s <= 0).mean()),
                          "excludes_zero": bool(lo > 0)})
+        # p = 0 is the pair bootstrap alone: no label is flipped. The chapter
+        # quotes the spread of each arm about the point estimate there, to say
+        # that the interval is asymmetric and must be carried arm by arm, so
+        # those two numbers are emitted here rather than left to a reader to
+        # subtract. They replace the arm-wise standard deviations the withdrawn
+        # construction reported, which were a different quantity.
+        base = simulate(y, yh, 0.0, np.random.default_rng(SEED))
+        pt = c["mcc"]
+        lower = base[base <= pt]
+        upper = base[base >= pt]
+        arms = {
+            "pair_sampling_sd_lower_arm": float(lower.std(ddof=1)) if len(lower) > 1 else None,
+            "pair_sampling_sd_upper_arm": float(upper.std(ddof=1)) if len(upper) > 1 else None,
+        }
+
         crossing = None
         for a, b in zip(rows, rows[1:]):
             if a["excludes_zero"] and not b["excludes_zero"]:
@@ -108,14 +175,15 @@ def main():
                 break
         out["by_strategy"][strat] = {
             "cells": {"tp": tp, "fp": fp, "fn": fn, "tn": tn},
-            "mcc_point": c["mcc"], "sweep": rows,
+            "mcc_point": c["mcc"], "sweep": rows, **arms,
             "flip_probability_at_which_zero_enters": crossing,
             "survives_any_label_noise": bool(rows[-1]["excludes_zero"]),
         }
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     json.dump(out, open(OUT, "w"), indent=1, sort_keys=True)
-    print(f"wrote {OUT}\n")
+    print(f"wrote {OUT}")
+    print(f"register keys under {PREFIX}.*: {update_register(out)} written\n")
     for strat, r in out["by_strategy"].items():
         cr = r["flip_probability_at_which_zero_enters"]
         print(f"{strat:<10} MCC {r['mcc_point']:+.4f}  "

@@ -3201,3 +3201,100 @@ same treatment.
 
 **Verified before publishing:** no note text, no admission or subject identifier, no credential, no
 absolute path carrying a username. The only path in the file is a Colab mount.
+
+## C68. The multiplicity count was understated by two, and the understatement was the difference between the headline gradient clearing Bonferroni and not clearing it
+
+**What was printed.** The multiplicity subsection of Chapter 4 opened "This chapter reports
+fourteen hypothesis tests" and then enumerated them: five Mann-Whitney, five DeLong, one Fisher
+exact on the mechanism split, one Welch on the anisotropy control, two Spearman against the danger
+rating. That enumeration sums to fourteen and is internally consistent, which is why it survived
+several reads.
+
+**What the chapter actually reports.** Sixteen. Section~4 on the ambiguity gradient reports two
+further Fisher exact tests, one per prompt condition, at $p = 0.0046$ and $p = 0.0029$. They were
+added to the chapter when the frontier comparison was added and the count was never revisited. The
+enumeration was consistent with itself and not with the chapter.
+
+**Why the direction matters.** The Bonferroni threshold is $\alpha$ divided by the count. At
+fourteen it is $0.05/14 = 0.0036$ and the zero-shot ambiguity gradient, which is the reading the
+section leads with, clears it at $0.0046$. At sixteen it is $0.05/16 = 0.0031$ and the zero-shot
+gradient does not clear it. The understated count was the count under which the headline figure
+survived correction. No one constructed that; it is what an unmaintained number does, and it landed
+on the flattering side, which is the only reason this entry is written at this length.
+
+**What is true after the recount.** Two of the sixteen tests clear $0.0031$. One is the Welch test
+on the anisotropy control, which Section~4 already declines to read as support for the mechanism on
+effect-size grounds. The other is the few-shot ambiguity gradient at $0.0029$, which is the
+dependent replicate: the same model on the same items under a second prompt, whose $p$ value the
+section already says carries much less than its face value. So the family's only surviving member is
+the dependent replicate of a test that did not survive. That is weaker than what was printed, and
+Section~4 now says so in those terms.
+
+**Two further numbers moved with the count.** The familywise upper bound, $1 - 0.95^{k}$, goes from
+$0.51$ to $0.5599$. The register keys `stats.multiplicity.bonferroni_threshold` and
+`stats.multiplicity.familywise_upper_bound` were derived text reading "divided by the 14 hypothesis
+tests reported in the Results chapter" and are now bound to an artifact.
+
+**The fix is structural, not a retyped number.** `accord/stats/test_register.py` enumerates the
+family, one entry per test, each bound to the artifact and key its $p$ value is read from, with the
+dependence blocks named. It computes the count, the Bonferroni threshold, the familywise upper
+bound, which tests clear, and a Holm ordering for reference, and writes
+`results/accord/stats/test_register.json`. A test added to the chapter is added to the list and every
+derived number moves with it. A count in prose cannot do that, and this one did not.
+
+**What the register does not do.** It does not apply a correction. Chapter 4 applies none and says
+so. It computes what the threshold would be so that the sentence quoting the threshold cannot drift
+from the family it describes.
+
+## C69. The label-noise sensitivity analysis carried the variance and dropped the mean, and the claim it supported is withdrawn
+
+**What was printed.** Chapter 4 asked how unstable the frontier labeller's labels would have to be
+before the conclusion changed, and answered that they could be arbitrarily unstable: at $p = 0.5$,
+where every predicted label is an independent fair coin, it reported a Matthews interval of
+$+0.0829$ to $+0.5353$ for the zero-shot run and concluded that the result "survives even the
+fair-coin worst case". Figure 14's deck read "One result survives any instability; the other does
+not".
+
+**Why that cannot be true, before any recomputation.** If every predicted label is a fair coin, the
+predictions carry no information about the labels, and the Matthews correlation is centred on zero
+by construction. An interval that excludes zero at that point is not a finding about the run; it is
+a statement that the analysis is not computing what it claims to. This is the rare case where the
+result is refutable from the definition alone, which is how it was caught.
+
+**What the construction actually did.** It treated the flip count on each class as binomial, took a
+first-order central difference of the Matthews correlation at the observed confusion matrix, and
+propagated the variance of the flip count through that derivative. So it added the variance the
+flips induce and never moved the point estimate, which it held at the value the run produced. But
+flipping labels does not only widen the interval, it destroys the association, and the shift of the
+centre is the dominant term at every $p$ that matters. The analysis carried the smaller term and
+dropped the larger one, in the direction that flatters the result.
+
+**What replaces it.** Direct simulation of the stated mechanism, in
+`accord/differential/frontier_label_noise.py`: resample the 253 pairs, flip each predicted label
+independently with probability $p$, recompute the statistic, $B = 10{,}000$ draws per value of $p$.
+No linearisation and no analytic variance. Both terms travel because both are produced by the
+simulation rather than modelled.
+
+**What the corrected analysis returns.** At $p = 0.5$ the zero-shot interval is $-0.1223$ to
+$+0.1226$ with a mean of $+0.0001$ and the statistic at or below zero in $0.502$ of draws. That is
+the fair coin behaving as a fair coin, and it is the direct check that the new construction is
+computing the right thing. Neither run survives arbitrary instability. The zero-shot interval admits
+zero at $p = 0.2467$, roughly one label in four; the few-shot interval at $p = 0.0941$, roughly one
+in eleven. The surviving claim is the narrower one, that the zero-shot exclusion holds up to
+$0.2467$ and not beyond, and Chapter 4 now states it that way.
+
+**Three numbers in the chapter moved with it.** The few-shot crossing was printed as $0.1159$ in the
+body, in the note to the Matthews table and in Appendix C; it is $0.0941$. The zero-shot crossing
+did not exist before, because the old analysis reported no crossing at all. The zero-shot worst-case
+lower bound, $+0.0829$, is withdrawn and is now quoted only as the withdrawn figure.
+
+**Two structural fixes, because the failure was not only arithmetic.** First, every
+`labelnoise.*` key in the fact register was entered by hand, so when the script was corrected all 96
+of them stayed behind on the withdrawn artifact, including
+`labelnoise.zero_shot.survives_any_label_noise = True`. The script now rewrites its own block of the
+register from the artifact it just wrote and deletes keys the old construction produced that the new
+one does not, so the two cannot diverge again. Second, the figure plotted one dot at $p = 0$ and no
+centre line, which is what a figure looks like when the analysis behind it holds the centre fixed;
+it now draws the mean as a dashed line in each panel, and the end of that line, on the chance rule
+at a fair coin, is the correction made visible. The figure's ink floors are lowered with the reason
+recorded: the band area the old figure filled was the overstatement, so losing it is the fix.

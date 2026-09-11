@@ -56,8 +56,10 @@ FLOORS = {
     #   deliberately unfilled. The empty cell IS the claim, so ink cannot be
     #   added to it without making the figure say the opposite of its content.
     #
-    #   fig-labelnoise carries two interval bands over a sweep and clears both
-    #   numbers comfortably; it is listed here only so all three are gated.
+    #   fig-labelnoise carries two interval bands over a sweep. It cleared both
+    #   numbers comfortably under the withdrawn analysis and no longer does;
+    #   the floors are lowered in LOWERED with the reason, which is that the
+    #   band area it used to fill was the artifact being corrected.
     "fig-capability":         (0.05, 0.008),
     "fig-missing-cell":       (0.20, 0.060),
     "fig-labelnoise":         (0.27, 0.230),
@@ -107,6 +109,20 @@ FLOORS = {
 # meet it. Coverage still does real work and is unchanged or nearly so
 # everywhere it was clearing before.
 LOWERED = {
+    "fig-labelnoise": ((0.24, 0.190),
+        "Lowered once, when the analysis behind the figure was corrected. The "
+        "withdrawn construction propagated only the variance of the flip count "
+        "and held the point estimate fixed, so its bands fanned outward across "
+        "the whole sweep and filled the canvas: at a fair coin it drew a "
+        "zero-shot interval from +0.0829 to +0.5353, a band half the height of "
+        "the axis, which was the error and not the data. The simulation that "
+        "replaced it flips labels and resamples pairs jointly, and the mean "
+        "collapses toward zero as the bands narrow, so the filled region is "
+        "smaller by exactly the amount the old construction was overstating. "
+        "Coverage falls 0.27 to 0.262 and chroma 0.23 to 0.203. A dashed mean "
+        "line was added to each panel, which is ink and is the substantive "
+        "point, but one stroke does not recover the area of two fans. Ink "
+        "cannot be restored here without redrawing the wrong intervals.",),
     "fig-capability": ((0.05, 0.008),
         "Lowered once, and the figure got better in the same edit. The first "
         "version drew six labellers on mixed denominators, three of them "

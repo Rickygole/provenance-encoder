@@ -10,7 +10,11 @@ Inputs:
       pair_id and pred only, already committed
   ACCORD_LABELS  path to pharmacist_labeled_clean.csv, which lives outside the
       version-controlled tree because it carries verbatim note sentences
-  ACCORD_FRONTIER_SUFFIX  optional, e.g. _rep5 to score a replicated run
+  ACCORD_FRONTIER_SUFFIX    optional, e.g. _rep5 to score a replicated run
+  ACCORD_FRONTIER_PROVIDER  optional, defaults to anthropic; set to bedrock to
+                            score the within-vendor run of C68
+  ACCORD_FRONTIER_MODEL_TAG optional, the model tag the runner put in the
+                            filename, before the strategy
       instead of the single-draw one. Moves the output file by the same suffix.
 
 Output:
@@ -44,13 +48,18 @@ STRATEGIES = ("zero_shot", "few_shot")
 # output too, because frontier_anthropic_metrics.json is the artifact
 # VERIFIED_FACTS.json cites and a replicated run must not overwrite it.
 SUFFIX = os.environ.get("ACCORD_FRONTIER_SUFFIX", "")
+# Which compliant channel's artifacts to score. The runner writes the provider
+# into the filename, so this must match it or the open fails loudly rather than
+# scoring the wrong model, which is the failure this file already carries a
+# comment about below.
+PROVIDER = os.environ.get("ACCORD_FRONTIER_PROVIDER", "anthropic")
 # The runner tags the model BEFORE the strategy (frontier_anthropic<tag>_zero_shot)
 # and the replicate suffix AFTER it (..._zero_shot_rep5). Two different positions,
 # so two different variables. An earlier version had only the trailing one and
 # looked for a file the runner never writes.
 MODEL_TAG = os.environ.get("ACCORD_FRONTIER_MODEL_TAG", "")
 OUT = ("results/accord/differential/"
-       f"frontier_anthropic_metrics{MODEL_TAG}{SUFFIX}.json")
+       f"frontier_{PROVIDER}_metrics{MODEL_TAG}{SUFFIX}.json")
 
 
 def cells(y, yh):
@@ -111,7 +120,7 @@ def main():
         "provenance": {
             "generated_by": "accord/differential/frontier_metrics.py",
             "prediction_artifacts": [
-                f"results/accord/differential/frontier_anthropic{MODEL_TAG}_{s}{SUFFIX}.json"
+                f"results/accord/differential/frontier_{PROVIDER}{MODEL_TAG}_{s}{SUFFIX}.json"
                 for s in STRATEGIES],
             "labels": "pharmacist_labeled_clean.csv (outside version control)",
             "note": ("Aggregates only. The labels file carries verbatim note "
@@ -125,7 +134,7 @@ def main():
 
     for strat in STRATEGIES:
         art = ("results/accord/differential/"
-               f"frontier_anthropic{MODEL_TAG}_{strat}{SUFFIX}.json")
+               f"frontier_{PROVIDER}{MODEL_TAG}_{strat}{SUFFIX}.json")
         raw = json.load(open(art))
         pr = pd.DataFrame(raw["predictions"])
         # A replicated run writes pred=null where the draws split evenly or none
