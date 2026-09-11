@@ -1,5 +1,11 @@
 # C67 capability sweep — pre-registered decision rule
 
+> **OUTCOME RECORDED 2026-09-11: OUTCOME A.** Haiku 4.5's G_299 zero-shot
+> over-calling ratio is 6.2500, strictly inside the 5.3333 to 15.4167 window the
+> rule below required. The rule was committed at 05d9cdd before any MIMIC pair
+> reached the model and was not edited after the result. Full result in
+> CORRECTIONS.md C67.
+
 **Written 2026-09-11, BEFORE the Haiku runs were started.** The credential check on a synthetic
 sentence pair has been run and returned HTTP 200; no MIMIC pair has been sent to this model. Do not
 edit after the first number lands; if the rule turns out to be badly specified, record that as a
