@@ -371,7 +371,12 @@ def main():
         unresolved = [p for p in preds if not p["resolved"]]
         # How far would the reported numbers have moved? Compare the majority
         # label against the single draw already committed, pair by pair.
-        prior = OUT_DIR / f"frontier_{args.provider}_{args.strategy}.json"
+        # Must carry the same model tag as `out`. Without it this compared a
+        # replicated Haiku run against the SONNET single-draw artifact and
+        # reported six label changes that were a difference between two models,
+        # not between two runs of one. The same tag-position mistake as in
+        # frontier_metrics.py, made twice.
+        prior = OUT_DIR / f"frontier_{args.provider}{model_tag}_{args.strategy}.json"
         changed = None
         if prior.exists():
             was = {r["pair_id"]: r["pred"]

@@ -3166,3 +3166,38 @@ locally. Section 3.9 says the Hugging Face Inference API run covered the full ca
 the originally deployed figure. Both cannot be true of the same run. Which channel produced the
 1425 labels determines whether the detector's training supervision came through a compliant route,
 and it is a question for the author rather than the artifacts.
+
+---
+
+## C67. The detector source is recovered, and every architectural finding can now be checked
+
+**What was missing.** Section 3.9 disclosed that the detector's model and training code was not in
+the repository, and that the architectural findings of Chapter 4 therefore rested on reading a file
+no reader could open. That was the only research question in this thesis whose evidence could not be
+independently checked.
+
+**Where it was.** In the author's Downloads folder, exported from Colab and never committed. A
+filesystem search for the parameter names the correction record quotes found it in one pass. The
+same search found the Colab notebooks behind the architecture, the ablations, the transfer
+experiments and the stage-zero pretraining, all of which are further recovery targets.
+
+**Committed unmodified**, under a header that records where it came from and what it establishes.
+Nothing was tidied or renamed. Its value is as evidence, and every line number the correction record
+cites refers to the file as the audit read it.
+
+**What it confirms, each now checkable by opening the file.** The authority parameters reported as
+learned are initialised at exactly the values they were reported as converging to:
+`nn.Parameter(torch.tensor([authority_dampening, 1.0]))`, with the default at 0.5. The guideline
+bank is one randomly initialised parameter matrix, `nn.Parameter(torch.randn(20, hidden_dim))`, with
+no corpus and no retrieval step. The training objective is
+`CONTRADICTION_WEIGHT * c_loss + RULE_TYPE_WEIGHT * r_loss`, and the harm head's output appears in
+neither term. The weak labeller's confidence field is multiplied into the per-example loss,
+`(contradiction_loss_fn(...) * confidences).mean()`, which is the label-conditioned reweighting
+Section 3.5 describes.
+
+**No finding changed.** Every architectural claim in Chapter 4 is confirmed by the recovered source.
+This entry records a gap closing rather than a number moving, which is the rarer kind and worth the
+same treatment.
+
+**Verified before publishing:** no note text, no admission or subject identifier, no credential, no
+absolute path carrying a username. The only path in the file is a Colab mount.

@@ -384,8 +384,12 @@ whose subject also appears in an evaluation split leaves 1,388, which is then sp
 1,183-row training pool reported in Table~\ref{tab:m-strata} and used to fit the detector, and a
 205-row validation pool used for nothing but monitoring the training loss.
 
-For the replication in Section~\ref{sec:m-control-rq2} the original prompt was recovered verbatim
-from the committed prompt table rather than rewritten, and reused unchanged across models. Decoding
+For the replication in Section~\ref{sec:m-control-rq2} the evaluation baseline's prompt was
+recovered verbatim from the committed prompt table rather than rewritten, and reused unchanged
+across models. It is not the deployed weak labeller's prompt, which the table does not contain; what
+the replication reproduces is therefore the baseline configuration, not the configuration that
+produced the training labels, and Section~\ref{sec:res-rq2} reports the $165$ labels that separate
+them. Decoding
 is greedy at temperature zero for the local models, so a model's label for a row is deterministic
 within a model. That guarantee does not extend to the hosted frontier model reported alongside them
 in Chapter~\ref{ch:results}: it does not accept a temperature parameter, its artifacts record the
@@ -646,7 +650,8 @@ retrospectively.
 
 Second, replication across labellers. If over-calling is a property of one model it will not
 survive a change of model; if it is a property of the task presentation it will. The replication
-reruns the recovered prompt unchanged over the full pool with three local instruction-tuned models,
+reruns that recovered baseline prompt unchanged over the full pool with three local
+instruction-tuned models,
 \texttt{llama3:8b}, \texttt{granite3.3:8b} and \texttt{qwen3:8b}, served through Ollama at
 temperature zero, with unparseable generations kept in their own category. Third, a domain control:
 if the magnitude of over-calling generalises, a comparable labelling task on public non-clinical
@@ -1017,10 +1022,17 @@ from an earlier version of this section, which is why the count moved from one t
 The data use agreement is the instrument both are judged against; guidance issued during this
 project's lifetime treats transmission of credentialed data to a general-purpose hosted API as
 prohibited under it, specifying zero-retention alternatives that were not in force for these calls.
-The GPT-4o comparison has since been re-run through a channel that guidance treats differently, and
-every result this thesis reports from that comparison is now the replacement. The original rows have
-been withdrawn from every table and figure, as has the Llama 3 calibration figure from the second
-channel.
+The two departures are not in the same position, and the difference is the whole of what this
+paragraph has to say. The GPT-4o comparison has since been re-run through a channel that guidance
+treats differently, and every result this thesis reports from that comparison is now the
+replacement: the original rows are withdrawn from every table and figure. The Llama 3 run is not
+withdrawn, and cannot be. Its per-row outputs are the weak labels the detector was trained on, so
+the $1425$ of $1679$ reported in Table~\ref{tab:overcalling}, the $261$ of $299$ that
+Chapter~\ref{ch:results} reports as this thesis's weak-supervision finding, and every ACCORD number
+in this document are downstream of it. Withdrawing reliance on that run means withdrawing the
+detector. An earlier version of this section claimed both had been withdrawn; that claim was made
+while the second withdrawal was briefly in force, it was reverted within the day on the evidence
+above, and the sentence outlived the revert.
 
 That reverses a position an earlier draft of this section took, and the reversal should be visible
 rather than silent. The earlier draft retained both sets of rows side by side and argued that
@@ -1033,9 +1045,17 @@ channel was used. The first is now withdrawn; the second is this paragraph.
 
 What replaced what is stated so the withdrawal can be checked. The GPT-4o rows are replaced by the
 Claude Sonnet 5 runs of Section~\ref{sec:r-frontier}, which are a different model and therefore a
-new measurement rather than a reproduction. The Llama 3 calibration figure is replaced by the local
-run of the same model on the same pool reported in Table~\ref{tab:overcalling}, which is a genuine
-reproduction. No further transmission through either original channel occurred or is planned.
+new measurement rather than a reproduction. Nothing replaces the Llama 3 run. The local run of the
+same model reported in Table~\ref{tab:overcalling} is a different configuration, $165$ labels apart
+on the same pool, and was briefly mistaken for a reproduction of it. No further transmission through
+either original channel occurred or is planned.
+
+The asymmetry should be uncomfortable and is stated rather than smoothed. One breached run's output
+is withdrawn because the thesis can do without it; another's is retained because the thesis cannot.
+That is not a principled distinction about the agreement, which does not scale with how much a
+result is needed. It is a statement about what is within the author's power to remedy before deposit,
+and the remedy that would close it, retraining the detector on labels generated through a channel
+this project can account for, is named in the obligations on any continuation below.
 
 \paragraph{The annotator, and credentialed access.} The gold standard was produced by one
 board-certified pharmacist, annotating in the author's presence and on the author's machine. No
@@ -1092,12 +1112,20 @@ performance would mean if the system were deployed regardless. Separately, the d
 obliges contributing analysis code back to the community rather than keeping it private. The
 analysis code is released in the repository the verified-fact register and the appendices point to,
 and that release is not complete. Two gaps are named rather than left for a reader to discover. The
-script that made the original GPT-4o calls is not in it, for the reason given above. Nor is the
-detector's model and training source: the architectural findings of
-Section~\ref{sec:res-rq3} rest on reading that code, the result files it produced are committed and
-the figures rebuild from them, but a reader cannot at present open the module and check the
-readings for themselves. Every other result in this thesis has a committed script, and
-Appendix~\ref{app:provenance} names the file each group of quantities was read from. Recovering and
-releasing the detector source is the first obligation on any continuation of this work, because an
-architectural claim established by code inspection is worth what the code's availability makes it
-worth.
+script that made the original GPT-4o calls is not in it, for the reason given above. Nor is
+anything that would let the deployed weak-labelling run be repeated: its script is absent and its
+prompt is not among the four configurations the committed prompt table holds. That run produced the
+$1425$ weak labels the detector was trained on and the $261$ of $299$ marginal
+Chapter~\ref{ch:results} reports as this thesis's weak-supervision finding, so those two numbers
+cannot be regenerated by anyone, including the author. They are reported as measured and are not
+reproducible, and on this thesis's own standard that is a weaker footing than any other number in
+the document. The detector's model and training source was the second gap, and it is now closed. An
+earlier version of this section recorded that the module was missing and that the architectural
+findings of Section~\ref{sec:res-rq3} therefore rested on reading code a reader could not open. It
+has since been recovered and committed unmodified. Each of those findings can now be checked
+directly: the authority parameters reported as learned are initialised at exactly the values they
+were reported as converging to, the guideline bank is a single randomly initialised parameter matrix
+with no corpus and no retrieval step, the harm head appears in neither term of the training
+objective, and the weak labeller's confidence field is multiplied into the per-example loss, which
+makes it a label-conditioned reweighting rather than a confidence weighting. Those were the claims;
+the file is the evidence, and it no longer has to be taken on the author's word.

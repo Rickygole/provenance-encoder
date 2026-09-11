@@ -44,8 +44,11 @@ import json
 import math
 import os
 
-IN = "results/accord/differential/frontier_anthropic_metrics.json"
-OUT = "results/accord/differential/frontier_label_noise.json"
+# Model tag mirrors frontier_metrics.py, so a second model gets its own sweep
+# and its own artifact rather than overwriting the first.
+TAG = os.environ.get("ACCORD_FRONTIER_MODEL_TAG", "")
+IN = f"results/accord/differential/frontier_anthropic_metrics{TAG}.json"
+OUT = f"results/accord/differential/frontier_label_noise{TAG}.json"
 BASIS = "G_253"
 Z = 1.959963985                    # two-sided 95 percent normal quantile
 GRID = (0.0, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50)
