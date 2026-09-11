@@ -3122,3 +3122,47 @@ prohibited channel is a different act from recording that the channel was used.
 between them. Two clusters support the claim that they differ. Whether they support a claim about a
 trend with capability is a weaker question, and filling that gap needs a mid-capability run through
 the compliant channel rather than an argument.
+
+---
+
+## C66. The withdrawal of the deployed weak labeller's row was wrong, and reverted
+
+**What was done.** C65 withdrew three runs. Two were GPT-4o. The third was recorded as a Llama 3
+calibration figure of 21.1473, withdrawn on the stated ground that it was "genuinely redundant"
+because the same model had been re-run locally and the compliant value was 23.5959 on the same pool.
+
+**That ground was false, and the check that falsifies it is a value_counts.** The weak supervision
+file the detector trained on carries 1425 contradictions of 1679 rows, and the 299-row audit carries
+261. Those are the withdrawn run's numbers, not the replication's. The replication produced 1590 and
+285. The two runs are 165 labels apart on the pool.
+
+**Why they differ, which the thesis also had wrong.** The table note explained the gap as a
+confidence threshold. Section 3.5 states that the threshold lies beneath the field's minimum and
+removes nothing, so it cannot move a positive rate by 165 rows. The difference is the prompt. The
+replication reran the evaluation baseline's template verbatim, a bare pair with a one-word answer
+demanded; the deployed labeller was asked for a judgement plus a confidence value and was given the
+conflict type before being asked whether a conflict was present. Two configurations of one model.
+
+**What that makes the withdrawn row.** Not a redundant calibration figure. The only published
+measurement of the configuration that produced the detector's training supervision, and therefore
+of the run behind the 261-of-299 marginal that Chapter 4 reports as this thesis's weak-supervision
+finding. Deleting it while every ACCORD number in the document still rests on that run's per-row
+outputs would have removed the visible summary of a dependency without removing the dependency,
+which is the shape of failure this thesis exists to name.
+
+**Reverted.** The row is restored under its correct name, the deployed weak labeller rather than an
+originally deployed calibration figure, and the note now states the prompt difference and the 165
+labels instead of the threshold explanation. The GPT-4o withdrawal is untouched by this entry and
+stands.
+
+**How it happened.** The redundancy claim came from matching a model name and a pool size across two
+rows and not checking the numbers underneath them. The arithmetic that settles it takes one line and
+was not run until an adversarial review asked for it. The lesson is the project's own: a row that
+looks like a duplicate of another row is a hypothesis about provenance, and provenance is the thing
+this thesis says must be checked rather than assumed.
+
+**Open, and not resolvable from the record.** Section 3.5 says the production labeller was run
+locally. Section 3.9 says the Hugging Face Inference API run covered the full candidate pool and is
+the originally deployed figure. Both cannot be true of the same run. Which channel produced the
+1425 labels determines whether the detector's training supervision came through a compliant route,
+and it is a question for the author rather than the artifacts.
