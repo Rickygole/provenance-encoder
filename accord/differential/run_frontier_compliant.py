@@ -25,7 +25,7 @@ of them:
                         that, prompts may be retained and human-reviewed,
                         which is the disclosure Clause 3 forbids.
 
-It also closes a Clause 9 gap: the original run's code was never in this
+It also closes a Clause 8 gap (code contribution; Clause 9 is termination): the original run's code was never in this
 repository, which made those two tables the only results in the thesis with no
 committed code path.
 

@@ -232,7 +232,7 @@ on, so that measurements taken on different sets are not read at a glance as
 readings of one quantity.
 
 \begin{table}[H]
-\caption[Over-calling ratios by labeller and evaluation set]{Every over-calling ratio reported in this chapter, by labeller, evaluation set, positive rate, and the count the rate is measured on.}
+\caption[Over-calling ratios by labeller and evaluation set]{Every over-calling ratio this chapter reports on the candidate pool and on $G_{253}$, by labeller, evaluation set, positive rate, and the count the rate is measured on.}
 \label{tab:overcalling}
 \centering
 \small
@@ -431,12 +431,18 @@ with a note attached.}
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.98\linewidth]{figures/fig-capability.pdf}
-\caption[Over-calling against labeller capability]{Over-calling ratio on
-$G_{299}$ for the five labellers the register carries a gold-set ratio for, with
-Wilson intervals. The solid rule is the pharmacist's $1.0$; the dashed rule is
-the public-text sweep's maximum of $3.5000$, a measured ceiling rather than a
-tolerance. The two groups are separated on the axis because the claim is that
-they are two groups.}
+\caption[Over-calling against labeller capability]{Upper panel: the over-calling
+ratio on $G_{299}$ for all seven labellers measured under the zero-shot prompt,
+ordered, with Wilson intervals. One denominator and one prompt condition
+throughout, so the rows are comparable. The solid rule is the pharmacist's $1.0$;
+the dashed rule is the public-text sweep's maximum of $3.5000$, a measured ceiling
+rather than a tolerance. Lower panel: the same rows read in pairs. Each bar is the
+factor by which the ratio moves when one thing changes and everything else is held
+fixed, so the three bar lengths are directly comparable and their ordering is the
+finding. Scaling a model within one family and one channel moves it most, changing
+the prompt next, and serving the same model remotely least, at about a tenth of
+what scaling costs. The channel bar is what closes the confound that
+Table~\ref{tab:capability}'s second row was run to measure.}
 \label{fig:capability}
 \end{figure}
 
@@ -502,6 +508,9 @@ the ordering survives holding vendor and family constant:
 \begin{table}[H]
 \centering
 \small
+\caption[Over-calling by labeller, one denominator and one prompt]{Over-calling
+ratio on the $299$ labelled pairs, zero-shot, for every labeller measured on that
+set and that prompt.}
 \begin{tabular}{llr}
 \toprule
 \textbf{Labeller} & \textbf{Channel} & \textbf{$G_{299}$ zero-shot ratio} \\
@@ -529,15 +538,21 @@ So the ordering is capability first, prompt second, channel third, and the middl
 term is the one worth stating plainly because it was not anticipated. A change of
 prompt moves one model further than a change of serving path moves it, and further
 than some steps in capability. The channel confound that an earlier version of this
-section could only disclose is worth about ten percent, which is small but is now a
-measurement rather than an acknowledgement. The attenuation claim in
+section could only disclose is worth about ten percent, which is small and is now
+measured. One qualification travels with that figure and is not optional: the local
+build is a four-bit quantisation and the hosted serving precision is not published,
+so the two members of that pair differ in numerical precision as well as in serving
+path. The $1.0962$ therefore bounds channel and precision together, and a small net
+factor is also consistent with two larger effects that cancel. What the run
+establishes is that whatever those two do jointly, they do not reach this decision
+rate by more than about a tenth. The attenuation claim in
 Chapters~\ref{ch:intro} and~\ref{ch:discussion} is scoped to a fixed prompt for the
 second of these reasons, not the third.
 
 \subsection{What the false positives land on}
 \label{sec:r-ambiguity}
 
-The $39$ false positives are not distributed evenly across the pairs the
+The false positives are not distributed evenly across the pairs the
 pharmacist declined to call contradictions. Of the $46$ pairs marked ambiguous,
 $16$ are flagged, a rate of $0.3478$; of the $241$ clear negatives, $39$ are
 flagged, a rate of $0.1618$. The odds ratio is $2.76$ with a one-sided Fisher
@@ -571,18 +586,24 @@ Section~\ref{sec:r-multiplicity} from sixteen to twenty, and at $0.05/20 = 0.002
 the only gradient test that clears correction is Haiku's few-shot one. Sonnet's
 two, including the $0.0046$ this section leads with, do not.
 
-Two prompts of one model, the same direction, measured on $287$ negatives rather
-than 12 positives. The reading this supports is correlational: the pairs the pharmacist declined to
-call either way are the pairs this labeller is most likely to flag. That is
-consistent with the ambiguous category tracking evidential difficulty, which is
-what Section~\ref{sec:m-gold} assumed of it without testing. It does not
-establish it. A gradient measured on one labeller's flags cannot separate
-``these pairs are genuinely harder'' from ``the labeller and the annotator
-respond to the same surface cues'', and that is the construct distinction this
-thesis cites \citet{jacobs2021measurement} for everywhere else. It also means
-$G_{253}$, which exists to keep ambiguity out of the primary comparison, removes
-the rows a more sensitive labeller is most likely to flag, and so charges that
-labeller less for its hardest errors than $G_{299}$ does.
+Six tests across three labellers, measured on $287$ negatives rather than on 12
+positives. The reading this supports is correlational and is about labellers: the
+pairs the pharmacist declined to call either way are the pairs the more capable
+labellers are most likely to flag, and the least capable one does not distinguish
+them. It does not establish that those pairs are intrinsically harder. A gradient
+measured on one labeller's flags cannot separate a property of the items from a
+property of the labeller, and the fact that the gradient weakens as the labeller
+weakens is evidence against the first reading rather than for it.
+
+One confound is not controlled and bounds all six tests in the same direction. An
+odds ratio is compressed toward $1$ as a labeller's marginal saturates, and these
+labellers do not share a marginal: the weakest flags roughly two fifths of
+$G_{299}$ where the strongest flags about a sixth. So part of the monotone fade is
+arithmetic rather than behavioural, and this thesis cannot say how much without
+recomputing the gradient at matched predicted-positive rates, which was not done.
+That is the degeneracy precondition this thesis offers as a contribution, applied to
+this thesis's own analysis, and it is named here because the precondition is one of
+the checks this work offers to others.
 
 \subsection{What this does not establish}
 

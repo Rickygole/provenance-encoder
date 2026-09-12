@@ -188,6 +188,74 @@ def check_text_on_ground():
     return bad
 
 
+# =============================================================================
+# Orphan check. Every built figure must either be included by a .tex in this
+# thesis or be named below with the reason it was retired.
+#
+# Seven PDFs sat in this directory referenced by nothing. Two of them,
+# fig-rule-precision and fig-prevalence, had been in a chapter and were removed
+# by earlier reviews; the other five were built and never used at all. None of
+# that was detectable, because nothing checked. A stale PDF beside fourteen live
+# ones is a thing a reader or a co-author can pick up by mistake, and a figure
+# that carries no claim the text depends on has no reason to exist.
+#
+# They are kept rather than deleted because their generators are committed and
+# the figures are evidence of work that was done and reconsidered. What was
+# missing was the record of WHY each one is not in the thesis. That record is
+# here, and a new orphan now fails this gate instead of accumulating quietly.
+RETIRED = {
+    "fig-rule-precision":
+        "Was in the results chapter. Removed when the figure set was restructured "
+        "on committee review: it plotted per-rule precision as bars with no "
+        "sampling spread on counts small enough that the spread dominates, and "
+        "the table it sat beside already gave the cells.",
+    "fig-prevalence":
+        "Was in an early draft of the results chapter. Superseded by "
+        "fig-prevalence-response, which plots the same quantity as a response "
+        "curve over the threshold sweep instead of at one operating point.",
+    "fig-asymmetry":
+        "Never reached a chapter. The asymmetry it drew, nursing-side against "
+        "discharge-side flag rates, is reported as two numbers in the text; a "
+        "two-point figure was never worth a float.",
+    "fig-funnel":
+        "Never reached a chapter. Superseded by fig-cohort-flow, which carries "
+        "the same attrition with the stage labels the text refers to.",
+    "fig-gap-trajectory":
+        "Never reached a chapter. Superseded by fig-scaling and fig-power, which "
+        "split the trajectory claim from the resolution claim; drawing both on "
+        "one axis conflated a measured gap with a detectability threshold.",
+    "fig-spec-curve":
+        "Never reached a chapter. The specificity curve is a monotone "
+        "re-expression of fig-threshold-surface at a fixed prevalence and adds "
+        "no claim the surface does not already carry.",
+    "fig-tracking":
+        "Never reached a chapter. It tracked a quantity across correction "
+        "entries, which is the correction record's job and reads as a progress "
+        "chart rather than as evidence.",
+}
+
+
+def check_orphans():
+    """Every built PDF is either included by a .tex or named in RETIRED."""
+    import re
+    thesis = pathlib.Path(__file__).resolve().parents[2]
+    used = set()
+    for tex in thesis.glob("*.tex"):
+        for m in re.finditer(
+                r"includegraphics\[[^\]]*\]\{figures/([^}]+?)(?:\.pdf)?\}",
+                tex.read_text()):
+            used.add(m.group(1))
+    built = {f.stem for f in (thesis / "figures").glob("fig-*.pdf")}
+    problems = []
+    for name in sorted(built - used - set(RETIRED)):
+        problems.append((name, "built, included by no .tex, and not in RETIRED"))
+    for name in sorted(set(RETIRED) & used):
+        problems.append((name, "listed as RETIRED but still included by a .tex"))
+    for name in sorted(set(RETIRED) - built):
+        problems.append((name, "listed as RETIRED but its PDF is absent"))
+    return problems, len(built), len(used), len(RETIRED)
+
+
 def main():
     failures = []
     for name, fn in (("printed measure", check_measure),
@@ -199,6 +267,17 @@ def main():
         for what, why in found:
             print(f"    {what}: {why}")
         failures.extend(found)
+
+    orphans, n_built, n_used, n_retired = check_orphans()
+    if orphans:
+        print(f"FAIL: figure orphans ({n_built} built, {n_used} used, "
+              f"{n_retired} retired)")
+        for name, why in orphans:
+            print(f"    {name}: {why}")
+        failures.extend(orphans)
+    else:
+        print(f"pass: no figure orphans ({n_used} live, {n_retired} retired "
+              f"with a recorded reason)")
 
     advisory = check_text_on_ground()
     print(f"{'note' if advisory else 'pass'}: text on ground (advisory, palette "

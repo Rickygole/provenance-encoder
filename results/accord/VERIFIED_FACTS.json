@@ -5388,12 +5388,12 @@
   "value": "Student t-test, not Welch"
  },
  "stats.control_cost_reconciled.total_minutes": {
-  "artifact": "derived: 555 (convergence sweep) + 34.9 (single-budget public-task run set, a separate set rather than a subset) + 612.3 (clinical task) + 0.7 + 13.5",
-  "value": 1216.4
+  "artifact": "derived: conv.total_minutes (555, the C44 convergence sweep, which ALREADY contains the 3-epoch AG News budget cell) + 612.3 (C37 clinical task) + 0.7 + 13.5 (C52 signed re-runs). The 34.9-minute, 12-run AG News entry in the cost log is NOT added: the sweep holds 48 runs at history lengths 3, 6, 12 and 24 epochs, so the 12 runs at 3 epochs are that sweep's 3-epoch cell, not an independent set. A previous version of this key added it and reported 1216.4 over 79 runs, against the project's own consistency audit; see C73.",
+  "value": 1181.5
  },
  "stats.control_cost_reconciled.total_runs": {
-  "artifact": "derived: 48 + 12 + 17 + 1 + 1",
-  "value": 79
+  "artifact": "derived: 48 (C44 convergence sweep) + 17 (C37) + 1 + 1 (C52). The 12 AG News runs are inside the 48; see total_minutes.",
+  "value": 67
  },
  "stats.control_cost_reconciled.two_sweeps_minutes": {
   "artifact": "derived: conv.total_minutes (555, reconciled AG News episode) + cost.c37_clinical_task_pubmedbert_vs_scratch.minutes (612.3)",
@@ -8498,5 +8498,13 @@
  "withdrawn.transmission_total_prompts_c71": {
   "artifact": "withdrawn: the total the first version of the transmission ledger reported, from a filename pattern that excluded replicated runs. Quoted in section 3.9 only to say what the wrong total was. Kept under the withdrawn.* prefix because every generating script rewrites its own prefix by deleting it wholesale, which silently removed this key when the ledger next ran. See CORRECTIONS.md C71.",
   "value": 1800
+ },
+ "withdrawn.control_cost_total_minutes_c73": {
+  "artifact": "withdrawn: the double-counted total, 555 + 34.9 + 612.3 + 0.7 + 13.5, which added the convergence sweep's own 3-epoch cell a second time. Quoted only to say what was withdrawn. See C73.",
+  "value": 1216.4
+ },
+ "withdrawn.control_cost_total_runs_c73": {
+  "artifact": "withdrawn: 48 + 12 + 17 + 1 + 1, which counted the convergence sweep's 3-epoch cell twice. See C73.",
+  "value": 79
  }
 }

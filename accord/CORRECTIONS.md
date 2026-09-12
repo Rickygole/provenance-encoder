@@ -3464,3 +3464,77 @@ mechanism.
 **Verified before publishing:** both artifacts carry pair identifiers and integer
 labels only. No note text, no admission or subject identifier, and no exception body
 echoed.
+
+## C73. The control cost total double-counted the convergence sweep's own budget cell, against this project's own audit
+
+**What was printed.** Chapter 5's cost table and two sentences in Chapter 6 reported the reconciled
+control compute as 1216.4 GPU minutes over 79 runs, with the arithmetic shown as
+555 + 34.9 + 612.3 + 0.7 + 13.5 and the run count as 48 + 12 + 17 + 1 + 1.
+
+**Why that is wrong.** The 34.9-minute, 12-run entry in the cost log is labelled, in the log itself,
+"C44 AG News positive control (3 epochs)". The 555-minute, 48-run entry is the C44 convergence sweep.
+That sweep's committed results hold 48 runs at history lengths of 3, 6, 12 and 24 epochs, which is
+four budget cells of twelve runs each. So the 12 runs at 3 epochs are that sweep's own 3-epoch cell,
+already inside the 555 minutes and the 48 runs, and adding them counts one cell of the sweep twice.
+The correct figures are 1181.5 minutes over 67 runs.
+
+**The part that matters more than the arithmetic.** This project's own consistency audit had already
+ruled on exactly this question and recorded the answer: that the 34.9-minute entry is a three-epoch
+subset of the sweep and the reconciled total is 1181.5 over 67. The register key was then changed to
+the larger figure, with the reason recorded in the key as "a separate set rather than a subset", and
+the audit that ruled the other way was left on disk unretracted. Two determinations of one question
+sat in the repository at once and the thesis printed the one that made the number bigger.
+
+**What that costs, stated plainly.** "Every number is generated, never typed" was satisfied
+throughout. A committed script computed 1216.4 and the register carried its derivation. The claim is
+still wrong, because the author controls which entries the generator sums, and no gate in this
+project checks a generator's set membership against a prior ruling on that set. The same shape
+appears in the multiplicity family, where the count is computed from an enumerated list whose
+boundary is also chosen. Generation removes transcription error and does not remove judgement error,
+and this entry is the clearest instance of that distinction in the project.
+
+**Fixed.** The register now carries 1181.5 and 67 with the subset reasoning in the key, the withdrawn
+pair is kept under `withdrawn.*` because Chapter 5 quotes the superseded figure to say what it was,
+and the three prose sites read the corrected total.
+
+## C74. Six defects in the prose written over the last two days, found by adversarial review
+
+Reported together because they share one cause: material was added faster than the apparatus that
+checks it, and every one of them is in text written after the last full review pass.
+
+**The step that removes the vendor was quoted as the step that removes the channel.** Chapters 1, 5
+and 6 all cited 2.2619 as the within-family step holding family and maker fixed. That figure is the
+local 8B against the hosted 70B, so it varies scale AND serving path together. C72 measured the
+clean scale-only step at 2.0635 and the channel-only step at 1.0962, and only Chapter 4 carried them.
+Three chapters quoted the confounded number as the clean one. Corrected in all three.
+
+**Two new tables had no caption.** `tab:capability` and `tab:m-transmissions` carried a label and a
+note and no caption, which the template requires and which is what puts a table in the List of
+Tables. One of the two is the compliance disclosure. Both now have one.
+
+**The ambiguity subsection contradicted itself thirteen lines apart.** One paragraph said the
+capability fade "cuts against" the evidential-difficulty reading; a later paragraph, stale text from
+the pre-replication draft, said the same evidence was "consistent with" it and opened "Two prompts of
+one model" immediately after four tests on two further labellers had been reported. The stale
+paragraph is replaced.
+
+**The quantisation confound was in the correction record and not in the chapter.** C72 states that
+the local build is a four-bit quantisation and that Bedrock does not publish its serving precision,
+so the local-to-hosted pair varies precision as well as channel and 1.0962 bounds the two together.
+Chapter 4 described that step as "changing only the serving path" and Chapter 5 repeated the framing.
+Both now carry the qualification, and Chapter 4 states that a small net factor is also consistent
+with two larger effects that cancel.
+
+**The saturation confound in the gradient was not applied.** The ambiguity odds ratio falls
+monotonically as the labeller weakens, and the weaker labellers also flag far more of the set. An
+odds ratio compresses toward 1 as a marginal saturates, so part of the fade is arithmetic. This is
+the degeneracy precondition the thesis offers as one of its own transferable checks, unapplied to the
+thesis's own newest analysis. The section now names it, says the gradient was not recomputed at
+matched predicted-positive rates, and scopes the claim accordingly.
+
+**Three counting errors and a completeness claim that had become false.** "Five runs, not one" was
+followed by "lagged them by three runs". The opening sentence of the ambiguity subsection attributed
+39 false positives to a set larger than the 241 that define them. And `tab:overcalling` asserted
+three times, in its text, its caption and its note, that it carries every over-calling ratio in the
+chapter, while `tab:capability` reports three it does not. All four are corrected, and the
+completeness claim is now scoped to the two evaluation sets it actually covers.

@@ -58,105 +58,122 @@ def fact(key):
 # =============================================================================
 # Fig 12 -- fig-capability
 # =============================================================================
-# Every point is on G_299, the gold set, and the register carries a gold-set
-# ratio for all five labellers. An earlier version mixed candidate-pool ratios
-# for the 8B models with gold-set ratios for the frontier ones and carried a
-# two-marker legend to excuse it; the mixing was never necessary. It also
-# plotted GPT-4o at a literal 7.0 that traces to no artifact, in a module whose
-# docstring says nothing here is a literal. GPT-4o's committed cells are on
-# G_253 only, so it is named in the caption and not drawn on this axis.
-GROUPS = [
-    ("eight billion parameters", [
-        ("llama3:8b", "overcall.llama3_8b.gold", MAGENTA),
-        ("granite3.3:8b", "overcall.granite3_3_8b.gold", TANGERINE),
-        ("qwen3:8b", "overcall.qwen3_8b.gold", CYAN)]),
-    ("frontier", [
-        ("Claude Sonnet 5, zero-shot", None, EMERALD),
-        ("Claude Sonnet 5, few-shot", None, AZURE)]),
+# Every point is on G_299 and on the zero-shot prompt, so the rows are
+# comparable. Two earlier versions of this figure were wrong in ways worth
+# recording. The first mixed candidate-pool ratios for the 8B models with
+# gold-set ratios for the frontier ones and carried a two-marker legend to
+# excuse it, and plotted GPT-4o at a literal 7.0 that traces to no artifact. The
+# second was correct but stale: it drew three local 8B models and two Sonnet
+# conditions and so showed neither Haiku nor either Bedrock arm, which meant the
+# figure carrying the capability claim contradicted the table beside it.
+#
+# Upper panel is the ladder. Lower panel is the decomposition, which is the part
+# a reader cannot get from the ladder: three factors move this quantity and the
+# ordering among them is the finding. Two panels under one caption was a defect
+# in another figure in this set, where the panels shared nothing but the caption.
+# Here the lower panel is the upper one read in pairs, which is the same claim at
+# two levels rather than two claims.
+LADDER = [
+    ("llama3:8b", "local", "overcall.llama3_8b.gold", MAGENTA),
+    ("meta.llama3-8b-instruct", "Bedrock",
+     "frontier_bedrock_metallama38binstructv1.zero_shot.G_299", TANGERINE),
+    ("granite3.3:8b", "local", "overcall.granite3_3_8b.gold", CYAN),
+    ("qwen3:8b", "local", "overcall.qwen3_8b.gold", CYAN),
+    ("meta.llama3-70b-instruct", "Bedrock",
+     "frontier_bedrock_metallama370binstructv1.zero_shot.G_299", TANGERINE),
+    ("Claude Haiku 4.5", "Anthropic",
+     "frontier_anthropic_claudehaiku4520251001.zero_shot.G_299", AZURE),
+    ("Claude Sonnet 5", "Anthropic", "frontier.zero_shot.G_299", EMERALD),
 ]
 PUBLIC_MAX = fact("publicsweep.results.llama3:8b.A_bare.0.02.over_call_ratio")
 BASE = fact("gold.base_rate_299")
 N299 = 299
 
 rows = []
-for gname, members in GROUPS:
-    block = []
-    for label, key, hue in members:
-        if key:
-            rate = fact(f"{key}.positive_rate")
-            ratio = fact(f"{key}.ratio")
-        else:
-            s = "zero_shot" if "zero" in label else "few_shot"
-            c = MET["by_strategy"][s]["G_299"]
-            rate, ratio = c["flag_rate"], c["over_calling_ratio"]
-        k = int(round(rate * N299))
-        lo, hi = wilson_ci(k, N299)
-        block.append((label, ratio, lo / BASE, hi / BASE, hue))
-    rows.append((gname, block))
+for label, chan, key, hue in LADDER:
+    # The two key shapes differ: the local sweep registers positive_rate and
+    # ratio, the frontier metrics register flag_rate and over_calling_ratio.
+    if key.startswith("overcall."):
+        rate, ratio = fact(f"{key}.positive_rate"), fact(f"{key}.ratio")
+    else:
+        rate, ratio = fact(f"{key}.flag_rate"), fact(f"{key}.over_calling_ratio")
+    k = int(round(rate * N299))
+    lo, hi = wilson_ci(k, N299)
+    rows.append((label, chan, ratio, lo / BASE, hi / BASE, hue))
+rows.sort(key=lambda r: -r[2])
 
-fig, ax = plt.subplots(figsize=(FIGW, 3.6))
+fig, axes = plt.subplots(2, 1, figsize=(FIGW, 4.9),
+                         gridspec_kw={"height_ratios": [3.0, 1.0]})
 canvas(fig)
+ax, axd = axes
 frame(ax)
 
-# One y slot per labeller, plus a blank slot between the two groups so the
-# separation is structural rather than something the reader has to infer from
-# the values. Two blocks with a gap IS the two-cluster claim.
-ypos, ylab, y = [], [], 0
-for gi, (gname, block) in enumerate(rows):
-    if gi:
-        y -= 1
-    for label, ratio, lo, hi, hue in block:
-        ypos.append((y, label, ratio, lo, hi, hue, gname))
-        ylab.append(label)
-        y -= 1
-
-# The ceiling is a measured maximum, not a tolerance region. Drawn as a rule.
 ax.axvline(1.0, color=INK, lw=LW_REF, zorder=4)
 ax.axvline(PUBLIC_MAX, color=SLATE, lw=LW_REF, ls=REF_DASH, zorder=4)
 
-for yv, label, ratio, lo, hi, hue, gname in ypos:
-    # Stem from the pharmacist's 1.0 to the point, then the Wilson interval on
-    # top of it. The stem is the claim -- how far above calibrated the labeller
-    # sits -- and dropping it for the interval alone left a dot plot in which
-    # the distance being asserted was carried by the axis alone.
-    ax.plot([1.0, ratio], [yv, yv], color=hue.TINT, lw=LW_DATA, zorder=2,
+for i, (label, chan, ratio, lo, hi, hue) in enumerate(rows):
+    y = -i
+    ax.plot([1.0, ratio], [y, y], color=hue.TINT, lw=LW_DATA, zorder=2,
             solid_capstyle="butt")
-    ax.plot([lo, hi], [yv, yv], color=hue.CORE, lw=LW_INTERVAL, zorder=3,
+    ax.plot([lo, hi], [y, y], color=hue.CORE, lw=LW_INTERVAL, zorder=3,
             solid_capstyle="butt")
-    ax.plot([ratio], [yv], marker="o", ms=MS_DOT, color=hue.DEEP, zorder=5)
-    ax.text(hi + 0.55, yv, f"{ratio:.2f}", fontsize=T_SERIES,
+    ax.plot([ratio], [y], marker="o", ms=MS_DOT, color=hue.DEEP, zorder=5)
+    ax.text(hi + 0.55, y, f"{ratio:.2f}", fontsize=T_SERIES,
             color=hue.DEEP, ha="left", va="center", zorder=6)
 
-ax.set_yticks([r[0] for r in ypos])
-ax.set_yticklabels([r[1] for r in ypos], fontsize=T_TICK)
+ax.set_yticks([-i for i in range(len(rows))])
+ax.set_yticklabels([f"{r[0]}  ({r[1]})" for r in rows], fontsize=T_TICK)
 ax.set_xlim(0, 27.5)
-ax.set_ylim(min(r[0] for r in ypos) - 1.0, 0.9)
+ax.set_ylim(-len(rows) + 0.45, 0.75)
+ax.text(1.3, 0.35, "pharmacist, 1.0", color=INK,
+        ha="left", va="center", **cased(T_NOTE))
+ax.text(PUBLIC_MAX + 0.45, -len(rows) + 0.95,
+        f"public-text maximum, {PUBLIC_MAX:.2f}",
+        color=MUTE, ha="left", va="center", **cased(T_NOTE))
 ax.set_xlabel("Positive rate on $G_{299}$ divided by that set's confirmed rate",
               fontsize=T_AXIS)
 
-# group rules, in the margin, so the two blocks are named
-for gname, block in rows:
-    ys = [r[0] for r in ypos if r[6] == gname]
-    ax.text(-0.455, (max(ys) + min(ys)) / 2.0, gname,
-            transform=ax.get_yaxis_transform(), fontsize=T_NOTE, color=MUTE,
-            ha="center", va="center", rotation=90)
+# Lower panel. Each bar is a ratio of two rows above, with everything else held
+# fixed, so the bar lengths are directly comparable and the ordering is the
+# claim. Channel last because it is smallest, which is the result.
+FACTORS = [
+    ("capability, 8B to 70B", "family, maker, channel held",
+     "capability.within_channel_step_8b_to_70b", EMERALD),
+    ("prompt, zero to few-shot", "one model, everything else held",
+     "capability.prompt_effect_within_70b", AZURE),
+    ("channel, local to hosted", "family, maker, scale held",
+     "capability.channel_effect_at_8b_local_over_hosted", TANGERINE),
+]
+frame(axd)
+axd.axvline(1.0, color=INK, lw=LW_REF, zorder=4)
+for i, (label, held, key, hue) in enumerate(FACTORS):
+    v = fact(key)
+    y = -i
+    axd.plot([1.0, v], [y, y], color=hue.CORE, lw=LW_DATA * 2.1, zorder=3,
+             solid_capstyle="butt")
+    axd.plot([v], [y], marker="o", ms=MS_DOT, color=hue.DEEP, zorder=5)
+    axd.text(v + 0.045, y, f"{v:.4f}", fontsize=T_SERIES, color=hue.DEEP,
+             ha="left", va="center", zorder=6)
+    axd.text(2.42, y, held, fontsize=T_NOTE, color=MUTE,
+             ha="right", va="center", zorder=6)
+axd.set_yticks([-i for i in range(len(FACTORS))])
+axd.set_yticklabels([f[0] for f in FACTORS], fontsize=T_TICK)
+axd.set_xlim(0.94, 2.45)
+axd.set_ylim(-len(FACTORS) + 0.5, 0.6)
+axd.set_xlabel("Factor by which the ratio moves when one thing changes",
+               fontsize=T_AXIS)
 
-_ybot = min(r[0] for r in ypos)
-ax.text(1.3, 0.5, "pharmacist, 1.0", color=INK,
-        ha="left", va="center", **cased(T_NOTE))
-ax.text(PUBLIC_MAX + 0.45, _ybot - 0.55,
-        f"public-text maximum, {PUBLIC_MAX:.2f}",
-        color=MUTE, ha="left", va="center", **cased(T_NOTE))
 signature(fig, EMERALD_DEEP,
-          headline="Over-calling tracks the labeller, not the pool",
-          deck=("Same pool, same base rate, same prompt. Three 8B labellers "
-                "run four to seven times\nthe public-text maximum; two frontier "
-                "labellers run close to it. Bars are Wilson intervals."))
-fig.subplots_adjust(left=0.395, right=0.955, top=0.705, bottom=0.175)
+          headline="Capability orders the over-calling; the channel does not",
+          deck=("One denominator, one prompt. Upper: seven labellers against the "
+                "pharmacist's rate, bars are Wilson\nintervals. Lower: the same "
+                "rows read in pairs. Serving a model remotely costs a tenth of "
+                "what scaling it does."))
+fig.subplots_adjust(left=0.395, right=0.955, top=0.755, bottom=0.105, hspace=0.62)
 fig.savefig(HERE / "fig-capability.pdf")
 plt.close(fig)
-print(f"wrote fig-capability.pdf ({len(ypos)} labellers, one denominator, "
-      f"ceiling {PUBLIC_MAX:.2f})")
+print(f"wrote fig-capability.pdf ({len(rows)} labellers on one denominator, "
+      f"3 factors, ceiling {PUBLIC_MAX:.2f})")
 
 
 # =============================================================================
