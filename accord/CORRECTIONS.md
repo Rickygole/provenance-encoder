@@ -1401,19 +1401,28 @@ What the search *did* settle:
 
 | question | answer |
 |---|---|
-| Did the annotator receive verbatim note text? | **Yes.** 95 of 600 sentence cells in the delivered sheet still carry `[** **]` MIMIC de-identification surrogates, which cannot survive a derivation step. |
+| Did the annotator see verbatim note text? | **Yes.** 95 of 600 sentence cells in the sheet still carry `[** **]` MIMIC de-identification surrogates, which cannot survive a derivation step. |
 | Admission or subject identifiers? | **No.** Rows keyed `PAIR_0001` to `PAIR_0300`; neither column present. |
-| Could the recipient re-link a row? | **No.** The pair-to-admission crosswalk was never transferred. |
-| Delivery | Google Drive, downloaded 2026-03-27T19:22:36Z. |
-| Annotation window | 2026-03-27 to 2026-04-28, remote and unsupervised per the protocol. |
+| Could a recipient re-link a row? | **No.** The pair-to-admission crosswalk left the machine at no point. |
+| Sheet location | Google Drive; downloaded to this machine 2026-03-27T19:22:36Z. |
+| Annotation window | 2026-03-27 to 2026-04-28. |
+
+Three rows of this table were worded as though a transfer had been established, and it had not
+been. C87 restates them. "Receive" became "see", "the delivered sheet" became "the sheet",
+"the recipient" became "a recipient", and the phrase "remote and unsupervised per the protocol"
+is withdrawn entirely: it appears nowhere in the protocol and was this entry's own inference from
+the session and washout structure.
 
 **Author's decision, 2026-08-25:** credentialing was never verified in writing and cannot be
 confirmed now. The thesis discloses this rather than omitting it; see the paragraph "The
 annotator, and credentialed access" in the methodology chapter's compliance section.
 
 **One artifact remains unexamined:** the cover email in the Drive `email/` folder, and the Gmail
-sent record around 2026-03-27. Both connectors returned expired tokens. That is the one place a
-line establishing the annotator's access would naturally appear.
+sent record around 2026-03-27. The reason given here was that both connectors returned expired
+tokens. That was wrong, and C87 corrects it: the tokens are valid and the connectors are
+authenticated as a personal account, while the drive and the mail in question belong to the
+university account. The artifact is out of reach because the wrong mailbox was queried, which is a
+different fact with a different remedy.
 
 **Separately noted, not a compliance item:** the protocol specifies a nominal ten-week schedule
 (two passes of four weeks with a two-week washout between). The actual window was 32 days. That is
@@ -4078,3 +4087,64 @@ argument is available against hosted notebook compute, and there the section sto
 institutional data steward. The standard that convicts one channel is not run on the other. That is
 noted here because the deferral is honest but the asymmetry is real, and a reader is entitled to see
 it named by the author rather than to find it.
+
+---
+
+## C87. The annotation-transfer question, audited to artifacts and closed by the author
+
+The question C33 opened and C64 closed on recollection was reopened and audited a third time,
+this time against file metadata rather than against either the correction record or memory. Four
+things were established that neither earlier pass had.
+
+**The mail search had been failing for the wrong reason.** C33 recorded expired connector tokens.
+The tokens are valid. The connectors are authenticated as the author's personal account, and the
+drive and mailbox that would hold a cover email belong to the university account. A query of the
+personal account's sent mail for the whole window 2026-03-20 to 2026-05-05 returns four messages,
+three of them to the author's own second university address and one to a faculty member, none to a
+clinician and none carrying a spreadsheet. So nothing was sent from the personal account, and the
+university account is not reachable from the audited environment at all. C33's stated reason is
+corrected in place above.
+
+**The returned sheet was edited in a browser, not written by a script.** `annotation_pharmacist_complete.xlsx`
+presents as script-generated: creator `openpyxl`, created `2026-03-27T19:21:54Z`, no
+`lastModifiedBy`. That reading is wrong. Its `xl/workbook.xml` carries a
+`GoogleSheetsCustomDataVersion2` extension with a round-trip checksum, every one of its twelve
+archive members is stamped `2026-04-28 12:21`, and the file carries a drive item identifier as an
+extended attribute. Google preserves the original creation stamp and drops the modifying author,
+which is why the openpyxl fingerprint survived and misled the earlier read. The labels were
+entered into a drive-hosted spreadsheet through a web browser and saved back on the closing day of
+the annotation window.
+
+**The protocol does not say what C33 quoted it as saying.** A keyword scan finds no occurrence of
+remote, unsupervised, in person, send, email, download, delete, retain or return. C33's
+"remote and unsupervised per the protocol" was an inference presented as a quotation, and is
+withdrawn. What the protocol does contain is an instruction in the second person not to share
+"the CSV file or any pair contents", which reads as presupposing custody. The methodology chapter
+already records that the protocol documented neither the credentialing status nor the actual
+arrangement, and that this is a documentation failure; the misreading this wording invited is now
+a second reason to say so.
+
+**Author's determination, 2026-09-12:** the annotation was done on the author's computer, not the
+annotator's. That is consistent with every artifact above rather than in tension with any of them:
+a spreadsheet hosted on the author's own drive and edited through a browser on the author's own
+machine produces exactly the signature found. The browser round-trip establishes where the file
+lived, not who typed into it, and no send record, sharing grant or named recipient exists in
+anything reachable. The methodology chapter's account stands unchanged.
+
+**Two sentences changed as a result, neither of them that account.** First, the compliance
+paragraph said "nothing was retained afterwards" of an arrangement in which the sheet itself is
+retained and only the annotator retained nothing. In context the following sentence disambiguates
+it, but the bare clause invites an auditor who finds the file to read a contradiction where there
+is none, so it now reads "the annotator retained nothing afterwards." Second, the storage
+disclosure named a drive-held file joining note sentences to weak labels and did not name the
+annotation sheet, which lived on the same drive and carries the same restricted content. It is now
+named there, with the metadata that establishes it, on the same ground the rest of that paragraph
+is written: a fact one search of the artifacts would surface should be disclosed by the author
+rather than discovered against him.
+
+**Recorded against recurrence.** Three passes over one question produced two wrong answers, and
+both wrong answers came from reading a summary instead of an artifact. C33 inferred a transfer from
+a session schedule. C64 reversed it on recollection and cited nothing. The disposition that held is
+the one where a claim about what happened was checked against file metadata and then put to the one
+person who was there. The order matters: audit first, then ask, because the audit is what made the
+author's answer checkable instead of merely authoritative.
