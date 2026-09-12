@@ -104,3 +104,61 @@ partial runs are not spliced.
 CORRECTIONS.md C72, written after the numbers land, in the convention of C44. The
 experiment label and the correction number coincide this time; C67 and C68 did not,
 and C71 records why.
+
+---
+
+## OUTCOME, recorded 2026-09-12 after both conditions closed
+
+**Recorded in the convention of C44: the rule above was not edited, and this
+section was written after the numbers landed.**
+
+Both conditions ran once to completion, 300 pairs each, `0` unparseable draws and
+`0` pairs with no usable draw. Scored by the committed metrics script to
+`results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json`.
+
+### The decision quantity
+
+> G_299, zero-shot over-calling ratio: **21.6667**
+
+That is at or above 15.4167, and comfortably so: it sits inside the local 8B
+cluster of 15.4167 to 23.7500, close to its own local twin's 23.7500. **Outcome A.**
+Serving channel does not account for the step C68 reported. The within-family
+comparison is a capability effect, Chapter 4's capability claim and Chapter 5's
+reading stand as written, and the fourth future-work item of Chapter 6 is struck
+because the work is done.
+
+### The confound, now measured rather than acknowledged
+
+The point of this run is that it turns two factors that moved together into two
+that can be read separately. The step between tiers on one channel, and the step
+between channels at one tier:
+
+| comparison | what is held fixed | factor |
+| --- | --- | --- |
+| 8B to 70B, both on Bedrock | family, maker, channel | 2.0635 |
+| local 8B to hosted 8B | family, maker, scale | 1.0962 |
+| zero-shot to few-shot, 70B | everything but the prompt | 1.6800 |
+
+The channel is worth about ten percent. Capability is worth about a factor of two.
+So the confound C68 disclosed was real and small, and the 2.2619 figure it reported
+decomposes into almost all capability and a little channel. The honest ordering of
+the three factors that move this quantity is capability first, prompt second,
+channel third, and the prompt effect being larger than the channel effect is the
+part of this result that was not anticipated.
+
+### What this does not license
+
+The ladder is still five points and one of them is a different vendor's model
+family, so "capability" here remains a proxy ordered by parameter count within a
+family and by reputation across families, exactly as the C67 pre-registration fixed
+it. Nothing here measures a mechanism. And the 8B rows are a near-null on every
+other axis, Matthews correlation of $+0.0286$ zero-shot on G_299 with an interval
+containing zero, so this arm contributes a denominator to the capability question
+and no signal to the detection question.
+
+Quantisation was named above as the most likely mechanism if Outcome B or C landed.
+Neither did, so the question does not arise: whatever the serving precision
+difference between a 4-bit local build and Bedrock's undisclosed one, it does not
+reach the decision rate by more than about ten percent.
+
+Recorded as CORRECTIONS.md C72.

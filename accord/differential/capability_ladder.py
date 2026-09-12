@@ -40,6 +40,9 @@ HOSTED = [
     ("meta.llama3-70b-instruct-v1:0",
      "results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json",
      "AWS Bedrock"),
+    ("meta.llama3-8b-instruct-v1:0",
+     "results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json",
+     "AWS Bedrock"),
 ]
 SWEEP = "results/accord/prevalence_replication/sweep_results.json"
 LOCAL_8B = "llama3:8b"
@@ -65,6 +68,10 @@ def main():
     rows.sort(key=lambda r: -r["ratio"])
 
     b70 = next(r["ratio"] for r in rows if r["labeller"].startswith("meta.llama3-70b"))
+    # C72 added the hosted 8B, which turns two confounded factors into two
+    # separately measurable ones: the step between tiers ON one channel, and the
+    # step between channels AT one tier.
+    b8 = next(r["ratio"] for r in rows if r["labeller"].startswith("meta.llama3-8b"))
     # The across-family step C67 reported, for the comparison the within-family
     # step is read against: the lowest of the three local 8B labellers against
     # the highest of the hosted cluster. Recomputed from the same two registered
@@ -83,6 +90,8 @@ def main():
         },
         "ladder": rows,
         "within_family_step_8b_to_70b": local / b70,
+        "within_channel_step_8b_to_70b": b8 / b70,
+        "channel_effect_at_8b_local_over_hosted": local / b8,
         "across_family_step_c67": step_8b_min / haiku,
         "prompt_effect_within_70b": b70 / b70_fs,
         "llama70b_few_shot_ratio": b70_fs,
@@ -92,7 +101,8 @@ def main():
 
     for k in [k for k in facts if k.split(".")[0] == PREFIX]:
         del facts[k]
-    for key in ("within_family_step_8b_to_70b", "across_family_step_c67",
+    for key in ("within_family_step_8b_to_70b", "within_channel_step_8b_to_70b",
+                "channel_effect_at_8b_local_over_hosted", "across_family_step_c67",
                 "prompt_effect_within_70b", "llama70b_few_shot_ratio"):
         facts[f"{PREFIX}.{key}"] = collections.OrderedDict(
             [("artifact", OUT), ("value", out[key])])
@@ -108,6 +118,11 @@ def main():
         print(f"  {r['ratio']:>8.4f}  {r['labeller']:<34} {r['channel']}")
     print(f"\n  within-family 8B to 70B step : {out['within_family_step_8b_to_70b']:.4f}")
     print(f"  across-family step (C67)     : {out['across_family_step_c67']:.4f}")
+    print(f"  WITHIN-CHANNEL 8B to 70B step: {out['within_channel_step_8b_to_70b']:.4f}"
+          f"  (both on Bedrock)")
+    print(f"  CHANNEL effect at 8B         : "
+          f"{out['channel_effect_at_8b_local_over_hosted']:.4f}"
+          f"  (local {local:.4f} vs hosted {b8:.4f})")
     print(f"  prompt effect within the 70B : {out['prompt_effect_within_70b']:.4f}"
           f"  ({b70:.4f} zero-shot to {b70_fs:.4f} few-shot)")
 

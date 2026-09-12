@@ -3402,3 +3402,65 @@ result that took the multiplicity family to twenty in C70 and the headline gradi
 a hosted API. Section 3.9 disclosed one transmission when it was written and now has three to
 disclose, and the draft disclosure letter to the chair and data steward has the same gap. Both are
 being corrected; neither was correct at the time this entry was written.
+
+## C72. The channel confound is measured rather than disclosed, and it is worth about ten percent
+
+**What C68 left open.** C68 removed the model maker from the over-calling comparison
+and left the serving path in it. Its 8B arm was `llama3:8b` served locally and its
+70B arm `meta.llama3-70b-instruct-v1:0` served through Bedrock, so capability and
+channel moved together across the 2.2619 step it reported. Chapter 4 disclosed that
+in a table note and Chapter 6 listed closing it as future work. A reviewer could
+have answered the whole capability claim with one sentence: you changed two things.
+
+**Why it was worth a run rather than a caveat.** The mechanisms were plausible and
+specific. A hosted endpoint can differ from a local one in quantisation, in default
+sampling, in a server-side chat template and in an unseen system prompt. The local
+build is a 4-bit quantisation and Bedrock does not publish its serving precision.
+Any of those could have produced the step that had been attributed to scale.
+
+**Outcome A, pre-registered at `76b6d69` before any pair was sent.**
+`meta.llama3-8b-instruct-v1:0` on Bedrock returns a G_299 zero-shot over-calling
+ratio of 21.6667. The rule required at or above 15.4167 for Outcome A; the value
+lands inside the local 8B cluster of 15.4167 to 23.7500 and close to its own local
+twin at 23.7500. Channel does not account for the step.
+
+**The decomposition, which is what this run actually buys.** Two confounded factors
+become three separable ones, each read by holding the others fixed:
+
+| comparison | held fixed | factor |
+| --- | --- | --- |
+| 8B to 70B, both on Bedrock | family, maker, channel | 2.0635 |
+| local 8B to hosted 8B | family, maker, scale | 1.0962 |
+| zero-shot to few-shot, 70B | everything but the prompt | 1.6800 |
+
+Capability first, prompt second, channel third. The channel is worth about ten
+percent, so C68's 2.2619 was almost all capability and a little serving path, and
+the claim it supported stands as written rather than needing rescoping.
+
+**The part that was not anticipated, and is the reason this entry is not just a
+confirmation.** The prompt effect is larger than the channel effect, and larger than
+some steps in capability. A pre-registration written to ask whether the channel was
+confounding capability returned the answer no and, incidentally, that the thing
+which should have been controlled first was the prompt. Chapter 4 now orders the
+three factors explicitly instead of reporting capability with a prompt caveat
+attached, which is what it did before.
+
+**What moved in the thesis.** The capability table gains a fifth row and its note
+changes from disclosing a confound to explaining which pair of rows isolates which
+factor. The prompt-caveat paragraph is replaced by the three-way decomposition.
+Chapter 6's fourth future-work item is struck, because the work is done; the
+paragraph introducing that section now records that an item stood there and was
+removed by being executed, rather than silently returning to three.
+
+**What it does not license.** The 8B arm is a near-null on every axis but this one:
+Matthews correlation $+0.0286$ zero-shot on G_299, interval containing zero. It
+contributes a denominator to the capability question and no signal to the detection
+question. Capability remains a proxy, ordered by parameter count within a family and
+by reputation across families, exactly as C67 fixed it in advance. And quantisation
+was named beforehand as the mechanism to suspect if the outcome had been B or C;
+neither landed, so the question does not arise, and nothing here measures a
+mechanism.
+
+**Verified before publishing:** both artifacts carry pair identifiers and integer
+labels only. No note text, no admission or subject identifier, and no exception body
+echoed.

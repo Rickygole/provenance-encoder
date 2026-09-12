@@ -507,23 +507,32 @@ the ordering survives holding vendor and family constant:
 \textbf{Labeller} & \textbf{Channel} & \textbf{$G_{299}$ zero-shot ratio} \\
 \midrule
 \texttt{llama3:8b}                      & Local                & 23.7500 \\
+\texttt{meta.llama3-8b-instruct-v1:0}   & AWS Bedrock          & 21.6667 \\
 \texttt{meta.llama3-70b-instruct-v1:0}  & AWS Bedrock          & 10.5000 \\
 Claude Haiku 4.5                        & Hosted API           & 6.2500 \\
 Claude Sonnet 5                         & Hosted API           & 5.3333 \\
 \bottomrule
 \end{tabular}
-\apanote{One denominator throughout, the $299$ labelled pairs of Table~\ref{tab:denoms}, and one prompt condition, so the rows are comparable. The two Llama rows are the same model family, the same maker and the same instruction tuning at two parameter counts; the step between them is $2.2619$ against the $2.4667$ measured across families and vendors, which is why vendor is not carrying the earlier result. Channel is varied rather than controlled: the 8B arm is local and the 70B arm is hosted. A within-channel capability test would need both tiers on one channel. An 8B model of this family is available on the same hosted channel, so that test is cheap rather than infeasible; it was not run here because the pre-registered question had been answered and a new question needs its own committed rule. It is named in Section~\ref{sec:conc-future} as the cheapest open item in this thesis.}
+\apanote{One denominator throughout, the $299$ labelled pairs of Table~\ref{tab:denoms}, and one prompt condition, so the rows are comparable. The two Llama rows are the same model family, the same maker and the same instruction tuning at two parameter counts; the step between them is $2.2619$ against the $2.4667$ measured across families and vendors, which is why vendor is not carrying the earlier result. The second row closes the channel confound the first version of this table only disclosed. It is the same family and maker as the first row at the same parameter count, served through the same channel as the third, so the pair (row 1, row 2) isolates the channel and the pair (row 2, row 3) isolates capability. It was run under its own committed rule rather than as an extension of the first, and returned the outcome that leaves the capability reading intact.}
 \label{tab:capability}
 \end{table}
 
-One number in this run is more awkward than the one the rule read, and it belongs
-here rather than in a footnote. The 70B's few-shot ratio on the same set is
-$6.2500$, which is not merely inside the frontier band but exactly Haiku's
-zero-shot value and above Sonnet's. A change of prompt therefore moves this one
-model by a factor of $1.6800$, a large share of the whole capability span the run
-was built to probe. Both factors are real and neither can be reported without the
-other: capability orders this quantity, and prompt moves it about as far. The
-attenuation claim in Chapters~1 and~5 is scoped to a fixed prompt for that reason.
+Three factors move this quantity and the table above, read in pairs, separates
+them. Holding family, maker and channel fixed and changing only scale, the step
+from eight billion parameters to seventy is $2.0635$. Holding family, maker and
+scale fixed and changing only the serving path, the step from local to hosted is
+$1.0962$. Holding everything fixed but the prompt, the 70B moves by $1.6800$: its
+few-shot ratio on the same set is $6.2500$, which is not merely inside the frontier
+band but exactly Haiku's zero-shot value and above Sonnet's.
+
+So the ordering is capability first, prompt second, channel third, and the middle
+term is the one worth stating plainly because it was not anticipated. A change of
+prompt moves one model further than a change of serving path moves it, and further
+than some steps in capability. The channel confound that an earlier version of this
+section could only disclose is worth about ten percent, which is small but is now a
+measurement rather than an acknowledgement. The attenuation claim in
+Chapters~\ref{ch:intro} and~\ref{ch:discussion} is scoped to a fixed prompt for the
+second of these reasons, not the third.
 
 \subsection{What the false positives land on}
 \label{sec:r-ambiguity}

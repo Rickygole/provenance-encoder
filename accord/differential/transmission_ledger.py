@@ -30,6 +30,11 @@ import re
 FACTS = "results/accord/VERIFIED_FACTS.json"
 OUT = "results/accord/differential/transmission_ledger.json"
 PREFIX = "transmission"
+# Every key under PREFIX is deleted before the rewrite, so a value that must
+# survive but is NOT produced here cannot live under this prefix. A withdrawn
+# total was parked at transmission.total_prompts_superseded_c71 and vanished the
+# next time this ran, taking a number Chapter 3 quotes with it. Withdrawn and
+# superseded values belong under withdrawn.*, which no generator owns.
 # The trailing wildcard matters: replicate artifacts end _zero_shot_rep3,
 # and the first version of this glob was frontier_*_shot.json, which
 # silently excluded them. A ledger that misses a run is the defect it was
