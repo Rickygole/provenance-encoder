@@ -129,9 +129,10 @@ operating point is a clinical fact rather than an implementation detail, and a r
 reported without the corresponding precision at the same threshold says nothing about
 clinical usefulness.
 
-\paragraph{Where this thread stops.} There is no cross-note clinical contradiction benchmark,
-no shared task, and no published free-text-to-free-text detection system for the medication
-case. That absence is real and it motivated the project. It is also, on this thesis's own
+\paragraph{Where this thread stops.} No cross-note clinical contradiction benchmark,
+shared task, or published free-text-to-free-text detection system for the medication
+case was found in the reading behind this chapter, and no systematic search was run for
+one, so the absence is noticed rather than established. It motivated the project. It is also, on this thesis's own
 evidence, the wrong way to state the gap: framing it as a modelling gap invites building a
 model, whereas the binding constraint sits earlier, in whether a candidate pool can be
 assembled whose members are the right pairs at all.
@@ -198,8 +199,10 @@ accuracy is not a validation step. The second is that the correction requires go
 a subsample, which means the workflow that used a language model to avoid annotation entirely
 cannot apply it. Their estimand is a population quantity in a social science analysis rather
 than the training signal of a detector, and the mapping to the case where surrogate labels
-are the training targets is not made in that paper or, as far as the search described in
-Chapter 3 found, anywhere else.
+are the training targets is not made in that paper, and no work making it was found.
+No systematic search for one was run, and the survey reported in
+Chapter~\ref{ch:results} does not bear on the question, so this is an absence
+noticed rather than an absence established.
 What transfers is the shape of the warning: accuracy on the annotator's own terms says
 nothing about the validity of what is built on it.
 
@@ -221,12 +224,12 @@ same distribution. Those require gold labels. This correction and the Egami corr
 therefore fail for the same reason in the same setting, and the convergence is worth noticing
 before running the annotator rather than after.
 
-\paragraph{Where this thread stops.} No protocol exists for the case this thesis ran into: a
+\paragraph{Where this thread stops.} No protocol for the case this thesis ran into was found: a
 single large language model annotator, a positive class at a few percent, no independent
 second source, and the annotator's output used as the training signal rather than as input to
-an estimator. The available corrections all require gold labels on a subsample. Nothing
-states the condition under which weak labels should be abandoned rather than corrected, and
-nothing states it as a check runnable before a model is trained.
+an estimator. The available corrections all require gold labels on a subsample. None of the
+sources read here states the condition under which weak labels should be abandoned rather
+than corrected, or states it as a check runnable before a model is trained.
 
 \section{Evaluation Under Class Imbalance and Low Prevalence}
 \label{sec:lit-metrics}
@@ -268,7 +271,9 @@ Balanced accuracy, the unweighted mean of sensitivity and specificity
 summary is wanted, and the one whose implicit weighting is least often written down. Under
 heavy negative skew the ROC curve is dominated by the majority class and can look acceptable
 while precision-recall behaviour sits at the no-skill line, which is why
-\citet{saito2015prcurve} recommend reporting both. Two areas under the curve computed on the
+\citet{saito2015prcurve} argue the precision-recall curve should be the primary tool
+at high skew rather than a companion to the ROC curve. Both are reported in this
+thesis, which is its own choice and not that paper's recommendation. Two areas under the curve computed on the
 same cases are correlated, so the difference between them cannot be tested as though the two
 samples were independent; \citet{delong1988comparing} give the standard nonparametric
 treatment, and this thesis uses it once, to compare a seed ensemble against a single model on

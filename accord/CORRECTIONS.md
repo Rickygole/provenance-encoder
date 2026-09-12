@@ -3897,3 +3897,51 @@ artifacts that live outside version control, by the absence of any committed scr
 anything to a non-local host, and by a correction entry. It is an attestation rather than a
 verifiable fact for a reader holding only the release, and the clause 9 paragraph already says those
 numbers are not reproducible.
+
+## C83. No fabrication found, and eight over-attributions corrected
+
+The author asked directly whether anything in this thesis is fabricated. Four independent read-only
+audits ran against the artifacts and the primary literature. The answer is no, and the qualifications
+are recorded here rather than summarised away.
+
+**Citations: nothing fabricated.** Fifty-seven of the ninety-three bibliography entries were checked
+against primary records, Crossref, arXiv, the ACL Anthology, PMLR and the NeurIPS proceedings. Every
+entry checked resolves to a real work with the stated title. No entry was found not to exist, no
+citation is attached to a claim its source contradicts, and there is no citation anywhere to a
+personal communication, a manuscript in preparation, or any other unverifiable source. The two
+entries most exposed to being inventions, a 2026 preprint and a 2025 Findings paper, were verified
+and the quantities this thesis reports from them are exact rather than rounded favourably.
+
+**Eight over-attributions, all corrected.** These are scope slips rather than fabrications, and each
+put a position in a source's mouth that the source does not hold. Saito and Rehmsmeier were cited as
+recommending that both curve summaries be reported; they argue the precision-recall curve should be
+primary at high skew, and reporting both is this thesis's own choice, which is now said. Powers was
+cited among those recommending the Matthews correlation; he advocates informedness and markedness and
+the coefficient is their geometric mean, which the literature chapter already said correctly and the
+results chapter now says too. Lipsitch and colleagues formalise negative controls only, which the
+literature chapter disclosed and five other passages did not; all five now carry the disclaimer that
+the positive direction is this thesis's adaptation. A cross-reference sent the reader to the survey of
+Chapter 4 for an absence that survey does not measure, and is removed. Three absence-of-literature
+claims stated as universals are now stated as absences noticed in reading, with the fact that no
+systematic search was run for them. And the count of annotation tasks in one cited study was given as
+many where the study reports four.
+
+**A quoted primary source had no locator.** The guidance of 18 April 2023 is quoted verbatim three
+times and the compliance argument turns on its wording, yet it carried no reference a reader could
+follow, the bibliography being frozen at ninety-three entries by the author's instruction. Its title
+and address are now given in the note.
+
+**Numbers: nothing fabricated, and the provenance labels were wrong in eighty-five places.** Every
+artifact the register names was opened and checked for the value it claims to hold. Of 1,966
+checkable keys, 1,881 held their value in place. Of the remaining 85, none turned out to be invented.
+The architecture ablation chain was verified end to end: each arm mean equals the mean of its own
+per-seed losses, each per-seed loss equals the final validation loss of its named run in the upstream
+artifact, twenty-one of twenty-one, and each reported delta equals arm mean minus vanilla mean, six of
+six. The clinical-task figures are the mean and sample deviation over named runs, and the two arms do
+not share a seed set, which the results chapter already discloses. The register cited an upstream
+file where the aggregate lives one level down; the labels are corrected and the derivations now state
+their operands.
+
+**One class of claim cannot be checked from the release, and that is now said where it matters.**
+Several quantities trace to artifacts held in credentialed-only storage, so a reader holding the
+public release cannot verify them. The code-release gaps are disclosed, now as three rather than two.
