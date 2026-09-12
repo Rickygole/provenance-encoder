@@ -139,9 +139,9 @@ near a low base rate because that is what high-recall rules do to a rare
 event, not because these four rules were written badly. A language-model
 labeller asked to flag a rare class at low prevalence over-calls for a reason
 that holds for any classifier with imperfect specificity at that prevalence.
-That the failure occurs is general; how large it is is not, and a fourth
-labeller at frontier scale over-calls by a fraction of what the three tested
-here do. An evaluation built
+That the failure occurs is general; how large it is is not, and three further
+labellers of higher capability each over-call by a fraction of what the three
+tested here do, on a ladder that is monotone in capability at a fixed prompt. An evaluation built
 on the number of pharmacist-confirmed positives that exist is limited by that
 number regardless of who trains the detector. Those three findings should
 generalise in direction to another group that builds a similarly shaped pipeline
@@ -353,16 +353,23 @@ figure.}
 \item[RQ2. Weak supervision.] Can a language model weak labeller substitute for
 expert annotation at this base rate?
 \emph{No: the weak labeller assigned the contradiction class to $261$ of the
-$299$ annotated pairs against $12$ true positives, and every labeller tested
-over-calls. The size of the failure tracks labeller capability rather than the
-pool: on the candidate pool at eight billion parameters the multiplier runs from
-$15.8196$ to $23.5959$ times the confirmed rate, and on the $253$-pair gold set a
-frontier labeller reaches $4.00$ times, close to the $3.5000$ ceiling a
-public-text control produced rather than to the clinical range measured at
-smaller scale. The two multipliers are measured on different sets, which
-Table~\ref{tab:overcalling} states row by row; the comparison is of order of
-magnitude and not of two readings of one quantity. Substitution fails
-at every scale measured; the review burden it imposes does not.}
+$299$ annotated pairs against $12$ true positives, and every one of the six
+labellers tested over-calls. The size of the failure tracks labeller capability
+rather than the pool, and that ordering now survives a control it did not have
+when it was first claimed. On the candidate pool at eight billion parameters the
+multiplier runs from $15.8196$ to $23.5959$ times the confirmed rate; on the
+$253$-pair gold set the frontier labellers reach $4.00$ and $5.00$ times, close to
+the $3.5000$ ceiling a public-text control produced rather than to the clinical
+range measured at smaller scale. The two multipliers are measured on different
+sets, which Table~\ref{tab:overcalling} states row by row; the comparison is of
+order of magnitude and not of two readings of one quantity. The ordering is not a
+vendor artifact: holding model family and maker fixed and varying only scale and
+serving path, an eight-billion-parameter model and a seventy-billion one differ by
+$2.2619$ times, against $2.4667$ across families and vendors
+(Section~\ref{sec:r-capability}). It is, however, scoped to a fixed prompt, because
+changing the prompt moves one of those models by $1.6800$ times, which is a large
+share of the span capability accounts for. Substitution fails at every scale
+measured; the review burden it imposes does not.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
 what they are credited with?
@@ -381,10 +388,12 @@ instruments used to measure it?
 \emph{Of the pipeline, not of the task as posed. Three configurations sit at
 chance on the $253$ and $299$ pair evaluations, and the twelve-positive
 evaluation's own class counts put its minimum detectable AUROC at $0.7355$, so
-the null is informative above that line and silent below it. A fourth
-configuration, a frontier labeller added to the same $253$ pairs, reaches a
-balanced accuracy of $0.7941$ with a Matthews interval that excludes zero, which
-is above the line this evaluation set for itself. The instrument was therefore
+the null is informative above that line and silent below it. Two further
+configurations, frontier labellers added to the same $253$ pairs, reach balanced
+accuracies of $0.7941$ and $0.7254$, each with a Matthews interval that excludes
+zero, which is above the line this evaluation set for itself. That two independent
+labellers clear it, rather than one, is what makes the instrument's sensitivity a
+measurement rather than a single observation. The instrument was therefore
 sensitive enough to see an effect of that size, and did not see one in the three
 configurations this pipeline produced; Section~\ref{sec:disc-null} states what
 does and does not follow.}
@@ -486,10 +495,11 @@ clinical pool by roughly sixteen to twenty-four times the base rate and on
 public text by at most about three and a half times. The direction transfers
 across domains and the magnitude does not. An earlier version of this
 contribution attributed the magnitude to the pool's base rate rather than to the
-model; a frontier labeller on the same pool over-calls by $4.00$ times, which
-withdraws that attribution and replaces it with a weaker one: a multiplier
+model; frontier labellers on the same pool over-call by $4.00$ and $5.00$ times,
+which withdraws that attribution and replaces it with a weaker one: a multiplier
 reported without naming both the base rate and the model that produced it is
-uninterpretable.
+uninterpretable. A later pre-registered test added the further condition that the
+prompt must be named too.
 \item \textbf{The misaligned-block arm and the global-positions confound
 check.} Both are this thesis's own additions to a control-task design it
 borrows, run on the second system, the provenance-conditioned encoder, not

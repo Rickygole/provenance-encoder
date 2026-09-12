@@ -140,14 +140,32 @@ source \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}.
 
 Two further controls bound the reading. Three local 8B-parameter models reproduce
 the miscalibration, so this is not one model misbehaving. The per-model over-calling ratios are reported in Chapter~\ref{ch:results}. A stronger labeller shifts the magnitude without removing
-the failure. How far it shifts is the part this thesis initially got wrong. A
-frontier labeller on the $253$ pairs returned $48$ positives, $4.00$ times that
+the failure. How far it shifts is the part this thesis initially got wrong, twice.
+A frontier labeller on the $253$ pairs returned $48$ positives, $4.00$ times that
 set's confirmed rate, against the $15.8196$ to $23.5959$ range the 8B labellers
 produced on the candidate pool. The two are different denominators and the
 comparison is of order of magnitude, but the shift is large and it tracks
 capability. An intermediate comparison once sat between those two figures and has
 been withdrawn: it came from a channel Section~\ref{sec:m-ethics} records as a
-departure from the data use agreement, and no claim here now rests on it. The surviving claim
+departure from the data use agreement, and no claim here now rests on it.
+
+What replaced that gap was pre-registered rather than interpolated, because the
+first version of this reading was an interpolation across a span the design never
+sampled, and an adversarial review made the point that a claim which cannot be
+embarrassed by its own next datum is not a finding. Two committed rules and two
+runs later the span is sampled at four points on one denominator, and the ordering
+holds at every step (Section~\ref{sec:r-capability}). The step that matters most is
+the one that removes the vendor: an eight-billion-parameter model and a
+seventy-billion one of the same family and maker differ by $2.2619$ times, against
+$2.4667$ across families and vendors, so the earlier ordering was not an artifact
+of who served the model.
+
+One caveat travels with that and is not a hedge. Changing the prompt moves the
+seventy-billion model by $1.6800$ times, enough to place it exactly where a much
+more capable model sits under a different prompt. So capability orders this
+quantity and prompt moves it about as far, and a magnitude reported without naming
+the prompt is as uninterpretable as one reported without naming the base rate. The
+discussion above should be read as holding the prompt fixed, which it does. The surviving claim
 is narrow. Not that language models cannot reason about clinical text, but that
 the labeller's marginal was a property nobody checked, and the failure is
 invisible to any evaluation that never compares it to a human-established base
@@ -239,8 +257,9 @@ Three things survived their controls, and a chapter in which nothing survives is
 not a finding. The chance-level ranking survived decontamination, seed variation,
 defect-free stratification, a DeLong comparison against an ensemble, and two
 baselines. The over-calling survived three changes of model family and, in
-direction though not in size, a fourth change that moved scale by two orders of
-magnitude. The direction of the central conclusion survived every correction applied
+direction though not in size, three further changes that moved scale by two orders
+of magnitude, one of which held the family and the maker fixed and so answered the
+objection that the shift belonged to the vendor rather than to capability. The direction of the central conclusion survived every correction applied
 to it, each of which moved a headline number toward the negative reading. What
 did not survive is a set of claims about mechanism, which governs how this work
 should be read: a measurement of a pipeline, not an account of why clinical text
@@ -508,8 +527,8 @@ power is $0.7355$ on the primary set and $0.8058$ on the stratum. The intervals
 are wide and the ordering between the two systems this pipeline produced is
 unidentified, their Matthews correlations being $-0.0436$ and $-0.0070$, both
 within $0.05$ of chance. The limit is not that $12$
-positives cannot separate anything: a frontier labeller on the same rows carries
-an interval that excludes zero. It is that $12$ positives cannot separate systems
+positives cannot separate anything: two frontier labellers on the same rows carry
+intervals that exclude zero, at $+0.3189$ and $+0.2253$. It is that $12$ positives cannot separate systems
 whose effects are this small, which is a statement about those systems. No ablation carries a
 significance claim.
 
