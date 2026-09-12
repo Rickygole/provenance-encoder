@@ -166,6 +166,32 @@ FAMILY = [
          where="sec:r-ambiguity", what="gradient replication, Llama 3 8B hosted, few-shot",
          group="ambiguity_gradient_llama8b",
          source="results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+
+    # The four frontier Mann-Whitney tests. These are the same test, on the same
+    # 253 rows, that Table tab:decontam runs five times on the control model, and
+    # they were computable from committed cells throughout. They were outside the
+    # family while the family was presented as exhaustive, and they are the only
+    # rejections on the clinical task, so the omission ran in the direction that
+    # kept the strongest results out of this thesis's own correction. Adding them
+    # takes k from 22 to 26 and the threshold from 0.0023 to 0.0019; both still
+    # clear it, which is why the omission is a reporting defect rather than a
+    # changed conclusion. See C79.
+    dict(id="mw_sonnet_zs", test="Mann-Whitney U, two-sided",
+         where="sec:r-frontier", what="Sonnet 5 zero-shot labels on G_253",
+         group="frontier_mw",
+         source="results/accord/differential/frontier_anthropic_metrics.json::by_strategy.zero_shot.G_253.mannwhitney_p_two_sided"),
+    dict(id="mw_sonnet_fs", test="Mann-Whitney U, two-sided",
+         where="sec:r-frontier", what="Sonnet 5 few-shot labels on G_253",
+         group="frontier_mw",
+         source="results/accord/differential/frontier_anthropic_metrics.json::by_strategy.few_shot.G_253.mannwhitney_p_two_sided"),
+    dict(id="mw_haiku_zs", test="Mann-Whitney U, two-sided",
+         where="sec:r-frontier", what="Haiku 4.5 zero-shot labels on G_253",
+         group="frontier_mw",
+         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.zero_shot.G_253.mannwhitney_p_two_sided"),
+    dict(id="mw_haiku_fs", test="Mann-Whitney U, two-sided",
+         where="sec:r-frontier", what="Haiku 4.5 few-shot labels on G_253",
+         group="frontier_mw",
+         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.few_shot.G_253.mannwhitney_p_two_sided"),
 ]
 
 

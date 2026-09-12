@@ -1,7 +1,11 @@
 {
- "bonferroni_threshold": 0.002272727272727273,
+ "bonferroni_threshold": 0.0019230769230769232,
  "clears_bonferroni": [
+  "mw_sonnet_zs",
   "welch_anisotropy",
+  "mw_haiku_fs",
+  "mw_haiku_zs",
+  "mw_sonnet_fs",
   "fisher_ambiguity_haiku_fs"
  ],
  "dependence_groups": {
@@ -42,20 +46,34 @@
    "delong_seed2024_299",
    "delong_ensemble_134"
   ],
+  "frontier_mw": [
+   "mw_sonnet_zs",
+   "mw_sonnet_fs",
+   "mw_haiku_zs",
+   "mw_haiku_fs"
+  ],
   "mechanism": [
    "fisher_mechanism"
   ]
  },
  "familywise_bound_is_upper_only_because": "the tests are positively dependent: five Mann-Whitney tests on one set of 253 rows, five DeLong tests against a single reference run, two Fisher tests on one model under two prompts, and two Spearman correlations against one rating. The true familywise rate is lower and this thesis does not compute it.",
- "familywise_upper_bound": 0.676466455026291,
+ "familywise_upper_bound": 0.7364799055342579,
  "holm_rejections_for_reference": [
+  "mw_sonnet_zs",
   "welch_anisotropy",
+  "mw_haiku_fs",
+  "mw_haiku_zs",
+  "mw_sonnet_fs",
   "fisher_ambiguity_haiku_fs"
  ],
- "n_dependence_groups": 9,
- "n_tests": 22,
+ "n_dependence_groups": 10,
+ "n_tests": 26,
  "nominally_significant_uncorrected": [
+  "mw_sonnet_zs",
   "welch_anisotropy",
+  "mw_haiku_fs",
+  "mw_haiku_zs",
+  "mw_sonnet_fs",
   "fisher_ambiguity_haiku_fs",
   "fisher_ambiguity_fs",
   "fisher_ambiguity_zs",
@@ -287,6 +305,46 @@
    "test": "Fisher exact, one-sided",
    "what": "gradient replication, Llama 3 8B hosted, few-shot",
    "where": "sec:r-ambiguity"
+  },
+  {
+   "group": "frontier_mw",
+   "id": "mw_sonnet_zs",
+   "p": 4.2177455979909773e-07,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_anthropic_metrics.json::by_strategy.zero_shot.G_253.mannwhitney_p_two_sided",
+   "test": "Mann-Whitney U, two-sided",
+   "what": "Sonnet 5 zero-shot labels on G_253",
+   "where": "sec:r-frontier"
+  },
+  {
+   "group": "frontier_mw",
+   "id": "mw_sonnet_fs",
+   "p": 0.0007001664943551203,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_anthropic_metrics.json::by_strategy.few_shot.G_253.mannwhitney_p_two_sided",
+   "test": "Mann-Whitney U, two-sided",
+   "what": "Sonnet 5 few-shot labels on G_253",
+   "where": "sec:r-frontier"
+  },
+  {
+   "group": "frontier_mw",
+   "id": "mw_haiku_zs",
+   "p": 0.00035116323261668496,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.zero_shot.G_253.mannwhitney_p_two_sided",
+   "test": "Mann-Whitney U, two-sided",
+   "what": "Haiku 4.5 zero-shot labels on G_253",
+   "where": "sec:r-frontier"
+  },
+  {
+   "group": "frontier_mw",
+   "id": "mw_haiku_fs",
+   "p": 0.0001154835456614868,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.few_shot.G_253.mannwhitney_p_two_sided",
+   "test": "Mann-Whitney U, two-sided",
+   "what": "Haiku 4.5 few-shot labels on G_253",
+   "where": "sec:r-frontier"
   }
  ]
 }

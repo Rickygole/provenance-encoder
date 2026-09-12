@@ -19,7 +19,19 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 THESIS = ROOT / "accord" / "thesis"
 FACTS = json.loads((ROOT / "results" / "accord" / "VERIFIED_FACTS.json").read_text())
+# The front matter was outside this glob, so the abstract, the title page and the
+# declaration were never scanned by any pass. That is the highest-visibility 250
+# words in the document and the one place a conflated denominator survived, and it
+# is the same failure this project already recorded twice: a gate that reports zero
+# by scanning nothing. Appendices are still excluded because they are generated and
+# print register keys and artifact paths by design.
 CHAPTERS = sorted(THESIS.glob("msu_ch*.tex"))
+# Passes that check prose rather than document structure scan the front matter too.
+# It was outside every glob, so the abstract, title page and declaration were never
+# scanned by anything, which is how a conflated denominator survived in the
+# highest-visibility 250 words of the document. Pass 5 keeps to CHAPTERS because it
+# looks for a \chapter and a label, which front matter correctly does not have.
+PROSE = CHAPTERS + sorted((THESIS / "frontmatter").glob("*.tex"))
 
 # Values that are allowed to appear without being a research finding: structural
 # numbers, years, and the small integers that show up in ordinary prose.

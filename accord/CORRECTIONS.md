@@ -3699,3 +3699,51 @@ one frontier row above the minimum detectable effect. One observation above a th
 percent power is consistent with that power, not a demonstration of it, and the word is now
 supported. The same passage now states the identity that makes a balanced accuracy comparable to an
 area under a curve, which a reader who did not supply it would file as a category error.
+
+## C79. The family was short by the only rejections on the clinical task, and the correction was applied to tests but not to intervals
+
+**What was outside the family.** Section 4's multiplicity subsection stated twenty-two hypothesis
+tests and presented the register as exhaustive by construction. Four more existed and had been
+computable from committed cells throughout: Mann-Whitney tests on the frontier labels over the same
+253 rows that Table 8 runs five Mann-Whitney tests on. Sonnet 5 zero-shot returns
+p = 4.2 times ten to the minus seven, Haiku 4.5 zero-shot p = 0.00035, and both few-shot arms clear
+as well.
+
+**Why the omission runs in the worst direction.** These are the only rejections in this thesis that
+concern the clinical task directly. They say the frontier labels separate the pharmacist's confirmed
+cases from the rest on the rows where the systems this pipeline built do not. Leaving them out kept
+the strongest results in the chapter outside the thesis's own correction, in the subsection whose
+stated purpose is to prevent exactly that. It is the third time a family presented as exhaustive has
+been short by tests already computed, after C68 and C76.
+
+**What it changes.** k goes from 22 to 26, the Bonferroni threshold from 0.0023 to 0.0019, the
+independence value from 0.6765 to 0.7365, and the dependence groups from nine to ten. Six tests now
+clear correction rather than two, and four of the six are the frontier tests. Every one of them
+clears the new, stricter threshold, so nothing concluded here changed. That is luck rather than
+rigour and the chapter says so: a family that grows by four tests which all clear is not evidence
+that the accounting was sound.
+
+**The asymmetry that mattered more than the count.** The correction is applied to p values and not to
+interval estimates, and two load-bearing claims in this thesis live in intervals. Read at 0.05/26
+rather than at 0.05, Sonnet's Matthews interval on the 253 rows still excludes zero and Haiku's does
+not: its lower bound moves to -0.0233. So the claim that two independent labellers clear the
+evaluation's stated floor, which is what converts RQ4's null from uninformative to informative, could
+not rest on the two intervals. It now rests on the two Mann-Whitney tests, which do clear correction.
+Both readings are reported. A family that corrects its tests and not its intervals is applying its
+discipline where it is safe, which is the reporting defect the subsection exists to describe, and it
+was doing so on the one claim that most needed the discipline.
+
+**Three smaller things from the same round.** The abstract read the 8B over-calling range off the
+299-pair set and the frontier range off the 253-pair set inside one clause governed by "on the
+annotated set", which is the conflation the conclusion warns cost this project a central claim. Both
+ranges are now read off the 299-pair set, five to six rather than four to five, and the abstract
+states the comparison the conclusion now leads with.
+
+That conflation survived because the verification harness scanned `msu_ch*.tex` only, so the
+abstract, the title page and the declaration were outside every pass. The prose passes now scan the
+front matter; the structural pass does not, because front matter correctly has no chapter heading.
+This is the third gate in this project found to be reporting success while scanning nothing or
+enforcing a withdrawn rule, after the TODO glob and the caption convention. Note what the extension
+did not achieve: the abstract spells its numbers as words, because the template forbids
+abbreviations, so a digit gate could never have caught this particular conflation. The gate is wider
+and the defect was still found by reading.
