@@ -3357,3 +3357,48 @@ total.
 only. No note text, no admission or subject identifier, no free text of any kind, and the runner
 echoes no exception body, because a client error can quote the request back and the request carries
 note sentences.
+
+## C71. The Haiku capability test returns Outcome A, and its outcome entry was pointed at the wrong correction for a day
+
+**Why this entry exists twice over.** It records the outcome of the C67 pre-registration, which had
+none, and it records a bookkeeping failure in doing so. The pre-registration's outcome block said
+"Full result in CORRECTIONS.md C67", which is the detector-source recovery, an unrelated entry. That
+was a stale pointer, and it was then made worse rather than better: it was edited to point at C69,
+which by the time of the edit was the label-noise correction. So for one day the file asserted a
+specific location for its own result and was wrong about it twice, in the second case confidently.
+The experiment labels C67 and C68 were assigned before the correction record reached those numbers,
+and nothing reconciled the two sequences. The rule text itself was never edited, which is the
+property that mattered; only the pointer moved.
+
+**The pre-registered question.** After C65 withdrew the GPT-4o rows, the capability axis held three
+8B labellers between 15.4167 and 23.7500 and one frontier labeller at 4.5000 and 5.3333, with
+nothing between. An adversarial review objected that adding a mid-capability point after seeing that
+the gap weakens the claim, with no committed prediction, is the defect `tab:m-prereg` exists to
+prevent one level up: a claim that cannot be embarrassed by its own next datum is not a finding. The
+answer was to commit the prediction first, at `05d9cdd`, before any pair reached the model.
+
+**Outcome A.** Haiku 4.5's G_299 zero-shot over-calling ratio is 6.2500, strictly inside the
+required window of 5.3333 to 15.4167. Only `ANTHROPIC_MODEL` changed: same script, prompt,
+exemplars, pairs, parser and evaluation as the Sonnet runs. Few-shot is 6.1667, so unlike the
+Bedrock 70B of C70 this model is nearly prompt-invariant on this quantity, and the prompt effect
+that dominates the 70B is not a property of the measurement itself.
+
+**What it settles and what it does not.** It puts a fourth point on the ladder between the 8B
+cluster and Sonnet, so "attenuates with capability" is no longer an interpolation across a gap the
+design never sampled. It does not remove vendor or channel, because Haiku shares both with Sonnet;
+that is what C70 was for, and the two tests answer different objections. The capability proxy was
+fixed in the pre-registration rather than chosen afterwards, neither model's parameter count being
+public.
+
+**A second result came with it that was not part of the rule.** Haiku's Matthews correlation on
+G_253 is +0.2253 zero-shot and +0.2431 few-shot, both intervals excluding zero, so the frontier
+separation is not one model's result. Its label-noise crossings are lower than Sonnet's, 0.1684
+zero-shot and 0.1893 few-shot against 0.2467 and 0.0941, so Haiku's zero-shot exclusion tolerates
+less instability than Sonnet's and its few-shot exclusion tolerates more. And its ambiguity gradient
+splits by prompt, 1.7587 at p = 0.0790 zero-shot against 2.9046 at p = 0.0019 few-shot, which is the
+result that took the multiplicity family to twenty in C70 and the headline gradient below correction.
+
+**Still outstanding, and named rather than hidden.** These two runs sent 600 further prompts through
+a hosted API. Section 3.9 disclosed one transmission when it was written and now has three to
+disclose, and the draft disclosure letter to the chair and data steward has the same gap. Both are
+being corrected; neither was correct at the time this entry was written.

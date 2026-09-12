@@ -512,7 +512,7 @@ Claude Haiku 4.5                        & Hosted API           & 6.2500 \\
 Claude Sonnet 5                         & Hosted API           & 5.3333 \\
 \bottomrule
 \end{tabular}
-\apanote{One denominator throughout, the $299$ labelled pairs of Table~\ref{tab:denoms}, and one prompt condition, so the rows are comparable. The two Llama rows are the same model family, the same maker and the same instruction tuning at two parameter counts; the step between them is $2.2619$ against the $2.4667$ measured across families and vendors, which is why vendor is not carrying the earlier result. Channel is varied rather than controlled: the 8B arm is local and the 70B arm is hosted. A within-channel capability test would need both tiers on one channel and is named in Section~\ref{sec:conc-future} as an obligation on any continuation rather than done here.}
+\apanote{One denominator throughout, the $299$ labelled pairs of Table~\ref{tab:denoms}, and one prompt condition, so the rows are comparable. The two Llama rows are the same model family, the same maker and the same instruction tuning at two parameter counts; the step between them is $2.2619$ against the $2.4667$ measured across families and vendors, which is why vendor is not carrying the earlier result. Channel is varied rather than controlled: the 8B arm is local and the 70B arm is hosted. A within-channel capability test would need both tiers on one channel. An 8B model of this family is available on the same hosted channel, so that test is cheap rather than infeasible; it was not run here because the pre-registered question had been answered and a new question needs its own committed rule. It is named in Section~\ref{sec:conc-future} as the cheapest open item in this thesis.}
 \label{tab:capability}
 \end{table}
 
@@ -1095,10 +1095,10 @@ informative about true AUROC values at or above $0.7355$ and silent below that l
 \subsection{Multiplicity, and what is not corrected for}
 \label{sec:r-multiplicity}
 
-This chapter reports twenty hypothesis tests. The family is enumerated in
-\texttt{accord/stats/test\_register.py}, one entry per test, each bound to the
-artifact and key its $p$ value is read from, and the count and every threshold
-derived from it are computed from that list rather than typed here: five
+This chapter reports twenty hypothesis tests. The family is enumerated in a
+committed register released with the analysis code, one entry per test, each bound
+to the artifact and key its $p$ value is read from, and the count and every
+threshold derived from it are computed from that list rather than typed here: five
 Mann-Whitney tests in Table~\ref{tab:decontam}, five DeLong tests in
 Table~\ref{tab:delong}, one Fisher exact test on the mechanism split, six
 one-sided Fisher exact tests on the ambiguity gradient of

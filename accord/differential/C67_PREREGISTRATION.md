@@ -4,9 +4,11 @@
 > over-calling ratio is 6.2500, strictly inside the 5.3333 to 15.4167 window the
 > rule below required. The rule was committed at 05d9cdd before any MIMIC pair
 > reached the model and was not edited after the result. Full result in
-> CORRECTIONS.md C69. (The experiment labels C67 and C68 were assigned
-> before CORRECTIONS.md reached those numbers, and C67 there is the detector-source
-> recovery. The experiment keeps its label; the outcome entry takes the next free number.)
+> CORRECTIONS.md **C71**, which also records that this line pointed at the wrong
+> entry twice before landing there: the experiment labels C67 and C68 were
+> assigned before the correction record reached those numbers, and C67 there is
+> the detector-source recovery. The rule text below was never edited; only this
+> pointer moved.
 
 **Written 2026-09-11, BEFORE the Haiku runs were started.** The credential check on a synthetic
 sentence pair has been run and returned HTTP 200; no MIMIC pair has been sent to this model. Do not
