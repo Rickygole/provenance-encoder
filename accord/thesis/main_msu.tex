@@ -98,7 +98,11 @@
 \usepackage{microtype}
 \usepackage[htt]{hyphenat}  % permit breaks inside \texttt so long register keys do not overrun the margin
 \sloppy
-\usepackage[numbers,sort&compress]{natbib}   % numeric citations, [14, 61, 93] style
+% APA 7 author-date citations, which FORMAT.md section 8 requires: CS at MSU
+% uses APA 7 in both of the template's examples. apacite in natbibapa mode
+% loads natbib itself and keeps \citep and \citet working, which is the whole
+% citation vocabulary this document uses, so no call site changes.
+\usepackage[natbibapa]{apacite}
 \usepackage[hidelinks,linktoc=all,bookmarks=true,bookmarksnumbered=true]{hyperref}
 % linktoc=all makes the whole entry clickable in the Table of Contents, the List
 % of Tables and the List of Figures, not just the page number.
@@ -254,7 +258,7 @@
 \clearpage
 \phantomsection
 \addcontentsline{toc}{chapter}{\bibname}
-\bibliographystyle{plainnat}  % numbered, alphabetically sorted, [1] [2] ...
+\bibliographystyle{apacite}  % APA 7, author-date, alphabetical by surname
 % The template's own XML single-spaces reference entries (FORMAT.md section 2,
 % w:line="240" on reference paragraphs) with a 0.5in hanging indent (section 8).
 % The body's \doublespacing does not extend here; doing so was a deviation.

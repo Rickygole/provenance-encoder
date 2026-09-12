@@ -3,6 +3,18 @@
 # resolve cross-references and the bibliography respectively.
 set -euo pipefail
 export PATH="/Library/TeX/texbin:$PATH"
+
+# PACKAGES. This document needs apacite (APA 7 references, FORMAT.md section 8),
+# plus tocloft, newtx, chngcntr, needspace, placeins and xurl. None ships with
+# TeX Live basic. They do NOT need root: the TeX tree is owned by root, but
+# tlmgr installs into the user tree instead, which kpsewhich finds automatically.
+#
+#   tlmgr --usermode init-usertree   # once, if ~/Library/texmf does not exist
+#   tlmgr --usermode install apacite tocloft newtx chngcntr needspace placeins xurl
+#
+# A missing package here fails loudly. The failure mode worth knowing about is the
+# quiet one: main_supplement.tex was missing graphicx for weeks and built a broken
+# PDF that nothing checked, because this script did not build it.
 cd "$(dirname "$0")"
 pdflatex -interaction=nonstopmode main_msu.tex > /tmp/thesis_build.log 2>&1
 bibtex main_msu >> /tmp/thesis_build.log 2>&1 || true
