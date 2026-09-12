@@ -3845,3 +3845,55 @@ of it, applies to its corrections as much as to its results.
 
 **No date was affected.** The credentialing record shows an application, agreement and decision date
 of 23 February 2026. The thesis states no signing date anywhere, so nothing printed depended on it.
+
+## C82. Two prohibited channels, not one; and the storage claim was true and not responsive
+
+A compliance audit against the primary documents, which are now in hand, found four things wrong in
+the ethics section and one in the unsent disclosure letter. All four were errors of my own making in
+the two rewrites of that section.
+
+**The safety screen was prohibited too.** The section said "Only one channel in this project's history
+was prohibited at the time it was used." The guidance prohibits "sending it through APIs provided by
+companies like OpenAI", which names a class of service and not a single vendor. The Hugging Face
+Inference API is such a service, it is not among the four the guidance suggests, the guidance predates
+the run by years, and the run transmitted 50 pairs and completed. So there were two prohibited
+channels. An earlier version called the screen a departure and stopped short of calling it prohibited,
+which is a distinction the document does not support. What survives unchanged is the part that bears
+on the results: the GPT-4o rows are withdrawn, the screen supports no number this thesis reports, and
+no reported result is downstream of either channel.
+
+**The storage claim was scoped to the git tree, which is not the claim a reader takes from it.** The
+section said note-derived intermediate files stay outside the version-controlled tree. True, and
+non-responsive: a file joining note sentences to weak labels was held on a Google Drive mount and read
+from there by an analysis notebook running in Colab, and that notebook is committed and mounts the
+drive on its second cell. The exposure is established by this repository, not disclosed against it.
+Raw tables were also held in a local downloads folder. Both are now stated, with the remediation, and
+with the open question of whether the institution's cloud agreement covers credentialed data put as
+two questions, storage and compute, rather than one. The section now says explicitly what it does not
+claim: that custody never left local storage.
+
+**The code-release gap count was two and is three.** The notebook behind the safety screen is also
+absent, so the 50-pair figure rests on the same footing as the two weak-supervision numbers: stated
+and not reproducible from the release.
+
+**The letter understated its own ledger by 600 prompts.** It listed four runs and 1,920 prompts while
+the thesis table lists five and 2,520. A previous correction to this letter replaced the paragraph
+about the guidance and left the table and total above it untouched, which is a partial fix presenting
+as a complete one. Sending a letter that undercounts your own disclosure, to the audience that has
+already raised a charge, is the worst available version of this document, and it is the third time
+this count has been wrong in this file.
+
+**What the audit confirmed rather than found.** Nothing in the repository is a breach at present. No
+tracked file holds an identifier value, note text, or a credential, and none ever has in history. The
+only committed tabular data is two public benchmark files and nine aggregate CSVs that are one-way
+marginals of the form variable, category, count. The sixteen published cells of four observations or
+fewer fall under the stated policy, and the published files match that policy exactly. The pharmacist
+arrangement reads as expert consultation rather than a transfer of access, because the annotator held
+no material at any point.
+
+**One claim in this thesis cannot be checked from this repository, and that is now said.** The
+statement that the 1,679-row weak labelling ran against a locally served model is supported by
+artifacts that live outside version control, by the absence of any committed script that sends
+anything to a non-local host, and by a correction entry. It is an attestation rather than a
+verifiable fact for a reader holding only the release, and the clause 9 paragraph already says those
+numbers are not reproducible.

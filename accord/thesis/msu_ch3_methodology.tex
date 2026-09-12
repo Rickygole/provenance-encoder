@@ -1009,10 +1009,28 @@ Table~\ref{tab:overcalling} and the $261$ of $299$ that Chapter~\ref{ch:results}
 thesis's weak-supervision finding ran against a locally served model, as Section~\ref{sec:m-weak}
 states, not through that API.
 
-Only one channel in this project's history was prohibited at the time it was used, the original
-GPT-4o comparison, and its results are withdrawn from every table and figure; no result this thesis
-reports is downstream of a prohibited channel. The safety screen is a real transmission of $50$
-pairs, disclosed as one, and it is not load bearing. The GPT-4o rows are replaced by the Claude
+\paragraph{Storage and compute outside the repository.} An earlier version of this section said only
+that note-derived intermediate files stay outside the version-controlled tree. That is true and it is
+not the claim a reader takes from it, so the fuller position is stated here. A file joining note
+sentences to weak labels was held on a Google Drive mount and read from there by an analysis notebook
+running in Google Colab; the notebook is committed and mounts the drive on its second cell, so this is
+established by the repository rather than disclosed against it. Raw database tables were also held in
+a local downloads folder. Both are being moved under credentialed-only local storage, and the
+analysis scripts now read from that location. Whether the institution's cloud agreement covers
+credentialed data of this kind is a question of storage and a question of compute, and both were put
+to the institutional data steward before deposit rather than answered here. What this section does not
+claim, and an earlier version could have been read as claiming, is that custody never left local
+storage.
+
+Two channels in this project's history were prohibited at the time they were used, not one. The
+first is the original GPT-4o comparison. The second is the safety screen: the guidance prohibits
+sending credentialed data through APIs provided by companies like OpenAI, which names a class of
+service rather than a single vendor, and the Hugging Face Inference API is such a service and is not
+among the four the guidance suggests. An earlier version of this section called the screen a
+departure and stopped short of calling it prohibited, which was a distinction the guidance does not
+support. It transmitted $50$ pairs and it completed. What remains true, and is the part that bears on
+the results, is that the GPT-4o rows are withdrawn from every table and figure, the screen supports no
+number this thesis reports, and no result here is downstream of either channel. The GPT-4o rows are replaced by the Claude
 Sonnet 5 runs of Section~\ref{sec:r-frontier}, which are a different model and therefore a new
 measurement rather than a reproduction; nothing replaces the Llama 3 run. The local run of the same
 model reported in Table~\ref{tab:overcalling} is a different configuration, $165$ labels apart on
@@ -1104,8 +1122,10 @@ does not support deployment in any care setting, and Chapter~\ref{ch:discussion}
 performance would mean if the system were deployed regardless. Separately, the data use agreement
 obliges contributing analysis code back to the community rather than keeping it private. The
 analysis code is released in the repository the verified-fact register and the appendices point to,
-and that release has two gaps. The script that made the original GPT-4o calls is not in it, for the
-reason given above. Nor is anything that would let the deployed weak-labelling run be repeated: its
+and that release has three gaps. The script that made the original GPT-4o calls is not in it, for the
+reason given above. Nor is the notebook behind the cross-domain safety screen, so the $50$-pair figure
+that section reports rests on the same footing: stated and not reproducible from the release. Nor is
+anything that would let the deployed weak-labelling run be repeated: its
 script is absent and its prompt is not among the four configurations the committed prompt table
 holds. That run produced the $1425$ weak labels the detector was trained on and the $261$ of $299$
 marginal Chapter~\ref{ch:results} reports as this thesis's weak-supervision finding, so those two
