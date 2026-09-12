@@ -317,8 +317,29 @@ generating process fixed than this design allows.
 \label{sec:conc-closing}
 
 Dangerous medication contradictions between nursing notes and discharge
-summaries are real, recurring, and worth detecting. A standard-shaped
-pipeline built for them does not detect them. Rule based mining produces a
+summaries are real, recurring, and worth detecting. A standard-shaped pipeline
+built for them does not detect them, and the sharpest thing this thesis can say
+is not that sentence but the comparison beside it. On the $253$ non-ambiguous
+pairs, the pipeline's detector reaches a Matthews correlation of $-0.0070$ and a
+term-frequency baseline $-0.0436$, both intervals containing chance, while two
+frontier labellers given one zero-shot prompt and no training at all reach
+$+0.3189$ and $+0.2253$ with intervals that exclude it
+(Table~\ref{tab:mcc}). The zero-shot run flags $48$ of $253$ and is right about
+$9$, a precision of $0.1875$ against a base rate of $0.0474$ at a recall of
+$0.7500$, and its false-positive rate on the clear negatives is $0.1618$ against
+the detector's $0.9253$.
+
+Those systems saw the same rows, the same exemplars, the same base rate, the same
+twelve positives and the same single annotator. So none of rarity, prevalence,
+sample size or the exemplar defect can be what made the pipeline fail, because each
+of them applied in full to the systems that did not. What the evidence isolates is
+narrower and less comfortable: this pipeline's own construction, and the fact that
+its stage-wise metrics reported health while it was failing. The practical
+recommendation that follows is one sentence and it is not the one an earlier version
+of this chapter gave. Before building a pipeline of this shape for a rare clinical
+event, prompt a frontier model on the evaluation set and make the pipeline beat it.
+This project did not do that, and doing it would have cost an afternoon at the start
+rather than a thesis at the end. Rule based mining produces a
 pool at $0.0401$, a property of applying high-recall rules to an event this
 rare, and weak supervision produces a labeller positive on $261$ of $299$
 pairs against $12$ true positives, a property of asking an instruction-tuned
@@ -326,9 +347,11 @@ model to flag a rare class at low prevalence; both should recur in direction in 
 differently built version of this pipeline, and neither magnitude should be
 carried across, because frontier labellers asked the same question on the same
 pairs were positive on $64$ and $75$ of $299$ rather than $261$. What would not necessarily recur
-belongs to this build specifically: on the range measured, $0$ to $0.4745$ of
+belongs to this build specifically: between $0$ and $0.4745$ of
 resolved Rule 1 and Rule 2 candidates carry
-the wrong exemplar because this project's selector indexed positionally, the
+the wrong exemplar because this project's selector indexed positionally, and those
+two endpoints are two incompatible measurements rather than the ends of one interval
+(Section~\ref{sec:res-rq1}), the
 architectural components report their initialisations because of how this
 project's parameters were wired, and a second system shows a
 provenance-free position beating both true role semantics and a randomised

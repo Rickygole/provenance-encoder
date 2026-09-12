@@ -3637,3 +3637,65 @@ the correct state for a number whose source the tooling cannot establish.
 are still indistinguishable to it, 97 rows of the appendix are still marked indicative for that
 reason, and no amount of tightening makes a value comparison into a provenance proof. The honest
 description, which the thesis now gives, is that the gate is a floor.
+
+## C78. The compliance section cited a 2023 document as naming 2026 models, and the exemplar "range" is two measurements that cannot both be true
+
+Two findings from a committee round, recorded together because both are the same error in
+different material: a claim stated as sourced when it is a reading.
+
+**The guidance claim.** Section 3.9's transmission note read "All routes here are named in the
+guidance of 18 April 2023 as acceptable for credentialed data." A document of April 2023 cannot name
+Claude Sonnet 5 or Claude Haiku 4.5, both released in 2026, and the guidance it refers to was
+written about a different vendor's service. So the sentence asserted as a citation what is in fact
+this author's application of the guidance's criteria to routes that post-date it. That is the error
+this thesis exists to describe, committed in the section whose subject is disclosure, and the
+project's own disclosure letter was more careful than its thesis: the letter says the reading is
+unconfirmed and the thesis did not.
+
+Rewritten to say what it is. The guidance suggests alternatives, the routes were selected against it
+before use, the Bedrock selection is pre-registered, and the reading is a reading with two named open
+questions put to the chair and the data steward. The thesis asserts no answer.
+
+**Why that sentence outranked everything else open.** The four Claude rows are the only evidence in
+this thesis that its twelve-positive evaluation can resolve an effect at all. If the channel is ruled
+out they are withdrawn on the principle that withdrew the original comparison, and RQ4's answer
+reverts from demonstrated sensitivity to a calculation. That dependency runs through four chapters
+and nothing said so. Section 5 now states it, names what would still stand, and says plainly that the
+remaining position is weaker than the one the chapter argues from.
+
+**The exemplar range.** Chapter 4 reported "the honest range is therefore 0 to 0.4745", from a
+reconstruction over 137 rows finding 65 wrong and an exact key join over 23 rows finding none wrong.
+It is not a range. If the reconstruction's rate were true and joinability were independent of
+correctness, the probability of 23 joinable rows all being correct is 0.5255 to the 23rd, about four
+in ten million. The two measurements are mutually exclusive unless joinability is confounded with
+correctness, and that confound was the load-bearing assumption behind keeping both numbers without
+ever being stated. It is plausible, because a row is joinable when the bookkeeping the selector
+defect corrupts was intact, and it is untested. The section now states the arithmetic, names the
+assumption, names the test that would settle it, and says that one of the two numbers is wrong and
+this thesis does not know which. The conclusion stops quoting the maximum as the actionable figure.
+
+**The comparison the conclusion was not making.** Two committee members disagreed on whether this
+thesis needs reframing and agreed on this: the closing chapter asserted that a standard-shaped
+pipeline does not detect these contradictions while omitting the number that complicates it. On the
+253 non-ambiguous pairs the detector reaches -0.0070 and a term-frequency baseline -0.0436, both
+containing chance, and two frontier labellers given one zero-shot prompt and no training reach
++0.3189 and +0.2253 with intervals excluding it. Those systems saw the same rows, exemplars, base
+rate, twelve positives and single annotator, so none of rarity, prevalence, sample size or the
+exemplar defect can be what made the pipeline fail. The conclusion now leads with the comparison,
+prints the precision and the false-positive contrast, and states the recommendation that follows:
+before building a pipeline of this shape for a rare clinical event, prompt a frontier model on the
+evaluation set and make the pipeline beat it.
+
+**One thing was rejected rather than fixed.** An adversarial round proposed retitling the thesis
+around a pipeline "dominated by the zero-shot teacher it distils from". The premise is false. Section
+3.5 records that the production labeller was Llama 3 8B run locally, and the detector was trained on
+its 1,425 labels; the frontier models entered later as a replacement for withdrawn baseline rows and
+were never in the supervision path. The retitle would have described an experiment that does not
+exist. The observation it was built on is real and is now in the conclusion; the framing it proposed
+is not adopted.
+
+**And one overclaim beside it.** Chapter 4 said the evaluation's sensitivity was "demonstrated" by
+one frontier row above the minimum detectable effect. One observation above a threshold set at eighty
+percent power is consistent with that power, not a demonstration of it, and the word is now
+supported. The same passage now states the identity that makes a balanced accuracy comparable to an
+area under a curve, which a reader who did not supply it would file as a category error.

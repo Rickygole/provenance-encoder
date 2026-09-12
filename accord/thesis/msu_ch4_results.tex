@@ -147,8 +147,21 @@ of $0.4745$. The second uses
 a true key join instead of a reconstruction, exact where it applies but
 applying to far fewer rows: only 23 of the 165 candidates carry a usable join
 key, and on that subset the exemplar is correct on all 23, a wrong rate of 0.
-The honest range is therefore 0 to $0.4745$: exact but thin on the join, broad
-but imperfectly calibrated on the reconstruction, and neither is discarded. A
+Calling that a range, as an earlier version of this section did, is wrong, and the
+arithmetic says so plainly. If the reconstruction's rate of $0.4745$ were the true
+rate and joinability were independent of correctness, the probability of drawing $23$
+joinable rows and finding all $23$ correct would be $0.5255^{23}$, which is about
+$4$ in ten million. The two measurements are therefore not two ends of one interval.
+They are mutually exclusive unless joinability is strongly confounded with
+correctness, and that confound is the load-bearing assumption behind keeping both
+numbers. It is plausible on its face, because a row carries a usable join key when
+the pipeline's own bookkeeping about it was intact, which is the same bookkeeping the
+selector defect corrupts. But it is an assumption this thesis states and does not
+test, and the test is available: whether joinability predicts correctness, on these
+$23$ rows and on the $35$-row four-rule join. Until that is run, one of these two
+numbers is wrong and this thesis does not know which, which is a weaker position than
+a range and is the position the evidence supports. Neither is discarded, and neither
+should be quoted alone. A
 separate join, across all four rules rather than Rule 1 and 2 alone, matches
 the $299$-row annotated sample to the rebuilt candidates table on $35$ rows;
 that is a different operation with a different denominator, not a third
@@ -475,9 +488,15 @@ chance beneath it. Claude Sonnet 5 zero-shot reaches a balanced accuracy of
 $0.7941$ on the same rows, and its Matthews correlation of $+0.3189$ carries an
 interval of $+0.1473$ to $0.4622$, which excludes zero where none of the four
 systems this pipeline produced does.
-The claim that an effect above the stated line would have been visible had one
-been present is now demonstrated on the actual rows rather than argued from the
-class counts.
+The comparison is between a balanced accuracy and an area under a curve, and the
+identity that licenses it should be stated rather than left for a reader to supply:
+for a binary decision rule the area under its two-point curve equals the mean of its
+true-positive and true-negative rates, which is the balanced accuracy. So the two
+quantities are on one scale here. That an effect above the stated line would have been
+visible had one been present is therefore supported on the actual rows rather than
+argued from the class counts, and supported is the right word: one observation above a
+threshold set at eighty percent power is consistent with that power, not a
+demonstration of it.
 
 Third, the comparison that carries this is not the one on the twelve positives.
 Recall parity between $0.7500$ here and ACCORD's decontaminated mean is a
