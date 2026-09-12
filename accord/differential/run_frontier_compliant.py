@@ -25,7 +25,13 @@ of them:
                         that, prompts may be retained and human-reviewed,
                         which is the disclosure Clause 3 forbids.
 
-It also closes a Clause 8 gap (code contribution; Clause 9 is termination): the original run's code was never in this
+It also closes a Clause 9 gap. Clause numbering here follows the Credentialed
+Health Data Use Agreement 1.5.0, the instrument the licensee signs, which has ten
+clauses: 3 is no sharing of access, 9 is contributing code for disseminated
+results, 10 is termination. The Credentialed Health Data License 1.5.0 is a
+different document with nine clauses, where code contribution is 8 and termination
+is 9, and conflating the two is how a correct citation here was briefly changed to
+a wrong one: the original run's code was never in this
 repository, which made those two tables the only results in the thesis with no
 committed code path.
 
@@ -89,20 +95,28 @@ DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-5"
 # The parser from the original run: case-insensitive match on the first word.
 # Anything else is a parse failure and is counted, never defaulted to a class.
 COMPLIANCE_NOTE = {
-    "anthropic": ("Run through the Anthropic API, which PhysioNet's guidance "
-                  "of 18 April 2023 names as a compliant route on the grounds "
-                  "that prompts are not used for training and routine human "
-                  "review is not performed. Supersedes the original run "
-                  "against OpenAI's public API, which breached Clause 3."),
+    "anthropic": ("Run through the Anthropic API. PhysioNet's guidance of 18 "
+                  "April 2023 names Anthropic Claude among four suggested "
+                  "services, quoting that Claude does not use prompts or "
+                  "responses to train its models by default and that routine "
+                  "human review is not performed. The guidance draws no "
+                  "distinction between a first-party interface and a cloud "
+                  "tenancy, and requires an opt-out form for Azure only. "
+                  "Supersedes the original run against OpenAI's public API, "
+                  "which breached Clause 3."),
     "azure": ("Run through Azure OpenAI with human review opted out, the route "
               "named in PhysioNet's guidance of 18 April 2023. Supersedes the "
               "original public-API run, which breached Clause 3."),
-    "bedrock": ("Run through AWS Bedrock in the author's own account, one of the "
-                "routes PhysioNet's guidance of 18 April 2023 names as "
-                "acceptable on the grounds that inference runs inside a tenancy "
-                "the licensee controls and inputs are not used for training. "
-                "Added to vary vendor and channel while holding the model "
-                "family constant; see C68."),
+    "bedrock": ("Run through AWS Bedrock in the author's own account. Bedrock is "
+                "one of four services PhysioNet's guidance of 18 April 2023 "
+                "suggests in place of a general-purpose hosted API; the ground "
+                "the guidance itself gives is that after a private copy of a "
+                "base model is made, data is not shared back to that base model "
+                "for training. An earlier version of this note gave a different "
+                "ground, that inference runs inside a tenancy the licensee "
+                "controls, which is the author's reasoning rather than the "
+                "document's. Added to vary vendor and channel while holding the "
+                "model family constant; see C68."),
 }
 
 POSITIVE = "contradiction"

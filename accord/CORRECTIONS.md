@@ -3793,3 +3793,55 @@ with none under.
 **One dangling reference, introduced by this round.** A note cited a table label that does not exist
 in the document, invented while writing the ddof comparison. Pass 7 caught it before the build
 shipped, which is the one thing in this entry that worked as designed.
+
+## C81. The primary sources arrive, and they overturn a correction rather than the original claim
+
+The author supplied the PhysioNet documents themselves: the Credentialed Health Data Use Agreement
+1.5.0, the Credentialed Health Data License 1.5.0, the credentialing record, and the news archive
+containing the guidance of 18 April 2023. Three things in this thesis were wrong against them, and
+two of the three were wrong because of a correction rather than in spite of one.
+
+**The clause citation was right, and I broke it.** The Use Agreement has ten numbered undertakings:
+3 is not sharing access, 9 is contributing code for disseminated results, 10 is termination. The
+thesis originally cited Clause 9 for the code obligation, which is correct. An adversarial review
+reported that Clause 8 was code contribution and Clause 9 termination, and that reading was applied.
+It was a reading of the wrong document. The License 1.5.0 is a separate instrument with nine clauses,
+where code contribution is 8 and termination is 9. The two number the same obligation one apart, so a
+clause number means nothing unless the instrument is named. Reverted to Clause 9, and the section now
+names which instrument it counts, which is the fix that stops this recurring.
+
+**The guidance names Anthropic Claude, and my hedge was worse than the overclaim.** The original text
+said all routes are "named in the guidance of 18 April 2023 as acceptable", which a committee round
+called an unsourceable claim on the ground that a 2023 document cannot name 2026 models. I rewrote it
+into two open questions. The guidance itself says: "If you are interested in using the GPT family of
+models, we suggest using one of the following services", and its fourth entry is "Anthropic Claude.
+Claude does not use your prompts or its responses as data to train its models by default, and routine
+human review of data is not performed." Amazon Bedrock is its second entry. So both routes used here
+are named, the first of my two open questions asked about a distinction the document does not draw,
+and the section is now built on quotation rather than on characterisation in either direction.
+
+Two details in the same text are worth more than the headline. The guidance requires an opt-out form
+for Azure and asks for none for Anthropic, so the absence of an opt-out here is the arrangement the
+document describes rather than a gap. And the ground it gives for Bedrock is that after a private copy
+of a base model is made, data is not shared back to that base model for training; the thesis and the
+runner both attributed to the guidance a different ground, that inference runs inside a tenancy the
+licensee controls, which is the author's reasoning. Both now give the document's ground and say which
+was the author's.
+
+**What is still open is narrower than any previous version claimed.** The guidance says Claude does
+not train on prompts "by default", and whether a default should have been supplemented by a
+zero-retention arrangement is not something the document answers. And it names a vendor and a service
+rather than model versions, so reading a 2026 Claude model as the same named service is the natural
+reading and remains a reading. Both go to the chair and the data steward, and the letter now quotes
+the guidance rather than asking about a distinction that does not exist in it.
+
+**The lesson, which is the same one twice.** A correction is not self-justifying. An agent reading the
+License produced a confident, specific, wrong clause map, and it was applied without checking the
+instrument the thesis actually cites; a committee round produced a correct objection to an overclaim
+and the repair overshot into asserting uncertainty the source does not support. Both were avoided the
+moment the primary document was read, and the primary document had been available throughout. The
+thesis's own standard, that a claim is checked against the artifact rather than against a description
+of it, applies to its corrections as much as to its results.
+
+**No date was affected.** The credentialing record shows an application, agreement and decision date
+of 23 February 2026. The thesis states no signing date anywhere, so nothing printed depended on it.
