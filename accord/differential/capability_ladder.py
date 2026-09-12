@@ -2,7 +2,7 @@
 
 WHY THIS EXISTS
 ---------------
-Section sec:r-capability compares four labellers on one denominator and quotes
+Section sec:r-capability compares five labellers on one denominator and quotes
 three derived ratios: the within-family step from llama3:8b to the Bedrock 70B,
 the across-family step C67 measured, and the prompt effect within the 70B. Those
 are quotients of numbers that live in four different artifacts, which is exactly
@@ -12,6 +12,24 @@ computed here instead, and the register keys are written from this artifact.
 The local 8B and the public-text ceiling are read from the committed sweep; the
 three hosted labellers from their own metrics artifacts, each of which the runner
 and the metrics script keep under a separate model tag.
+
+CAVEAT ON ROW 1, READ BEFORE QUOTING "one prompt condition"
+-------------------------------------------------------------
+Four of the five rows (the three hosted labellers plus the hosted 8B added by
+C72) are read through ratio() against the frontier zero-shot template, so those
+four really do sit on one denominator and one prompt. The fifth, llama3:8b run
+locally, is not: its ratio comes from results/accord/multillm/per_model_results.json,
+whose own prompt_source field records config_id=llama_baseline, a different
+prompt than the frontier template. This was found by checking that field rather
+than assumed, and it is not a small print difference: this same script measures
+a prompt effect within the 70B (zero-shot against few-shot, still one model, one
+channel) of about 1.68x, larger than the 1.10x channel effect at 8B this ladder
+also reports, which is computed by comparing the local llama3:8b row against the
+hosted Bedrock 8B row, i.e. exactly the two rows that differ in prompt as well as
+in channel. The channel effect above is therefore an upper bound confounded with
+an uncontrolled prompt difference, not a clean channel comparison, and the local
+row is kept in the ladder rather than dropped, because deleting the discrepant
+row would hide the very confound this note exists to disclose.
 
 Writes: results/accord/differential/capability_ladder.json
         and the capability.* block of results/accord/VERIFIED_FACTS.json
@@ -63,8 +81,11 @@ def main():
     facts = json.load(open(FACTS), object_pairs_hook=collections.OrderedDict)
     local_key = "overcall.llama3_8b.gold.ratio"
     local = float(facts[local_key]["value"])
+    # This row's prompt is read from its own source artifact rather than assumed
+    # to match the other four: it does not. See the module docstring's caveat.
+    local_prompt_source = json.load(open(facts[local_key]["artifact"]))["prompt_source"]
     rows.append({"labeller": LOCAL_8B, "channel": "Local", "ratio": local,
-                 "source": f"{FACTS}::{local_key}"})
+                 "source": f"{FACTS}::{local_key}", "prompt_source": local_prompt_source})
     rows.sort(key=lambda r: -r["ratio"])
 
     b70 = next(r["ratio"] for r in rows if r["labeller"].startswith("meta.llama3-70b"))
@@ -80,21 +101,55 @@ def main():
     haiku = next(r["ratio"] for r in rows if r["labeller"].startswith("Claude Haiku"))
     b70_fs = ratio(HOSTED[2][1], "few_shot")
 
+    # Computed once, ahead of the artifact dict, so the confound note below can
+    # quote the two figures it is about rather than restate them by hand.
+    channel_effect_at_8b = local / b8
+    prompt_effect_within_70b = b70 / b70_fs
+
     out = {
         "provenance": {
             "generated_by": "accord/differential/capability_ladder.py",
             "basis": BASIS, "strategy": STRAT,
-            "note": ("One denominator and one prompt condition across all four "
-                     "rows. The ratios below are quotients of the ladder, "
-                     "computed here so that none of them is typed into prose."),
+            # Four of the five rows share one prompt condition. The fifth is the
+            # Local llama3:8b row, whose own artifact records prompt_source
+            # "prompts_existing.csv, config_id=llama_baseline", not the frontier
+            # zero-shot template the other four use; see each row's own
+            # "prompt_source" field for the hosted/local split. This is not a
+            # footnote: the prompt effect measured within the 70B below is
+            # larger than the channel effect at 8B, and the channel effect is
+            # computed from the one pair of rows (Local and hosted 8B) where
+            # prompt also differs, so it is an upper bound, not a clean
+            # channel-only comparison.
+            "note": ("One denominator across all five rows. Four of the five "
+                     "share one prompt condition, the frontier zero-shot "
+                     "template; the fifth (Local llama3:8b) does not, and its "
+                     "own prompt_source is recorded on its row. The ratios "
+                     "below are quotients of the ladder, computed here so that "
+                     "none of them is typed into prose."),
         },
         "ladder": rows,
         "within_family_step_8b_to_70b": local / b70,
         "within_channel_step_8b_to_70b": b8 / b70,
-        "channel_effect_at_8b_local_over_hosted": local / b8,
+        "channel_effect_at_8b_local_over_hosted": channel_effect_at_8b,
         "across_family_step_c67": step_8b_min / haiku,
-        "prompt_effect_within_70b": b70 / b70_fs,
+        "prompt_effect_within_70b": prompt_effect_within_70b,
         "llama70b_few_shot_ratio": b70_fs,
+        # Written into the artifact, not only the docstring, so any script or
+        # sentence that loads this file and quotes channel_effect_at_8b_local_
+        # over_hosted inherits the caveat rather than having to know to look
+        # for it. local vs b8 is exactly the Local-row-vs-hosted-8B-row pair
+        # that differs in prompt as well as in channel (see each row's
+        # prompt_source), so this ratio bundles both effects together.
+        "channel_effect_confound": {
+            "confounded_with_prompt": True,
+            "reason": ("channel_effect_at_8b_local_over_hosted divides the "
+                       "Local llama3:8b row by the hosted Bedrock 8B row, and "
+                       "those two rows differ in prompt_source as well as in "
+                       "channel."),
+            "prompt_effect_within_70b_same_channel": prompt_effect_within_70b,
+            "channel_effect_at_8b": channel_effect_at_8b,
+            "prompt_effect_exceeds_channel_effect": prompt_effect_within_70b > channel_effect_at_8b,
+        },
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     json.dump(out, open(OUT, "w"), indent=1, sort_keys=True)

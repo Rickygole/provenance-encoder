@@ -4,6 +4,19 @@ from their sources.
 
 Appendix A  one line per correction and per post-freeze revision
 Appendix B  provenance of every reported quantity, grouped by experiment
+Appendix B pointer  the short section (msu_appB_pointer.tex) that tells the
+    reader the register, the claim trace and the survey table are bound in
+    the supplement, and states how big each one is
+
+msu_appB_pointer.tex used to be typed by hand. Its counts (how many values the
+register holds, how many numeric occurrences the trace resolves, how many are
+unique against how many are ambiguous, how many are untraced) drifted from the
+generated numbers during an audit, because a hand-typed number does not move
+when the script behind it is corrected. It is generated here now, from the
+register itself and from results/accord/CLAIM_TRACE.json, the artifact
+accord/stats/trace_claims.py writes: run that script before this one, or
+before reading this file's printed counts as current, since the pointer's
+trace figures are only as fresh as the last time trace_claims.py ran.
 
 Run:  python3 accord/stats/make_appendices.py
 """
@@ -290,8 +303,65 @@ def main():
     b += [r"\end{longtable}", r"\doublespacing", ""]
     (THESIS / "msu_appB_provenance.tex").write_text("\n".join(b) + "\n")
 
+    # ---- Appendix B pointer ----
+    # This short section used to be typed by hand, and its numbers (how many
+    # values the register holds, how many occurrences the trace resolves, the
+    # unique/ambiguous split, the untraced count) moved during an audit without
+    # any of the hand-typed figures moving with them: none of them appeared
+    # anywhere in the generated output any more. Every number below is read
+    # from the register (already loaded as F, above) or from
+    # results/accord/CLAIM_TRACE.json, the artifact trace_claims.py writes; see
+    # that script's own n_distinct / n_unique_rows / n_ambiguous_rows fields,
+    # computed once over the same dedup its Appendix C table uses, rather than
+    # recomputed a second way here.
+    trace_path = ROOT / "results" / "accord" / "CLAIM_TRACE.json"
+    if not trace_path.exists():
+        raise SystemExit(
+            "results/accord/CLAIM_TRACE.json is missing; run "
+            "accord/stats/trace_claims.py before this script so the pointer "
+            "numbers below have an artifact to be read from, rather than "
+            "typing a placeholder here that would drift the same way the old "
+            "hand-typed pointer did.")
+    trace = json.loads(trace_path.read_text())
+    n_scanned = trace["n_traced"] + trace["n_untraced"]
+    survey_n = int(F["survey.n_included"]["value"])
+
+    pointer = [
+        r"% Flows directly after the correction record instead of opening its own page.",
+        r"% The label binds to Appendix A's counter, so chapter references print the",
+        r"% appendix this text actually lives in.",
+        r"% Numbered rather than starred: four chapters reference this section by number,",
+        r"% and a \label on a starred section captures the previous section counter, which",
+        r"% made every one of those references print the number of A.3 instead.",
+        r"\section{Reference Tables Bound in the Supplement}",
+        r"\label{app:provenance}",
+        "",
+        "Three reference tables belong to the record behind this thesis, machine-generated "
+        "by the appendix builder and the claim tracer in the analysis code released with "
+        "this thesis, and reproduced complete, without abbreviation, in the supplementary "
+        "file that accompanies this document; together they run to more than thirty pages "
+        f"of table, none of which is read sequentially. The first is the register of "
+        f"reported quantities: {len(F)} values, each extracted from a stored result file "
+        "by script rather than transcribed by hand, listed with the file it was read from. "
+        f"The second is the claim and evidence trace, which scans the chapters for "
+        f"{n_scanned} numeric literals and resolves {trace['n_traced']} of them against "
+        f"the register, at the precision printed: of the {trace['n_distinct']} distinct "
+        f"registered quantities the trace names, {trace['n_unique_rows']} are matched "
+        f"uniquely and {trace['n_ambiguous_rows']} are matched among more than one "
+        "candidate and marked as indicative rather than definitive. The remaining "
+        f"{trace['n_untraced']} literals are not resolved to any registered value and are "
+        "listed as untraced rather than omitted. The third is the survey coding table "
+        "behind the prevalence measurement in Chapter~\\ref{ch:results}: all "
+        f"{survey_n} coded papers, reproduced in full so the counts can be recomputed "
+        "rather than taken on trust.", "",
+    ]
+    (THESIS / "msu_appB_pointer.tex").write_text("\n".join(pointer) + "\n")
+
     print(f"Appendix A: {len(entries)} corrections, {len(revs)} revisions")
     print(f"Appendix B: {len(groups)} groups covering {len(F)} values")
+    print(f"Appendix B pointer: register {len(F)}, trace {n_scanned} scanned / "
+          f"{trace['n_traced']} resolved / {trace['n_untraced']} untraced, "
+          f"survey {survey_n}")
 
 
 if __name__ == "__main__":

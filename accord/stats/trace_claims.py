@@ -53,22 +53,59 @@ OVERCLAIM = [
 
 
 def index_by_value():
-    """value string -> list of register keys that render to it."""
-    idx = {}
+    """Build two indexes, keyed by the string a register value would render as.
+
+    idx is the plain form: the literal must equal the stored value at the
+    printed precision, nothing scaled. idx_pct is the same value times 100,
+    kept separate on purpose. The old code folded the times-100 form into the
+    same set of forms for every value unconditionally, which meant a register
+    entry of 0.04 rendered a candidate string "4.00" alongside its own honest
+    "0.04", and a passing rate of 0.05 rendered "5.00" too. That is how a
+    G_253 over-calling ratio of 4.00 or 5.00 (a real value at that precision)
+    collided with an unrelated precision or rate whose only connection was
+    the coincidence of one being the other divided by 100. The percent form
+    is only ever consulted by the caller when the literal in the prose is
+    actually written as a percentage (a trailing \\% or the word "percent"),
+    so a value is never scaled just because scaling happens to land on
+    something else in the register.
+    """
+    idx, idx_pct = {}, {}
     for key, rec in FACTS.items():
         v = rec["value"]
         if isinstance(v, bool) or v is None or isinstance(v, str):
             continue
-        forms = set()
         if isinstance(v, int):
-            forms |= {str(v), f"{v:,}"}
-        else:
-            for val in (v, abs(v)):
-                forms |= {f"{val:.{p}f}" for p in range(7)} | {str(val)}
-                forms |= {f"{val * 100:.{p}f}" for p in range(4)}
+            for f in {str(v), f"{v:,}"}:
+                idx.setdefault(f, []).append(key)
+            continue
+        forms, pct_forms = set(), set()
+        for val in (v, abs(v)):
+            forms |= {f"{val:.{p}f}" for p in range(7)} | {str(val)}
+            pct_forms |= {f"{val * 100:.{p}f}" for p in range(4)}
         for f in forms:
             idx.setdefault(f, []).append(key)
-    return idx
+        for f in pct_forms:
+            idx_pct.setdefault(f, []).append(key)
+    return idx, idx_pct
+
+
+# A literal is read as a percentage only when a percent marker sits next to it
+# in the source, not merely somewhere in the same sentence: table rows pack a
+# count and two percentages on one line ("134 & 2.24\% & 97.01\%"), and without
+# a boundary the count would go looking for a times-100 match too. The window
+# is cut short at a table cell or row break, a sentence-ending period, so a
+# percent sign two cells over cannot leak backward onto an unrelated count.
+PCT_WINDOW = 24
+PCT_BOUNDARY = re.compile(r"\\\\|&|\.\s")
+PCT_MARKER = re.compile(r"\\%|\bpercent\b")
+
+
+def is_percent_context(text, end):
+    window = text[end:end + PCT_WINDOW]
+    boundary = PCT_BOUNDARY.search(window)
+    if boundary:
+        window = window[:boundary.start()]
+    return bool(PCT_MARKER.search(window))
 
 
 def sentence_around(text, pos, width=240):
@@ -88,7 +125,7 @@ def clean(s):
 
 
 def main():
-    idx = index_by_value()
+    idx, idx_pct = index_by_value()
     records, untraced = [], []
 
     for f in CHAPTERS:
@@ -99,7 +136,15 @@ def main():
             bare = tok.replace(",", "")
             if tok in EXEMPT or bare in EXEMPT or re.fullmatch(r"(19|20)\d\d", bare):
                 continue
-            keys = idx.get(tok) or idx.get(bare)
+            keys = idx.get(tok) or idx.get(bare) or []
+            # The percent-scaled index is only consulted when the literal itself
+            # is written as a percentage next to this token; see is_percent_context.
+            # Candidates found this way are appended, not substituted, so a value
+            # that is genuinely stored both ways (rare, but ablation.*.pct_of_
+            # segment_index keys are pre-scaled) is not lost either direction.
+            if is_percent_context(text, m.end()):
+                pct_keys = idx_pct.get(tok) or idx_pct.get(bare) or []
+                keys = list(dict.fromkeys(keys + [k for k in pct_keys if k not in keys]))
             rec = {"chapter": f.name, "value": tok,
                    "sentence": sentence_around(text, m.start())}
             if keys:
@@ -113,20 +158,27 @@ def main():
                     -sum(1 for tok in re.split(r"[._]", k.lower()) if len(tok) > 3 and tok in ctx),
                     len(k)))
                 k = scored[0]
-                hits = sum(1 for tok in re.split(r"[._]", k.lower()) if len(tok) > 3 and tok in ctx)
                 rec["register_key"] = k
                 rec["artifact"] = FACTS[k]["artifact"]
                 rec["n_candidate_keys"] = len(keys)
-                rec["attribution"] = "matched" if hits else ("unique" if len(keys) == 1 else "ambiguous")
+                # "unique" means exactly one registered value renders to this literal:
+                # no guessing happened. Anything else is a guess among competing
+                # candidates, even when the winning candidate's name happens to share
+                # a word with the sentence, and that word overlap used to be treated
+                # as confirmation and skip the indicative marker below. That is
+                # precisely how the 4.00 row for decontam_gold.aggregate.precision.min
+                # got printed with no marker: the sentence said "gold set", the key
+                # was named "decontam_gold", and the shared word "gold" was read as a
+                # match despite three other candidates and despite the two having
+                # nothing to do with each other. A literal with more than one
+                # candidate is not unique no matter how it was picked, so it is always
+                # marked here.
+                rec["attribution"] = "unique" if len(keys) == 1 else "ambiguous"
                 if len(keys) > 1:
                     rec["other_candidates"] = [x for x in scored[1:6]]
                 records.append(rec)
             else:
                 untraced.append(rec)
-
-    out = {"n_traced": len(records), "n_untraced": len(untraced),
-           "records": records, "untraced": untraced}
-    (ROOT / "results" / "accord" / "CLAIM_TRACE.json").write_text(json.dumps(out, indent=2))
 
     # ---- Appendix C ----
     seen, rows = set(), []
@@ -135,6 +187,22 @@ def main():
             continue
         seen.add(r["register_key"])
         rows.append(r)
+    n_amb = sum(1 for r in rows if r.get("attribution") == "ambiguous")
+    n_uniq = sum(1 for r in rows if r.get("attribution") == "unique")
+
+    # n_distinct, n_unique_rows and n_ambiguous_rows are computed once, here,
+    # over the same dedup this appendix's table is built from, and written into
+    # the artifact rather than left for another script to recompute from
+    # records. make_appendices.py reads them to write the pointer paragraph in
+    # msu_appB_pointer.tex, which used to be hand-typed and drifted from this
+    # file's actual numbers; a second implementation of this dedup in that
+    # script would be exactly the kind of two-computations-of-one-quantity this
+    # project's other scripts go out of their way to avoid.
+    out = {"n_traced": len(records), "n_untraced": len(untraced),
+           "n_distinct": len(rows), "n_unique_rows": n_uniq,
+           "n_ambiguous_rows": n_amb,
+           "records": records, "untraced": untraced}
+    (ROOT / "results" / "accord" / "CLAIM_TRACE.json").write_text(json.dumps(out, indent=2))
 
     tex = [r"\chapter{Claim and Evidence Trace}", r"\label{app:trace}", "",
            f"Every quantity printed in this thesis is listed below with the file it was read from.",
@@ -149,12 +217,12 @@ def main():
         mark = "" if r.get("attribution") != "ambiguous" else r" \textsuperscript{a}"
         tex.append(f"{esc(r['value'])}{mark} & {esc_breakable(r['register_key'])} & "
                     f"{esc_breakable(r['artifact'])}\\\\")
-    n_amb = sum(1 for r in rows if r.get("attribution") == "ambiguous")
     tex += [r"\end{longtable}",
             "", f"Rows marked \\textsuperscript{{a}} ({n_amb} of {len(rows)}) carry a value that more "
-            "than one registered quantity shares, and the surrounding sentence did not disambiguate "
-            "them. The value is verified; the key shown is the most likely of several and should be "
-            "read as indicative rather than definitive.",
+            "than one registered quantity shares. The value is verified; the key shown is the "
+            "best-scored guess among the candidates and should be read as indicative rather than "
+            "definitive, even where the surrounding sentence shares a word with that guess's name, "
+            "because a shared word is a tie-breaker between candidates, not proof the guess is right.",
             r"\doublespacing", ""]
     (THESIS / "msu_appC_trace.tex").write_text("\n".join(tex) + "\n")
 

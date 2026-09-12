@@ -22,9 +22,14 @@ wrong in the direction that flatters the result: flipping labels does not only
 widen the interval, it destroys the association, and the mean shift is the
 dominant term. At p = 0.5 the old code reported [+0.0829, +0.5353] for a
 configuration in which every label is a fair coin and MCC is necessarily
-centred on zero. The correct answer at that point is [-0.1241, +0.1209] with a
-mean of -0.0004. The old conclusion, that the zero-shot result "survives even
-the fair-coin worst case", was an artifact of the missing term and is withdrawn.
+centred on zero. The correct answer at that point, quoted here from this
+script's own artifact rather than retyped from a run that predates it, is
+zero-shot [-0.12228, +0.12257] with a mean of +0.00015, and few-shot
+[-0.12502, +0.12258] with a mean of -0.00102: two arms, not one figure, because
+this script covers both strategies and they are not close enough to average
+together without losing the difference between them. The old conclusion, that
+the zero-shot result "survives even the fair-coin worst case", was an artifact
+of the missing term and is withdrawn.
 
 Reads:  results/accord/differential/frontier_anthropic_metrics{TAG}.json
 Writes: results/accord/differential/frontier_label_noise{TAG}.json
@@ -36,7 +41,9 @@ the register stayed behind on the withdrawn linearised artifact, including
 labelnoise.zero_shot.survives_any_label_noise = True, which is the claim the
 correction withdrew. Keys from the old construction that this one does not
 produce, the per-flip sensitivities and the arm-wise standard deviations, are
-deleted rather than left to resolve; see CORRECTIONS.md C68.
+deleted rather than left to resolve; see CORRECTIONS.md C69, not C68: C68 is
+the multiplicity correction, a different entry, and citing it here pointed a
+reader at the wrong write-up of why this file exists.
 
     python3 accord/differential/frontier_label_noise.py
 """
@@ -166,12 +173,33 @@ def main():
         for a, b in zip(rows, rows[1:]):
             if a["excludes_zero"] and not b["excludes_zero"]:
                 lo_p, hi_p = a["p"], b["p"]
+                # The bisection used to resample at B=2500 while every point on
+                # the sweep it is bracketing was drawn at B (10000). Bisection
+                # narrows the p-interval geometrically, but each step still
+                # asks "is the 2.5th percentile of THIS draw above zero", and
+                # that draw carries the same Monte Carlo noise as any other
+                # point on the grid: 30 rounds of halving does not shrink it,
+                # because it is a property of B, not of how many times the
+                # question is asked. Matching B to the grid means the crossing
+                # is not reported with a confidence the rest of the sweep does
+                # not share.
                 for _ in range(30):
                     mid = (lo_p + hi_p) / 2
-                    s = simulate(y, yh, mid, np.random.default_rng(SEED), B=2500)
+                    s = simulate(y, yh, mid, np.random.default_rng(SEED), B=B)
                     if float(np.percentile(s, 2.5)) > 0: lo_p = mid
                     else: hi_p = mid
-                crossing = (lo_p + hi_p) / 2
+                # Even at B = 10000 the percentile estimate that the bisection
+                # is chasing has a Monte Carlo standard error on the order of
+                # 1e-3 in p (checked empirically across replicate seeds before
+                # this fix: about 0.003 at B=2500, about 0.001 at B=10000,
+                # consistent with the 1/sqrt(B) scaling of a bootstrap
+                # percentile's own sampling error). Printing a fourth decimal
+                # place would report a digit the method cannot support at
+                # either B, so the crossing is rounded to three decimals here,
+                # at the point it is computed, rather than only in the print
+                # statement below, so the register and the artifact carry the
+                # same honestly-precise number the chapters read from.
+                crossing = round((lo_p + hi_p) / 2, 3)
                 break
         out["by_strategy"][strat] = {
             "cells": {"tp": tp, "fp": fp, "fn": fn, "tn": tn},
@@ -186,8 +214,11 @@ def main():
     print(f"register keys under {PREFIX}.*: {update_register(out)} written\n")
     for strat, r in out["by_strategy"].items():
         cr = r["flip_probability_at_which_zero_enters"]
+        # cr is already rounded to 3dp at the point it is computed (see above);
+        # printed to 3dp here too, not 4, so the console output matches what
+        # the artifact and the register actually carry.
         print(f"{strat:<10} MCC {r['mcc_point']:+.4f}  "
-              f"crosses zero at p = {cr:.4f}" if cr else
+              f"crosses zero at p = {cr:.3f}" if cr else
               f"{strat:<10} MCC {r['mcc_point']:+.4f}  survives to p = 0.5")
         for row in r["sweep"]:
             if row["p"] in (0.0, 0.15, 0.25, 0.50):

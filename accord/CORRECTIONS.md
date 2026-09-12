@@ -3600,3 +3600,40 @@ Both now appear in the chapter.
 
 **What did not change.** Holm still rejects two, and the two tests that clear Bonferroni are the same
 two. The conclusion is unchanged and every printed threshold moved.
+
+## C77. The provenance gate resolved numbers across two orders of magnitude, in both places it is implemented
+
+**What the gate did.** Pass 2 of the verification harness indexes every registered value and every
+string form of it, and it added a times-100 form unconditionally. So a registered precision floor of
+0.04 made the literal 4.00 resolvable, a registered 0.61 made 61 resolvable, and a registered
+over-calling ratio of 2.0548 made a 205-row count resolvable. The same code shape was in
+`trace_claims.py`, which generates the appendix that claims to trace every number in the thesis to
+its source, and there it printed the collision on the page: a row reading 4.00 against
+`decontam_gold.aggregate.precision.min`, whose value is 0.04, with no indicative marker.
+
+**Why this is the worst class of defect in this project.** Every number in this thesis is generated
+and every number is gated, and the gate has been reporting success while accepting attributions that
+are off by a factor of a hundred. The appendix built to certify provenance failed at a provenance
+question, and its own self-flagging did not fire because the row resolved to exactly one candidate.
+A reader who trusted the appendix was misled by the instrument, which is worse than having no
+instrument.
+
+**Fixed in both places.** The percent form is now offered only for values that lie in the unit
+interval, where reading one as a percentage is meaningful, and only at the precision a percentage is
+written with. In the appendix generator the gate is stricter still: a percent form is consulted only
+when the literal is actually written as a percentage in the source, detected within a window that
+stops at a table cell boundary so a percent sign two cells away cannot leak onto an unrelated count.
+The attribution rule changed with it. A row is now marked indicative whenever more than one
+registered quantity shares its value, rather than when the key's name happens not to share a word
+with the surrounding sentence, which is how a genuinely ambiguous row came to be printed as
+definitive.
+
+**What it exposed.** One number in the thesis was resting on the collision and is now registered from
+its real source: the 205-row validation pool, which is 1,388 minus 1,183 and had been matching an
+over-calling ratio. Several appendix rows that had been silently wrong now show as untraced, which is
+the correct state for a number whose source the tooling cannot establish.
+
+**What it does not fix.** Pass 2 remains a digit match. Two quantities that genuinely share a value
+are still indistinguishable to it, 97 rows of the appendix are still marked indicative for that
+reason, and no amount of tightening makes a value comparison into a provenance proof. The honest
+description, which the thesis now gives, is that the gate is a floor.

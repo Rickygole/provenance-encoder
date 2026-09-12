@@ -316,7 +316,7 @@ for ax, (key, label, hue) in zip(axes, SER):
         ax.plot([cross], [0.0], marker="X", ms=MS_MARK, color=SCARLET_DEEP,
                 zorder=7)
         ax.text(0.485, 0.13,
-                f"reaches chance at $p = {cross:.4f}$", transform=ax.transAxes,
+                f"reaches chance at $p = {cross:.3f}$", transform=ax.transAxes,
                 color=SCARLET_DEEP, ha="right", va="bottom",
                 zorder=7, **cased(T_NOTE))
     ax.set_ylabel(r"Matthews, 95\% interval", fontsize=T_AXIS)
@@ -340,5 +340,5 @@ plt.close(fig)
 z = NOISE["by_strategy"]["zero_shot"]
 f = NOISE["by_strategy"]["few_shot"]
 print(f"wrote fig-labelnoise.pdf (zero-shot crosses at "
-      f"{z['flip_probability_at_which_zero_enters']:.4f}, few-shot at "
-      f"{f['flip_probability_at_which_zero_enters']:.4f})")
+      f"{z['flip_probability_at_which_zero_enters']:.3f}, few-shot at "
+      f"{f['flip_probability_at_which_zero_enters']:.3f})")

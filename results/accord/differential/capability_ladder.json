@@ -1,10 +1,18 @@
 {
  "across_family_step_c67": 2.466666666666667,
  "channel_effect_at_8b_local_over_hosted": 1.0961538461538463,
+ "channel_effect_confound": {
+  "channel_effect_at_8b": 1.0961538461538463,
+  "confounded_with_prompt": true,
+  "prompt_effect_exceeds_channel_effect": true,
+  "prompt_effect_within_70b_same_channel": 1.68,
+  "reason": "channel_effect_at_8b_local_over_hosted divides the Local llama3:8b row by the hosted Bedrock 8B row, and those two rows differ in prompt_source as well as in channel."
+ },
  "ladder": [
   {
    "channel": "Local",
    "labeller": "llama3:8b",
+   "prompt_source": "prompts_existing.csv, config_id=llama_baseline (verbatim)",
    "ratio": 23.75,
    "source": "results/accord/VERIFIED_FACTS.json::overcall.llama3_8b.gold.ratio"
   },
@@ -38,7 +46,7 @@
  "provenance": {
   "basis": "G_299",
   "generated_by": "accord/differential/capability_ladder.py",
-  "note": "One denominator and one prompt condition across all four rows. The ratios below are quotients of the ladder, computed here so that none of them is typed into prose.",
+  "note": "One denominator across all five rows. Four of the five share one prompt condition, the frontier zero-shot template; the fifth (Local llama3:8b) does not, and its own prompt_source is recorded on its row. The ratios below are quotients of the ladder, computed here so that none of them is typed into prose.",
   "strategy": "zero_shot"
  },
  "within_channel_step_8b_to_70b": 2.0634920634920633,

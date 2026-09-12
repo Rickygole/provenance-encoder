@@ -414,7 +414,7 @@ two runs on $G_{253}$, where they read $4.00$ and $3.25$.}
 \midrule
 Claude Sonnet 5, zero-shot     & $48$  & $4.00\times$  & $0.7500$ & $0.1618$ & $+0.3189$ \\
 Claude Sonnet 5, few-shot      & $39$  & $3.25\times$  & $0.5000$ & $0.1369$ & $+0.2137$ \\
-ACCORD at $\tau = 0.5$         & $234$ & ---           & $0.9167$ & $0.9253$ & $-0.0070$ \\
+ACCORD at $\tau = 0.5$         & $234$ & n/a           & $0.9167$ & $0.9253$ & $-0.0070$ \\
 \bottomrule
 \end{tabular}
 \apanote{Over-calling is the flagged rate divided by the confirmed rate of
@@ -509,8 +509,11 @@ the ordering survives holding vendor and family constant:
 \centering
 \small
 \caption[Over-calling by labeller, one denominator and one prompt]{Over-calling
-ratio on the $299$ labelled pairs, zero-shot, for every labeller measured on that
-set and that prompt.}
+ratio on the $299$ labelled pairs, zero-shot, for the five labellers this
+comparison turns on. Two further 8B labellers measured on the same set and prompt,
+at $18.5000$ and $15.4167$, are omitted here because they add points to the 8B
+cluster without bearing on the factor separation; Figure~\ref{fig:capability}
+plots all seven.}
 \begin{tabular}{llr}
 \toprule
 \textbf{Labeller} & \textbf{Channel} & \textbf{$G_{299}$ zero-shot ratio} \\
@@ -522,7 +525,7 @@ Claude Haiku 4.5                        & Hosted API           & 6.2500 \\
 Claude Sonnet 5                         & Hosted API           & 5.3333 \\
 \bottomrule
 \end{tabular}
-\apanote{One denominator throughout, the $299$ labelled pairs of Table~\ref{tab:denoms}, and one prompt condition, so the rows are comparable. The two Llama rows are the same model family, the same maker and the same instruction tuning at two parameter counts; the step between them is $2.2619$ against the $2.4667$ measured across families and vendors, which is why vendor is not carrying the earlier result. The second row closes the channel confound the first version of this table only disclosed. It is the same family and maker as the first row at the same parameter count, served through the same channel as the third, so the pair (row 1, row 2) isolates the channel and the pair (row 2, row 3) isolates capability. It was run under its own committed rule rather than as an extension of the first, and returned the outcome that leaves the capability reading intact.}
+\apanote{One denominator throughout, the $299$ labelled pairs of Table~\ref{tab:denoms}, and one prompt condition, so the rows are comparable. Three of the five rows are one model family at two parameter counts on two serving channels, which is what lets the factors be read separately: rows two and three differ only in scale and give $2.0635$, rows one and two differ only in serving channel and give $1.0962$. An earlier version of this note quoted $2.2619$ here as the scale-only step. That figure is rows one against three, which differ in both, so it was a compound of the two and is superseded by the pair above; it survives in the record as the figure C68 reported before the channel was controlled. The second row closes the channel confound the first version of this table only disclosed. It is the same family and maker as the first row at the same parameter count, served through the same channel as the third, so the pair (row 1, row 2) isolates the channel and the pair (row 2, row 3) isolates capability. It was run under its own committed rule rather than as an extension of the first, and returned the outcome that leaves the capability reading intact.}
 \label{tab:capability}
 \end{table}
 
@@ -668,16 +671,16 @@ withdrawn; the correction is recorded as C69.
 
 Figure~\ref{fig:labelnoise} sweeps $p$ for both runs. Neither run survives
 arbitrary instability, and the question is how much each tolerates. The
-zero-shot interval admits zero once $p$ reaches $0.2467$: roughly one label in
+zero-shot interval admits zero once $p$ reaches $0.245$: roughly one label in
 four would have to flip between draws before its exclusion of zero fails. The
-few-shot interval admits zero at $0.0941$, roughly one in eleven. So the two runs
-differ by a factor of about two and a half in how much label instability they
+few-shot interval admits zero at $0.083$, roughly one in twelve. So the two runs
+differ by a factor of about three in how much label instability they
 tolerate, and both bounds are assumptions about a quantity this thesis did not
 measure for Sonnet, which does not accept a temperature parameter and was drawn
 once per pair.
 
 What that supports is narrow. The zero-shot exclusion of zero holds under label
-instability up to $0.2467$ and not beyond it. The few-shot exclusion, whose
+instability up to $0.245$ and not beyond it. The few-shot exclusion, whose
 interval at $p = 0$ runs from $+0.0309$, holds only under an assumption of
 near-stable labels that this run cannot support, so the few-shot value is
 reported as positive but not as distinguishable from chance, and no claim in this
@@ -698,7 +701,7 @@ neither band occludes the other. Both the interval and its centre move with $p$:
 the mechanism is simulated directly, resampling pairs and flipping labels
 jointly at $B = 10{,}000$ draws per value of $p$, rather than propagating the
 variance of the flip count about a fixed point estimate. The zero-shot interval
-admits chance at $p = 0.2467$ and the few-shot interval at $p = 0.0941$. At
+admits chance at $p = 0.245$ and the few-shot interval at $p = 0.083$. At
 $p = 0.5$, where every label is an independent fair coin, both are centred on
 zero, which is what that configuration requires. This is the behaviour of an
 interval under one stated noise mechanism and not a posterior over the
@@ -900,7 +903,21 @@ $t = 4.0001$ on $235.84$ degrees of freedom,
 which rejects exact equality at conventional significance thresholds; with
 $190$ pairs in the control condition and $1{,}956$ in the clinical one, a
 difference this small is still detectable, and $t$ alone reflects that
-sample size as much as the size of the difference. The pooled-standard-deviation
+sample size as much as the size of the difference.
+
+That degrees-of-freedom figure is not defensible, and the reason is structural
+rather than a matter of degree. The $190$ control observations are every pairwise
+similarity among $20$ sentences, $190$ being exactly $20$ choose $2$, so each
+sentence enters nineteen of them and the observations are not independent draws.
+Welch's test treats them as $190$; the number of independent units is closer to
+$20$. The standard error is therefore understated by a factor this thesis does not
+compute, and the $p$ value with it. The two samples are also built differently, all
+pairwise combinations against $1{,}956$ matched pairs, so this is not a like-for-like
+unpaired comparison either. What survives is the effect size, Cohen's $d$ of
+$0.2808$, which does not depend on the degrees of freedom, and the reading
+Section~\ref{sec:res-rq3} takes from it. Nothing here rests on the $p$ value, and
+Section~\ref{sec:r-multiplicity} notes what that means for the one test in this
+thesis that clears correction. The pooled-standard-deviation
 Cohen's $d$ is $0.2808$, a small
 effect by conventional benchmarks, consistent with the reading below.
 Equality is therefore not claimed.
@@ -1144,14 +1161,16 @@ correction, and why the direction of the error matters, is recorded as C68. The
 count then moved from sixteen to twenty when the gradient was put to replication,
 and from twenty to twenty-two when a fourth labeller's two tests were found to have
 been computed and left out of the family, which is recorded as C76. It
-also reports eight interval estimates read
-against a null value, zero for the four Matthews correlations of Table~\ref{tab:mcc} and for the
-two pretraining gaps, and $0.5$ for the two AUROCs; five of the eight fail to exclude that null,
-the exceptions being the AG News gap and the two frontier rows, and all eight appear in
-Figure~\ref{fig:forest}. That interval count has moved twice. It was eight before the frontier comparison
-of Section~\ref{sec:r-frontier} was added, ten after, and eight again once the two GPT-4o rows
-were withdrawn for the reason Section~\ref{sec:m-ethics} gives. The number failing to exclude the
-null fell from seven to five with them, because both withdrawn intervals contained zero.
+also reports ten interval estimates read
+against a null value, zero for the six Matthews correlations of Table~\ref{tab:mcc} and for the
+two pretraining gaps, and $0.5$ for the two AUROCs; five of the ten fail to exclude that null,
+the exceptions being the AG News gap and the four frontier rows. That interval count has moved four
+times. It was eight before the frontier comparison of Section~\ref{sec:r-frontier} was added, ten
+after, eight again once the two GPT-4o rows were withdrawn for the reason
+Section~\ref{sec:m-ethics} gives, and ten again when the two Haiku rows were added to
+Table~\ref{tab:mcc}, which is where they should have been from the point Chapters~\ref{ch:intro}
+and~\ref{ch:discussion} began reading one of them against zero. Figure~\ref{fig:forest} plots the
+eight that predate the Haiku rows.
 \textbf{No multiple-comparison correction is applied anywhere in this thesis, and none of the
 reported $p$ values should be read as if one had been.} Were the twenty-two tests independent, a
 global null at $\alpha = 0.05$ would produce at least one rejection with probability $0.6765$. They
@@ -1169,7 +1188,12 @@ The Bonferroni threshold is valid under dependence, and at $0.05/22 = 0.0023$ tw
 tests clear it. One is the Welch test on the anisotropy control, at
 $t = 4.0001$ on $235.84$ degrees of freedom for a two-sided $p$ of $0.000085$;
 Section~\ref{sec:res-rq3} already declines to read that as
-support for the mechanism, on effect-size grounds rather than on multiplicity grounds. The other
+support for the mechanism, on effect-size grounds rather than on multiplicity
+grounds, and records that its degrees of freedom are overstated because its $190$
+observations are the pairwise similarities among $20$ sentences rather than $190$
+independent draws. So the test that clears correction most comfortably is also the
+one whose $p$ value this thesis trusts least, which is an uncomfortable thing for a
+subsection about multiplicity to have to say and is said rather than left out. The other
 is Claude Haiku 4.5's few-shot ambiguity gradient at $p = 0.0019$, which is a replication attempt
 on a model this thesis does not lead with.
 
@@ -1312,11 +1336,13 @@ done here is to apply it to these class counts.
 \midrule
 Claude Sonnet 5, zero-shot     & $9 + 39 = 48$    & $+0.3189$ & $+0.1473$ to $0.4622$ \\
 Claude Sonnet 5, few-shot      & $6 + 33 = 39$    & $+0.2137$ & $+0.0314$ to $0.3838$ \\
+Claude Haiku 4.5, zero-shot    & $8 + 52 = 60$    & $+0.2253$ & $+0.0688$ to $0.3643$ \\
+Claude Haiku 4.5, few-shot     & $8 + 47 = 55$    & $+0.2431$ & $+0.0805$ to $0.3870$ \\
 ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ & $-0.1626$ to $0.0753$ \\
 Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ & $-0.2337$ to $0.0563$ \\
 \bottomrule
 \end{tabular}
-\apanote{Cells from Table~\ref{tab:systems253} and, for the two Claude rows, from the frontier metrics artifact. Two further rows, a GPT-4o run in both prompt conditions, have been withdrawn for the reason given in Section~\ref{sec:m-ethics}; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. The two Claude intervals do not, but neither survives arbitrary label instability and they differ in how much they tolerate (Section~\ref{sec:r-frontier}): the zero-shot interval admits zero once the per-draw flip probability reaches $0.2467$ and the few-shot interval at $0.0941$, so no claim rests on the few-shot row. The Claude rows are single-draw labels from a model that does not accept a temperature parameter, and were run at a larger token budget than the GPT-4o rows, so they are not a paired protocol replacement for them.}
+\apanote{Cells from Table~\ref{tab:systems253} and, for the four Claude rows, from the frontier metrics artifacts. Two further rows, a GPT-4o run in both prompt conditions, have been withdrawn for the reason given in Section~\ref{sec:m-ethics}; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc,powers2011evaluation} and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. None of the four Claude intervals does, and that they come from two independent models is what makes the instrument's sensitivity a measurement rather than one observation. None survives arbitrary label instability either, and they differ in how much they tolerate (Section~\ref{sec:r-frontier}): Sonnet's zero-shot interval admits zero once the per-draw flip probability reaches $0.245$ and its few-shot interval at $0.083$, Haiku's at $0.164$ and $0.182$. Sonnet's few-shot row tolerates the least of the four and no claim rests on it; the Haiku rows were added to this table because Chapters~\ref{ch:intro} and~\ref{ch:discussion} read their interval against zero and an earlier version of this table did not report it. The Claude rows are single-draw labels from a model that does not accept a temperature parameter, and were run at a larger token budget than the GPT-4o rows, so they are not a paired protocol replacement for them.}
 \label{tab:mcc}
 \end{table}
 

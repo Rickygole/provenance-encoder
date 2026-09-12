@@ -48,8 +48,20 @@ def fact_values():
                 for places in range(0, 7):
                     out.add(f"{val:.{places}f}")
                 out.add(str(val))
-                for places in range(0, 4):
-                    out.add(f"{val * 100:.{places}f}")
+                # A times-100 form used to be added here unconditionally, so a
+                # registered 0.04 made the literal 4.00 resolvable and a
+                # registered 0.61 made 61 resolvable. That is how this gate came
+                # to accept numbers whose attribution is off by two orders of
+                # magnitude, and it is the same defect trace_claims.py carried
+                # into Appendix C, where it printed 4.00 against a precision
+                # floor of 0.04. A percent form is only offered when the value
+                # actually lies in [0, 1], where reading it as a percentage is
+                # meaningful, and only at the precision a percentage is written
+                # with. It is still a digit match and still not a proof of
+                # provenance; it is one fewer way to be wrong.
+                if 0.0 <= val <= 1.0:
+                    for places in range(0, 3):
+                        out.add(f"{val * 100:.{places}f}")
     return out
 
 
