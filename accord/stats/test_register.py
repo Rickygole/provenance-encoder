@@ -167,8 +167,16 @@ FAMILY = [
          group="ambiguity_gradient_llama8b",
          source="results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
 
-    # The four frontier Mann-Whitney tests. These are the same test, on the same
-    # 253 rows, that Table tab:decontam runs five times on the control model, and
+    # The four frontier discrimination tests, on the same 253 rows. An earlier version
+    # of this list used Mann-Whitney U on the binary label vector. That is the wrong
+    # instrument: the comparison is a 2x2 table with fixed margins, the vector is
+    # binary so roughly 78 percent of pairs are ties, and the rank test's normal
+    # approximation is anti-conservative there. It was anti-conservative in all four
+    # cases, by factors of 4 to 54, and every error favoured this thesis's sharpest
+    # claim. The exact conditional test was already stored in the same artifacts. One
+    # of the four changes verdict: Sonnet few-shot cleared under the rank test and does
+    # not clear under the exact one. See C85. These are the same tables, on the same
+    # 253 rows, that Table tab:decontam runs five tests on, and
     # they were computable from committed cells throughout. They were outside the
     # family while the family was presented as exhaustive, and they are the only
     # rejections on the clinical task, so the omission ran in the direction that
@@ -176,22 +184,22 @@ FAMILY = [
     # takes k from 22 to 26 and the threshold from 0.0023 to 0.0019; both still
     # clear it, which is why the omission is a reporting defect rather than a
     # changed conclusion. See C79.
-    dict(id="mw_sonnet_zs", test="Mann-Whitney U, two-sided",
-         where="sec:r-frontier", what="Sonnet 5 zero-shot labels on G_253",
-         group="frontier_mw",
-         source="results/accord/differential/frontier_anthropic_metrics.json::by_strategy.zero_shot.G_253.mannwhitney_p_two_sided"),
-    dict(id="mw_sonnet_fs", test="Mann-Whitney U, two-sided",
+    dict(id="fisher_frontier_sonnet_zs", test="Fisher exact, two-sided",
+         where="sec:r-frontier", what="Sonnet 5 zero-shot labels against the pharmacist on G_253",
+         group="frontier_discrimination",
+         source="results/accord/differential/frontier_anthropic_metrics.json::by_strategy.zero_shot.G_253.fisher_exact_p_two_sided"),
+    dict(id="fisher_frontier_sonnet_fs", test="Fisher exact, two-sided",
          where="sec:r-frontier", what="Sonnet 5 few-shot labels on G_253",
-         group="frontier_mw",
-         source="results/accord/differential/frontier_anthropic_metrics.json::by_strategy.few_shot.G_253.mannwhitney_p_two_sided"),
-    dict(id="mw_haiku_zs", test="Mann-Whitney U, two-sided",
+         group="frontier_discrimination",
+         source="results/accord/differential/frontier_anthropic_metrics.json::by_strategy.few_shot.G_253.fisher_exact_p_two_sided"),
+    dict(id="fisher_frontier_haiku_zs", test="Fisher exact, two-sided",
          where="sec:r-frontier", what="Haiku 4.5 zero-shot labels on G_253",
-         group="frontier_mw",
-         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.zero_shot.G_253.mannwhitney_p_two_sided"),
-    dict(id="mw_haiku_fs", test="Mann-Whitney U, two-sided",
+         group="frontier_discrimination",
+         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.zero_shot.G_253.fisher_exact_p_two_sided"),
+    dict(id="fisher_frontier_haiku_fs", test="Fisher exact, two-sided",
          where="sec:r-frontier", what="Haiku 4.5 few-shot labels on G_253",
-         group="frontier_mw",
-         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.few_shot.G_253.mannwhitney_p_two_sided"),
+         group="frontier_discrimination",
+         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.few_shot.G_253.fisher_exact_p_two_sided"),
 ]
 
 

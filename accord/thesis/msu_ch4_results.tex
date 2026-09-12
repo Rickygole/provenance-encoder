@@ -1160,7 +1160,7 @@ committed register released with the analysis code, one entry per test, each bou
 to the artifact and key its $p$ value is read from, and the count and every
 threshold derived from it are computed from that list rather than typed here: five
 Mann-Whitney tests in Table~\ref{tab:decontam}, five DeLong tests in
-Table~\ref{tab:delong}, four Mann-Whitney tests on the frontier labels of
+Table~\ref{tab:delong}, four Fisher exact tests on the frontier labels of
 Section~\ref{sec:r-frontier}, one Fisher exact test on the mechanism split, eight
 one-sided Fisher exact tests on the ambiguity gradient of
 Section~\ref{sec:r-ambiguity}, two for each of the four labellers asked, one
@@ -1197,13 +1197,32 @@ imprecision: the absence of a rejection across a correlated family of this size 
 evidence than the same absence would be for a single pre-specified test, and any single rejection
 inside it would be correspondingly weaker evidence of an effect.
 
-The Bonferroni threshold is valid under dependence, and at $0.05/26 = 0.0019$ six of the
-twenty-six tests clear it. Four are the Mann-Whitney tests on the frontier labels, at
-$p$ values from $4.2 \times 10^{-7}$ to $0.0007$, and they are the only rejections in
-this thesis that concern the clinical task directly: they say the frontier labels
-separate the pharmacist's confirmed cases from the rest on the same rows where the
-systems this pipeline built do not. The fifth is Claude Haiku 4.5's few-shot ambiguity
-gradient at $p = 0.0019$. The sixth is the Welch test on the anisotropy control, at
+The Bonferroni threshold is valid under dependence, and at $0.05/26 = 0.0019$ five of the
+twenty-six tests clear it. Three are Fisher exact tests on the frontier labels, at
+$p$ values of $2.3 \times 10^{-5}$, $7.7 \times 10^{-4}$ and $0.0015$, and they are the
+only rejections in this thesis that concern the clinical task directly: they say the
+frontier labels separate the pharmacist's confirmed cases from the rest on the same rows
+where the systems this pipeline built do not. The fourth frontier test, Sonnet 5 under
+the few-shot prompt, returns $0.0042$ and does not clear.
+
+An earlier version of this subsection reported those four tests as Mann-Whitney tests
+and gave their $p$ values as $4.2 \times 10^{-7}$ to $0.0007$, under which all four
+cleared. That was the wrong instrument and the error ran one way. The comparison is a
+two-by-two table with fixed margins and the label vector is binary, so roughly four
+fifths of the pairs a rank test forms are ties, and the normal approximation it then
+uses is anti-conservative. It was anti-conservative in all four cases, by factors
+between four and fifty-four, and every one of the four errors favoured the claim this
+chapter leads with. The exact conditional test for each of those tables was already
+computed and stored in the same artifact the register reads. Substituting it changes one
+verdict, which is the one that mattered: Sonnet's few-shot row cleared correction under
+the rank test and does not clear under the exact test. This is the defect class this
+thesis exists to describe, a procedure chosen where it happens to be favourable, and it
+was inside the strongest result in the document. It is recorded as C85.
+
+The fifth test to clear is Claude Haiku 4.5's few-shot ambiguity
+gradient at $p = 0.0019$, against a threshold of $0.0019$; the margin is three parts in
+a hundred thousand, so it clears at twenty-six tests and would not clear at
+twenty-seven. The sixth is the Welch test on the anisotropy control, at
 $t = 4.0001$ on $235.84$ degrees of freedom for a two-sided $p$ of $0.000085$;
 Section~\ref{sec:res-rq3} already declines to read that as support for the mechanism,
 on effect-size grounds, and records that its degrees of freedom are overstated because
@@ -1241,7 +1260,7 @@ and the intervals are where two of this thesis's load-bearing claims live. Read 
 $0.05/26$ rather than at $0.05$, Sonnet's Matthews interval on $G_{253}$ still excludes
 zero and Haiku's does not: its lower bound moves to $-0.0233$. So the sentence in
 Section~\ref{sec:r-frontier} that two independent labellers clear the evaluation's
-stated floor rests on the two Mann-Whitney tests, which do clear correction, and not on
+stated floor rests on the two zero-shot Fisher exact tests, which do clear correction, and not on
 the two bootstrap intervals, only one of which would. Both readings are reported
 because a family that corrects its tests and not its intervals is applying its
 discipline where it is safe, which is the reporting defect this subsection exists to

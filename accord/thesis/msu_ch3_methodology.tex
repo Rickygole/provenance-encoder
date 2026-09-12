@@ -981,7 +981,7 @@ rather than from a general good-practice statement.
 \paragraph{Note text, and third-party transmission.} No clinical note text, and no admission or
 subject identifier, appears anywhere in this document or any released artifact; note-derived
 intermediate files stay outside the version-controlled tree, and the export script scans every
-candidate file for note-text markers and aborts on a hit. Two departures are disclosed here.
+candidate file for note-text markers and aborts on a hit. Two prohibited transmissions are disclosed here.
 
 The first is the comparison against GPT-4o, a hosted commercial model this bibliography carries no
 reference for and which is therefore named rather than cited, which placed de-identified note
@@ -997,9 +997,10 @@ delivered artifact, not a documented pipeline parameter, and is reported as meas
 sheet. What the prompts were filled from was therefore a truncated excerpt of at most two hundred
 characters per note side, not a note, but that is not a defence: a verbatim sentence from a
 credentialed note is restricted data whatever its length, and the prohibition on sharing access is
-not scaled by quantity, so the departure stands as a departure whatever its exact span. It is the
-only departure of its kind in this project; the annotation described below involved no transfer at
-all.
+not scaled by quantity, so the departure stands as a departure whatever its exact span. It is the larger of
+two departures of its kind in this project, the second being the safety screen described below, and
+the section's earlier claim that it was the only one is withdrawn. The annotation described below
+is a separate question and is treated separately.
 
 The second is a cross-domain safety screen that sent $50$ sampled pairs through the Hugging Face
 Inference API to \texttt{Meta-Llama-3-8B-Instruct}. Those $50$ rows produce no number this thesis
@@ -1015,8 +1016,12 @@ not the claim a reader takes from it, so the fuller position is stated here. A f
 sentences to weak labels was held on a Google Drive mount and read from there by an analysis notebook
 running in Google Colab; the notebook is committed and mounts the drive on its second cell, so this is
 established by the repository rather than disclosed against it. Raw database tables were also held in
-a local downloads folder. Both are being moved under credentialed-only local storage, and the
-analysis scripts now read from that location. Whether the institution's cloud agreement covers
+a local downloads folder. The database tables have been moved under credentialed-only local storage and the analysis scripts
+that read note-derived files now point there. The move is not complete: seven committed artifacts
+still mount the drive, among them six notebooks and the detector's own training script, which also
+writes its checkpoints there. Those are the files this disclosure rests on and they are named rather
+than described, because a claim that the move had finished would be falsified by one search of this
+repository. Whether the institution's cloud agreement covers
 credentialed data of this kind is a question of storage and a question of compute, and both are
 for the institutional data steward rather than answered here. What this section does not
 claim, and an earlier version could have been read as claiming, is that custody never left local
@@ -1074,11 +1079,15 @@ Claude Haiku 4.5, replicated & Anthropic API & 120 & Decoding stability, $40$ pa
 The five runs share an identical, already-described payload, so the comparison in that table is
 between models rather than between payloads, and none is an unreviewed channel: each was chosen
 from the guidance before it was used, which is the difference between these and the run they
-replace. One breached run's output is nonetheless withdrawn because the thesis can do without it,
-while another's is retained because it cannot; that is not a principled distinction about the
-agreement but a statement about what is within the author's power to remedy before deposit. The
-remedy, retraining the detector on labels generated through a channel this project can account for,
-is named in the obligations on any continuation below.
+replace. An earlier version of this paragraph said that one breached run's output was withdrawn
+because the thesis could do without it while another's was retained because it could not, and
+named retraining the detector as the remedy for the second. That asymmetry does not exist and both
+sentences are withdrawn. They were written when the deployed weak labels were believed to have
+passed through the second channel, which Section~\ref{sec:m-weak} and the correction record show
+they did not: that run was served locally, and its model keys in the weak-label artifacts carry the
+local runtime's naming rather than a hosted repository's. Neither breached run's output is retained,
+so there is no asymmetry to defend and no retraining owed on compliance grounds. What is owed on
+reproducibility grounds is a different matter and is stated below.
 
 \paragraph{The annotator, and credentialed access.} The gold standard was produced by one
 board-certified pharmacist, annotating in the author's presence and on the author's machine. No copy

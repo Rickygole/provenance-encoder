@@ -1,6 +1,13 @@
 # Corrections
 
-> **CLOSED 2026-08-10 at C62. This time the closure is enforced rather than intended.**
+> **NOT CLOSED. This banner declared the record closed at C62 on 2026-08-10 and said the
+> closure was enforced rather than intended. Twenty-three corrections have followed it, so
+> the banner is wrong in exactly the way it was written to mock: C46 declared closure and
+> sixteen entries followed. It is left in place rather than deleted because a record that
+> quietly removed its own failed closure would be making the point worse. The rule it
+> announced, that new findings go to the revision log and cannot change the thesis
+> statement or the contribution list, did not hold either: C65 withdrew a set of results
+> and C85 changed which tests clear correction.**
 > C46 declared this record closed and sixteen corrections followed it. New findings now go to
 > `REVISION_LOG.md`, which by written rule cannot change the thesis statement, the contribution
 > list, or the chapter structure. This file is Appendix A and is not the thesis's spine — it has
@@ -3202,7 +3209,7 @@ same treatment.
 **Verified before publishing:** no note text, no admission or subject identifier, no credential, no
 absolute path carrying a username. The only path in the file is a Colab mount.
 
-## C68. The multiplicity count was understated by two, and the understatement was the difference between the headline gradient clearing Bonferroni and not clearing it
+## C68. [PREMISE CORRECTED BY C85 AND C84: the zero-shot gradient cleared no threshold at any count, and the four frontier tests used the wrong instrument] The multiplicity count was understated by two, and the understatement was the difference between the headline gradient clearing Bonferroni and not clearing it
 
 **What was printed.** The multiplicity subsection of Chapter 4 opened "This chapter reports
 fourteen hypothesis tests" and then enumerated them: five Mann-Whitney, five DeLong, one Fisher
@@ -3465,7 +3472,7 @@ mechanism.
 labels only. No note text, no admission or subject identifier, and no exception body
 echoed.
 
-## C73. The control cost total double-counted the convergence sweep's own budget cell, against this project's own audit
+## C73. [REVERSED BY C84: the 12-run episode is an independent run set and the total is 1216.4 over 79 runs] The control cost total double-counted the convergence sweep's own budget cell, against this project's own audit
 
 **What was printed.** Chapter 5's cost table and two sentences in Chapter 6 reported the reconciled
 control compute as 1216.4 GPU minutes over 79 runs, with the arithmetic shown as
@@ -3493,7 +3500,7 @@ appears in the multiplicity family, where the count is computed from an enumerat
 boundary is also chosen. Generation removes transcription error and does not remove judgement error,
 and this entry is the clearest instance of that distinction in the project.
 
-**Fixed.** The register now carries 1181.5 and 67 with the subset reasoning in the key, the withdrawn
+**Superseded.** This entry's fix was itself wrong; the register carries 1216.4 and 79. See C84. The text below records what was believed at the time, unaltered with the subset reasoning in the key, the withdrawn
 pair is kept under `withdrawn.*` because Chapter 5 quotes the superseded figure to say what it was,
 and the three prose sites read the corrected total.
 
@@ -4000,3 +4007,74 @@ tables are arithmetically clean cell by cell, the exception being the cost table
 and percentage quantity in the abstract and the chapters checks out, including that the abstract reads
 both of its over-calling ranges off the same denominator. The multiplicity arithmetic is correct at
 every count.
+
+## C85. The four frontier tests used the wrong instrument, and it was anti-conservative in every case
+
+A committee reader found the defect this thesis exists to describe, inside the strongest result in it.
+
+**What was wrong.** The four tests that establish the frontier labels separate the pharmacist's
+confirmed cases from the rest were computed as Mann-Whitney U on the binary label vector. That is the
+wrong instrument. The comparison is a two-by-two table with fixed margins; the vector is binary, so
+roughly four fifths of the pairs a rank test forms are ties; and the normal approximation it then uses
+is anti-conservative on such a table. It was anti-conservative in all four cases, by factors between
+four and fifty-four, and every one of the four errors ran in the direction that favoured this thesis.
+The exact conditional test for each of those tables had already been computed and stored in the same
+artifact the register reads.
+
+**What changes.** One verdict, and it is the one that mattered. Sonnet 5 under the few-shot prompt
+returned 0.0007 under the rank test and clears the corrected threshold; it returns 0.0042 under the
+exact test and does not. So five of twenty-six tests clear correction rather than six, and three of
+the four frontier tests clear rather than four. The claim that two independent labellers separate the
+classes at a significance surviving correction still stands, because both zero-shot rows clear, but it
+now rests on the two exact tests rather than on four rank tests.
+
+**Why this entry is the most damaging in the record.** The thesis's subject is procedures chosen where
+they happen to be favourable, and this is one, in its own multiplicity subsection, in the tests it
+added two rounds ago specifically to stop a family being understated. The generated-not-typed
+discipline did not catch it, because a script computed the wrong statistic faithfully. Nor did the
+register, which stores whatever it is handed. What caught it was a reader asking which test the data
+called for.
+
+**Also corrected in the same pass.** The fifth clearing test, Haiku's few-shot ambiguity gradient,
+was printed at the same rounding as the threshold it clears, 0.0019 against 0.0019, so its margin of
+three parts in a hundred thousand was invisible; it is now stated, with the fact that it would not
+clear at twenty-seven tests.
+
+## C86. Five sentences left false by the compression, and an asymmetry the ethics section did not run on itself
+
+The deletion pass that cut chapters 3, 4 and 6 orphaned qualifiers. A harsh reading found five.
+
+**A false confession survived.** The ethics section said one breached run's output was withdrawn
+because the thesis could do without it while another's was retained because it could not, and named
+retraining the detector as the remedy. Both sentences were written when the deployed weak labels were
+believed to have come through the second channel. C75 showed they did not; the paragraph around these
+sentences was deleted and these were kept. As they stood, a reader was told the detector's training
+supervision came through a prohibited channel and was kept anyway, which is false and is the worst
+available misreading of this project. Withdrawn, with the reason.
+
+**A remediation claim the repository falsifies.** The section said the affected files were being moved
+under credentialed-only local storage and that the analysis scripts now read from that location. Seven
+committed artifacts still mount the drive, six notebooks and the detector's own training script, which
+also writes its checkpoints there. The claim is now what is true: the move is incomplete, and the
+files that make it incomplete are named rather than described.
+
+**A completed act asserted for the second time.** C83 corrected two sentences saying open questions
+had been put to the chair and the data steward, because the letter is an unsent draft. It corrected
+the methodology instance and missed the discussion instance. So the correction record contained a
+false completion claim about a fix for a false completion claim. Corrected.
+
+**A uniqueness claim contradicted four lines later.** The section said the GPT-4o run was the only
+departure of its kind, and then disclosed a second of exactly that kind. C82 changed the framing
+everywhere except this sentence.
+
+**The abstract miscounted the pipeline and the frontier range.** It said three stages where the
+methodology and discussion chapters both say four, and gave the frontier over-calling range as five to
+six without naming a prompt, when one of the four frontier runs sits at 4.5000. Both fixed, and the
+abstract is back under the word cap at 247.
+
+**One asymmetry is recorded rather than resolved.** The section escalates the safety screen to
+prohibited on the ground that the guidance names a class of service and not a vendor. The same
+argument is available against hosted notebook compute, and there the section stops and defers to the
+institutional data steward. The standard that convicts one channel is not run on the other. That is
+noted here because the deferral is honest but the asymmetry is real, and a reader is entitled to see
+it named by the author rather than to find it.

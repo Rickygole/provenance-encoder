@@ -318,20 +318,37 @@ summaries are real, recurring, and worth detecting. A standard-shaped pipeline
 built for them does not detect them, and the sharpest thing this thesis can say
 is not that sentence but the comparison beside it. On the $253$ non-ambiguous
 pairs, the pipeline's detector reaches a Matthews correlation of $-0.0070$ and a
-term-frequency baseline $-0.0436$, both intervals containing chance, while two
-frontier labellers given one zero-shot prompt and no training at all reach
-$+0.3189$ and $+0.2253$ with intervals that exclude it
+separately prompted Llama 3 8B evaluation baseline $-0.0436$, both intervals
+containing chance, while two frontier labellers given one zero-shot prompt and no
+training at all reach $+0.3189$ and $+0.2253$, both intervals excluding chance. The stronger of the two is
+also separated from the pipeline: Sonnet's interval begins at $+0.1473$, above the
+detector's upper bound of $+0.0753$. Haiku's begins at $+0.0688$, which overlaps it, so
+the claim that a frontier labeller outranks this pipeline rests on the Sonnet row alone.
+Section~\ref{sec:m-stats} commits this thesis to claiming an ordering among systems only
+on an interval around the difference, and no such interval was computed; the
+non-overlap above is the weaker evidence that is available, and the ordering claim is
+scoped to it
 (Table~\ref{tab:mcc}). The zero-shot run flags $48$ of $253$ and is right about
 $9$, a precision of $0.1875$ against a base rate of $0.0474$ at a recall of
 $0.7500$, and its false-positive rate on the clear negatives is $0.1618$ against
 the detector's $0.9253$.
 
 Those systems saw the same rows, the same exemplars, the same base rate, the same
-twelve positives and the same single annotator. So none of rarity, prevalence,
-sample size or the exemplar defect can be what made the pipeline fail, because each
-of them applied in full to the systems that did not. What the evidence isolates is
-narrower and less comfortable: this pipeline's own construction, and the fact that
-its stage-wise metrics reported health while it was failing. The practical
+twelve positives and the same single annotator. What that rules out is narrower than
+it first appears, and the narrower version is what this thesis claims. It rules out
+the evaluation being unable to resolve an effect at this sample size, and it rules
+out the base rate and the exemplar defect making the task unresolvable, because both
+applied in full to the systems that resolved it. It does not rule out rarity as a
+cause of this pipeline's failure, because rarity reaches this pipeline through a
+learned label distribution the prompted systems never had: the labeller's degenerate
+marginal is the reason the detector cannot rank, and that marginal is a response to
+prevalence. Nor does it rule out the annotator, whose ambiguous calls are the pairs
+the more capable labellers most over-flag, so the annotator is not a constant across
+the comparison in the way the other two are. What the evidence does isolate is that
+the failure is not a property of the task as posed, and that this pipeline's
+stage-wise metrics reported health while it was failing. Whether the decisive defect
+is the label distribution or the detector's construction is not settled here, because
+no arm of this thesis trains a detector of this shape on non-degenerate labels. The practical
 recommendation that follows is one sentence. Before building a pipeline of this shape for a rare clinical
 event, prompt a frontier model on the evaluation set and make the pipeline beat it.
 This project did not do that, and doing it would have cost an afternoon at the start
