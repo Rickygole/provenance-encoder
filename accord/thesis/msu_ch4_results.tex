@@ -986,7 +986,7 @@ Mean         &    &     &   &    & 0.0424 & 0.7778 & $-0.0105$ & 0.8015 \\
 SD           &    &     &   &    & 0.0023 & 0.0393 & 0.0048 & 0.0226 \\
 \bottomrule
 \end{tabular}
-\apanote{Threshold $0.5$, the configured decision point. Each row sums to $253$. This is the operating behaviour that Chapter~\ref{ch:intro} calls the cleanest single expression of the failure and that Section~\ref{sec:disc-limits} relies on to say the system should not be deployed, and an earlier version of this chapter reported only the ranking metrics of Table~\ref{tab:decontam} and left the operating point to be quoted in three other chapters from a correction entry. Precision at $0.0424$ sits $0.0051$ above the set's confirmed rate of $0.0474$ minus its own binomial standard error of $0.0134$, which is the margin Section~\ref{sec:disc-null} reads as indistinguishable from the base rate. Recall is high because the detector is near-degenerate rather than because it discriminates: it returns a positive for between $207$ and $216$ of the $241$ clear negatives. The expected calibration error above $0.78$ in every seed is what a near-constant positive prediction produces against a $4$ percent event, and $\kappa$ below zero in every seed is agreement worse than chance once the marginal is accounted for. Standard deviations are over the three seeds at $\mathrm{ddof} = 0$, the population convention, which is what the aggregate artifact computes and is the same convention as Table~\ref{tab:decontam}; the sample convention of Table~\ref{tab:control299} would give $0.0028$, $0.0481$, $0.0058$ and $0.0277$, and the two are not compared against each other anywhere in this chapter.}
+\apanote{Threshold $0.5$, the configured decision point. Each row sums to $253$. This is the operating behaviour that Chapter~\ref{ch:intro} calls the cleanest single expression of the failure and that Section~\ref{sec:disc-limits} relies on to say the system should not be deployed, and an earlier version of this chapter reported only the ranking metrics of Table~\ref{tab:decontam} and left the operating point to be quoted in three other chapters from a correction entry. Precision at $0.0424$ sits $0.0051$ below the set's confirmed rate of $0.0474$, and that margin is smaller than the base rate's own binomial standard error of $0.0134$, which is why Section~\ref{sec:disc-null} reads it as indistinguishable from the base rate. Recall is high because the detector is near-degenerate rather than because it discriminates: it returns a positive for between $207$ and $216$ of the $241$ clear negatives. The expected calibration error above $0.78$ in every seed is what a near-constant positive prediction produces against a $4$ percent event, and $\kappa$ below zero in every seed is agreement worse than chance once the marginal is accounted for. Standard deviations are over the three seeds at $\mathrm{ddof} = 0$, the population convention, which is what the aggregate artifact computes and is the same convention as Table~\ref{tab:decontam}; the sample convention of Table~\ref{tab:control299} would give $0.0028$, $0.0481$, $0.0058$ and $0.0277$, and the two are not compared against each other anywhere in this chapter.}
 \label{tab:operating}
 \end{table}
 
@@ -1199,7 +1199,7 @@ inside it would be correspondingly weaker evidence of an effect.
 
 The Bonferroni threshold is valid under dependence, and at $0.05/26 = 0.0019$ six of the
 twenty-six tests clear it. Four are the Mann-Whitney tests on the frontier labels, at
-$p$ values from $4.2 \times 10^{-7}$ to $0.0019$, and they are the only rejections in
+$p$ values from $4.2 \times 10^{-7}$ to $0.0007$, and they are the only rejections in
 this thesis that concern the clinical task directly: they say the frontier labels
 separate the pharmacist's confirmed cases from the rest on the same rows where the
 systems this pipeline built do not. The fifth is Claude Haiku 4.5's few-shot ambiguity
@@ -1223,9 +1223,15 @@ What does not clear correction is the ambiguity gradient this chapter leads with
 Sonnet 5's few-shot gradient at $p = 0.0029$ cleared under the count of sixteen and
 clears neither twenty-two nor twenty-six; its zero-shot gradient, at $p = 0.0046$ and
 the reading Section~\ref{sec:r-ambiguity} states first, has cleared no correctly
-computed count. Under the count this subsection originally stated the threshold was
-$0.05/14 = 0.0036$ and that zero-shot figure did clear, so the understated count was
-the count under which the headline survived. The surviving evidence for the gradient is
+computed count. One thing has to be corrected about how this
+subsection used to describe its own history. It said the understated count of fourteen was
+the count under which the headline gradient survived correction. That is arithmetically
+false: at fourteen the threshold is $0.05/14 = 0.0036$ and the zero-shot gradient's
+$0.0046$ does not clear it either. The zero-shot gradient has cleared no Bonferroni
+threshold at any count this thesis has ever stated. What the understated count did protect
+was the few-shot gradient at $0.0029$, which cleared fourteen and sixteen and clears
+neither twenty-two nor twenty-six. The direction of the original error is unchanged and the
+claim it protected was the weaker one. The surviving evidence for the gradient is
 one test, on a second labeller, in the prompt condition
 Section~\ref{sec:r-ambiguity} treats as the dependent one.
 

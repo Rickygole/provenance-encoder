@@ -45,10 +45,19 @@ STRUCTURAL = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
               "1.96"}
 
 
+# Keys under this prefix hold values the thesis has retracted. They are kept so the
+# correction record can quote what was withdrawn, and they are excluded from the value
+# set here: a retracted number must not make a live number resolvable. That is exactly
+# how a withdrawn control-cost total passed this gate as a chapter headline; see C84.
+WITHDRAWN_PREFIX = "withdrawn."
+
+
 def fact_values():
     """Every verified value, rendered in the string forms a chapter might use."""
     out = set()
-    for rec in FACTS.values():
+    for key, rec in FACTS.items():
+        if key.startswith(WITHDRAWN_PREFIX):
+            continue
         v = rec["value"]
         if isinstance(v, bool) or v is None:
             continue

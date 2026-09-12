@@ -3945,3 +3945,58 @@ their operands.
 **One class of claim cannot be checked from the release, and that is now said where it matters.**
 Several quantities trace to artifacts held in credentialed-only storage, so a reader holding the
 public release cannot verify them. The code-release gaps are disclosed, now as three rather than two.
+
+## C84. C73 was wrong and is reversed; the premise of C68 was arithmetically false; and the gate that missed both is fixed
+
+A fabrication hunt recomputed every derivation and every table cell against the artifacts. It found no
+invented number. It found four numbers that were wrong, three of them introduced by corrections in
+this record rather than surviving in spite of them, which makes this the most important entry in it.
+
+**C73 is reversed. The control cost is 1,216.4 GPU minutes over 79 runs.** C73 withdrew that total and
+substituted 1,181.5 over 67, on the premise that the 12-run, 34.9-minute public-task episode was the
+convergence sweep's own 3-epoch cell counted twice. The artifacts refute it. The scaling run set holds
+12 runs totalling 34.95 minutes; of the three that match a convergence entry on arm, size and seed,
+all three differ in accuracy and all three differ in runtime. They are distinct runs. The episode is
+an independent run set, the cost log's own caption said so, and C73 overruled the caption on a
+reading the data does not support. The original figure stands and the withdrawal is withdrawn.
+
+Worse than the arithmetic: the thesis then printed three different reconciliations of one quantity,
+1,216.4 over 79 in Chapter 1, 1,181.5 over 67 in a table whose own rows sum to 79 and 1,216.4, and
+1,181.5 over 79 twice more. All four sites now read 1,216.4 over 79.
+
+**The premise of C68 was arithmetically false.** That entry says the understated count of fourteen was
+the count under which the headline gradient cleared correction. At fourteen the threshold is
+0.05/14 = 0.0036, and the zero-shot gradient is 0.0046, which does not clear it. The zero-shot
+gradient has cleared no Bonferroni threshold at any count this thesis has ever stated. What the
+understated count protected was the few-shot gradient at 0.0029, which cleared fourteen and sixteen
+and clears neither twenty-two nor twenty-six. The direction of the original error is unchanged, the
+count was still understated, and the claim it protected was the weaker of the two. Chapter 4 now says
+this in place of the false version.
+
+**Two further wrong labels in Chapter 4, both mine.** The four frontier Mann-Whitney tests were given
+as running to 0.0019; their largest is 0.0007, and 0.0019 is the Bonferroni threshold and also the
+fifth test's p value, quoted one sentence later. And the operating-point note said precision sits
+0.0051 above the confirmed rate minus its binomial standard error, which is a garbled construction of
+a simple fact: precision is 0.0051 below the confirmed rate, and that margin is smaller than the
+standard error. Chapters 1 and 6 had it right and only the table note was wrong.
+
+**The gate that let the cost figure through is fixed.** Values retracted by a correction were kept in
+the register so the record could quote them, under a withdrawn prefix, and the provenance pass made no
+distinction: a retracted number remained resolvable and therefore printable. That is precisely how a
+withdrawn cost total passed as a chapter headline. The pass now excludes that prefix. Two values the
+thesis legitimately quotes in order to state what was withdrawn, the bounds of the discarded
+label-noise interval, are moved to a separate prefix for quoted historical figures, because quoting a
+past number to describe its retraction is a live citation and using one as a current result is not.
+
+**One register value was not the quantity it named.** The probability that 23 joinable rows are all
+correct under the reconstruction's rate was stored as the integer 4, the leading digit of the prose
+phrase "about four in ten million". It is 3.7426 times ten to the minus seven, and storing 4 made the
+bare literal 4 resolvable anywhere in the thesis. Corrected.
+
+**What the same audit confirmed.** Fifty-seven of fifty-nine stated derivations reproduce exactly,
+including every ablation delta, every nats conversion, the Welch statistics to four decimals, the
+minimum-detectable-effect search, and both reproducible bootstraps. Twenty-seven of twenty-eight
+tables are arithmetically clean cell by cell, the exception being the cost table above. Every word-form
+and percentage quantity in the abstract and the chapters checks out, including that the abstract reads
+both of its over-calling ranges off the same denominator. The multiplicity arithmetic is correct at
+every count.
