@@ -3747,3 +3747,49 @@ enforcing a withdrawn rule, after the TODO glob and the caption convention. Note
 did not achieve: the abstract spells its numbers as words, because the template forbids
 abbreviations, so a digit gate could never have caught this particular conflation. The gate is wider
 and the defect was still found by reading.
+
+## C80. Every table and figure re-derived against current artifacts, and the results chapter gains the operating point it never reported
+
+**The audit.** All 28 tables and 14 figures were checked cell by cell against the register and the
+artifacts behind it. 574 numeric cells in table bodies; every one resolves. No table lacks a caption,
+no figure caption sits below its graphic, every included figure has a PDF. What follows is what the
+sweep found wrong.
+
+**The results chapter did not contain the result.** Chapter 1 calls the detector's operating
+behaviour "the cleanest single expression of the failure" and Section 5 rests the claim that the
+system should not be deployed on it. Its precision of 0.0424, recall of 0.7778, expected calibration
+error of 0.8015, kappa of -0.0105 and confusion cells appeared in Chapters 1, 5 and 6 and **nowhere in
+Chapter 4**, which reported the ranking metrics and stopped. The correction record had even
+enumerated the omission, saying those figures are "reported in Chapters 1, 5 and 6", without treating
+the absence of the results chapter as a defect. A reader auditing the deployment claim against the
+chapter that should support it found nothing to audit. Table 9 now gives the operating point per seed
+and as a mean, every cell from the committed aggregate.
+
+**Two things that table caught on the way in.** Its standard deviations are computed at ddof = 0, not
+the sample convention, and a first draft of the note claimed ddof = 1. That would have mixed
+conventions inside one chapter, which this thesis treats as a defect and which Tables 8 and 12 are
+careful to keep apart; the note now states the convention, gives what the other would produce, and
+says the two are never compared. And a sentence describing the detector's behaviour on the clear
+negatives said "between 216 and 225 of 241" when the false-positive counts are 216, 210 and 207. The
+range is 207 to 216. That number was mine, derived while writing, and it is the kind of arithmetic
+the register cannot check because it never reached the register.
+
+**The frontier table was missing the column its argument is read against.** Balanced accuracy is what
+Section 4 compares to the minimum detectable effect, and it appeared in no table at all; Haiku's
+value was stated only in Chapter 1. Table 6 now carries a balanced-accuracy column and both Haiku
+rows. Its detector row also printed an empty over-calling cell, which removed the row that makes the
+column's point: at 234 flagged against 12 confirmed the detector over-calls by 19.50 times, more than
+any labeller in this thesis.
+
+**Figures.** All 15 live figures regenerate from their committed generators. Three of the seven
+retired ones do not: two import palette names the style module no longer defines, and one is named in
+its generator but no longer emitted. Their PDFs are artifacts of a palette and a figure set that no
+longer exist, which is a reason to keep them out of the thesis rather than a reason to repair the
+generators. The invariant checker now records which retired figures are unreproducible and fails only
+if one of them is ever included in the document, because a live figure that cannot be rebuilt is a
+defect and a retired one that cannot is a fact. Every figure clears its coverage and chroma floors
+with none under.
+
+**One dangling reference, introduced by this round.** A note cited a table label that does not exist
+in the document, invented while writing the ddof comparison. Pass 7 caught it before the build
+shipped, which is the one thing in this entry that worked as designed.

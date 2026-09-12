@@ -420,21 +420,24 @@ two runs on $G_{253}$, where they read $4.00$ and $3.25$.}
 253 non-ambiguous pairs, beside the systems already compared on that set.}
 \centering
 \small
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
 \textbf{System} & \textbf{Flagged} & \textbf{Over-calling} & \textbf{Recall} &
-\textbf{FPR} & \textbf{MCC} \\
+\textbf{FPR} & \textbf{Bal.\ acc.} & \textbf{MCC} \\
 \midrule
-Claude Sonnet 5, zero-shot     & $48$  & $4.00\times$  & $0.7500$ & $0.1618$ & $+0.3189$ \\
-Claude Sonnet 5, few-shot      & $39$  & $3.25\times$  & $0.5000$ & $0.1369$ & $+0.2137$ \\
-ACCORD at $\tau = 0.5$         & $234$ & n/a           & $0.9167$ & $0.9253$ & $-0.0070$ \\
+Claude Sonnet 5, zero-shot     & $48$  & $4.00\times$  & $0.7500$ & $0.1618$ & $0.7941$ & $+0.3189$ \\
+Claude Sonnet 5, few-shot      & $39$  & $3.25\times$  & $0.5000$ & $0.1369$ & $0.6815$ & $+0.2137$ \\
+Claude Haiku 4.5, zero-shot    & $60$  & $5.00\times$  & $0.6667$ & $0.2158$ & $0.7254$ & $+0.2253$ \\
+Claude Haiku 4.5, few-shot     & $55$  & $4.58\times$  & $0.6667$ & $0.1950$ & $0.7358$ & $+0.2431$ \\
+ACCORD at $\tau = 0.5$         & $234$ & $19.50\times$ & $0.9167$ & $0.9253$ & $0.4957$ & $-0.0070$ \\
 \bottomrule
 \end{tabular}
 \apanote{Over-calling is the flagged rate divided by the confirmed rate of
 $12/253$ on the same set. Every Claude cell is computed from the committed
 prediction artifacts by a single released script rather than by hand;
-Appendix~\ref{app:provenance} gives the key for each value. Dashes mark
-quantities not recomputed on this basis for the archived rows. The two Claude rows are single draws from a model that does not accept a
+Appendix~\ref{app:provenance} gives the key for each value. An earlier version of this table left the detector's over-calling cell empty, which
+removed the row that makes the column's point: at $234$ flagged against $12$ confirmed
+the detector over-calls by more than any labeller in this thesis. The balanced-accuracy column is added because it is the quantity the sensitivity argument of Section~\ref{sec:res-rq4} is read against, and it appeared in no table until this one; the two Haiku rows are here for the same reason, having previously been stated only in Chapter~\ref{ch:intro}. The four Claude rows are single draws from models that do not accept a
 temperature parameter, and ran at a larger token budget than the withdrawn rows
 did, which is one reason those rows could not simply have been carried forward
 with a note attached.}
@@ -997,6 +1000,29 @@ Contaminated run, same 253 pairs & 0.4595 & & 0.6418 & \\
 \end{tabular}
 \apanote{$G_{253}$, 12 positives and 241 negatives; bootstrap resampling uses $B = 10{,}000$ at seed 42. Average precision is the appropriate summary at this imbalance \citep{saito2015prcurve} and its no-skill line is $12/253$. The percentile bootstrap interval for the ensemble AUROC on $G_{253}$ is $0.3210$ to $0.7034$. The per-seed standard deviation is computed at $\mathrm{ddof} = 0$, the population convention (Section~\ref{sec:m-stats}), and is not compared against a spread computed under the sample convention.}
 \label{tab:decontam}
+\end{table}
+
+\begin{table}[H]
+\caption[Operating point of the decontaminated detector]{The decontaminated
+detector at its decision threshold, per seed and as a mean, on the $253$
+non-ambiguous pairs.}
+\centering
+\small
+\begin{tabular}{lrrrrrrrr}
+\toprule
+\textbf{Seed} & \textbf{TP} & \textbf{FP} & \textbf{FN} & \textbf{TN} &
+\textbf{Precision} & \textbf{Recall} & \textbf{$\kappa$} & \textbf{ECE} \\
+\midrule
+0            & 9  & 216 & 3 & 25 & 0.0400 & 0.7500 & $-0.0155$ & 0.8321 \\
+1            & 10 & 210 & 2 & 31 & 0.0455 & 0.8333 & $-0.0041$ & 0.7942 \\
+2            & 9  & 207 & 3 & 34 & 0.0417 & 0.7500 & $-0.0120$ & 0.7782 \\
+\midrule
+Mean         &    &     &   &    & 0.0424 & 0.7778 & $-0.0105$ & 0.8015 \\
+SD           &    &     &   &    & 0.0023 & 0.0393 & 0.0048 & 0.0226 \\
+\bottomrule
+\end{tabular}
+\apanote{Threshold $0.5$, the configured decision point. Each row sums to $253$. This is the operating behaviour that Chapter~\ref{ch:intro} calls the cleanest single expression of the failure and that Section~\ref{sec:disc-limits} relies on to say the system should not be deployed, and an earlier version of this chapter reported only the ranking metrics of Table~\ref{tab:decontam} and left the operating point to be quoted in three other chapters from a correction entry. Precision at $0.0424$ sits $0.0051$ above the set's confirmed rate of $0.0474$ minus its own binomial standard error of $0.0134$, which is the margin Section~\ref{sec:disc-null} reads as indistinguishable from the base rate. Recall is high because the detector is near-degenerate rather than because it discriminates: it returns a positive for between $207$ and $216$ of the $241$ clear negatives. The expected calibration error above $0.78$ in every seed is what a near-constant positive prediction produces against a $4$ percent event, and $\kappa$ below zero in every seed is agreement worse than chance once the marginal is accounted for. Standard deviations are over the three seeds at $\mathrm{ddof} = 0$, the population convention, which is what the aggregate artifact computes and is the same convention as Table~\ref{tab:decontam}; the sample convention of Table~\ref{tab:control299} would give $0.0028$, $0.0481$, $0.0058$ and $0.0277$, and the two are not compared against each other anywhere in this chapter.}
+\label{tab:operating}
 \end{table}
 
 The ensemble sits at $0.5145$ with a Mann-Whitney $p$ of $0.8668$ and a 95 percent bootstrap

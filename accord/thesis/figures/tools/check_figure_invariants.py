@@ -203,6 +203,15 @@ def check_text_on_ground():
 # the figures are evidence of work that was done and reconsidered. What was
 # missing was the record of WHY each one is not in the thesis. That record is
 # here, and a new orphan now fails this gate instead of accumulating quietly.
+# Three of the seven cannot be regenerated. fig_gap_trajectory.py and
+# fig_spec_curve.py still import palette names the style module no longer defines
+# (ACCENT, MUTED, LIGHT, DEAD), so they raise ImportError; fig-rule-precision is
+# named in make_figures.py but no longer emitted by it. Their PDFs are therefore
+# artifacts of a palette and a figure set that no longer exist, which is a reason
+# to keep them out of the thesis rather than a reason to fix the generators. The
+# four other retired figures do still regenerate.
+UNREPRODUCIBLE = {"fig-gap-trajectory", "fig-spec-curve", "fig-rule-precision"}
+
 RETIRED = {
     "fig-rule-precision":
         "Was in the results chapter. Removed when the figure set was restructured "
@@ -253,6 +262,10 @@ def check_orphans():
         problems.append((name, "listed as RETIRED but still included by a .tex"))
     for name in sorted(set(RETIRED) - built):
         problems.append((name, "listed as RETIRED but its PDF is absent"))
+    # A live figure that cannot be regenerated would be a real defect; a retired
+    # one that cannot is a recorded fact. Fail only if the two sets overlap.
+    for name in sorted(UNREPRODUCIBLE & used):
+        problems.append((name, "is in the thesis but its generator no longer runs"))
     return problems, len(built), len(used), len(RETIRED)
 
 
