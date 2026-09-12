@@ -2,7 +2,7 @@
 \label{app:trace}
 
 Every quantity printed in this thesis is listed below with the file it was read from.
-The trace covers 1566 occurrences resolving to 586 distinct registered
+The trace covers 1554 occurrences resolving to 584 distinct registered
 values. Numbers are not transcribed from notes or from earlier drafts; each is extracted
 from a stored result file by script, and the register is reproduced in Appendix B.
 
@@ -11,14 +11,14 @@ from a stored result file by script, and the register is reproduced in Appendix 
 \textbf{Value} & \textbf{Register key} & \textbf{Source file}\\
 \midrule
 \endhead
-0.0023 \textsuperscript{a} & ablation.\allowbreak{}alibi.\allowbreak{}val\_loss\_sd & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
+0.0023 \textsuperscript{a} & ablation.\allowbreak{}alibi.\allowbreak{}val\_loss\_sd & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[3].\allowbreak{}sample\_std\\
 0.1306 & ablation.\allowbreak{}learned\_vs\_fixed\_nats & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived: fixed hard block mask minus learned segment-index bias\\
 0.3277 & ablation.\allowbreak{}random\_roles\_vs\_true\_roles\_nats & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived: random roles minus true role labels; positive means randomization is WORSE\\
 0.0031 & c37.\allowbreak{}gap & results/\allowbreak{}task\_runs.\allowbreak{}json\\
-0.7693 & c37.\allowbreak{}pubmedbert.\allowbreak{}mean & results/\allowbreak{}task\_runs.\allowbreak{}json\\
-0.0102 \textsuperscript{a} & c37.\allowbreak{}pubmedbert.\allowbreak{}sd & results/\allowbreak{}task\_runs.\allowbreak{}json\\
-0.7662 & c37.\allowbreak{}scratch.\allowbreak{}mean & results/\allowbreak{}task\_runs.\allowbreak{}json\\
-0.0073 \textsuperscript{a} & c37.\allowbreak{}scratch.\allowbreak{}sd & results/\allowbreak{}task\_runs.\allowbreak{}json\\
+0.7693 & c37.\allowbreak{}pubmedbert.\allowbreak{}mean & derived: the mean of the auroc field over runs concat\_s1, concat\_s2, concat\_s3 in results/\allowbreak{}task\_runs.\allowbreak{}json.\allowbreak{} The two arms do not share a seed set, which Chapter 4 discloses: the pretrained arm is seeds 1, 2 and 3 and the from-scratch arm seeds 0, 1 and 2.\allowbreak{}\\
+0.0102 \textsuperscript{a} & c37.\allowbreak{}pubmedbert.\allowbreak{}sd & derived: the sample standard deviation of the auroc field over runs concat\_s1, concat\_s2, concat\_s3 in results/\allowbreak{}task\_runs.\allowbreak{}json.\allowbreak{} The two arms do not share a seed set, which Chapter 4 discloses: the pretrained arm is seeds 1, 2 and 3 and the from-scratch arm seeds 0, 1 and 2.\allowbreak{}\\
+0.7662 & c37.\allowbreak{}scratch.\allowbreak{}mean & derived: the mean of the auroc field over runs ours\_current\_s0, s1, s2 in results/\allowbreak{}task\_runs.\allowbreak{}json.\allowbreak{} The two arms do not share a seed set, which Chapter 4 discloses: the pretrained arm is seeds 1, 2 and 3 and the from-scratch arm seeds 0, 1 and 2.\allowbreak{}\\
+0.0073 \textsuperscript{a} & c37.\allowbreak{}scratch.\allowbreak{}sd & derived: the sample standard deviation of the auroc field over runs ours\_current\_s0, s1, s2 in results/\allowbreak{}task\_runs.\allowbreak{}json.\allowbreak{} The two arms do not share a seed set, which Chapter 4 discloses: the pretrained arm is seeds 1, 2 and 3 and the from-scratch arm seeds 0, 1 and 2.\allowbreak{}\\
 1.0962 & capability.\allowbreak{}channel\_effect\_at\_8b\_local\_over\_hosted & results/\allowbreak{}accord/\allowbreak{}differential/\allowbreak{}capability\_ladder.\allowbreak{}json\\
 1.6800 & capability.\allowbreak{}prompt\_effect\_within\_70b & results/\allowbreak{}accord/\allowbreak{}differential/\allowbreak{}capability\_ladder.\allowbreak{}json\\
 2.0635 & capability.\allowbreak{}within\_channel\_step\_8b\_to\_70b & results/\allowbreak{}accord/\allowbreak{}differential/\allowbreak{}capability\_ladder.\allowbreak{}json\\
@@ -210,7 +210,6 @@ from a stored result file by script, and the register is reproduced in Appendix 
 1,205 & mining.\allowbreak{}unique\_admissions\_with\_candidates & [DRIVE]/\allowbreak{}thesis/\allowbreak{}outputs/\allowbreak{}mining\_summary.\allowbreak{}json\\
 165 \textsuperscript{a} & overcall.\allowbreak{}deployed\_vs\_replication.\allowbreak{}labels\_differing\_on\_pool & derived: (0.\allowbreak{}9469922572960096 - 0.\allowbreak{}848719475878499) * 1679\\
 18 \textsuperscript{a} & overcall.\allowbreak{}granite3\_3\_8b.\allowbreak{}gold.\allowbreak{}ratio & results/\allowbreak{}accord/\allowbreak{}multillm/\allowbreak{}per\_model\_results.\allowbreak{}json\\
-0.7382 \textsuperscript{a} & power.\allowbreak{}minimum\_detectable\_auc & results/\allowbreak{}accord/\allowbreak{}section6\_auroc\_power.\allowbreak{}json\\
 94 \textsuperscript{a} & publicsweep.\allowbreak{}results.\allowbreak{}llama3:8b.\allowbreak{}A\_bare.\allowbreak{}0.\allowbreak{}1.\allowbreak{}n\_not\_contradiction & accord/\allowbreak{}prevalence\_replication/\allowbreak{}results/\allowbreak{}sweep\_results.\allowbreak{}json\\
 1.000 \textsuperscript{a} & rq3repro.\allowbreak{}authority\_scale.\allowbreak{}init\_alpha\_d & results/\allowbreak{}accord/\allowbreak{}control/\allowbreak{}rq3\_falsification\_reproduction.\allowbreak{}json\\
 85,648,132 & scaling.\allowbreak{}pretrained\_bert.\allowbreak{}params & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_results.\allowbreak{}json\\
@@ -224,38 +223,37 @@ from a stored result file by script, and the register is reproduced in Appendix 
 40 & transmission.\allowbreak{}anthropic\_claudehaiku4520251001\_rep3.\allowbreak{}n\_pairs & results/\allowbreak{}accord/\allowbreak{}differential/\allowbreak{}transmission\_ledger.\allowbreak{}json\\
 120 & transmission.\allowbreak{}anthropic\_claudehaiku4520251001\_rep3.\allowbreak{}prompts & results/\allowbreak{}accord/\allowbreak{}differential/\allowbreak{}transmission\_ledger.\allowbreak{}json\\
 2,520 & transmission.\allowbreak{}total\_prompts & results/\allowbreak{}accord/\allowbreak{}differential/\allowbreak{}transmission\_ledger.\allowbreak{}json\\
-1,800 & withdrawn.\allowbreak{}transmission\_total\_prompts\_c71 & withdrawn: the total the first version of the transmission ledger reported, from a filename pattern that excluded replicated runs.\allowbreak{} Quoted in section 3.\allowbreak{}9 only to say what the wrong total was.\allowbreak{} Kept under the withdrawn.\allowbreak{}* prefix because every generating script rewrites its own prefix by deleting it wholesale, which silently removed this key when the ledger next ran.\allowbreak{} See the correction record C71.\allowbreak{}\\
-0.6119 & ablation.\allowbreak{}alibi.\allowbreak{}delta\_vs\_vanilla & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
+0.6119 & ablation.\allowbreak{}alibi.\allowbreak{}delta\_vs\_vanilla & derived: the 'ALiBi distance bias' arm mean minus the 'vanilla (no bias)' arm mean, both at results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms.\allowbreak{} Verified: each arm mean equals the mean of its own per-seed final validation losses, and each per-seed loss equals the final\_val\_loss of its named run in results/\allowbreak{}pretraining\_runs.\allowbreak{}json (21 of 21).\allowbreak{}\\
 64.6 & ablation.\allowbreak{}alibi.\allowbreak{}pct\_of\_segment\_index & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived: arm delta divided by the segment-index delta\\
-3.7435 & ablation.\allowbreak{}alibi.\allowbreak{}val\_loss\_mean & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
+3.7435 & ablation.\allowbreak{}alibi.\allowbreak{}val\_loss\_mean & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[3].\allowbreak{}mean\\
 0.1567 & ablation.\allowbreak{}global\_positions\_control.\allowbreak{}delta\_vs\_vanilla & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived\\
 4.5122 & ablation.\allowbreak{}global\_positions\_control.\allowbreak{}val\_loss & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, key A1\_10M\_st1000\_s0\_globalpos\_shuf, SINGLE SEED\\
-1.0782 & ablation.\allowbreak{}hard\_block\_mask.\allowbreak{}delta\_vs\_vanilla & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
+1.0782 & ablation.\allowbreak{}hard\_block\_mask.\allowbreak{}delta\_vs\_vanilla & derived: the 'hard block mask (fixed)' arm mean minus the 'vanilla (no bias)' arm mean, both at results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms.\allowbreak{} Verified: each arm mean equals the mean of its own per-seed final validation losses, and each per-seed loss equals the final\_val\_loss of its named run in results/\allowbreak{}pretraining\_runs.\allowbreak{}json (21 of 21).\allowbreak{}\\
 113.8 & ablation.\allowbreak{}hard\_block\_mask.\allowbreak{}pct\_of\_segment\_index & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived: arm delta divided by the segment-index delta\\
-3.2772 & ablation.\allowbreak{}hard\_block\_mask.\allowbreak{}val\_loss\_mean & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-0.0124 & ablation.\allowbreak{}hard\_block\_mask.\allowbreak{}val\_loss\_sd & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
+3.2772 & ablation.\allowbreak{}hard\_block\_mask.\allowbreak{}val\_loss\_mean & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[6].\allowbreak{}mean\\
+0.0124 & ablation.\allowbreak{}hard\_block\_mask.\allowbreak{}val\_loss\_sd & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[6].\allowbreak{}sample\_std\\
 0.3380 & ablation.\allowbreak{}length\_roles.\allowbreak{}delta\_vs\_vanilla & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived\\
 35.7 & ablation.\allowbreak{}length\_roles.\allowbreak{}pct\_of\_segment\_index & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived\\
 4.0174 & ablation.\allowbreak{}length\_roles.\allowbreak{}val\_loss & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, key A4\_10M\_st1000\_s0\_lenroles\_shuf, SINGLE SEED\\
-0.4445 & ablation.\allowbreak{}misaligned\_block.\allowbreak{}delta\_vs\_vanilla & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
+0.4445 & ablation.\allowbreak{}misaligned\_block.\allowbreak{}delta\_vs\_vanilla & derived: the 'misaligned block bias' arm mean minus the 'vanilla (no bias)' arm mean, both at results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms.\allowbreak{} Verified: each arm mean equals the mean of its own per-seed final validation losses, and each per-seed loss equals the final\_val\_loss of its named run in results/\allowbreak{}pretraining\_runs.\allowbreak{}json (21 of 21).\allowbreak{}\\
 46.9 \textsuperscript{a} & ablation.\allowbreak{}misaligned\_block.\allowbreak{}pct\_of\_segment\_index & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived: arm delta divided by the segment-index delta\\
-3.9109 & ablation.\allowbreak{}misaligned\_block.\allowbreak{}val\_loss\_mean & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-0.0293 & ablation.\allowbreak{}misaligned\_block.\allowbreak{}val\_loss\_sd & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
+3.9109 & ablation.\allowbreak{}misaligned\_block.\allowbreak{}val\_loss\_mean & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[2].\allowbreak{}mean\\
+0.0293 & ablation.\allowbreak{}misaligned\_block.\allowbreak{}val\_loss\_sd & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[2].\allowbreak{}sample\_std\\
 0.4967 \textsuperscript{a} & ablation.\allowbreak{}random\_roles.\allowbreak{}delta\_vs\_vanilla & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived\\
 52.4 & ablation.\allowbreak{}random\_roles.\allowbreak{}pct\_of\_segment\_index & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived\\
 3.8587 & ablation.\allowbreak{}random\_roles.\allowbreak{}val\_loss & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, key A4\_10M\_st1000\_s0\_randroles\_shuf, SINGLE SEED\\
-0.9476 & ablation.\allowbreak{}segment\_index.\allowbreak{}delta\_vs\_vanilla & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-3.4078 & ablation.\allowbreak{}segment\_index.\allowbreak{}val\_loss\_mean & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-0.0225 & ablation.\allowbreak{}segment\_index.\allowbreak{}val\_loss\_sd & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-0.2520 & ablation.\allowbreak{}t5\_rpe.\allowbreak{}delta\_vs\_vanilla & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
+0.9476 & ablation.\allowbreak{}segment\_index.\allowbreak{}delta\_vs\_vanilla & derived: the 'segment-index bias' arm mean minus the 'vanilla (no bias)' arm mean, both at results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms.\allowbreak{} Verified: each arm mean equals the mean of its own per-seed final validation losses, and each per-seed loss equals the final\_val\_loss of its named run in results/\allowbreak{}pretraining\_runs.\allowbreak{}json (21 of 21).\allowbreak{}\\
+3.4078 & ablation.\allowbreak{}segment\_index.\allowbreak{}val\_loss\_mean & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[5].\allowbreak{}mean\\
+0.0225 & ablation.\allowbreak{}segment\_index.\allowbreak{}val\_loss\_sd & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[5].\allowbreak{}sample\_std\\
+0.2520 & ablation.\allowbreak{}t5\_rpe.\allowbreak{}delta\_vs\_vanilla & derived: the 'T5 relative position bias' arm mean minus the 'vanilla (no bias)' arm mean, both at results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms.\allowbreak{} Verified: each arm mean equals the mean of its own per-seed final validation losses, and each per-seed loss equals the final\_val\_loss of its named run in results/\allowbreak{}pretraining\_runs.\allowbreak{}json (21 of 21).\allowbreak{}\\
 26.6 & ablation.\allowbreak{}t5\_rpe.\allowbreak{}pct\_of\_segment\_index & results/\allowbreak{}pretraining\_runs.\allowbreak{}json, derived: arm delta divided by the segment-index delta\\
-4.1035 & ablation.\allowbreak{}t5\_rpe.\allowbreak{}val\_loss\_mean & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-0.0029 \textsuperscript{a} & ablation.\allowbreak{}t5\_rpe.\allowbreak{}val\_loss\_sd & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-0.8244 & ablation.\allowbreak{}true\_role\_labels.\allowbreak{}delta\_vs\_vanilla & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-3.5310 & ablation.\allowbreak{}true\_role\_labels.\allowbreak{}val\_loss\_mean & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-0.0076 & ablation.\allowbreak{}true\_role\_labels.\allowbreak{}val\_loss\_sd & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-4.3554 & ablation.\allowbreak{}vanilla.\allowbreak{}val\_loss\_mean & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
-0.0085 \textsuperscript{a} & ablation.\allowbreak{}vanilla.\allowbreak{}val\_loss\_sd & results/\allowbreak{}pretraining\_runs.\allowbreak{}json\\
+4.1035 & ablation.\allowbreak{}t5\_rpe.\allowbreak{}val\_loss\_mean & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[1].\allowbreak{}mean\\
+0.0029 \textsuperscript{a} & ablation.\allowbreak{}t5\_rpe.\allowbreak{}val\_loss\_sd & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[1].\allowbreak{}sample\_std\\
+0.8244 & ablation.\allowbreak{}true\_role\_labels.\allowbreak{}delta\_vs\_vanilla & derived: the 'true role labels' arm mean minus the 'vanilla (no bias)' arm mean, both at results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms.\allowbreak{} Verified: each arm mean equals the mean of its own per-seed final validation losses, and each per-seed loss equals the final\_val\_loss of its named run in results/\allowbreak{}pretraining\_runs.\allowbreak{}json (21 of 21).\allowbreak{}\\
+3.5310 & ablation.\allowbreak{}true\_role\_labels.\allowbreak{}val\_loss\_mean & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[4].\allowbreak{}mean\\
+0.0076 & ablation.\allowbreak{}true\_role\_labels.\allowbreak{}val\_loss\_sd & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[4].\allowbreak{}sample\_std\\
+4.3554 & ablation.\allowbreak{}vanilla.\allowbreak{}val\_loss\_mean & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[0].\allowbreak{}mean\\
+0.0085 \textsuperscript{a} & ablation.\allowbreak{}vanilla.\allowbreak{}val\_loss\_sd & results/\allowbreak{}accord/\allowbreak{}artifact\_recovery.\allowbreak{}json::group\_4\_architecture\_ablation[0].\allowbreak{}arms[0].\allowbreak{}sample\_std\\
 0.9565 \textsuperscript{a} & aniso.\allowbreak{}anisotropy\_control.\allowbreak{}max & results/\allowbreak{}accord/\allowbreak{}stage0/\allowbreak{}anisotropy\_control.\allowbreak{}json\\
 0.9113 & aniso.\allowbreak{}anisotropy\_control.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}stage0/\allowbreak{}anisotropy\_control.\allowbreak{}json\\
 0.8528 & aniso.\allowbreak{}anisotropy\_control.\allowbreak{}min & results/\allowbreak{}accord/\allowbreak{}stage0/\allowbreak{}anisotropy\_control.\allowbreak{}json\\
@@ -351,7 +349,7 @@ from a stored result file by script, and the register is reproduced in Appendix 
 0.8845 & conv.\allowbreak{}scratch\_30M.\allowbreak{}E12.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}convergence\_results.\allowbreak{}json\\
 0.8886 & conv.\allowbreak{}scratch\_30M.\allowbreak{}E24.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}convergence\_results.\allowbreak{}json\\
 0.0015 \textsuperscript{a} & conv.\allowbreak{}scratch\_30M.\allowbreak{}E24.\allowbreak{}sd & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}convergence\_results.\allowbreak{}json\\
-0.8833 \textsuperscript{a} & conv.\allowbreak{}scratch\_30M.\allowbreak{}E3.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}convergence\_results.\allowbreak{}json\\
+0.8833 \textsuperscript{a} & conv.\allowbreak{}scratch\_30M.\allowbreak{}E3.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_gaps.\allowbreak{}json::arm\_means.\allowbreak{}scratch\_30M\\
 0.0009 \textsuperscript{a} & conv.\allowbreak{}scratch\_30M.\allowbreak{}E3.\allowbreak{}sd & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}convergence\_results.\allowbreak{}json\\
 0.8856 & conv.\allowbreak{}scratch\_30M.\allowbreak{}E6.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}convergence\_results.\allowbreak{}json\\
 0.0035 & conv.\allowbreak{}scratch\_30M.\allowbreak{}E6.\allowbreak{}sd & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}convergence\_results.\allowbreak{}json\\
@@ -387,10 +385,9 @@ from a stored result file by script, and the register is reproduced in Appendix 
 207 \textsuperscript{a} & decontam\_gold.\allowbreak{}per\_seed.\allowbreak{}2.\allowbreak{}confusion.\allowbreak{}fp & results/\allowbreak{}accord/\allowbreak{}decontam/\allowbreak{}accord\_v2\_decontam\_gold\_aggregate.\allowbreak{}json\\
 0.0120 \textsuperscript{a} & decontam\_gold.\allowbreak{}per\_seed.\allowbreak{}2.\allowbreak{}metrics.\allowbreak{}kappa & results/\allowbreak{}accord/\allowbreak{}decontam/\allowbreak{}accord\_v2\_decontam\_gold\_aggregate.\allowbreak{}json\\
 0.0417 \textsuperscript{a} & decontam\_gold.\allowbreak{}per\_seed.\allowbreak{}2.\allowbreak{}metrics.\allowbreak{}precision & results/\allowbreak{}accord/\allowbreak{}decontam/\allowbreak{}accord\_v2\_decontam\_gold\_aggregate.\allowbreak{}json\\
-234 & derived.\allowbreak{}accord\_at\_0.\allowbreak{}5.\allowbreak{}n\_flagged & results/\allowbreak{}accord/\allowbreak{}step3\_baselines.\allowbreak{}json\\
-242 & derived.\allowbreak{}llama\_baseline.\allowbreak{}n\_flagged & results/\allowbreak{}accord/\allowbreak{}step3\_baselines.\allowbreak{}json\\
+234 & derived.\allowbreak{}accord\_at\_0.\allowbreak{}5.\allowbreak{}n\_flagged & results/\allowbreak{}accord/\allowbreak{}reconciliation\_c28.\allowbreak{}json::b\_the\_rule\_that\_produces\_the\_17\_row\_difference.\allowbreak{}every\_rule\_tried\_on\_the\_accord\_columns.\allowbreak{}accord\_pred == contradiction, pharm-ambiguous rows dropped (n=253)\\
+242 & derived.\allowbreak{}llama\_baseline.\allowbreak{}n\_flagged & results/\allowbreak{}accord/\allowbreak{}reconciliation\_c28.\allowbreak{}json::d\_measured\_vs\_what\_the\_tex\_says.\allowbreak{}findings.\allowbreak{}llama\_predicted\_positive\_printed\\
 32 \textsuperscript{a} & derived.\allowbreak{}survey.\allowbreak{}not\_mentioned\_plus\_unclear & results/\allowbreak{}accord/\allowbreak{}survey/\allowbreak{}coding\_table.\allowbreak{}csv\\
-165 \textsuperscript{a} & exemplar.\allowbreak{}accord\_model\_stats\_rule12\_vs\_rule34.\allowbreak{}rule\_1\_2.\allowbreak{}n & results/\allowbreak{}accord/\allowbreak{}exemplar/\allowbreak{}step2plus\_results.\allowbreak{}json\\
 134 \textsuperscript{a} & exemplar.\allowbreak{}accord\_model\_stats\_rule12\_vs\_rule34.\allowbreak{}rule\_3\_4.\allowbreak{}n & results/\allowbreak{}accord/\allowbreak{}exemplar/\allowbreak{}step2plus\_results.\allowbreak{}json\\
 299 \textsuperscript{a} & exemplar.\allowbreak{}audit\_to\_candidates\_join.\allowbreak{}n\_audit\_rows & results/\allowbreak{}accord/\allowbreak{}exemplar/\allowbreak{}step2plus\_results.\allowbreak{}json\\
 35 \textsuperscript{a} & exemplar.\allowbreak{}audit\_to\_candidates\_join.\allowbreak{}n\_matched\_to\_rebuilt\_candidates\_table & results/\allowbreak{}accord/\allowbreak{}exemplar/\allowbreak{}step2plus\_results.\allowbreak{}json\\
@@ -518,6 +515,7 @@ from a stored result file by script, and the register is reproduced in Appendix 
 0.6187 & overcall.\allowbreak{}qwen3\_8b.\allowbreak{}gold.\allowbreak{}positive\_rate & results/\allowbreak{}accord/\allowbreak{}multillm/\allowbreak{}per\_model\_results.\allowbreak{}json\\
 15.4167 & overcall.\allowbreak{}qwen3\_8b.\allowbreak{}gold.\allowbreak{}ratio & results/\allowbreak{}accord/\allowbreak{}multillm/\allowbreak{}per\_model\_results.\allowbreak{}json\\
 0.6349 & overcall.\allowbreak{}qwen3\_8b.\allowbreak{}pool.\allowbreak{}positive\_rate & results/\allowbreak{}accord/\allowbreak{}multillm/\allowbreak{}per\_model\_results.\allowbreak{}json\\
+0.7382 \textsuperscript{a} & power.\allowbreak{}minimum\_detectable\_auc & results/\allowbreak{}accord/\allowbreak{}section6\_auroc\_power.\allowbreak{}json\\
 0.0856 \textsuperscript{a} & power.\allowbreak{}se\_auc\_under\_null & results/\allowbreak{}accord/\allowbreak{}section6\_auroc\_power.\allowbreak{}json\\
 3.5000 \textsuperscript{a} & publicsweep.\allowbreak{}results.\allowbreak{}llama3:8b.\allowbreak{}A\_bare.\allowbreak{}0.\allowbreak{}02.\allowbreak{}over\_call\_ratio & accord/\allowbreak{}prevalence\_replication/\allowbreak{}results/\allowbreak{}sweep\_results.\allowbreak{}json\\
 3.4000 & publicsweep.\allowbreak{}results.\allowbreak{}llama3:8b.\allowbreak{}A\_bare.\allowbreak{}0.\allowbreak{}05.\allowbreak{}over\_call\_ratio & accord/\allowbreak{}prevalence\_replication/\allowbreak{}results/\allowbreak{}sweep\_results.\allowbreak{}json\\
@@ -528,10 +526,10 @@ from a stored result file by script, and the register is reproduced in Appendix 
 0.6621 & ranking.\allowbreak{}positives\_only\_n12\_harm\_score\_vs\_danger\_rating.\allowbreak{}spearman\_rho & results/\allowbreak{}accord/\allowbreak{}step5\_ranking.\allowbreak{}json\\
 20 \textsuperscript{a} & rq3repro.\allowbreak{}guideline\_bank.\allowbreak{}n\_vectors & results/\allowbreak{}accord/\allowbreak{}control/\allowbreak{}rq3\_falsification\_reproduction.\allowbreak{}json\\
 0.9603 \textsuperscript{a} & rulehead.\allowbreak{}test\_rule\_type\_macro\_f1 & [DRIVE]/\allowbreak{}thesis/\allowbreak{}outputs/\allowbreak{}accord\_v2\_results.\allowbreak{}json\\
-0.9396 & scaling.\allowbreak{}pretrained\_bert.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_results.\allowbreak{}json\\
-0.8878 & scaling.\allowbreak{}scratch\_100M.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_results.\allowbreak{}json\\
+0.9396 & scaling.\allowbreak{}pretrained\_bert.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_gaps.\allowbreak{}json::pretrained\_mean\_accuracy\\
+0.8878 & scaling.\allowbreak{}scratch\_100M.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_gaps.\allowbreak{}json::arm\_means.\allowbreak{}scratch\_100M\\
 0.0016 \textsuperscript{a} & scaling.\allowbreak{}scratch\_100M.\allowbreak{}sd & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_results.\allowbreak{}json\\
-0.8790 & scaling.\allowbreak{}scratch\_10M.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_results.\allowbreak{}json\\
+0.8790 & scaling.\allowbreak{}scratch\_10M.\allowbreak{}mean & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_gaps.\allowbreak{}json::arm\_means.\allowbreak{}scratch\_10M\\
 0.0040 & scaling.\allowbreak{}scratch\_10M.\allowbreak{}sd & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_results.\allowbreak{}json\\
 0.0518 & scaling.\allowbreak{}single\_budget\_gap.\allowbreak{}scratch\_100M & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_gaps.\allowbreak{}json\\
 0.0606 & scaling.\allowbreak{}single\_budget\_gap.\allowbreak{}scratch\_10M & results/\allowbreak{}accord/\allowbreak{}scaling/\allowbreak{}scaling\_gaps.\allowbreak{}json\\
@@ -599,6 +597,6 @@ from a stored result file by script, and the register is reproduced in Appendix 
 299 \textsuperscript{a} & signal.\allowbreak{}contra\_prob\_vs\_pharm\_label\_\_ambiguous\_as\_negative\_n299.\allowbreak{}n & results/\allowbreak{}accord/\allowbreak{}step2\_signal\_check.\allowbreak{}json\\
 \end{longtable}
 
-Rows marked \textsuperscript{a} (291 of 586) carry a value that more than one registered quantity shares. The value is verified; the key shown is the best-scored guess among the candidates and should be read as indicative rather than definitive, even where the surrounding sentence shares a word with that guess's name, because a shared word is a tie-breaker between candidates, not proof the guess is right.
+Rows marked \textsuperscript{a} (290 of 584) carry a value that more than one registered quantity shares. The value is verified; the key shown is the best-scored guess among the candidates and should be read as indicative rather than definitive, even where the surrounding sentence shares a word with that guess's name, because a shared word is a tie-breaker between candidates, not proof the guess is right.
 \doublespacing
 
