@@ -3538,3 +3538,65 @@ followed by "lagged them by three runs". The opening sentence of the ambiguity s
 three times, in its text, its caption and its note, that it carries every over-calling ratio in the
 chapter, while `tab:capability` reports three it does not. All four are corrected, and the
 completeness claim is now scoped to the two evaluation sets it actually covers.
+
+## C75. Checking Drive settles the Hugging Face question, and both of my accounts of it were wrong
+
+**The open question.** C66 recorded that Section 3.5 said the production weak labeller ran locally
+while Section 3.9 said a Hugging Face Inference API run covered the full candidate pool and produced
+the deployed labels, that both could not be true of the same run, and that the record could not
+settle it. The author was asked to check the notebooks rather than the artifacts.
+
+**What the notebooks show.** The Inference API client is imported by exactly one notebook in the
+project, a cross-domain safety and hallucination screen. That notebook contains no occurrence of
+either 1679 or 1425. Its clinical arm draws `sample(n=50, random_state=42)` and its recorded
+execution log reads `Running meta-llama/Meta-Llama-3-8B-Instruct on clinical (50 examples)`, followed
+by a result. The weak-label artifacts, by contrast, carry runtime-tagged model keys of the local
+serving convention. So the 1,679-row weak labelling did not pass through a third-party API, and the
+Inference API exposure is 50 sampled pairs.
+
+**Both of my accounts were wrong, in opposite directions.** The first said 1,679 rows, overstating the
+exposure by a factor of about thirty-three and, worse, asserting that the detector's entire training
+supervision came through a prohibited channel and could not be withdrawn. The second, written after
+the first was withdrawn, said the run returned HTTP 401 and produced no output. The execution log
+shows it completed and reported a miscalibration figure, so the second account understated it to
+nothing. The correct figure is 50 pairs, transmitted, with output.
+
+**What this changes in the thesis, and it is not small.** Section 3.9 built an argument on the first
+account: that one departure could be withdrawn and the other could not, that the asymmetry should be
+uncomfortable, and that no principled distinction separated them. That dilemma does not exist. Only
+the original GPT-4o comparison used a prohibited channel, and its results are withdrawn, so no
+result this thesis reports is downstream of a prohibited channel. The safety screen is a real
+transmission of 50 pairs, is disclosed as one, and supports no number in these chapters.
+
+**Why the first account survived as long as it did.** The prefix `hf_` in this project's notebooks
+denotes the heart-failure cohort. It was read as Hugging Face. A cohort label was read as a channel
+label, and a compliance section was then written around the misreading. The lesson is the one this
+thesis keeps relearning: a filename is a hypothesis about provenance.
+
+## C76. The multiplicity family omitted a fourth labeller's two tests, which had already been computed and registered
+
+**What was stated.** That the gradient was put to "four replication attempts on two further
+labellers", that six Fisher tests existed, that the family held twenty tests, and that the Bonferroni
+threshold was 0.05/20 = 0.0025.
+
+**What exists.** Four labellers were asked, not three. The C72 run on the hosted 8B computed the same
+ambiguity gradient in both prompt conditions, its sixteen gradient keys are in the register with the
+other hundred and ten that run wrote, and neither test was added to the family. Eight Fisher tests
+exist. The family is twenty-two, the threshold 0.05/22 = 0.0023, the independence value 0.6765, and
+the dependence groups nine.
+
+**The same shape as C68, one level further in.** C68 recorded a family understated by the two tests
+added most recently. This is a family understated by the two tests added most recently, in the entry
+written to prevent exactly that. The register removed the hand-typed count and did not remove the
+hand-maintained membership, which is the distinction C73 makes about generated numbers: generation
+removes transcription error and not judgement error.
+
+**The omitted data argues for the chapter's own claim, which is why it belongs in it.** The hosted
+8B's odds ratios are 0.8224 zero-shot and 1.0779 few-shot, the lowest of the eight and the only one
+below 1. That corroborates the capability fade the section reports. It also sharpens the saturation
+confound the section concedes: that labeller flags about seven eighths of the set, not the two fifths
+the section previously named as the extreme, so the compression toward 1 is more severe than stated.
+Both now appear in the chapter.
+
+**What did not change.** Holm still rejects two, and the two tests that clear Bonferroni are the same
+two. The conclusion is unchanged and every printed threshold moved.

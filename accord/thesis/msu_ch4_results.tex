@@ -562,14 +562,17 @@ it is the same model on the same items under a different prompt, and the two
 decision vectors agree on most pairs, so the second $p$ value carries much less
 than its face value.
 
-The gradient was then put to four replication attempts on two further labellers,
+The gradient was then put to six replication attempts on three further labellers,
 and the result is mixed in a way that has to be reported as mixed. Claude Haiku
 4.5 reproduces it under few-shot prompting at an odds ratio of $2.9046$ and
 $p = 0.0019$, which is the smallest of the six $p$ values and close to Sonnet's
 $3.0499$, so the gradient is not one model's quirk. Under zero-shot prompting the
 same model returns $1.7587$ at $p = 0.0790$. A Llama 3 70B run through AWS Bedrock,
 the within-vendor comparison of Section~\ref{sec:r-capability}, reaches neither:
-$1.6756$ at $p = 0.0996$ few-shot and $1.2257$ at $p = 0.3190$ zero-shot. So the
+$1.6756$ at $p = 0.0996$ few-shot and $1.2257$ at $p = 0.3190$ zero-shot. The
+weakest of the four, the hosted 8B, shows no gradient at all, and in the zero-shot
+condition shows a reversal nowhere near significance: $0.8224$ at $p = 0.7551$
+zero-shot and $1.0779$ at $p = 0.5598$ few-shot. So the
 odds ratio falls as the labeller gets weaker, at both prompts, and the two weakest
 measurements have intervals containing $1$.
 
@@ -581,12 +584,12 @@ support is that the more capable labellers concentrate their false positives on
 the pairs the pharmacist declined to call, and the weakest one spreads them more
 evenly, which is a statement about labellers rather than about items. The
 correlational claim below is scoped to that, and the multiplicity consequence is
-worse than the scoping: reporting these four tests takes the family of
-Section~\ref{sec:r-multiplicity} from sixteen to twenty, and at $0.05/20 = 0.0025$
+worse than the scoping: reporting these six tests takes the family of
+Section~\ref{sec:r-multiplicity} from sixteen to twenty-two, and at $0.05/22 = 0.0023$
 the only gradient test that clears correction is Haiku's few-shot one. Sonnet's
 two, including the $0.0046$ this section leads with, do not.
 
-Six tests across three labellers, measured on $287$ negatives rather than on 12
+Eight tests across four labellers, measured on $287$ negatives rather than on 12
 positives. The reading this supports is correlational and is about labellers: the
 pairs the pharmacist declined to call either way are the pairs the more capable
 labellers are most likely to flag, and the least capable one does not distinguish
@@ -595,10 +598,10 @@ measured on one labeller's flags cannot separate a property of the items from a
 property of the labeller, and the fact that the gradient weakens as the labeller
 weakens is evidence against the first reading rather than for it.
 
-One confound is not controlled and bounds all six tests in the same direction. An
+One confound is not controlled and bounds all eight tests in the same direction. An
 odds ratio is compressed toward $1$ as a labeller's marginal saturates, and these
-labellers do not share a marginal: the weakest flags roughly two fifths of
-$G_{299}$ where the strongest flags about a sixth. So part of the monotone fade is
+labellers are nowhere near sharing a marginal: the weakest flags roughly seven
+eighths of $G_{299}$ where the strongest flags about a sixth. So part of the monotone fade is
 arithmetic rather than behavioural, and this thesis cannot say how much without
 recomputing the gradient at matched predicted-positive rates, which was not done.
 That is the degeneracy precondition this thesis offers as a contribution, applied to
@@ -1125,22 +1128,22 @@ informative about true AUROC values at or above $0.7355$ and silent below that l
 \subsection{Multiplicity, and what is not corrected for}
 \label{sec:r-multiplicity}
 
-This chapter reports twenty hypothesis tests. The family is enumerated in a
+This chapter reports twenty-two hypothesis tests. The family is enumerated in a
 committed register released with the analysis code, one entry per test, each bound
 to the artifact and key its $p$ value is read from, and the count and every
 threshold derived from it are computed from that list rather than typed here: five
 Mann-Whitney tests in Table~\ref{tab:decontam}, five DeLong tests in
-Table~\ref{tab:delong}, one Fisher exact test on the mechanism split, six
+Table~\ref{tab:delong}, one Fisher exact test on the mechanism split, eight
 one-sided Fisher exact tests on the ambiguity gradient of
-Section~\ref{sec:r-ambiguity}, two for each of the three labellers asked, one
+Section~\ref{sec:r-ambiguity}, two for each of the four labellers asked, one
 Welch two-sample $t$ test on the anisotropy control, and two Spearman rank
 correlations against the pharmacist's danger rating, one reported above and one
 reported for the first time at the end of this subsection. Earlier drafts of this subsection stated fourteen and
 enumerated a family that omitted the ambiguity-gradient tests entirely; the
 correction, and why the direction of the error matters, is recorded as C68. The
-count then moved from sixteen to twenty when the gradient was put to four
-replication attempts, which is the register doing what a typed count could not
-and is recorded as C70. It
+count then moved from sixteen to twenty when the gradient was put to replication,
+and from twenty to twenty-two when a fourth labeller's two tests were found to have
+been computed and left out of the family, which is recorded as C76. It
 also reports eight interval estimates read
 against a null value, zero for the four Matthews correlations of Table~\ref{tab:mcc} and for the
 two pretraining gaps, and $0.5$ for the two AUROCs; five of the eight fail to exclude that null,
@@ -1150,19 +1153,19 @@ of Section~\ref{sec:r-frontier} was added, ten after, and eight again once the t
 were withdrawn for the reason Section~\ref{sec:m-ethics} gives. The number failing to exclude the
 null fell from seven to five with them, because both withdrawn intervals contained zero.
 \textbf{No multiple-comparison correction is applied anywhere in this thesis, and none of the
-reported $p$ values should be read as if one had been.} Were the twenty tests independent, a
-global null at $\alpha = 0.05$ would produce at least one rejection with probability $0.6415$. They
-are not independent, and the register groups them into the eight blocks within which they are not:
+reported $p$ values should be read as if one had been.} Were the twenty-two tests independent, a
+global null at $\alpha = 0.05$ would produce at least one rejection with probability $0.6765$. They
+are not independent, and the register groups them into the nine blocks within which they are not:
 the five Mann-Whitney tests are three seeds of one model, their ensemble and
 one further run all scored on the same $253$ rows, the five DeLong tests are five comparisons
 against a single reference run, and the two ambiguity-gradient tests are one model on one set of
-items under two prompts, once for each labeller. So $0.6415$ is an upper bound, the true familywise rate is lower,
+items under two prompts, once for each labeller. So $0.6765$ is an independence value rather than a theorem about dependent tests, the true familywise rate is lower,
 and this thesis does not compute it. The direction of the inference is what survives that
 imprecision: the absence of a rejection across a correlated family of this size is weaker
 evidence than the same absence would be for a single pre-specified test, and any single rejection
 inside it would be correspondingly weaker evidence of an effect.
 
-The Bonferroni threshold is valid under dependence, and at $0.05/20 = 0.0025$ two of the twenty
+The Bonferroni threshold is valid under dependence, and at $0.05/22 = 0.0023$ two of the twenty-two
 tests clear it. One is the Welch test on the anisotropy control, at
 $t = 4.0001$ on $235.84$ degrees of freedom for a two-sided $p$ of $0.000085$;
 Section~\ref{sec:res-rq3} already declines to read that as
@@ -1172,7 +1175,7 @@ on a model this thesis does not lead with.
 
 Neither of the two gradient tests this chapter leads with survives. Sonnet 5's few-shot gradient
 at $p = 0.0029$ cleared the threshold under the count of sixteen and does not clear it under
-twenty; its zero-shot gradient, at $p = 0.0046$ and the reading
+twenty-two; its zero-shot gradient, at $p = 0.0046$ and the reading
 Section~\ref{sec:r-ambiguity} states first, cleared neither. Under the count this subsection
 originally stated the threshold was $0.05/14 = 0.0036$ and that zero-shot figure did clear, so the
 understated count was the count under which the headline survived correction. What replaced it is
@@ -1185,8 +1188,8 @@ the gradient, and no claim in this thesis rests on its establishing it.
 The selection of which tests reach the page is disclosed rather than left implicit: four Spearman
 correlations against the danger rating were computed and one is reported above. Of the three not
 reported there, one, the harm head against the danger rating restricted to the $12$ positives,
-returns $\rho = -0.6621$ at $p = 0.019$. That is one of the twenty tests counted here. It is
-nominally significant at $\alpha = 0.05$, does not clear $0.0025$, and is not significant under
+returns $\rho = -0.6621$ at $p = 0.019$. That is one of the twenty-two tests counted here. It is
+nominally significant at $\alpha = 0.05$, does not clear $0.0023$, and is not significant under
 any correction over even
 the four Spearman tests alone. It measures an untrained module on twelve cases and no claim is
 made from it in either direction, but it is named because reporting only the null member of a

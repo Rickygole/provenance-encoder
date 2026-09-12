@@ -1,5 +1,5 @@
 {
- "bonferroni_threshold": 0.0025,
+ "bonferroni_threshold": 0.002272727272727273,
  "clears_bonferroni": [
   "welch_anisotropy",
   "fisher_ambiguity_haiku_fs"
@@ -16,6 +16,10 @@
   "ambiguity_gradient_llama70b": [
    "fisher_ambiguity_llama70b_zs",
    "fisher_ambiguity_llama70b_fs"
+  ],
+  "ambiguity_gradient_llama8b": [
+   "fisher_ambiguity_llama8b_zs",
+   "fisher_ambiguity_llama8b_fs"
   ],
   "anisotropy": [
    "welch_anisotropy"
@@ -43,13 +47,13 @@
   ]
  },
  "familywise_bound_is_upper_only_because": "the tests are positively dependent: five Mann-Whitney tests on one set of 253 rows, five DeLong tests against a single reference run, two Fisher tests on one model under two prompts, and two Spearman correlations against one rating. The true familywise rate is lower and this thesis does not compute it.",
- "familywise_upper_bound": 0.6415140775914581,
+ "familywise_upper_bound": 0.676466455026291,
  "holm_rejections_for_reference": [
   "welch_anisotropy",
   "fisher_ambiguity_haiku_fs"
  ],
- "n_dependence_groups": 8,
- "n_tests": 20,
+ "n_dependence_groups": 9,
+ "n_tests": 22,
  "nominally_significant_uncorrected": [
   "welch_anisotropy",
   "fisher_ambiguity_haiku_fs",
@@ -262,6 +266,26 @@
    "source": "results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
    "what": "gradient replication, Llama 3 70B, few-shot",
+   "where": "sec:r-ambiguity"
+  },
+  {
+   "group": "ambiguity_gradient_llama8b",
+   "id": "fisher_ambiguity_llama8b_zs",
+   "p": 0.7551383838922998,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
+   "test": "Fisher exact, one-sided",
+   "what": "gradient replication, Llama 3 8B hosted, zero-shot",
+   "where": "sec:r-ambiguity"
+  },
+  {
+   "group": "ambiguity_gradient_llama8b",
+   "id": "fisher_ambiguity_llama8b_fs",
+   "p": 0.5597889708254331,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
+   "test": "Fisher exact, one-sided",
+   "what": "gradient replication, Llama 3 8B hosted, few-shot",
    "where": "sec:r-ambiguity"
   }
  ]

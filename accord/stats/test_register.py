@@ -150,6 +150,22 @@ FAMILY = [
          where="sec:r-ambiguity", what="gradient replication, Llama 3 70B, few-shot",
          group="ambiguity_gradient_llama70b",
          source="results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+
+    # The fourth labeller. These two were computed by the C72 run, registered with
+    # its other 110 keys, and left out of this list, while the chapter said "four
+    # replication attempts on two further labellers" and "six tests". Four
+    # labellers were asked and eight tests exist. The omission is the exact defect
+    # C68 records one level up: a family understated by the tests that were run
+    # most recently. Adding them takes k from 20 to 22 and the threshold from
+    # 0.0025 to 0.0023; see C76.
+    dict(id="fisher_ambiguity_llama8b_zs", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="gradient replication, Llama 3 8B hosted, zero-shot",
+         group="ambiguity_gradient_llama8b",
+         source="results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_llama8b_fs", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="gradient replication, Llama 3 8B hosted, few-shot",
+         group="ambiguity_gradient_llama8b",
+         source="results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
 ]
 
 
