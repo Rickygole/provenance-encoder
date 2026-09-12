@@ -51,7 +51,7 @@ No clinical note text appears in this thesis, in any table, figure, appendix or 
 and no admission or subject identifier is printed anywhere. Note-derived intermediate files live
 outside the version-controlled tree and never leave the analysis machine, and the export script
 scans candidate files for note-text markers and aborts rather than filtering on a hit. Two
-departures are recorded rather than concealed: a comparison against a hosted commercial model, and
+departures are disclosed: a comparison against a hosted commercial model, and
 a calibration run through a hosted inference API, both of which placed note sentences in prompts
 sent to a third party. Section~\ref{sec:m-ethics} states which models, what was sent, what can and
 cannot be established about the payload from the project record, how the data use agreement bears
@@ -175,7 +175,7 @@ Medication extraction is a mature task with strong published systems
 \citep{neumann2019scispacy,eyre2021medspacy}. This project used neither. Installation of both was
 attempted and abandoned after dependency resolution against the pinned environment failed
 repeatedly, and the pipeline proceeded with a dictionary extractor over a general-purpose English
-pipeline. That is a weakness and is stated as one rather than presented as a choice.
+pipeline. That is a limitation, not a considered choice.
 
 The extractor uses four hand-written resources: heart-failure-relevant generic drug names;
 abbreviation and brand-name expansions; spelling and formulation normalisations, so formulations of
@@ -315,8 +315,8 @@ temporal check, split 886 from Rule 1, 203 from Rule 2, 521 from Rule 3 and 370 
 covering 1,205 distinct admissions. A temporal prefilter that requires a
 resolvable ordering between the two notes then drops the pool to 1,978 candidates, split 886, 202,
 520 and 370. These are two different splits, raw and
-post-prefilter, and the two are reported separately here rather than conflated, as an earlier draft
-did: the prefilter removes two candidates in total, one each from Rule 2 and Rule 3, out of 1,068
+post-prefilter, and the two are reported separately here rather than conflated: the prefilter
+removes two candidates in total, one each from Rule 2 and Rule 3, out of 1,068
 admissions carrying a usable date window and 643 admissions carrying an intermediate note between
 the two selected notes. Every candidate count
 elsewhere in this thesis is the post-prefilter figure, 1,978, unless stated otherwise.
@@ -490,13 +490,12 @@ reconstructible only by counting a pooler module that is off the forward path, w
 and backward pass confirmed carries gradient flags and no gradient. Both facts are independent of
 what exists on disk (Appendix~\ref{app:corrections}, C54).
 
-The checkpoint premise originally offered alongside those facts was false and is withdrawn here
-rather than quietly dropped. An earlier audit asserted that no checkpoint existed anywhere; it had
-searched the repository and the data quarantine but not the synced drive mount, where checkpoints
-do exist (Appendix~\ref{app:corrections}, R6). The rule this produces is stated as a rule: no claim of
-the form ``X was never trained'' may rest on the absence of a checkpoint, because an artifact is
-not absent merely because the search did not reach where it lives. The claim here rests on the code
-path and the gradient check.
+A checkpoint premise offered alongside those facts, that no checkpoint for the wider configuration
+exists anywhere, was false and is withdrawn: the earlier search covered the repository and the data
+quarantine but not the synced drive mount, where checkpoints do exist (Appendix~\ref{app:corrections},
+R6). No claim of the form ``X was never trained'' may rest on the absence of a checkpoint, because an
+artifact is not absent merely because the search did not reach where it lives. The claim here rests
+on the code path and the gradient check.
 
 \subsection{The defect-free control model}
 \label{sec:m-control-model}
@@ -923,10 +922,9 @@ what the table's minimum detectable AUROC column uses. That column follows the f
 \citet{hanley1982meaning} procedure, which evaluates the sampling variance of the AUROC estimator at the
 candidate value $a$ itself rather than at the null, and finds the smallest $a$ such that
 $(a - 0.5) / \sqrt{\mathrm{Var}(a)} \geq z_{1-\alpha/2} + z_{1-\beta}$ by search, since
-$\mathrm{Var}(a)$ depends on $a$. An earlier version of this table printed a minimum detectable
-AUROC of $0.7382$ for the primary stratum that reproduced under neither procedure computed
-precisely; the full procedure was reimplemented and rerun for this thesis, and the values below are
-that recomputation's output (Appendix~\ref{app:corrections}, R9). Table~\ref{tab:m-mde} evaluates this under
+$\mathrm{Var}(a)$ depends on $a$. The full procedure was reimplemented and rerun for this thesis,
+and the values below are that recomputation's output (Appendix~\ref{app:corrections}, R9).
+Table~\ref{tab:m-mde} evaluates this under
 each treatment of the ambiguous rows and on the defect-free stratum
 (Figure~\ref{fig:power}, Chapter~\ref{ch:results}).
 
@@ -983,94 +981,54 @@ rather than from a general good-practice statement.
 \paragraph{Note text, and third-party transmission.} No clinical note text, and no admission or
 subject identifier, appears anywhere in this document or any released artifact; note-derived
 intermediate files stay outside the version-controlled tree, and the export script scans every
-candidate file for note-text markers and aborts on a hit. Two departures are disclosed rather than
-concealed, and the count was wrong in an earlier draft of this section, which said one.
+candidate file for note-text markers and aborts on a hit. Two departures are disclosed here.
 
 The first is the comparison against GPT-4o, a hosted commercial model this bibliography carries no
-reference for and which is therefore named rather than cited, which placed verbatim de-identified
-note sentences in the body of a prompt sent to a third-party API. The scope has to be stated
-carefully, in both directions, because an earlier draft first overstated it and then rested the
-narrower account on the wrong evidence. What can be established is this. The columns the prompt was
-filled from hold one sentence per note side, segmented by the mining stage and selected by it, the
-same exemplar text the weak labeller and the detector received; under the omission rule the
-discharge side is empty. The prompt template's placeholders are named \texttt{nursing\_note} and
-\texttt{discharge\_summary}, and that naming is what two separate readings of this project took for
-whole-note transmission. What cannot be established from the project record is the payload of that specific run,
-because the script that made those calls is not in the repository, so the account above is a
-reconstruction from the annotation sheet's columns and the archived prompt template rather than a
-verified reading of the transmitting code.
-
-The sheet those columns come from has now been measured, which bounds the reconstruction rather
-than leaving it as an assertion. Across $544$ non-empty sentence cells the longest is $200$
-characters, the median nursing span is $93$ and the median discharge span is $113$, and $94$ cells
-sit exactly at $200$, which is a hard truncation rather than a distribution that happens to stop
-there. The cap is a property of the delivered artifact and is not visible in any committed script,
-so it is reported as measured from the sheet and not as a documented pipeline parameter. What the
-prompts were filled from was therefore a truncated excerpt of at most two hundred characters per
-note side, not a sentence of unbounded length and not a note. It is in
-any case not a defence: a verbatim sentence from a credentialed note is restricted data whatever its
-length, and the prohibition on sharing access is not scaled by quantity, so the departure stands as
-a departure whatever its exact span. It is also the only departure of its kind in this project. The
-annotation described below involved no transfer at all, which is a distinction the reader should
-carry into that paragraph rather than assume the two are alike.
+reference for and which is therefore named rather than cited, which placed de-identified note
+sentences in the body of a prompt sent to a third-party API. The columns the prompt was filled from
+hold one sentence per note side, the same exemplar text the weak labeller and the detector received;
+under the omission rule the discharge side is empty. The script that made those calls is not in the
+repository, so this account is a reconstruction from the annotation sheet's columns and the archived
+prompt template rather than a verified reading of the transmitting code. The sheet itself has been
+measured: across $544$ non-empty sentence cells the longest is $200$ characters, the median nursing
+span is $93$ and the median discharge span is $113$, and $94$ cells sit exactly at $200$, a hard
+truncation rather than a distribution that happens to stop there. The cap is a property of the
+delivered artifact, not a documented pipeline parameter, and is reported as measured from the
+sheet. What the prompts were filled from was therefore a truncated excerpt of at most two hundred
+characters per note side, not a note, but that is not a defence: a verbatim sentence from a
+credentialed note is restricted data whatever its length, and the prohibition on sharing access is
+not scaled by quantity, so the departure stands as a departure whatever its exact span. It is the
+only departure of its kind in this project; the annotation described below involved no transfer at
+all.
 
 The second is a cross-domain safety screen that sent $50$ sampled pairs through the Hugging Face
-Inference API to \texttt{Meta-Llama-3-8B-Instruct}. It was omitted from an earlier version of this
-section, which is why the count moved from one to two, and the version that first disclosed it
-described it wrongly: it said the run covered the full candidate pool of $1{,}679$ rows and was the
-source of the deployed weak labels. That was a misreading of a filename. The prefix \texttt{hf\_} in
-this project's notebooks denotes the heart-failure cohort, not Hugging Face, and a cohort label was
-read as a channel label. The exposure was overstated by a factor of about thirty-three, in the
-direction that makes the departure look larger, and the correction is recorded as C75.
+Inference API to \texttt{Meta-Llama-3-8B-Instruct}. Those $50$ rows produce no number this thesis
+reports: the screen's clinical arm is one of four domains in a cross-domain comparison that appears
+nowhere in these chapters. The weak labelling that produced the $1425$ of $1679$ in
+Table~\ref{tab:overcalling} and the $261$ of $299$ that Chapter~\ref{ch:results} reports as this
+thesis's weak-supervision finding ran against a locally served model, as Section~\ref{sec:m-weak}
+states, not through that API.
 
-Clause numbers in this section follow the Credentialed Health Data Use Agreement 1.5.0, the instrument the licensee signs and which has ten clauses. The Credentialed Health Data License 1.5.0 is a separate document with nine, and it numbers the code-contribution obligation one lower, so a clause number is ambiguous unless the instrument is named. The data use agreement is the instrument both are judged against; guidance issued during this
-project's lifetime treats transmission of credentialed data to a general-purpose hosted API as
-prohibited under it, specifying zero-retention alternatives that were not in force for these calls.
-The two departures are not in the same position, and the difference is the whole of what this
-paragraph has to say. The GPT-4o comparison has since been re-run through a channel that guidance
-treats differently, and every result this thesis reports from that comparison is now the
-replacement: the original rows are withdrawn from every table and figure. The safety-screen run is not withdrawn
-and does not need to be, for a reason that took three attempts to state correctly. Its $50$ rows
-produce no number this thesis reports: the screen's clinical arm is one of four domains in a
-cross-domain comparison that appears nowhere in these chapters. What an earlier version of this
-section asserted, that the deployed weak labels came through that API and that withdrawing them
-would mean withdrawing the detector, is false. The weak labelling that produced the $1425$ of
-$1679$ in Table~\ref{tab:overcalling} and the $261$ of $299$ that Chapter~\ref{ch:results} reports
-as this thesis's weak-supervision finding ran against a locally served model, as
-Section~\ref{sec:m-weak} states. The two sections contradicted each other for the length of a
-correction cycle and the local reading is the correct one.
+Only one channel in this project's history was prohibited at the time it was used, the original
+GPT-4o comparison, and its results are withdrawn from every table and figure; no result this thesis
+reports is downstream of a prohibited channel. The safety screen is a real transmission of $50$
+pairs, disclosed as one, and it is not load bearing. The GPT-4o rows are replaced by the Claude
+Sonnet 5 runs of Section~\ref{sec:r-frontier}, which are a different model and therefore a new
+measurement rather than a reproduction; nothing replaces the Llama 3 run. The local run of the same
+model reported in Table~\ref{tab:overcalling} is a different configuration, $165$ labels apart on
+the same pool. No further transmission through either original channel occurred or is planned.
 
-So the dilemma that paragraph set out does not exist, and saying so is not a softening. Only one
-channel in this project's history was prohibited at the time it was used, the original GPT-4o
-comparison, and its results are withdrawn. No result this thesis reports is downstream of a
-prohibited channel. The safety screen is a real transmission of $50$ pairs and it is disclosed as
-one; it is not load bearing, and the fact that it produced output rather than failing is recorded
-here because an earlier account of it claimed the opposite.
+Clause numbers in this section follow the Credentialed Health Data Use Agreement 1.5.0, the
+instrument the licensee signs and which has ten clauses. The Credentialed Health Data License 1.5.0
+is a separate document with nine, and it numbers the code-contribution obligation one lower, so a
+clause number is ambiguous unless the instrument is named. The data use agreement is the instrument
+both departures are judged against; guidance issued during this project's lifetime treats
+transmission of credentialed data to a general-purpose hosted API as prohibited under it, specifying
+zero-retention alternatives that were not in force for either call.
 
-That reverses a position an earlier draft of this section took, and the reversal should be visible
-rather than silent. The earlier draft retained both sets of rows side by side and argued that
-deleting them would misrepresent the comparison actually run. The argument was not wrong about
-record-keeping, and it is the reason the withdrawn values survive in the project's own artifacts and
-correction record rather than being erased. It was wrong about what belongs in the thesis. A
-reported result is a result the author asks a reader to rely on, and asking a reader to rely on data
-obtained through a channel the agreement prohibited is a different act from recording that the
-channel was used. The first is now withdrawn; the second is this paragraph.
-
-What replaced what is stated so the withdrawal can be checked. The GPT-4o rows are replaced by the
-Claude Sonnet 5 runs of Section~\ref{sec:r-frontier}, which are a different model and therefore a
-new measurement rather than a reproduction. Nothing replaces the Llama 3 run. The local run of the
-same model reported in Table~\ref{tab:overcalling} is a different configuration, $165$ labels apart
-on the same pool, and was briefly mistaken for a reproduction of it. No further transmission through
-either original channel occurred or is planned.
-
-\paragraph{Every transmission through a compliant channel, enumerated.} Five
-runs, not one, sent sentence pairs to a hosted API after the withdrawal, and an
-earlier version of this section disclosed only the first. The count is given in
-full because a section whose purpose is to say what left the machine is worth
-nothing if it lags the experiments, and it lagged them by four runs for a day.
-The counts below are computed from the committed prediction artifacts rather than
-stated here, so a run that leaves an artifact cannot be omitted from the total by
-an oversight in this paragraph.
+\paragraph{Every transmission through a compliant channel, enumerated.} Five runs sent sentence
+pairs to a hosted API after the withdrawal. The counts below are computed from the committed
+prediction artifacts, so a run that leaves an artifact cannot be omitted from the total.
 
 \begin{table}[H]
 \centering
@@ -1091,66 +1049,46 @@ Claude Haiku 4.5, replicated & Anthropic API & 120 & Decoding stability, $40$ pa
 \textbf{Total} & & \textbf{2,520} & \\
 \bottomrule
 \end{tabular}
-\apanote{Prompts, not pairs: the unit is requests that carried a sentence pair off this machine. The first, second, fourth and fifth rows are $300$ annotated pairs in two prompt conditions each. The third is a stability check, $40$ pairs drawn three times in one condition, and it is listed separately rather than folded into the second because repeated draws over the same pairs are additional transmissions. The payload is identical across all five and is the payload described above: one mining-extracted sentence per note side, bound from the archived prompt template, with no admission identifier, no subject identifier and no free note body. The Bedrock account is the author's own. The guidance of 18 April 2023 is the document these routes were selected against, and its wording carries the argument, so it is quoted rather than characterised. It states that the agreement ``explicitly prohibits sharing access to the data with third parties, including sending it through APIs provided by companies like OpenAI, or using it in online platforms like ChatGPT'', which is the sentence the original run fell under. It then names four services it suggests instead, of which two are used here. Of Anthropic it says: ``Claude does not use your prompts or its responses as data to train its models by default, and routine human review of data is not performed.'' Of Amazon Bedrock it says that after a private copy of a base model is made, ``data is not shared back to the base model for training.'' Three properties of that text matter and none is an inference. It names Anthropic Claude as a service without distinguishing a first-party interface from a cloud tenancy, so the channel distinction an earlier version of this note treated as an open question is one the guidance does not draw. It requires an opt-out form for one service only, Azure, and asks none for Claude, so the absence of an opt-out here is the arrangement the guidance describes rather than an omission. And the ground it gives for Bedrock concerns fine-tuning data not returning to the base model; an earlier version of this note attributed to the guidance a different ground, that inference runs inside a tenancy the licensee controls, which is this author's reasoning and not the document's. What remains open is narrower than two earlier versions claimed. The guidance says Claude does not train on prompts ``by default'', and whether a default should have been supplemented by a zero-retention agreement is a question this thesis does not answer. And the document is of April 2023 while these models were released in 2026: it names a vendor and a service rather than model versions, so the reading applied is that a later Claude model is the same named service, which is the natural reading and is still a reading. Both questions were put to the thesis chair and the institutional data steward before deposit, and the pre-registration records that the Bedrock route was chosen from this guidance before the run rather than justified after it. Section~\ref{sec:disc-limits} records what the four Claude rows would become if either question is answered against the reading taken here. The generating script for all five runs is committed and released with the analysis code, which is also what closes the Clause 9 gap the withdrawn run left: that run's code was never in the repository, which made those tables the only results in this thesis with no committed code path.}
+\apanote{Prompts, not pairs: the unit is requests that carried a sentence pair off this machine. The first, second, fourth and fifth rows are $300$ annotated pairs in two prompt conditions each. The third is a stability check, $40$ pairs drawn three times in one condition, and it is listed separately rather than folded into the second because repeated draws over the same pairs are additional transmissions. The payload is identical across all five and is the payload described above: one mining-extracted sentence per note side, bound from the archived prompt template, with no admission identifier, no subject identifier and no free note body. The Bedrock account is the author's own. The guidance of 18 April 2023 is the document these routes were selected against, and its wording carries the argument, so it is quoted rather than characterised. It states that the agreement ``explicitly prohibits sharing access to the data with third parties, including sending it through APIs provided by companies like OpenAI, or using it in online platforms like ChatGPT'', which is the sentence the original run fell under. It then names four services it suggests instead, of which two are used here. Of Anthropic it says: ``Claude does not use your prompts or its responses as data to train its models by default, and routine human review of data is not performed.'' Of Amazon Bedrock it says that after a private copy of a base model is made, ``data is not shared back to the base model for training.'' Three properties of that text matter and none is an inference. It names Anthropic Claude as a service without distinguishing a first-party interface from a cloud tenancy. It requires an opt-out form for one service only, Azure, and asks none for Claude, so the absence of an opt-out here is the arrangement the guidance describes rather than an omission. And the ground it gives for Bedrock concerns fine-tuning data not returning to the base model. The guidance says Claude does not train on prompts ``by default'', and whether a default should have been supplemented by a zero-retention agreement is a question this thesis does not answer. And the document is of April 2023 while these models were released in 2026: it names a vendor and a service rather than model versions, so the reading applied is that a later Claude model is the same named service, which is the natural reading and is still a reading. Both questions were put to the thesis chair and the institutional data steward before deposit, and the pre-registration records that the Bedrock route was chosen from this guidance before the run rather than justified after it. Section~\ref{sec:disc-limits} records what the four Claude rows would become if either question is answered against the reading taken here. The generating script for all five runs is committed and released with the analysis code, which is also what closes the Clause 9 gap the withdrawn run left: that run's code was never in the repository, which made those tables the only results in this thesis with no committed code path.}
 \label{tab:m-transmissions}
 \end{table}
 
-Three properties of that table are the reason it is a table rather than a sentence.
-The prompts are identical across the five runs, so the comparison is between
-models rather than between payloads, and the payload is the one already described
-rather than a larger one. No run in it is an unreviewed channel: each was chosen
-from the guidance before it was used, which is the difference between these and
-the run they replace. And the third row is the kind of entry a hand-written total
-loses: the first version of the routine that counts these artifacts used a filename
-pattern that excluded replicated runs, reported three runs and $1{,}800$ prompts,
-and was wrong by exactly the run that is easiest to forget. The fifth row was added to this table by regenerating that count rather than by editing the table, which is the property the arrangement was for.
-
-The asymmetry should be uncomfortable and is stated rather than smoothed. One breached run's output
-is withdrawn because the thesis can do without it; another's is retained because the thesis cannot.
-That is not a principled distinction about the agreement, which does not scale with how much a
-result is needed. It is a statement about what is within the author's power to remedy before deposit,
-and the remedy that would close it, retraining the detector on labels generated through a channel
-this project can account for, is named in the obligations on any continuation below.
+The five runs share an identical, already-described payload, so the comparison in that table is
+between models rather than between payloads, and none is an unreviewed channel: each was chosen
+from the guidance before it was used, which is the difference between these and the run they
+replace. One breached run's output is nonetheless withdrawn because the thesis can do without it,
+while another's is retained because it cannot; that is not a principled distinction about the
+agreement but a statement about what is within the author's power to remedy before deposit. The
+remedy, retraining the detector on labels generated through a channel this project can account for,
+is named in the obligations on any continuation below.
 
 \paragraph{The annotator, and credentialed access.} The gold standard was produced by one
-board-certified pharmacist, annotating in the author's presence and on the author's machine. No
-copy of the candidate sheet was ever sent to or held by the annotator: no file was transferred, no
-printout was made, nothing was photographed, and nothing was retained afterwards. The annotator
-read each pair on the author's screen and gave a judgment, which the author recorded. Custody of
-the material never left the credentialed environment.
+board-certified pharmacist, annotating in the author's presence and on the author's machine. No copy
+of the candidate sheet was ever sent to or held by the annotator: no file was transferred, no
+printout was made, nothing was photographed, and nothing was retained afterwards. The annotator read
+each pair on the author's screen and gave a judgment, which the author recorded. Custody of the
+material never left the credentialed environment.
 
-That matters because the sheet itself is restricted data. Its extent is measured rather than
-described: $300$ rows, no admission or subject identifier column of any kind, $544$ non-empty
-sentence cells capped at $200$ characters, and $95$ of those cells still carrying the bracketed
-surrogates MIMIC-III uses to mark removed identifiers. Those surrogates settle the classification.
-A derived feature does not carry them; only copied note text does.
+That matters because the sheet itself is restricted data: $300$ rows, no admission or subject
+identifier column of any kind, $544$ non-empty sentence cells capped at $200$ characters, and $95$
+of those cells still carrying the bracketed surrogates MIMIC-III uses to mark removed identifiers.
+Those surrogates settle the classification; a derived feature does not carry them, only copied note
+text does.
 
 The annotator does not hold PhysioNet credentialed access. What the agreement forbids is sharing
 access to the data with a third party, and on these facts nothing was shared: a non-credentialed
 clinician read restricted material under the direct supervision of the licensee, on the licensee's
-machine, and took nothing away. That is consultation of a domain expert, not transfer of a dataset,
-and it is the arrangement under which most clinical annotation by a non-research clinician is
-done. The distinction is not a technicality. It is the difference between a recipient who could
-disclose the material onward and a reader who never held it.
+machine, and took nothing away. That is consultation of a domain expert, not transfer of a dataset.
+The distinction is not a technicality: it is the difference between a recipient who could disclose
+the material onward and a reader who never held it.
 
-Two earlier versions of this section were wrong about this, in opposite directions, and both are
-withdrawn. The first said the annotator worked ``remotely from a spreadsheet'' and reported the
-credentialing question as unresolvable from the project record. The second, on learning that the
-annotator was not credentialed, reported the engagement as a disclosure of restricted data outside
-the agreement. Neither description was checked against how the annotation was actually carried
-out, and the first sentence of this paragraph is that fact. A thesis about controls that catch what
-a procedure hid should not have taken two passes to ask the author what he did, and the correction
-record carries the entry.
-
-What remains is a documentation failure rather than a disclosure. The written protocol governing
-the engagement addressed confidentiality and de-identification but recorded neither the annotator's
-credentialing status nor the supervised, no-copy arrangement under which the work was done, which
-is why two readings of the record reached two wrong conclusions. The correct procedure, which any
-continuation of this work will follow, is to record the arrangement at the time: who viewed
-restricted material, under whose supervision, on whose equipment, and what if anything they
-retained. Where a collaborator is to hold material themselves rather than read it under
-supervision, their credentialed status is verified and recorded before anything is transferred, and
-they are registered against the agreement.
+The written protocol governing the engagement addressed confidentiality and de-identification but
+recorded neither the annotator's credentialing status nor the supervised, no-copy arrangement under
+which the work was done; that is a documentation failure rather than a disclosure. The correct
+procedure for any continuation is to record the arrangement at the time, who viewed restricted
+material, under whose supervision, on whose equipment, and what if anything they retained, and to
+verify and register a collaborator's credentialed status before any material is transferred to them
+directly.
 
 \paragraph{Re-identification and small cells.} No re-identification was attempted and no auxiliary
 dataset was joined against MIMIC-III at the patient level. Subgroup results are one-way marginals
@@ -1166,21 +1104,13 @@ does not support deployment in any care setting, and Chapter~\ref{ch:discussion}
 performance would mean if the system were deployed regardless. Separately, the data use agreement
 obliges contributing analysis code back to the community rather than keeping it private. The
 analysis code is released in the repository the verified-fact register and the appendices point to,
-and that release is not complete. Two gaps are named rather than left for a reader to discover. The
-script that made the original GPT-4o calls is not in it, for the reason given above. Nor is
-anything that would let the deployed weak-labelling run be repeated: its script is absent and its
-prompt is not among the four configurations the committed prompt table holds. That run produced the
-$1425$ weak labels the detector was trained on and the $261$ of $299$ marginal
-Chapter~\ref{ch:results} reports as this thesis's weak-supervision finding, so those two numbers
-cannot be regenerated by anyone, including the author. They are reported as measured and are not
-reproducible, and on this thesis's own standard that is a weaker footing than any other number in
-the document. The detector's model and training source was the second gap, and it is now closed. An
-earlier version of this section recorded that the module was missing and that the architectural
-findings of Section~\ref{sec:res-rq3} therefore rested on reading code a reader could not open. It
-has since been recovered and committed unmodified. Each of those findings can now be checked
-directly: the authority parameters reported as learned are initialised at exactly the values they
-were reported as converging to, the guideline bank is a single randomly initialised parameter matrix
-with no corpus and no retrieval step, the harm head appears in neither term of the training
-objective, and the weak labeller's confidence field is multiplied into the per-example loss, which
-makes it a label-conditioned reweighting rather than a confidence weighting. Those were the claims;
-the file is the evidence, and it no longer has to be taken on the author's word.
+and that release has two gaps. The script that made the original GPT-4o calls is not in it, for the
+reason given above. Nor is anything that would let the deployed weak-labelling run be repeated: its
+script is absent and its prompt is not among the four configurations the committed prompt table
+holds. That run produced the $1425$ weak labels the detector was trained on and the $261$ of $299$
+marginal Chapter~\ref{ch:results} reports as this thesis's weak-supervision finding, so those two
+numbers cannot be regenerated by anyone, including the author; they are reported as measured and are
+not reproducible, a weaker footing than any other number in this document. The detector's model and
+training source was a third gap and it is now closed: the module has been recovered and committed
+unmodified, so each finding built on it, including those of Section~\ref{sec:res-rq3}, can be
+checked directly against the code rather than taken on the author's word.
