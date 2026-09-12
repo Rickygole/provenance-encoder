@@ -38,6 +38,7 @@ import json
 import math
 import pathlib
 
+import numpy as np
 import pandas as pd
 from scipy.stats import fisher_exact
 
@@ -144,9 +145,96 @@ def joinability_vs_correctness():
     return out
 
 
+def join_permutation_null(cells, B=20000, seed=0):
+    """Is the weak-labeller MCC distinguishable from a scrambled join?
+
+    The weak-label file and the gold file share no identifying column, so the
+    join is a reconstruction. Under a random alignment the labeller's marginal is
+    unchanged and only which rows it lands on varies, which is a hypergeometric
+    draw on the true positives. If the observed MCC sits inside that distribution
+    then no pair-level agreement is measurable from the retained artifacts, and
+    the number must not be reported as a measurement of the labeller.
+    """
+    tp, tn, fp, fn = cells
+    n = tp + tn + fp + fn
+    npos, nflag = tp + fn, tp + fp
+    rng = np.random.default_rng(seed)
+    draws = rng.hypergeometric(nflag, n - nflag, npos, size=B)
+    m = np.array([mcc(k, (n - nflag) - (npos - k), nflag - k, npos - k) for k in draws])
+    obs = mcc(tp, tn, fp, fn)
+    # Ceiling: the labeller emits hard labels at a fixed marginal, so perfect
+    # agreement is arithmetically unreachable. Best case is every actual positive
+    # inside the flagged set, with the flagged count held where it is.
+    ceiling = mcc(npos, (n - nflag), nflag - npos, 0)
+    return {"observed_mcc": round(obs, 4),
+            "permutation_B": B, "permutation_seed": seed,
+            "null_mean": round(float(m.mean()), 4),
+            "null_p95_hi": round(float(np.percentile(m, 97.5)), 4),
+            "null_p95_lo": round(float(np.percentile(m, 2.5)), 4),
+            "p_null_ge_observed": float("%.4g" % float((m >= obs).mean())),
+            "distinguishable_from_random_join": bool((m >= obs).mean() < 0.05),
+            "predicted_positive_rate": round(nflag / n, 4),
+            "expected_tp_under_random_join": round(npos * nflag / n, 2),
+            "observed_tp": tp,
+            "marginal_constrained_max_mcc": round(ceiling, 4),
+            "observed_as_fraction_of_ceiling": round(obs / ceiling, 4) if ceiling else None}
+
+
+def oracle_threshold_null(n=253, npos=12, B=4000, seed=1):
+    """Null distribution of the MAX-over-threshold MCC.
+
+    A statistic maximised over a tuning parameter on the same sample it is
+    evaluated on is not centred at zero under the null, so comparing an oracle
+    threshold MCC against 0 overstates it. This is the reference the comparison
+    needs instead.
+    """
+    rng = np.random.default_rng(seed)
+    y0 = np.zeros(n, bool); y0[:npos] = True
+    best = []
+    for _ in range(B):
+        s_ = rng.random(n)
+        y = y0[rng.permutation(n)]
+        o = np.argsort(-s_); yo = y[o]
+        ctp = np.cumsum(yo); k = np.arange(1, n + 1)
+        cfp = k - ctp; cfn = npos - ctp; ctn = (n - npos) - cfp
+        den = np.sqrt((ctp + cfp) * (ctp + cfn) * (ctn + cfp) * (ctn + cfn), dtype=float)
+        best.append(float(np.where(den == 0, 0, (ctp * ctn - cfp * cfn) / np.where(den == 0, 1, den)).max()))
+    b = np.array(best)
+    return {"n": n, "n_positives": npos, "B": B, "seed": seed,
+            "null_median": round(float(np.median(b)), 4),
+            "null_p05": round(float(np.percentile(b, 5)), 4),
+            "null_p95": round(float(np.percentile(b, 95)), 4),
+            "p_null_ge": {}}
+
+
 def main():
-    out = {"weak_labeller_mcc": weak_labeller_mcc(),
-           "detector_threshold_optimal_mcc": detector_threshold_optimal_mcc(),
+    wl = weak_labeller_mcc()
+    for base in ("G_299", "G_253"):
+        d0 = wl[base]["determinate"]
+        wl[base]["random_join_control"] = join_permutation_null(
+            (d0["tp"], d0["tn"], d0["fp"], d0["fn"]))
+
+    onull = oracle_threshold_null()
+    det = detector_threshold_optimal_mcc()
+    rng = np.random.default_rng(1)
+    # score each reported optimum against that null
+    y0 = np.zeros(253, bool); y0[:12] = True
+    best = []
+    for _ in range(4000):
+        s_ = rng.random(253); y = y0[rng.permutation(253)]
+        o = np.argsort(-s_); yo = y[o]
+        ctp = np.cumsum(yo); k = np.arange(1, 254)
+        cfp = k - ctp; cfn = 12 - ctp; ctn = 241 - cfp
+        den = np.sqrt((ctp + cfp) * (ctp + cfn) * (ctn + cfp) * (ctn + cfn), dtype=float)
+        best.append(float(np.where(den == 0, 0, (ctp * ctn - cfp * cfn) / np.where(den == 0, 1, den)).max()))
+    barr = np.array(best)
+    for col in ("accord_contra_prob", "accord_harm_score"):
+        v = det["G_253"][col]["threshold_optimal"]["mcc"]
+        onull["p_null_ge"][col] = float("%.4g" % float((barr >= v).mean()))
+
+    out = {"weak_labeller_mcc": wl,
+           "oracle_threshold_null": onull,
+           "detector_threshold_optimal_mcc": det,
            "joinability_vs_correctness": joinability_vs_correctness()}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2) + "\n")

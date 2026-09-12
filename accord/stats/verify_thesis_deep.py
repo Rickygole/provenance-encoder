@@ -207,6 +207,47 @@ def pass9_template():
     print("PASS 9  template compliance (FORMAT.md)")
     problems = 0
 
+    # FORMAT.md section 3: "TOC entries are prefixed `Chapter N:`". This pass
+    # reported zero template violations for months while the TOC printed bare
+    # "1  Introduction", because it read the tex and the PDF body and never read
+    # the table of contents. The body headings were correct, which is what made
+    # the omission invisible: titlesec printed "Chapter N:" there, so every place
+    # anyone checked by eye was right. A check that cannot see the artifact it
+    # governs is the defect class this project has shipped most often, so the
+    # rendered TOC is now read directly.
+    toc = THESIS / "main_msu.toc"
+    if toc.exists():
+        entries = re.findall(r"\\contentsline \{chapter\}\{\\numberline \{([^}]*)\}",
+                             toc.read_text())
+        numbered = [e for e in entries if e]
+        if numbered:
+            pdf = THESIS / "main_msu.pdf"
+            rendered = ""
+            if pdf.exists():
+                try:
+                    rendered = subprocess.run(
+                        ["pdftotext", "-layout", str(pdf), "-"],
+                        capture_output=True, text=True, timeout=120).stdout
+                except Exception:
+                    rendered = ""
+            # A whole-document search does not work here and the first version of
+            # this check made that mistake: the body heading prints "Chapter N:"
+            # too, so searching the full text passes even when the TOC prefix is
+            # absent. Breaking the prefix deliberately proved the gate could not
+            # fail. Each prefix must therefore appear at least twice, once in the
+            # TOC line and once at the body heading, which is what distinguishes
+            # the two occurrences without having to locate the TOC's page range.
+            missing = []
+            for e in numbered:
+                word = "Appendix" if e.isalpha() else "Chapter"
+                if rendered and rendered.count(f"{word} {e}:") < 2:
+                    missing.append(f"{word} {e}")
+            if missing:
+                print(f"   TOC entries lack the required prefix: {', '.join(missing)}")
+                problems += 1
+            else:
+                print(f"   TOC: {len(numbered)} numbered entries, all prefixed")
+
     ab = THESIS / "frontmatter" / "abstract.tex"
     if ab.exists():
         text = strip_comments(ab.read_text())

@@ -4148,3 +4148,235 @@ a session schedule. C64 reversed it on recollection and cited nothing. The dispo
 the one where a claim about what happened was checked against file metadata and then put to the one
 person who was there. The order matters: audit first, then ask, because the audit is what made the
 author's answer checkable instead of merely authoritative.
+
+---
+
+## C88. Three free computations run, and the test family grew to twenty-seven
+
+Three measurements that cost nothing had been outstanding because no one had run them,
+not because anything blocked them. Running them changed one threshold, cost one
+rejection, withdrew one number that had no generator, and added one disclosure.
+
+**The weak labeller's own agreement was never measured.** Every statement this thesis
+makes about the deployed weak labeller is a ratio of marginals: how often it says yes,
+divided by how often the pharmacist does. That says nothing about whether it says yes to
+the right pairs. Its Matthews correlation with the pharmacist on $G_{253}$ is 0.0117. The
+teacher is at chance. It recovers 11 of the 12 confirmed contradictions and brings 200
+false positives with them.
+
+The figure is a bound rather than a measurement, and the methodology chapter's own
+join-feasibility finding is why: the weak-label file and the gold file share no
+identifying column, and row order carries no alignment, matching on rule at 95 of 299
+against 94.3 expected by chance. The join used is a reconstruction through a
+nursing-side key and leaves 19 of 253 pairs holding two conflicting weak labels. 0.0117
+is computed on the 234 the join determines; resolving all 19 as positive gives 0.0059 and
+all 19 as negative gives 0.0496. The interval is [0.0059, 0.0496] and every value in it
+is at chance, so the ambiguity limits the precision and not the direction. It is written
+into Section~4 as a bound with the interval attached, not as a four-decimal measurement.
+
+This is the most load-bearing of the three. The thesis argues the pipeline fails rather
+than the task being impossible, and a teacher at chance is the strongest evidence for
+that reading: a detector distilled from supervision uncorrelated with truth cannot
+acquire a correlation, so the detector's chance-level ranking becomes the predicted
+outcome instead of a surprise.
+
+**The detector's threshold was an open objection.** Table tab:operating reports the
+configured 0.5, and a reader is entitled to say that a threshold is a free parameter and
+a better one might expose signal. The answer is the best Matthews correlation attainable
+at any cutoff, chosen with the labels already in hand, which no prospective procedure
+could reach. On $G_{253}$ it is 0.0554 at a cutoff of 0.4422 on the contradiction
+probability, against -0.0706 at 0.5; on the harm score it is 0.0631 at 0.5563 against
+0.0561. The best cutoff that exists moves the correlation from roughly zero to roughly
+zero.
+
+**A disagreement between two artifacts, disclosed rather than smoothed.** Those figures
+come from the released score file, the same file behind the AUROC results, and not from
+the three-seed run behind tab:operating. The two disagree about the direction of the
+degeneracy at 0.5: on the released scores the contradiction probability puts 0 of 12
+positives and only 23 of 241 clear negatives above the threshold, a near-constant
+negative, while every seed behind tab:operating is a near-constant positive. Both are
+degenerate and neither discriminates, so no argument changes, but a reader who recomputes
+the operating point from the released file will not reproduce that table. It is now said
+in the chapter. This thesis does not resolve which run to prefer.
+
+**The untested assumption is tested, and the family grew.** Chapter 4 kept two
+irreconcilable wrong rates for the exemplar defect, 0.4745 from a reconstruction over 137
+rows and 0 from an exact key join over 23, and stated in the text that keeping both rested
+on an assumption it did not test: that a row is joinable when the bookkeeping the defect
+corrupts was intact. Fisher exact on joinability against correctness gives p = 5.4e-08 if
+the 23 joinable rows are among the 137 resolved and p = 2.9e-06 if they are disjoint from
+them. No artifact carries both attributes per row, so both readings are run and the
+register entry takes the larger p, which is the only defensible choice when the overlap is
+unknown. Joinability predicts correctness either way. That confirms the assumption and
+resolves nothing: it establishes the two measurements are taken on differently behaved
+subsets, which is why they are not the ends of an interval, and it identifies neither rate
+as correct.
+
+Its p value therefore joins the family, because a p value this chapter reports is a member
+whether or not it bears on the headline. k moves from 26 to 27, the Bonferroni threshold
+from 0.001923 to 0.001852, the familywise upper bound from 0.7365 to 0.7497, and the
+dependence groups from ten to eleven.
+
+**The cost, which is the point.** Claude Haiku 4.5's few-shot ambiguity gradient sat at
+p = 0.0018909 and cleared 0.001923. It does not clear 0.001852. The clearing set stays at
+five only because the new test clears; its membership changed. The subsection had already
+printed the sentence "it clears at twenty-six tests and would not clear at twenty-seven",
+so the prediction was in the thesis before the test that falsified it existed. Every
+earlier movement in this count was the repair of an omission and every one of them was
+found to have run in the direction that kept a rejection. This one was not an omission and
+it cost a rejection. Adding a test to an honestly enumerated family costs rejections; a
+count allowed to lag buys them. That asymmetry is the whole reason the count is generated
+from a register and not typed.
+
+**A register value with no generator behind it, withdrawn.** The subsection reported
+Haiku's Matthews interval widened to the corrected level as having a lower bound of
+-0.0233, and the register described that as a percentile bootstrap at alpha 0.05/26 with
+B = 10,000 at seed 42. No committed script produced it, and it could not be reproduced
+from the registered confusion cells by the method described: resampling those cells at
+that seed and that B gives -0.0492 at 0.05/26. So it is withdrawn, and
+accord/stats/mcc_ci_at_corrected_alpha.py now generates both frontier rows and reads its
+significance level from the test register, so a test entering the family moves the interval
+instead of leaving a stale bound in the prose. At 0.05/27 Haiku's bound is -0.0494 and
+Sonnet's is 0.0298. The claim the figure was cited for is unchanged: Haiku's interval
+admits zero under either number, Sonnet's does not. The old figure is quoted in the chapter
+to say it is withdrawn, so it is registered under quoted_historical rather than withdrawn.
+
+**Two defects in my own edits, caught before the build.** I wrote a cross-reference to a
+section label, sec:r-exemplar, that did not exist; the exemplar subsection had never been
+labelled. Pass 7 would have caught it. And I wrote that the released-file and three-seed
+disagreement above "is treated in Section 5.6", which was false, since no section treated
+it. Rather than add a pointer I stated the discrepancy where it arises. Writing a
+forward reference to a treatment that does not exist is the same failure as asserting a
+completed act, which this record has now logged four times.
+
+---
+
+## C89. The withdrawal of the breached rows was enforced by prose, and the disclosure was out of proportion to what it disclosed
+
+**No number in this thesis derives from either prohibited channel, and that was checked rather
+than assumed.** The register holds 25 GPT-4o values: the two Matthews correlations, the two
+precisions and recalls, four confusion cells each, two bootstrap intervals and one taxonomy
+count. Nine of them are decimals distinctive enough to search for. None appears anywhere in the
+chapters or the front matter. The safety screen has no result key at all; the only figure it
+contributes is the count of 50 pairs, which is the disclosure and not a finding.
+
+Two apparent hits were a coincidence worth recording, because it shows what the numeric
+provenance gate can and cannot do. GPT-4o's few-shot Matthews correlation is 0.0117 and its
+few-shot precision is 0.0496, and those are also, to four decimals, the weak labeller's own
+correlation and the upper end of its bound from C88. Both strings occur in Chapter 4 and neither
+occurrence is a GPT-4o figure. A digit-match gate cannot tell the difference, which is the
+standing caveat on Pass 2 and is the reason the check above was done by searching for each value
+and reading its context rather than by trusting the gate.
+
+**The defect: all 25 keys sat live.** Chapter 4 says the GPT-4o rows "have been withdrawn rather
+than qualified, and no number in this chapter now derives from it", and this section said they
+are withdrawn from every table and figure. Both were true. Neither was enforced: none of the 25
+keys carried the `withdrawn.` prefix, so Pass 2 would have resolved any GPT-4o digit appearing
+anywhere in the thesis without complaint. Injecting 0.1089, GPT-4o's zero-shot correlation, into
+Chapter 4 confirmed it passed silently.
+
+Renaming the keys was rejected as the fix: several audit scripts read them by name, and breaking
+a historical audit to tidy a prefix trades one defect for another. Instead the gate excludes
+breach-channel values from the citable set, under a separate name from `withdrawn.` because the
+ground differs: `withdrawn.` is retracted for being wrong, this is excluded for being unusable.
+With the exclusion in force the same injection fails. The withdrawal is now a control.
+
+**The proportionality pass.** With nothing downstream of either channel reported, the section was
+arguing at length about experiments the thesis does not use. Each channel was described twice,
+seventy lines apart, with the second treatment restating the first. The GPT-4o paragraph ran a
+forensic measurement of the annotation sheet's character spans, 544 cells, a 200 character cap,
+medians of 93 and 113, 94 cells at the cap, and then concluded that none of it was a defence,
+so it argued a case at length and discarded it. Three passages narrated the section's own earlier
+wrong versions, which is what the correction record is for. Each channel is now stated once: what
+was sent, that it was prohibited, what the guidance says, that nothing reported derives from it,
+and what replaced it. The span forensics are reduced to the one clause that bears on the
+judgement and the meta-narration is cut to a single sentence pointing here.
+
+**What was not reduced, and why.** The storage disclosure stands at full length. It is not a
+report of an experiment that can be declined: seven committed artifacts still mount the drive,
+among them the detector's own training script, which writes its checkpoints there, and the
+annotation sheet carrying 95 cells of de-identification surrogates was edited in a browser on
+that same drive. That is the current storage state of the data behind results this thesis does
+report, and the repository is the evidence for it. A shorter statement here would be quieter than
+the artifacts it ships with. The enumerated table of compliant transmissions also stands, because
+the runs in it are reported and the guidance reading that licenses them is load-bearing.
+
+Chapter 3 goes from 1,151 lines to 1,136 and the thesis from 195 pages to 194.
+
+---
+
+## C90. Three claims from C88 were reversed after adversarial review, and the test family returned to twenty-six
+
+C88 added three computations and drew a conclusion from each. Two of the three conclusions were
+wrong and one of the three tests did not belong where it was put. All three were found by
+adversarial review and every number below was re-derived independently before the reversal was
+made.
+
+**The weak labeller's agreement is not measurable, and C88 reported it as measured.** C88 gave
+0.0117 as the labeller's Matthews correlation with the pharmacist on G_253 and called it "the
+result that locates the failure". The join it rests on is a reconstruction through a
+nursing-side key, which C88 disclosed, and bounded only the 19 conflicting rows. That bounded
+the wrong thing. Under a random re-alignment of the same labels, which leaves the labeller's
+marginal untouched and varies only which rows its positives land on, the expected true
+positives are 10.82 and the observed count is 11; the observed correlation sits at the 0.6648
+point of that null distribution. Two thirds of scrambled joins score higher. The quantity is
+indistinguishable from its own null, so it cannot separate a labeller at chance from an
+arbitrary labeller joined badly, and C88's sentence that the qualification "limits its
+precision and not its direction" was false: it limits identifiability entirely. Withdrawn.
+
+What survives is stronger and needs no join. The labeller emits hard labels at a positive rate
+of 0.9017 against a confirmed rate of 0.0474, and at that marginal the largest Matthews
+correlation any thresholded label can express is 0.0768. The ceiling follows from the two
+marginals alone. It is a statement about the labelling policy rather than the labeller's
+competence, and it is the mechanism behind the detector's degeneracy, since a model fit to
+labels emitted at a marginal of 0.9 inherits the marginal. The section now says that instead.
+
+**The inference from it was invalid, independently of the measurement.** C88 called a
+chance-level teacher the strongest evidence that the pipeline fails rather than the task being
+unlearnable. Both readings predict a chance-level 8B labeller equally, so the observation
+separates them not at all; it was the weakest admissible class of evidence, offered as the
+strongest. The separation is carried by the frontier results, where two labellers on the same
+rows return intervals excluding zero, which an unlearnable task would not permit. The section
+now points there and the claim is deleted.
+
+**The oracle threshold was compared against the wrong null.** C88 reported the best Matthews
+correlation over any cutoff as 0.0554 and read it against zero. A statistic maximised over a
+tuning parameter on the sample it is evaluated on is not centred at zero: the maximum of a
+noisy process is positive by construction. On random scores at this sample size and positive
+count the same maximisation has a median of 0.0968, and the observed optima sit at the 0.8195
+and 0.7642 points of it. The conclusion is unchanged and is stronger stated correctly, because
+the oracle threshold performs worse than roughly four in five pure-noise runs. The null is now
+generated and reported beside the figure.
+
+**The artifact disagreement C88 disclosed was mis-specified twice over.** It presented the
+released score file and the three-seed run as disagreeing about the direction of the detector's
+degeneracy. They are different models, the contaminated release and the decontaminated
+retrain, not two readings of one artifact; and within the released file the harm score at 0.5
+is a near-constant positive like the table, so the direction is not consistent across decision
+variables inside one file either. Restated as a note that a reader recomputing from the
+released file will get a different number, and why. Disclosure is not a substitute for
+resolution when both artifacts are on disk.
+
+**The joinability test is removed from the hypothesis family, which returns a rejection.** Two
+grounds, neither of them the arithmetic. A family is defined by inferential target, and that
+test's target is this project's own bookkeeping, which C88's own prose said on one page while
+counting it in the denominator on another. And it is not a test of association: correctness for
+the 23 key-joined rows was assessed by the key join and for the 137 others by the
+reconstruction, so no row is measured by both, and the null such a table rejects includes the
+clause that the two instruments have equal error rates, which the same section denies where it
+calibrates the reconstruction at 0.8934 and 0.9508 fidelity. Rejecting a null one clause of
+which the author has already denied in print is arithmetic, not evidence. The table is retained
+as the descriptive statement that the 23 rows are not a random subsample of the 165, with no p
+value and no directional language, and the confound is recorded as unfalsifiable from the
+retained artifacts.
+
+So k returns to 26, the threshold to 0.001923, the familywise bound to 0.7365, the dependence
+groups to ten, and Claude Haiku 4.5's few-shot ambiguity gradient at 0.0018909 returns to the
+clearing set. The bound Haiku's Matthews interval takes at the corrected level is -0.0492 and
+Sonnet's is 0.0308, regenerated at 0.05/26.
+
+**The direction is why the ground is recorded at length.** Every earlier movement of this count
+was the repair of an omission that had kept a rejection, and C88 recorded with some satisfaction
+that adding a test had cost one. This correction removes a test and gets the rejection back.
+That is the favourable direction, which is exactly when the reasoning has to be checkable rather
+than asserted, and it is why both grounds above are stated in the chapter and not only here.

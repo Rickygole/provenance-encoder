@@ -120,6 +120,7 @@ single rule would rest on a handful of confirmed positives with no committed int
 so none is reported for a rule on its own.
 
 \subsection{The exemplar selection defect}
+\label{sec:r-exemplar}
 
 Each candidate reached the annotator as one nursing sentence paired with one
 discharge sentence. For the two action-conflict rules the discharge sentence was
@@ -149,12 +150,28 @@ They are mutually exclusive unless joinability is strongly confounded with
 correctness, and that confound is the load-bearing assumption behind keeping both
 numbers. It is plausible on its face, because a row carries a usable join key when
 the pipeline's own bookkeeping about it was intact, which is the same bookkeeping the
-selector defect corrupts. But it is an assumption this thesis states and does not
-test, and the test is available: whether joinability predicts correctness, on these
-$23$ rows and on the $35$-row four-rule join. Until that is run, one of these two
-numbers is wrong and this thesis does not know which, which is a weaker position than
-a range and is the position the evidence supports. Neither is discarded, and neither
-should be quoted alone. A
+selector defect corrupts. The assumption was stated here and left untested, and an attempt to test it is reported here
+as inconclusive rather than as a result. The two-by-two is stark: of the $23$ rows the key
+join resolves, $23$ are correct, against $72$ correct and $65$ wrong among the $137$ the
+reconstruction resolves. It is also not a test of association, for a reason that no amount of
+arithmetic repairs. Correctness for the $23$ was assessed by the key join and for the $137$ by
+the reconstruction, so no row is measured by both, and the hypothesis such a table rejects is
+the conjunction of two claims: that joinability is unrelated to correctness, and that the two
+instruments have the same error rate. This section has already denied the second, where it
+calibrates the reconstruction at $0.8934$ and $0.9508$ fidelity against what the pharmacist
+saw and asserts the key join exact. A comparison across two instruments of unequal known
+fidelity cannot attribute its difference to the thing being studied. The rival reading
+generates the same table and points the other way: rows that reconstruct badly may be called
+wrong by the reconstruction rather than by the defect, which would make joinability a proxy
+for reconstructability and $0.4745$ the artifact.
+
+So the $23$ key-joined rows are not a random subsample of the $165$, and that is the whole of
+what the table supports. It is reported without a $p$ value and is not a member of the
+hypothesis family Section~\ref{sec:r-multiplicity} enumerates; a $p$ value was briefly
+attached and counted there, and C90 records why both were wrong. The confound remains
+unfalsifiable from the retained artifacts, which is a weaker and more accurate position than a
+confirmation. One of these two numbers is still wrong and this thesis still does not know
+which. Neither is discarded, and neither should be quoted alone. A
 separate join, across all four rules rather than Rule 1 and 2 alone, matches
 the $299$-row annotated sample to the rebuilt candidates table on $35$ rows;
 that is a different operation with a different denominator, not a third
@@ -263,6 +280,42 @@ Claude Sonnet 5, few-shot  & $G_{299}$, gold set & 0.1806 & 4.5000 & 299 \\
 
 Every ratio measured is well above 1, so no local 8B labeller tested is close
 to calibrated at this base rate.
+
+A ratio of marginals says how often a labeller calls a positive and nothing about
+whether it calls the right ones, and this chapter measures the deployed weak labeller only
+that way. The reason is worth stating precisely, because it is a property of the labelling
+policy rather than a gap in the analysis.
+
+The labeller emits a hard label, and on the joined rows it emits a positive for $0.9017$ of
+them against a confirmed rate of $0.0474$. At that marginal, perfect agreement with the
+pharmacist is arithmetically unreachable: holding the flagged count where it is and placing
+every confirmed case inside it, the largest Matthews correlation any thresholded label could
+express is $0.0768$. So the supervision the detector was trained on could not have carried
+more than that, whatever the labeller knew, and that ceiling follows from the two marginals
+alone. It needs no join, and it is the mechanism behind the detector's own degeneracy: a
+model fit to labels emitted at a marginal of $0.9$ inherits the marginal, which is what
+Table~\ref{tab:operating} shows it doing.
+
+What cannot be measured is the labeller's own agreement, and the attempt is reported here as
+a negative result rather than omitted. The weak-label file and the gold file share no
+identifying column and row order carries no alignment, matching on rule at $95$ of $299$
+against $94.3$ expected by chance, so any pair-level comparison is a reconstruction through a
+nursing-side key. On that reconstruction the correlation is $0.0117$. Under a random
+re-alignment of the same labels, which leaves the marginal untouched and varies only which
+rows the positives land on, the expected true positives are $10.82$ and the observed count is
+$11$: the observed correlation sits at the $0.6648$ point of the random-join distribution.
+Two thirds of scrambled joins do better. The reconstruction therefore cannot distinguish a
+labeller at chance from an arbitrary labeller joined badly, and no agreement statistic for
+this labeller is recoverable from the retained artifacts. The $0.0117$ is reported as what it
+is, a quantity indistinguishable from its own null, and nothing in this thesis rests on it.
+
+Two consequences are stated rather than left implicit. The over-calling ratios above are not
+understated by this: they measure what they claim, and the ceiling explains why a high
+positive rate on a rare event caps what any downstream model can inherit. And this section
+does not adjudicate whether the task or the pipeline fails. A labeller at chance is what
+both readings predict, so it separates them not at all; that separation is carried by
+Section~\ref{sec:r-frontier}, where two labellers on the same rows return correlations whose
+intervals exclude zero, which an unlearnable task would not permit.
 
 \subsection{Whether a stronger labeller removes it}
 
@@ -1034,6 +1087,35 @@ $15 \times 12/253$ and $15 \times 12/299$ under random ordering. A count of one
 is unremarkable, and that is the point: the model's most confident predictions
 are indistinguishable from a random draw. For a ranked worklist that is decisive.
 
+One objection to Table~\ref{tab:operating} has to be answered rather than left standing: the
+table reports the configured threshold of $0.5$, and a threshold is a free parameter, so a
+different cutoff might expose signal the table hides. The answer is the best Matthews
+correlation attainable at any cutoff whatever, chosen with the pharmacist's labels already in
+hand. On $G_{253}$ it is $0.0554$ on the contradiction probability and $0.0631$ on the harm
+score.
+
+Those two figures must not be read against zero, and an earlier version of this paragraph read
+them that way. A statistic maximised over a tuning parameter on the same sample it is
+evaluated on is not centred at zero under the null: the maximum of a noisy process is
+positive by construction. The reference is the same maximisation run on random scores at this
+sample size and this positive count, which has a median of $0.0968$. Against that null the
+observed optima sit at the $0.8195$ and $0.7642$ points, so the best cutoff that exists
+performs worse than roughly four in five pure-noise runs. The conclusion is the one the
+paragraph reached before, and it is stronger stated this way: no threshold rescues this
+detector, and the operating point in Table~\ref{tab:operating} is not an unlucky choice of
+one. The harm-score optimum rests on two true positives and is quoted only as a bound.
+
+These figures come from the released score file, not from the three-seed run behind
+Table~\ref{tab:operating}, and those are different models: the table reports the
+decontaminated detector and the released file is the contaminated release the ranking results
+also use. A reader recomputing the operating point from the released file will get a
+different number for that reason. An earlier version of this paragraph presented the
+difference as an unresolved disagreement about the direction of the degeneracy, which
+mis-stated it twice over: the two artifacts are different models rather than two readings of
+one, and within the released file the harm score at $0.5$ is a near-constant positive like
+the table, so the direction is not even consistent across decision variables within one file.
+Both are degenerate, neither discriminates, and no claim here turns on which.
+
 \subsection{The paired comparison}
 
 \begin{table}[H]
@@ -1164,7 +1246,7 @@ Table~\ref{tab:delong}, four Fisher exact tests on the frontier labels of
 Section~\ref{sec:r-frontier}, one Fisher exact test on the mechanism split, eight
 one-sided Fisher exact tests on the ambiguity gradient of
 Section~\ref{sec:r-ambiguity}, two for each of the four labellers asked, one
-Welch two-sample $t$ test on the anisotropy control, and two Spearman rank
+Welch two-sample $t$ test on the anisotropy control, two Spearman rank
 correlations against the pharmacist's danger rating, one reported above and one
 reported for the first time at the end of this subsection. Earlier drafts of this subsection stated fourteen and
 enumerated a family that omitted the ambiguity-gradient tests entirely; the
@@ -1173,7 +1255,12 @@ count then moved from sixteen to twenty when the gradient was put to replication
 from twenty to twenty-two when a fourth labeller's two tests were found to have
 been computed and left out of the family, and from twenty-two to twenty-six when the
 four Mann-Whitney tests on the frontier labels were found to be outside a family this
-subsection called exhaustive. Those are recorded as C76 and C79. It
+subsection called exhaustive. Those are recorded as C76 and C79. A twenty-seventh entry was
+added and then removed: the two-by-two on joinability in Section~\ref{sec:r-exemplar} was
+briefly counted here, and it does not belong, because a family is defined by inferential
+target and that one's target is this project's own bookkeeping rather than any claim about
+labellers or contradictions. Removing it returned a rejection to the clearing set, which is
+why C90 records the ground for removal rather than only the arithmetic. It
 also reports ten interval estimates read
 against a null value, zero for the six Matthews correlations of Table~\ref{tab:mcc} and for the
 two pretraining gaps, and $0.5$ for the two AUROCs; five of the ten fail to exclude that null,
@@ -1219,16 +1306,19 @@ the rank test and does not clear under the exact test. This is the defect class 
 thesis exists to describe, a procedure chosen where it happens to be favourable, and it
 was inside the strongest result in the document. It is recorded as C85.
 
-The fifth test to clear is Claude Haiku 4.5's few-shot ambiguity
-gradient at $p = 0.0019$, against a threshold of $0.0019$; the margin is three parts in
-a hundred thousand, so it clears at twenty-six tests and would not clear at
-twenty-seven. The sixth is the Welch test on the anisotropy control, at
-$t = 4.0001$ on $235.84$ degrees of freedom for a two-sided $p$ of $0.000085$;
-Section~\ref{sec:res-rq3} already declines to read that as support for the mechanism,
-on effect-size grounds, and records that its degrees of freedom are overstated because
-its $190$ observations are the pairwise similarities among $20$ sentences rather than
-$190$ independent draws. So of the six, one is a test whose $p$ value this thesis does
-not trust, and four are the frontier discrimination results.
+The fourth is Claude Haiku 4.5's few-shot ambiguity gradient at $p = 0.0018909$ against a
+threshold of $0.0018$; the margin is three parts in a hundred thousand, so it clears at
+twenty-six tests and would not clear at twenty-seven. For one revision it did not clear,
+because a twenty-seventh test had been admitted to the family that did not belong to it; both
+the admission and the reversal are recorded in C88 and C90, and the margin is the reason the
+count has to be generated rather than typed. The fifth is the Welch test on the anisotropy
+control, at $t = 4.0001$ on $235.84$ degrees of freedom for a two-sided $p$ of $0.000085$;
+Section~\ref{sec:res-rq3} already declines to read that as support for the mechanism, on
+effect-size grounds, and records that its degrees of freedom are overstated because its $190$
+observations are the pairwise similarities among $20$ sentences rather than $190$ independent
+draws. So of the five, one is a test whose $p$ value this thesis does not trust, one clears by
+a margin narrower than the precision at which its own threshold is usually printed, and three
+are the frontier discrimination results.
 
 Those four were outside the family until this subsection was audited, which is the
 third time in this project's record that a family presented as exhaustive was short by
@@ -1258,7 +1348,13 @@ One asymmetry in this subsection has to be named rather than left for a reader t
 find. The correction above is applied to $p$ values and not to the interval estimates,
 and the intervals are where two of this thesis's load-bearing claims live. Read at
 $0.05/26$ rather than at $0.05$, Sonnet's Matthews interval on $G_{253}$ still excludes
-zero and Haiku's does not: its lower bound moves to $-0.0233$. So the sentence in
+zero, with a lower bound of $0.0308$, and Haiku's does not: its lower bound moves to
+$-0.0492$. Those two bounds are now generated from the registered confusion cells by a
+committed script that reads its own significance level from the test register, so a test
+entering the family moves them. The figure this subsection used to print for Haiku's bound
+was $-0.0233$, which was typed into the register with no script behind it and could not be
+reproduced from those cells by the method the register claimed for it; it is withdrawn
+under C88. The conclusion it was cited for is unchanged, because both figures admit zero. So the sentence in
 Section~\ref{sec:r-frontier} that two independent labellers clear the evaluation's
 stated floor rests on the two zero-shot Fisher exact tests, which do clear correction, and not on
 the two bootstrap intervals, only one of which would. Both readings are reported
@@ -1501,7 +1597,7 @@ section reports a prevalence measurement on a deliberately enriched corpus, not
 a finding of the same standing as the ablation in
 Section~\ref{sec:res-rq3} or the pre-registered positive control in
 Section~\ref{sec:res-rq4}. It is reported because a prevalence measurement on
-its own terms is worth having, and because the survey coding table bound in the supplementary file, listed in Appendix~\ref{app:provenance}, makes
+its own terms is worth having, and because the survey coding table of Appendix~\ref{app:survey} makes
 the full 75-paper coding available for a reader to check rather than take on
 trust. Of the $525$ coded fields, $502$ carry a verbatim quote checked by exact string match
 against the source text, so no coded value asserting a property of a paper survives without
@@ -1584,6 +1680,6 @@ higher. That bounds the bias without turning 75 papers into a population
 estimate, and no rate is claimed for the field. The coding also records what
 papers report rather than what their authors did, which is correct for a claim
 about what a reader can verify and wrong for any claim about practice behind the
-paper; no such claim is made. The supplementary coding table
+paper; no such claim is made. The coding table of Appendix~\ref{app:survey}
 (Appendix~\ref{app:provenance}) lets this section's counts be checked row by row
 rather than taken on trust.

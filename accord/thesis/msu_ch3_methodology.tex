@@ -968,7 +968,7 @@ earlier one. And a reference row in any comparison table must be produced by the
 protocol as the rows it is compared against; where that is not true, the comparison is reported as
 directional with no significance claim attached. Finally, every quantity in
 Chapter~\ref{ch:results} maps to the committed artifact that produced it, and that mapping is
-reproduced as a reference table in the supplementary file rather than asserted
+reproduced as a reference table in Appendix~\ref{app:survey} rather than asserted
 (Appendix~\ref{app:provenance}).
 
 \section{Data Use, Ethics, and Compliance}
@@ -981,34 +981,40 @@ rather than from a general good-practice statement.
 \paragraph{Note text, and third-party transmission.} No clinical note text, and no admission or
 subject identifier, appears anywhere in this document or any released artifact; note-derived
 intermediate files stay outside the version-controlled tree, and the export script scans every
-candidate file for note-text markers and aborts on a hit. Two prohibited transmissions are disclosed here.
+candidate file for note-text markers and aborts on a hit. Two prohibited transmissions are disclosed here. Neither is
+reported: no number anywhere in this thesis derives from either, and the numeric provenance
+gate now enforces that rather than asserting it, by excluding both channels' values from the
+set a reported figure may resolve against.
 
-The first is the comparison against GPT-4o, a hosted commercial model this bibliography carries no
-reference for and which is therefore named rather than cited, which placed de-identified note
-sentences in the body of a prompt sent to a third-party API. The columns the prompt was filled from
-hold one sentence per note side, the same exemplar text the weak labeller and the detector received;
-under the omission rule the discharge side is empty. The script that made those calls is not in the
-repository, so this account is a reconstruction from the annotation sheet's columns and the archived
-prompt template rather than a verified reading of the transmitting code. The sheet itself has been
-measured: across $544$ non-empty sentence cells the longest is $200$ characters, the median nursing
-span is $93$ and the median discharge span is $113$, and $94$ cells sit exactly at $200$, a hard
-truncation rather than a distribution that happens to stop there. The cap is a property of the
-delivered artifact, not a documented pipeline parameter, and is reported as measured from the
-sheet. What the prompts were filled from was therefore a truncated excerpt of at most two hundred
-characters per note side, not a note, but that is not a defence: a verbatim sentence from a
-credentialed note is restricted data whatever its length, and the prohibition on sharing access is
-not scaled by quantity, so the departure stands as a departure whatever its exact span. It is the larger of
-two departures of its kind in this project, the second being the safety screen described below, and
-the section's earlier claim that it was the only one is withdrawn. The annotation described below
-is a separate question and is treated separately.
+The first is the comparison against GPT-4o, a hosted commercial model this bibliography carries
+no reference for and which is therefore named rather than cited. It placed de-identified note
+sentences in the body of a prompt sent to a third-party API. Guidance issued during this
+project's lifetime treats transmission of credentialed data to a general-purpose hosted API as
+prohibited under the agreement, and the sentences were verbatim excerpts from credentialed
+notes, truncated at two hundred characters per note side. The truncation is not a defence: the
+prohibition on sharing access is not scaled by quantity. The rows it produced are withdrawn
+from every table and figure, and are replaced by the Claude Sonnet 5 runs of
+Section~\ref{sec:r-frontier}, which are a different model and so a new measurement rather than
+a reproduction. The script that made those calls is not in the repository, so this account is
+reconstructed from the annotation sheet's columns and the archived prompt template rather than
+read from the transmitting code.
 
-The second is a cross-domain safety screen that sent $50$ sampled pairs through the Hugging Face
-Inference API to \texttt{Meta-Llama-3-8B-Instruct}. Those $50$ rows produce no number this thesis
-reports: the screen's clinical arm is one of four domains in a cross-domain comparison that appears
-nowhere in these chapters. The weak labelling that produced the $1425$ of $1679$ in
-Table~\ref{tab:overcalling} and the $261$ of $299$ that Chapter~\ref{ch:results} reports as this
-thesis's weak-supervision finding ran against a locally served model, as Section~\ref{sec:m-weak}
-states, not through that API.
+The second is a cross-domain safety screen that sent $50$ sampled pairs through the Hugging
+Face Inference API to \texttt{Meta-Llama-3-8B-Instruct}. It completed. The guidance prohibits
+sending credentialed data through APIs provided by companies like OpenAI, which names a class
+of service rather than a single vendor; the Hugging Face Inference API is such a service and is
+not among the four the guidance suggests. Its clinical arm is one of four domains in a
+comparison that appears nowhere in these chapters, so it supports no number here and nothing
+replaces it. The weak labelling that produced the $1425$ of $1679$ in
+Table~\ref{tab:overcalling} and the $261$ of $299$ that Chapter~\ref{ch:results} reports as
+this thesis's weak-supervision finding ran against a locally served model, as
+Section~\ref{sec:m-weak} states, not through this API.
+
+No further transmission through either channel occurred or is planned. The annotation described
+below is a separate question and is treated separately. Both departures are judged against the
+data use agreement, and the corrections by which this section reached the account above, having
+first understated the count of channels and then miscategorised the screen, are in the
+correction record rather than restated here.
 
 \paragraph{Storage and compute outside the repository.} An earlier version of this section said only
 that note-derived intermediate files stay outside the version-controlled tree. That is true and it is
@@ -1032,27 +1038,12 @@ for the institutional data steward rather than answered here. What this section 
 claim, and an earlier version could have been read as claiming, is that custody never left local
 storage.
 
-Two channels in this project's history were prohibited at the time they were used, not one. The
-first is the original GPT-4o comparison. The second is the safety screen: the guidance prohibits
-sending credentialed data through APIs provided by companies like OpenAI, which names a class of
-service rather than a single vendor, and the Hugging Face Inference API is such a service and is not
-among the four the guidance suggests. An earlier version of this section called the screen a
-departure and stopped short of calling it prohibited, which was a distinction the guidance does not
-support. It transmitted $50$ pairs and it completed. What remains true, and is the part that bears on
-the results, is that the GPT-4o rows are withdrawn from every table and figure, the screen supports no
-number this thesis reports, and no result here is downstream of either channel. The GPT-4o rows are replaced by the Claude
-Sonnet 5 runs of Section~\ref{sec:r-frontier}, which are a different model and therefore a new
-measurement rather than a reproduction; nothing replaces the Llama 3 run. The local run of the same
-model reported in Table~\ref{tab:overcalling} is a different configuration, $165$ labels apart on
-the same pool. No further transmission through either original channel occurred or is planned.
-
 Clause numbers in this section follow the Credentialed Health Data Use Agreement 1.5.0, the
 instrument the licensee signs and which has ten clauses. The Credentialed Health Data License 1.5.0
 is a separate document with nine, and it numbers the code-contribution obligation one lower, so a
 clause number is ambiguous unless the instrument is named. The data use agreement is the instrument
-both departures are judged against; guidance issued during this project's lifetime treats
-transmission of credentialed data to a general-purpose hosted API as prohibited under it, specifying
-zero-retention alternatives that were not in force for either call.
+both departures are judged against, and no zero-retention arrangement was in force for either
+call.
 
 \paragraph{Every transmission through a compliant channel, enumerated.} Five runs sent sentence
 pairs to a hosted API after the withdrawal. The counts below are computed from the committed
@@ -1077,22 +1068,16 @@ Claude Haiku 4.5, replicated & Anthropic API & 120 & Decoding stability, $40$ pa
 \textbf{Total} & & \textbf{2,520} & \\
 \bottomrule
 \end{tabular}
-\apanote{Prompts, not pairs: the unit is requests that carried a sentence pair off this machine. The first, second, fourth and fifth rows are $300$ annotated pairs in two prompt conditions each. The third is a stability check, $40$ pairs drawn three times in one condition, and it is listed separately rather than folded into the second because repeated draws over the same pairs are additional transmissions. The payload is identical across all five and is the payload described above: one mining-extracted sentence per note side, bound from the archived prompt template, with no admission identifier, no subject identifier and no free note body. The Bedrock account is the author's own. The guidance of 18 April 2023, published by PhysioNet as \emph{Responsible use of MIMIC data with online services like GPT} at \texttt{physionet.org/news/post/gpt-responsible-use}, is the document these routes were selected against, and its wording carries the argument, so it is quoted rather than characterised. It states that the agreement ``explicitly prohibits sharing access to the data with third parties, including sending it through APIs provided by companies like OpenAI, or using it in online platforms like ChatGPT'', which is the sentence the original run fell under. It then names four services it suggests instead, of which two are used here. Of Anthropic it says: ``Claude does not use your prompts or its responses as data to train its models by default, and routine human review of data is not performed.'' Of Amazon Bedrock it says that after a private copy of a base model is made, ``data is not shared back to the base model for training.'' Three properties of that text matter and none is an inference. It names Anthropic Claude as a service without distinguishing a first-party interface from a cloud tenancy. It requires an opt-out form for one service only, Azure, and asks none for Claude, so the absence of an opt-out here is the arrangement the guidance describes rather than an omission. And the ground it gives for Bedrock concerns fine-tuning data not returning to the base model. The guidance says Claude does not train on prompts ``by default'', and whether a default should have been supplemented by a zero-retention agreement is a question this thesis does not answer. And the document is of April 2023 while these models were released in 2026: it names a vendor and a service rather than model versions, so the reading applied is that a later Claude model is the same named service, which is the natural reading and is still a reading. Both questions are for the thesis chair and the institutional data steward, and this thesis does not assert an answer to either. What the record does establish is that the route was chosen from this guidance before the run rather than justified after it: the pre-registration recording that choice is committed, and its commit predates the first call. Section~\ref{sec:disc-limits} records what the four Claude rows would become if either question is answered against the reading taken here. The generating script for all five runs is committed and released with the analysis code, which is also what closes the Clause 9 gap the withdrawn run left: that run's code was never in the repository, which made those tables the only results in this thesis with no committed code path.}
+\apanote{Prompts, not pairs: the unit is requests that carried a sentence pair off this machine. The first, second, fourth and fifth rows are $300$ annotated pairs in two prompt conditions each. The third is a stability check, $40$ pairs drawn three times in one condition, and it is listed separately rather than folded into the second because repeated draws over the same pairs are additional transmissions. The payload is identical across all five and is the payload described above: one mining-extracted sentence per note side, bound from the archived prompt template, with no admission identifier, no subject identifier and no free note body. The Bedrock account is the author's own. The guidance of 18 April 2023, published by PhysioNet as \emph{Responsible use of MIMIC data with online services like GPT}, is the document these routes were selected against, and its wording carries the argument, so it is quoted rather than characterised. It states that the agreement ``explicitly prohibits sharing access to the data with third parties, including sending it through APIs provided by companies like OpenAI, or using it in online platforms like ChatGPT'', which is the sentence the original run fell under. It then names four services it suggests instead, of which two are used here. Of Anthropic it says: ``Claude does not use your prompts or its responses as data to train its models by default, and routine human review of data is not performed.'' Of Amazon Bedrock it says that after a private copy of a base model is made, ``data is not shared back to the base model for training.'' Three properties of that text matter and none is an inference. It names Anthropic Claude as a service without distinguishing a first-party interface from a cloud tenancy. It requires an opt-out form for one service only, Azure, and asks none for Claude, so the absence of an opt-out here is the arrangement the guidance describes rather than an omission. And the ground it gives for Bedrock concerns fine-tuning data not returning to the base model. The guidance says Claude does not train on prompts ``by default'', and whether a default should have been supplemented by a zero-retention agreement is a question this thesis does not answer. And the document is of April 2023 while these models were released in 2026: it names a vendor and a service rather than model versions, so the reading applied is that a later Claude model is the same named service, which is the natural reading and is still a reading. Both questions are for the thesis chair and the institutional data steward, and this thesis does not assert an answer to either. What the record does establish is that the route was chosen from this guidance before the run rather than justified after it: the pre-registration recording that choice is committed, and its commit predates the first call. Section~\ref{sec:disc-limits} records what the four Claude rows would become if either question is answered against the reading taken here. The generating script for all five runs is committed and released with the analysis code, which is also what closes the Clause 9 gap the withdrawn run left: that run's code was never in the repository, which made those tables the only results in this thesis with no committed code path.}
 \label{tab:m-transmissions}
 \end{table}
 
 The five runs share an identical, already-described payload, so the comparison in that table is
 between models rather than between payloads, and none is an unreviewed channel: each was chosen
 from the guidance before it was used, which is the difference between these and the run they
-replace. An earlier version of this paragraph said that one breached run's output was withdrawn
-because the thesis could do without it while another's was retained because it could not, and
-named retraining the detector as the remedy for the second. That asymmetry does not exist and both
-sentences are withdrawn. They were written when the deployed weak labels were believed to have
-passed through the second channel, which Section~\ref{sec:m-weak} and the correction record show
-they did not: that run was served locally, and its model keys in the weak-label artifacts carry the
-local runtime's naming rather than a hosted repository's. Neither breached run's output is retained,
-so there is no asymmetry to defend and no retraining owed on compliance grounds. What is owed on
-reproducibility grounds is a different matter and is stated below.
+replace. The asymmetry an earlier version of this paragraph asserted between the two breached runs,
+one withdrawn and one retained, does not exist; both are withdrawn and the correction record
+carries how that error arose.
 
 \paragraph{The annotator, and credentialed access.} The gold standard was produced by one
 board-certified pharmacist, annotating in the author's presence and on the author's machine. No copy

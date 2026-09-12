@@ -33,13 +33,11 @@ echo "undefined citations: $(grep -c 'Citation .* undefined' /tmp/thesis_final_p
 # gate that cannot fail is not a gate.
 echo "open TODOs in text:  $(grep -ho '\[TODO' msu_ch*.tex msu_app*.tex frontmatter/*.tex main_msu.tex 2>/dev/null | wc -l | tr -d ' ')"
 
-# The supplement carries Appendices A-full, B-provenance, C-trace, D-survey and
-# E-anomaly, and it was NOT built here. Its PDF therefore went stale every time a
-# correction landed, silently, because the verification harness reads main_msu.pdf
-# only. Both documents are built from one command now so they cannot diverge.
-pdflatex -interaction=nonstopmode main_supplement.tex > /tmp/supp_build.log 2>&1
-bibtex main_supplement >> /tmp/supp_build.log 2>&1 || true
-pdflatex -interaction=nonstopmode main_supplement.tex >> /tmp/supp_build.log 2>&1
-pdflatex -interaction=nonstopmode main_supplement.tex > /tmp/supp_final.log 2>&1
-echo "supplement:          $(grep -o 'Output written.*' /tmp/supp_final.log | tail -1)"
-echo "supplement refs:     $(grep -c 'Reference .* undefined' /tmp/supp_final.log || true)"
+# One document. The companion supplement is no longer built: the survey coding
+# table and the selection-channel anomaly are bound in the thesis as Appendices
+# B and C, and the register of reported quantities and the claim-and-evidence
+# trace are released with the code rather than printed. main_supplement.tex is
+# kept in the tree unbuilt rather than deleted, so nothing is lost if a separate
+# supplement is ever wanted again. The caution that produced this block still
+# holds and now has nowhere to hide: a second document that nothing builds goes
+# stale silently, which is why there is only one.

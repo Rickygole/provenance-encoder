@@ -10,11 +10,14 @@
 %      sudo tlmgr install tocloft apacite newtx chngcntr needspace placeins xurl
 %  then swap the SUBSTITUTE lines for the ones commented beside them.
 %
-%  SUBSTITUTES currently in force:
+%  SUBSTITUTES currently in force. This block described a state the document had
+%  already left: it claimed tocloft was substituted and APA 7 was not reached, when
+%  tocloft is installed and the bibliography moved to biblatex-apa below. A comment
+%  asserting a compliance state the file contradicts is the same defect class this
+%  thesis audits, so it is corrected rather than left as a stale note.
 %    newtx      -> mathptmx   (both are Times; metrics differ very slightly)
-%    tocloft    -> manual TOC titles; dot leaders and "Chapter N:" TOC prefixes
-%                  are NOT yet applied
-%    apacite    -> apalike    (close to APA but NOT APA 7)
+%    tocloft    -> INSTALLED and in use; "Chapter N:" TOC prefixes are applied
+%    apacite    -> superseded by biblatex-apa, which is APA 7
 %    chngcntr   -> \makeatletter counter surgery, same effect
 %    needspace, placeins, xurl -> omitted; cosmetic only
 % ============================================================================
@@ -23,6 +26,16 @@
 
 \usepackage[left=1.5in,right=1in,top=1in,bottom=1in,includefoot]{geometry}
 \usepackage{mathptmx}                 % SUBSTITUTE for newtxtext/newtxmath
+% tocloft is installed in the user tree now, so the TOC prefix FORMAT.md section 3
+% requires is applied rather than substituted. The body headings already printed
+% "Chapter N:" via titlesec (below); only the TOC entries did not, and Pass 9 did
+% not read the TOC, so this violation sat behind a clear template check. Front matter
+% entries such as "List of Tables" are added with no \numberline, so they take no
+% prefix; the appendix switches the prefix word where it switches the heading word.
+\usepackage{tocloft}
+\renewcommand{\cftchappresnum}{Chapter }
+\renewcommand{\cftchapaftersnum}{:}
+\setlength{\cftchapnumwidth}{6.4em}
 \usepackage{courier}                  % T1-covered Times-companion typewriter face;
                                        % the monospace family the MSU template names
 \usepackage[T1]{fontenc}
@@ -300,13 +313,26 @@
 % accord/stats/make_appendices.py so they cannot drift from the source.
 \appendix
 \renewcommand{\thechapter}{\Alph{chapter}}
+% The table of contents is typeset in the front matter, before this point is
+% reached, so redefining the prefix here would not reach it: the appendix printed
+% as "Chapter A:". The switch is written into the .toc stream instead, so it fires
+% where the appendix entries begin when that file is read back.
+\addtocontents{toc}{\protect\renewcommand{\protect\cftchappresnum}{Appendix }}
+\addtocontents{toc}{\protect\setlength{\protect\cftchapnumwidth}{6.8em}}
 \titleformat{\chapter}[block]
   {\normalfont\centering\bfseries\normalsize}
   {Appendix \thechapter:}{0.5em}{}
 \input{msu_appA_corrections}
 \input{msu_appB_pointer}
-% Appendices C and D are bound in main_supplement.tex. They are 48 pages of
-% generated table and are not read sequentially; Appendix B points to them and
-% carries their labels so the chapter cross-references still resolve.
+% One document. There is no companion supplement: the survey coding table and
+% the selection-channel anomaly are bound here as Appendices B and C. Two
+% generated tables that used to be bound separately are not reproduced in either
+% document, the register of reported quantities and the claim-and-evidence
+% trace. Both printed an internal file path beside every row, which is
+% working-notes material rather than thesis material, and both are released with
+% the analysis code where they can be queried rather than read. Appendix A's
+% closing section says so in words.
+\input{msu_appD_survey}
+\input{msu_appE_anomaly}
 
 \end{document}

@@ -51,12 +51,29 @@ STRUCTURAL = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
 # how a withdrawn control-cost total passed this gate as a chapter headline; see C84.
 WITHDRAWN_PREFIX = "withdrawn."
 
+# Values produced through a channel the methodology chapter records as a departure
+# from the data use agreement. Chapter 4 states that the GPT-4o rows "have been
+# withdrawn rather than qualified, and no number in this chapter now derives from
+# it", and Section m-ethics states they are withdrawn from every table and figure.
+# That was true, and it was enforced by prose alone: all 25 of these keys sat live
+# in the register, so this gate would have resolved a GPT-4o digit anywhere in the
+# thesis without complaint. A withdrawal a gate cannot see is an assertion, not a
+# control. They are excluded here for the same reason withdrawn.* is, and the
+# separate prefix is kept because the ground differs: withdrawn.* is retracted for
+# being wrong, this is excluded for being unusable. See C89.
+NON_CITABLE_SUBSTRINGS = ("gpt4o",)
+
+
+def _non_citable(key):
+    return (key.startswith(WITHDRAWN_PREFIX)
+            or any(sub in key.lower() for sub in NON_CITABLE_SUBSTRINGS))
+
 
 def fact_values():
     """Every verified value, rendered in the string forms a chapter might use."""
     out = set()
     for key, rec in FACTS.items():
-        if key.startswith(WITHDRAWN_PREFIX):
+        if _non_citable(key):
             continue
         v = rec["value"]
         if isinstance(v, bool) or v is None:

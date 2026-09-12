@@ -200,6 +200,26 @@ FAMILY = [
          where="sec:r-frontier", what="Haiku 4.5 few-shot labels on G_253",
          group="frontier_discrimination",
          source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.few_shot.G_253.fisher_exact_p_two_sided"),
+    # C88 added the exemplar joinability test here and C90 removes it. Two grounds,
+    # both independent of what it did to the threshold.
+    #
+    # First, a multiplicity family is defined by inferential target, and that test's
+    # target is this project's own bookkeeping rather than any claim about labellers
+    # or medication contradictions. This subsection said exactly that in print while
+    # counting it in the same denominator, which is an inconsistency inside one page.
+    #
+    # Second, and worse, it is not a test of association. Correctness for the 23
+    # key-joined rows was assessed BY the key join and for the 137 others by the
+    # reconstruction, so no row is measured by both instruments and the null it
+    # rejects contains the clause "the two instruments have equal error rates",
+    # which Section r-exemplar already declares false where it calibrates the
+    # reconstruction at 0.8934 and 0.9508 fidelity. Rejecting a null one clause of
+    # which the author has already denied in print is arithmetic, not evidence.
+    #
+    # Removing it restores k to 26, the threshold to 0.001923, and Haiku 4.5's
+    # few-shot ambiguity gradient at 0.0018909 to the clearing set. That the removal
+    # returns a rejection is why the reasoning is recorded here in full rather than
+    # asserted: the direction is favourable, so the ground has to be checkable.
 ]
 
 
