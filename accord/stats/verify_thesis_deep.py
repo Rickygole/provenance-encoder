@@ -173,10 +173,20 @@ def pass8_captions():
                 print(f"   {f.name}: figure {name} has NO caption")
                 problems += 1
                 continue
-            # Convention per the accepted departmental example (author's
-            # decision 2026-08-13): figure captions sit BELOW the graphic.
-            if c < env.find("\\includegraphics"):
-                print(f"   {f.name}: caption ABOVE graphic (convention: below): {name}")
+            # Convention: figure captions sit ABOVE the graphic, per FORMAT.md
+            # section 5. This gate previously required the opposite, on the
+            # author's decision of 2026-08-13 to follow the accepted departmental
+            # example instead of the template. That decision bundled the caption
+            # convention with numeric citations, and the citation half was later
+            # overturned on the authority of FORMAT.md section 8. Sections 5 and 8
+            # are the same authority, so the caption half went with it.
+            #
+            # Worth recording because of what this gate did in between: it kept
+            # enforcing the withdrawn decision, so the fifteen corrected captions
+            # arrived as fifteen failures. A gate that encodes a superseded
+            # decision does not fail open, it fails at the fix.
+            if c > env.find("\\includegraphics"):
+                print(f"   {f.name}: caption BELOW graphic (convention: above): {name}")
                 problems += 1
             i = c + len("\\caption{")
             depth, j = 1, i

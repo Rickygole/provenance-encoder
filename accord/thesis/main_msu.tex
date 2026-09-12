@@ -99,10 +99,23 @@
 \usepackage[htt]{hyphenat}  % permit breaks inside \texttt so long register keys do not overrun the margin
 \sloppy
 % APA 7 author-date citations, which FORMAT.md section 8 requires: CS at MSU
-% uses APA 7 in both of the template's examples. apacite in natbibapa mode
-% loads natbib itself and keeps \citep and \citet working, which is the whole
-% citation vocabulary this document uses, so no call site changes.
-\usepackage[natbibapa]{apacite}
+% uses APA 7 in both of the template's examples.
+%
+% apacite was tried first and is APA SIXTH edition. Its own style file announces
+% "v6.03 APA bibliography style", and three sixth-edition behaviours reached the
+% built PDF: three to five authors spelled out on first citation, where the
+% seventh edition wants first-author et al. from the first citation onward; bare
+% "doi:" prefixes where the seventh wants the full https://doi.org/ URL; and
+% "Retrieved from" before URLs carrying no retrieval date. None is switchable,
+% because apacite has no seventh-edition mode.
+%
+% biblatex-apa implements the seventh edition, and it requires the biber backend;
+% backend=bibtex is refused by the style outright. natbib=true keeps \citep and
+% \citet working, which is the entire citation vocabulary of this document, 139
+% and 73 uses, so the switch changes no call site.
+\usepackage{csquotes}
+\usepackage[style=apa,backend=biber,natbib=true]{biblatex}
+\addbibresource{refs.bib}
 \usepackage[hidelinks,linktoc=all,bookmarks=true,bookmarksnumbered=true]{hyperref}
 % linktoc=all makes the whole entry clickable in the Table of Contents, the List
 % of Tables and the List of Figures, not just the page number.
@@ -159,16 +172,25 @@
 \titleformat{\subsection}{\normalfont\bfseries\itshape\normalsize}{}{0pt}{}
 \titlespacing*{\subsection}{0pt}{0.75\baselineskip}{0.35\baselineskip}
 
-% Caption and citation conventions follow the accepted departmental example
-% (CausalRAG thesis, same examples folder as the template), per the author's
-% decision of 2026-08-13: figure captions run BELOW the figure as a
-% single-spaced "Figure N: text" block, and citations are numeric. The official
-% template file's XML reads as APA (label above, author-year); the accepted
-% thesis in the same department uses this convention, and the author chose it.
-\captionsetup[figure]{labelsep=colon,font={normalsize,stretch=1},
-  justification=justified,singlelinecheck=false,position=bottom,skip=0.6\baselineskip}
-\captionsetup[table]{labelsep=colon,font={normalsize,stretch=1},
-  justification=justified,singlelinecheck=false,position=top,skip=0.6\baselineskip}
+% Caption conventions. An earlier decision of 2026-08-13 followed the accepted
+% departmental example instead of the template: captions below figures, as a
+% single-spaced "Figure N: text" block, with numeric citations. That decision
+% bundled two choices into one justification, and the citation half has since been
+% overturned on the authority of FORMAT.md section 8. Sections 5 and 8 are the
+% same authority, so obeying one and not the other is not defensible, and section 5
+% is now followed too: the label is bold on its own line, the caption text is
+% italic beneath it, and captions sit above both figures and tables.
+%
+% Reverting is a one-line change: restore labelsep=colon, drop labelfont/textfont,
+% and set position=bottom for figures. It is recorded here because the convention
+% is visible on every float and a reader of the departmental example will notice
+% the difference.
+\captionsetup[figure]{labelsep=newline,labelfont=bf,textfont=it,
+  font={normalsize,stretch=1},justification=justified,singlelinecheck=false,
+  position=top,skip=0.6\baselineskip}
+\captionsetup[table]{labelsep=newline,labelfont=bf,textfont=it,
+  font={normalsize,stretch=1},justification=justified,singlelinecheck=false,
+  position=top,skip=0.6\baselineskip}
 \newcommand{\apanote}[1]{%
   \par\vspace{0.25\baselineskip}%
   \begingroup\raggedright\noindent\textit{Note.} #1\par\endgroup}
@@ -258,15 +280,20 @@
 \clearpage
 \phantomsection
 \addcontentsline{toc}{chapter}{\bibname}
-\bibliographystyle{apacite}  % APA 7, author-date, alphabetical by surname
 % The template's own XML single-spaces reference entries (FORMAT.md section 2,
 % w:line="240" on reference paragraphs) with a 0.5in hanging indent (section 8).
 % The body's \doublespacing does not extend here; doing so was a deviation.
+%
+% biblatex prints the list itself, so \bibliographystyle and \bibliography are
+% gone and its own registers replace natbib's: \bibhang for the hanging indent,
+% \bibitemsep for the gap between entries. heading=bibliography emits the
+% chapter-level References heading that \bibliography used to emit; the TOC line
+% is added by hand above and so is not requested again here.
 \begingroup
 \singlespacing
-\setlength{\bibsep}{0.4\baselineskip}
 \setlength{\bibhang}{0.5in}
-\bibliography{refs}
+\setlength{\bibitemsep}{0.4\baselineskip}
+\printbibliography[heading=bibliography]
 \endgroup
 
 % Appendices, generated from the project records by

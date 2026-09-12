@@ -17,7 +17,10 @@ export PATH="/Library/TeX/texbin:$PATH"
 # PDF that nothing checked, because this script did not build it.
 cd "$(dirname "$0")"
 pdflatex -interaction=nonstopmode main_msu.tex > /tmp/thesis_build.log 2>&1
-bibtex main_msu >> /tmp/thesis_build.log 2>&1 || true
+# biblatex-apa requires biber, which refuses to be a bibtex drop-in. biber reads
+# the .bcf the first pdflatex pass writes. It lives in /opt/homebrew/bin because
+# tlmgr cannot install a binary package in user mode.
+PATH="/opt/homebrew/bin:$PATH" biber main_msu >> /tmp/thesis_build.log 2>&1 || true
 pdflatex -interaction=nonstopmode main_msu.tex >> /tmp/thesis_build.log 2>&1
 pdflatex -interaction=nonstopmode main_msu.tex > /tmp/thesis_final_pass.log 2>&1
 cat /tmp/thesis_final_pass.log >> /tmp/thesis_build.log
