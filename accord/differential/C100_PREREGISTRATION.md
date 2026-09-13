@@ -74,6 +74,22 @@ If interrupted, restarted from the first pair, never spliced.
 
 ## Outcome
 
-Recorded after the run; the rule above is unchanged.
+Recorded 2026-09-13 after the run; the rule above is unchanged.
 
-PLACEHOLDER_OUTCOME_FILLED_AFTER_RUN
+**Outcome B, not resolved.** All 299 pairs scored, 0 over the 512-token limit (max
+seen 160 tokens), the detector's recomputed AUROC matched the registered values to
+four decimal places on both bases (G_253 0.4595, G_299 0.4602) before the DeLong
+test ran. Primary (G_253): AUROC 0.5861, one-sided Mann-Whitney p 0.1576, against a
+registered minimum detectable AUROC of 0.7355. The off-the-shelf NLI baseline does
+not reach the effect size this evaluation can resolve; nothing is concluded about a
+smaller effect.
+
+Secondary (G_299, ambiguous as negative): AUROC 0.5758, 95% stratified bootstrap CI
+[0.4091, 0.7375] (B=10000, seed 42), average precision 0.1537, 2 true positives in
+the top 15 by score. Paired DeLong against the detector: G_253 p=0.2113, G_299
+p=0.2550, neither significant, i.e. this off-the-shelf baseline is not shown to
+differ from the detector either. Per-direction AUROCs, descriptive only: nursing
+sentence as premise 0.6098, discharge sentence as premise 0.5389.
+
+Artifact: `results/accord/differential/nli_roberta_large_mnli.json`; register prefix
+`nlibaseline.*`. Model commit SHA `2a8f12d27941090092df78e4ba6f0928eb5eac98`.
