@@ -1,11 +1,10 @@
 {
- "bonferroni_threshold": 0.0019230769230769232,
+ "bonferroni_threshold": 0.0016666666666666668,
  "clears_bonferroni": [
   "fisher_frontier_sonnet_zs",
   "welch_anisotropy",
   "fisher_frontier_haiku_fs",
-  "fisher_frontier_haiku_zs",
-  "fisher_ambiguity_haiku_fs"
+  "fisher_frontier_haiku_zs"
  ],
  "dependence_groups": {
   "ambiguity_gradient": [
@@ -49,14 +48,18 @@
    "fisher_frontier_sonnet_zs",
    "fisher_frontier_sonnet_fs",
    "fisher_frontier_haiku_zs",
-   "fisher_frontier_haiku_fs"
+   "fisher_frontier_haiku_fs",
+   "fisher_frontier_llama70b_zs",
+   "fisher_frontier_llama70b_fs",
+   "fisher_frontier_llama8b_zs",
+   "fisher_frontier_llama8b_fs"
   ],
   "mechanism": [
    "fisher_mechanism"
   ]
  },
  "familywise_bound_is_upper_only_because": "the tests are positively dependent: five Mann-Whitney tests on one set of 253 rows, five DeLong tests against a single reference run, two Fisher tests on one model under two prompts, and two Spearman correlations against one rating. The true familywise rate is lower and this thesis does not compute it.",
- "familywise_upper_bound": 0.7364799055342579,
+ "familywise_upper_bound": 0.7853612360570628,
  "holm_rejections_for_reference": [
   "fisher_frontier_sonnet_zs",
   "welch_anisotropy",
@@ -65,7 +68,7 @@
   "fisher_ambiguity_haiku_fs"
  ],
  "n_dependence_groups": 10,
- "n_tests": 26,
+ "n_tests": 30,
  "nominally_significant_uncorrected": [
   "fisher_frontier_sonnet_zs",
   "welch_anisotropy",
@@ -75,7 +78,8 @@
   "fisher_ambiguity_fs",
   "fisher_frontier_sonnet_fs",
   "fisher_ambiguity_zs",
-  "spearman_pos12_harm"
+  "spearman_pos12_harm",
+  "fisher_frontier_llama70b_fs"
  ],
  "provenance": {
   "alpha": 0.05,
@@ -309,7 +313,7 @@
    "id": "fisher_frontier_sonnet_zs",
    "p": 2.2823375512280303e-05,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_anthropic_metrics.json::by_strategy.zero_shot.G_253.fisher_exact_p_two_sided",
+   "source": "results/accord/stats/frontier_discrimination_tests.json::anthropic::zero_shot.fisher_two_sided",
    "test": "Fisher exact, two-sided",
    "what": "Sonnet 5 zero-shot labels against the pharmacist on G_253",
    "where": "sec:r-frontier"
@@ -319,7 +323,7 @@
    "id": "fisher_frontier_sonnet_fs",
    "p": 0.004229736267275807,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_anthropic_metrics.json::by_strategy.few_shot.G_253.fisher_exact_p_two_sided",
+   "source": "results/accord/stats/frontier_discrimination_tests.json::anthropic::few_shot.fisher_two_sided",
    "test": "Fisher exact, two-sided",
    "what": "Sonnet 5 few-shot labels on G_253",
    "where": "sec:r-frontier"
@@ -329,7 +333,7 @@
    "id": "fisher_frontier_haiku_zs",
    "p": 0.0014728939471449387,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.zero_shot.G_253.fisher_exact_p_two_sided",
+   "source": "results/accord/stats/frontier_discrimination_tests.json::anthropic_claudehaiku4520251001::zero_shot.fisher_two_sided",
    "test": "Fisher exact, two-sided",
    "what": "Haiku 4.5 zero-shot labels on G_253",
    "where": "sec:r-frontier"
@@ -339,9 +343,49 @@
    "id": "fisher_frontier_haiku_fs",
    "p": 0.0007654443228770725,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::by_strategy.few_shot.G_253.fisher_exact_p_two_sided",
+   "source": "results/accord/stats/frontier_discrimination_tests.json::anthropic_claudehaiku4520251001::few_shot.fisher_two_sided",
    "test": "Fisher exact, two-sided",
    "what": "Haiku 4.5 few-shot labels on G_253",
+   "where": "sec:r-frontier"
+  },
+  {
+   "group": "frontier_discrimination",
+   "id": "fisher_frontier_llama70b_zs",
+   "p": 0.24436255200717566,
+   "p_is_derived": false,
+   "source": "results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama370binstructv1::zero_shot.fisher_two_sided",
+   "test": "Fisher exact, two-sided",
+   "what": "Llama 3 70B zero-shot labels on G_253",
+   "where": "sec:r-frontier"
+  },
+  {
+   "group": "frontier_discrimination",
+   "id": "fisher_frontier_llama70b_fs",
+   "p": 0.039055464932457984,
+   "p_is_derived": false,
+   "source": "results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama370binstructv1::few_shot.fisher_two_sided",
+   "test": "Fisher exact, two-sided",
+   "what": "Llama 3 70B few-shot labels on G_253",
+   "where": "sec:r-frontier"
+  },
+  {
+   "group": "frontier_discrimination",
+   "id": "fisher_frontier_llama8b_zs",
+   "p": 1.0,
+   "p_is_derived": false,
+   "source": "results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama38binstructv1::zero_shot.fisher_two_sided",
+   "test": "Fisher exact, two-sided",
+   "what": "Llama 3 8B zero-shot labels on G_253, ceiling-bound at a flag rate of 0.8735",
+   "where": "sec:r-frontier"
+  },
+  {
+   "group": "frontier_discrimination",
+   "id": "fisher_frontier_llama8b_fs",
+   "p": 1.0,
+   "p_is_derived": false,
+   "source": "results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama38binstructv1::few_shot.fisher_two_sided",
+   "test": "Fisher exact, two-sided",
+   "what": "Llama 3 8B few-shot labels on G_253, ceiling-bound at a flag rate of 0.8854",
    "where": "sec:r-frontier"
   }
  ]

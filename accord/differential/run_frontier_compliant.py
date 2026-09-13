@@ -117,6 +117,16 @@ COMPLIANCE_NOTE = {
                 "controls, which is the author's reasoning rather than the "
                 "document's. Added to vary vendor and channel while holding the "
                 "model family constant; see C68."),
+    "vertex": ("Run through Google Vertex AI in a Google Cloud project the "
+               "author owns. Gemini via Vertex AI is one of four services "
+               "PhysioNet's guidance of 18 April 2023 suggests in place of a "
+               "general-purpose hosted API, and the ground the guidance itself "
+               "gives is that Gemini does not use prompts or responses as data "
+               "to train its models. Unlike Azure it requires no opt-out form. "
+               "Authentication is Application Default Credentials, so no "
+               "long-lived key exists for this route. Added to vary vendor "
+               "while holding the payload, prompt and pairs constant, which is "
+               "the arm C67 recorded as unavailable to it; see C91."),
 }
 
 POSITIVE = "contradiction"
@@ -180,6 +190,34 @@ def call(cfg, system, user, temperature, max_tokens, retries=4):
                 # back, and the request carries note sentences.
                 if attempt == retries - 1:
                     print(f"      bedrock {type(exc).__name__} after "
+                          f"{retries} attempts", file=sys.stderr)
+                    return None
+                time.sleep(2 ** attempt)
+
+    if cfg["provider"] == "vertex":
+        # google-genai resolves Application Default Credentials itself. No key
+        # is read, held or logged on this route; there is none to leak.
+        #
+        # Gemini takes no separate system role in this SDK, so the system block
+        # is prepended to the user block. That is a real difference from the
+        # other routes and is recorded in the output rather than smoothed over:
+        # the STRINGS are identical, their placement is not.
+        contents = f"{system}\n\n{user}"
+        from google.genai import types as gtypes
+        gcfg = gtypes.GenerateContentConfig(
+            temperature=(None if cfg.get("no_temperature") else temperature),
+            max_output_tokens=max_tokens)
+        for attempt in range(retries):
+            try:
+                r = cfg["client"].models.generate_content(
+                    model=cfg["model"], contents=contents, config=gcfg)
+                return r.text
+            except Exception as exc:
+                # Same discipline as bedrock: never echo the exception. A client
+                # error can quote the request back and the request carries note
+                # sentences.
+                if attempt == retries - 1:
+                    print(f"      vertex {type(exc).__name__} after "
                           f"{retries} attempts", file=sys.stderr)
                     return None
                 time.sleep(2 ** attempt)
@@ -276,11 +314,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--strategy", choices=["zero_shot", "few_shot"],
                     required=True)
-    ap.add_argument("--provider", choices=["anthropic", "azure", "bedrock"],
+    ap.add_argument("--provider",
+                    choices=["anthropic", "azure", "bedrock", "vertex"],
                     default="anthropic",
-                    help="which compliant route to use. anthropic needs no "
-                         "opt-out form; azure requires Modified Abuse "
-                         "Monitoring to be approved first.")
+                    help="which compliant route to use. anthropic and vertex "
+                         "need no opt-out form; azure requires Modified Abuse "
+                         "Monitoring to be approved first. vertex uses "
+                         "Application Default Credentials, so it reads no key.")
     ap.add_argument("--replicates", type=int, default=1,
                     help="calls per pair. The default of 1 reproduces the "
                          "single-draw run. Above 1 the per-pair label becomes "
@@ -322,6 +362,18 @@ def main():
                            region_name=os.environ.get("AWS_REGION", "us-east-1")),
                "model": os.environ.get("BEDROCK_MODEL",
                                        "meta.llama3-70b-instruct-v1:0")}
+        model_label = cfg["model"]
+    elif args.provider == "vertex":
+        # No key. ADC is resolved by the client library from the gcloud
+        # credential on this machine, which is why this route has no need()
+        # call and nothing to omit from the repository.
+        from google import genai
+        cfg = {"provider": "vertex",
+               "client": genai.Client(
+                   vertexai=True,
+                   project=need("GOOGLE_CLOUD_PROJECT"),
+                   location=os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")),
+               "model": os.environ.get("VERTEX_MODEL", "gemini-2.5-pro")}
         model_label = cfg["model"]
     else:
         cfg = {"provider": "anthropic",
@@ -431,7 +483,10 @@ def main():
     model_tag = ""
     if args.provider == "anthropic" and model_label != DEFAULT_ANTHROPIC_MODEL:
         model_tag = "_" + model_label.replace("-", "").replace(".", "")
-    elif args.provider == "bedrock":
+    elif args.provider in ("bedrock", "vertex"):
+        # Vertex is tagged for the same reason bedrock is: the model is the
+        # variable under test on this route, so it belongs in the filename and
+        # a second model must not overwrite the first.
         model_tag = "_" + (model_label.split("/")[-1].split(":")[0]
                            .replace("-", "").replace(".", ""))
     out = OUT_DIR / f"frontier_{args.provider}{model_tag}_{args.strategy}{suffix}.json"

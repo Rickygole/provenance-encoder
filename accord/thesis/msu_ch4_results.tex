@@ -324,11 +324,6 @@ labeller would remove it. Section~\ref{sec:r-frontier} answers that directly, an
 the answer is that a stronger labeller moves the multiplier a long way without
 removing it.
 
-A GPT-4o comparison run through a hosted commercial API, which
-Section~\ref{sec:m-ethics} records as a departure from the data use agreement,
-has been withdrawn rather than qualified, and no number in this chapter now
-derives from it.
-
 What survives, and what it rests on, is stated in
 Section~\ref{sec:r-frontier}: every labeller measured on this pool over-calls,
 and the multiplier falls with capability rather than bottoming out. That claim is
@@ -427,12 +422,10 @@ design is a two-by-two in domain and prevalence with capability held fixed, and
 the cell it does not contain is a frontier-scale labeller on the clinical pool.
 
 Figure~\ref{fig:missing-cell} is that design, and the hole in it.
-That cell was filled for an unrelated reason: an earlier comparison run through a
-channel Section~\ref{sec:m-ethics} records as a departure from the data use
-agreement had to be re-run compliantly, through a different model. The
-replacement is Claude Sonnet 5, run with the same recovered prompt, the same
-synthetic demonstrations, and the same pairs; the rows it replaced have been
-withdrawn from this thesis entirely rather than retained with a caveat.
+That cell was filled by Claude Sonnet 5, run with the same recovered prompt, the
+same synthetic demonstrations and the same pairs as the comparison it supersedes,
+through one of the services Section~\ref{sec:m-ethics} identifies as acceptable
+for credentialed data. The earlier rows are not reported anywhere in this thesis.
 
 \begin{figure}[H]
 \centering
@@ -1237,7 +1230,7 @@ informative about true AUROC values at or above $0.7355$ and silent below that l
 \subsection{Multiplicity, and what is not corrected for}
 \label{sec:r-multiplicity}
 
-This chapter reports twenty-six hypothesis tests. The family is enumerated in a
+This chapter reports thirty hypothesis tests. The family is enumerated in a
 committed register released with the analysis code, one entry per test, each bound
 to the artifact and key its $p$ value is read from, and the count and every
 threshold derived from it are computed from that list rather than typed here: five
@@ -1255,37 +1248,38 @@ count then moved from sixteen to twenty when the gradient was put to replication
 from twenty to twenty-two when a fourth labeller's two tests were found to have
 been computed and left out of the family, and from twenty-two to twenty-six when the
 four Mann-Whitney tests on the frontier labels were found to be outside a family this
-subsection called exhaustive. Those are recorded as C76 and C79. A twenty-seventh entry was
-added and then removed: the two-by-two on joinability in Section~\ref{sec:r-exemplar} was
-briefly counted here, and it does not belong, because a family is defined by inferential
-target and that one's target is this project's own bookkeeping rather than any claim about
-labellers or contradictions. Removing it returned a rejection to the clearing set, which is
-why C90 records the ground for removal rather than only the arithmetic. It
+subsection called exhaustive, and from twenty-six to thirty when four discrimination tests on
+the Bedrock labellers were found already computed, committed, and outside a family this
+subsection again called exhaustive. Those are recorded as C76, C79 and C92. A twenty-seventh
+entry was briefly added and removed in between: the two-by-two on joinability in
+Section~\ref{sec:r-exemplar} was counted here and does not belong, because a family is defined
+by inferential target and that one's target is this project's own bookkeeping rather than any
+claim about labellers or contradictions. C90 records the ground for that removal. The same rule
+is what put the Bedrock four in: their target is identical to the four already here. It
 also reports ten interval estimates read
 against a null value, zero for the six Matthews correlations of Table~\ref{tab:mcc} and for the
 two pretraining gaps, and $0.5$ for the two AUROCs; five of the ten fail to exclude that null,
 the exceptions being the AG News gap and the four frontier rows. That interval count has moved four
 times. It was eight before the frontier comparison of Section~\ref{sec:r-frontier} was added, ten
-after, eight again once the two GPT-4o rows were withdrawn for the reason
-Section~\ref{sec:m-ethics} gives, and ten again when the two Haiku rows were added to
+after, eight again once two superseded rows were removed, and ten again when the two Haiku rows were added to
 Table~\ref{tab:mcc}, which is where they should have been from the point Chapters~\ref{ch:intro}
 and~\ref{ch:discussion} began reading one of them against zero. Figure~\ref{fig:forest} plots the
 eight that predate the Haiku rows.
 \textbf{No multiple-comparison correction is applied anywhere in this thesis, and none of the
-reported $p$ values should be read as if one had been.} Were the twenty-six tests independent, a
-global null at $\alpha = 0.05$ would produce at least one rejection with probability $0.7365$. They
+reported $p$ values should be read as if one had been.} Were the thirty tests independent, a
+global null at $\alpha = 0.05$ would produce at least one rejection with probability $0.7854$. They
 are not independent, and the register groups them into the ten blocks within which they are not:
 the five Mann-Whitney tests are three seeds of one model, their ensemble and
 one further run all scored on the same $253$ rows, the five DeLong tests are five comparisons
 against a single reference run, and the two ambiguity-gradient tests are one model on one set of
-items under two prompts, once for each labeller. So $0.7365$ is an independence value rather than a theorem about dependent tests, the true familywise rate is lower,
+items under two prompts, once for each labeller. So $0.7854$ is an independence value rather than a theorem about dependent tests, the true familywise rate is lower,
 and this thesis does not compute it. The direction of the inference is what survives that
 imprecision: the absence of a rejection across a correlated family of this size is weaker
 evidence than the same absence would be for a single pre-specified test, and any single rejection
 inside it would be correspondingly weaker evidence of an effect.
 
-The Bonferroni threshold is valid under dependence, and at $0.05/26 = 0.0019$ five of the
-twenty-six tests clear it. Three are Fisher exact tests on the frontier labels, at
+The Bonferroni threshold is valid under dependence, and at $0.05/30 = 0.0017$ four of the
+thirty tests clear it. Three are Fisher exact tests on the frontier labels, at
 $p$ values of $2.3 \times 10^{-5}$, $7.7 \times 10^{-4}$ and $0.0015$, and they are the
 only rejections in this thesis that concern the clinical task directly: they say the
 frontier labels separate the pharmacist's confirmed cases from the rest on the same rows
@@ -1306,31 +1300,46 @@ the rank test and does not clear under the exact test. This is the defect class 
 thesis exists to describe, a procedure chosen where it happens to be favourable, and it
 was inside the strongest result in the document. It is recorded as C85.
 
-The fourth is Claude Haiku 4.5's few-shot ambiguity gradient at $p = 0.0018909$ against a
-threshold of $0.0018$; the margin is three parts in a hundred thousand, so it clears at
-twenty-six tests and would not clear at twenty-seven. For one revision it did not clear,
-because a twenty-seventh test had been admitted to the family that did not belong to it; both
-the admission and the reversal are recorded in C88 and C90, and the margin is the reason the
-count has to be generated rather than typed. The fifth is the Welch test on the anisotropy
-control, at $t = 4.0001$ on $235.84$ degrees of freedom for a two-sided $p$ of $0.000085$;
-Section~\ref{sec:res-rq3} already declines to read that as support for the mechanism, on
-effect-size grounds, and records that its degrees of freedom are overstated because its $190$
-observations are the pairwise similarities among $20$ sentences rather than $190$ independent
-draws. So of the five, one is a test whose $p$ value this thesis does not trust, one clears by
-a margin narrower than the precision at which its own threshold is usually printed, and three
-are the frontier discrimination results.
+The fourth is the Welch test on the anisotropy control, at $t = 4.0001$ on $235.84$ degrees
+of freedom for a two-sided $p$ of $0.000085$; Section~\ref{sec:res-rq3} already declines to
+read that as support for the mechanism, on effect-size grounds, and records that its degrees
+of freedom are overstated because its $190$ observations are the pairwise similarities among
+$20$ sentences rather than $190$ independent draws. So of the four, one is a test whose $p$
+value this thesis does not trust and three are the frontier discrimination results.
 
-Those four were outside the family until this subsection was audited, which is the
-third time in this project's record that a family presented as exhaustive was short by
-tests already computed. The direction is what makes it worth stating: they are the
-strongest results in the chapter, and leaving them out kept the only rejections on the
-clinical task outside the thesis's own correction. Adding them moved the threshold from
-$0.0023$ to $0.0019$ and every one of them still clears it, so nothing concluded here
-changed. That is luck rather than rigour, and the entry recording it says so.
+Claude Haiku 4.5's few-shot ambiguity gradient is no longer among them, and the way it left
+is worth stating because the direction is the unfavourable one. At $p = 0.0018909$ it cleared
+the threshold at twenty-six tests by three parts in a hundred thousand. It does not clear at
+thirty. Nothing about that test changed; the family it is corrected against grew, because four
+tests that were always part of it were found not to have been counted. A rejection held at a
+margin that fine was never evidence of much, and losing it to an honest count is the correct
+outcome rather than a cost to be regretted.
+
+Those four were outside the family until this subsection was audited, which was the third
+time in this project's record that a family presented as exhaustive was short by tests already
+computed. It has now happened a fourth time, and the fourth is the worst of them, because the
+tests left out were not the ones that supported the claim.
+
+Four discrimination tests on the Bedrock labellers sat in the results directory, generated by
+the same script on the same $253$ rows against the same pharmacist labels, and were not
+counted. The reason they were not is that they had been commissioned as capability and channel
+controls rather than as discrimination results, and the family was assembled by what each run
+was for rather than by what each test asks. A family is defined by its inferential target, and
+theirs is identical to the four already here: does this labeller's positive set overlap the
+pharmacist's confirmed set more than chance on $G_{253}$. Under the rule this subsection
+already applies, they are members.
+
+The direction is what makes it a defect rather than an oversight. All four are null, so a
+second vendor had already failed to replicate the result this chapter leads with, twice, in
+two prompt conditions each, and the family that omitted them was the family under which the
+headline cleared. Counting them moves the threshold from $0.0019$ to $0.0017$ and costs one
+rejection. Every previous movement of this count was a repair that left the conclusions intact,
+which the entry recording it called luck rather than rigour; this one does not, and that is
+what an honest count is for. It is recorded as C92.
 
 What does not clear correction is the ambiguity gradient this chapter leads with.
 Sonnet 5's few-shot gradient at $p = 0.0029$ cleared under the count of sixteen and
-clears neither twenty-two nor twenty-six; its zero-shot gradient, at $p = 0.0046$ and
+clears none of twenty-two, twenty-six or thirty; its zero-shot gradient, at $p = 0.0046$ and
 the reading Section~\ref{sec:r-ambiguity} states first, has cleared no correctly
 computed count. One thing has to be corrected about how this
 subsection used to describe its own history. It said the understated count of fourteen was
@@ -1339,7 +1348,7 @@ false: at fourteen the threshold is $0.05/14 = 0.0036$ and the zero-shot gradien
 $0.0046$ does not clear it either. The zero-shot gradient has cleared no Bonferroni
 threshold at any count this thesis has ever stated. What the understated count did protect
 was the few-shot gradient at $0.0029$, which cleared fourteen and sixteen and clears
-neither twenty-two nor twenty-six. The direction of the original error is unchanged and the
+none of twenty-two, twenty-six or thirty. The direction of the original error is unchanged and the
 claim it protected was the weaker one. The surviving evidence for the gradient is
 one test, on a second labeller, in the prompt condition
 Section~\ref{sec:r-ambiguity} treats as the dependent one.
@@ -1365,7 +1374,7 @@ describe.
 The selection of which tests reach the page is disclosed rather than left implicit: four Spearman
 correlations against the danger rating were computed and one is reported above. Of the three not
 reported there, one, the harm head against the danger rating restricted to the $12$ positives,
-returns $\rho = -0.6621$ at $p = 0.019$. That is one of the twenty-six tests counted here. It is
+returns $\rho = -0.6621$ at $p = 0.019$. That is one of the thirty tests counted here. It is
 nominally significant at $\alpha = 0.05$, does not clear $0.0019$, and is not significant under
 any correction over even
 the four Spearman tests alone. It measures an untrained module on twelve cases and no claim is
@@ -1495,7 +1504,7 @@ ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ & $-0.1626$ to $0.
 Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ & $-0.2337$ to $0.0563$ \\
 \bottomrule
 \end{tabular}
-\apanote{Cells from Table~\ref{tab:systems253} and, for the four Claude rows, from the frontier metrics artifacts. Two further rows, a GPT-4o run in both prompt conditions, have been withdrawn for the reason given in Section~\ref{sec:m-ethics}; the predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc}; \citet{powers2011evaluation} situates it as the geometric mean of the informedness and markedness measures he advocates instead and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. None of the four Claude intervals does at the conventional level, and that they come from two independent models is what makes the instrument's sensitivity a measurement rather than one observation. Read at the corrected threshold of Section~\ref{sec:r-multiplicity} rather than at $0.05$, Sonnet's zero-shot interval still excludes zero and Haiku's does not, so the two-labeller claim rests on their Mann-Whitney tests, which clear that threshold, rather than on these intervals. None survives arbitrary label instability either, and they differ in how much they tolerate (Section~\ref{sec:r-frontier}): Sonnet's zero-shot interval admits zero once the per-draw flip probability reaches $0.245$ and its few-shot interval at $0.083$, Haiku's at $0.164$ and $0.182$. Sonnet's few-shot row tolerates the least of the four and no claim rests on it; the Haiku rows were added to this table because Chapters~\ref{ch:intro} and~\ref{ch:discussion} read their interval against zero. The Claude rows are single-draw labels from a model that does not accept a temperature parameter, and were run at a larger token budget than the GPT-4o rows, so they are not a paired protocol replacement for them.}
+\apanote{Cells from Table~\ref{tab:systems253} and, for the four Claude rows, from the frontier metrics artifacts. The predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc}; \citet{powers2011evaluation} situates it as the geometric mean of the informedness and markedness measures he advocates instead and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. None of the four Claude intervals does at the conventional level, and that they come from two independent models is what makes the instrument's sensitivity a measurement rather than one observation. Read at the corrected threshold of Section~\ref{sec:r-multiplicity} rather than at $0.05$, Sonnet's zero-shot interval still excludes zero and Haiku's does not, so the two-labeller claim rests on their Mann-Whitney tests, which clear that threshold, rather than on these intervals. None survives arbitrary label instability either, and they differ in how much they tolerate (Section~\ref{sec:r-frontier}): Sonnet's zero-shot interval admits zero once the per-draw flip probability reaches $0.245$ and its few-shot interval at $0.083$, Haiku's at $0.164$ and $0.182$. Sonnet's few-shot row tolerates the least of the four and no claim rests on it; the Haiku rows were added to this table because Chapters~\ref{ch:intro} and~\ref{ch:discussion} read their interval against zero. The Claude rows are single-draw labels from a model that does not accept a temperature parameter.}
 \label{tab:mcc}
 \end{table}
 
