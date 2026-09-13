@@ -1330,9 +1330,40 @@ pharmacist's confirmed set more than chance on $G_{253}$. Under the rule this su
 already applies, they are members.
 
 The direction is what makes it a defect rather than an oversight. All four are null, so a
-second vendor had already failed to replicate the result this chapter leads with, twice, in
-two prompt conditions each, and the family that omitted them was the family under which the
-headline cleared. Counting them moves the threshold from $0.0019$ to $0.0017$ and costs one
+second vendor had already failed to replicate the result this chapter leads with, and the
+family that omitted them was the family under which the headline cleared. How much of a
+failure to replicate they represent needs stating precisely, because two of the four could not
+have replicated anything. Llama 3 8B flags $221$ and $224$ of the $253$ pairs. At those
+margins the smallest $p$ the conditional test could return at any outcome, with every one of
+the $12$ confirmed cases inside the flagged set, is $0.190$ and $0.224$. Both rows are
+incapable of rejection before the model sees a pair, so they are silent on discrimination and
+the vendor claim does not rest on them. Llama 3 70B is a different matter: at $105$ and $60$
+flagged its best attainable values are $1.8 \times 10^{-5}$ and $1.3 \times 10^{-8}$, either of
+which would clear the corrected threshold by orders of magnitude, and it returned $0.2444$ and
+$0.0391$. That labeller had the power to replicate and did not. The second-vendor failure is
+one model in two prompt conditions, stated as one rather than two.
+
+One comparison inside those rows is worth isolating, because it needs no normalisation and no
+assumption. Claude Haiku 4.5 zero-shot and Llama 3 70B few-shot flagged the same number of
+pairs, $60$ of $253$. Their margins are therefore identical, their attainable maxima are
+identical at $0.4002$, and their tests have the same power floor at $1.3 \times 10^{-8}$.
+Against that common ceiling Haiku returns a Matthews correlation of $0.2253$ and Llama returns
+$0.1379$, and their two-sided $p$ values are $0.0015$ and $0.0391$. Two labellers from
+different makers, on the same rows, at the same operating marginal, separated by a factor the
+marginal cannot explain because the marginal is the same. That is the cleanest form the vendor
+comparison takes in this thesis, and it rests on one pair of rows rather than on an ordering
+over eight.
+
+A normalised ordering over all eight rows is available and is deliberately not made the claim.
+Dividing each observed correlation by its own ceiling does rank the four Anthropic rows above
+the four Meta rows, but the raw correlations already separate by a wider margin, so the
+normalisation narrows the gap rather than creating it, and the quantity it produces is
+algebraically $(\mathrm{recall} - \mathrm{flag\ rate}) / (1 - \mathrm{flag\ rate})$ rather than a
+correlation at all. For the two Llama 3 8B rows that denominator is near zero, so a single
+reassigned true positive moves them by more than $0.65$ and would carry one of them to $1.0$,
+above every Anthropic row. A separation that one relabelled pair in a twelve-positive gold set
+can invert is not a finding, and an eyeball ordering over eight rows that are four models on
+one shared set of pairs is not a test. Counting them moves the threshold from $0.0019$ to $0.0017$ and costs one
 rejection. Every previous movement of this count was a repair that left the conclusions intact,
 which the entry recording it called luck rather than rigour; this one does not, and that is
 what an honest count is for. It is recorded as C92.
@@ -1356,9 +1387,9 @@ Section~\ref{sec:r-ambiguity} treats as the dependent one.
 One asymmetry in this subsection has to be named rather than left for a reader to
 find. The correction above is applied to $p$ values and not to the interval estimates,
 and the intervals are where two of this thesis's load-bearing claims live. Read at
-$0.05/26$ rather than at $0.05$, Sonnet's Matthews interval on $G_{253}$ still excludes
-zero, with a lower bound of $0.0308$, and Haiku's does not: its lower bound moves to
-$-0.0492$. Those two bounds are now generated from the registered confusion cells by a
+$0.05/30$ rather than at $0.05$, Sonnet's Matthews interval on $G_{253}$ still excludes
+zero, with a lower bound of $0.0246$, and Haiku's does not: its lower bound moves to
+$-0.0527$. Those two bounds are now generated from the registered confusion cells by a
 committed script that reads its own significance level from the test register, so a test
 entering the family moves them. The figure this subsection used to print for Haiku's bound
 was $-0.0233$, which was typed into the register with no script behind it and could not be
@@ -1504,7 +1535,7 @@ ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ & $-0.1626$ to $0.
 Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ & $-0.2337$ to $0.0563$ \\
 \bottomrule
 \end{tabular}
-\apanote{Cells from Table~\ref{tab:systems253} and, for the four Claude rows, from the frontier metrics artifacts. The predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc}; \citet{powers2011evaluation} situates it as the geometric mean of the informedness and markedness measures he advocates instead and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. None of the four Claude intervals does at the conventional level, and that they come from two independent models is what makes the instrument's sensitivity a measurement rather than one observation. Read at the corrected threshold of Section~\ref{sec:r-multiplicity} rather than at $0.05$, Sonnet's zero-shot interval still excludes zero and Haiku's does not, so the two-labeller claim rests on their Mann-Whitney tests, which clear that threshold, rather than on these intervals. None survives arbitrary label instability either, and they differ in how much they tolerate (Section~\ref{sec:r-frontier}): Sonnet's zero-shot interval admits zero once the per-draw flip probability reaches $0.245$ and its few-shot interval at $0.083$, Haiku's at $0.164$ and $0.182$. Sonnet's few-shot row tolerates the least of the four and no claim rests on it; the Haiku rows were added to this table because Chapters~\ref{ch:intro} and~\ref{ch:discussion} read their interval against zero. The Claude rows are single-draw labels from a model that does not accept a temperature parameter.}
+\apanote{Cells from Table~\ref{tab:systems253} and, for the four Claude rows, from the frontier metrics artifacts. The predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc}; \citet{powers2011evaluation} situates it as the geometric mean of the informedness and markedness measures he advocates instead and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. None of the four Claude intervals does at the conventional level, and that they come from two independent models is what makes the instrument's sensitivity a measurement rather than one observation. Read at the corrected threshold of Section~\ref{sec:r-multiplicity} rather than at $0.05$, Sonnet's zero-shot interval still excludes zero and Haiku's does not, so the two-labeller claim rests on their zero-shot discrimination tests, at $2.3 \times 10^{-5}$ and $0.0015$, both of which clear that threshold, rather than on these intervals. An earlier version of this note credited the claim to the Mann-Whitney tests on the same rows. Those values exist in the artifacts and this thesis does not use them: C85 withdrew that instrument for these tables, because the label vector is binary and the rank test's normal approximation was anti-conservative in all four cases. Citing it here would have rested the claim on the statistic the chapter retracted. None survives arbitrary label instability either, and they differ in how much they tolerate (Section~\ref{sec:r-frontier}): Sonnet's zero-shot interval admits zero once the per-draw flip probability reaches $0.245$ and its few-shot interval at $0.083$, Haiku's at $0.164$ and $0.182$. Sonnet's few-shot row tolerates the least of the four and no claim rests on it; the Haiku rows were added to this table because Chapters~\ref{ch:intro} and~\ref{ch:discussion} read their interval against zero. The Claude rows are single-draw labels from a model that does not accept a temperature parameter.}
 \label{tab:mcc}
 \end{table}
 

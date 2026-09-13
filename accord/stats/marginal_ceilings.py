@@ -61,12 +61,17 @@ def main():
         d = json.loads(pathlib.Path(f).read_text())
         label = pathlib.Path(f).stem
         prov = d.get("provenance") or {}
-        model = (prov.get("model") or d.get("model")
-                 or label.replace("frontier_", "").replace("_metrics", ""))
+        # The real model id lives per strategy, not at the top level; both
+        # top-level fields are null in every metrics file, so an earlier version
+        # of this fell through to the filename and recorded "anthropic" for a row
+        # nothing in the artifact identifies as Sonnet 5.
+        model = None
         for strat, node in (d.get("by_strategy") or {}).items():
             cell = node.get("G_253")
             if not cell or "tp" not in cell:
                 continue
+            model = (node.get("model") or prov.get("model") or d.get("model")
+                     or label.replace("frontier_", "").replace("_metrics", ""))
             n = cell["n"]; n_pos = cell["n_positives"]; n_flag = cell["n_flagged"]
             cap, best = ceiling(n, n_pos, n_flag)
             obs = cell["mcc"]

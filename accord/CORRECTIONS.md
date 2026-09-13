@@ -4447,3 +4447,46 @@ its null is close to arithmetic and carries little information about the vendor.
 not ceiling-bound: at flag rates of 0.4150 and 0.2372 its ceilings are 0.2649 and 0.4002 and it
 reached 0.0762 and 0.1379. It had the headroom and did not use it, so that failure to replicate
 is genuine and is the one that bears on the vendor question.
+
+**C92, addendum after audit.** A results audit re-derived every value above from the cells and
+confirmed all of them, and found four defects in the correction itself.
+
+*A stale artifact the correction missed.* `mcc_ci_at_corrected_alpha.json` names the test
+register as the source of its significance level and was not regenerated, so it published bounds
+computed at 0.05/26 while the register it cites read 0.05/30, and the chapter quoted them
+twenty-five lines after stating the new threshold. Regenerated: Sonnet's corrected lower bound
+moves from 0.0308 to 0.0246 and Haiku's from -0.0492 to -0.0527. Both conclusions survive, the
+digits did not. A generator that reads its own parameter from another artifact still has to be
+re-run when that artifact moves; reading it dynamically is not the same as being current.
+
+*A contradiction introduced by this entry.* The prose said a second vendor had failed to
+replicate "twice, in two prompt conditions each", counting all four Bedrock tests as vendor
+evidence, while the ceiling analysis in the same chapter argued two of them were uninformative.
+Both could not stand. The audit supplied the sharper instrument: not the effect-size ceiling but
+the power floor. At 221 and 224 of 253 pairs flagged, the smallest p the Llama 3 8B rows could
+return at any outcome, with every confirmed case inside the flagged set, is 0.190 and 0.224.
+They cannot reject at any outcome, so they are silent rather than negative. Llama 3 70B's best
+attainable values are 1.8e-05 and 1.3e-08, so its failure is real. The second-vendor failure is
+one model in two conditions and now says so.
+
+*An attribution to a withdrawn instrument.* Table tab:mcc's note credited the two-labeller claim
+to "their Mann-Whitney tests". Those values exist in the artifacts, and C85 withdrew that
+instrument for exactly these tables because the label vector is binary and the rank test was
+anti-conservative in all four cases. The note rested the chapter's strongest claim on the
+statistic the chapter retracted. It now cites the zero-shot discrimination tests, which is what
+the claim actually rests on and which clear the corrected threshold at k = 30.
+
+*A headline declined.* Dividing each correlation by its own ceiling ranks the four Anthropic
+rows above the four Meta rows, and that was going to be reported as the finding. The audit
+showed why it should not be: the raw correlations separate by a wider margin, so the
+normalisation narrows the gap rather than creating it; the quantity is algebraically
+(recall - flag rate) / (1 - flag rate) rather than a correlation; and with the 8B rows' flag
+rate near 0.88 a single reassigned true positive moves them by more than 0.65 and would carry
+one above every Anthropic row. The chapter reports instead the one comparison that needs no
+normalisation: Haiku zero-shot and Llama 3 70B few-shot flagged the same 60 pairs of 253, so
+their ceilings and power floors are identical, and against that common margin they return 0.2253
+and 0.1379. The normalised ordering is stated and explicitly declined in the same paragraph.
+
+*Also fixed.* The ceiling generator recorded "anthropic" as a model id because both top-level
+model fields are null in every metrics file and it fell through to the filename; the real ids
+were unused one level down, per strategy.
