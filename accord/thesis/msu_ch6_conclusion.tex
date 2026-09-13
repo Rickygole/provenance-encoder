@@ -253,12 +253,24 @@ generating process fixed than this design allows.
 
 Dangerous medication contradictions between nursing notes and discharge summaries are real,
 recurring, and worth detecting. A standard-shaped pipeline built for them does not detect them,
-and the sharpest thing this thesis can say is not that sentence but the comparison beside it.
+and the sharpest thing this thesis can say is that sentence together with the mechanism behind
+it. The weak labeller assigns the contradiction class to the large majority of a pool whose
+confirmed rate is a twentieth of that, and at that marginal the largest agreement any
+thresholded label could express with the pharmacist is bounded before training begins. That
+bound follows from two marginals. It needs no join, no significance test, no family count and
+no vendor, and it is why the detector inherits a marginal rather than a judgement. Every other
+failure in this thesis is attached to a mechanism of the same kind, read out of the code or the
+counts rather than inferred from a null.
+
+A comparison beside that result is worth reporting and is not the headline, for reasons this
+thesis states rather than leaves to a reader.
 On the $253$ non-ambiguous pairs the pipeline's detector and a separately prompted Llama 3 8B
 baseline both return Matthews correlations whose intervals contain chance, while two Anthropic
 labellers, Claude Sonnet 5 and Claude Haiku 4.5, given one zero-shot prompt and no training at
-all return $+0.3189$ and $+0.2253$, both intervals excluding it. That is a result about those
-two models and not about frontier capability, and the counter-case is part of it: Llama 3 70B,
+all return $+0.3189$ and $+0.2253$, both intervals excluding it. That is a result about those two models and not about
+frontier capability, it clears at the conventional level and not under the correction this
+thesis computes, and on the defect-free stratum it does not clear correction at all. The
+counter-case is part of it: Llama 3 70B,
 from a second maker, flags at the same rate of $0.2372$ as the Haiku configuration and returns
 $0.1379$ with an interval that includes chance, so the identical operating margin rules out its
 flag rate as the explanation. Only the stronger of the two Anthropic rows is also separated from
