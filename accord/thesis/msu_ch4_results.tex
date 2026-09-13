@@ -94,7 +94,7 @@ predicted-positive rate on the same rows.
 4, discharge-side absence  & 55  & 3.64\% & 74.55\% \\
 \bottomrule
 \end{tabular}
-\apanote{The four strata sum to 299. The ACCORD column is the contaminated released run of Table~\ref{tab:marginal}: $134 \times 0.9701 + 31 \times 0.9677 + 79 \times 0.9747 + 55 \times 0.7455 \approx 278$, the contaminated marginal; the decontaminated retrain in Section~\ref{sec:res-rq4} is not restratified by rule here. A rule is a mining mechanism, not a clinical category: the pharmacist's own failure-mode coding of the 12 confirmed contradictions returns 7 omissions, 3 dosage conflicts, 1 drug substitution and 1 class conflict, with the 7 omissions spread across all four rules rather than confined to Rule 4, whose gold stratum contains 2 of the 12; the two counts are different variables on the same 12 pairs and neither corrects the other.}
+\apanote{The four strata sum to 299. The ACCORD column is the contaminated released run of Table~\ref{tab:marginal} ($134 \times 0.9701 + 31 \times 0.9677 + 79 \times 0.9747 + 55 \times 0.7455 \approx 278$). A rule is a mining mechanism, not a clinical category: the pharmacist's failure-mode coding of the 12 confirmed contradictions returns 7 omissions, 3 dosage conflicts, 1 drug substitution and 1 class conflict, spread across all four rules rather than confined to Rule 4, whose gold stratum contains 2 of the 12.}
 \end{table}
 
 Rule 2 has the highest pharmacist precision, 9.68 percent, despite supplying the smallest gold
@@ -208,12 +208,15 @@ recall against contradictions outside the pool was never measured.
 \section{Weak Supervision}
 \label{sec:res-rq2}
 
-Can an LLM weak labeller substitute for expert annotation at this base rate? No,
-and the failure attenuates with labeller capability rather than bottoming out.
-Every labeller tested over-calls on the same pairs, but the multiplier falls from
-roughly twenty-four times the confirmed rate at eight billion parameters to four
-times at the frontier, which is a difference in kind for anyone deciding how much
-review budget a pipeline like this consumes.
+Can an LLM weak labeller substitute for expert annotation at this base rate? No.
+Every local labeller tested over-calls on the same pairs, by roughly fifteen to
+twenty-four times the confirmed rate at eight billion parameters, which is
+already a large enough review burden to matter for anyone deciding how much of
+a pipeline like this a human still has to check. Whether that multiplier falls
+further at frontier scale was tested through a hosted API and the result is
+withdrawn (Section~\ref{sec:r-frontier}); this chapter does not establish
+whether the failure attenuates with capability or bottoms out at eight billion
+parameters.
 
 \subsection{The marginal}
 
@@ -270,12 +273,9 @@ readings of one quantity.
 \texttt{qwen3:8b}      & Candidate pool                    & 0.6349 & 15.8196 & 1,679 \\
 \texttt{qwen3:8b}      & $G_{299}$, gold set                & 0.6187 & 15.4167 & 299   \\
 Llama 3, deployed weak labeller & Candidate pool & $1425/1679$ & 21.1473 & 1,679 \\
-\addlinespace
-Claude Sonnet 5, zero-shot & $G_{299}$, gold set & 0.2140 & 5.3333 & 299 \\
-Claude Sonnet 5, few-shot  & $G_{299}$, gold set & 0.1806 & 4.5000 & 299 \\
 \bottomrule
 \end{tabular}
-\apanote{Every row divides a positive rate by the same $0.0401$ gold base rate; the divisor is the unrounded $12/299$, so recomputing from the printed $0.0401$ will not reproduce the printed ratios exactly. The first six rows are three labellers each measured twice, on the candidate pool and on the 299-pair gold set. The seventh, the deployed weak labeller, is not a seventh reading of the first row: its gap between $0.8487$ and \texttt{llama3:8b}'s $0.9470$ on the same pool is the prompt, not a confidence threshold, which lies beneath the field's minimum and removes nothing (Section~\ref{sec:m-weak}). The replication reran the evaluation baseline's template verbatim, a bare pair with a one-word answer demanded; the deployed labeller was asked for a judgement plus a confidence value and given the conflict type first. The $15.8196$ to $23.5959$ range quoted elsewhere in this thesis is the across-model range on the candidate pool alone, not a summary of every row here. The last two rows are the frontier labeller of Section~\ref{sec:r-frontier}, shown on $G_{299}$ so that they divide the same $0.0401$ as every row above them; on $G_{253}$, against that set's own $0.0474$ base rate, the same two runs give $4.00$ and $3.25$, the figures Section~\ref{sec:r-frontier} quotes for its comparisons on that set. Both readings are correct and neither corrects the other.}
+\apanote{Every row divides a positive rate by the same $0.0401$ gold base rate (the unrounded $12/299$), so recomputing from the printed value will not reproduce these ratios exactly. The first six rows are three local labellers, each measured on the candidate pool and the 299-pair gold set. The seventh, the deployed weak labeller, differs by prompt rather than confidence threshold: it was asked for a judgement plus confidence and given the conflict type first (Section~\ref{sec:m-weak}). The $15.8196$ to $23.5959$ range quoted elsewhere is this across-model range on the pool alone. A frontier-scale labeller run on this pool through a hosted API is withdrawn (Section~\ref{sec:m-ethics}) and does not appear here.}
 \end{table}
 
 Every ratio measured is well above 1, so no local 8B labeller tested is close
@@ -313,22 +313,22 @@ Two consequences are stated rather than left implicit. The over-calling ratios a
 understated by this: they measure what they claim, and the ceiling explains why a high
 positive rate on a rare event caps what any downstream model can inherit. And this section
 does not adjudicate whether the task or the pipeline fails. A labeller at chance is what
-both readings predict, so it separates them not at all; that separation is carried by
-Section~\ref{sec:r-frontier}, where two labellers on the same rows return correlations whose
-intervals exclude zero, which an unlearnable task would not permit.
+both readings predict, so it separates them not at all. The evidence that would have carried
+that separation, a hosted-API labeller returning an interval that excludes zero on these same
+rows, is withdrawn along with the run that produced it (Section~\ref{sec:r-frontier}), so this
+thesis does not establish whether the task is unlearnable at this sample size from that
+direction either.
 
 \subsection{Whether a stronger labeller removes it}
 
 If the over-calling were an artifact of a small open-weights model, a stronger
-labeller would remove it. Section~\ref{sec:r-frontier} answers that directly, and
-the answer is that a stronger labeller moves the multiplier a long way without
-removing it.
-
-What survives, and what it rests on, is stated in
-Section~\ref{sec:r-frontier}: every labeller measured on this pool over-calls,
-and the multiplier falls with capability rather than bottoming out. That claim is
-carried entirely by runs this project can account for, which is the condition a
-reader should hold any of these numbers to.
+labeller would remove it. This question was put to a frontier-scale labeller
+through a hosted API, and that run is withdrawn along with everything computed
+from it (Section~\ref{sec:r-frontier}); what a frontier-scale model does on
+this pool is therefore not established anywhere in this thesis. What the local
+labellers alone support is narrower: every one of them measured on this pool
+over-calls, and Table~\ref{tab:systems253} shows this project's own detector and
+its evaluation baseline doing the same thing.
 
 \begin{table}[H]
 \caption[Per-pair calls on the core evaluation set]{Per-pair calls on the 253 non-ambiguous pairs.}
@@ -379,19 +379,16 @@ in this section. The magnitude of the failure is therefore not a general propert
 instruction-tuned labeller asked for a rare positive class; what survives the change of domain is
 the direction, over-calling that does not track the true rate, not the size of it.
 
-A second conclusion once drawn from that contrast does not hold: that the magnitude belongs to the
-base rate of the pool rather than to the model. That reading varied the domain and the prevalence
-while holding scale fixed at eight billion parameters across all three labellers, so with the model
-held constant a difference between the clinical pool and the public-text sweep could only be
-attributed to the pool. The attribution was an artifact of the cell the design did not contain.
-Section~\ref{sec:r-frontier} fills it. On $G_{299}$, the set Table~\ref{tab:overcalling} measures every labeller on, a frontier
-model over-calls by $5.3333$ times zero-shot and $4.5000$ times few-shot, against $15.4167$ to
-$23.7500$ for the same three 8B labellers on that same set. Both frontier figures sit above the
-public-text sweep's maximum of $3.5000$, so the domain still costs something and the cost is not
-bounded by that ceiling. What does not survive is the attribution of the whole distance to the pool:
-the pool did not change, the base rate did not change, the prompt did not change, and the multiplier
-fell by roughly three quarters. A design that never varied capability could not have seen that,
-which is the point of Figure~\ref{fig:missing-cell}.
+A second conclusion once drawn from that contrast does not hold as stated: that the magnitude
+belongs to the base rate of the pool rather than to the model. That reading varied the domain and
+the prevalence while holding scale fixed at eight billion parameters across all three labellers, so
+with the model held constant a difference between the clinical pool and the public-text sweep could
+only be attributed to the pool. The attribution was an artifact of the cell the design did not
+contain, a frontier-scale labeller on the clinical pool. That cell was filled by transmitting
+MIMIC-III sentence pairs to a hosted API, and that run, along with every number computed from it, is
+withdrawn (Section~\ref{sec:r-frontier}). Whether the domain still costs something once capability is
+varied is therefore not established anywhere in this thesis: the design that would have shown it was
+run, but its result cannot be reported.
 
 What survives is narrower and still worth having: an over-calling multiplier reported without naming
 both the base rate it was measured against and the model that produced it is uninterpretable. What
@@ -416,478 +413,137 @@ thesis's clinical operating point, which lies above the top of its panel.}
 Section~\ref{sec:m-control-rq2} states the condition this control was built to
 decide: if over-calling is a property of one model it will not survive a change of
 model, and if it is a property of the task presentation it will. The replication
-changed the model three times and the domain once. It never changed the scale.
-All three labellers are eight-billion-parameter instruction-tuned models, so the
-design is a two-by-two in domain and prevalence with capability held fixed, and
+changed the model three times and the domain once, and never changed the scale:
+all three local labellers are eight-billion-parameter instruction-tuned models, so
+the design is a two-by-two in domain and prevalence with capability held fixed, and
 the cell it does not contain is a frontier-scale labeller on the clinical pool.
 
-Figure~\ref{fig:missing-cell} is that design, and the hole in it.
-That cell was filled by Claude Sonnet 5, run with the same recovered prompt, the
-same synthetic demonstrations and the same pairs as the comparison it supersedes,
-through the Anthropic API, whose status under the guidance in force when the run
-was made is the open question Section~\ref{sec:m-ethics} states and does not resolve. The earlier rows are not reported anywhere in this thesis.
+That cell was filled by transmitting MIMIC-III sentence pairs to hosted API
+services, Claude Sonnet 5 and Claude Haiku 4.5 through the Anthropic API and
+Llama 3 70B and Llama 3 8B through AWS Bedrock. PhysioNet's guidance on the use
+of MIMIC data with third-party LLM services withdrew the safe-harbour list those
+runs relied on (Section~\ref{sec:m-ethics}), so every one of those runs, and every
+number, table, and figure computed from one, is withdrawn from this thesis. That
+includes the capability ladder, the frontier discrimination table, and the
+factor decomposition that once separated a capability step from a channel step.
+Whether a frontier-scale labeller removes the over-calling this chapter measures
+at eight billion parameters is therefore not established here; the local-only
+finding of Section~\ref{sec:res-rq2} is the one this thesis can support.
 
-\clearpage
-\begin{figure}[H]
+\subsection{The marginal feasibility gate}
+\label{sec:r-feasgate}
+
+Before a labeller's agreement with the pharmacist is read as evidence, its own
+marginals already fix how much agreement it could possibly have shown. Holding
+the confirmed count and the flagged count fixed and placing every confirmed
+case inside the flagged set gives the best table those two marginals permit: a
+Matthews correlation ceiling, a kappa ceiling, and the smallest one-sided
+hypergeometric $p$ the labeller's own margins could return against the
+pharmacist's labels. That floor $p$ is a precondition rather than a result: it
+is computable before a single pair is scored, and it says whether the test
+that follows could have rejected the null at all.
+
+This bounds a thresholded decision only, and the qualification is not
+optional, because the unqualified claim is false. A labeller that emits a
+continuous score is not bounded this way, because the threshold that turns a
+score into a flag can be swept; a model that flags most of a pool at one
+threshold can still rank the pool well at another. Everything below is a
+statement about the eight labeller-and-prompt configurations in this thesis
+that emit a hard label on this pool, not about a score-emitting model.
+
+Table~\ref{tab:feasgate} and Figure~\ref{fig:ceiling} apply the gate to the eight local labeller rows
+this chapter can still report: \texttt{granite3.3:8b} and \texttt{llama3:8b},
+zero-shot and few-shot, on $G_{253}$ and $G_{299}$. Four of the eight could not
+have rejected the null at $0.05$ before scoring a single pair, because the
+smallest $p$ their own marginal permits already exceeds $0.05$. A separate
+four sit exactly on their marginal-implied ceiling: their observed agreement
+equals the best any labeller at that flag rate could achieve, so no
+retuning of that labeller at that marginal could have moved it further.
+\texttt{granite3.3:8b} zero-shot on the $299$-pair gold set flags $74.9$
+percent of the pool, and its observed Matthews correlation, $0.1183$, equals
+its ceiling to four decimal places. \texttt{llama3:8b} few-shot flags $94.5$
+percent on $G_{253}$, against a ceiling of $0.0540$ and an attainable floor of
+$0.497$: at that flag rate, no outcome the model could have returned would
+have cleared the conventional threshold.
+
+\begin{table}[H]
+\caption[The marginal feasibility gate, eight local labellers]{The marginal
+feasibility gate applied to every local labeller and prompt this chapter
+reports, on both gold denominators.}
 \centering
-\caption[The cell the replication design did not contain]{The replication of
-Section~\ref{sec:m-control-rq2} as a two-by-two in evaluation domain and
-labeller scale. Three cells were filled and carry the ratios shown. The fourth
-was never run, and with scale held fixed at eight billion parameters across all
-three labellers a clinical-versus-public difference could only be attributed to
-the domain. Every cell in this figure is on $G_{299}$, including the frontier
-one, which is why it reads $5.3333$; Table~\ref{tab:frontier253} reports the same
-two runs on $G_{253}$, where they read $4.00$ and $3.25$.}
-\includegraphics[width=0.9\linewidth]{figures/fig-missing-cell.pdf}
-\label{fig:missing-cell}
+\footnotesize
+\begin{tabular}{llrrrrrl}
+\toprule
+\textbf{Labeller} & \textbf{Basis} & \textbf{Flag rate} & \textbf{Obs.\ MCC} &
+\textbf{Ceil.\ MCC} & \textbf{Ceil.\ $\kappa$} & \textbf{Floor $p$} & \textbf{Verdict} \\
+\midrule
+\texttt{granite3.3:8b}, few-shot  & $G_{253}$ & 0.6957 & 0.0668 & 0.1476 & 0.0426 & 0.0114 & Could reject \\
+\texttt{granite3.3:8b}, few-shot  & $G_{299}$ & 0.7023 & 0.0586 & 0.1331 & 0.0348 & 0.0131 & Could reject \\
+\texttt{granite3.3:8b}, zero-shot & $G_{253}$ & 0.7391 & 0.1326 & 0.1326 & 0.0345 & 0.0242 & Could reject, at ceiling \\
+\texttt{granite3.3:8b}, zero-shot & $G_{299}$ & 0.7492 & 0.1183 & 0.1183 & 0.0276 & 0.0290 & Could reject, at ceiling \\
+\texttt{llama3:8b}, few-shot      & $G_{253}$ & 0.9447 & 0.0540 & 0.0540 & 0.0058 & 0.4971 & Could not reject, at ceiling \\
+\texttt{llama3:8b}, few-shot      & $G_{299}$ & 0.9398 & 0.0518 & 0.0518 & 0.0053 & 0.4679 & Could not reject, at ceiling \\
+\texttt{llama3:8b}, zero-shot     & $G_{253}$ & 0.8735 & 0.0290 & 0.0849 & 0.0143 & 0.1898 & Could not reject \\
+\texttt{llama3:8b}, zero-shot     & $G_{299}$ & 0.8729 & 0.0269 & 0.0780 & 0.0121 & 0.1894 & Could not reject \\
+\bottomrule
+\end{tabular}
+\apanote{Ceiling MCC and ceiling $\kappa$ hold every confirmed case inside the
+flagged set, the best table the two marginals permit; observed MCC is the
+labeller's actual score on the same rows. Floor $p$ is the smallest one-sided
+hypergeometric $p$ the marginal allows, read against this chapter's single
+threshold of $0.05$ (Section~\ref{sec:r-multiplicity}). Basis is $G_{253}$ or
+$G_{299}$ (Table~\ref{tab:denoms}). Every cell is generated from the local
+labellers' committed predictions, none is typed.}
+\label{tab:feasgate}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\caption[The agreement ceiling a labeller's marginal imposes]{Largest Cohen's
+kappa any thresholded labeller can reach against the pharmacist, as a function of
+its positive rate on the $299$ gold pairs. The curve is an identity of the two
+marginals, not a fit, so it carries no interval. Marked rows attain their own
+ceiling. A labeller emitting a score is not bounded this way, because its
+threshold can be swept.}
+\includegraphics[width=0.98\linewidth]{figures/fig-ceiling.pdf}
+\label{fig:ceiling}
 \end{figure}
 
-\begin{table}[H]
-\caption[Frontier labeller on the core evaluation set]{Frontier labeller on the
-253 non-ambiguous pairs, beside the systems already compared on that set.}
-\centering
-\small
-\begin{tabular}{lrrrrrr}
-\toprule
-\textbf{System} & \textbf{Flagged} & \textbf{Over-calling} & \textbf{Recall} &
-\textbf{FPR} & \textbf{Bal.\ acc.} & \textbf{MCC} \\
-\midrule
-Claude Sonnet 5, zero-shot     & $48$  & $4.00\times$  & $0.7500$ & $0.1618$ & $0.7941$ & $+0.3189$ \\
-Claude Sonnet 5, few-shot      & $39$  & $3.25\times$  & $0.5000$ & $0.1369$ & $0.6815$ & $+0.2137$ \\
-Claude Haiku 4.5, zero-shot    & $60$  & $5.00\times$  & $0.6667$ & $0.2158$ & $0.7254$ & $+0.2253$ \\
-Claude Haiku 4.5, few-shot     & $55$  & $4.58\times$  & $0.6667$ & $0.1950$ & $0.7358$ & $+0.2431$ \\
-ACCORD at $\tau = 0.5$         & $234$ & $19.50\times$ & $0.9167$ & $0.9253$ & $0.4957$ & $-0.0070$ \\
-\bottomrule
-\end{tabular}
-\apanote{Over-calling is the flagged rate divided by the confirmed rate of
-$12/253$ on the same set. Every Claude cell is computed from the committed
-prediction artifacts by a single released script rather than by hand;
-Appendix~\ref{app:provenance} gives the key for each value. At $234$ flagged against $12$ confirmed
-the detector over-calls by more than any labeller in this thesis. The balanced-accuracy column is added because it is the quantity the sensitivity argument of Section~\ref{sec:res-rq4} is read against, and it appeared in no table until this one; the two Haiku rows are here for the same reason, having previously been stated only in Chapter~\ref{ch:intro}. The four Claude rows are single draws from models that do not accept a
-temperature parameter, and ran at a larger token budget than the withdrawn rows
-did, which is one reason those rows could not simply have been carried forward
-with a note attached.}
-\label{tab:frontier253}
-\end{table}
-
-\begin{figure}[H]
-\centering
-\caption[Over-calling against labeller capability]{Upper panel: the over-calling
-ratio on $G_{299}$ for all seven labellers measured under the zero-shot prompt,
-ordered, with Wilson intervals. One denominator and one prompt condition
-throughout, so the rows are comparable. The solid rule is the pharmacist's $1.0$;
-the dashed rule is the public-text sweep's maximum of $3.5000$, a measured ceiling
-rather than a tolerance. Lower panel: the same rows read in pairs. Each bar is the
-factor by which the ratio moves when one thing changes and everything else is held
-fixed, so the three bar lengths are directly comparable and their ordering is the
-finding. Scaling a model within one family and one channel moves it most, changing
-the prompt next, and serving the same model remotely least, at about a tenth of
-what scaling costs. The channel bar is what closes the confound that
-Table~\ref{tab:capability}'s second row was run to measure.}
-\includegraphics[width=0.98\linewidth]{figures/fig-capability.pdf}
-\label{fig:capability}
-\end{figure}
-
-Table~\ref{tab:frontier253} gives the cells and Figure~\ref{fig:capability}
-places them against every other labeller measured here. Three things follow, and
-the first is a correction.
-
-The over-calling multiplier at frontier scale is $5.3333$ times the confirmed
-rate zero-shot and $4.5000$ times few-shot on $G_{299}$, which is the basis
-Table~\ref{tab:overcalling} and Figure~\ref{fig:capability} use for every
-labeller. On $G_{253}$, the basis this chapter's system comparisons use, the same
-two runs give $4.00$ and $3.25$ against that set's own confirmed rate. Both
-readings are reported because both are correct on their own set, and the $G_{299}$
-pair is quoted here because Section~\ref{sec:r-ambiguity} shows $G_{253}$ removes
-the rows this labeller is most likely to flag and therefore charges it less.
-
-Against $15.4167$ to $23.7500$ for the three 8B labellers on that same $G_{299}$
-set, the frontier values are lower by roughly three quarters, confirming that the
-attribution of magnitude to the pool's base rate in Section~\ref{sec:res-rq2} does
-not survive: the pool, the base rate and the prompt were all held constant and the
-multiplier moved anyway. Over-calling attenuates with capability. The direction
-transfers; the size is a property of the labeller.
-
-Second, this evaluation's resolution limit is no longer only a calculation. The
-minimum detectable effect derived for the twelve-positive evaluation is an AUROC
-of $0.7355$, and Section~\ref{sec:res-rq4} records three configurations sitting at
-chance beneath it. Claude Sonnet 5 zero-shot reaches a balanced accuracy of
-$0.7941$ on the same rows, and its Matthews correlation of $+0.3189$ carries an
-interval of $+0.1473$ to $0.4622$, which excludes zero where none of the four
-systems this pipeline produced does.
-The comparison is between a balanced accuracy and an area under a curve, and the
-identity that licenses it should be stated rather than left for a reader to supply:
-for a binary decision rule the area under its two-point curve equals the mean of its
-true-positive and true-negative rates, which is the balanced accuracy. So the two
-quantities are on one scale here. That an effect above the stated line would have been
-visible had one been present is therefore supported on the actual rows rather than
-argued from the class counts, and supported is the right word: one observation above a
-threshold set at eighty percent power is consistent with that power, not a
-demonstration of it.
-
-Third, the comparison that carries this is not the one on the twelve positives.
-Recall parity between $0.7500$ here and ACCORD's decontaminated mean is a
-difference of a fraction of one case and means nothing at this sample size. The
-false-positive rates, $0.1618$ against $0.9253$, are measured on $241$ clear
-negatives, and that is the best-powered comparison in this chapter.
-
-\subsection{The same control, applied to the rejection}
-\label{sec:r-defectfree}
-
-The asymmetry is worth stating before the numbers. Every row above is scored on
-$G_{253}$, which carries the Rule 1 and Rule 2 pairs the exemplar defect of
-Section~\ref{sec:r-exemplar} corrupts, so a reader is entitled to ask whether the
-separation those rows report is a property of the labellers or a property of a
-gold set in which some annotations were made against the wrong evidence.
-$G_{134}$ is the stratum built to answer exactly that, because Rule 3 selects the
-maximum-difference dose pair and Rule 4 has no discharge sentence to select, and
-the defect cannot fire on either. That stratum was constructed, and until now it
-was scored only where the answer was a null: Section~\ref{sec:res-rq4} restricts
-the control model and the contaminated released run to it, and the frontier
-comparison this section leads with was never restricted to it at all. Applying
-the strongest available control to the result that fails and not to the result
-that succeeds is the defect class this thesis exists to describe, and it was
-inside this chapter's headline. The control has now been run on the rejection and
-Table~\ref{tab:defectfree} is what it returned.
-
-Dropping the ambiguous rows from that stratum, as $G_{253}$ does from $G_{299}$,
-leaves $108$ pairs carrying $6$ confirmed contradictions. The positives halve
-against the $12$ every row above rests on, so wider intervals are the expected
-consequence of the restriction rather than a finding in it.
-
-\begin{table}[H]
-\caption[Frontier labellers on the defect-free stratum]{Every frontier labeller
-rescored on the defect-free stratum, $108$ pairs with $6$ confirmed
-contradictions, with the smallest $p$ each row's margins could have returned.}
-\centering
-\small
-\begin{tabular}{lrrlrr}
-\toprule
-\textbf{Labeller} & \textbf{Flagged} & \textbf{MCC} & \textbf{95\% CI} &
-\textbf{$p$} & \textbf{Attainable floor} \\
-\midrule
-Claude Sonnet 5, zero-shot  & $25$ & $0.2502$ & $0.0$ to $0.458$        & $0.0248934$ & $9.25503 \times 10^{-5}$ \\
-Claude Sonnet 5, few-shot   & $13$ & $0.283$  & $-0.0517$ to $0.5664$   & $0.0224207$ & $8.96761 \times 10^{-7}$ \\
-Claude Haiku 4.5, zero-shot & $30$ & $0.2106$ & $-0.0216$ to $0.4057$   & $0.0491266$ & $0.0003103$ \\
-Claude Haiku 4.5, few-shot  & $17$ & $0.3392$ & $0.0402$ to $0.5818$    & $0.00539393$ & $6.46755 \times 10^{-6}$ \\
-Llama 3 70B, zero-shot      & $44$ & $0.0457$ & $-0.1441$ to $0.2302$   & $0.685890$ & $0.00368897$ \\
-Llama 3 70B, few-shot       & $23$ & $0.17$   & $-0.0806$ to $0.4021$   & $0.10948$  & $5.27537 \times 10^{-5}$ \\
-Llama 3 8B, zero-shot       & $87$ & $0.017$  & $-0.1873$ to $0.1437$   & $1.0$      & $0.263897$ \\
-Llama 3 8B, few-shot        & $87$ & $0.017$  & $-0.1873$ to $0.1437$   & $1.0$      & $0.263897$ \\
-\bottomrule
-\end{tabular}
-\apanote{One set throughout, the defect-free stratum with its ambiguous rows
-dropped, $108$ pairs and $6$ positives, so the rows are comparable to each other
-and not to Table~\ref{tab:mcc}, which is scored on $253$ pairs and $12$
-positives. The $p$ column is the two-sided exact conditional test. C85
-established exactness for these tables, against a rank test that was anti-conservative on a
-binary vector, and C92 separately settled the tail: the family reads the two-sided value for
-every row, because the agreement of the two tails is an accident of particular margins rather
-than a property of the test. An earlier version of this table printed one-sided values and
-cited C85 as its authority, which was the correction that established exactness and not the one
-that settled the tail. On this stratum the two agree for the four Anthropic rows and for
-Llama 3 70B few-shot and diverge for the other three, so a mixed column would have compared
-unlike quantities across the cross-vendor rows this section reads. The attainable floor is the smallest $p$ that
-row's margins could return with every one of the $6$ confirmed cases inside its
-flagged set, so a floor above the threshold a row is read against means the row
-could not have cleared it whatever the labeller knew. Intervals are percentile
-bootstraps on the same convention as Table~\ref{tab:mcc}. The two Llama 3 8B
-rows are identical in every column, which is a property of the retained
-prediction artifacts on these rows rather than a value carried across.}
-\label{tab:defectfree}
-\end{table}
-
-The effect sizes survive. The four Anthropic Matthews correlations on the clean
-stratum, $0.2502$, $0.283$, $0.2106$ and $0.3392$, sit in the same band as the
-$+0.3189$, $+0.2137$, $+0.2253$ and $+0.2431$ Table~\ref{tab:mcc} reports for the
-same four runs on $G_{253}$, and the capability ordering is unchanged in kind:
-both Llama 3 70B rows and both Llama 3 8B rows stay far below them, the 8B rows
-at effectively zero. What that does and does not show needs care, because the
-obvious reading is one this chapter forbids elsewhere. Nothing here suggests the
-exemplar defect manufactured the effect, and that is not the same as showing it
-did not. Four point estimates on six positives, with intervals running from below
-zero to above one half, cannot carry a claim of no difference between strata. The
-statement this chapter makes is the narrow one: the effect survives the control
-and the evidence for it does not.
-
-Statistical significance does not survive, and the failure is not an underpowering
-excuse. No row in Table~\ref{tab:defectfree} clears the corrected threshold of
-$0.0017$ that Section~\ref{sec:r-multiplicity} derives. The best of them, Haiku
-few-shot at $0.00539393$, misses by a factor of about three. The attainable floors
-are what make that a genuine failure to clear: five of the eight rows carry floors
-orders of magnitude below the threshold, the four Anthropic rows at
-$9.25503 \times 10^{-5}$, $8.96761 \times 10^{-7}$, $0.0003103$ and
-$6.46755 \times 10^{-6}$ and Llama 3 70B few-shot at $5.27537 \times 10^{-5}$.
-Those rows had the margins to reject at the corrected threshold and did not. Only
-the two 8B rows, at floors of $0.263897$, and Llama 3 70B zero-shot, at
-$0.00368897$, are incapable of rejection before the model sees a pair, and they
-are silent rather than negative.
-
-At the conventional $0.05$, which is the threshold this thesis actually applies
-because Section~\ref{sec:r-multiplicity} states plainly that no correction is
-used anywhere in it, all four Anthropic rows clear: $0.0248934$, $0.0224207$,
-$0.0491266$ and $0.00539393$. Neither Llama row does. Read against zero rather
-than against a threshold the picture is thinner still, and that is the honest
-reading of the halved positive count: only Haiku few-shot has an interval that
-excludes zero, from $0.0402$ to $0.5818$, and Sonnet zero-shot's lower bound sits
-at $0.0$, which touches zero and does not exclude it.
-
-What the control establishes is therefore narrow and two-sided. The effect is
-there on pairs the defect cannot have touched, at magnitudes comparable to the
-ones this chapter leads with, and on that stratum it is significant only at an
-uncorrected threshold. Adding these eight tests to the family
-Section~\ref{sec:r-multiplicity} enumerates would tighten the corrected threshold
-rather than loosen it, so the verdict above does not depend on the family count,
-which is the one direction that needs no arithmetic to check.
-
-One coincidence in the table needs stating so a reader does not read it as a transcription error. The two Llama 3 8B rows carry identical cells in every column. The two conditions are not identical: they disagree on twelve of these pairs. Six of those flips run each way and they cancel exactly, so the confusion matrix, and therefore every statistic computed from it, coincides while the underlying predictions do not. It was checked as a possible fault in the generator and is not one.
-
-\subsection{Whether capability or vendor orders the over-calling}
-\label{sec:r-capability}
-
-The ordering above has a confound that the design as first run could not remove.
-Every low-capability point in it is an open-weights model served locally and every
-high-capability point is a hosted API from one vendor, so capability, vendor and
-serving channel vary together, and a reader is entitled to attribute the step to
-any of the three. The test that separates them holds the family and the maker
-fixed and varies the channel: \texttt{meta.llama3-70b-instruct-v1:0} on AWS
-Bedrock against the \texttt{llama3:8b} already measured locally. Bedrock is one of
-the routes named in the guidance discussed in Section~\ref{sec:m-ethics}, the
-account is the author's own, and the decision rule was committed before any pair
-was sent, with the window and the three outcomes fixed in advance, in the convention
-Table~\ref{tab:m-prereg} sets for the pretraining control.
-
-Both conditions ran once over the $300$ pairs with no restart, returning no
-unparseable reply and no pair without a usable draw. On $G_{299}$, zero-shot, the
-over-calling ratio is $10.5000$. That falls inside the pre-registered window, so
-the ordering survives holding vendor and family constant:
-
-\begin{table}[H]
-\centering
-\small
-\caption[Over-calling by labeller, one denominator and one prompt]{Over-calling
-ratio on the $299$ labelled pairs, zero-shot, for the five labellers this
-comparison turns on. Two further 8B labellers measured on the same set and prompt,
-at $18.5000$ and $15.4167$, are omitted here because they add points to the 8B
-cluster without bearing on the factor separation; Figure~\ref{fig:capability}
-plots all seven.}
-\begin{tabular}{llr}
-\toprule
-\textbf{Labeller} & \textbf{Channel} & \textbf{$G_{299}$ zero-shot ratio} \\
-\midrule
-\texttt{llama3:8b}                      & Local                & 23.7500 \\
-\texttt{meta.llama3-8b-instruct-v1:0}   & AWS Bedrock          & 21.6667 \\
-\texttt{meta.llama3-70b-instruct-v1:0}  & AWS Bedrock          & 10.5000 \\
-Claude Haiku 4.5                        & Hosted API           & 6.2500 \\
-Claude Sonnet 5                         & Hosted API           & 5.3333 \\
-\bottomrule
-\end{tabular}
-\apanote{One denominator throughout, the $299$ labelled pairs of Table~\ref{tab:denoms}, and one prompt condition, so the rows are comparable. Three of the five rows are one model family at two parameter counts on two serving channels, which is what lets the factors be read separately: rows two and three differ only in scale and give $2.0635$, rows one and two differ only in serving channel and give $1.0038$. That figure was $1.0962$ until C94 re-ran the local row under the same template the hosted rows use; the earlier value was an upper bound confounded with a prompt difference and is superseded rather than corrected, because the quantity it estimated was never the one it was read as. An earlier version of this note quoted $2.2619$ here as the scale-only step; that figure is rows one against three, which differ in both, so it was a compound of the two, superseded by the pair above, and survives in the record as the figure C68 reported before the channel was controlled. Row two is the same family and maker as row one at the same parameter count, served through the same channel as row three, so the pair (row 1, row 2) isolates the channel and the pair (row 2, row 3) isolates capability, run under its own committed rule and returning the outcome that leaves the capability reading intact.}
-\label{tab:capability}
-\end{table}
-
-Three factors move this quantity and the table above, read in pairs, separates
-them. Holding family, maker and channel fixed and changing only scale, the step
-from eight billion parameters to seventy is $2.0635$. Holding family, maker and
-scale fixed and changing only the serving path, the step from local to hosted is
-$1.0038$. Holding everything fixed but the prompt, the 70B moves by $1.6800$: its
-few-shot ratio on the same set is $6.2500$, which is not merely inside the frontier
-band but exactly Haiku's zero-shot value and above Sonnet's.
-
-The channel figure was $1.0962$ until this section's own disclosure was acted on,
-and the correction is the point rather than a footnote. The local row was run under
-a different prompt from the four hosted rows, which this chapter recorded and which
-made the channel step an upper bound confounded with a prompt difference larger than
-itself. Re-running the same model locally under the same template the hosted rows
-used, which needed no new data, no hosted call and no approval, separates them. The
-serving path is then worth $1.0038$: local and hosted serving of one model family at
-one scale differ by four parts in a thousand. Almost the whole of the apparent
-channel effect was the prompt. The pre-registration committed in advance to
-reporting the reverse outcome, that a clean channel term exceeding $1.6800$ would
-make the ordering below wrong as written, and it does not.
-
-So the ordering is capability first, prompt second, channel third, and it is now
-measured rather than bounded at the third term. The middle term is the one worth
-stating plainly because it was not anticipated: a change of prompt moves one model
-further than a change of serving path moves it, and further than some steps in
-capability. The serving path, once the prompt is held fixed, moves it almost not at
-all.
-
-One qualification travels with the new figure and is not optional. The local build
-is a four-bit quantisation and the hosted serving precision is not published, so the
-two members of that pair still differ in numerical precision as well as in serving
-path. The $1.0038$ therefore bounds channel and precision together, and a net factor
-this close to unity is also consistent with two larger effects that cancel. What the
-run establishes is that whatever those two do jointly, they do not reach this
-decision rate by more than a fraction of a percent. The attenuation claim in
-Chapters~\ref{ch:intro} and~\ref{ch:discussion} is scoped to a fixed prompt for the
-second of these reasons, not the third.
-
-A third local model was run under the same template and is reported in the ladder at
-$18.6667$. A fourth was started and did not finish: the machine serving these models
-holds sixteen gigabytes and its memory manager stopped that run twice, once in a
-batch and once alone. Its rung is recorded as absent in the generated ladder rather
-than dropped from it, and no partial run was spliced in to fill the gap, which the
-committed rule for this experiment requires. Nothing in the decomposition above
-depends on it: the channel step is one model against itself across two serving
-paths, and both of those runs completed.
+What the gate does not do is replace the discrimination tests reported
+elsewhere in this chapter; it is read beside them, as a check on what a table
+could have shown before it is read as showing it. A labeller whose floor sits
+above the threshold, \texttt{llama3:8b} at both prompts here, was never going
+to distinguish itself from chance at this marginal, and a labeller sitting on
+its ceiling was already reporting the most agreement its flag rate allows,
+whatever it actually knew about the pairs.
 
 \subsection{What the false positives land on}
 \label{sec:r-ambiguity}
 
-The false positives are not distributed evenly across the pairs the
-pharmacist declined to call contradictions. Of the $46$ pairs marked ambiguous,
-$16$ are flagged, a rate of $0.3478$; of the $241$ clear negatives, $39$ are
-flagged, a rate of $0.1618$. The odds ratio is $2.76$ with a one-sided Fisher
-$p$ of $0.0046$. The few-shot run shows the same gradient at $15$ of $46$ against $33$ of $241$, an
-odds ratio of $3.05$ and $p$ of $0.0029$. That is not an independent replication:
-it is the same model on the same items under a different prompt, and the two
-decision vectors agree on most pairs, so the second $p$ value carries much less
-than its face value.
-
-The gradient was then put to six replication attempts on three further labellers,
-and the result is mixed. Claude Haiku
-4.5 reproduces it under few-shot prompting at an odds ratio of $2.9046$ and
-$p = 0.0019$, which is the smallest of the six $p$ values and close to Sonnet's
-$3.0499$, so the gradient is not one model's quirk. Under zero-shot prompting the
-same model returns $1.7587$ at $p = 0.0790$. A Llama 3 70B run through AWS Bedrock,
-the within-vendor comparison of Section~\ref{sec:r-capability}, reaches neither:
-$1.6756$ at $p = 0.0996$ few-shot and $1.2257$ at $p = 0.3190$ zero-shot. The
-weakest of the four, the hosted 8B, shows no gradient at all, and in the zero-shot
-condition shows a reversal nowhere near significance: $0.8224$ at $p = 0.7551$
-zero-shot and $1.0779$ at $p = 0.5598$ few-shot. So the
-odds ratio falls as the labeller gets weaker, at both prompts, and the two weakest
-measurements have intervals containing $1$.
-
-That ordering cuts against the reading Section~\ref{sec:m-gold} assumed. If the
-ambiguous category tracked evidential difficulty in the items, a weaker labeller
-should find those pairs at least as hard as a stronger one does, and the gradient
-should not fade with capability. It fades monotonically. What the six tests
-support is that the more capable labellers concentrate their false positives on
-the pairs the pharmacist declined to call, and the weakest one spreads them more
-evenly, which is a statement about labellers rather than about items. The
-correlational claim below is scoped to that, and the multiplicity consequence is
-worse than the scoping: reporting these six tests takes the family of
-Section~\ref{sec:r-multiplicity} from sixteen to twenty-two, and at that stage's threshold
-the only gradient test that clears correction is Haiku's few-shot one. Sonnet's
-two, including the $0.0046$ this section leads with, do not.
-
-Eight tests across four labellers, measured on $287$ negatives rather than on 12
-positives, support a correlational reading about labellers, not items: the
-pairs the pharmacist declined to call either way are the pairs the more capable
-labellers are most likely to flag, and the least capable one does not distinguish
-them. This does not establish that those pairs are intrinsically harder; a gradient
-measured on one labeller's flags cannot separate a property of the items from a
-property of the labeller, and the fact that the gradient weakens as the labeller
-weakens is evidence against the first reading rather than for it.
-
-One confound is not controlled and bounds all eight tests in the same direction: an
-odds ratio is compressed toward $1$ as a labeller's marginal saturates, and these
-labellers are nowhere near sharing a marginal, the weakest flagging roughly seven
-eighths of $G_{299}$ where the strongest flags about a sixth. So part of the monotone
-fade is arithmetic rather than behavioural, and this thesis cannot say how much
-without recomputing the gradient at matched predicted-positive rates, which was not
-done; that is the degeneracy precondition this thesis offers as a contribution,
-applied here to its own analysis.
-
-\subsection{What this does not establish}
-
-The magnitude does not generalise, and the public-text sweep is the control that
-says so: a mismatch measured on this task at this base rate is not evidence about
-what a language labeller does at a base rate ten times higher. What generalises
-is the mechanism, that an instruction-tuned labeller carries a class prior which
-does not track the task's base rate, and the prescription that follows, which is
-to measure the marginal against a human-labelled sample first. Nothing here shows
-the labeller reasons badly about medication conflict; its recall on the 12
-confirmed contradictions is high in most configurations measured, though not in
-all of them: the frontier few-shot run recalls $0.5000$, the same figure this
-chapter treats as a failure elsewhere. The failure is
-calibration, invisible to any evaluation that does not report the marginal.
-
-Two limits bound the frontier row specifically. Its labels are single draws from a
-model whose decoding cannot be pinned, so its recall, resting on 12 positives, is
-one flip away from moving by $8.33$ points in either direction; that figure should
-be read as a single sample and not as a fixed property of the model. And no
-contamination check was run against it, nor against any hosted-model row in this
-thesis. Memorised note text conveys no information about labels that exist only in
-this project's own annotation file, so contamination is an unlikely explanation for
-the gap reported here, but it is unmeasured and is named as such.
+Whether the more capable labellers concentrate their false positives on the
+pairs the pharmacist declined to call, rather than spreading them evenly across
+the $287$ non-confirmed pairs, was tested by replicating a gradient across four
+hosted labellers under two prompts each. Every one of those eight tests was run
+through the Anthropic API or AWS Bedrock, so every odds ratio, every $p$ value,
+and the gradient itself are withdrawn with the runs that produced them
+(Section~\ref{sec:r-frontier}). No local labeller was put to this test, so this
+chapter does not establish whether the ambiguous pairs are disproportionately
+flagged by capable labellers, by weak ones, or by neither. The one confound
+that would have bounded any surviving reading, that an odds ratio compresses
+toward $1$ as a labeller's marginal saturates, is recorded here because it
+would still apply if the question were re-run on labellers this thesis can
+report on.
 
 \subsection{What the instability costs, and what it does not}
 \label{sec:r-labelnoise}
 
-The bootstrap behind every interval in this chapter resamples pairs with the
-labels held fixed. For a labeller whose labels are themselves draws, that
-measures pair-sampling uncertainty and omits the rest, so the frontier intervals
-above are narrower than the truth. The direct remedy, re-running every pair
-several times, buys little here: the binding constraint is $12$ positives, not the
-number of draws, and at that sample size the pair-sampling term alone already
-carries a standard deviation of $0.0525$ among the zero-shot draws that fall
-below the point estimate against $0.0449$ among those above it. The interval is
-not symmetric about its point estimate and is therefore carried arm by arm
-throughout.
-
-The question worth asking instead is how unstable the labels would have to be
-before a conclusion changes. The mechanism is simulated directly rather than
-linearised: resample the $253$ pairs, then flip each predicted label
-independently with probability $p$, and recompute the Matthews correlation, at
-$B = 10{,}000$ draws per value of $p$. Both terms the mechanism produces
-therefore travel, the widening of the interval and the shift of its centre.
-
-An earlier version of this analysis carried only the first. It held the point
-estimate at the value the run put it and added the binomial variance of the flip
-count through a per-flip central difference at the observed matrix. That
-construction is wrong in the direction that flatters the result: flipping labels
-does not merely widen the interval, it destroys the association, and the shift of
-the centre is the dominant term. At $p = 0.5$, where every label is an
-independent fair coin and the Matthews correlation is necessarily centred on
-zero, it reported an interval of $+0.0829$ to $+0.5353$ and the conclusion that
-the zero-shot result survives the fair-coin worst case. The simulation returns
-$-0.1223$ to $+0.1226$ at that point, with a mean of $+0.0001$ and the statistic
-at or below zero in $0.502$ of draws, which is the fair coin behaving as a fair
-coin. The earlier conclusion was an artifact of the missing term and is
-withdrawn; the correction is recorded as C69.
-
-Figure~\ref{fig:labelnoise} sweeps $p$ for both runs. Neither run survives
-arbitrary instability, and the question is how much each tolerates. The
-zero-shot interval admits zero once $p$ reaches $0.245$: roughly one label in
-four would have to flip between draws before its exclusion of zero fails. The
-few-shot interval admits zero at $0.083$, roughly one in twelve. So the two runs
-differ by a factor of about three in how much label instability they
-tolerate, and both bounds are assumptions about a quantity this thesis did not
-measure for Sonnet, which does not accept a temperature parameter and was drawn
-once per pair.
-
-What that supports is narrow. The zero-shot exclusion of zero holds under label
-instability up to $0.245$ and not beyond it. The few-shot exclusion, whose
-interval at $p = 0$ runs from $+0.0309$, holds only under an assumption of
-near-stable labels that this run cannot support, so the few-shot value is
-reported as positive but not as distinguishable from chance, and no claim in this
-thesis rests on it. Neither figure is a posterior over the underlying value. Each
-is the behaviour of one interval under one stated noise mechanism, and the
-mechanism, independent flips at a constant rate, is itself an assumption: a model
-whose errors concentrate on the ambiguous pairs, which Section~\ref{sec:r-ambiguity}
-gives reason to expect of this one, would not flip labels independently, and
-nothing here bounds what that would do.
-
-
-\begin{figure}[H]
-\centering
-\caption[Matthews interval against assumed label instability]{The $95$ percent
-Matthews interval for each frontier run as a function of $p$, the assumed
-probability that any one label flips between draws, one panel per run so that
-neither band occludes the other. Both the interval and its centre move with $p$:
-the mechanism is simulated directly, resampling pairs and flipping labels
-jointly at $B = 10{,}000$ draws per value of $p$, rather than propagating the
-variance of the flip count about a fixed point estimate. The zero-shot interval
-admits chance at $p = 0.245$ and the few-shot interval at $p = 0.083$. At
-$p = 0.5$, where every label is an independent fair coin, both are centred on
-zero, which is what that configuration requires. This is the behaviour of an
-interval under one stated noise mechanism and not a posterior over the
-underlying value.}
-\includegraphics[width=0.98\linewidth]{figures/fig-labelnoise.pdf}
-\label{fig:labelnoise}
-\end{figure}
+A label-instability analysis was run on the frontier labeller's per-pair
+draws, asking how much a Matthews correlation would move if individual labels
+flipped at random. Every cell that analysis read from is a hosted-API result
+and is withdrawn along with it (Section~\ref{sec:r-frontier}); no equivalent
+instability bound is reported for a local labeller in this thesis, because the
+open-weights runs were single deterministic draws under greedy decoding rather
+than a resampled distribution over labels.
 
 \section{Architecture}
 \label{sec:res-rq3}
@@ -958,19 +614,7 @@ severity-ranking question was therefore not tested here, and any null reported
 against that head measures an untrained module rather than the underlying
 question.
 
-Figure~\ref{fig:falsification} draws the parameter trajectories.
 
-\begin{figure}[!ht]
-
-\centering
-\caption[The authority parameters falsified]{Each authority scale parameter from
-its initialisation to its final value, with the three seeds. The rule-type head's
-transfer result, which an earlier version of this figure carried as a second
-panel, is now Table~\ref{tab:transfer}: those scores have no committed interval
-and were the one quantity in this set drawn as a bar with no sampling spread.}
-\includegraphics[width=0.98\linewidth]{figures/fig-falsification.pdf}
-\label{fig:falsification}
-\end{figure}
 
 \subsection{Three controls that fired positively}
 
@@ -1009,7 +653,7 @@ Segment-index bias         & 3.4078 & 0.0225 & -0.9476 & 100\%   & 3 \\
 Hard block mask, fixed     & 3.2772 & 0.0124 & -1.0782 & 113.8\% & 3 \\
 \bottomrule
 \end{tabular}
-\apanote{Mean validation loss and its standard deviation are given for each arm, together with the change against the vanilla arm and its share of the segment-index arm's reduction. The share column is each arm's loss reduction expressed as a percentage of the segment-index arm's reduction, the largest gain among the three-seed additive-bias arms; it is not defined for the global-positions row, which increases loss relative to vanilla rather than reducing it. Seed spreads on the seven three-seed rows run from $0.0023$ to $0.0293$ nats against effects from $0.2520$ to $1.0782$ nats, so every ordering among those seven is resolved well outside seed noise. The three single-seed rows carry no seed spread and are shown for completeness rather than as matched comparisons.}
+\apanote{Mean validation loss and its SD are given per arm, with the change against vanilla and its share of the segment-index arm's reduction, the largest gain among the three-seed arms; the share is undefined for the global-positions row, which increases loss relative to vanilla. Seed spreads on the seven three-seed rows run from $0.0023$ to $0.0293$ nats against effects from $0.2520$ to $1.0782$ nats, so every ordering among them is resolved well outside seed noise. The three single-seed rows carry no spread and are shown for completeness only.}
 \end{table}
 
 Two rows in Table~\ref{tab:ablation} are stated here as a finding, not as a
@@ -1088,8 +732,9 @@ pairwise combinations against $1{,}956$ matched pairs, so this is not a like-for
 unpaired comparison either. What survives is the effect size, the
 pooled-standard-deviation Cohen's $d$ of $0.2808$, a small effect by conventional
 benchmarks, which does not depend on the degrees of freedom; nothing here rests on
-the $p$ value, and Section~\ref{sec:r-multiplicity} notes what that means for the
-one test in this thesis that clears correction. Equality is therefore not claimed.
+the $p$ value, which Section~\ref{sec:r-multiplicity} reads at the single
+uncorrected threshold this chapter applies throughout, not as a result that has
+cleared anything. Equality is therefore not claimed.
 What is claimed is that the difference is small against the spread the same
 extraction path produces on unrelated text, which ranges from $0.8528$ to
 $0.9565$: unrelated non-clinical sentence pairs
@@ -1168,7 +813,7 @@ Mean         &    &     &   &    & 0.0424 & 0.7778 & $-0.0105$ & 0.8015 \\
 SD           &    &     &   &    & 0.0023 & 0.0393 & 0.0048 & 0.0226 \\
 \bottomrule
 \end{tabular}
-\apanote{Threshold $0.5$, the configured decision point. Each row sums to $253$. This is the operating behaviour that Chapter~\ref{ch:intro} calls the cleanest single expression of the failure and that Section~\ref{sec:disc-limits} relies on to say the system should not be deployed, and an earlier version of this chapter reported only the ranking metrics of Table~\ref{tab:decontam} and left the operating point to be quoted in three other chapters from a correction entry. Precision at $0.0424$ sits $0.0051$ below the set's confirmed rate of $0.0474$, and that margin is smaller than the base rate's own binomial standard error of $0.0134$, which is why Section~\ref{sec:disc-null} reads it as indistinguishable from the base rate. Recall is high because the detector is near-degenerate rather than because it discriminates: it returns a positive for between $207$ and $216$ of the $241$ clear negatives. The expected calibration error above $0.78$ in every seed is what a near-constant positive prediction produces against a $4$ percent event, and $\kappa$ below zero in every seed is agreement worse than chance once the marginal is accounted for. Standard deviations are over the three seeds at $\mathrm{ddof} = 0$, the population convention, which is what the aggregate artifact computes and is the same convention as Table~\ref{tab:decontam}; the sample convention of Table~\ref{tab:control299} would give $0.0028$, $0.0481$, $0.0058$ and $0.0277$, and the two are not compared against each other anywhere in this chapter.}
+\apanote{Threshold $0.5$; each row sums to $253$. Precision at $0.0424$ sits $0.0051$ below the set's confirmed rate of $0.0474$, smaller than the base rate's binomial standard error of $0.0134$, so it is not distinguishable from the base rate. Recall is high because the detector is near-degenerate: it returns positive for $207$ to $216$ of the $241$ clear negatives. Expected calibration error above $0.78$ and $\kappa$ below zero in every seed reflect that. Standard deviations use $\mathrm{ddof} = 0$ (Section~\ref{sec:m-stats}); Table~\ref{tab:control299} uses the sample convention and the two are not compared.}
 \label{tab:operating}
 \end{table}
 
@@ -1198,7 +843,7 @@ $G_{134}$ & Control model, per-seed mean $\pm$ SD & \multicolumn{4}{l}{$0.5295 \
 $G_{134}$ & ACCORD, contaminated released run & 0.5078 & 0.0555 & 0.5092 & 0.1368 \\
 \bottomrule
 \end{tabular}
-\apanote{Bootstrap columns are the mean and standard deviation over $B = 10{,}000$ resamples at seed $20{,}260{,}806$ \citep{efron1994bootstrap}. The four control-model rows come from the defect-free control model of Section~\ref{sec:m-control-model}, run at three seeds under an asserted subject-disjoint split. The two ACCORD rows are not a control configuration and are not decontaminated: they are the contaminated released run of Tables~\ref{tab:rule-precision}, \ref{tab:marginal} and \ref{tab:systems253}, rescored on these two sets, and its $G_{253}$ counterpart is the $0.4595$ in the last row of Table~\ref{tab:decontam}. It is printed here because it is the only ACCORD score that exists on $G_{134}$ and because the DeLong tests in Table~\ref{tab:delong} are comparisons against it. The per-seed standard deviation is computed at $\mathrm{ddof} = 1$, the sample convention (Section~\ref{sec:m-stats}), which differs from the $\mathrm{ddof} = 0$ convention used for Table~\ref{tab:decontam}; the two are not compared against each other.}
+\apanote{Bootstrap columns are the mean and SD over $B = 10{,}000$ resamples at seed $20{,}260{,}806$ \citep{efron1994bootstrap}. The four control-model rows are the defect-free control model of Section~\ref{sec:m-control-model}, three seeds, subject-disjoint split. The two ACCORD rows are the contaminated released run of Tables~\ref{tab:rule-precision}, \ref{tab:marginal} and \ref{tab:systems253}; its $G_{253}$ counterpart is the $0.4595$ in Table~\ref{tab:decontam}. It is the only ACCORD score on $G_{134}$, and Table~\ref{tab:delong}'s DeLong tests compare against it. Per-seed SD uses $\mathrm{ddof} = 1$ (Section~\ref{sec:m-stats}), unlike Table~\ref{tab:decontam}'s $\mathrm{ddof} = 0$; the two are not compared.}
 \label{tab:control299}
 \end{table}
 
@@ -1225,27 +870,26 @@ correlation attainable at any cutoff whatever, chosen with the pharmacist's labe
 hand. On $G_{253}$ it is $0.0554$ on the contradiction probability and $0.0631$ on the harm
 score.
 
-Those two figures must not be read against zero, and an earlier version of this paragraph read
-them that way. A statistic maximised over a tuning parameter on the same sample it is
-evaluated on is not centred at zero under the null: the maximum of a noisy process is
-positive by construction. The reference is the same maximisation run on random scores at this
-sample size and this positive count, which has a median of $0.0968$. Against that null the
-observed optima sit at the $0.8195$ and $0.7642$ points, so the best cutoff that exists
-performs worse than roughly four in five pure-noise runs. The conclusion is the one the
-paragraph reached before, and it is stronger stated this way: no threshold rescues this
-detector, and the operating point in Table~\ref{tab:operating} is not an unlucky choice of
-one. The harm-score optimum rests on two true positives and is quoted only as a bound.
+Those two figures must not be read against zero. A statistic maximised over a
+tuning parameter on the same sample it is evaluated on is not centred at zero
+under the null: the maximum of a noisy process is positive by construction.
+The reference is the same maximisation run on random scores at this sample
+size and this positive count, which has a median of $0.0968$. Against that
+null the observed optima sit at the $0.8195$ and $0.7642$ points, so the best
+cutoff that exists performs worse than roughly four in five pure-noise runs:
+no threshold rescues this detector, and the operating point in
+Table~\ref{tab:operating} is not an unlucky choice of one. The harm-score
+optimum rests on two true positives and is quoted only as a bound.
 
-These figures come from the released score file, not from the three-seed run behind
-Table~\ref{tab:operating}, and those are different models: the table reports the
-decontaminated detector and the released file is the contaminated release the ranking results
-also use. A reader recomputing the operating point from the released file will get a
-different number for that reason. An earlier version of this paragraph presented the
-difference as an unresolved disagreement about the direction of the degeneracy, which
-mis-stated it twice over: the two artifacts are different models rather than two readings of
-one, and within the released file the harm score at $0.5$ is a near-constant positive like
-the table, so the direction is not even consistent across decision variables within one file.
-Both are degenerate, neither discriminates, and no claim here turns on which.
+These figures come from the released score file, not from the three-seed run
+behind Table~\ref{tab:operating}, and those are different models: the table
+reports the decontaminated detector and the released file is the contaminated
+release the ranking results also use. A reader recomputing the operating point
+from the released file will get a different number for that reason. Within
+the released file the harm score at $0.5$ is a near-constant positive like the
+table, so the direction is not even consistent across decision variables
+within one file. Both are degenerate, neither discriminates, and no claim
+here turns on which.
 
 \subsection{The paired comparison}
 
@@ -1325,7 +969,7 @@ $G_{299}$ & 12 & 287 & 0.0852 & 0.2350 & 0.7350 \\
 $G_{134}$ & 6  & 128 & 0.1210 & 0.3058 & 0.8058 \\
 \bottomrule
 \end{tabular}
-\apanote{$\alpha = 0.05$, power $0.8$. The SE column is the simple null-standard-error approximation. The Gap and Min.\ detectable columns follow the full \citet{hanley1982meaning} procedure: the earlier stored value of $0.7382$ for $G_{253}$ did not reproduce under either the simple formula or the full procedure and is superseded. The gap column is the distance above chance the evaluation could resolve.}
+\apanote{$\alpha = 0.05$, power $0.8$. The SE column is the simple null-standard-error approximation. The Gap and Min.\ detectable columns follow the full \citet{hanley1982meaning} procedure (superseded value: R9). The gap column is the distance above chance the evaluation could resolve.}
 \label{tab:power}
 \end{table}
 
@@ -1368,216 +1012,73 @@ informative about true AUROC values at or above $0.7355$ and silent below that l
 \subsection{Multiplicity, and what is not corrected for}
 \label{sec:r-multiplicity}
 
-This chapter reports thirty hypothesis tests. The family is enumerated in a
-committed register released with the analysis code, one entry per test, each bound
-to the artifact and key its $p$ value is read from, and the count and every
-threshold derived from it are computed from that list rather than typed here: five
-Mann-Whitney tests in Table~\ref{tab:decontam}, five DeLong tests in
-Table~\ref{tab:delong}, eight Fisher exact tests on the frontier labels of
-Section~\ref{sec:r-frontier}, one Fisher exact test on the mechanism split, eight
-one-sided Fisher exact tests on the ambiguity gradient of
-Section~\ref{sec:r-ambiguity}, two for each of the four labellers asked, one
-Welch two-sample $t$ test on the anisotropy control, two Spearman rank
-correlations against the pharmacist's danger rating, one reported above and one
-reported for the first time at the end of this subsection. Earlier drafts of this subsection stated fourteen and
-enumerated a family that omitted the ambiguity-gradient tests entirely; the
-correction, and why the direction of the error matters, is recorded as C68. The
-count then moved from sixteen to twenty when the gradient was put to replication,
-from twenty to twenty-two when a fourth labeller's two tests were found to have
-been computed and left out of the family, and from twenty-two to twenty-six when the
-four Mann-Whitney tests on the frontier labels were found to be outside a family this
-subsection called exhaustive, and from twenty-six to thirty when four discrimination tests on
-the Bedrock labellers were found already computed, committed, and outside a family this
-subsection again called exhaustive. Those are recorded as C76, C79 and C92. A twenty-seventh
-entry was briefly added and removed in between: the two-by-two on joinability in
-Section~\ref{sec:r-exemplar} was counted here and does not belong, because a family is defined
-by inferential target and that one's target is this project's own bookkeeping rather than any
-claim about labellers or contradictions. C90 records the ground for that removal. The same rule
-is what put the Bedrock four in: their target is identical to the four already here. It
-also reports ten interval estimates read
-against a null value, zero for the six Matthews correlations of Table~\ref{tab:mcc} and for the
-two pretraining gaps, and $0.5$ for the two AUROCs; five of the ten fail to exclude that null,
-the exceptions being the AG News gap and the four frontier rows. That interval count has moved four
-times. It was eight before the frontier comparison of Section~\ref{sec:r-frontier} was added, ten
-after, eight again once two superseded rows were removed, and ten again when the two Haiku rows were added to
-Table~\ref{tab:mcc}, which is where they should have been from the point Chapters~\ref{ch:intro}
-and~\ref{ch:discussion} began reading one of them against zero. Figure~\ref{fig:forest} plots the
-eight that predate the Haiku rows.
-\textbf{No multiple-comparison correction is applied anywhere in this thesis, and none of the
-reported $p$ values should be read as if one had been.} Were the thirty tests independent, a
-global null at $\alpha = 0.05$ would produce at least one rejection with probability $0.7854$. They
-are not independent, and the register groups them into the ten blocks within which they are not:
-the five Mann-Whitney tests are three seeds of one model, their ensemble and
-one further run all scored on the same $253$ rows, the five DeLong tests are five comparisons
-against a single reference run, and the two ambiguity-gradient tests are one model on one set of
-items under two prompts, once for each labeller. So $0.7854$ is an independence value rather than a theorem about dependent tests, the true familywise rate is lower,
-and this thesis does not compute it. The direction of the inference is what survives that
-imprecision: the absence of a rejection across a correlated family of this size is weaker
-evidence than the same absence would be for a single pre-specified test, and any single rejection
-inside it would be correspondingly weaker evidence of an effect.
+\textbf{No multiple-comparison correction is applied anywhere in this thesis.}
+The single threshold every reported $p$ value in this chapter is read against
+is the conventional two-sided $\alpha = 0.05$, uncorrected, applied
+consistently, and no result in this chapter is described as surviving or
+clearing a correction it was never subjected to. That rule did not always hold
+in earlier drafts, which computed a Bonferroni threshold over a hypothesis
+family and read results against it; the compliance withdrawal that removed the
+hosted rows also removed most of the tests that arithmetic was performed on,
+so this subsection no longer carries it. A correction record documenting that
+history exists (C68, C76, C79, C85, C88, C90, C92) and is cited here rather
+than narrated: what those entries said an earlier count or bound used to be is
+not repeated.
 
-The Bonferroni threshold is valid under dependence, and at $0.05/30 = 0.0017$ four of the
-thirty tests clear it. Three are Fisher exact tests on the frontier labels, at
-$p$ values of $2.3 \times 10^{-5}$, $7.7 \times 10^{-4}$ and $0.0015$, and they are the
-only rejections in this thesis that concern the clinical task directly: they say the
-frontier labels separate the pharmacist's confirmed cases from the rest on the same rows
-where the systems this pipeline built do not. The fourth frontier test, Sonnet 5 under
-the few-shot prompt, returns $0.0042$ and does not clear.
+The tests this chapter still reports are enumerated in the committed register
+released with the analysis code, one entry per test bound to the artifact and
+key its $p$ value is read from. The withdrawal removed the eight frontier
+Fisher exact tests, the four frontier Mann-Whitney tests, the four Bedrock
+discrimination tests, and the eight ambiguity-gradient tests from that
+enumeration, because the runs behind every one of them are withdrawn
+(Section~\ref{sec:r-frontier}). What remains, at the artifacts this chapter
+still cites, is the five Mann-Whitney tests of Table~\ref{tab:decontam}, the
+five DeLong tests of Table~\ref{tab:delong}, the one Fisher exact test on the
+Rule 1/2 versus Rule 3/4 mechanism split (Section~\ref{sec:res-rq1}), the one
+Welch two-sample $t$ test on the anisotropy control, and two Spearman rank
+correlations against the pharmacist's danger rating. This chapter does not
+type a new total for that list here. No committed script has recomputed one
+since the withdrawal, and stating a count this subsection has not verified
+against the register would repeat the exact defect this project's correction
+record already describes: a family size typed in prose rather than read from
+the artifact that enumerates it. A reader who needs the current count should
+read it from the register directly rather than from a number in this
+paragraph.
 
-An earlier version of this subsection reported those four tests as Mann-Whitney tests
-and gave their $p$ values as $4.2 \times 10^{-7}$ to $0.0007$, under which all four
-cleared. That was the wrong instrument and the error ran one way. The comparison is a
-two-by-two table with fixed margins and the label vector is binary, so roughly four
-fifths of the pairs a rank test forms are ties, and the normal approximation it then
-uses is anti-conservative. It was anti-conservative in all four cases, by factors
-between four and fifty-four, and every one of the four errors favoured the claim this
-chapter leads with. The exact conditional test for each of those tables was already
-computed and stored in the same artifact the register reads. Substituting it changes one
-verdict, which is the one that mattered: Sonnet's few-shot row cleared correction under
-the rank test and does not clear under the exact test. This is the defect class this
-thesis exists to describe, a procedure chosen where it happens to be favourable, and it
-was inside the strongest result in the document. It is recorded as C85.
+The rule by which a test belongs to this family, rather than a running count of
+it, is what survives and is stated plainly. A family is defined by its
+inferential target, not by what a run was commissioned for: two tests that ask
+the same question of the same rows are one family member counted once,
+regardless of which experiment produced the artifact. A sensitivity analysis
+that re-asks an already-counted hypothesis on a nested subset of the same rows
+is a robustness check on that hypothesis, not a second one. And a test whose
+target is this project's own bookkeeping, such as the joinability check of
+Section~\ref{sec:r-exemplar}, is outside every family here because its target
+is not a claim about labellers or contradictions (C90). These are the rules
+that apply to any test this thesis adds in the future, including any that
+follow from a register key not yet cited in this chapter.
 
-The fourth is the Welch test on the anisotropy control, at $t = 4.0001$ on $235.84$ degrees
-of freedom for a two-sided $p$ of $0.000085$; Section~\ref{sec:res-rq3} already declines to
-read that as support for the mechanism, on effect-size grounds, and records that its degrees
-of freedom are overstated because its $190$ observations are the pairwise similarities among
-$20$ sentences rather than $190$ independent draws. So of the four, one is a test whose $p$
-value this thesis does not trust and three are the frontier discrimination results.
+The dependence structure among the surviving tests is worth stating without a
+familywise number attached to it. The five Mann-Whitney tests are three seeds
+of one model, their ensemble, and one further run, all scored on the same
+$253$ rows; the five DeLong tests are five comparisons against a single
+reference run. Neither block is close to five independent tests, and this
+thesis does not compute how close. The direction of the inference is what
+survives that imprecision: the absence of a rejection across a correlated
+block is weaker evidence than the same absence would be for a single
+pre-specified test, and any single rejection inside one would be
+correspondingly weaker evidence of an effect.
 
-Claude Haiku 4.5's few-shot ambiguity gradient is no longer among them, and the way it left
-is worth stating because the direction is the unfavourable one. At $p = 0.0018909$ it cleared
-the threshold at twenty-six tests by three parts in a hundred thousand. It does not clear at
-thirty. Nothing about that test changed; the family it is corrected against grew, because four
-tests that were always part of it were found not to have been counted. A rejection held at a
-margin that fine was never evidence of much, and losing it to an honest count is the correct
-outcome rather than a cost to be regretted.
-
-Those four were outside the family until this subsection was audited, which was the third
-time in this project's record that a family presented as exhaustive was short by tests already
-computed. It has now happened a fourth time, and the fourth is the worst of them, because the
-tests left out were not the ones that supported the claim.
-
-Four discrimination tests on the Bedrock labellers sat in the results directory, generated by
-the same script on the same $253$ rows against the same pharmacist labels, and were not
-counted. The reason they were not is that they had been commissioned as capability and channel
-controls rather than as discrimination results, and the family was assembled by what each run
-was for rather than by what each test asks. A family is defined by its inferential target, and
-theirs is identical to the four already here: does this labeller's positive set overlap the
-pharmacist's confirmed set more than chance on $G_{253}$. Under the rule this subsection
-already applies, they are members.
-
-The direction is what makes it a defect rather than an oversight. All four are null, so a
-second vendor had already failed to replicate the result this chapter leads with, and the
-family that omitted them was the family under which the headline cleared. How much of a
-failure to replicate they represent needs stating precisely, because two of the four could not
-have replicated anything. Llama 3 8B flags $221$ and $224$ of the $253$ pairs. At those
-margins the smallest $p$ the conditional test could return at any outcome, with every one of
-the $12$ confirmed cases inside the flagged set, is $0.190$ and $0.224$. Both rows are
-incapable of rejection before the model sees a pair, so they are silent on discrimination and
-the vendor claim does not rest on them. Llama 3 70B is a different matter: at $105$ and $60$
-flagged its best attainable values are $1.8 \times 10^{-5}$ and $1.3 \times 10^{-8}$, either of
-which would clear the corrected threshold by orders of magnitude, and it returned $0.2444$ and
-$0.0391$. That labeller had the power to replicate and did not. The second-vendor failure is
-one model in two prompt conditions, stated as one rather than two.
-
-One further set of tests is deliberately not counted, and the rule that keeps them out is
-stated here with what it costs, because the rule is favourable to this chapter and an
-unstated favourable rule is the thing this subsection exists to catch. Section~\ref{sec:r-defectfree}
-re-runs the eight discrimination tests on the defect-free stratum. They are not eight new
-hypotheses. They are the same eight hypotheses, about the same eight labeller and prompt
-combinations, re-asked on a nested subset of the same rows, which is a sensitivity analysis of
-a result already counted rather than an addition to the family. Counting a hypothesis once and
-its robustness check separately would inflate any family in proportion to how carefully it was
-probed, which penalises exactly the behaviour this chapter argues for. That is the reading
-applied. A reader who prefers the other reading should know the arithmetic rather than have to
-derive it: at thirty-eight tests the threshold is $0.0013$, and Claude Haiku 4.5's zero-shot
-discrimination test at $0.0015$ would not clear it. That does not reduce the claim to one model,
-and an earlier version of this sentence said it did: Haiku's few-shot discrimination test at
-$0.0007654$ clears $0.0013$, so the labeller would still carry a clearing test and the warrant
-would rest on a mixed prompt pair rather than on the two zero-shot tests it names. What the
-tighter threshold costs is the zero-shot warrant specifically, which is the one Chapter~\ref{ch:intro}
-relies on. The choice of rule therefore decides a headline, which is why it is stated as a
-rule and not as a count. And the reading applied carries a consequence that has to be
-taken rather than only its arithmetic. A sensitivity analysis exists to find out whether a
-result holds when a choice in its construction is varied. Section~\ref{sec:r-defectfree} varies
-the one choice that matters most here, and the result does not hold: on the stratum where the
-annotation defect cannot have operated, neither of the two zero-shot tests this thesis names as
-its two-labeller warrant clears the corrected threshold, and neither interval excludes zero.
-The only row that does exclude zero is a configuration Chapter~\ref{ch:intro} has already
-declined to rest the claim on. So the branch taken here does not rescue the warrant; it
-relocates the failure from the family count to the robustness check, and the warrant is weaker
-under either branch. The effect sizes are comparable across the two strata and the evidence for
-them is not, and this thesis reports the second fact as plainly as the first.
-
-One comparison inside those rows is worth isolating, because it needs no normalisation and no
-assumption. Claude Haiku 4.5 zero-shot and Llama 3 70B few-shot flagged the same number of
-pairs, $60$ of $253$. Their margins are therefore identical, their attainable maxima are
-identical at $0.4002$, and their tests have the same power floor at $1.3 \times 10^{-8}$.
-Against that common ceiling Haiku returns a Matthews correlation of $0.2253$ and Llama returns
-$0.1379$, and their two-sided $p$ values are $0.0015$ and $0.0391$. Two labellers from
-different makers, on the same rows, at the same operating marginal, separated by a factor the
-marginal cannot explain because the marginal is the same. That is the cleanest form the vendor
-comparison takes in this thesis, and it rests on one pair of rows rather than on an ordering
-over eight.
-
-A normalised ordering over all eight rows is available and is deliberately not made the claim.
-Dividing each observed correlation by its own ceiling does rank the four Anthropic rows above
-the four Meta rows, but the raw correlations already separate by a wider margin, so the
-normalisation narrows the gap rather than creating it, and the quantity it produces is
-algebraically $(\mathrm{recall} - \mathrm{flag\ rate}) / (1 - \mathrm{flag\ rate})$ rather than a
-correlation at all. For the two Llama 3 8B rows that denominator is near zero, so a single
-reassigned true positive moves them by more than $0.65$ and would carry one of them to $1.0$,
-above every Anthropic row. A separation that one relabelled pair in a twelve-positive gold set
-can invert is not a finding, and an eyeball ordering over eight rows that are four models on
-one shared set of pairs is not a test. Counting them moves the threshold from $0.0019$ to $0.0017$ and costs one
-rejection. Every previous movement of this count was a repair that left the conclusions intact,
-which the entry recording it called luck rather than rigour; this one does not, and that is
-what an honest count is for. It is recorded as C92.
-
-What does not clear correction is the ambiguity gradient this chapter leads with.
-Sonnet 5's few-shot gradient at $p = 0.0029$ cleared under the count of sixteen and
-clears none of twenty-two, twenty-six or thirty; its zero-shot gradient, at $p = 0.0046$ and
-the reading Section~\ref{sec:r-ambiguity} states first, has cleared no correctly
-computed count. One thing has to be corrected about how this
-subsection used to describe its own history. It said the understated count of fourteen was
-the count under which the headline gradient survived correction. That is arithmetically
-false: at fourteen the threshold is $0.05/14 = 0.0036$ and the zero-shot gradient's
-$0.0046$ does not clear it either. The zero-shot gradient has cleared no Bonferroni
-threshold at any count this thesis has ever stated. What the understated count did protect
-was the few-shot gradient at $0.0029$, which cleared fourteen and sixteen and clears
-none of twenty-two, twenty-six or thirty. The direction of the original error is unchanged and the
-claim it protected was the weaker one. The surviving evidence for the gradient is
-one test, on a second labeller, in the prompt condition
-Section~\ref{sec:r-ambiguity} treats as the dependent one.
-
-One asymmetry in this subsection has to be named rather than left for a reader to
-find. The correction above is applied to $p$ values and not to the interval estimates,
-and the intervals are where two of this thesis's load-bearing claims live. Read at
-$0.05/30$ rather than at $0.05$, Sonnet's Matthews interval on $G_{253}$ still excludes
-zero, with a lower bound of $0.0246$, and Haiku's does not: its lower bound moves to
-$-0.0527$. Those two bounds are now generated from the registered confusion cells by a
-committed script that reads its own significance level from the test register, so a test
-entering the family moves them. The figure this subsection used to print for Haiku's bound
-was $-0.0233$, which was typed into the register with no script behind it and could not be
-reproduced from those cells by the method the register claimed for it; it is withdrawn
-under C88. The conclusion it was cited for is unchanged, because both figures admit zero. So the sentence in
-Section~\ref{sec:r-frontier} that two independent labellers clear the evaluation's
-stated floor rests on the two zero-shot Fisher exact tests, which do clear correction, and not on
-the two bootstrap intervals, only one of which would. Both readings are reported
-because a family that corrects its tests and not its intervals is applying its
-discipline where it is safe, which is the reporting defect this subsection exists to
-describe.
-
-The selection of which tests reach the page is disclosed rather than left implicit: four Spearman
-correlations against the danger rating were computed and one is reported above. Of the three not
-reported there, one, the harm head against the danger rating restricted to the $12$ positives,
-returns $\rho = -0.6621$ at $p = 0.019$. That is one of the thirty tests counted here. It is
-nominally significant at $\alpha = 0.05$, does not clear $0.0019$, and is not significant under
-any correction over even
-the four Spearman tests alone. It measures an untrained module on twelve cases and no claim is
-made from it in either direction, but it is named because reporting only the null member of a
-family the reader cannot see is the reporting defect this thesis is about.
+One test not reported elsewhere in this chapter is disclosed here rather than
+left out silently. Four Spearman correlations against the pharmacist's danger
+rating were computed; one, the untrained harm head against the danger rating
+restricted to the $12$ positives, returns $\rho = -0.6621$ at $p = 0.019$. That
+is nominally below $0.05$ on twelve cases and is not treated as evidence of
+anything: Section~\ref{sec:res-rq3} already reads the harm head as an
+untrained scorer, and a correlation on twelve cases from a module with no
+training signal is disclosed for completeness rather than read as a finding
+in either direction. Reporting only the null member of a family the reader
+cannot see is the defect this subsection exists to prevent.
 
 \subsection{The positive control}
 
@@ -1611,7 +1112,7 @@ Scratch, 30M       & 0.8833 (0.0009) & 0.8856 (0.0035) & 0.8845 (0.0022) & 0.888
 Scratch, 10M       & 0.8784 (0.0022) & 0.8795 (0.0013) & 0.8822 (0.0011) & 0.8838 (0.0036) \\
 \bottomrule
 \end{tabular}
-\apanote{Accuracy, three seeds per cell, standard deviation in parentheses; 48 runs and 555 minutes in total. The task is topic classification on the AG News corpus, tokenised with the \texttt{bert-base-uncased} tokeniser at 40,000 training rows, 5,000 validation rows and a maximum length of 256 tokens. The pretrained arm gained $-0.13$ points from 3 epochs to 24 and the 100M from-scratch arm gained $0.41$. The adjudication rule was committed, at commit \texttt{b048829}, before the sweep ran: Outcome A is a gap of at least 3.0 accuracy points between the pretrained and best from-scratch arm with the standard deviation bands disjoint; Outcome B is a gap below 3.0 points or an ordering not resolved across seeds; the range 2.5 to 3.5 points is declared inconclusive in advance, and the rule itself forbids resolving an inconclusive result by adding seeds. Gaps reported in prose are computed from the unrounded values, not from the four-decimal cells printed here, so subtracting the printed cells directly can differ in the last digit: at 24 epochs $0.8925 + 0.0454 = 0.9379$ from the printed cells alone, one hundredth of a point above the recorded gap of $4.53$. Every value is traceable through the register in the supplementary file.}
+\apanote{Accuracy, three seeds per cell, SD in parentheses; 48 runs, 555 minutes total, topic classification on AG News. The adjudication rule, committed at commit \texttt{b048829} before the sweep ran: Outcome A is a gap of at least $3.0$ points with disjoint SD bands; Outcome B is a gap below $3.0$ or an unresolved ordering; $2.5$ to $3.5$ is inconclusive in advance, and the rule forbids resolving that by adding seeds. Prose gaps use unrounded values, not these four-decimal cells, which can differ in the last digit.}
 \label{tab:conv}
 \end{table}
 
@@ -1642,7 +1143,7 @@ Mortality control  & Gap, three seeds each &         & $+0.0031$ \\
 Mortality control  & Gap, lineage-pinned seeds only & & $-0.0011$ \\
 \bottomrule
 \end{tabular}
-\apanote{Public-benchmark rows are accuracy at a single budget, with non-embedding parameter counts; mortality-control rows are AUROC on the identical split. The from-scratch arm has more parameters than the pretrained encoder and still does not reach it, so the public-benchmark difference is not a capacity difference: the gap to the pretrained arm at this single budget is $0.0518$ for the 100M arm, $0.0563$ for the 30M arm and $0.0606$ for the 10M arm, all larger than the mortality gap. The $4.53$-point figure used elsewhere as the positive control's headline is the same 100M-versus-pretrained comparison measured across the pre-registered convergence sweep of Table~\ref{tab:conv} instead of this single budget; the adjudication rule is bound to that figure, not this one. No significance test for the mortality-control gap is available, so the means, standard deviations and difference are reported as a descriptive difference only. Three disclosures belong with it. The arms do not share a seed set, the pretrained arm being seeds $1$, $2$ and $3$ and the from-scratch arm seeds $0$, $1$ and $2$, so the comparison is unpaired. One from-scratch run, seed $0$, carries no recorded split lineage, while the other five all record the same split hash and the same $6{,}776$-row test set holding $570$ positives; dropping it leaves a two-seed from-scratch mean of $0.7703$ and inverts the gap's sign to $-0.0011$, the second row above. Both readings are nulls and the conclusion does not turn on which is primary; the three-seed reading is primary only because Section~\ref{sec:m-stats} forbids a standard deviation over fewer than three runs. A related defect belongs to the public-benchmark gap above: the notebook cell that would test the $4.53$-point convergence gap calls \texttt{scipy.stats.ttest\_ind} without \texttt{equal\_var=False}, so any $p$ value returned would be a Student test rather than Welch; none is computed or quoted for either gap.}
+\apanote{Public-benchmark rows are accuracy at a single budget; mortality rows are AUROC on the same split. The from-scratch arm has more parameters than pretrained and still trails it: gaps of $0.0518$, $0.0563$ and $0.0606$ for the 100M, 30M and 10M arms, all larger than the mortality gap. The $4.53$-point headline is the pre-registered sweep of Table~\ref{tab:conv}, not this budget; no significance test exists for the mortality gap, so its means and SDs are descriptive only. Three disclosures: the arms do not share a seed set (pretrained $1,2,3$; from-scratch $0,1,2$); dropping seed $0$, which lacks split lineage, gives a two-seed mean of $0.7703$ and flips the sign to $-0.0011$; and the $4.53$-point test omits \texttt{equal\_var=False}, so any $p$ would be Student's, not Welch.}
 \label{tab:scaling}
 \end{table}
 
@@ -1694,15 +1195,18 @@ done here is to apply it to these class counts.
 \toprule
 \textbf{System} & \textbf{Predicted positive} & \textbf{MCC} & \textbf{95\% bootstrap CI} \\
 \midrule
-Claude Sonnet 5, zero-shot     & $9 + 39 = 48$    & $+0.3189$ & $+0.1473$ to $0.4622$ \\
-Claude Sonnet 5, few-shot      & $6 + 33 = 39$    & $+0.2137$ & $+0.0314$ to $0.3838$ \\
-Claude Haiku 4.5, zero-shot    & $8 + 52 = 60$    & $+0.2253$ & $+0.0688$ to $0.3643$ \\
-Claude Haiku 4.5, few-shot     & $8 + 47 = 55$    & $+0.2431$ & $+0.0805$ to $0.3870$ \\
 ACCORD at $\tau = 0.5$         & $11 + 223 = 234$ & $-0.0070$ & $-0.1626$ to $0.0753$ \\
 Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.0436$ & $-0.2337$ to $0.0563$ \\
 \bottomrule
 \end{tabular}
-\apanote{Cells from Table~\ref{tab:systems253} and, for the four Claude rows, from the frontier metrics artifacts. The predicted-positive column is shown as the sum of the two underlying cells. MCC is the statistic most often recommended for imbalanced binary evaluation \citep{chicco2020mcc}; \citet{powers2011evaluation} situates it as the geometric mean of the informedness and markedness measures he advocates instead and zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed 42, resampling pairs with labels held fixed. The two rows produced by this pipeline contain zero. None of the four Claude intervals does at the conventional level, and that they come from two independent models is what makes the instrument's sensitivity a measurement rather than one observation. Read at the corrected threshold of Section~\ref{sec:r-multiplicity} rather than at $0.05$, Sonnet's zero-shot interval still excludes zero and Haiku's does not, so the two-labeller claim rests on their zero-shot discrimination tests, at $2.3 \times 10^{-5}$ and $0.0015$, both of which clear that threshold, rather than on these intervals. An earlier version of this note credited the claim to the Mann-Whitney tests on the same rows. Those values exist in the artifacts and this thesis does not use them: C85 withdrew that instrument for these tables, because the label vector is binary and the rank test's normal approximation was anti-conservative in all four cases. Citing it here would have rested the claim on the statistic the chapter retracted. None survives arbitrary label instability either, and they differ in how much they tolerate (Section~\ref{sec:r-frontier}): Sonnet's zero-shot interval admits zero once the per-draw flip probability reaches $0.245$ and its few-shot interval at $0.083$, Haiku's at $0.164$ and $0.182$. Sonnet's few-shot row tolerates the least of the four and no claim rests on it; the Haiku rows were added to this table because Chapters~\ref{ch:intro} and~\ref{ch:discussion} read their interval against zero. The Claude rows are single-draw labels from a model that does not accept a temperature parameter.}
+\apanote{Cells from Table~\ref{tab:systems253}. The predicted-positive column
+is shown as the sum of the two underlying cells. MCC is the statistic most
+often recommended for imbalanced binary evaluation \citep{chicco2020mcc}, and
+zero is chance. Intervals are percentile bootstraps at $B = 10{,}000$ and seed
+42, resampling pairs with labels held fixed. Both rows contain zero. A
+frontier-scale labeller was also scored on this set through a hosted API; that
+row and its interval are withdrawn (Section~\ref{sec:r-frontier}) and do not
+appear here.}
 \label{tab:mcc}
 \end{table}
 
@@ -1714,20 +1218,24 @@ and $-0.2337$ to $0.0563$, overlapping over almost their whole length.
 Figure~\ref{fig:forest} is that analysis in one view. No claim in this thesis
 rests on the ordering between them.
 
-Sample size is not the reason none of the four systems above is distinguishable
-from chance. The Claude zero-shot row is
-separated from chance on the same 12 positives, at $+0.3189$ with an interval of
-$+0.1473$ to $0.4622$, and that separation survives the instability analysis of
-Section~\ref{sec:r-labelnoise}. One row is enough to refute a claim about what 12
-positives can resolve. The few-shot row is not recruited here: its interval
-excludes zero as bootstrapped but does not survive that analysis, and no claim in
-this thesis rests on it. What the four systems
-had in common was not a shortage of rows but a shortage of signal: they were all
-bad. The distinction matters because a sample-size reading licenses treating
-every ordering in this thesis as noise, and that shield is too broad. It covers
-comparisons that live on the 12 positives. It never covered comparisons that live
-on the $241$ clear negatives, and over-calling, the headline finding of
-Section~\ref{sec:res-rq2}, is measured there.
+Whether 12 positives could ever resolve a discrimination result at all is not a
+question this table can answer on its own: the frontier row that would have
+carried that argument was a hosted-API result and is withdrawn along with every
+number computed from it. What that leaves is narrower than what an earlier
+version of this section claimed, and stated plainly rather than implied. Neither
+system this pipeline produced is distinguishable from chance on the 12
+positives, and this chapter does not have a local-only labeller row that is.
+The instrument's sensitivity to a real effect at this sample size is instead
+established the way Section~\ref{sec:res-rq4} establishes it, on the mortality
+positive control rather than on this task. The marginal feasibility gate of
+Section~\ref{sec:r-feasgate} is the precondition a reader should apply to any
+hard-label row before reading its agreement as evidence; it was not run on
+these two rows, which are this project's own systems rather than the labellers
+it targets, so no ceiling claim is made about them here. What the sample-size
+reading never covered, and still does not, is a comparison
+that lives on the $241$ clear negatives rather than on the 12 positives, and
+over-calling, the headline finding of Section~\ref{sec:res-rq2}, is measured
+there.
 
 Figure~\ref{fig:forest}'s three unit families are not built from intervals of one
 kind: the first two are percentile bootstraps at $B = 10{,}000$, while the two
@@ -1741,13 +1249,11 @@ $42$ percent without changing which of them crosses zero.
 
 \centering
 \caption[Headline estimates against zero]{Every headline estimate with its
-95\% interval, grouped into three unit families and read against zero.
-The unit is named once per family; position ranks rows within a family only.
-The two rows of the second family are different systems on different sets, the decontaminated ACCORD ensemble on $G_{253}$ and the defect-free control model on $G_{134}$, and no decontaminated ACCORD score exists on $G_{134}$.
-Its public-benchmark row is the single-budget comparison of Table~\ref{tab:scaling}, not the $4.53$-point convergence figure used elsewhere as the positive control's headline.
-The in-hospital mortality row is the three-seed comparison of
-Table~\ref{tab:scaling}, three seeds in each arm.
-Values are printed at right because one interval is narrower than its marker.}
+95\% interval, one panel per unit, each with its own scale and zero rule, so no
+distance is comparable across panels. The two AUROC rows are different systems
+on different sets, $G_{253}$ and $G_{134}$. The public-benchmark row is the
+single-budget comparison of Table~\ref{tab:scaling}, not the $4.53$-point
+convergence figure; the mortality row is its three-seed comparison.}
 \includegraphics[width=0.98\linewidth]{figures/fig-forest.pdf}
 \label{fig:forest}
 \end{figure}
@@ -1782,7 +1288,7 @@ PUMS, regime A       & $-0.13556$ & $-0.19435$ & none \\
 PUMS, regime B       & $-0.11807$ & $-0.04101$ & none \\
 \bottomrule
 \end{tabular}
-\apanote{Endpoint 1 is the signed gap at the weakest selection strength swept and Endpoint 2 is the signed gap at the strongest; these are sweep endpoints, not the extrema the series attains in between. On PUMS regime A the sweep's true minimum is $-0.20733$ and true maximum is $-0.12761$, both lying outside the interval the printed endpoints span. On PUMS regime B the true minimum is $-0.12034$, more extreme than the printed endpoint of $-0.11807$, while the true maximum coincides with the printed $-0.04101$. On the selection experiment both printed endpoints are the sweep's own extrema. The endpoints in this table therefore describe where each sweep starts and ends, not its range, and on two of the three rows the range is wider than the endpoints show. All endpoints are reported as recorded.}
+\apanote{Endpoint 1 is the signed gap at the weakest selection strength swept, Endpoint 2 at the strongest; these are sweep endpoints, not its extrema. On PUMS regime A the true minimum is $-0.20733$ and true maximum $-0.12761$, both outside the printed endpoints' span. On regime B the true minimum, $-0.12034$, is more extreme than the printed $-0.11807$, while the true maximum coincides with the printed $-0.04101$. On the selection experiment both printed endpoints are the sweep's own extrema. So on two of three rows the range is wider than the endpoints show; all endpoints are reported as recorded.}
 \label{tab:signed}
 \end{table}
 

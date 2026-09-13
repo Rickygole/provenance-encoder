@@ -44,6 +44,37 @@ import matplotlib.pyplot as plt
 HERE = pathlib.Path(__file__).parent
 ROOT = pathlib.Path("/Users/rickygole/provenance-encoder")
 
+# ---------------------------------------------------------------------------
+# ALL THREE FIGURES IN THIS MODULE ARE RETIRED, and the module stops here
+# rather than at its first savefig, because two of the artifacts it would
+# otherwise read are withdrawn.
+#
+#   fig-capability   drew four hosted rows: two Bedrock arms, Claude Haiku 4.5
+#                    and Claude Sonnet 5. Every one of them was obtained by
+#                    transmitting credentialed data to a hosted service, and
+#                    every value behind them now sits under withdrawn.hosted.*
+#                    in the register. Four of its seven rows cannot be drawn,
+#                    its lower panel is entirely a local-versus-hosted
+#                    decomposition, and its headline names the channel. There
+#                    is no version of this figure that survives the withdrawal.
+#   fig-labelnoise   drew two Claude Sonnet 5 series and nothing else.
+#   fig-missing-cell was a two-by-two of four rectangles containing text, with
+#                    no axis and no scale: a table drawn as a picture. It was
+#                    considered for conversion to a 2x2 tabular here and is
+#                    deleted instead, because the cell that made it a design
+#                    rather than a list is the frontier-clinical cell, and that
+#                    cell is Claude Sonnet 5's over-calling ratio. A tabular
+#                    would have to print a withdrawn hosted value or print a
+#                    hole where the figure's whole argument was.
+#
+# Retirement reasons of record live in tools/check_figure_invariants.py. The
+# committed PDFs are left in place, as every other retired figure's is, so the
+# withdrawal is auditable rather than silent; nothing in the thesis binds them.
+# ---------------------------------------------------------------------------
+print("fig_frontier.py: all three figures retired (two drew hosted rows, the "
+      "third depended on one); see RETIRED in tools/check_figure_invariants.py")
+raise SystemExit(0)
+
 FACTS = json.loads((ROOT / "results/accord/VERIFIED_FACTS.json").read_text())
 MET = json.loads((ROOT / "results/accord/differential/"
                   "frontier_anthropic_metrics.json").read_text())

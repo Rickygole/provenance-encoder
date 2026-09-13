@@ -1562,12 +1562,23 @@ def make_fig_cohort_flow():
         tops.append((y, h))
         y -= h + gap
 
-    # Phase groups: rows, WASH band, box TINT, DEEP stroke, rail, name.
+    # Phase groups: rows, band, box TINT, DEEP stroke, rail, name.
+    #
+    # ALL THREE BANDS ARE ONE TONE, and they used to be three (HAIR,
+    # COBALT_WASH, EMERALD_WASH). The three were a category ground, and every
+    # WASH stop in this palette is within 0.010 relative luminance of every
+    # other by construction: HAIR 0.8453, COBALT_WASH 0.7996, EMERALD_WASH
+    # 0.8051. In black and white the three phases were therefore the same
+    # grey, so the ground told a greyscale reader nothing while looking as
+    # though it told them something. The phase is still carried three ways
+    # that survive printing: the phase name is set beside each band, the boxes
+    # inside it keep their hue, and the rail keeps its stroke. The luminance
+    # gate in tools/check_figure_invariants.py is what now holds this.
     phases = [
         (range(0, 4), HAIR, MIST, SLATE, SLATE, "cohort construction"),
-        (range(4, 7), COBALT_WASH, COBALT_TINT, COBALT_DEEP, COBALT_DEEP,
+        (range(4, 7), HAIR, COBALT_TINT, COBALT_DEEP, COBALT_DEEP,
          "extraction and mining"),
-        (range(7, 9), EMERALD_WASH, EMERALD_TINT, EMERALD_DEEP, EMERALD_DEEP,
+        (range(7, 9), HAIR, EMERALD_TINT, EMERALD_DEEP, EMERALD_DEEP,
          "annotation"),
     ]
     phase_of = {}
@@ -1844,7 +1855,14 @@ SKIPPED = [
 
 def main():
     make_fig_pipeline_status()
-    make_fig_intro_headline()
+    # make_fig_intro_headline() is retired. It drew the first rows of the
+    # capability figure sixty pages before that figure drew them, and the
+    # capability figure is itself retired for drawing hosted rows, so the
+    # duplicate outlived the thing it duplicated. What it argued -- that the
+    # labeller flags an order of magnitude more pairs than the pharmacist
+    # confirms -- is now argued by fig:ceiling from the same three integers,
+    # and argued further: fig:ceiling shows what that ratio costs in
+    # attainable agreement rather than only that the ratio is large.
     make_fig_funnel()
     make_fig_exemplar()
     # make_fig_rule_precision() removed from the thesis per committee review;
@@ -1853,7 +1871,12 @@ def main():
     # nothing binds it and nothing calls it.
     make_fig_prevalence()
     make_fig_tracking()
-    make_fig_met_exchange()
+    # make_fig_met_exchange() is retired. Four markers, two of them stacked at
+    # the origin, on a y axis running to 200 with nothing drawn between 0 and
+    # 185, under a 203-word caption that had to carry a worked example because
+    # the panel could not. A figure whose caption has to do the arithmetic for
+    # the reader is a paragraph, and the exchange rate it computes is stated in
+    # the discussion text.
     # make_fig_met_sharpened() is retired, not merely unbound. Its headline
     # was the literal string "no MCC interval excludes chance" and its system
     # list was a hardcoded four, so it could not follow the data: after the
@@ -1868,7 +1891,13 @@ def main():
     # of body text. Both drawing functions are left in place above, exactly as
     # make_fig_rule_precision was handled at the committee review, so either
     # figure can be rebuilt if it is ever wanted again.
-    make_fig_disc_actionability()
+    # make_fig_disc_actionability() is retired. A timeline with three coloured
+    # zones, no measurement of any kind, and colour used purely evaluatively:
+    # green for the window it approves of, scarlet for the one it does not.
+    # This set's own rule is that colour is a carrying channel for identity and
+    # state, not a verdict, and a figure that plots nothing cannot be evidence
+    # for the verdict it colours. The field-availability fact it documents is
+    # one sentence of the discussion chapter.
     make_fig_cohort_flow()
 
     manifest_path = os.path.join(FIGDIR, "manifest.json")

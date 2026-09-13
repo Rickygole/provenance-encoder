@@ -7,6 +7,8 @@ same thing:
   coverage = fraction of pixels in the saved bounding box differing from
              #FFFFFF by more than 2/255 in any channel, at 300 dpi.
   chroma   = fraction of pixels with HSV saturation >= 0.25 and value >= 0.20.
+  deadrun  = the tallest contiguous run of blank scanlines, as a fraction of
+             canvas height. Blank means the whole row of pixels is paper.
 
 Set-wide gating floors are coverage >= 0.28 and chroma >= 0.10 on every figure
 and set-mean chroma >= 0.18; the per-figure floors below are the directives in
@@ -17,7 +19,18 @@ the data, the floor lost and was lowered here, with the reason recorded in
 LOWERED. Spec risk 5 authorises exactly that: do not invent a band to pass this
 tool.
 
-Exit status is non-zero if any figure is under its floor.
+DEAD SPACE IS THE COMPLEMENT COVERAGE CANNOT SEE. Coverage is a fraction of the
+whole sheet, so it cannot tell a figure whose ink is spread thin from a figure
+that is two thirds empty in one band: fig-capability measured 0.056 coverage
+with about 110pt of unbroken white in a 355pt canvas, and nothing in this file
+could say so. The tallest contiguous run of blank scanlines can, it is cheap,
+and it fails the one thing a reader actually sees, which is a hole. Note that a
+boxed plot cannot trip it inside its own frame, because every scanline that
+crosses the axes box meets two spines; what it measures is the space BETWEEN
+things, which is where dead space actually accumulates.
+
+Exit status is non-zero if any figure is under its floor or over the dead-space
+ceiling.
 """
 import subprocess
 import sys
@@ -31,38 +44,33 @@ FIGDIR = Path(__file__).resolve().parent.parent
 # label -> (coverage floor, chroma floor)
 FLOORS = {
     "fig-pipeline-status":    (0.72, 0.40),
-    "fig-intro-headline":     (0.34, 0.16),
     "fig-cohort-flow":        (0.60, 0.32),
     "fig-exemplar":           (0.48, 0.26),
     "fig-prevalence-response": (0.40, 0.14),
-    "fig-falsification":      (0.42, 0.20),
     "fig-power":              (0.62, 0.18),
     "fig-forest":             (0.46, 0.15),
-    "fig-scaling":            (0.36, 0.14),
     "fig-threshold-surface":  (0.90, 0.55),
-    "fig-disc-actionability": (0.44, 0.24),
-    "fig-met-exchange":       (0.50, 0.16),
-    # The three C63 figures. These floors are set at what the finished figures
-    # measure, not at a band borrowed from the spec, because no spec entry
-    # exists for them. The reasons they sit low are recorded here rather than
-    # in LOWERED, which is for floors that moved:
+    # fig-ceiling has no spec entry, because it was built after the spec. Its
+    # floors are what the finished figure measures, and the reason they sit this
+    # low is the reason fig-power's do; it is recorded here rather than in
+    # LOWERED, which is for floors that MOVED. The figure is one line, two marks
+    # and four labels on bare paper. It draws an identity in two marginals, so
+    # there is no band, no interval and no region to fill, and the only way to
+    # raise either number is to shade something the arithmetic does not say.
+    # Spec risk 5 forbids exactly that. The cliff it draws is legible in black
+    # and white at one column, which is the requirement; ink coverage is a proxy
+    # for presence, and on a figure whose subject is a curve the proxy is wrong.
+    "fig-ceiling":            (0.090, 0.012),
     #
-    #   fig-capability is a lollipop chart whose x axis must reach 26.5 to hold
-    #   one point at 23.60 while five of six sit under 8. Most of the canvas is
-    #   necessarily empty, and compressing the axis to fill it would flatten
-    #   the very separation the figure exists to show. It argues with position.
-    #
-    #   fig-missing-cell is a schematic of a two-by-two design with one cell
-    #   deliberately unfilled. The empty cell IS the claim, so ink cannot be
-    #   added to it without making the figure say the opposite of its content.
-    #
-    #   fig-labelnoise carries two interval bands over a sweep. It cleared both
-    #   numbers comfortably under the withdrawn analysis and no longer does;
-    #   the floors are lowered in LOWERED with the reason, which is that the
-    #   band area it used to fill was the artifact being corrected.
-    "fig-capability":         (0.05, 0.008),
-    "fig-missing-cell":       (0.20, 0.060),
-    "fig-labelnoise":         (0.27, 0.230),
+    # SEVEN ENTRIES LEFT THIS TABLE in the round that followed the compliance
+    # withdrawal, and not one of them was a floor that failed. fig-capability,
+    # fig-labelnoise and fig-missing-cell drew hosted rows or depended on one;
+    # fig-intro-headline, fig-falsification, fig-scaling and fig-met-exchange
+    # were retired as weak figures. Their reasons of record are in RETIRED in
+    # tools/check_figure_invariants.py, which is the one retirement register in
+    # this directory. A retired figure is not measured here, for the same reason
+    # it is not scanned by the text-collision gate: failing a build over a
+    # figure that nothing binds teaches a reader to ignore the tool.
 }
 
 # Floors lowered from the spec because the target was unreachable without
@@ -109,39 +117,6 @@ FLOORS = {
 # meet it. Coverage still does real work and is unchanged or nearly so
 # everywhere it was clearing before.
 LOWERED = {
-    "fig-labelnoise": ((0.24, 0.190),
-        "Lowered once, when the analysis behind the figure was corrected. The "
-        "withdrawn construction propagated only the variance of the flip count "
-        "and held the point estimate fixed, so its bands fanned outward across "
-        "the whole sweep and filled the canvas: at a fair coin it drew a "
-        "zero-shot interval from +0.0829 to +0.5353, a band half the height of "
-        "the axis, which was the error and not the data. The simulation that "
-        "replaced it flips labels and resamples pairs jointly, and the mean "
-        "collapses toward zero as the bands narrow, so the filled region is "
-        "smaller by exactly the amount the old construction was overstating. "
-        "Coverage falls 0.27 to 0.262 and chroma 0.23 to 0.203. A dashed mean "
-        "line was added to each panel, which is ink and is the substantive "
-        "point, but one stroke does not recover the area of two fans. Ink "
-        "cannot be restored here without redrawing the wrong intervals.",),
-    "fig-capability": ((0.05, 0.008),
-        "Lowered once, and the figure got better in the same edit. The first "
-        "version drew six labellers on mixed denominators, three of them "
-        "candidate-pool ratios and three gold-set, with a two-marker legend to "
-        "excuse the mixing, and it placed GPT-4o at a literal 7.0 that traces "
-        "to no artifact in a module whose docstring forbids literals. The "
-        "register carries gold-set ratios for all three 8B labellers, so the "
-        "rebuild puts every point on G_299, drops GPT-4o to the caption "
-        "because its committed cells are on G_253 only, and separates the 8B "
-        "and frontier groups on the axis so the two-cluster claim is "
-        "structural rather than inferred from the values. That is one row "
-        "fewer, and the two frontier stems run from 1.0 to about 5 on an axis "
-        "that must reach 27.5 to hold llama3:8b at 23.75, so most of the "
-        "canvas is necessarily empty. Compressing the axis to fill it would "
-        "flatten the separation the figure exists to show. Wilson intervals "
-        "were added, which is more ink than the bare points had, and the stem "
-        "from the pharmacist's 1.0 was kept for the same reason. Coverage "
-        "0.091 to 0.056 and chroma 0.017 to 0.009 are what a correct figure "
-        "measures here."),
     "fig-pipeline-status": ((0.105, 0.038),
         "coverage clears. chroma: four of six bands are SCARLET_TINT at S=0.233, "
         "under this metric's own 0.25 gate, so 84% ink measures 0.18 chroma. "
@@ -176,18 +151,17 @@ LOWERED = {
         "is not the objective; the objective is that a reader sees one defect "
         "carried into three stages, and that is now the most visible thing on "
         "the canvas."),
-    "fig-intro-headline": ((0.225, 0.08),
-        "the scarlet ground is the gap between two measured rates and cannot be "
-        "widened; the claim numeral needs the right third of the axis. "
-        "SCARLET_WASH is S=0.108. Lowered again when the bar outlines went and "
-        "the sub-line moved into the deck: both were saturated ink inside the "
-        "measured box, and both left deliberately. NOT lowered for the bar: "
-        "closing 0.30 of dead x range put the three measured bars 19% longer "
-        "inside the same box, which paid the bar back and then some (coverage "
-        "0.231 to 0.266, chroma 0.083 to 0.089)."),
     "fig-cohort-flow": ((0.60, 0.120),
-        "coverage clears. chroma: the phase grounds are WASH and MIST, all under "
-        "the 0.25 gate; only the EMERALD_TINT boxes and the solid chip count. "
+        "coverage clears. chroma: the phase grounds carry no chroma at this "
+        "metric's gate; only the EMERALD_TINT boxes and the solid chip count. "
+        "The three phase grounds are now ONE tone rather than HAIR, COBALT_WASH "
+        "and EMERALD_WASH, which sat at 0.8453, 0.7996 and 0.8051 in relative "
+        "luminance and printed as one grey, so the ground was separating three "
+        "phases for a colour reader and nothing at all for anybody else. The "
+        "phase is still carried by its name, by the hue of the boxes inside it "
+        "and by the rail. Neither measured number moved: the band area is "
+        "identical and every stop involved was already under the 0.25 "
+        "saturation gate. "
         "Lowered marginally when chips went rimless set-wide: this figure's "
         "terminal box lost its CORE rim with the rest, which is the consistency "
         "the change was for. Lowered again by directive 1: the bar was 1.07% of "
@@ -199,75 +173,62 @@ LOWERED = {
         "the set, so its bar was the second largest share of any (1.52%), and "
         "its plate grew 21% in area while the CESS chip and the five slot "
         "strokes kept their printed size."),
-    "fig-prevalence-response": ((0.32, 0.028),
-        "coverage clears its old floor only because the old y axis ran to 1.0 "
-        "and the MIST over-prediction wedge therefore covered 84% of every "
-        "panel. The axis now stops at 0.38, which is what makes the grid "
-        "readable and what the author asked for, and the wedge is 58% of a "
-        "panel instead: coverage 0.442 to 0.339. That is the redesign working, "
-        "not ink lost. Chroma is unchanged at 0.031: the series are the only "
-        "chromatic ink here and they are now heavier, which paid back the bar."),
-    "fig-falsification": ((0.31, 0.005),
-        "ONE sparse panel: a dumbbell on two rows. The tolerance band is "
-        "SCARLET_WASH at S=0.108. Lowered once for the declutter the author "
-        "asked for: the two 22pt bold SCARLET_DEEP numerals were this canvas's "
-        "largest block of saturated ink and they said what the y axis beside "
-        "them already said, so they left; the band moved from TINT to WASH and "
-        "the ground label from SCARLET_DEEP to MUTE. Coverage went UP, 0.314 "
-        "to 0.343. Lowered again, and this entry rewritten, when the second "
-        "panel was removed outright: a reviewer twice observed that the "
-        "authority-scale dumbbell and the rule-head transfer bars shared a "
-        "caption and nothing else, and that the word separately in the headline "
-        "was an admission rather than a fix. The transfer result is now a table "
-        "in the results chapter, which also retires the one place in this set "
-        "where a quantity with real sampling spread was drawn as a bar with "
-        "none. What left with that panel was the cobalt bar outlines and the "
-        "scarlet drop arrow, which were this figure's only saturated ink, so "
-        "chroma falls to 0.006 against a floor tuned for a canvas that no "
-        "longer exists. Coverage rose to 0.391 because one panel now fills the "
-        "width two used to share."),
+    "fig-prevalence-response": ((0.32, 0.026),
+        "Coverage clears by a wide margin and rose again in the rebuild, 0.339 "
+        "to 0.507, because the y axis now reaches the deployed operating point "
+        "and the over-prediction wedge is most of each panel. Chroma falls "
+        "0.031 to 0.027 for an arithmetic reason: six small multiples became "
+        "two panels carrying the same three series each, so the coloured ink on "
+        "the page is three series and one scarlet operating point instead of "
+        "six series, on a sheet of the same width. The floor moves 0.028 to "
+        "0.026 to follow it. What the rebuild was for is the thing this metric "
+        "cannot see at all: the clinical operating point used to be an arrow "
+        "leaving the top of a panel with its coordinates written beside it, and "
+        "it is now a mark on the canvas."),
     "fig-power": ((0.53, 0.010),
         "the field is already the full plot rectangle; 0.62 would need margins "
-        "too small for the axis labels. Both region grounds are WASH, S<=0.138. "
-        "Lowered again by directive 1 and nothing else: 0.028 minus a bar worth "
-        "0.0144, diluted by 13% more canvas, predicts 0.012 and it measures "
-        "0.012."),
-    "fig-forest": ((0.46, 0.125),
-        "coverage clears. chroma: two of the three family bands are WASH or "
-        "MIST. This figure absorbed the bar's removal without a floor change "
-        "worth making: eight intervals and eight numeric entries all grew with "
-        "the canvas, so 0.143 became 0.141. Lowered once more when the interval "
-        "bounds went from three decimals to four, to match the four the "
-        "chapters print: two extra glyphs on each of eight rows is achromatic "
-        "ink, so it raises total ink and lowers the chromatic fraction by "
-        "arithmetic alone, 0.141 to 0.129. The figure did not lose colour; it "
-        "gained the digits that make it agree with the body."),
-    "fig-scaling": ((0.24, 0.016),
-        "the pretrained band is a seed standard deviation of 0.0010 on a 0.099 "
-        "range, so it is four pixels tall. Widening it would misstate the data. "
-        "Lowered again by directives 1 and 2: a 1.45% bar off a canvas that "
-        "then grew 19% in area, on a figure whose only chromatic ink is one "
-        "line, three dots and two labels."),
+        "too small for the axis labels. Lowered by directive 1 and nothing "
+        "else: 0.028 minus a bar worth 0.0144, diluted by 13% more canvas, "
+        "predicts 0.012 and it measures 0.012. NOT lowered when the "
+        "undetectable region moved from SCARLET_WASH to SCARLET_TINT. The two "
+        "region grounds were 0.8051 and 0.8004 in relative luminance, which is "
+        "one grey in print for the two halves of a figure whose whole claim is "
+        "the boundary between them. The tint is 0.189 clear of the wash above "
+        "it and fills exactly the same area, so coverage is unchanged at 0.557 "
+        "and chroma at 0.010: SCARLET_TINT sits at S=0.233, under this metric's "
+        "own 0.25 gate, so a third of the canvas turning pink buys nothing "
+        "here. That is a statement about the metric and not about the figure."),
+    "fig-forest": ((0.070, 0.012),
+        "Lowered further than any other entry in this table, and the figure is "
+        "better for it. The old canvas separated three unit families with three "
+        "coloured grounds that filled the whole plot rectangle, and those "
+        "grounds were MIST 0.7633, EMERALD_WASH 0.8051 and AMBER_WASH 0.7956 in "
+        "relative luminance: three fills a greyscale reader cannot tell apart, "
+        "carrying the only structure that said which rows were comparable with "
+        "which. The same canvas drew three incommensurable units on one shared "
+        "numeric axis, with an axis label that admitted it, and gave each row a "
+        "marker hue with no key anywhere on the page. The rebuild gives each "
+        "unit family its own sub-axes, its own range and its own zero rule, "
+        "separates them with whitespace and a hairline instead of a ground, and "
+        "draws every mark in the one structural measurement tone. Coverage "
+        "0.530 to 0.076 and chroma 0.129 to 0.015 is the three ground fills "
+        "leaving, plus the two Claude rows the compliance withdrawal removed "
+        "from the register, which this figure now drops by reading the register "
+        "rather than the artifact. Ink cannot be restored without putting back "
+        "the fills that printed two families as one grey."),
     "fig-threshold-surface": ((0.40, 0.110),
         "the spec moves both contour labels into a right margin and the heatmap "
         "therefore occupies 61% of the width; 0.90 assumed a full-bleed field. "
         "Lowered again by directive 1: the bar was 1.44% of this canvas. The "
         "heatmap itself grew from 3.28in to 3.77in wide, which is why coverage "
         "went UP, 0.401 to 0.422, on the same directive that cost the chroma."),
-    "fig-disc-actionability": ((0.44, 0.24),
-        "unchanged; this figure clears both, and clears them by more than it "
-        "did. Its three phase bands and its timeline are drawn on the point "
-        "grid and grew with the plate, which more than paid back a bar worth "
-        "1.92% of the smallest canvas in the set: 0.698 to 0.720 coverage, "
-        "0.271 to 0.264 chroma."),
-    "fig-met-exchange": ((0.36, 0.011),
-        "the three trade-off regions fill the whole plot, but they are reference "
-        "structure and take structural greys, which carry no chroma by design. "
-        "Lowered again by directive 1: the bar was 1.21% of this canvas. "
-        "Coverage went UP, 0.397 to 0.408, because the right margin was pulled "
-        "in to hold the slope labels inside the canvas and the plot rectangle "
-        "took the difference."),
 }
+# The tallest contiguous blank band a canvas may carry, as a fraction of its
+# height. Set at 0.18 against a live set whose worst is 0.082
+# (fig-threshold-surface, the gap between its heatmap and its axis label), so it
+# is a ceiling on a real defect and not a tuning of the current set to itself.
+# fig-capability, retired in the same round, measured 0.132.
+DEAD_SPACE_MAX = 0.18
 
 SET_COVERAGE_FLOOR = 0.28
 SET_CHROMA_FLOOR = 0.10
@@ -282,7 +243,16 @@ SET_CHROMA_FLOOR = 0.10
 # an average, so it moves when its members do, and it is recorded here rather
 # than quietly satisfied by putting colour back that a reviewer showed was
 # misleading in greyscale.
-SET_MEAN_CHROMA_FLOOR = 0.074
+#
+# Lowered once more, to 0.048, and this time not one figure lost any colour.
+# Seven figures left the set in the round that followed the compliance
+# withdrawal, and they included the two most chromatic members it had
+# (fig-disc-actionability at 0.264, fig-labelnoise at 0.203). A mean over eight
+# members is not the same statistic as a mean over fifteen, and the arithmetic
+# of which members remain is not a palette decision. The eight that remain
+# measure 0.013, 0.125, 0.058, 0.015, 0.041, 0.010, 0.027 and 0.115, which is
+# 0.050, and the floor is set just under it.
+SET_MEAN_CHROMA_FLOOR = 0.048
 
 
 def render(pdf, dpi=300):
@@ -296,6 +266,16 @@ def render(pdf, dpi=300):
             return np.asarray(im.convert("RGB"), dtype=np.float64) / 255.0
 
 
+def dead_space(arr):
+    """Tallest contiguous run of all-paper scanlines, as a fraction of height."""
+    ink = (np.abs(arr - 1.0) > (2.0 / 255.0)).any(axis=2).any(axis=1)
+    best = run = 0
+    for has_ink in ink:
+        run = 0 if has_ink else run + 1
+        best = max(best, run)
+    return best / len(ink)
+
+
 def measure(arr):
     coverage = float((np.abs(arr - 1.0) > (2.0 / 255.0)).any(axis=2).mean())
     mx = arr.max(axis=2)
@@ -306,25 +286,37 @@ def measure(arr):
 
 
 def main():
+    # The trap CLAUDE.md records: a gate that reports zero because it scanned
+    # nothing. FLOORS is the live figure set here, and an empty one is a broken
+    # tool, not a clean run.
+    if not FLOORS:
+        print("FLOORS is empty; this tool would pass by measuring nothing.")
+        return 1
     rows, fails = [], []
     for label, (cf, hf) in FLOORS.items():
         pdf = FIGDIR / f"{label}.pdf"
         if not pdf.exists():
             fails.append(f"{label}: PDF missing")
             continue
-        cov, chr_ = measure(render(pdf))
+        arr = render(pdf)
+        cov, chr_ = measure(arr)
+        dead = dead_space(arr)
         if label in LOWERED:
             cf, hf = LOWERED[label][0]
-        ok = cov >= cf - 1e-9 and chr_ >= hf - 1e-9
-        rows.append((label, cov, cf, chr_, hf, ok))
-        if not ok:
+        ok = (cov >= cf - 1e-9 and chr_ >= hf - 1e-9
+              and dead <= DEAD_SPACE_MAX + 1e-9)
+        rows.append((label, cov, cf, chr_, hf, dead, ok))
+        if cov < cf - 1e-9 or chr_ < hf - 1e-9:
             fails.append(f"{label}: coverage {cov:.3f}/{cf:.2f}  "
                          f"chroma {chr_:.3f}/{hf:.2f}")
+        if dead > DEAD_SPACE_MAX + 1e-9:
+            fails.append(f"{label}: tallest blank band {dead:.3f} of canvas "
+                         f"height, over {DEAD_SPACE_MAX:.2f}")
     w = max(len(r[0]) for r in rows) if rows else 24
-    print(f"{'figure':<{w}}  coverage  floor   chroma  floor")
-    for label, cov, cf, chr_, hf, ok in rows:
+    print(f"{'figure':<{w}}  coverage  floor   chroma  floor  deadrun  max")
+    for label, cov, cf, chr_, hf, dead, ok in rows:
         print(f"{label:<{w}}  {cov:8.3f}  {cf:5.2f}  {chr_:7.3f}  {hf:5.2f}"
-              f"  {'ok' if ok else 'UNDER'}")
+              f"  {dead:7.3f}  {DEAD_SPACE_MAX:.2f}  {'ok' if ok else 'UNDER'}")
     if rows:
         mean_chroma = sum(r[3] for r in rows) / len(rows)
         print(f"\nset-mean chroma {mean_chroma:.3f} "

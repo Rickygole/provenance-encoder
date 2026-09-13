@@ -241,6 +241,78 @@ RETIRED = {
         "Never reached a chapter. It tracked a quantity across correction "
         "entries, which is the correction record's job and reads as a progress "
         "chart rather than as evidence.",
+
+    # ---------------------------------------------------------------------
+    # Retired in the round that followed the compliance withdrawal. The
+    # withdrawal moved every value obtained by transmitting credentialed data
+    # to a hosted service under withdrawn.hosted.* in the register, 718 of
+    # them, so any figure that drew a Claude or a Bedrock row was drawing a
+    # value the thesis no longer reports. The rest of this block is the
+    # weak-figure cull that ran with it. Each PDF stays on disk, as every
+    # retired figure's does; what changed is that nothing binds them.
+    # ---------------------------------------------------------------------
+    "fig-capability":
+        "Drew four hosted rows (two Bedrock arms, Claude Haiku 4.5, Claude "
+        "Sonnet 5) whose values are now withdrawn.hosted.*, and its lower "
+        "panel was entirely a local-versus-hosted decomposition, so there is "
+        "no version of it that survives the withdrawal. It was independently "
+        "defective and would have been rebuilt anyway: four text runs printed "
+        "on top of each other in the PDF text layer, the public-text maximum "
+        "label printed through a value label, and the canvas was 355pt tall to "
+        "carry ten numbers with about 110pt of dead white. The deletion covers "
+        "both the compliance fault and the drawing faults; the text-collision "
+        "gate added in the same round is what would have caught the second.",
+    "fig-labelnoise":
+        "Drew two Claude Sonnet 5 series and nothing else. Both are hosted "
+        "results under withdrawn.hosted.*, so the figure has no content left.",
+    "fig-missing-cell":
+        "Four rectangles containing text, with no axis and no scale: a table "
+        "drawn as a picture. Conversion to a 2x2 tabular was considered and "
+        "rejected, because the cell that made it a design rather than a list "
+        "is the frontier-clinical cell and that cell is Claude Sonnet 5's "
+        "over-calling ratio, now withdrawn. A tabular would print a withdrawn "
+        "hosted value or print a hole where the argument was.",
+    "fig-intro-headline":
+        "Duplicated the first rows of fig-capability sixty pages before that "
+        "figure drew them, and fig-capability is itself retired, so the "
+        "duplicate outlived the thing it duplicated. Superseded by "
+        "fig-ceiling, which argues the same ratio from the same three "
+        "committed integers and argues further: it shows what the ratio costs "
+        "in attainable agreement rather than only that the ratio is large.",
+    "fig-disc-actionability":
+        "A timeline with three coloured zones, no measurement of any kind, and "
+        "colour used purely evaluatively. This set's rule is that colour "
+        "carries identity and state, not a verdict, and a figure that plots "
+        "nothing cannot be evidence for the verdict it colours. The "
+        "field-availability fact it documented is one sentence of the "
+        "discussion chapter.",
+    "fig-falsification":
+        "Two numbers on an axis running 0.98 to 1.02, so a move of 1.5 percent "
+        "is drawn as a distance the width of the panel: the axis does the "
+        "arguing, not the data. Retired on the precedent recorded for "
+        "fig-asymmetry in this same table, that a two-point figure was never "
+        "worth a float. Both ratios are printed in the results chapter.",
+    "fig-scaling":
+        "Three points and a line, every number of which is already in a table, "
+        "and its terminal claim is a row of fig-forest's third family, drawn "
+        "there with an interval this panel did not carry.",
+    "fig-met-exchange":
+        "Four markers, two of them stacked at the origin, on a y axis running "
+        "to 200 with nothing drawn between 0 and 185, under a 203-word caption "
+        "that had to carry a worked example because the panel could not. A "
+        "figure whose caption does the arithmetic for the reader is a "
+        "paragraph. The exchange rate it computed is stated in the discussion "
+        "text.",
+}
+
+# A figure that is built and correct but that no .tex binds YET. This is not a
+# second retirement list and it is not a place to park an orphan: an entry must
+# name the chapter that is to include it and the label that chapter must use,
+# and the gate prints it on every run so it cannot sit here unnoticed. It exists
+# because the figures directory and the chapters are edited by different hands,
+# and a figure cannot appear in a chapter and in this directory in the same
+# breath.
+PENDING_INCLUSION = {
 }
 
 
@@ -256,10 +328,23 @@ def check_orphans():
             used.add(m.group(1))
     built = {f.stem for f in (thesis / "figures").glob("fig-*.pdf")}
     problems = []
-    for name in sorted(built - used - set(RETIRED)):
+    for name in sorted(built - used - set(RETIRED) - set(PENDING_INCLUSION)):
         problems.append((name, "built, included by no .tex, and not in RETIRED"))
     for name in sorted(set(RETIRED) & used):
-        problems.append((name, "listed as RETIRED but still included by a .tex"))
+        # Reported with the file and line, because closing this one is an edit
+        # to a chapter and the person holding the chapter needs the address.
+        where = []
+        for tex in sorted(thesis.glob("*.tex")):
+            for i, line in enumerate(tex.read_text().splitlines(), 1):
+                if f"figures/{name}" in line:
+                    where.append(f"{tex.name}:{i}")
+        problems.append((name, "listed as RETIRED but still included by "
+                               + ", ".join(where)))
+    for name in sorted(set(PENDING_INCLUSION) & used):
+        problems.append((name, "is now included by a .tex; delete its "
+                               "PENDING_INCLUSION entry"))
+    for name in sorted(set(PENDING_INCLUSION) - built):
+        problems.append((name, "pending inclusion but its PDF is absent"))
     for name in sorted(set(RETIRED) - built):
         problems.append((name, "listed as RETIRED but its PDF is absent"))
     # A live figure that cannot be regenerated would be a real defect; a retired
@@ -269,11 +354,256 @@ def check_orphans():
     return problems, len(built), len(used), len(RETIRED)
 
 
+# =============================================================================
+# The three set-wide gates below, and the caption gate under them, exist for the
+# reason stated at the top of this file: a rule proved on one canvas and left
+# standing on a sibling is how every defect in this set has shipped. Each of
+# them was written against a defect that a reviewer found by reading a figure,
+# and each of them now reads every live figure instead.
+#
+# LIVE means built, not retired, and either bound by a chapter or waiting in
+# PENDING_INCLUSION. Retired PDFs are deliberately not scanned: they are kept as
+# a record of work that was reconsidered, and failing the build over a figure
+# nothing binds would train a reader to ignore this tool.
+# =============================================================================
+def live_figures():
+    thesis = pathlib.Path(__file__).resolve().parents[2]
+    built = {f.stem for f in (thesis / "figures").glob("fig-*.pdf")}
+    return sorted(built - set(RETIRED))
+
+
+# -----------------------------------------------------------------------------
+# Invariant 5: no two words on a canvas may print on top of each other.
+#
+# fig-capability carried four text runs printing through one another and a
+# public-text maximum label printing through a value label. All of it was in the
+# PDF text layer and none of it was visible in a thumbnail, which is exactly the
+# class of defect this file exists for.
+#
+# HOW THE THRESHOLD WAS SET, because a naive box intersection fails every
+# figure in this set. pdftotext reports a word's FONT box, ascender to
+# descender, not the box its glyphs occupy: a 13pt headline reports 19.6pt tall,
+# so a headline and the deck under it overlap by about 4.5pt on every canvas
+# here while printing perfectly. Each box is therefore reduced to its central
+# 55 percent vertically and shaved 0.6pt at each side, and a pair is a failure
+# only when the smaller of the two reduced boxes is at least a quarter covered.
+# Measured across all 22 PDFs in this directory at the time it was written, that
+# rule fires on fig-capability and on nothing else.
+#
+# THE ROTATION ALLOWLIST. pdftotext reports one axis-aligned box per word
+# whatever the word's own rotation, so a two-line rotated axis label can report
+# two boxes that overlap in page coordinates while being two clean lines on the
+# page. fig-ceiling draws exactly such a label. None of them currently trips the
+# rule, so the allowlist is empty, and it is kept because the next rotated
+# two-line label may. An entry is (figure stem, word) and it must name a word
+# the maintainer has confirmed is rotated; it is not a place to silence a real
+# collision on horizontal type.
+# -----------------------------------------------------------------------------
+WORD_RE = re.compile(
+    r'<word xMin="([\d.]+)" yMin="([\d.]+)" xMax="([\d.]+)" yMax="([\d.]+)">'
+    r'(.*?)</word>')
+COLLISION_KEEP = 0.55        # of each box's height
+COLLISION_SHAVE = 0.6        # pt off each side
+COLLISION_FRACTION = 0.25    # of the smaller box's area
+ROTATION_ALLOWLIST = set()   # (stem, word) pairs; see above
+
+
+def _words(pdf):
+    import subprocess
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        out = pathlib.Path(td) / "w.html"
+        subprocess.run(["pdftotext", "-bbox", str(pdf), str(out)], check=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        text = out.read_text()
+    boxes = []
+    for x0, y0, x1, y1, word in WORD_RE.findall(text):
+        x0, y0, x1, y1 = float(x0), float(y0), float(x1), float(y1)
+        cy, half = (y0 + y1) / 2, (y1 - y0) * COLLISION_KEEP / 2
+        boxes.append((x0 + COLLISION_SHAVE, cy - half,
+                      x1 - COLLISION_SHAVE, cy + half, word))
+    return boxes
+
+
+def check_text_collisions():
+    figs = live_figures()
+    bad = []
+    if not figs:
+        return [("text collisions", "no live figure was scanned; this gate "
+                                    "cannot pass by matching nothing")]
+    for stem in figs:
+        pdf = FIGDIR / f"{stem}.pdf"
+        if not pdf.exists():
+            bad.append((stem, "PDF missing"))
+            continue
+        boxes = _words(pdf)
+        if not boxes:
+            bad.append((stem, "no text layer; a figure in this set always "
+                              "carries at least a headline"))
+            continue
+        for i in range(len(boxes)):
+            for j in range(i + 1, len(boxes)):
+                a, b = boxes[i], boxes[j]
+                ix = min(a[2], b[2]) - max(a[0], b[0])
+                iy = min(a[3], b[3]) - max(a[1], b[1])
+                if ix <= 0 or iy <= 0:
+                    continue
+                area = min((a[2] - a[0]) * (a[3] - a[1]),
+                           (b[2] - b[0]) * (b[3] - b[1]))
+                if area <= 0 or ix * iy / area < COLLISION_FRACTION:
+                    continue
+                if ((stem, a[4]) in ROTATION_ALLOWLIST
+                        or (stem, b[4]) in ROTATION_ALLOWLIST):
+                    continue
+                bad.append((stem, f"{a[4]!r} prints through {b[4]!r} "
+                                  f"({ix * iy / area:.0%} of the smaller box)"))
+    return bad
+
+
+# -----------------------------------------------------------------------------
+# Invariant 6: two fills used as CATEGORY GROUNDS must be at least 0.10 apart in
+# relative luminance, or the categories are one category in black and white.
+#
+# This is not a hypothetical. fig-forest separated its three unit families with
+# MIST, EMERALD_WASH and AMBER_WASH, which are 0.7633, 0.8051 and 0.7956;
+# fig-cohort-flow separated its three phases with HAIR, COBALT_WASH and
+# EMERALD_WASH, 0.8453, 0.7996 and 0.8051; fig-power separated detectable from
+# undetectable with EMERALD_WASH and SCARLET_WASH, 0.8051 and 0.8004. Every WASH
+# stop in this palette is within 0.010 of every other and every TINT stop is
+# within 0.005 of every other, by construction, because the ramps are built to
+# sit at one luminance per stop. That is a virtue when the stop is structural
+# ground and a defect the moment the stop is asked to encode a category, and
+# nothing measured the difference until this gate.
+#
+# The registry is declared rather than parsed out of the drawing code, because
+# no regex can tell a category ground from a region fill from a heatmap. It is
+# kept honest by a coverage assertion instead: EVERY live figure must appear as
+# a key, so a new figure cannot arrive without somebody deciding what its
+# grounds are, and a figure with none declares the empty list.
+# -----------------------------------------------------------------------------
+GROUND_MIN_LUMINANCE_GAP = 0.10
+
+CATEGORY_GROUNDS = {
+    # fault rows against bare paper, a binary since the reviewer showed the
+    # three-hue version failed in greyscale
+    "fig-pipeline-status":     ["SCARLET_TINT", "PAPER"],
+    "fig-cohort-flow":         ["HAIR"],        # one tone for all three phases
+    "fig-exemplar":            ["COBALT_TINT", "MIST"],
+    "fig-prevalence-response": ["MIST", "PAPER"],   # over-prediction wedge
+    "fig-power":               ["EMERALD_WASH", "SCARLET_TINT"],
+    "fig-forest":              [],   # families separated by gap and hairline
+    "fig-ceiling":             [],   # a line on paper
+    # a sequential heatmap field is not a category ground: its fills encode a
+    # continuum and are read against a scale, not against each other
+    "fig-threshold-surface":   [],
+}
+
+
+def check_category_grounds():
+    sys.path.insert(0, str(FIGDIR))
+    try:
+        import style
+    except Exception as exc:                       # pragma: no cover
+        return [("style.py", f"not importable: {exc}")]
+    tones = dict(style.STRUCTURE)
+    for name, ramp in style.RAMPS.items():
+        for stop, value in ramp.asdict().items():
+            tones[f"{name}_{stop}"] = value
+
+    figs = live_figures()
+    bad = []
+    if not figs:
+        return [("category grounds", "no live figure was scanned")]
+    for stem in figs:
+        if stem not in CATEGORY_GROUNDS:
+            bad.append((stem, "live, but declares no category grounds. Add it "
+                              "to CATEGORY_GROUNDS, with [] if it has none."))
+    for stem in sorted(set(CATEGORY_GROUNDS) - set(figs)):
+        bad.append((stem, "declares category grounds but is not a live figure"))
+    for stem, names in sorted(CATEGORY_GROUNDS.items()):
+        for name in names:
+            if name not in tones:
+                bad.append((stem, f"{name} is not a tone style.py publishes"))
+        pairs = [n for n in names if n in tones]
+        for i in range(len(pairs)):
+            for j in range(i + 1, len(pairs)):
+                gap = abs(_lum(tones[pairs[i]]) - _lum(tones[pairs[j]]))
+                if gap < GROUND_MIN_LUMINANCE_GAP:
+                    bad.append((stem, f"{pairs[i]} and {pairs[j]} are "
+                                      f"{gap:.3f} apart in luminance; two "
+                                      f"category grounds need "
+                                      f"{GROUND_MIN_LUMINANCE_GAP:.2f}"))
+    return bad
+
+
+# -----------------------------------------------------------------------------
+# Invariant 7: no caption over 90 words.
+#
+# The set's captions ran to about 1235 words, one of them 205, and a caption
+# that long is a paragraph that has been moved under a figure to avoid writing
+# it into the chapter. The figure it belonged to is retired; the rule stays,
+# because the caption grew to that length one clause at a time.
+#
+# THE TRAP THIS GATE IS WRITTEN AGAINST is recorded in CLAUDE.md: build.sh
+# counted TODOs in ch*.tex when the files are msu_ch*.tex, and reported zero by
+# scanning nothing. Two things here answer it. The file list is asserted
+# non-empty, and so is the caption list: a thesis with no caption at all is a
+# broken scan, not a clean pass. The second one is not theoretical -- the first
+# draft of this gate matched \caption{ and found ZERO captions in 40, because
+# every caption in this thesis carries a short-form optional argument and is
+# written \caption[...]{...}.
+# -----------------------------------------------------------------------------
+CAPTION_MAX_WORDS = 90
+CAPTION_RE = re.compile(r"\\caption\s*(?:\[[^\]]*\])?\s*\{")
+
+
+def _caption_bodies(text):
+    out = []
+    for m in CAPTION_RE.finditer(text):
+        i, depth = m.end(), 1
+        while i < len(text) and depth:
+            depth += {"{": 1, "}": -1}.get(text[i], 0)
+            i += 1
+        out.append((text[:m.start()].count("\n") + 1, text[m.end():i - 1]))
+    return out
+
+
+def _caption_words(body):
+    body = re.sub(r"\\[a-zA-Z]+\*?\s*", " ", body)
+    body = re.sub(r"[{}$\\~]", " ", body)
+    return len(body.split())
+
+
+def check_caption_length():
+    thesis = FIGDIR.parent
+    tex = sorted(thesis.glob("*.tex"))
+    if not tex:
+        return [("captions", "no .tex file was scanned; this gate cannot pass "
+                             "by matching nothing")]
+    bad, n_caps = [], 0
+    for f in tex:
+        for line, body in _caption_bodies(f.read_text()):
+            n_caps += 1
+            words = _caption_words(body)
+            if words > CAPTION_MAX_WORDS:
+                bad.append((f"{f.name}:{line}",
+                            f"{words} words, over {CAPTION_MAX_WORDS}"))
+    if not n_caps:
+        return [("captions", f"{len(tex)} .tex files scanned and not one "
+                             f"caption found; the pattern is wrong")]
+    return bad
+
+
 def main():
     failures = []
     for name, fn in (("printed measure", check_measure),
                      ("entity hue map", check_entity_hue),
-                     ("no type in SLATE", check_no_slate_type)):
+                     ("no type in SLATE", check_no_slate_type),
+                     ("no text collisions", check_text_collisions),
+                     ("category grounds separable in greyscale",
+                      check_category_grounds),
+                     (f"no caption over {CAPTION_MAX_WORDS} words",
+                      check_caption_length)):
         found = fn()
         status = "FAIL" if found else "pass"
         print(f"{status}: {name}")
@@ -291,6 +621,9 @@ def main():
     else:
         print(f"pass: no figure orphans ({n_used} live, {n_retired} retired "
               f"with a recorded reason)")
+    for name, (label, chapter, why) in sorted(PENDING_INCLUSION.items()):
+        print(f"note: {name} is built and waiting for {chapter} to include it "
+              f"as {label}. {why}")
 
     advisory = check_text_on_ground()
     print(f"{'note' if advisory else 'pass'}: text on ground (advisory, palette "

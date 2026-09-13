@@ -1,5 +1,9 @@
 """Fig 5 prevalence response, Fig 7 power, Fig 8 forest, Fig 9 scaling.
 
+Three of the four are bound by the thesis. Fig 9, fig-scaling, is retired and
+still built here; the reason of record is in RETIRED in
+tools/check_figure_invariants.py and is repeated at its own block below.
+
 Every value is READ from a committed result file. An earlier version typed the
 C37 and C44 numbers as literals and drew the power curve from an ad-hoc formula
 that did not reproduce the one real MDE it plotted -- the exact defect
@@ -9,6 +13,12 @@ All four figures follow the v3 system in style.py: boxed axes, direct labels
 only, precomputed tints instead of alpha, and one saturated scarlet element per
 axes at most. Figures 8 and 9 carry no scarlet at all, because Figure 8's claim
 is a shape and Figure 9's claim is a success.
+
+Figures 5 and 8 were rebuilt in the round that followed the compliance
+withdrawal, each around a defect a reader could see and no tool could: Figure 5
+annotated its most important datum with an arrow leaving the top of a panel
+instead of plotting it, and Figure 8 put three incommensurable units on one
+shared numeric axis. Both rebuilds are argued at their own blocks.
 """
 import json, pathlib, glob, math, statistics as st
 import numpy as np
@@ -20,7 +30,7 @@ from style import (
     EMERALD_WASH, AMBER_DEEP, AMBER_CORE, AMBER_TINT, AMBER_WASH,
     PLUM_DEEP, PLUM_CORE, SCARLET_DEEP, SCARLET_CORE, SCARLET_TINT,
     SCARLET_WASH,
-    PAPER, INK, GRAPHITE, MUTE, SLATE, MIST, HAIR,
+    PAPER, INK, GRAPHITE, MUTE, SLATE, MIST, HAIR, PLATE_EDGE,
     T_HEADLINE, T_CLAIM, T_DECK, T_AXIS, T_TICK, T_SERIES, T_NOTE, T_PANEL,
     LW_SPINE, LW_DATA, LW_REF, LW_INTERVAL, MS_DOT, MS_MARK, MS_SEED,
     REF_DASH, ERRBAR, DOT, FIGW, canvas, frame, signature, panel_label, arrow,
@@ -34,6 +44,27 @@ ROOT = pathlib.Path("/Users/rickygole/provenance-encoder")
 # =============================================================================
 # Fig 5 -- fig-prevalence-response
 # =============================================================================
+# THIS FIGURE WAS REBUILT AROUND ITS OWN MOST IMPORTANT DATUM. It used to be a
+# two-by-three grid of small multiples, one panel per model per prompt, on a y
+# axis that stopped at 0.38 -- and the clinical operating point, the one place
+# on the canvas where the deployed labeller meets the real base rate, did not
+# fit on that axis. It was drawn as an arrow leaving the top of the first panel
+# with its coordinates written beside it. An annotation that names a value is
+# not a plot of it: the reader could not see how far above every swept point
+# the real one sits, which is the whole reason the sweep understates the
+# problem.
+#
+# The axis now reaches it, so it is a mark on the canvas like any other, and
+# the cost is stated rather than hidden: the swept points occupy the bottom
+# quarter of each panel instead of most of it, and the calibration diagonal is
+# shallow rather than at forty-five degrees. That trade is the correct one.
+# The claim is not how far apart 0.07 and 0.17 are, which is a table; the claim
+# is that every response is flat against prevalence and that all of them sit an
+# order of magnitude below where the deployed labeller actually operates.
+#
+# Six panels became two, one per prompt, three models each, so a reader
+# compares models by looking at one panel rather than by saccading between
+# three.
 # The copy under results/, not the one under accord/prevalence_replication/.
 # The two files are byte-identical; only this one is inside the tree that gets
 # copied to a runtime, so reading it is what lets this figure build in Colab.
@@ -48,45 +79,52 @@ clinical_y = _xtab["0.95"]["contradiction"] / (_xtab["0.95"]["contradiction"]
 clinical_x = json.loads((ROOT / "results/accord/diag/step2_signal_check.json").read_text())[
     "contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]["base_rate"]
 
-PL = {"A_bare": "bare prompt", "B_baserate_abstain": "base rate stated,\nabstention allowed"}
-# One hue per labeller, held down both rows of its column. granite3.3:8b takes
-# AMBER: it used to draw in the green this set reserves for pharmacist truth,
-# and a weak labeller wearing the truth colour is the kind of thing this thesis
-# is about.
+PL = {"A_bare": "bare prompt",
+      "B_baserate_abstain": "base rate stated, abstention allowed"}
+# One hue per labeller, held across both panels. granite3.3:8b takes TANGERINE:
+# it used to draw in the green this set reserves for pharmacist truth, and a
+# weak labeller wearing the truth colour is the kind of thing this thesis is
+# about.
 MODEL_HUE = {"llama3:8b": MAGENTA, "granite3.3:8b": TANGERINE,
              "qwen3:8b": CYAN}
+# Where each series is named, as (x of the swept point, vertical side). Chosen
+# per panel so that three labels in a band a quarter of a panel tall never
+# collide: the check that holds this is the text-collision gate in
+# tools/check_figure_invariants.py, not an eye.
+# The series are named in the LEFT panel only, and the right panel carries no
+# label at all. That is not a legend by another route: both panels draw the
+# same three labellers in the same hues under two prompts, which is what a
+# small multiple is, and the deck says so. The alternative was measured and
+# rejected. On a y axis that reaches the deployed operating point every swept
+# series lives in the bottom quarter of the panel, and six labels in that band
+# either print over one another or print over somebody else's interval; the
+# only way to seat all six was a white casing laid over a data line, which
+# erases the line and is a thing this set allows over a fill and not over a
+# mark.
+LABEL_AT = {
+    "A_bare": {"llama3:8b": ("0.05", +1), "granite3.3:8b": ("0.25", +1),
+               "qwen3:8b": ("0.25", -1)},
+    "B_baserate_abstain": {},
+}
+Y_HI, X_HI = 0.90, 0.32
+SWEEP_P = ["0.02", "0.05", "0.1", "0.25"]
 
-# THE Y AXIS. It ran 0 to 1.0 and every measured point sat in the bottom
-# quarter of it, which is why the author could not read this grid. The tallest
-# point on the sweep is 0.17 and the highest Wilson bound anywhere on the canvas
-# is 0.256, so nine tenths of the height was holding one off-sweep annotation.
-#
-# It now runs 0 to 0.38 against an x that runs 0 to 0.32. That single change is
-# what makes this figure legible: the two axes are on very nearly the same
-# scale, so PERFECT CALIBRATION IS A DIAGONAL AT ROUGHLY 45 DEGREES and a
-# labeller that does not track prevalence is a line visibly flat against it. On
-# the old axis the diagonal was a shallow ramp and flatness had no reference to
-# be flat against. No point was dropped and no interval was clipped: the whole
-# sweep, bounds included, clears the frame top by a third of the plot.
-#
-# What did not fit is the clinical operating point at 0.85, and it is drawn
-# where it belongs -- at its own x, running off the top of the panel it belongs
-# to, with both of its coordinates written beside it. An off-scale mark that
-# names its own value states the reader's position honestly; squashing six
-# panels to make room for one point does not.
-Y_HI, X_HI = 0.38, 0.32
-fig, axes = plt.subplots(2, 3, figsize=(FIGW, 3.78), sharex=True, sharey=True)
+fig, axes = plt.subplots(1, 2, figsize=(FIGW, 3.94), sharey=True)
 canvas(fig)
-# 3.78in against the 3.60 a proportional growth gives: the extra 0.18 is what
-# squares the panels up under a 0 to 0.38 y axis, and the block still lands at
-# 5.22in, inside class B and clear of the forbidden 5.34.
-fig.subplots_adjust(left=0.13735, right=0.98900, top=0.83642, bottom=0.11786,
-                    wspace=0.14, hspace=0.20)
-for r, pr in enumerate(prompts):
-    for c, m in enumerate(models):
-        ax = axes[r, c]
+fig.subplots_adjust(left=0.0930, right=0.9830, top=0.7810, bottom=0.1130,
+                    wspace=0.075)
+for c, pr in enumerate(prompts):
+    ax = axes[c]
+    # The wedge above the diagonal is over-prediction, and it is the whole
+    # story of this figure, so it is drawn rather than left as white space.
+    gx = np.linspace(0, X_HI, 2)
+    ax.fill_between(gx, gx, Y_HI, facecolor=MIST, edgecolor="none",
+                    linewidth=0, zorder=0)
+    ax.plot([0, X_HI], [0, X_HI], color=SLATE, linestyle=REF_DASH,
+            linewidth=LW_REF, zorder=2)
+    for m in models:
         xs, ys, lo, hi = [], [], [], []
-        for p in ["0.02", "0.05", "0.1", "0.25"]:
+        for p in SWEEP_P:
             e = d["results"][m][pr].get(p)
             if not e:
                 continue
@@ -96,76 +134,87 @@ for r, pr in enumerate(prompts):
             a, b = wilson_ci(e["n_contradiction"], e["n_decided"])
             lo.append(a); hi.append(b)
         hue = MODEL_HUE[m]
-        # The wedge above the diagonal is over-prediction, and it is the whole
-        # story of this grid, so it is drawn rather than left as white space.
-        gx = np.linspace(0, X_HI, 2)
-        ax.fill_between(gx, gx, Y_HI, facecolor=MIST, edgecolor="none",
-                        linewidth=0, zorder=0)
-        ax.plot([0, X_HI], [0, X_HI], color=SLATE, linestyle=REF_DASH,
-                linewidth=LW_REF, zorder=2)
-        # Heavier than the set's 1.8pt data line and 6.6pt dot, and the only
-        # place in the set that departs from that table. The author asked this
-        # figure for vibrancy; no hue on it could be brightened without costing
-        # the greyscale separation the whole palette is verified on (style.py
-        # records the arithmetic), so the vibrancy is bought in WEIGHT instead.
-        # A 2.4pt line and a 7.4pt marker faced in CORE and rimmed in DEEP put
-        # two saturated stops on every point of every series.
         ax.errorbar(xs, ys, yerr=[[y - a for y, a in zip(ys, lo)],
                                   [b - y for y, b in zip(ys, hi)]],
-                    fmt="-o", color=hue.CORE, ms=7.4, lw=2.4, zorder=4,
+                    fmt="-o", color=hue.CORE, ms=6.4, lw=2.1, zorder=4,
                     markerfacecolor=hue.CORE, markeredgecolor=hue.DEEP,
                     markeredgewidth=1.0, ecolor=hue.CORE,
-                    elinewidth=1.6, capthick=1.6, capsize=3.6)
-        if r == 0 and c == 0:
-            # The clinical operating point. Its true position is (0.04, 0.85),
-            # which is off the top of a panel whose highest measured bound is
-            # 0.256, so it is drawn as what it is: a mark at its own x, leaving
-            # the panel upward, carrying both of its coordinates in its label.
-            # No marker sits under the arrow. A square drawn at a y the point
-            # does not have would be a false position however it is labelled,
-            # and this figure is in a thesis about instruments that mislead.
-            # The arrow starts above the highest bound in the panel and leaves
-            # through the top.
-            arrow(ax, (clinical_x, 0.272), (clinical_x, Y_HI - 0.010),
-                  color=SCARLET_CORE, lw=2.4, zorder=6)
-            case(ax.text(X_HI - 0.014, 0.348,
-                         f"clinical: {clinical_x:.4f} read as "
-                         f"{clinical_y:.4f}",
-                         ha="right", va="center", fontsize=T_SERIES,
-                         color=SCARLET_DEEP, zorder=7))
-        if r == 0 and c == 2:
-            case(ax.text(X_HI - 0.005, Y_HI - 0.012, "over-prediction",
-                         ha="right", va="top", fontsize=T_NOTE, color=MUTE,
-                         zorder=5))
-        if r == 1 and c == 2:
-            # The diagonal's angle on the page, not 45 degrees: the panel is
-            # not square and the two axes do not share a range. It is close to
-            # 45 now, which is the point of the new axis.
-            bb = ax.get_window_extent()
-            ang = math.degrees(math.atan2(X_HI / Y_HI * bb.height,
-                                          bb.width))
-            # MUTE, not the SLATE of the line it names: SLATE is 3.48:1 on
-            # white and this set does not set type in it.
-            case(ax.text(0.150, 0.156, "perfect calibration", fontsize=T_NOTE,
-                         color=MUTE, ha="center", va="bottom", rotation=ang,
-                         rotation_mode="anchor", zorder=5))
-        ax.set_xlim(0, X_HI); ax.set_ylim(0, Y_HI)
-        ax.set_xticks([0, 0.1, 0.2, 0.3]); ax.set_yticks([0, 0.1, 0.2, 0.3])
-        if r == 0:
-            ax.set_title(m, fontsize=T_SERIES, pad=5, color=MODEL_HUE[m].DEEP)
-        if c == 0:
-            ax.set_ylabel(PL[pr], fontsize=T_TICK, linespacing=1.3)
-        ax.tick_params(labelsize=T_TICK)
-        frame(ax)
-fig.supxlabel("True prevalence", fontsize=T_AXIS, y=0.018)
-fig.supylabel("Labeller predicted-positive rate", fontsize=T_AXIS, x=0.006)
+                    elinewidth=1.4, capthick=1.4, capsize=3.0)
+        # Named at its own mark, in its own DEEP tone. No legend anywhere.
+        if m in LABEL_AT[pr]:
+            at, side = LABEL_AT[pr][m]
+            i = SWEEP_P.index(at)
+            y_anchor = (hi[i] + 0.022) if side > 0 else (lo[i] - 0.008)
+            case(ax.text(xs[i], y_anchor, m, ha="center",
+                         va="bottom" if side > 0 else "top",
+                         fontsize=T_SERIES, color=hue.DEEP, zorder=6))
+    if c == 0:
+        # THE CLINICAL OPERATING POINT, PLOTTED. Its x is the pharmacist's
+        # confirmed rate on the gold pairs and its y is the deployed weak
+        # labeller's positive rate among the pairs it decided, both read from
+        # the diagnostic files above. It is drawn on the bare-prompt panel
+        # because the deployed labeller is not given a base rate and is not
+        # allowed to abstain, which is that panel's condition.
+        ax.plot([clinical_x], [clinical_y], marker="o", ms=MS_DOT + 1.6,
+                color=SCARLET_CORE, markeredgecolor=SCARLET_DEEP,
+                markeredgewidth=1.0, zorder=7)
+        case(ax.text(clinical_x + 0.016, clinical_y,
+                     f"deployed weak labeller:\n{clinical_x:.4f} read as "
+                     f"{clinical_y:.4f}", ha="left", va="center",
+                     fontsize=T_SERIES, color=SCARLET_DEEP, zorder=7,
+                     linespacing=1.3))
+        case(ax.text(X_HI - 0.008, Y_HI - 0.020, "over-prediction",
+                     ha="right", va="top", fontsize=T_NOTE, color=MUTE,
+                     zorder=5))
+    if c == 1:
+        # The diagonal's angle on the page, not 45 degrees: the panel is not
+        # square and the two axes do not share a range.
+        bb = ax.get_window_extent()
+        ang = math.degrees(math.atan2(X_HI / Y_HI * bb.height, bb.width))
+        # MUTE, not the SLATE of the line it names: SLATE is 3.48:1 on white
+        # and this set does not set type in it.
+        case(ax.text(0.205, 0.212, "perfect calibration", fontsize=T_NOTE,
+                     color=MUTE, ha="center", va="bottom", rotation=ang,
+                     rotation_mode="anchor", zorder=5))
+    ax.set_xlim(0, X_HI); ax.set_ylim(0, Y_HI)
+    ax.set_xticks([0, 0.1, 0.2, 0.3])
+    ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
+    ax.set_title(PL[pr], fontsize=T_SERIES, pad=5, color=INK)
+    ax.tick_params(labelsize=T_TICK)
+    frame(ax, grid="y")
+fig.supxlabel("True prevalence", fontsize=T_AXIS, y=0.016)
+axes[0].set_ylabel("Labeller predicted-positive rate", fontsize=T_AXIS)
 signature(fig, SCARLET_DEEP,
-          "No labeller tracks prevalence. Stating the base rate does not fix it.")
+          "No labeller tracks prevalence, and none comes near the deployed "
+          "rate.",
+          # Two lines, each held under about 105 characters: a longer deck line
+          # overflows the pinned bounding box and costs the whole canvas a
+          # silent scale-down on the page. Invariant 1 is the check.
+          deck="Bars are Wilson intervals on the counts behind each swept rate. "
+               "The dashed line is perfect calibration;\neverything above it is "
+               "over-prediction. Both panels draw the same three labellers, "
+               "named in the left panel.")
 fig.savefig(HERE / "fig-prevalence-response.pdf"); plt.close(fig)
 print("wrote fig-prevalence-response.pdf")
 
 # =============================================================================
-# Fig 9 -- fig-scaling. Panel (b) deleted: its content is Figure 8's last row.
+# Fig 9 -- fig-scaling. RETIRED, and still built here.
+#
+# The figure is three points and a line, every number of which is already in a
+# table, and its terminal claim -- the pretrained arm beats the 100M scratch
+# arm -- is a row of fig:forest's third family, drawn there with an interval
+# this panel does not carry. Nothing in the thesis binds it any more and the
+# reason of record is in tools/check_figure_invariants.py.
+#
+# It goes on being built, rather than being switched off the way fig_frontier.py
+# and make_figures_extra.py were, because this module still builds three live
+# figures and because that is what this directory already does with a retired
+# figure whose generator shares a file: make_figures.py has kept building
+# fig-funnel, fig-prevalence and fig-tracking since each of them was retired.
+# The retirement record is what keeps a retired PDF out of the thesis; a
+# generator that stops running only makes the PDF stale.
+#
+# Panel (b) was deleted earlier: its content is Figure 8's last row.
 # =============================================================================
 sc = json.loads((ROOT / "results/accord/scaling/scaling_results.json").read_text())
 by, pr_ = {}, {}
@@ -239,33 +288,63 @@ print("wrote fig-scaling.pdf")
 # =============================================================================
 # Fig 8 -- fig-forest. The master summary: every headline estimate in the
 # thesis, and the only place they appear.
+#
+# THIS FIGURE WAS REBUILT, and the defect it was rebuilt for is the one a
+# reader cannot see: it put three incommensurable units on one shared numeric
+# axis. Its own axis label admitted it, "unit named per family", which is an
+# apology and not a fix -- a reader who compares a Matthews correlation with an
+# AUROC by horizontal distance on a shared axis is comparing nothing, and the
+# figure invited exactly that by drawing them on one ruler. Each unit family
+# now has its own sub-axes with its own x range, its own ticks and its own zero
+# rule, stacked and separated by whitespace and a hairline.
+#
+# Two more defects went with it. The three family GROUNDS were MIST,
+# EMERALD_WASH and AMBER_WASH, which are 0.7633, 0.8051 and 0.7956 in relative
+# luminance: three fills a greyscale reader cannot tell apart, doing the work
+# of separating the families. The separation is now structural (a gap, a
+# hairline, and a heading that names the unit) and no ground is drawn at all,
+# which is also what takes this figure's ink coverage down; see
+# tools/measure_ink.py. And the marker hue varied row to row with no key on the
+# canvas, so six hues encoded nothing a reader could decode. Every mark is now
+# the structural measurement tone, and the row's identity is where it always
+# actually was, in the label beside it.
+#
+# THE HOSTED ROWS ARE GONE and are not filtered by name. intervals.json still
+# carries claude_sonnet5_zeroshot and claude_sonnet5_fewshot in its reported
+# block; the thesis register does not, because the compliance withdrawal moved
+# every value obtained by transmitting this data to a hosted service under
+# withdrawn.hosted.*. This figure therefore draws the rows the REGISTER carries
+# (mccint.E2_mcc_intervals.*) and drops any row in the artifact that the
+# register does not mirror. A row withdrawn later disappears from this canvas
+# without anybody editing this file, which is the opposite of the failure mode
+# CORRECTIONS records for the hand-maintained key set.
 # =============================================================================
+_FACTS = json.loads((ROOT / "results/accord/VERIFIED_FACTS.json").read_text())
 iv = json.loads((ROOT / "results/accord/stats/intervals.json").read_text())["E2_mcc_intervals"]
-NICE = {"gpt4o_zeroshot": "GPT-4o zero-shot", "gpt4o_fewshot": "GPT-4o few-shot",
-        "accord_binary_at_0.5_253core": "ACCORD at 0.5",
-        "llama_baseline": "Llama 3 8B",
-        "claude_sonnet5_zeroshot": "Claude Sonnet 5 zero-shot",
-        "claude_sonnet5_fewshot": "Claude Sonnet 5 few-shot"}
-# Rows take their ENTITY hue, which they did not before: family 1's four rows
-# all drew one blue, contradicting the graphical abstract 85 pages earlier.
-# EMERALD and CYAN for the two frontier rows: both are unused by family 1 and
-# neither collides with GPT-4o's cobalt, which is the confusion this map was
-# introduced to stop.
-ROW_HUE = {"gpt4o_zeroshot": COBALT, "gpt4o_fewshot": AZURE,
-           "accord_binary_at_0.5_253core": AMBER, "llama_baseline": PLUM,
-           "claude_sonnet5_zeroshot": EMERALD, "claude_sonnet5_fewshot": CYAN}
+# The register key is mccint.E2_mcc_intervals.<row>.<field> and <row> itself
+# contains dots (accord_binary_at_0.5_253core), so the row name is everything
+# between the prefix and the LAST dot. Splitting on the third dot instead
+# silently dropped the ACCORD row, which is the kind of near miss this project
+# has shipped before.
+_PREFIX = "mccint.E2_mcc_intervals."
+_live = {k[len(_PREFIX):].rsplit(".", 1)[0] for k in _FACTS
+         if k.startswith(_PREFIX)}
+_dropped = sorted(set(iv) - _live)
+iv = {k: v for k, v in iv.items() if k in _live}
+assert iv, "no Matthews row survives the register filter"
+NICE = {"accord_binary_at_0.5_253core": "ACCORD at 0.5",
+        "llama_baseline": "Llama 3 8B"}
 fam_mcc = [((NICE.get(k, k) + f" ({v['n']} pairs)") if k.startswith("accord")
-            else NICE.get(k, k), v["mcc"], v["ci95"][0], v["ci95"][1],
-            ROW_HUE[k]) for k, v in iv.items()]
+            else NICE.get(k, k), v["mcc"], v["ci95"][0], v["ci95"][1])
+           for k, v in iv.items()]
 _dec = json.loads((ROOT / "results/accord/decontam/corrected_gold_metrics.json").read_text())["aggregate"]
 _ctrl = json.loads((ROOT / "results/accord/control/final_report.json").read_text())
 _df34 = _ctrl["ensemble_mean_of_seed_scores"]["gold_defect_free_rule34"]
 fam_auroc = [
     ("Decontaminated ensemble", _dec["ensemble_auroc"] - 0.5,
-     _dec["ensemble_ci95"][0] - 0.5, _dec["ensemble_ci95"][1] - 0.5, AMBER),
+     _dec["ensemble_ci95"][0] - 0.5, _dec["ensemble_ci95"][1] - 0.5),
     ("Defect-free stratum", _df34["auroc"] - 0.5,
-     _df34["bootstrap"]["ci95"][0] - 0.5, _df34["bootstrap"]["ci95"][1] - 0.5,
-     EMERALD),
+     _df34["bootstrap"]["ci95"][0] - 0.5, _df34["bootstrap"]["ci95"][1] - 0.5),
 ]
 # The per-seed mortality-task scores read from the committed aggregate rather
 # than from the quarantined per-run files under local_only/. The values are
@@ -283,108 +362,107 @@ _p100 = [x["accuracy"] for x in _sc if x["tag"] == "scratch_100M"]
 _pbert = [x["accuracy"] for x in _sc if x["tag"] == "pretrained_bert"]
 _g44 = st.mean(_pbert) - st.mean(_p100)
 _se44 = math.sqrt(st.stdev(_pbert) ** 2 / 3 + st.stdev(_p100) ** 2 / 3)
-# "In-hospital mortality, AUROC" not "... AUROC (3 seeds each)": that longer
-# label is the one D1 traced as the cause of fig-forest's tight-bbox overflow
-# (see the note at fig.subplots_adjust below). Raising `left` to fit it costs
-# this figure's ink coverage its own 0.46 floor in tools/measure_ink.py (0.530
-# to 0.458), so the label is shortened instead and "3 seeds each" is dropped
-# from the row name. It is still true and still in the data (task_runs.json
-# carries exactly 3 seeds per arm); it just is not on this canvas any more. The
-# caption owner needs to say it: "In-hospital mortality, AUROC (3 seeds each)".
+# "In-hospital mortality, AUROC" not "... AUROC (3 seeds each)": the longer
+# label overflowed the label column. It is still true and still in the data
+# (task_runs.json carries exactly 3 seeds per arm); the caption owner needs to
+# say it.
 fam_gap = [
-    ("In-hospital mortality, AUROC", _g, _g - 1.96 * _se,
-     _g + 1.96 * _se, EMERALD),
-    ("AG News at 100M, single budget", _g44, _g44 - 1.96 * _se44, _g44 + 1.96 * _se44,
-     EMERALD),
+    ("In-hospital mortality, AUROC", _g, _g - 1.96 * _se, _g + 1.96 * _se),
+    ("AG News at 100M, single budget", _g44, _g44 - 1.96 * _se44,
+     _g44 + 1.96 * _se44),
 ]
-# A family is not an entity, so the family band is a structural ground and the
-# family heading is set in the annotation grey, not in a fake hue.
-FAMILIES = [("Matthews correlation", fam_mcc, MIST),
-            ("AUROC above chance", fam_auroc, EMERALD_WASH),
-            ("Pretraining gap, pretrained minus from scratch", fam_gap, AMBER_WASH)]
-for _, rs, _b in FAMILIES:
+# Each family's heading names its own unit, because each family now has its own
+# ruler and nothing on this canvas is comparable across one.
+FAMILIES = [("Matthews correlation", fam_mcc),
+            ("AUROC above chance", fam_auroc),
+            ("Pretraining gap, pretrained minus from scratch", fam_gap)]
+for _, rs in FAMILIES:
     rs.sort(key=lambda r: r[1])
 
-placed, bands_, heads, y = [], [], [], 0.0
-for fi, (fam, rs, bg) in enumerate(reversed(FAMILIES)):
-    y0 = y - 0.55
-    for r in rs:
-        placed.append((y, r)); y += 1.0
-    y -= 1.0
-    heads.append((y + 0.52, fam))
-    bands_.append((y0, y + 1.05, bg))
-    y += 1.55
-rows = [r for _, r in placed]
-y_ceiling = placed[-1][0] + 1.10
-
-fig, ax = plt.subplots(figsize=(FIGW, 3.71))
+# ---------------------------------------------------------------------------
+# Layout, in inches, resolved to figure fractions. Three stacked sub-axes share
+# one left label column and one right value column; the plot column is the only
+# thing that differs between them, which is the point.
+# ---------------------------------------------------------------------------
+# PAD_TOP holds the headline, the deck and the first family heading; the three
+# collided at 0.40 and the heading printed through the deck. X_LEFT is set by
+# the longest row label ("AG News at 100M, single budget"), which overflowed
+# the pinned bounding box to the LEFT at 0.256 and took the saved measure to
+# 440.95pt against this class's 424.348.
+H = 3.38
+PAD_TOP, PAD_BOT = 0.72, 0.28
+AX_H, GAP = 0.50, 0.44
+X_LEFT, X_RIGHT = 0.3250, 0.6950          # the plot column
+X_VALUE = 0.9950                          # right-aligned value text
+fig = plt.figure(figsize=(FIGW, H))
 canvas(fig)
-# left is unchanged at 0.2976. canvas() pins the bbox to the figure rectangle,
-# but savefig(bbox="tight") still EXPANDS for artists outside it, and with the
-# longer "(3 seeds each)" row label this margin let the y tick labels overflow
-# it by about 0.58in. The tight box grew LEFT to catch that, saved at
-# 465.919pt against this class's 424.348, and \includegraphics then scaled the
-# whole figure down by 8.9 percent to fit the measure -- which put this
-# figure's 8.5pt note type under the set's own floor. Exactly this defect,
-# same cause, was already diagnosed and fixed for fig:met-exchange in
-# make_figures.py by widening its overflowing margin; that remedy was tried
-# here first (left raised to 0.398, which does hold the label), but it also
-# narrows the plot rectangle by 14.5%, and this figure's family bands fill
-# that rectangle, so its ink coverage fell from 0.530 to 0.458, under
-# tools/measure_ink.py's 0.46 floor. The other remedy the same diagnosis
-# offers is the one actually applied: shorten the overflowing label instead
-# (above, at fam_gap) so the existing margin already holds it, which is the
-# state this figure was in before that label grew.
-fig.subplots_adjust(left=0.2976, right=0.9890, top=0.8783, bottom=0.1173)
-X_LO, X_HI = -0.40, 1.06
-ax.set_xlim(X_LO, X_HI)
-ax.set_ylim(-0.80, y_ceiling)
-ax.set_xticks([-0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4])
-frame(ax, grid="x")
-for y0, y1, bg in bands_:
-    ax.axhspan(y0, y1, facecolor=bg, edgecolor="none", linewidth=0, zorder=0)
-# The zero line is the spine of this figure, not a reference to be looked past.
-ax.axvline(0, color=GRAPHITE, lw=1.2, zorder=2)
 
-# The drawn half-width of an interval, in points, decides whether the sliver
-# rule fires. Anything under 1.5pt is invisible beside its own marker, and an
-# invisible interval with no cue is the failure this set's first rule exists to
-# prevent.
-plot_w_pt = (0.9890 - 0.2976) * FIGW * 72
-sliver = []
-for yy, (lab, e, lo, hi, hue) in placed:
-    half_pt = (hi - lo) / 2 / (X_HI - X_LO) * plot_w_pt
-    ax.errorbar([e], [yy], xerr=[[e - lo], [hi - e]], fmt="o", color=hue.CORE,
-                zorder=5, **ERRBAR, **DOT)
-    mark = ""
-    if half_pt < 1.5:
-        for b in (lo, hi):
-            ax.plot([b, b], [yy - 0.19, yy + 0.19], color=hue.DEEP, lw=1.5,
-                    solid_capstyle="butt", zorder=6)
-        mark = "‡ "
-        sliver.append(lab)
-    ax.text(X_HI - 0.02, yy, f"{mark}{e:+.4f}  [{lo:+.4f}, {hi:+.4f}]",
-            ha="right", va="center", fontsize=T_SERIES, color=hue.DEEP,
-            zorder=6)
+rows_all, sliver, axes_ = [], [], []
+top = H - PAD_TOP
+plot_w_pt = (X_RIGHT - X_LEFT) * FIGW * 72
+for fam, rs in FAMILIES:
+    ax = fig.add_axes([X_LEFT, (top - AX_H) / H, X_RIGHT - X_LEFT, AX_H / H])
+    axes_.append(ax)
+    # Its own range, from its own numbers, with symmetric padding so the zero
+    # rule is never pushed to a spine and the reader cannot read the frame as a
+    # bound.
+    lo = min(r[2] for r in rs)
+    hi = max(r[3] for r in rs)
+    span = max(hi - lo, 1e-6)
+    x0, x1 = min(lo, 0.0) - 0.16 * span, max(hi, 0.0) + 0.16 * span
+    ax.set_xlim(x0, x1)
+    ax.set_ylim(-0.72, len(rs) - 0.28)
+    ax.xaxis.set_major_locator(plt.MaxNLocator(5, prune=None))
+    frame(ax, grid="x")
+    ax.tick_params(axis="y", length=0)
+    ax.tick_params(axis="x", labelsize=T_TICK)
+    ax.axvline(0, color=GRAPHITE, lw=1.2, zorder=2)
+    for i, (lab, e, clo, chi) in enumerate(rs):
+        half_pt = (chi - clo) / 2 / (x1 - x0) * plot_w_pt
+        # Every mark is the structural measurement tone. A hue per row was six
+        # hues with no key; the row is named in the column to its left.
+        ax.errorbar([e], [i], xerr=[[e - clo], [chi - e]], fmt="o",
+                    color=GRAPHITE, zorder=5, **ERRBAR, **DOT)
+        mark = ""
+        if half_pt < 1.5:
+            for b in (clo, chi):
+                ax.plot([b, b], [i - 0.16, i + 0.16], color=INK, lw=1.5,
+                        solid_capstyle="butt", zorder=6)
+            mark = "‡ "
+            sliver.append(lab)
+        fig.text(X_VALUE,
+                 ((top - AX_H) + AX_H * (i + 0.5) / len(rs)) / H,
+                 f"{mark}{e:+.4f}  [{clo:+.4f}, {chi:+.4f}]",
+                 ha="right", va="center", fontsize=T_SERIES, color=GRAPHITE)
+        rows_all.append((lab, e, clo, chi))
+    ax.set_yticks(range(len(rs)))
+    ax.set_yticklabels([r[0] for r in rs], fontsize=T_SERIES)
+    # The family heading sits in the left column, above its own sub-axes, and
+    # names the unit that sub-axes is drawn in.
+    fig.text(0.012, (top + 0.085) / H, fam, ha="left", va="bottom",
+             fontsize=T_SERIES, color=MUTE, style="italic")
+    top -= AX_H + GAP
+    if top > PAD_BOT:
+        # The one separator: a hairline across the full measure in the enclosure
+        # tone, which is what replaces three coloured grounds.
+        # 0.285in above the next sub-axes: clear of the previous sub-axes'
+        # tick labels above it and of the next family heading below it. At
+        # GAP * 0.30 the rule printed straight through the heading.
+        fig.add_artist(plt.Line2D([0.012, X_VALUE], [(top + 0.285) / H] * 2,
+                                  color=PLATE_EDGE, lw=0.6))
 
-gt = ax.get_yaxis_transform()
-ax.set_yticks([yy for yy, _ in placed])
-ax.set_yticklabels([r[0] for r in rows], fontsize=T_SERIES, linespacing=1.25)
-for yh, fam in heads:
-    ax.text(-0.385, yh, fam, ha="left", va="bottom", fontsize=T_SERIES,
-            color=MUTE, style="italic", zorder=4)
-ax.set_xlabel("Effect, 95% interval (unit named per family)")
-ax.tick_params(axis="y", length=0)
 if sliver:
-    ax.text(-0.385, -0.44, "‡ interval narrower than the marker",
-            ha="left", va="center", fontsize=T_NOTE, color=MUTE, zorder=6)
-n_cross = sum(1 for r in rows if r[2] <= 0 <= r[3])
+    fig.text(0.012, 0.026, "‡ interval narrower than the marker",
+             ha="left", va="bottom", fontsize=T_NOTE, color=MUTE)
+n_cross = sum(1 for r in rows_all if r[2] <= 0 <= r[3])
 signature(fig, GRAPHITE,
-          f"{n_cross} of the {len(rows)} headline estimates in this thesis "
-          f"cross zero.")
+          f"{n_cross} of the {len(rows_all)} headline estimates in this thesis "
+          f"cross zero.",
+          deck="Three units, three rulers. Nothing on this canvas is "
+               "comparable across a family boundary.")
 fig.savefig(HERE / "fig-forest.pdf"); plt.close(fig)
-print(f"wrote fig-forest.pdf ({n_cross}/{len(rows)} cross zero; "
-      f"sliver rows: {sliver})")
+print(f"wrote fig-forest.pdf ({n_cross}/{len(rows_all)} cross zero; "
+      f"sliver rows: {sliver}; dropped as not in the register: {_dropped})")
 
 # =============================================================================
 # Fig 7 -- fig-power
@@ -435,9 +513,20 @@ curve = np.clip(mde, 0.5, 1.0)
 # Two grounds, hard boundary at the curve. The region above the curve is what
 # this evaluation could have resolved; the region under it is what it could
 # not, which is where this thesis's own evaluation sits.
+#
+# THE LOWER GROUND IS A TINT AND NOT A WASH, and the luminance gate in
+# tools/check_figure_invariants.py is why. Every WASH stop in the palette sits
+# within 0.010 relative luminance of every other (EMERALD_WASH 0.8051,
+# SCARLET_WASH 0.8004), so a figure that separates two categories by two washes
+# separates them by nothing at all in black and white: the detectable and the
+# undetectable halves of this canvas printed as the same grey. SCARLET_TINT is
+# 0.6163, which is 0.189 clear of EMERALD_WASH, and the fill is the same area,
+# so the greyscale reader gets the partition back at no cost in coverage. This
+# is the same defect, and the same remedy, that the pipeline figure's row
+# grounds were reduced for.
 ax.fill_between(n_pos, curve, 1.0, facecolor=EMERALD_WASH, edgecolor="none",
                 linewidth=0, zorder=1)
-ax.fill_between(n_pos, 0.5, curve, facecolor=SCARLET_WASH, edgecolor="none",
+ax.fill_between(n_pos, 0.5, curve, facecolor=SCARLET_TINT, edgecolor="none",
                 linewidth=0, zorder=1)
 # The MDE curve is measured, but it is not an entity, so it takes the
 # structural measurement tone.
@@ -451,8 +540,10 @@ ax.set_ylabel(f"Minimum detectable AUROC\n({power_study * 100:.0f}% power)",
               linespacing=1.3)
 case(ax.text(2700, 0.965, "detectable", fontsize=T_SERIES, color=EMERALD_DEEP,
              ha="right", va="top", zorder=5))
+# INK, not SCARLET_DEEP: on the new SCARLET_TINT ground scarlet type measures
+# 4.93:1, which the set's own advisory calls thin, and INK measures 11.3:1.
 case(ax.text(6.0, 0.515, "not detectable at this sample size",
-             fontsize=T_SERIES, color=SCARLET_DEEP, ha="left", va="bottom",
+             fontsize=T_SERIES, color=INK, ha="left", va="bottom",
              zorder=5))
 # Both marks are labelled adjacent to themselves. No leaders anywhere.
 # GRAPHITE, not the SLATE this used to carry: SLATE is 3.48:1 on paper and this

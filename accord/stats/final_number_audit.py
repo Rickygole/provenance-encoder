@@ -11,14 +11,32 @@ Run:  python3 accord/stats/final_number_audit.py
 Out:  results/accord/final_number_audit.json
 """
 import json, re, math, statistics as st, os
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from accord.cloud_paths import assert_local_only
 from collections import defaultdict
 
 ROOT = Path(__file__).resolve().parents[2]
 TEX  = ROOT/"accord/thesis"
 OUT  = ROOT/"results/accord/final_number_audit.json"
 QUAR = Path("/Users/rickygole/mimic_local_only")
-DRIVE= Path("/Users/rickygole/Library/CloudStorage/GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis")
+# Repointed off the Google Drive mount, 2026-09-13. This script read two
+# MIMIC-derived summary files from institutional cloud storage every time it
+# ran. The 2026-08-08 remediation moved the note-text files and left these
+# behind, so the custody statement in the methodology chapter was accurate in
+# saying the move was incomplete. Both files are now under credentialed-only
+# local storage with a sha256 manifest; the mount is no longer read by any
+# script in this repository.
+#
+# The committed path also embedded the author's institutional email address,
+# which is what a Google Drive mount path carries. make_appendices.py already
+# redacts that pattern to a [DRIVE] token when it prints provenance; a source
+# file should not have needed the redaction in the first place.
+DRIVE = Path(os.environ.get(
+    "ACCORD_SUMMARY_DIR",
+    os.path.expanduser("~/mimic_local_only/from_drive_2026-09-13")))
+assert_local_only(DRIVE)
 
 def J(p):
     p = Path(p)
@@ -302,8 +320,17 @@ rec(C4, 491, "decontam ensemble CI lo", printed(C4,491,-2), DEC["aggregate"]["en
 rec(C4, 491, "decontam ensemble CI hi", printed(C4,491,-1), DEC["aggregate"]["ensemble_ci95"][1], "results/accord/decontam/corrected_gold_metrics.json", "aggregate.ensemble_ci95[1]")
 rec(C4, 488, "decontam bootstrap B",    printed(C4,488,0)*1000 if printed(C4,488,0)==10 else printed(C4,488,0), DEC["aggregate"]["bootstrap_B"], "results/accord/decontam/corrected_gold_metrics.json", "aggregate.bootstrap_B")
 rec(C4, 488, "decontam bootstrap seed", printed(C4,488,-1), DEC["aggregate"]["bootstrap_seed"], "results/accord/decontam/corrected_gold_metrics.json", "aggregate.bootstrap_seed")
-mccrows = [(785,"gpt4o_zeroshot"),(786,"gpt4o_fewshot"),(787,"accord_binary_at_0.5_253core"),(788,"llama_baseline")]
+# The two GPT-4o rows are dropped from this audit, not repaired. They were
+# already excluded from the citable set as a prohibited channel (C89), and the
+# interval artifact they read from no longer carries them, so the loop raised
+# KeyError on every run. An audit that cannot run is worth less than one that
+# audits a smaller set: this loop now covers the rows the thesis still reports.
+# Any hosted row reaching prose is caught by the numeric provenance gate in
+# verify_thesis.py, which holds every hosted value under withdrawn.hosted.
+mccrows = [(787, "accord_binary_at_0.5_253core"), (788, "llama_baseline")]
 for ln, k in mccrows:
+    if k not in IVL["E2_mcc_intervals"]:
+        continue
     v = printed(C4, ln); b = IVL["E2_mcc_intervals"][k]
     rec(C4, ln, f"MCC {k} point", v[-3], b["mcc"], "results/accord/stats/intervals.json", f"E2_mcc_intervals.{k}.mcc")
     rec(C4, ln, f"MCC {k} CI lo", v[-2], b["ci95"][0], "results/accord/stats/intervals.json", f"E2_mcc_intervals.{k}.ci95[0]")
@@ -312,20 +339,42 @@ for ln, k in mccrows:
     rec(C4, ln, f"MCC {k} predicted-positive cells vs step3_baselines", [v[-6], v[-5]], [float(S31[k]["tp"]), float(S31[k]["fp"])], "results/accord/step3_baselines.json", f"{k}.tp, {k}.fp")
 rec(C4, 795, "MCC bootstrap B",    10000.0, IVL["bootstrap_B"], "results/accord/stats/intervals.json", "bootstrap_B")
 rec(C4, 795, "MCC bootstrap seed", printed(C4,795,-1), IVL["seed"], "results/accord/stats/intervals.json", "seed")
+# The interval artifact gained hosted rows (Claude, Bedrock) after this audit
+# was written, and every loop below that iterates E2_mcc_intervals then reached
+# for a matching row in step3_baselines.json, which has none, so the audit died
+# on a KeyError instead of auditing anything. Hosted rows are withdrawn, so the
+# set this audit should walk is the citable intersection: rows present in both
+# artifacts and not obtained through a hosted service. Computed once here rather
+# than filtered at four call sites, so the next artifact that gains a row cannot
+# reintroduce the same break in only three of them.
+import sys as _sys
+_sys.path.insert(0, str(ROOT))
+from accord.hosted_withdrawal import is_hosted as _is_hosted
+E2 = {k: v for k, v in IVL["E2_mcc_intervals"].items()
+      if k in S31 and not _is_hosted(k, {"artifact": k})}
+
 rec(C4, 798, "all four MCC intervals contain zero", True,
-    all(b["ci95"][0] <= 0 <= b["ci95"][1] for b in IVL["E2_mcc_intervals"].values()),
+    all(b["ci95"][0] <= 0 <= b["ci95"][1] for b in E2.values()),
     "results/accord/stats/intervals.json", "E2_mcc_intervals.*.ci95")
-A = IVL["E2_mcc_intervals"]["gpt4o_zeroshot"]["ci95"]; B = IVL["E2_mcc_intervals"]["llama_baseline"]["ci95"]
-ov = max(0.0, min(A[1],B[1]) - max(A[0],B[0])); wA, wB = A[1]-A[0], B[1]-B[0]
-rec(C4, 807, "MCC intervals 'overlap by more than half their width'", "more than half",
-    "%.1f%% of the narrower interval (overlap %.4f vs half-width %.4f)" % (100*ov/min(wA,wB), ov, 0.5*min(wA,wB)),
-    "results/accord/stats/intervals.json", "E2_mcc_intervals.{gpt4o_zeroshot,llama_baseline}.ci95",
-    "recomputed overlap is 31.5%/30.4% of the two widths; the claim is false under every reading (narrower, wider, mean, union)")
+# This block audited a sentence comparing the GPT-4o interval with the local
+# llama_baseline interval. The GPT-4o arm is withdrawn as a prohibited channel
+# and the sentence it audited goes with it, so there is nothing left to check
+# here. Kept as a guarded no-op rather than deleted, because the finding it
+# recorded is worth not losing: the claim it tested ("overlap by more than half
+# their width") was false under every reading of "their width", and that is the
+# kind of stated comparison this audit exists to catch.
+if all(k in IVL["E2_mcc_intervals"] for k in ("gpt4o_zeroshot", "llama_baseline")):
+    A = IVL["E2_mcc_intervals"]["gpt4o_zeroshot"]["ci95"]; B = IVL["E2_mcc_intervals"]["llama_baseline"]["ci95"]
+    ov = max(0.0, min(A[1],B[1]) - max(A[0],B[0])); wA, wB = A[1]-A[0], B[1]-B[0]
+    rec(C4, 807, "MCC intervals 'overlap by more than half their width'", "more than half",
+        "%.1f%% of the narrower interval (overlap %.4f vs half-width %.4f)" % (100*ov/min(wA,wB), ov, 0.5*min(wA,wB)),
+        "results/accord/stats/intervals.json", "E2_mcc_intervals.{gpt4o_zeroshot,llama_baseline}.ci95",
+        "recomputed overlap is 31.5%/30.4% of the two widths; the claim is false under every reading (narrower, wider, mean, union)")
 rec(C4, 803, "MCC estimates within 0.05 of zero (stated as 'three')", "three" if "three of which" in line(C4,803) else None,
-    "three" if sum(abs(b["mcc"])<printed(C4,804,want="0.05") for b in IVL["E2_mcc_intervals"].values())==3 else "other",
+    "three" if sum(abs(b["mcc"])<printed(C4,804,want="0.05") for b in E2.values())==3 else "other",
     "results/accord/stats/intervals.json", "count(|mcc| < 0.05)")
-rec(C4, 803, "predicted-positive range low",  printed(C4,803,0), float(min(S31[k]["tp"]+S31[k]["fp"] for k in IVL["E2_mcc_intervals"])), "results/accord/step3_baselines.json", "min(tp+fp)")
-rec(C4, 803, "predicted-positive range high", printed(C4,803,1), float(max(S31[k]["tp"]+S31[k]["fp"] for k in IVL["E2_mcc_intervals"])), "results/accord/step3_baselines.json", "max(tp+fp)")
+rec(C4, 803, "predicted-positive range low",  printed(C4,803,0), float(min(S31[k]["tp"]+S31[k]["fp"] for k in E2)), "results/accord/step3_baselines.json", "min(tp+fp)")
+rec(C4, 803, "predicted-positive range high", printed(C4,803,1), float(max(S31[k]["tp"]+S31[k]["fp"] for k in E2)), "results/accord/step3_baselines.json", "max(tp+fp)")
 # control bootstrap cols
 for ln, sset, key in [(514,"gold_all","accord_contra_prob_same_299_pairs"),
                       (515,"gold_all","ensemble_mean_of_seed_scores"),

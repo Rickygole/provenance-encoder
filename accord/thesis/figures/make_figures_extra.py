@@ -55,6 +55,26 @@ import pandas as pd
 
 setup()
 HERE = pathlib.Path(__file__).parent
+
+# ---------------------------------------------------------------------------
+# BOTH FIGURES IN THIS MODULE ARE RETIRED and it stops here.
+#
+#   fig-asymmetry     was already retired: the asymmetry it drew is two numbers
+#                     in the text, and a two-point figure was never worth a
+#                     float.
+#   fig-falsification is retired on that same recorded precedent, which it
+#                     matches exactly. It is two numbers on an axis running
+#                     0.98 to 1.02, so a move of 1.5 percent is drawn as a
+#                     distance the width of the panel. The axis does the
+#                     arguing, not the data, and the two ratios are printed in
+#                     the results chapter.
+#
+# Reasons of record live in tools/check_figure_invariants.py; the committed
+# PDFs stay in place, as every other retired figure's does.
+# ---------------------------------------------------------------------------
+print("make_figures_extra.py: both figures retired; see RETIRED in "
+      "tools/check_figure_invariants.py")
+raise SystemExit(0)
 Q = pathlib.Path("/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs")
 S = pathlib.Path("/Users/rickygole/mimic_local_only/accord_supp/results")
 man = {}

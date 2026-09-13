@@ -12,16 +12,6 @@
       "note": "Stages 1 and 2 (cohort construction, medication extraction) carry no committed numeric source and are summarized in one note line rather than drawn as rows. The detector-training row's finding is categorical narrative with no committed numeric source (CORRECTIONS.md). The reported-number column otherwise reads the pharmacist base rate on G299 (0.0401, step2_signal_check.json), the weak labeller's positive rate on the same 299 gold pairs (0.8729, exp1a_gold_error_rates_by_group.json), and the decontaminated AUROC point estimate alone (0.5145, corrected_gold_metrics.json). The check-finding column reads the wrong-rate upper bound (0 to 0.4745 of resolved candidates, exemplar_correctness_recomputed.json), the prevalence multiplier (~22x, same gold-set ratio fig:intro-headline brackets), and the bootstrap 95% CI on AUROC ([0.32, 0.70], corrected_gold_metrics.json). The spine asserts shared corrupted input from the stage 3 exemplar defect into rows 4-6, not that rows 4-6's numbers follow causally from it: the 22x mismatch is a prevalence and specificity effect. AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated 3-seed ensemble 0.5145)."
     },
     {
-      "file": "figures/fig-intro-headline.pdf",
-      "label": "fig:intro-headline",
-      "sources": [
-        "results/accord/diag/step0_1_join_and_calibration.json",
-        "results/accord/differential/exp1a_gold_error_rates_by_group.json",
-        "results/accord/diag/step2_signal_check.json"
-      ],
-      "note": "The left-panel middle bar is the weak labeller marginal, 261 of 299 (gold.weaklabel_contradiction); ACCORD predicts contradiction for 278 of 299 (gold.accord_pred_contradiction, reconciliation_c28.json). The Matthews correlation panel that used to sit under this one is deleted: those four estimates are fig:forest's first family."
-    },
-    {
       "file": "figures/fig-funnel.pdf",
       "label": "fig:funnel",
       "sources": [
@@ -54,22 +44,6 @@
         "results/accord/diag/step0_1_join_and_calibration.json"
       ],
       "note": "Wilson score 95% CIs added per point (n from n_gold per rule: 134/31/79/55); not in the original spec, added per the CI non-negotiable."
-    },
-    {
-      "file": "figures/fig-met-exchange.pdf",
-      "label": "fig:met-exchange",
-      "sources": [
-        "results/accord/diag/step3_baselines.json"
-      ],
-      "note": "Indifference lines are closed-form (PABAK, balanced accuracy) or numerically root-solved (MCC, scipy.optimize.brentq) from the confusion-matrix class counts in diag/step3_baselines.json; not fabricated curve shapes."
-    },
-    {
-      "file": "figures/fig-disc-actionability.pdf",
-      "label": "fig:disc-actionability",
-      "sources": [
-        "accord/CORRECTIONS.md (C6)"
-      ],
-      "note": "Structural/schema diagram, not derived from a numeric result file; documents a MIMIC-III field-availability fact. No CI applies (no estimate is plotted)."
     },
     {
       "file": "figures/fig-cohort-flow.pdf",

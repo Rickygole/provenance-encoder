@@ -4633,3 +4633,154 @@ available memory and more than the free disk. And it does not un-send the 1,320 
 transmitted to the Anthropic API. A local run changes what happens next and changes nothing that
 already happened, and the disclosure obligation for those transmissions is unaffected by anything
 measured here.
+
+## C95. Every hosted-channel result withdrawn, and the withdrawal made enforceable
+
+PhysioNet replaced its 18 April 2023 post *Responsible use of MIMIC data with
+online services like GPT* on **24 September 2025** with *Use of MIMIC Data with
+Large Language Models and Online Services*. The replacement withdrew the list of
+four suggested services, on the stated ground that PhysioNet "cannot verify the
+data practices of external services and does not endorse or recommend specific
+platforms". It states the prohibition without a vendor qualifier, as sharing
+access "including sending it through APIs or using it on online platforms", and
+adds an operative test: "MIMIC data must not be stored or retained by
+third-party LLM services", with locally deployed models strongly recommended.
+
+Every run this thesis made through a hosted service therefore has no safe
+harbour. The four-service reading the routes were selected against does not
+survive its own source. All of it is withdrawn: the Anthropic API runs (Claude
+Sonnet 5, Claude Haiku 4.5, and the replicated Haiku draws) and the AWS Bedrock
+runs (Llama 3 70B, Llama 3 8B), together with every analysis derived from them,
+which is the frontier metrics, the label-noise sweep, the discrimination tests,
+the marginal ceilings, the defect-free re-run, the system-difference intervals
+and the hosted rungs of the capability ladder.
+
+**718 register values** were relocated, out of 2,556. 1,838 remain live.
+
+What makes this a control rather than a claim. The GPT-4o withdrawal was
+enforced by prose alone for as long as it stood: the results chapter said no
+number derived from it while all 25 of its keys sat live in the register, so the
+provenance gate would have resolved a withdrawn digit anywhere in the thesis
+without complaint. That was C89's finding and it is the failure mode repeated
+here at twenty-nine times the scale. So:
+
+- `accord/hosted_withdrawal.py` classifies a key as hosted from the artifact it
+  was read from, not from its name. The test deliberately does not pattern match
+  over model families: `llama38b` names the local Ollama labeller and
+  `metallama38binstructv1` names the Bedrock one, and a substring rule would have
+  collapsed them. That is the same defect class as the model tag that once landed
+  in the wrong filename position and scored one model's predictions against
+  another's artifact.
+- `accord/stats/withdraw_hosted.py` relocates them to `withdrawn.hosted.*`,
+  idempotently and losslessly, and `--check` exits nonzero if any is live.
+- Pass 2 of `verify_thesis.py` now runs that check as a precondition, before the
+  digit match, on the reasoning that the citable set has to be the right set
+  before asking whether a digit is in it.
+
+The gate immediately earned itself. Re-running `capability_ladder.py` after the
+relocation put ten hosted values straight back under citable names, because every
+generator rewrites its own namespace from scratch. A relocation done once by hand
+would have come silently undone on the next register build.
+
+`quoted_historical.*` is deliberately not exempt. That prefix exists so prose can
+cite a withdrawn figure as history while the gate still treats it as live, and a
+hosted value reaching the page through it is a hosted digit printed in the thesis
+by another route. There is no reading of the guidance under which a number becomes
+usable because the sentence around it calls it old.
+
+The 16 hosted artifacts are moved to `results/accord/withdrawn_hosted/` with a
+README stating the ground, rather than deleted, so this record can say what was
+withdrawn and what each withdrawal cost.
+
+### C95a. A clause-numbered admission of breach inside a machine-readable artifact
+
+Five of the Anthropic run artifacts carried, on line 5, a `compliance_note`
+ending: "Supersedes the original run against OpenAI's public API, **which
+breached Clause 3**." That is a written determination of breach, by clause
+number, inside a file that clause 9 of the data use agreement pushes toward
+publication. Whether the transmissions were consistent with the agreement is a
+determination for PhysioNet and for the institution. The characterisation is
+replaced with the fact, that the earlier run is withdrawn on the same ground,
+and the artifacts moved to the withdrawn directory. The four `frontier_ollama_*`
+notes were left alone: they cite the current guidance correctly and describe a
+local run.
+
+### C95b. The custody remediation was genuinely incomplete, and the chapter was right
+
+`accord/stats/final_number_audit.py` read `mining_summary.json` and
+`phase2_summary.json` from the institutional Google Drive mount **at runtime**,
+on every run. The 2026-08-08 remediation moved the 33 note-text files and left
+the derived summaries behind, so the methodology chapter's statement that the
+move was incomplete was accurate and the repository's earlier assertion that no
+MIMIC data was cloud-synced was not.
+
+A count-only scan of the mount (529 files, 68.0 GB) found no note text and no
+identifier values remaining: 8 files reference identifier column *names* in
+metadata. 271 data-bearing files, 196 MB, were copied to
+`~/mimic_local_only/from_drive_2026-09-13/` with a per-file sha256 manifest, and
+the audit script now resolves its inputs through `assert_local_only`.
+
+The committed path also embedded the author's institutional email address, which
+is what a Drive mount path carries, so every report the script wrote shipped that
+address. `make_appendices.py` already redacted the pattern to `[DRIVE]` when
+printing provenance; a source file should not have needed the redaction.
+`audit_build_report.py` used the same path as a provenance label and is redacted
+the same way.
+
+**Not resolved, and it is not mine to resolve.** 23 model checkpoints totalling
+**67.8 GB**, trained on MIMIC-III-derived weak labels, remain on the mount. Local
+disk has 27 GB free, so they cannot be moved, and deleting them is irreversible
+and the author's decision rather than a remediation step to be taken quietly.
+Recorded here, and raised.
+
+`accord_phase3_v2_ablations.py` was checked and is not part of this: its
+recovered Colab Drive path is left unmodified as evidence, and the guard
+immediately after the assignment calls `assert_local_only` and exits before any
+write. The guard fires.
+
+### C95c. An audit that could not run
+
+`final_number_audit.py` died on `KeyError: 'gpt4o_zeroshot'` and then on
+`KeyError: 'claude_sonnet5_zeroshot'`. The interval artifact gained hosted rows
+after the audit was written, and four separate loops walked every key in it while
+reaching for a matching row in `step3_baselines.json`, which has none. So the
+audit had stopped auditing anything at all, silently, and this project has already
+recorded twice what a gate that cannot fail is worth. The set it walks is now the
+citable intersection, computed once rather than filtered at four call sites, so
+the next artifact that gains a row cannot reintroduce the same break in only
+three of them.
+
+## C96. The withdrawal classifier read names, and a hosted result has no obligation to be named after its channel
+
+C95's classifier tested the artifact path and the key name against a list of
+channel tokens. It was caught by the adversarial pass on Chapter 4, and the
+finding is the same one CLAUDE.md already records from an earlier round.
+
+`results/accord/differential/frontier_label_noise.json` holds Claude Sonnet 5's
+per-pair cells. Its filename contains no channel token. None of its **100**
+register keys contains one either, because they are named after the analysis
+(`labelnoise.*`) rather than after the model. So `is_hosted()` returned False for
+every one of them and the gate reported PASS with 100 hosted values sitting live
+and citable. The gate was not weaker than prose here; it was prose wearing a
+gate's clothes, which is worse, because it had my confidence.
+
+The artifact says what it is. Its `provenance.input` field reads
+`results/accord/differential/frontier_anthropic_metrics.json`.
+
+Fixed structurally rather than by adding `labelnoise` to the token list, which
+would have left the next unnamed derivative to be caught by whoever happened to
+read the right file. `_derives_from_hosted()` now follows an artifact's declared
+provenance inputs transitively, depth-limited because a provenance field is free
+text and could cycle, and a derived value is withdrawn if anything upstream of it
+is. A token list enumerates the channels somebody remembered; a provenance walk
+asks the artifact.
+
+Withdrawn total rises from 718 to **818**.
+
+The earlier instance of exactly this, quoted from the project's own working
+agreement as a thing that had already bitten: "A register key maintained by hand.
+All 96 `labelnoise.*` keys survived the correction that withdrew the script
+behind them." It was the same 100 keys, the same namespace, and the second time
+it was not a hand-maintained key but a hand-maintained *test*. The lesson that
+generalises is not about labelnoise. It is that any check keyed on what a thing
+is called will eventually meet a thing that is not called that.

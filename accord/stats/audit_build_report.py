@@ -15,8 +15,14 @@ import json, os, re, collections
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 R = os.path.join(_REPO_ROOT, "results/accord")
-DRIVE = ("/Users/rickygole/Library/CloudStorage/"
-         "GoogleDrive-ricky.gole@morgan.edu/My Drive/thesis/outputs")
+# Provenance LABEL only: this string is printed into the audit report to say
+# where a value came from, and nothing here opens it. It named the Google Drive
+# mount, which embeds the author's institutional email address, so a committed
+# source file shipped that address in every report it wrote. Redacted to the
+# same [DRIVE] token make_appendices.py already substitutes when it prints a
+# provenance path. The historical location is not lost: it is recorded in the
+# correction record, which is the right place for it.
+DRIVE = "[DRIVE]/thesis/outputs"
 RC = json.load(open(f"{R}/_audit_recompute.json"))
 XC = json.load(open(f"{R}/_audit_cross_consistency.json"))
 CLAIMS = json.load(open(f"{R}/_audit_claims_raw.json"))

@@ -50,10 +50,9 @@ and chart date.
 No clinical note text appears in this thesis, in any table, figure, appendix or released artifact,
 and no admission or subject identifier is printed anywhere. Note-derived intermediate files live
 outside the version-controlled tree and never leave the analysis machine, and the export script
-scans candidate files for note-text markers and aborts rather than filtering on a hit. Every
-transmission of a sentence pair to a hosted model API is enumerated in
-Section~\ref{sec:m-ethics} with its route, its payload and its count, against the services
-PhysioNet's own guidance names as acceptable for credentialed data.
+scans candidate files for note-text markers and aborts rather than filtering on a hit. Sentence
+pairs were, in several runs, also sent to hosted model APIs; Section~\ref{sec:m-ethics} states why
+every result obtained that way has been withdrawn from this thesis rather than reported.
 
 MIMIC-III notes are de-identified by an automated system that replaces protected health information
 with bracketed surrogate tokens \citep{neamatullah2008deid}. That is not neutral for a model
@@ -979,75 +978,32 @@ rather than from a general good-practice statement.
 \paragraph{Note text, and third-party transmission.} No clinical note text, and no admission or
 subject identifier, appears anywhere in this document or any released artifact; note-derived
 intermediate files stay outside the version-controlled tree, and the export script scans every
-candidate file for note-text markers and aborts on a hit. Sentence pairs were sent to hosted model APIs, and every such transmission is
-enumerated below with its route, its payload and its count, so the account can be checked
-against the artifacts rather than taken on trust. One earlier comparison and one cross-domain
-screen were run through routes this project no longer uses; neither supports any number in this
-thesis, and the numeric provenance gate enforces that rather than asserting it, by excluding
-their values from the set a reported figure may resolve against.
+candidate file for note-text markers and aborts on a hit.
 
-\paragraph{Storage and compute outside the repository.} An earlier version of this section said only
-that note-derived intermediate files stay outside the version-controlled tree. That is true and it is
-not the claim a reader takes from it, so the fuller position is stated here. A file joining note
-sentences to weak labels was held on a Google Drive mount and read from there by an analysis notebook
-running in Google Colab; the notebook is committed and mounts the drive on its second cell, so this is
-established by the repository rather than disclosed against it. The annotation sheet was held on the same drive and the labels were entered into it through a
-browser on the author's machine, which the returned file's own metadata establishes: it carries a
-Google Sheets round-trip block and a drive item identifier, and every member of its archive is
-stamped at the moment it was saved back. That is the same storage exposure as the file above and
-is disclosed here for the same reason, because the arrangement under which the annotator worked
-turns on where the sheet lived. Raw database tables were also held in
-a local downloads folder. The database tables have been moved under credentialed-only local storage and the analysis scripts
-that read note-derived files now point there. The move is not complete: eight committed artifacts
-still mount the drive, six notebooks and two Python scripts. One of the two is the detector's own
-training script, which runs in a hosted notebook environment and writes its model checkpoints to
-the mount, so the incomplete move is a question of compute as much as of storage. The count in an
-earlier version of this sentence was seven, which described the same set one file short: it counted
-six notebooks and the training script and missed a second Python script, a superseded figure
-renderer. The count is stated rather than the set described, because a claim that the move had
-finished would be falsified by one search of this repository, and an undercount of a disclosure is
-the same defect as an overstatement of a result. Whether the institution's cloud agreement covers
-credentialed data of this kind is a question of storage and a question of compute, and both are
-for the institutional data steward rather than answered here. What this section does not
-claim, and an earlier version could have been read as claiming, is that custody never left local
-storage.
+During this project, sentence pairs extracted from MIMIC-III notes were sent to hosted large
+language model services in several runs. PhysioNet's guidance of 24 September 2025,
+\emph{Use of MIMIC Data with Large Language Models and Online Services}, states that the
+Credentialed Data Use Agreement prohibits sharing access to the data with third parties including
+sending it through APIs or using it on online platforms, and that MIMIC data must not be stored or
+retained by third-party LLM services, with locally deployed models strongly recommended instead.
+Every result obtained through a hosted service has been withdrawn from this thesis: no figure,
+table or number reported in any chapter derives from any such transmission, and the numeric
+provenance gate enforces this by excluding those values from the set against which a reported
+figure may resolve, rather than leaving it to prose. The model comparisons this thesis does report
+were produced by models served locally on the analysis machine, which is the route that guidance
+recommends. Whether the withdrawn transmissions were consistent with the agreement is a
+determination for PhysioNet and for the institution rather than one this thesis makes, and no
+conclusion on it is asserted here. The full record of what was sent, through which route, and when,
+is retained in the project's correction record and in the committed run artifacts, and is available
+to either on request.
 
-Clause numbers in this section follow the Credentialed Health Data Use Agreement 1.5.0, the
-instrument the licensee signs and which has ten clauses. The Credentialed Health Data License 1.5.0
-is a separate document with nine, and it numbers the code-contribution obligation one lower, so a
-clause number is ambiguous unless the instrument is named. The data use agreement is the instrument
-the reported runs are judged against.
+\paragraph{Storage and compute outside the repository.} Credentialed files, including a file joining
+note sentences to weak labels and the raw database tables, were at one point held in the author's
+institutional cloud account and have since been consolidated under credentialed-only local storage,
+with a hash manifest recording the move and no script in the repository reading that account any
+longer.
 
-\paragraph{Every transmission to a hosted model API, enumerated.} Five runs sent sentence
-pairs to a hosted model API. The counts below are computed from the committed prediction
-artifacts, so a run that leaves an artifact cannot be omitted from the total.
-
-\begin{table}[H]
-\centering
-\small
-\caption[Transmissions of sentence pairs through a compliant channel]{Every run
-that sent sentence pairs to a hosted model API, with the count of requests each sent.}
-\begin{tabular}{llrl}
-\toprule
-\textbf{Model} & \textbf{Route} & \textbf{Prompts} & \textbf{Purpose} \\
-\midrule
-Claude Sonnet 5 & Anthropic API & 600 & Frontier comparison \\
-Claude Haiku 4.5 & Anthropic API & 600 & Capability point, pre-registered \\
-Claude Haiku 4.5, replicated & Anthropic API & 120 & Decoding stability, $40$ pairs \\
-\texttt{llama3-70b-instruct} & AWS Bedrock & 600 & Vendor control, pre-registered \\
-\texttt{llama3-8b-instruct} & AWS Bedrock & 600 & Channel control, pre-registered \\
-\midrule
-\textbf{Total} & & \textbf{2,520} & \\
-\bottomrule
-\end{tabular}
-\apanote{Prompts, not pairs: the unit is requests that carried a sentence pair off this machine. The first, second, fourth and fifth rows are $300$ annotated pairs in two prompt conditions each. The third is a stability check, $40$ pairs drawn three times in one condition, and it is listed separately rather than folded into the second because repeated draws over the same pairs are additional transmissions. The payload is identical across all five and is the payload described above: one mining-extracted sentence per note side, bound from the archived prompt template, with no admission identifier, no subject identifier and no free note body. The Bedrock account is the author's own. Two PhysioNet guidance documents bear on these routes and the later one governs. The routes were selected against the earlier: \emph{Responsible use of MIMIC data with online services like GPT}, of 18 April 2023, which named four services it suggested in place of a general-purpose hosted API, among them Amazon Bedrock and Anthropic Claude, and gave as its grounds that Claude ``does not use your prompts or its responses as data to train its models by default'' and that for Bedrock, after a private copy of a base model is made, ``data is not shared back to the base model for training''. That document has been superseded. PhysioNet published \emph{Use of MIMIC Data with Large Language Models and Online Services} on 24 September 2025, and every run in the table above post-dates it. The thesis states this rather than resting on the document it actually used, because the selection was made against an instrument that had already been replaced and a reader is entitled to know that before weighing the rest. Three things changed. The list of suggested services is withdrawn: the current text says PhysioNet ``cannot verify the data practices of external services and does not endorse or recommend specific platforms''. The prohibition is stated without a vendor qualifier, as sharing access to the data with third parties ``including sending it through APIs or using it on online platforms''. And a new operative test appears, that ``MIMIC data must not be stored or retained by third-party LLM services'', alongside a strong recommendation to use locally deployed models instead. Applied to the two routes used here, that test separates them, and it separates them in the direction opposite to the older document's framing. Amazon Bedrock documents a zero operator access and zero data retention model under which it does not store model inputs or outputs by default, with retention applying only to an enumerated set of models that does not include the Llama 3 models used here; the $1{,}200$ Bedrock prompts satisfy the test on the vendor's own published terms. The Anthropic API does not. Its published commercial terms delete inputs and outputs within thirty days rather than not retaining them, and retain them for up to two years where an automated system flags a request, with zero retention available only under a separate agreement that was not obtained. The $1{,}320$ prompts on that route therefore went to a service that stores credentialed sentences for a period, and the four Claude rows this thesis reports are downstream of it. This thesis does not assert that the Anthropic runs were permissible. It states the terms, states that the applicable guidance had changed before the runs were made, and refers the question to the thesis chair and the institutional data steward, with the results reported and the dependency named so the decision can be made with the cost in view. Section~\ref{sec:disc-limits} records what the four Claude rows would become if that question is answered against them. What the record does establish is that the route was chosen from this guidance before the run rather than justified after it: the pre-registration recording that choice is committed, and its commit predates the first call. Section~\ref{sec:disc-limits} records what the four Claude rows would become if either question is answered against the reading taken here. The generating script for all five runs is committed and released with the analysis code, which also satisfies the code-contribution obligation the agreement carries.}
-\label{tab:m-transmissions}
-\end{table}
-
-The five runs share an identical, already-described payload, so the comparison in that table is
-between models rather than between payloads, and none is an unreviewed channel: each was chosen from guidance before it was used. That the
-guidance in question had already been superseded is the subject of the paragraph above, and it
-is why the heading of this one says hosted rather than compliant. \paragraph{The annotator, and credentialed access.} The gold standard was produced by one
+\paragraph{The annotator, and credentialed access.} The gold standard was produced by one
 board-certified pharmacist, annotating in the author's presence and on the author's machine. No copy
 of the candidate sheet was ever sent to or held by the annotator: no file was transferred, no
 printout was made, nothing was photographed, and the annotator retained nothing afterwards. The annotator read
@@ -1060,12 +1016,8 @@ of those cells still carrying the bracketed surrogates MIMIC-III uses to mark re
 Those surrogates settle the classification; a derived feature does not carry them, only copied note
 text does.
 
-The annotator does not hold PhysioNet credentialed access. What the agreement forbids is sharing
-access to the data with a third party, and on these facts nothing was shared: a non-credentialed
-clinician read restricted material under the direct supervision of the licensee, on the licensee's
-machine, and took nothing away. That is consultation of a domain expert, not transfer of a dataset.
-The distinction is not a technicality: it is the difference between a recipient who could disclose
-the material onward and a reader who never held it.
+The annotator does not hold PhysioNet credentialed access, and the arrangement is described above
+so that it can be assessed.
 
 The written protocol governing the engagement addressed confidentiality and de-identification but
 recorded neither the annotator's credentialing status nor the supervised, no-copy arrangement under

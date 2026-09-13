@@ -63,10 +63,29 @@ WITHDRAWN_PREFIX = "withdrawn."
 # being wrong, this is excluded for being unusable. See C89.
 NON_CITABLE_SUBSTRINGS = ("gpt4o",)
 
+# Values obtained by transmitting credentialed sentences to a third-party hosted
+# LLM service. PhysioNet's 24 September 2025 guidance prohibits that transmission
+# without a vendor qualifier and withdrew the April 2023 list of suggested
+# services, so no hosted route has a safe harbour and every result downstream of
+# one is withdrawn. The classification and the relocation live in
+# accord/hosted_withdrawal.py and accord/stats/withdraw_hosted.py; this gate
+# refuses to run while any of them is still live, because a register that holds a
+# hosted value under a citable name will resolve a hosted digit in prose, which
+# is the exact way the GPT-4o withdrawal was an assertion rather than a control
+# for as long as it was enforced by a sentence (C89).
+sys.path.insert(0, str(ROOT))
+from accord.hosted_withdrawal import is_hosted  # noqa: E402
+
 
 def _non_citable(key):
     return (key.startswith(WITHDRAWN_PREFIX)
             or any(sub in key.lower() for sub in NON_CITABLE_SUBSTRINGS))
+
+
+def live_hosted_keys():
+    """Hosted-channel values still sitting under a citable name."""
+    return [k for k, rec in FACTS.items()
+            if not k.startswith(WITHDRAWN_PREFIX) and is_hosted(k, rec)]
 
 
 def fact_values():
@@ -176,6 +195,21 @@ def main():
 
     # ---------------- pass 2: numbers ----------------
     print("PASS 2  numeric provenance")
+    # Precondition, checked before the digit match rather than beside it: the
+    # citable set has to be the right set before asking whether a digit is in it.
+    hosted_live = live_hosted_keys()
+    if hosted_live:
+        print(f"   FAIL: {len(hosted_live)} hosted-channel values are live in "
+              f"the register and would make a withdrawn digit resolvable.")
+        for k in hosted_live[:10]:
+            print(f"      {k}")
+        if len(hosted_live) > 10:
+            print(f"      ... and {len(hosted_live) - 10} more")
+        print("   run: python3 accord/stats/withdraw_hosted.py")
+        failures += 1
+    else:
+        n_held = sum(1 for k in FACTS if k.startswith("withdrawn.hosted."))
+        print(f"   hosted channels: none live, {n_held} held for the record")
     unverified = []
     for f in CHAPTERS:
         # The literature review reports figures from cited works, which by
