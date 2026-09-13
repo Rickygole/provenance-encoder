@@ -46,7 +46,12 @@ CODE_TEXT_MARKERS='\[\*\*|admission date|chief complaint|discharge medications'
 # The trailing-column alternative matters: a header ending in the identifier,
 # such as pair_id,drug,HADM_ID, matched none of the first three forms and passed
 # the gate clean.
-ID_MARKERS='"(HADM_ID|SUBJECT_ID)"[[:space:]]*:|^(HADM_ID|SUBJECT_ID),|,(HADM_ID|SUBJECT_ID),|,(HADM_ID|SUBJECT_ID)[[:space:]]*$'
+# Matched case-sensitively until an audit showed a field named hadm_id in
+# lowercase passes every pattern here, and that a CSV whose ONLY column is the
+# identifier has no comma and so matches none of the four forms either. Both
+# were latent: no script writes either shape today. A gate that depends on a
+# producer's capitalisation is not a gate.
+ID_MARKERS='"(HADM_ID|SUBJECT_ID)"[[:space:]]*:|^(HADM_ID|SUBJECT_ID),|,(HADM_ID|SUBJECT_ID),|,(HADM_ID|SUBJECT_ID)[[:space:]]*$|^(HADM_ID|SUBJECT_ID)[[:space:]]*$'
 
 # Structural exclusion beats pattern matching: a note sentence carrying no
 # surrogate and no section header would pass a content scan. Row-level formats
@@ -103,7 +108,7 @@ while IFS= read -r -d '' p; do
     echo "ABORT: note text in $p"
     exit 1
   fi
-  if grep -qE "$ID_MARKERS" "$p" 2>/dev/null; then
+  if grep -qiE "$ID_MARKERS" "$p" 2>/dev/null; then
     echo "ABORT: identifier used as a data key in $p"
     exit 1
   fi

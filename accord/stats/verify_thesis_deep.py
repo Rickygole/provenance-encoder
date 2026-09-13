@@ -34,6 +34,23 @@ CHAPTERS = sorted(THESIS.glob("msu_ch*.tex"))
 APPENDICES = sorted(THESIS.glob("msu_app*.tex"))
 FRONT = sorted((THESIS / "frontmatter").glob("*.tex"))
 
+# Every deep pass iterated CHAPTERS only, so the bound appendices were outside
+# all of them. A caption sitting below its figure survived there for exactly
+# that reason: pass 8 could not see the file. Only the appendices main_msu.tex
+# actually inputs are checked, because msu_app*.tex also matches files left in
+# the tree that nothing binds, and a gate that reports on dead files teaches
+# people to ignore it.
+def _bound_appendices():
+    main = (THESIS / "main_msu.tex").read_text()
+    out = []
+    for p in APPENDICES:
+        if "\\input{%s}" % p.stem in main:
+            out.append(p)
+    return out
+
+
+BOUND_APPENDICES = _bound_appendices()
+
 # The twelve figures bound into the thesis, and the scripts that draw them.
 # Three drawing functions survive in make_figures.py unreferenced and unbound,
 # and are not checked here: fig-rule-precision left the set at the committee
@@ -154,7 +171,7 @@ def pass7_refs():
 def pass8_captions():
     print("PASS 8  figure captions")
     problems = 0
-    for f in CHAPTERS:
+    for f in CHAPTERS + BOUND_APPENDICES:
         text = f.read_text()
         for env in re.findall(r"\\begin\{figure\}.*?\\end\{figure\}", text, re.S):
             g = re.search(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}", env)

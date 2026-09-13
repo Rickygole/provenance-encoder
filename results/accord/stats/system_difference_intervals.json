@@ -1,0 +1,45 @@
+{
+  "basis": "G_253",
+  "n": 253,
+  "n_positives": 12,
+  "detector_arm_caveat": "The detector arm is the RELEASED run at its configured threshold of 0.5 on accord_contra_prob, because that is the only detector artifact carrying a per-pair score for all 253 rows. It is not the decontaminated three-seed run behind the operating-point table, for which no per-pair score file exists: predictions_253_core.csv holds the 12 positives only. The two runs are different models and they differ in the direction of their degeneracy at 0.5, so this comparison should be read as labeller against the released detector and not as labeller against the detector the operating-point table reports.",
+  "method": "paired percentile bootstrap over pairs, B=10000, seed=42; both systems resampled together so their correlation on shared rows is preserved",
+  "comparisons": {
+    "sonnet_zero_shot_minus_detector": {
+      "n": 253,
+      "mcc_labeller": 0.3189,
+      "mcc_detector_at_0.5": -0.0706,
+      "observed_difference": 0.3894,
+      "difference_ci95": [
+        0.2064,
+        0.5426
+      ],
+      "difference_excludes_zero": true,
+      "p_bootstrap_two_sided": 0.0
+    },
+    "haiku_zero_shot_minus_detector": {
+      "n": 253,
+      "mcc_labeller": 0.2253,
+      "mcc_detector_at_0.5": -0.0706,
+      "observed_difference": 0.2959,
+      "difference_ci95": [
+        0.1298,
+        0.4418
+      ],
+      "difference_excludes_zero": true,
+      "p_bootstrap_two_sided": 0.0008
+    },
+    "llama70b_few_shot_minus_detector": {
+      "n": 253,
+      "mcc_labeller": 0.1379,
+      "mcc_detector_at_0.5": -0.0706,
+      "observed_difference": 0.2085,
+      "difference_ci95": [
+        0.0477,
+        0.3597
+      ],
+      "difference_excludes_zero": true,
+      "p_bootstrap_two_sided": 0.0058
+    }
+  }
+}

@@ -29,7 +29,9 @@ def main():
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         sys.exit("ANTHROPIC_API_KEY is not set in this shell.")
-    print(f"key present: yes, {len(key)} chars, starts {key[:7]}...")
+    # The key prefix was printed here. Even seven characters reduces entropy in
+    # any captured terminal log, and it bought nothing a boolean does not.
+    print('    credential: present' if key else '    credential: MISSING')
     print(f"model      : {MODEL}")
     print("payload    : synthetic sentence pair, no MIMIC data\n")
 

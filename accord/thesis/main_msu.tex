@@ -148,6 +148,12 @@
 \renewcommand{\listfigurename}{List of Figures}
 \renewcommand{\listtablename}{List of Tables}
 \renewcommand{\bibname}{References}
+% biblatex resets the bibliography heading from its own bibstring at
+% \begin{document}, AFTER the preamble runs, so the \bibname above was
+% clobbered and the page printed "Bibliography". FORMAT.md section 8 names
+% "References" as the required heading. Setting the bibstring is what
+% actually reaches the printed page.
+\DefineBibliographyStrings{english}{bibliography={References},references={References}}
 
 % Figures, tables and equations number consecutively across the whole thesis,
 % not per chapter. (SUBSTITUTE for chngcntr's \counterwithout.)
@@ -292,7 +298,7 @@
 
 \clearpage
 \phantomsection
-\addcontentsline{toc}{chapter}{\bibname}
+\addcontentsline{toc}{chapter}{References}
 % The template's own XML single-spaces reference entries (FORMAT.md section 2,
 % w:line="240" on reference paragraphs) with a 0.5in hanging indent (section 8).
 % The body's \doublespacing does not extend here; doing so was a deviation.
