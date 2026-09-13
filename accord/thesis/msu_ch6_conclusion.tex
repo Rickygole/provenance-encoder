@@ -23,150 +23,96 @@
 \label{sec:conc-asked}
 
 A nursing note records that a loop diuretic was held because the patient had
-become hypovolemic. The discharge summary written five days later instructs that
-the same drug be continued at the admission dose. Only one of those documents
-leaves the hospital with the patient, and it is not the one containing the
-reason the instruction is wrong.
+become hypovolemic; the discharge summary written five days later instructs
+that the same drug be continued at the admission dose. Only one of those
+documents leaves the hospital with the patient, and it is not the one
+containing the reason the instruction is wrong.
 
-This thesis asked whether that disagreement can be detected automatically from
-paired clinical notes in MIMIC-III \citep{johnson2016mimic}, and built a
-standard-shaped pipeline to
-answer it: rule-based candidate mining, language model weak supervision, and a
-purpose-built neural detector over a domain-pretrained clinical encoder. Five
-questions were posed, four about the stages and one about the field that
-publishes pipelines like this one. Every stage failed a control, and not every
-failure carries the same weight, a distinction Section~\ref{sec:conc-found}
-keeps rather than collapses.
+This thesis asked whether that disagreement can be detected automatically
+from paired clinical notes in MIMIC-III \citep{johnson2016mimic}, and built a
+standard-shaped pipeline to answer it: rule-based candidate mining, language
+model weak supervision, and a purpose-built neural detector over a
+domain-pretrained clinical encoder. Five questions were posed, four about
+the stages and one about the field that publishes pipelines like this one;
+every stage failed a control, and Section~\ref{sec:conc-found} keeps rather
+than collapses the distinction between failures that carry different
+weight.
 
 \section{What Was Found}
 \label{sec:conc-found}
 
-Chapter~\ref{ch:discussion}, Table~\ref{tab:disc-spine} synthesises what each
-pipeline stage reported before its control and what the control changed; this
-section states the outcome once rather than walking each stage again. Every
-one of the five questions failed a control. The candidate pool's enrichment is
-real but its precision is bounded above by an exemplar defect that made the
-evidence displayed to the annotator, the weak labeller, and the detector
-independent of the evidence that triggered the candidate. The weak labeller's
-marginal fixes an agreement ceiling before training begins, and the labeller
-that actually supplied the detector's training signal could not have cleared
-the conventional significance threshold at any outcome its own marginal
-permitted, which is a precondition rather than a coincidence. None of three
-credited architectural components is left holding what it was credited with,
-and the three failures are of three different kinds. The trained detector's
-ranking is at chance under both evaluation bases and under subject-disjoint
-splits, a result the labeller's marginal already predicts rather than one
-that needed explaining after the fact, and a TF-IDF logistic regression ranks
-above both neural configurations, which is either surface-form signal or
-small-sample noise and is not established either way. A $75$-paper corpus
-deliberately enriched toward careful work still finds the one control this
-survey measures rare, auditing the selection step under a strict reading in
-only a small minority of it. Not every failure carries the same weight, a
-distinction Chapter~\ref{ch:discussion} keeps rather than collapses.
+Chapter~\ref{ch:discussion}, Table~\ref{tab:disc-spine} synthesises what
+each stage reported before its control and what the control changed; this
+section states the outcome once. Every one of the five questions failed a
+control. The candidate pool's enrichment is real, but its precision is
+bounded above by an exemplar defect that made the evidence displayed to the
+annotator, the weak labeller, and the detector independent of the evidence
+that triggered the candidate. The weak labeller's marginal fixes an
+agreement ceiling before training begins, and the labeller that actually
+supplied the detector's training signal could not have cleared the
+conventional significance threshold at any outcome its own marginal
+permitted. None of three credited architectural components is left holding
+what it was credited with, and the three failures are of three different
+kinds. The trained detector's ranking is at chance under both evaluation
+bases and under subject-disjoint splits, a result the labeller's marginal
+already predicts rather than one that needed explaining after the fact, and
+a TF-IDF logistic regression ranks above both neural configurations, which
+is either surface-form signal or small-sample noise and is not established
+either way. A $75$-paper corpus deliberately enriched toward careful work
+still finds the one control this survey measures rare. Not every failure
+carries the same weight, a distinction Chapter~\ref{ch:discussion} keeps
+rather than collapses.
 
 \section{What the Controls Changed}
 \label{sec:conc-controls}
 
 Without controls, everything above reads as a small underpowered study that
-found nothing. The controls convert the same results into measurements with a
-stated resolution.
+found nothing; the controls convert the same results into measurements with
+a stated resolution. The positive control carries the most weight: adapting
+one observational-epidemiology device \citep{lipsitch2010negative} by
+running the analysis where the answer is known, it resolves $4.53$ accuracy
+points on AG News under the identical harness, while the same harness
+returns a null, $+0.0031$, on the clinical task built for this control
+alone; what that pairing licenses is argued in
+Section~\ref{sec:disc-null}. The general proposition
+that pretraining loss predicts downstream utility poorly is established
+elsewhere, at a scale this project cannot approach
+\citep{lourie2025scaling,feng2026tessera}.
 
-The positive control carries the most weight. The device adapts one
-observational epidemiology formalised decades ago
-\citep{lipsitch2010negative}: run the analysis where the answer is known, and
-read the result as a statement about the instrument. Run on AG News with the
-identical training harness and an adjudication rule committed before any run,
-the resolved pretraining benefit is $4.53$ accuracy points at convergence; the
-same harness, on the in-hospital mortality task built for this control,
-returns a null, $+0.0031$. What that pairing licenses, and does not, for the
-contradiction evaluation's own sensitivity is argued in
-Chapter~\ref{ch:discussion}, Section~\ref{sec:disc-null}, not repeated here.
-The general proposition that a pretraining objective predicts downstream
-utility poorly is not established here; it is established elsewhere and at a
-scale this project cannot approach \citep{lourie2025scaling,feng2026tessera}.
-The sweep is a control, not a contribution.
-
-The decontamination control changed the headline. Excluding the evaluation
-identifiers at load time moved AUROC on the same $253$ pairs from $0.4595$ to an
-ensemble $0.5145$, a move of $0.0550$ that Chapter~\ref{ch:discussion} reports as
-untested and that lands nowhere useful in either direction. The value of the
-control is not that move. It is that the number reported before it was
-contaminated, and nothing in the metrics said so.
-
-The sign provenance control changed no value and several conclusions.
-Retrofitting signed storage for quantities persisted through an absolute value
-reproduced every prior figure exactly, maximum discrepancy $0.0$, while
-reversing seven of the fourteen comparable drift slopes. The demographic parity
-slope is $-0.0078$ signed under one selection regime and $+0.0118$ under the
-other, and both invert when stored as magnitudes. A quantity stored as a
-magnitude licenses no directional claim.
-
-The randomisation controls were run on the second system and not on the
-clinical detector, and the arm built to test the credited component did not
-settle anything: the pre-specified role-label control ran underpowered
-(RQ3 above), not falsified. The segment-index arm does not reinstate that
-falsification. An arbitrary ordinal carrying no provenance meaning reduces the
-loss by $0.9476$ nats against true role labels' $0.8244$ nats, which is a
-competing hypothesis about what the mechanism exploits, not a control task, and
-not evidence that role semantics contribute nothing. Chapter~\ref{ch:results}
-reports both comparisons and neither refutes the role-label claim. RQ3 is
-answered negatively on the clinical detector's own three components, not on
-this arm.
-
-The controls were cheap. Logged control compute totals $1216.4$ GPU minutes across $79$ runs: the
-AG News convergence sweep $555$ minutes over $48$ runs, a separate
-single-budget comparison of the same four arms $34.9$ minutes over $12$ runs,
-the clinical comparison $612.3$ minutes over $17$ runs, and the two signed
-storage re-runs $0.7$ and $13.5$ minutes. Person hours were never logged, so
-this is a compute only claim.
+Decontamination changed the headline, not its usefulness: the number
+reported before it was contaminated, and nothing in the metrics said so.
+Sign provenance changed no value and several conclusions, reproducing every
+prior figure exactly while reversing seven of fourteen comparable drift
+slopes, because a quantity stored as a magnitude licenses no directional
+claim. The randomisation control on the second system did not settle RQ3:
+the pre-specified role-label control ran underpowered, not falsified, and
+an arm showing an arbitrary ordinal outperforming true role labels is a
+rival hypothesis, not a control task.
 
 \section{Things to Check If You Are Building This}
 \label{sec:conc-practice}
 
-These are the checks that, had they been run when they were available, would
-each have changed what was reported here.
+These are the checks that, run when they were available, would have
+changed what is reported here.
 
 Check that the evidence a candidate is displayed with is the evidence that
-triggered it. The failure mode is the one drawn back in
-Figure~\ref{fig:exemplar}: a rule that quantifies over a set of medication
-mentions, an exemplar selector that indexes into that set positionally, and
-nothing in between forcing the two to agree. The check is an assertion over two
-data structures, and on the Rule 1 and Rule 2 gold stratum it is the check that
-would have caught the largest upstream defect in this project before any
-annotation was commissioned, a wrong rate as high as $0.4745$ (RQ1 above).
-
-Estimate the base rate on a human labelled sample before generating weak labels,
-and print the labeller's marginal beside it. A labeller positive on $261$ of
-$299$ pairs against a base rate of $0.0401$ is diagnosable in one line when the
-labels are produced, not after a detector has been trained on them, and the
-dependence of agreement statistics on the marginals has been documented since
-1990 \citep{feinstein1990paradoxes,byrt1993pabak}.
-
-Report precision against the base rate of the pool the system ran on, with the
-denominator stated, and prefer a coefficient that uses all four confusion matrix
-cells when the classes are this skewed \citep{chicco2020mcc}. Precision of
-$0.0424$ is a different object depending on
-whether the pool's base rate is $0.005$ or $0.0474$, and here it is the latter.
-At an operating point where the detector flags nearly the whole pool, precision
-falling below base rate follows from the arithmetic of that operating point and
-should be read beside kappa and the ranking metrics, not asserted alone.
-
-Run a randomised counterpart of any component reported as learned, under the
-same training conditions, and log the distance a learned parameter moved from
-its initialisation. A parameter that finishes at $0.5076$ from a start of $0.5$,
-agreeing to two decimals across seeds, is reporting its initialisation.
-
-Run a positive control on the instrument before reporting a null from it, and
-report achieved power alongside any comparison that returns no difference. The
-positive control here, the pre-registered convergence sweep, cost $555$ minutes
-over $48$ runs, and the strata comparison has $p = 0.7725$ at achieved power
-$0.0576$, where the first number
-without the second reads as evidence of no effect.
-
-Keep the denominators separate and state them with every metric. The $299$
-annotated pairs and the $253$ non-ambiguous pairs are different sets, and
-conflating them in this project inverted a central claim that then survived
-several rounds of internal review.
+triggered it. The check is a one-line assertion, illustrated in
+Figure~\ref{fig:exemplar}, and here it would have caught the largest
+upstream defect in this project before any annotation was commissioned.
+Estimate the base rate on a human-labelled sample before generating weak
+labels, and print the labeller's marginal beside it; the dependence of
+agreement statistics on the marginals has been documented since 1990
+\citep{feinstein1990paradoxes,byrt1993pabak}. Report precision against the
+pool's own base rate, with the denominator stated, and prefer a coefficient
+that uses all four confusion-matrix cells when the classes are this skewed
+\citep{chicco2020mcc}. Run a randomised counterpart of any component
+reported as learned, under the same training conditions, and log the
+distance a learned parameter moved from its initialisation. Run a positive
+control on the instrument before reporting a null from it, and report
+achieved power alongside any comparison that returns no difference. Keep
+denominators separate and state them with every metric; conflating two of
+them in this project inverted a central claim that survived several rounds
+of internal review.
 
 \section{Future Work}
 \label{sec:conc-future}
@@ -177,43 +123,37 @@ settled. Each needs a resource this project did not have: the annotator's
 time, an annotation budget, a controlled simulator, and, for the fourth, a
 second model scale reachable through a channel this thesis can use
 compliantly. That fourth item would order the over-calling multiplier by
-parameter count rather than leaving it undetermined among the three local
-models this project could run; the cell an earlier draft relied on to report
-it came through a hosted channel this thesis has since withdrawn under the
-compliance action Chapter~\ref{ch:method} records, so the question returns to
-future work rather than staying answered.
+parameter count; the cell an earlier draft relied on to report it came
+through a hosted channel now withdrawn under the compliance action
+Chapter~\ref{ch:method} records, so the question returns to future work
+rather than staying answered.
 
 \textbf{Re-annotate against corrected exemplars.} The base rate of $0.0401$
-remains an upper bound rather than an estimate (RQ1 above). By reconstruction
-the exemplar matched the trigger
-for $72$ of the $137$ resolved Rule 1 and Rule 2 candidates, a rate of
-$0.5255$; by an exact join covering far fewer rows, all $23$ of the $23$ it can
-resolve match. A separate join across all four rules matches $35$ rows of the
-annotated sample to the rebuilt candidates table
-(Section~\ref{sec:res-rq1}), a different operation with a different
-denominator, not a third reading of the same exemplar-correctness question. Rebuilding the
-selector so the displayed pair is the pair that fired the rule, then
-re-annotating the same candidate identifiers, would establish how much of the
-measured base rate is real. The rules and the pool exist and the defect is
-located, so this is bounded work.
+remains an upper bound rather than an estimate. By reconstruction the
+exemplar matched the trigger for $72$ of the $137$ resolved Rule 1 and Rule
+2 candidates, a rate of $0.5255$; by an exact join covering far fewer rows,
+all $23$ of the $23$ it can resolve match. Rebuilding the selector so the
+displayed pair is the pair that fired the rule, then re-annotating the same
+candidate identifiers, would establish how much of the measured base rate
+is real. The rules and the pool exist and the defect is located, so this is
+bounded work.
 
-\textbf{Assemble a cohort with more positives.} Every interval here rests on
-$12$ positives. The minimum detectable AUROC at that count is $0.7355$ at
-$80\%$ power and $\alpha = 0.05$, and the smallest stratum difference the
-exemplar comparison could detect is $0.0895$ in absolute rate. A cohort large
-enough to resolve effects where a useful clinical system would operate is the
-single change that would most alter what can be concluded, and it means
-annotation budget rather than modelling effort.
+\textbf{Assemble a cohort with more positives.} Every interval here rests
+on $12$ positives. The minimum detectable AUROC at that count is $0.7355$
+at $80\%$ power and $\alpha = 0.05$, and the smallest stratum difference
+the exemplar comparison could detect is $0.0895$ in absolute rate. A
+cohort large enough to resolve effects where a useful clinical system
+would operate is the single change that would most alter what can be
+concluded, and it means annotation budget rather than modelling effort.
 
-\textbf{Explain the selection channel anomaly.} Two selection channels on one
-population with baseline disparity held fixed produce demographic parity drift
-slopes of opposite sign, $-0.0078$ and $+0.0118$, and a controlled simulator
-sweep inverts rather than reproduces the mapping. The pattern is stable and
-reproducible and has no explanation. Five candidate mechanisms were proposed and
-refuted inside this project; the sixth is left to work that can hold more of the
-generating process fixed than this design allows.
-
-
+\textbf{Explain the selection channel anomaly.} Two selection channels on
+one population with baseline disparity held fixed produce demographic
+parity drift slopes of opposite sign, $-0.0078$ and $+0.0118$, and a
+controlled simulator sweep inverts rather than reproduces the mapping. The
+pattern is stable, reproducible, and unexplained; five candidate mechanisms
+were proposed and refuted inside this project, and the sixth is left to
+work that can hold more of the generating process fixed than this design
+allows.
 
 \section{Closing}
 \label{sec:conc-closing}
@@ -224,83 +164,26 @@ and the sharpest thing this thesis can say is that sentence together with the me
 it. The weak labeller assigns the contradiction class to the large majority of a pool whose
 confirmed rate is a twentieth of that, and at that marginal the largest agreement any
 thresholded label could express with the pharmacist is bounded before training begins. That
-bound follows from two marginals. It needs no join, no significance test, no family count and
-no vendor, and it is why the detector inherits a marginal rather than a judgement. Every other
-failure in this thesis is attached to a mechanism of the same kind, read out of the code or the
-counts rather than inferred from a null.
+bound follows from two marginals alone, needing no join, no significance test, and no vendor,
+which is why the detector inherits a marginal rather than a judgement. Every other failure in
+this thesis is attached to a mechanism of the same kind, read out of the code or the counts
+rather than inferred from a null.
 
-A comparison beside that result is worth reporting because of what it is not,
-not because of what it shows. Every hosted-channel result this thesis
-produced by transmitting these clinical sentence pairs to a third-party LLM
-service is withdrawn under a compliance action Chapter~\ref{ch:method}
-records, so the cross-model comparison an earlier draft of this thesis built
-on that channel no longer exists in any form and is not reconstructed here.
-What is left is entirely local. A separately prompted Llama 3 8B baseline, run
-at the same eight-billion-parameter scale as the weak labeller and evaluated
-on the same $253$ non-ambiguous pairs, returns a Matthews correlation whose
-interval contains chance, the same verdict this pipeline's own detector
-returns. A TF-IDF logistic regression on the $299$ annotated pairs ranks
-above both, which is either surface-form signal or small-sample noise and is
-not established either way (Chapter~\ref{ch:results}). None of the three
-comparators this thesis can still report separates the confirmed cases from
-the rest, so it has no demonstration, at any scale reachable through a
-compliant channel, that a system built differently would have succeeded
-where this pipeline failed.
+None of that establishes that the task cannot be done (Section~\ref{sec:disc-null}). It
+establishes that each failure has a located mechanism, separated from measurement artifact by a
+control that fired, except the harm head, which needed no control because nothing ever trained it.
 
-What that leaves open is larger than what an earlier draft of this thesis
-claimed. Whether the detector's chance-level ranking is a property of the
-task as posed, of this pipeline's construction, or of the training signal it
-was given is not settled by any surviving comparison, because the local
-comparators available at a matched scale did not separate the confirmed
-cases either. What is settled, and does not depend on that comparison, is the
-mechanism: the weak labeller's marginal fixes an agreement ceiling before a
-single pair is scored, four of the eight local labeller-and-basis rows this
-pipeline measured could not have rejected the null at the conventional
-threshold at any outcome, and the row that actually supplied the detector's
-training signal is one of them. A detector trained on that signal was not
-going to rank gold pairs above chance, and the finding this thesis can
-defend is that the failure was diagnosable before training rather than only
-after it.
-
-The practical recommendation that follows is one sentence, and this project's
-own record is the evidence for it rather than a success story. Before
-training anything downstream of a weak labeller for a rare clinical event,
-measure that labeller's positive rate against the gold standard's confirmed
-rate and check what agreement its own marginal permits before spending a
-training budget on the rest. This project's local evaluation baseline was
-such a check run late rather than early: prompted once with no training, it
-returned the same null on the same rows the finished pipeline did, at a
-fraction of the engineering cost, which is the point the check makes even
-when the baseline itself does not win. Run first, the same check would have
-named the marginal ceiling this thesis instead spent a pipeline discovering.
-
-Two of these findings should recur in direction in a differently built version of this
-pipeline, and neither magnitude should be carried across: high-recall rules on an event this
-rare produce a low-precision pool, and an instruction-tuned model asked to flag a rare class at
-low prevalence over-flags it. What belongs to this build specifically will not necessarily
-recur. The exemplar defect exists because this project's selector indexed positionally; the
-architectural components report their initialisations because of how this project's parameters
-were wired; and a second system shows a provenance-free position beating both true role
-semantics and a randomised control from the same alphabet. The detector's chance-level ranking
-is consistent with what the screening test named above already predicted before training, and
-on its own it is not evidence about whether the failure belongs to the task or to this
-construction, a question the withdrawal of this thesis's only cross-scale comparison leaves
-open rather than closed.
-
-None of that establishes that the task cannot be done, a limit stated once and not re-argued
-here (Section~\ref{sec:disc-null}). What it establishes is narrower and more useful: each
-failure has a located mechanism, and the failures a control could reach were separated from
-measurement artifact by a control that fired. The harm head is the exception, and it is an
-exception in the other direction: no control was needed, because no term in the objective ever
-trained it.
+The practical recommendation is one sentence. Before training anything downstream of a weak
+labeller for a rare clinical event, measure that labeller's positive rate against the gold
+standard's confirmed rate and check what agreement its own marginal permits before spending a
+training budget on the rest. This project's local evaluation baseline was such a check run late
+rather than early: prompted once with no training, it returned the same null on the same rows
+the finished pipeline did. Run first, it would have named the marginal ceiling this thesis
+instead spent a pipeline discovering.
 
 A negative result that has been diagnosed is worth more than one that has not. Part of that
 diagnosis was a set of controls that belong to other people's papers
 \citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,egami2023surrogates,feinstein1990paradoxes},
-cost $1216.4$ GPU minutes in total, and had not been run on this pipeline before this work;
-running someone else's instrument is not inventing it. The rest of what this project leaves
-behind is three checks of its own, named for what each does: trigger-exemplar dissociation, the
-degeneracy precondition, and sign provenance. Each is cheap, each is a one-line assertion or a
-pre-registered gate, and each catches a defect no reported metric here was sensitive to.
-Neither half is a new method, and this thesis does not claim one; both are small, transferable
-checks, offered so the next attempt starts further along than this one did.
+cost $1216.4$ GPU minutes in total, and had not been run on this pipeline before this work. The rest is four checks of its own: the marginal feasibility gate, trigger-exemplar
+dissociation, the degeneracy precondition, and sign provenance. Each is cheap, each catches a
+defect no reported metric here was sensitive to, and none is a new method.

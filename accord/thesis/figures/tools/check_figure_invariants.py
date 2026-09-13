@@ -213,6 +213,13 @@ def check_text_on_ground():
 UNREPRODUCIBLE = {"fig-gap-trajectory", "fig-spec-curve", "fig-rule-precision"}
 
 RETIRED = {
+    "fig-threshold-surface":
+        "Was the one figure in the appendix giving the full treatment of the "
+        "selection-channel anomaly. That appendix was moved out of the bound "
+        "thesis to the released analysis code when the thesis was brought under "
+        "its page limit, because the anomaly is reported in the discussion "
+        "chapter as not a finding and its sweep carried no claim the text "
+        "depends on. The figure travels with the appendix source.",
     "fig-rule-precision":
         "Was in the results chapter. Removed when the figure set was restructured "
         "on committee review: it plotted per-rule precision as bars with no "
@@ -316,12 +323,37 @@ PENDING_INCLUSION = {
 }
 
 
+def _bound_tex(thesis):
+    """Every .tex file main_msu.tex actually inputs, transitively, skipping comments."""
+    import re
+    seen, stack = [], [thesis / "main_msu.tex"]
+    while stack:
+        f = stack.pop()
+        if f in seen or not f.exists():
+            continue
+        seen.append(f)
+        for line in f.read_text().splitlines():
+            code = re.split(r"(?<!\\)%", line, 1)[0]
+            for m in re.finditer(r"\\(?:input|include)\{([^}]+)\}", code):
+                name = m.group(1)
+                stack.append(thesis / (name if name.endswith(".tex") else name + ".tex"))
+    if len(seen) < 2:
+        raise SystemExit("orphan check: main_msu.tex inputs nothing; refusing to "
+                         "report zero orphans by scanning nothing")
+    return seen
+
+
 def check_orphans():
     """Every built PDF is either included by a .tex or named in RETIRED."""
     import re
     thesis = pathlib.Path(__file__).resolve().parents[2]
     used = set()
-    for tex in thesis.glob("*.tex"):
+    # "Used" means bound into the thesis, not present in the directory. The glob
+    # over *.tex counted an appendix that main_msu.tex no longer inputs, so a
+    # figure that could not reach the PDF read as live. The bound set is read
+    # from the \input lines of main_msu.tex, following nested inputs.
+    bound = _bound_tex(thesis)
+    for tex in bound:
         for m in re.finditer(
                 r"includegraphics\[[^\]]*\]\{figures/([^}]+?)(?:\.pdf)?\}",
                 tex.read_text()):
@@ -334,7 +366,7 @@ def check_orphans():
         # Reported with the file and line, because closing this one is an edit
         # to a chapter and the person holding the chapter needs the address.
         where = []
-        for tex in sorted(thesis.glob("*.tex")):
+        for tex in sorted(bound):
             for i, line in enumerate(tex.read_text().splitlines(), 1):
                 if f"figures/{name}" in line:
                     where.append(f"{tex.name}:{i}")
@@ -495,7 +527,6 @@ CATEGORY_GROUNDS = {
     "fig-ceiling":             [],   # a line on paper
     # a sequential heatmap field is not a category ground: its fills encode a
     # continuum and are read against a scale, not against each other
-    "fig-threshold-surface":   [],
 }
 
 

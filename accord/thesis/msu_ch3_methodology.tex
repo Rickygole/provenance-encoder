@@ -18,21 +18,20 @@
 \label{sec:m-overview}
 
 This chapter describes the pipeline that was built and, for each stage, the control designed to
-separate a real finding from an artifact of the measurement. The two halves are not independent. A
-control is informative only if the condition under which it would fire is fixed before the number
-arrives, so every control below is written as a condition, and Chapter~\ref{ch:results} reports
-which conditions were met.
+separate a real finding from an artifact of the measurement. A control is informative only if the
+condition under which it would fire is fixed before the number arrives, so every control below is
+written as a condition, and Chapter~\ref{ch:results} reports which conditions were met.
 
-The pipeline has four stages and an evaluation layer. Stage one extracts a cohort of admissions
-from MIMIC-III and, for each, a paired nursing note and discharge summary. Stage two mines that
-corpus with four rules to produce a pool of contradiction candidates. Stage three labels the pool
-with a local language model. Stage four trains a neural detector on those labels and scores it
-against a pharmacist-annotated gold set. Each stage inherits the previous stage's defects, which is
-why the controls are given stage by stage rather than collected at the end. Two absences are
-deliberate: there are no results here, including no descriptive counts, unless the count is
-registered in the project's verified-fact file with a producing artifact; and there is no attempt
-to present the design as intended rather than as it ran, because a methods chapter documenting the
-specification instead of the implementation is the failure this thesis is about.
+The pipeline has four stages and an evaluation layer. Stage one extracts a cohort of admissions from
+MIMIC-III and, for each, a paired nursing note and discharge summary. Stage two mines that corpus
+with four rules to produce a pool of contradiction candidates. Stage three labels the pool with a
+local language model. Stage four trains a neural detector on those labels and scores it against a
+pharmacist-annotated gold set. Each stage inherits the previous stage's defects, which is why the
+controls are given stage by stage rather than collected at the end. Two absences are deliberate:
+there are no results here beyond counts registered in the project's verified-fact file with a
+producing artifact, and there is no attempt to present the design as intended rather than as it
+ran, because a methods chapter documenting the specification instead of the implementation is the
+failure this thesis is about.
 
 \section{Data and Cohort}
 \label{sec:m-data}
@@ -64,28 +63,20 @@ which is a property of the data representation rather than of the modelling.
 \subsection{Cohort definition}
 
 The primary cohort is heart failure, chosen because polypharmacy is the norm in this population and
-because the drugs involved, among them loop diuretics, beta blockers, anticoagulants and
-antiarrhythmics, have narrow therapeutic windows and documented harm when continued
-inappropriately. Admissions enter if any ICD-9 code matches the prefix \texttt{428}; two secondary
-cohorts were built for a transfer test, sepsis under \texttt{038} and acute kidney injury under
-\texttt{584}. A prefix match on a billing code is weaker than the physiologic criteria a clinical
-study would use, since it over-includes admissions where heart failure is a comorbidity and
-under-includes admissions where the condition was present but uncoded.
+the drugs involved, among them loop diuretics and anticoagulants, have narrow therapeutic windows
+and documented harm when continued inappropriately. Admissions enter if any ICD-9 code matches the
+prefix \texttt{428}; two secondary cohorts were built for a transfer test, sepsis under \texttt{038}
+and acute kidney injury under \texttt{584}. A prefix match on a billing code is weaker than the
+physiologic criteria a clinical study would use, since it over-includes admissions where heart
+failure is a comorbidity and under-includes admissions where the condition was present but uncoded.
 
 The only further clinical filter is a positive length of stay. Applying the prefix match alone
 returns 13,608 heart failure admissions; after the length-of-stay filter 13,597 remain, of which
 10,143 belong to distinct subjects. The two secondary cohorts move by the same filter from 6,265 to
 6,253 admissions for sepsis and from 11,422 to 11,408 for acute kidney injury, removing 12 and 14
 admissions respectively against 11 for heart failure, in every case under one percent of the cohort.
-In the
-reference implementation that filter was computed, printed, and assigned to a copy of the frame
-that was never used again, so the note joins ran against the unfiltered set; the rebuild applies it
-to the frame actually joined. The difference is immaterial to any conclusion, and it is recorded
-because it is the first instance of a pattern recurring at every stage: a quantity is computed and
-reported as though it constrained the pipeline, while the code path that would have applied it does
-not exist \citep{sculley2015debt}.
 
-\subsection{Note roles, and the retreat from three to two}
+\subsection{Note roles}
 
 The clinical hypothesis is that note types carry different institutional weight. A nursing progress
 note recording that a diuretic was withheld is an account of what happened at the bedside; a
@@ -93,66 +84,43 @@ discharge summary instructing that the same diuretic be continued at a stated do
 governing the patient after discharge. A disagreement between the two is asymmetric, because only
 one of them is the document the patient and the receiving clinician act on.
 
-The original design used three roles: nursing, discharge, and a physician or admission note giving
-a third view of the medication plan. Realising that partition against MIMIC-III's \texttt{CATEGORY}
-field was the single largest source of design change in the project. Several configurations were
-tried, including a broadened admission-note definition and a purely temporal definition that
-ignores \texttt{CATEGORY} and takes any non-radiology note within a fixed window of admission.
-Broadening moved coverage negligibly and the temporal definition moved it the wrong way, which
-localises the constraint: physician note types in MIMIC-III are unevenly populated across the
-covered period, and requiring three roles at once intersects three sparse conditions. Coverage
-under every partition tried, the original three-role split, the broadened admission-note
-definition, and the temporal window, fell well short of the coverage achieved once the design
-retreated to two roles, and no attempt at three roles was judged usable. The adopted two-role
-partition finds 13,321 of the 13,608 heart failure admissions with a discharge summary and 10,012
-with a nursing note; the recomputed intersection carrying both roles is 9,820 admissions, the
-figure this thesis prints throughout, while the reference implementation's own count for that same
-intersection is 9,825, five higher for reasons the recovered artifact does not resolve.
-
-Dropping the third role is a design cost rather than a nuisance. With three roles the pipeline
-could have separated a nursing-to-physician disagreement, a within-stay communication failure, from
-a nursing-to-discharge disagreement, a failure that reaches the patient, and could have used the
-physician note as an intermediate state against which to ask whether a conflict was resolved before
-discharge. With two roles neither question can be posed. The adopted partition maps
+A three-role partition adding a physician or admission note was tried and dropped: physician note
+types in MIMIC-III are unevenly populated across the covered period, and requiring three roles at
+once intersects three sparse conditions, so no configuration reached usable coverage. Dropping the
+third role is a design cost rather than a nuisance, since a two-role partition cannot separate a
+nursing-to-physician disagreement, a within-stay communication failure, from a nursing-to-discharge
+disagreement, a failure that reaches the patient. The adopted partition maps
 \texttt{discharge summary} to the discharge role, maps \texttt{nursing} and \texttt{nursing/other}
-to the nursing role, and discards every other category.
+to the nursing role, and discards every other category. It finds 13,321 of the 13,608 heart failure
+admissions with a discharge summary and 10,012 with a nursing note; the intersection carrying both
+roles is 9,820 admissions, the figure this thesis prints throughout.
 
 One note per role per admission is then selected. The nursing note is the one with the latest
 \texttt{CHARTTIME} strictly earlier than \texttt{DISCHTIME}, the last documented bedside state
-before the patient leaves. The discharge summary is the first such row under a deterministic
-ordering, which needs care because \texttt{CHARTTIME} is null for every discharge-summary row in
-MIMIC-III: these notes are written retrospectively and only a \texttt{CHARTDATE} is recorded. The
-reference implementation took the first row of an unsorted group, which reads as the first note
-charted and is in fact whichever row appeared first in the concatenation order of a chunked read;
-the rebuild sorts on \texttt{CHARTDATE} with the row identifier as tie-break. That restores
-determinism, not sub-day chronology, which the resource does not contain. Two consequences
-constrain later claims. Every statement that the nursing note came first rests on the selection
-rule rather than on a measured comparison, and any filter searching for documentation written
-between the two notes at sub-day resolution has an empty interval to search, because the discharge
-summary carries only a \texttt{CHARTDATE} and no \texttt{CHARTTIME}: at that resolution the
-intermediate-documentation hypothesis is untestable in this resource rather than tested and
-rejected. Counting at date-level resolution instead is a coarser but answerable question, and
-Section~\ref{sec:m-candidates} reports it directly.
+before the patient leaves. The discharge summary is the first row under a deterministic ordering by
+\texttt{CHARTDATE} with the row identifier as tie-break, since \texttt{CHARTTIME} is null for every
+discharge-summary row in MIMIC-III: these notes are written retrospectively and only a
+\texttt{CHARTDATE} is recorded. That ordering restores determinism, not sub-day chronology, which
+the resource does not contain. Two consequences constrain later claims. Every statement that the
+nursing note came first rests on the selection rule rather than on a measured comparison, and any
+filter searching for documentation written between the two notes at sub-day resolution has an empty
+interval to search: at that resolution the intermediate-documentation hypothesis is untestable in
+this resource rather than tested and rejected. Counting at date-level resolution instead is a
+coarser but answerable question, and Section~\ref{sec:m-candidates} reports it directly.
 
 This selection returns 9,783 admissions with a selected nursing note and 9,783 with a selected
-discharge summary, the same 9,783 admissions counted both ways, for 19,566 note rows across 9,783
-pairs in total. That is 37 fewer than the 9,820 admissions carrying both roles, and the shortfall
-is entirely nursing-side. Holding the nursing role means holding at least one note labelled
-nursing; being selectable means holding one whose chart time is recorded and falls strictly before
-the discharge time. An admission whose nursing notes all carry a null chart time, or all fall at
-or after discharge, therefore has the role and no selectable note. The discharge side applies no
-such condition, so it loses nothing. The 37 are named here because every other reduction in
-Figure~\ref{fig:cohort-flow} carries its reason and this one was previously left to inference.
-That is the cohort the mining rules of Section~\ref{sec:m-candidates} run against.
-Figure~\ref{fig:cohort-flow} carries the whole path in one view. Reading down:
-admissions selected by billing code, filtered on length of stay, reduced to
-those carrying both note roles, and reduced again to one note pair per
-admission; the medication mentions extracted from those pairs and the subset of
-them carrying an action class; the candidates the four mining rules return
-after the temporal prefilter; and the pairs a pharmacist annotated, of the
-sample drawn. The stages below the note pair are specified in the sections that
-follow this one, and the terminal box is the non-ambiguous evaluation core and
-the confirmed contradictions inside it, which is what the whole path yields.
+discharge summary, for 19,566 note rows across 9,783 pairs in total, 37 fewer than the 9,820
+admissions carrying both roles; the shortfall is entirely nursing-side. Holding the nursing role
+means holding at least one note labelled nursing; being selectable means holding one whose chart
+time is recorded and falls strictly before the discharge time. An admission whose nursing notes all
+carry a null chart time, or all fall at or after discharge, therefore has the role and no selectable
+note, while the discharge side applies no such condition and loses nothing. That is the cohort the
+mining rules of Section~\ref{sec:m-candidates} run against. Figure~\ref{fig:cohort-flow} carries the
+whole path: admissions selected by billing code, filtered on length of stay, reduced to those
+carrying both note roles, and reduced again to one note pair per admission; the medication mentions
+extracted from those pairs and the subset carrying an action class; the candidates the four mining
+rules return after the temporal prefilter; and the pairs a pharmacist annotated. The terminal box is
+the non-ambiguous evaluation core and the confirmed contradictions inside it.
 
 \begin{figure}[!t]
 
@@ -169,10 +137,9 @@ because no committed file records either as a count.}
 
 Medication extraction is a mature task with strong published systems
 \citep{uzuner2010medication,henry2020n2c2} and mature tooling
-\citep{neumann2019scispacy,eyre2021medspacy}. This project used neither. Installation of both was
-attempted and abandoned after dependency resolution against the pinned environment failed
-repeatedly, and the pipeline proceeded with a dictionary extractor over a general-purpose English
-pipeline. That is a limitation, not a considered choice.
+\citep{neumann2019scispacy,eyre2021medspacy}. This project used neither, after installation of both
+failed against the pinned environment; the pipeline instead uses a dictionary extractor over a
+general-purpose English pipeline. That is a limitation, not a considered choice.
 
 The extractor uses four hand-written resources: heart-failure-relevant generic drug names;
 abbreviation and brand-name expansions; spelling and formulation normalisations, so formulations of
@@ -186,31 +153,27 @@ rewrites the result, mapping continuation and initiation to cessation and cessat
 continuation.
 
 Run over the 9,783 admissions the extractor returns 219,683 mentions across 9,732 unique admissions
-and 70 distinct drugs; 88,336 of those mentions receive an action classification and 131,347 do
-not; the two sum to the 219,683 total. Fewer than half of all mentions carry an
-action at all, which bounds how much of the corpus Rules 1 and 2 can ever reach, since both rules
-are defined entirely over the classified subset.
+and 70 distinct drugs, of which 88,336 receive an action classification and 131,347 do not. Fewer
+than half of all mentions carry an action at all, which bounds how much of the corpus Rules 1 and 2
+can ever reach, since both rules are defined entirely over the classified subset.
 
-Three properties propagate downstream. The action is a property of the window and not of the drug mention, so every
-drug named anywhere in the window gets the same label. First-match ordering makes the classes
-non-exclusive in effect, since a window carrying vocabulary from two classes resolves to whichever
-is tested first. And the negation rewrite is a hard flip with no scope model, where a purpose-built
-context algorithm would model scope explicitly \citep{chapman2001negex}.
+Three properties propagate downstream: the action is a property of the window and not of the drug
+mention, so every drug named anywhere in the window gets the same label; first-match ordering makes
+the classes non-exclusive in effect, since a window carrying vocabulary from two classes resolves
+to whichever is tested first; and the negation rewrite is a hard flip with no scope model, where a
+purpose-built context algorithm would model scope explicitly \citep{chapman2001negex}.
 
-Two fields exist only in the rebuild. A numeric dose parser reduces a matched dose string to a
-value and a canonical unit, converting within the mass family and keeping other unit families
-incomparable, because converting them needs drug-specific information the resource does not supply.
-And every mention records its sentence index and character offsets. The reference implementation
-stored neither, and the absence of offsets is the enabling condition for the defect in
-Section~\ref{sec:m-exemplar}: without positional information, two mentions of the same drug in one
-note are indistinguishable rows.
+Two fields exist only in the rebuild: a numeric dose parser reducing a matched dose string to a
+value and a canonical unit, converting within the mass family and leaving other unit families
+incomparable since conversion needs drug-specific information the resource lacks, and a sentence
+index and character offset on every mention, without which the defect in Section~\ref{sec:m-exemplar}
+is enabled, since two mentions of the same drug in one note are otherwise indistinguishable rows.
 
-The reference pipeline split the candidate pool at the row level with a shuffled index. Candidates
-concentrate within admissions and the patient population has repeat admissions, so a row-level
-split places candidates sharing a nursing note, a discharge summary, an admission or a patient on
-both sides; two candidates from one admission differ only in the drug at issue, while the
-surrounding text, the de-identification surrogates and the documentation style are identical. Every
-split used here is instead disjoint by \texttt{SUBJECT\_ID}, asserted in code rather than assumed:
+Candidates concentrate within admissions and the patient population has repeat admissions, so a
+row-level split would place candidates sharing a nursing note, a discharge summary, an admission or
+a patient on both sides, since two candidates from one admission differ only in the drug at issue
+while the surrounding text and documentation style are identical. Every split used here is instead
+disjoint by \texttt{SUBJECT\_ID}, asserted in code rather than assumed:
 \[
 S_{\text{train}} \cap S_{\text{val}} = S_{\text{train}} \cap S_{\text{test}}
 = S_{\text{val}} \cap S_{\text{test}} = \varnothing ,
@@ -218,12 +181,10 @@ S_{\text{train}} \cap S_{\text{val}} = S_{\text{train}} \cap S_{\text{test}}
 S_{\text{train}} \cup S_{\text{val}} \cup S_{\text{test}} = S .
 \]
 Patient-level grouping is the correct unit because it is the only unit guaranteeing no shared note
-and no shared documentation episode. Assertions rather than comments are used deliberately: the
-reference split was not wrong because anyone believed row-level splitting was acceptable, but
-because nothing in the code would have complained. Row-level decontamination is weaker still, since
-a subject can contribute one admission to the gold set and another to the weak-label pool, so the
-control training pool of Section~\ref{sec:m-control-model} excludes, by assertion, every weak-label
-row whose subject appears in the gold set.
+and no shared documentation episode. Row-level decontamination is weaker still, since a subject can
+contribute one admission to the gold set and another to the weak-label pool, so the control
+training pool of Section~\ref{sec:m-control-model} excludes, by assertion, every weak-label row
+whose subject appears in the gold set.
 
 \section{Candidate Generation}
 \label{sec:m-candidates}
@@ -234,8 +195,8 @@ True cross-note medication contradictions are rare, exhaustive human review of t
 infeasible, and exhaustive machine scoring of all cross-note drug pairs is both wasteful and
 statistically hostile. Candidate generation is the standard response: a cheap, high-recall,
 low-precision rule set narrows the space to a pool a human or a model can examine. The rules are
-not intended to be accurate. They are intended to be transparent, so each candidate carries a
-reason, and enriching, so the base rate inside the pool exceeds the rate outside it.
+not intended to be accurate, only transparent, so each candidate carries a reason, and enriching, so
+the base rate inside the pool exceeds the rate outside it.
 
 Let admission $a$ have a nursing note $N_a$ and a discharge summary $D_a$, with mention sets
 $M(N_a)$ and $M(D_a)$. Each mention $m$ carries a normalised drug $\mathrm{drug}(m)$, an action
@@ -261,9 +222,9 @@ T_1(a,d) =
 (\textsc{cess} \in A_N \wedge \textsc{cont} \in A_D).
 \]
 This is the canonical case: the nursing note records the drug as held and the discharge summary
-orders it continued, or the reverse. Note the existential quantifier. The rule fires if some
-mention on each side carries the required action, which is correct for a high-recall trigger and is
-exactly what makes exemplar selection non-trivial.
+orders it continued, or the reverse. The existential quantifier means the rule fires if some
+mention on each side carries the required action, correct for a high-recall trigger and exactly
+what makes exemplar selection non-trivial.
 
 Rule 2 relaxes drug identity to pharmacologic class, so two different agents in one class, one
 continued and one ceased across the notes, can be flagged as a substitution documented on one side
@@ -294,49 +255,44 @@ T_4(a,d) =
 \;\wedge\;
 d \notin \{\mathrm{drug}(m) : m \in M(D_a)\}.
 \]
-This is the clinically most interesting rule and the one with the weakest evidence, because absence
-is not a decision: a drug held at the bedside and never mentioned again may have been deliberately
-discontinued and correctly omitted, or dropped by oversight, and the rule cannot tell them apart.
-It also produces a structurally different input, since there is no discharge sentence to show and
-the discharge side is a literal marker. Any difference in labeller or model behaviour on Rule 4
-therefore has at least two explanations, clinical reasoning and a formatting response to a
-degenerate input, which the design cannot separate.
+This is the clinically most interesting rule and the weakest in evidence, since absence is not a
+decision: a drug held at the bedside and never mentioned again may have been deliberately
+discontinued and correctly omitted, or dropped by oversight, and the rule cannot tell them apart. It
+also produces a structurally different input, since there is no discharge sentence to show and the
+discharge side is a literal marker, so any difference in labeller or model behaviour on Rule 4 has
+at least two explanations, clinical reasoning and a formatting response to a degenerate input,
+which the design cannot separate.
 
-Rules 3 and 4 exist only in the rebuild, because the reference extractor stored dose strings without
-parsing them and recorded no positional information. Any comparison between rebuild and reference
-behaviour is therefore restricted to Rules 1 and 2, and that restriction is what defines the
-defect-free stratum used in Section~\ref{sec:m-control-rq1}.
+Rules 3 and 4 exist only in the rebuild, since the reference extractor never parsed dose strings or
+recorded positional information; comparison between rebuild and reference behaviour is therefore
+restricted to Rules 1 and 2, which is what defines the defect-free stratum used in
+Section~\ref{sec:m-control-rq1}.
 
 Applied to the classified mentions, the four rules return a raw pool of 1,980 candidates before any
 temporal check, split 886 from Rule 1, 203 from Rule 2, 521 from Rule 3 and 370 from Rule 4,
-covering 1,205 distinct admissions. A temporal prefilter that requires a
-resolvable ordering between the two notes then drops the pool to 1,978 candidates, split 886, 202,
-520 and 370. These are two different splits, raw and
-post-prefilter, and the two are reported separately here rather than conflated: the prefilter
-removes two candidates in total, one each from Rule 2 and Rule 3, out of 1,068
-admissions carrying a usable date window and 643 admissions carrying an intermediate note between
-the two selected notes. Every candidate count
-elsewhere in this thesis is the post-prefilter figure, 1,978, unless stated otherwise.
+covering 1,205 distinct admissions. A temporal prefilter requiring a resolvable ordering between the
+two notes drops the pool to 1,978 candidates, split 886, 202, 520 and 370, out of 1,068 admissions
+carrying a usable date window and 643 carrying an intermediate note between the two selected notes.
+Every candidate count elsewhere in this thesis is the post-prefilter figure, 1,978, unless stated
+otherwise.
 
 \subsection{Exemplar selection, and the defect in it}
 \label{sec:m-exemplar}
 
-The reference mining code for Rules 1 and 2 evaluates the trigger over action sets and then selects
-the exemplar by positional index into the drug's mention group, taking the first row on each side.
-Nothing constrains those rows to carry the actions that made the trigger true. Suppose a discharge
-summary mentions a drug several times, most windows resolving to continuation and one, later in the
-note, to cessation, while the nursing note has a single continuation mention. The trigger fires on
-the continuation-cessation branch and the candidate is real by the rule's own definition, but the
-positional selector returns a continuation row on the discharge side, so the exemplar presented as
-a contradiction consists of two sentences in which the notes agree.
+The reference mining code for Rules 1 and 2 selects the exemplar by positional index into the
+drug's mention group, taking the first row on each side, with nothing constraining those rows to
+carry the actions that made the trigger true. If a discharge summary mentions a drug several times,
+mostly continuation with one later cessation, while the nursing note has a single continuation
+mention, the trigger fires on the continuation-cessation branch and the candidate is real by the
+rule's own definition, but the positional selector returns a continuation row on the discharge side,
+so the exemplar presented as a contradiction consists of two sentences in which the notes agree.
 
-This is a methods matter rather than an incidental bug, because of who consumed the exemplar. The
-pharmacist annotated the exemplar pair, the weak labeller read it, and the detector was trained on
-it. Wherever the selector failed, all three reasoned about evidence that did not contain the
-conflict which caused the candidate to exist, and none of them saw the trigger's own justification.
-The defect was invisible because of an upstream schema decision rather than a typo: with no
-sentence index and no character offset, two mentions of one drug in one note are indistinguishable
-rows, so positional selection is not obviously different from any other choice, and there was no
+This is a methods matter rather than an incidental bug: the pharmacist annotated the exemplar pair,
+the weak labeller read it, and the detector was trained on it, so wherever the selector failed, all
+three reasoned about evidence that did not contain the conflict which caused the candidate to exist.
+The defect was invisible because of an upstream schema decision rather than a typo: with no sentence
+index and no character offset, two mentions of one drug in one note are indistinguishable rows, so
+positional selection is not obviously different from any other choice, and there was no
 representation in which the mention carrying the conflict could be expressed. This is configuration
 and data-dependency debt in the sense of \citet{sculley2015debt}, a defect made unreachable by the
 absence of the field that would have exposed it.
@@ -363,57 +319,48 @@ and whether it changes a clinical judgement was not measured.
 \subsection{Labeller, pool and prompt protocol}
 
 Training a supervised detector on a few hundred annotations containing a handful of positives is
-not viable. The standard remedy is weak supervision: obtain approximate labels cheaply, accept that
+not viable, so this project uses weak supervision: obtain approximate labels cheaply, accept that
 they are noisy, and rely on the model to average over the noise \citep{ratner2017snorkel}. Since
 2023 the dominant cheap labeller has been an instruction-tuned language model, on the strength of
 results showing such models matching or exceeding crowd annotators on several classification tasks
 \citep{gilardi2023chatgpt}.
 
-The production labeller is Llama 3 8B \citep{grattafiori2024llama3}, run locally. Each candidate
-was presented as its exemplar sentence pair together with the identifier of the rule that generated
-it, and the model was asked for a binary judgement plus a confidence value. The prompt is a fixed
-template with no demonstrations and no chain-of-thought elicitation, and it names a conflict type
-before asking whether a conflict is present. The labelled pool is the candidate pool minus the
-pairs put to the pharmacist, so the two are disjoint at the row level by construction;
-Section~\ref{sec:m-data} explains why that was insufficient. The weak-labelled candidate pool from
-this calibration join holds 1,679 rows before subject-disjoint exclusion. Removing the 291 rows
-whose subject also appears in an evaluation split leaves 1,388, which is then split into the
-1,183-row training pool reported in Table~\ref{tab:m-strata} and used to fit the detector, and a
-205-row validation pool used for nothing but monitoring the training loss.
+The production labeller is Llama 3 8B \citep{grattafiori2024llama3}, run locally and presented with
+each candidate's exemplar sentence pair and the identifier of the rule that generated it, asked for
+a binary judgement plus a confidence value. The prompt is a fixed template with no demonstrations
+and no chain-of-thought elicitation, and it names a conflict type before asking whether a conflict
+is present. The labelled pool is the candidate pool minus the pairs put to the pharmacist, disjoint
+at the row level by construction; Section~\ref{sec:m-data} explains why that was insufficient. The
+weak-labelled candidate pool from this calibration join holds 1,679 rows before subject-disjoint
+exclusion; removing the 291 rows whose subject also appears in an evaluation split leaves 1,388,
+split into the 1,183-row training pool reported in Table~\ref{tab:m-strata} and used to fit the
+detector, and a 205-row validation pool used only to monitor the training loss.
 
 For the replication in Section~\ref{sec:m-control-rq2} the evaluation baseline's prompt was
 recovered verbatim from the committed prompt table rather than rewritten, and reused unchanged
-across models. It is not the deployed weak labeller's prompt, which the table does not contain; what
-the replication reproduces is therefore the baseline configuration, not the configuration that
-produced the training labels, and Section~\ref{sec:res-rq2} reports the $165$ labels that separate
-them. Decoding
-is greedy at temperature zero for the local models, so a model's label for a row is deterministic
-within a model. That guarantee does not extend to the hosted frontier model reported alongside them
-in Chapter~\ref{ch:results}: it does not accept a temperature parameter, its artifacts record the
-fact. One pair was also observed returning opposite labels on two invocations of
-the diagnostic path at the same token budget; that path writes nothing by design,
-so the observation has no committed artifact and is reported as an observation
-rather than as evidence. Nothing here rests on it. Its
-per-pair labels are therefore single draws from a distribution rather than fixed values, and
+across models. It is not the deployed weak labeller's prompt, which the table does not contain, so
+the replication reproduces the baseline configuration rather than the configuration that produced
+the training labels, and Section~\ref{sec:res-rq2} reports the $165$ labels that separate them.
+Decoding is greedy at temperature zero for the local models, so a model's label for a row is
+deterministic within a model, a guarantee that does not extend to the hosted frontier model
+reported alongside them in Chapter~\ref{ch:results}: it does not accept a temperature parameter, so
+its per-pair labels are single draws from a distribution rather than fixed values, and
 Section~\ref{sec:r-frontier} states what that does to the precision of the figures derived from
-them.
-Generations that do not parse are recorded in their own category and never defaulted to a class,
-because an earlier component of this project scored every unparseable generation and every
-exception as a positive prediction, which inflates a positive rate mechanically and silently.
+them. Generations that do not parse are recorded in their own category and never defaulted to a
+class, which would otherwise inflate a positive rate mechanically and silently.
 
 \subsection{How \texttt{weak\_confidence} was derived}
 
 The labelling stage emits a \texttt{weak\_confidence} field alongside each label. Across the
 training pool and the audited rows it takes exactly two distinct values, one for each label class,
-in a one-to-one mapping, so it is a deterministic function of the label. It carries no information
-about the labeller's uncertainty on any individual example, and it cannot, because it does not vary
-within a label class.
+in a one-to-one mapping, so it is a deterministic function of the label and carries no information
+about the labeller's uncertainty on any individual example.
 
-The field was used in two places, and both convert a label into a training-time intervention. As a
+The field was used in two places, both converting a label into a training-time intervention. As a
 filter, the training code discards rows whose confidence falls below a threshold lying beneath the
 field's minimum value, so the filter removes nothing while reading, in the code and in every
 description of the pipeline, as a quality-control step. As a loss weight, the same field is
-multiplied into the per-example loss, which makes it a label-conditioned reweighting rather than a
+multiplied into the per-example loss, making it a label-conditioned reweighting rather than a
 confidence weighting, in the direction that further downweights the already-dominant class. A
 confidence value emitted by a language model alongside a label is not a calibrated probability and
 should not be treated as one without measurement \citep{guo2017calibration,zhao2021calibrate}.
@@ -437,33 +384,29 @@ where Section~\ref{sec:m-data}'s observation about the de-identification header 
 was specified as that backbone plus four purpose-built components: a cross-note difference encoder,
 an asymmetric conditioning module, a pharmacological prior conditioning module, and a
 guideline-grounded harm estimator, with three claimed contributions attached to them. What follows
-describes the code that produced the results, because describing the specification instead is the
-error this thesis is about; the correction that established it is recorded as C4 in the
-correction record released with the analysis code, and is one of the entries named but not
-reproduced in Appendix~\ref{app:corrections}.
+describes the code that produced the results rather than the specification, per the correction
+recorded as C4, one of the entries named but not reproduced in Appendix~\ref{app:corrections}.
 
 The pharmacological prior module was deleted in the second version and replaced by a function
 returning a fixed-length vector of zeros with two positions overwritten, one a danger multiplier
 and one a normalised rule identifier. It has zero learned parameters, and the running code contains
 no drug class table, no interaction table and no contraindication list.
 
-The guideline-grounded harm estimator has no guideline corpus. Its guideline bank is a single
+The guideline-grounded harm estimator has no guideline corpus: its guideline bank is a single
 randomly initialised parameter matrix cross-attended from one query, with no document collection,
-no index, no retrieval step and no text of any kind. More consequentially, the harm head and the
-explanation head receive no loss term: the objective is a weighted sum of the contradiction loss
-and the rule-type loss, so both heads are randomly initialised modules whose outputs are computed,
-recorded and reported while their weights never move. The severity-ranking research question was
-therefore not tested, and any correlation between that head's output and a human danger rating
-measures an untrained module rather than severity ranking.
+index, retrieval step or text of any kind. More consequentially, the harm head and the explanation
+head receive no loss term, since the objective is a weighted sum of only the contradiction loss and
+the rule-type loss, so both heads are randomly initialised modules whose outputs are computed,
+recorded and reported while their weights never move; the severity-ranking question was therefore
+not tested, and any correlation between that head's output and a human danger rating measures an
+untrained module rather than severity ranking.
 
 The auxiliary rule-type head predicts the rule identifier that the prior-feature constructor writes
-into the model's input. Target and feature are present in the same forward pass, one linear layer
-apart, so the task is a copy operation. Auxiliary-label leakage of this shape belongs to a
-documented family
-\citep{poliak2018hypothesis,gururangan2018artifacts,mccoy2019hans,geirhos2020shortcut}, and the
-applicable point is checkable: an auxiliary head whose target is derivable from its input features
-is not an auxiliary task, and the cheapest test is out-of-domain transfer rather than held-out
-accuracy \citep{zech2018generalization}.
+into the model's input, one linear layer apart in the same forward pass, so the task is a copy
+operation. Auxiliary-label leakage of this shape belongs to a documented family
+\citep{poliak2018hypothesis,gururangan2018artifacts,mccoy2019hans,geirhos2020shortcut}: an auxiliary
+head whose target is derivable from its own input features is not an auxiliary task, and the
+cheapest test is out-of-domain transfer rather than held-out accuracy \citep{zech2018generalization}.
 
 The asymmetric conditioning module carries a two-element authority parameter initialised at the
 pair of values later reported as discovered, applied to a cross-attention branch that is
@@ -473,26 +416,21 @@ the parameter does and the gradient reaching it is correspondingly small. The di
 follows is stated as a rule and applied in Chapter~\ref{ch:results}: for any parameter reported as
 learned, publish its relative displacement from initialisation and a gradient-norm trace.
 
-\subsection{Pretraining, and a configuration that was never trained}
+\subsection{Pretraining, and an untrained configuration}
 
 Before supervised training the model was to be pretrained with a cross-note coherence objective,
-discriminating genuine note pairs from mismatched ones. One configuration of that stage has a
-surviving run record, with a frozen backbone; a wider configuration was specified to test whether
-trainable capacity rather than architecture was the constraint.
+discriminating genuine note pairs from mismatched ones. One configuration has a surviving run
+record, with a frozen backbone; a wider configuration, meant to test whether trainable capacity
+rather than architecture was the constraint, was never trained. The Stage 0 training script freezes
+the backbone unconditionally with no code path that unfreezes any encoder layer, and the parameter
+total attributed to the wider configuration is reconstructible only by counting a pooler module
+that a forward and backward pass confirmed carries gradient flags and no gradient
+(Appendix~\ref{app:corrections}, C54).
 
-That wider configuration was never trained, and the argument is narrower than the one originally
-made. The Stage 0 training script freezes the backbone unconditionally and contains no code path
-that unfreezes any encoder layer, and the parameter total attributed to the wider configuration is
-reconstructible only by counting a pooler module that is off the forward path, which a real forward
-and backward pass confirmed carries gradient flags and no gradient. Both facts are independent of
-what exists on disk (Appendix~\ref{app:corrections}, C54).
-
-A checkpoint premise offered alongside those facts, that no checkpoint for the wider configuration
-exists anywhere, was false and is withdrawn: the earlier search covered the repository and the data
-quarantine but not the synced drive mount, where checkpoints do exist (Appendix~\ref{app:corrections},
-R6). No claim of the form ``X was never trained'' may rest on the absence of a checkpoint, because an
-artifact is not absent merely because the search did not reach where it lives. The claim here rests
-on the code path and the gradient check.
+No claim of the form ``X was never trained'' may rest on the absence of a checkpoint, since a
+checkpoint for the wider configuration does exist on a drive mount an earlier search did not reach
+(Appendix~\ref{app:corrections}, R6); the claim here rests on the code path and the gradient check
+alone.
 
 \subsection{The defect-free control model}
 \label{sec:m-control-model}
@@ -507,19 +445,16 @@ control exists to rule out.
 
 The training protocol is fixed and reported in full. The train and validation split is drawn by
 subject with a dedicated split seed held fixed across runs, so variation between runs reflects
-model stochasticity and not different training data. The seed setter is called inside each run's
-process rather than once at import time, because a documented earlier defect was that reported
-seeds did not control independent runs, and one process is launched per seed so no session state
-carries across runs. Optimisation uses AdamW at learning rate $2\times 10^{-5}$ with weight decay
-$0.01$, batch size 16, three epochs and a maximum sequence length of 160 tokens, all fixed in
-the control model's training routine rather than swept.
+model stochasticity and not different training data, and the seed setter is called inside each
+run's own process, one process per seed, so no session state carries across runs. Optimisation uses
+AdamW at learning rate $2\times 10^{-5}$ with weight decay $0.01$, batch size 16, three epochs and a
+maximum sequence length of 160 tokens, all fixed rather than swept.
 
 Two floor baselines are trained on the identical pool and split so the comparison is like for like:
 a majority-class predictor assigning every gold row a constant score equal to the training-pool
 positive rate, and a TF-IDF representation with at most $5{,}000$ features feeding logistic
-regression. The constant-score baseline is
-included precisely because a constant score yields an AUROC of exactly $0.5$ by construction, which
-makes it the correct reference point for reading any AUROC near chance.
+regression. The constant score yields an AUROC of exactly $0.5$ by construction, making it the
+correct reference point for reading any AUROC near chance.
 
 \section{The Gold Standard}
 \label{sec:m-gold}
@@ -528,14 +463,14 @@ makes it the correct reference point for reading any AUROC near chance.
 
 A stratified sample was drawn from the candidate pool, allocated across the four rules in
 proportion to each rule's share of the pool (886, 202, 520 and 370 candidates for Rules 1 through
-4) rounded to whole pairs, not oversampled toward any rule. The frame draws 134 pairs from Rule 1,
-31 from Rule 2, 79 from Rule 3 and 56 from Rule 4, for 300 pairs total, the same sampling fraction in every
-stratum to within rounding. The frame was fixed before annotation began. Proportional allocation has a
-consequence Chapter~\ref{ch:results} relies on: under it, the gold sample's base rate is an
-unbiased estimate of the pool's base rate, which is the denominator the over-calling ratios in
-that chapter divide against. The returned annotation set has $n = 299$ pairs, one fewer than the frame, and the per-rule breakdown of what was returned,
-134, 31, 79 and 55, shows the missing row belongs to Rule 4: Rules 1 through 3 returned every
-sampled pair and Rule 4 returned one fewer than it was sent.
+4), rounded to whole pairs and not oversampled toward any rule. The frame draws 134 pairs from Rule
+1, 31 from Rule 2, 79 from Rule 3 and 56 from Rule 4, for 300 pairs total, the same sampling
+fraction in every stratum to within rounding, and was fixed before annotation began. Proportional
+allocation has a consequence Chapter~\ref{ch:results} relies on: under it, the gold sample's base
+rate is an unbiased estimate of the pool's base rate, the denominator the over-calling ratios in
+that chapter divide against. The returned annotation set has $n = 299$ pairs, one fewer than the
+frame; the per-rule breakdown, 134, 31, 79 and 55, shows the missing row belongs to Rule 4, since
+Rules 1 through 3 returned every sampled pair and Rule 4 returned one fewer than it was sent.
 
 A single board-certified pharmacist annotated the sampled pairs, recording for each a three-way
 label, contradiction, not a contradiction, or ambiguous; a free-text justification; a confidence
@@ -547,42 +482,36 @@ establish inter-rater reliability, because there is one rater.
 
 \subsection{The ambiguity category}
 
-The third label is a design decision worth defending explicitly. A pair was coded ambiguous when
-the presented evidence did not permit adjudication, rather than being forced into a binary. Forcing
-would have converted an evidential limitation into a label, and the resulting negatives would have
-been indistinguishable from genuine negatives. The category has a cost in the evaluation layer,
-handled by reporting both readings rather than choosing one: ambiguous pairs are retained as
-negatives in the primary stratum and excluded in the power calculation the project originally
-referenced, which is why Section~\ref{sec:m-stats} reports the minimum detectable effect under both
-denominators. No result in this thesis is reported under only one treatment of the ambiguous rows.
+A pair was coded ambiguous when the presented evidence did not permit adjudication, rather than
+being forced into a binary that would have converted an evidential limitation into a label
+indistinguishable from a genuine negative. The category has a cost in the evaluation layer, handled
+by reporting both readings rather than choosing one: ambiguous pairs are retained as negatives in
+the primary stratum and excluded in the power calculation the project originally referenced, which
+is why Section~\ref{sec:m-stats} reports the minimum detectable effect under both denominators, and
+no result here is reported under only one treatment of the ambiguous rows.
 
 \subsection{What this design can and cannot establish}
 
-A reliability claim previously attached to this gold set is retracted in the methods rather than in
-a footnote, because the retraction concerns the instrument. The project reported a Cohen's $\kappa$
-of $1.000$ between two independent pharmacist judgement instruments, which were in fact the binary
-contradiction label and the ordinal danger rating. A pair that is not a contradiction has no danger
-by definition, so the equivalence between a positive label and a positive danger rating is an
-identity and the agreement is guaranteed by construction \citep{cohen1960kappa}. It measures
-nothing about annotator reliability.
+A reliability claim previously attached to this gold set is retracted here rather than in a
+footnote, because the retraction concerns the instrument. The project reported a Cohen's $\kappa$ of
+$1.000$ between two independent pharmacist judgement instruments, which were in fact the binary
+contradiction label and the ordinal danger rating: a pair that is not a contradiction has no danger
+by definition, so the agreement between a positive label and a positive danger rating is an identity
+guaranteed by construction \citep{cohen1960kappa} and measures nothing about annotator reliability.
 
 The honest statement is that this study has one annotator, a two-pass protocol with a washout, and
-no established inter-rater reliability. A second annotator would be the highest-value single
-addition to the work, and the absence of one is a first-order limitation on every conclusion
-resting on the gold labels. It is recorded where the instrument is defined rather than deferred to
-a limitations list.
+no established inter-rater reliability; a second annotator would be the highest-value single
+addition to the work, and its absence is a first-order limitation on every conclusion resting on the
+gold labels.
 
-Intra-rater agreement is not a fallback here, and it is worth being precise about why. The two-pass
-protocol was built to reduce within-session drift and fatigue in a single rater, not to produce two
-comparable sets of judgements, and it did not produce them: the annotation file stores one final
-label per pair, and the second pass overwrote the first rather than being retained beside it. No
-artifact in this project keeps the pass-one and pass-two labels as separate columns. A figure
-computed after the fact would therefore not be an intra-rater kappa recovered from an oversight; it
-would have to be re-annotated from scratch to exist at all. The reliability of the gold standard is
-not a missing number the project failed to report. It is a number the retained record cannot
-produce, and every clinical result in this thesis, precision, recall, AUROC, the danger ratings,
-rests on a single-rater instrument with no inter-rater or intra-rater agreement statistic attached
-to it.
+Intra-rater agreement is not a fallback here. The two-pass protocol reduced within-session drift and
+fatigue in a single rater; it did not produce two comparable sets of judgements, since the
+annotation file stores one final label per pair and the second pass overwrote the first rather than
+being retained beside it. No artifact in this project keeps the pass-one and pass-two labels
+separately, so a figure computed after the fact would have to be re-annotated from scratch to exist
+at all. The reliability of the gold standard is therefore not a missing number the project failed to
+report but one the retained record cannot produce, and every clinical result in this thesis rests on
+a single-rater instrument with no inter-rater or intra-rater agreement statistic attached to it.
 
 \begin{table}[H]
 \caption[Evaluation strata and their sizes]{Evaluation strata, their sizes, and their positive counts.}
@@ -639,21 +568,18 @@ label and rest on having multiple sources whose errors are not aligned \citep{ra
 One source with a systematic prior shift is outside that regime.
 
 Three controls bear on this. First, ordering: the base rate must be estimated on a small
-human-labelled sample before any weak labels are generated. This project produced the pharmacist
-annotations after the weak labels, which inverted the only ordering in which the mismatch would
-have been actionable, and that inversion is reported as a methods failure rather than repaired
-retrospectively.
+human-labelled sample before any weak labels are generated; this project produced the pharmacist
+annotations after the weak labels, inverting the only ordering in which the mismatch would have
+been actionable, reported here as a methods failure rather than repaired retrospectively.
 
-Second, replication across labellers. If over-calling is a property of one model it will not
-survive a change of model; if it is a property of the task presentation it will. The replication
-reruns that recovered baseline prompt unchanged over the full pool with three local
-instruction-tuned models,
-\texttt{llama3:8b}, \texttt{granite3.3:8b} and \texttt{qwen3:8b}, served through Ollama at
-temperature zero, with unparseable generations kept in their own category. Third, a domain control:
-if the magnitude of over-calling generalises, a comparable labelling task on public non-clinical
-text will show a comparable ratio, and if only the mechanism generalises the ratio will be
-materially smaller while the direction persists. This governs what may be claimed, since the
-mechanism may be described as general and the magnitude may not.
+Second, replication across labellers: if over-calling is a property of one model it will not
+survive a change of model, but it will if it is a property of the task presentation. The
+replication reruns the recovered baseline prompt unchanged over the full pool with three local
+instruction-tuned models, \texttt{llama3:8b}, \texttt{granite3.3:8b} and \texttt{qwen3:8b}, served
+through Ollama at temperature zero, with unparseable generations kept in their own category. Third,
+a domain control: if the magnitude of over-calling generalises, a comparable labelling task on
+public non-clinical text will show a comparable ratio, and if only the mechanism generalises the
+ratio will be materially smaller while the direction persists, which governs what may be claimed.
 
 \subsection{RQ3: do the architectural components contribute what they are credited with?}
 \label{sec:m-control-rq3}
@@ -665,37 +591,38 @@ positively rather than by absence of evidence. This is the control-task logic de
 probing literature by \citet{hewitt2019control}, applied here rather than proposed.
 
 The arbitrary-substitute control operates on a second system in this project that conditions a
-shared additive attention bias on document provenance. Seven arms were trained at three seeds each, and three further arms at a single seed
-on masked language modelling over packed multi-document bundles, with segment order shuffled so
-role is decorrelated from position within the bundle. The arms are: no bias; a relative position
-bias in the style of T5; a misaligned block bias; a distance bias in the style of ALiBi; true role
-labels; an arbitrary segment ordinal carrying no provenance meaning; and a fixed hard block mask,
-the encoder analogue, under masked language modelling, of the intra-document mask
-\citet{zhao2024seqcomposition} apply during causal decoder pretraining: the mask construct is the
-same, blocking attention across an announced document boundary, but the training objective is not,
-and that difference is disclosed rather than treated as a reproduction.
-Two comparisons are fixed in advance: true role labels against a randomised relabelling drawn from the same alphabet, which is the control task in the sense of \citet{hewitt2019control}, and true role labels against an arbitrary positional ordinal, which is a competing hypothesis rather than a control. The
+shared additive attention bias on document provenance. Seven arms were trained at three seeds each,
+and three further arms at a single seed, on masked language modelling over packed multi-document
+bundles, with segment order shuffled so role is decorrelated from position within the bundle: no
+bias; a T5-style relative position bias; a misaligned block bias; an ALiBi-style distance bias; true
+role labels; an arbitrary segment ordinal carrying no provenance meaning; and a fixed hard block
+mask, the encoder analogue, under masked language modelling, of the intra-document mask
+\citet{zhao2024seqcomposition} apply during causal decoder pretraining, the same mask construct but
+a different training objective, disclosed here rather than treated as a reproduction. Two
+comparisons are fixed in advance: true role labels against a randomised relabelling drawn from the
+same alphabet, the control task in the sense of \citet{hewitt2019control}, and true role labels
+against an arbitrary positional ordinal, a competing hypothesis rather than a control. The
 misaligned block arm is a second control, holding the number of blocks fixed while destroying their
-alignment with document boundaries, which closes the obvious alternative reading that any coarse
-blocking of the attention matrix would do.
+alignment with document boundaries, closing the reading that any coarse blocking of the attention
+matrix would do.
 
-One control is deliberately not used, and it must not be confused with the randomised relabelling reported in Chapter~\ref{ch:results}. A single global derangement, in which one fixed permutation is applied to every bundle, is vacuous here: the bias
-table is a free matrix over role pairs, so under a global relabelling the model learns the permuted
-table, the loss surface is isomorphic, and the result is fixed at the uncorrupted value by
-construction. It was implemented, recognised as powerless, removed, and guarded against in code. It
-is described because a control that cannot fail is worse than no control.
+One control, a single global derangement applying one fixed permutation to every bundle, is
+deliberately not used and must not be confused with the randomised relabelling reported in
+Chapter~\ref{ch:results}: since the bias table is a free matrix over role pairs, the model would
+simply learn the permuted table and the loss surface is isomorphic, fixing the result at the
+uncorrupted value by construction. It was implemented, recognised as powerless, and guarded against
+in code, because a control that cannot fail is worse than no control.
 
-A third control, the anisotropy control, addresses the representation. The pretraining collapse was
-originally explained by clinical homogeneity, the claim that notes within an institution are too
-similar for a coherence objective to separate genuine from mismatched pairs, and nothing in the
-pipeline ever measured note similarity. Removing anisotropy tests whether the collapse instead
-follows from representational geometry in the encoder: the control passes deliberately unrelated
-non-clinical sentences through the identical frozen extraction path and compares mean pairwise
-cosine similarity against matched and mismatched clinical pairs. Text this similar to itself under
-the same extraction weakens the homogeneity explanation without asserting the two conditions are
-statistically identical; Chapter~\ref{ch:results} reports a Welch test that rejects exact equality,
-so what the control establishes is a small difference against a wider spread, not equality on the
-nose.
+A third control, the anisotropy control, addresses the representation rather than the mechanism.
+The pretraining collapse was originally explained by clinical homogeneity, the claim that notes
+within an institution are too similar for a coherence objective to separate genuine from mismatched
+pairs, though nothing in the pipeline had measured note similarity. The control instead tests
+whether the collapse follows from representational geometry in the encoder, passing deliberately
+unrelated non-clinical sentences through the identical frozen extraction path and comparing mean
+pairwise cosine similarity against matched and mismatched clinical pairs; text this similar to
+itself under the same extraction weakens the homogeneity explanation without asserting the two
+conditions are statistically identical, and Chapter~\ref{ch:results} reports a Welch test that
+rejects exact equality.
 
 \subsection{The degeneracy precondition}
 
@@ -737,32 +664,22 @@ on a task built for this control rather than on the contradiction detector: in-h
 predicted from a bundle of a patient's first 48 hours of notes, evaluated on $6{,}776$ held-out
 admissions holding $570$ positives, a different task and cohort from the $253$-pair
 contradiction evaluation. The comparison there is a from-scratch encoder against a
-domain-pretrained encoder under a matched fine-tuning protocol at three seeds each, with the
-from-scratch arm carrying $10{,}638{,}720$ non-embedding parameters. Three properties of that
-comparison are disclosed here rather than left to be inferred. The two arms do not share a seed
-set: the pretrained arm is seeds $1$, $2$ and $3$ and the from-scratch arm is seeds $0$, $1$ and
-$2$, so the comparison is unpaired and no per-seed difference is meaningful. Five of the six runs
-carry a recorded split lineage naming the same split hash and the same $6{,}776$-row test set
-holding $570$ positives; the from-scratch seed $0$ run carries no lineage record at all, so its
-split is consistent with the others by configuration but is not pinned by a stored hash. And one
-pretrained run took roughly four times the wall clock of the other two, $251.8$ minutes against
-$62.2$ and $62.3$, a difference the record does not explain. Chapter~\ref{ch:results} reports the
-three-seed gap as primary and the two-seed gap over the lineage-pinned runs alone beside it.
-On the public side the same comparison runs on
-AG News across four arms, a pretrained BERT encoder at $85{,}648{,}132$ parameters and three
-from-scratch encoders at $10{,}649{,}092$, $31{,}913{,}860$ and $99{,}234{,}820$ parameters.
+domain-pretrained encoder under a matched fine-tuning protocol at three seeds each. The two arms do
+not share a seed set, so the comparison is unpaired and no per-seed difference is meaningful, and
+one from-scratch run carries no recorded split lineage against the other five, so
+Chapter~\ref{ch:results} reports the three-seed gap as primary and the two-seed gap over the
+lineage-pinned runs alone beside it. On the public side the same comparison runs on AG News across
+four arms, a pretrained BERT encoder against three from-scratch encoders at three smaller parameter
+scales, with exact parameter counts given in Chapter~\ref{ch:results}.
 
-One threat has to be answered before the public comparison can serve as a control. In the initial
+One threat has to be answered before the public comparison can serve as a control: in the initial
 sweep every arm trained for the same short budget with no per-arm tuning, so a gap between
 pretrained and from-scratch arms could measure training budget rather than pretraining. The
-convergence sweep gives every arm four budgets, each with its own complete schedule, reported at
-the final epoch of that schedule rather than by validation-based checkpoint selection, at three
-seeds per cell, for $48$ runs and
-$555$ minutes of compute. The decision rule in
-Table~\ref{tab:m-prereg} was committed before the sweep started and applied by the analysis
-notebook without being edited after the first result landed. The rule was
-committed to the project repository at commit \texttt{b048829}, which is what
-fixes it in time relative to the sweep.
+convergence sweep instead gives every arm four budgets, each with its own complete schedule,
+reported at the final epoch rather than by validation-based checkpoint selection, at three seeds per
+cell, for $48$ runs and $555$ minutes of compute. The decision rule in Table~\ref{tab:m-prereg} was
+committed to the project repository at commit \texttt{b048829}, before the sweep started, and
+applied by the analysis notebook without being edited after the first result landed.
 
 \begin{table}[H]
 \caption[Pre-registered decision rule for the control]{Pre-registered decision rule for the pretraining positive control, committed before the
@@ -800,15 +717,15 @@ here. Each appears beside the value achieved on identical confusion-matrix margi
 majority-class predictor and by a constant-positive predictor, and an ordering among systems is
 claimed only if the bootstrap interval on the difference excludes zero.
 
-This is applied literature, not a contribution. The prevalence dependence of chance-corrected
-agreement was set out by \citet{feinstein1990paradoxes} and \citet{cicchetti1990resolving}, the
-prevalence-adjusted correction by \citet{byrt1993pabak}, and the case for MCC over $F_1$ under
-imbalance by \citet{chicco2020mcc}; the dependence of $\kappa$ on marginals is treated by
-\citet{delgado2019kappa} and the balanced-accuracy case by \citet{brodersen2010balanced}.
+This is applied literature, not a contribution: the prevalence dependence of chance-corrected
+agreement is set out by \citet{feinstein1990paradoxes} and \citet{cicchetti1990resolving}, the
+prevalence-adjusted correction by \citet{byrt1993pabak}, the case for MCC over $F_1$ under
+imbalance by \citet{chicco2020mcc}, the dependence of $\kappa$ on marginals by
+\citet{delgado2019kappa}, and the balanced-accuracy case by \citet{brodersen2010balanced}.
 Precision-recall summaries are preferred to ROC summaries where the positive class is very rare
-\citep{saito2015prcurve}, and both are reported. A second condition concerns sign: where a quantity
-was stored as an absolute value, no directional claim may be made from it, whatever the magnitudes,
-because the storage discards the sign the claim would need.
+\citep{saito2015prcurve}, and both are reported here. A quantity stored as an absolute value
+supports no directional claim, whatever the magnitude, because the storage discards the sign the
+claim would need.
 
 \subsection{RQ5: the survey coding instrument}
 
@@ -827,48 +744,40 @@ are excluded when they are commentary, position or review articles with no empir
 when they report no disaggregated metric, when the data is not health data, when the methods are
 too thin to identify the cohort, or when the full text is not retrievable.
 
-Queries were issued against machine-readable interfaces, NCBI E-utilities for PubMed and PubMed
-Central, the arXiv Atom API, and ACL Anthology volume indexes, so the search is reproducible by
+Queries were issued against machine-readable interfaces (NCBI E-utilities for PubMed and PubMed
+Central, the arXiv Atom API, and ACL Anthology volume indexes), so the search is reproducible by
 re-running the recorded query strings. Screening runs in three stages: an automated title and
-abstract screen that writes its exact exclusion rule for each record into a screening log; a
-full-text retrieval quota in which records passing stage one are ranked by a pre-specified
-keyword-density score and advanced until the budget is met, with records below the quota logged as
-screened rather than silently dropped; and a full-text screen read against the three inclusion
-criteria. The corpus reaching coding contains $n = 75$ papers.
+abstract screen logging its exact exclusion rule for each record; a full-text retrieval quota
+ranking records passing stage one by a pre-specified keyword-density score and advancing them until
+the budget is met, with records below the quota logged as screened rather than silently dropped;
+and a full-text screen read against the three inclusion criteria. The corpus reaching coding
+contains $n = 75$ papers.
 
 The primary coding of a selection audit is strict: a paper counts only if it compares the group
 composition, or the retention rate, of the retained cohort against a denominator existing prior to
-filtering, or otherwise directly tests the filter for differential retention. A table describing
-the final cohort's demographics does not qualify, because it has no denominator, and neither does a
-flow diagram giving only total counts excluded. A second column records the permissive reading,
-under which any comparison of retained group composition against any external or source figure
-counts, including comparison to census statistics or to the parent database before filtering. The
-permissive column is a strict superset of the strict column, the invariant is enforced in code, and
-both readings are reported everywhere. Every coded field requires a verbatim quote and a section
-location, and a verification script re-checks each quote by exact string match against the source
-text; a quote that fails to match is rejected and its field forced to unclear, so no coded value
-survives without verified textual support.
+filtering, or otherwise directly tests the filter for differential retention; a demographics table
+or a flow diagram of total counts excluded does not qualify, since neither has a denominator. A
+second, permissive column counts any comparison of retained group composition against any external
+or source figure, including census statistics or the parent database before filtering; it is a
+strict superset of the strict column, enforced in code, and both readings are reported everywhere.
+Every coded field requires a verbatim quote and a section location, checked by a verification
+script against the source text by exact string match, and a quote that fails to match is rejected
+and its field forced to unclear.
 
-Three design limitations bound what the instrument can measure. Each paper was coded once by the
-primary coder under a shared written rule set. A blind second coder independently re-coded a
-deterministic subsample of nineteen papers, the basis for the agreement statistics reported in
-Chapter~\ref{ch:results}; no agreement figure is claimed for the fifty-six papers outside that
-subsample. And inclusion criterion two requires a disaggregated metric, so every included
-paper audits a model on its pool by construction: the count of papers coded as auditing a model on
-the pool equals the count of included papers, both $75$, the cross-tabulation of model audit against selection audit
-degenerates to a single row, and the only quantity this corpus estimates is how many papers that
-already audit a model also audit the selection step. The keyword-density ranking enriches the
-corpus toward fairness-forward work, stated plainly because the enrichment runs against the
-direction of the finding rather than toward it.
-
-Third, the limitation is one of construct rather than of implementation. The coded question is
-only whether a paper audits the selection step upstream of the model it evaluates, a single check.
-It is not the exemplar-correctness check, the weak-label marginal check, the architecture
-randomisation control, or the positive control for evaluation sensitivity, four of the five controls
-this thesis runs, and the survey measures none of them. Together with the collapse just described,
-the corpus supports only the prevalence of this one adjacent practice among papers that already
-audit a model on their pool, not a claim about whether the field runs the controls that would have
-caught this pipeline's own failures.
+Three limitations bound what the instrument can measure. Each paper was coded once by the primary
+coder under a shared written rule set; a blind second coder independently re-coded a deterministic
+subsample of nineteen papers, the basis for the agreement statistics reported in
+Chapter~\ref{ch:results}, and no agreement figure is claimed for the other fifty-six. Second,
+inclusion criterion two requires a disaggregated metric, so every included paper audits a model on
+its pool by construction: the count of papers coded as auditing a model on the pool equals the count
+of included papers, both $75$, so the cross-tabulation of model audit against selection audit
+degenerates to a single row, and the keyword-density ranking enriches the corpus toward
+fairness-forward work, against the direction of the finding rather than toward it. Third, the coded
+question is only whether a paper audits the selection step upstream of the model it evaluates. It is
+not the exemplar-correctness check, the weak-label marginal check, the architecture randomisation
+control, or the positive control for evaluation sensitivity, and the survey measures none of them,
+so the corpus supports only the prevalence of this one adjacent practice, not a claim about whether
+the field runs the controls that would have caught this pipeline's own failures.
 
 \section{Statistical Procedures}
 \label{sec:m-stats}
@@ -879,10 +788,7 @@ Interval estimates on AUROC and average precision are nonparametric percentile b
 evaluation rows \citep{efron1994bootstrap}. The main control uses $10{,}000$ resamples at a fixed
 generator seed of $20260806$; the decontamination analysis uses $10{,}000$ resamples at seed
 $42$. Seeds
-are recorded so that every interval computed here is reproducible to the digit. The qualification
-matters for one family of rows: an interval bootstrapped over hosted-model labels is reproducible
-from the recorded labels, but the labels themselves are not reproducible by re-running the model,
-for the reason given in Section~\ref{sec:m-control-rq2}. Degenerate resamples are handled
+are recorded so that every interval computed here is reproducible to the digit. Degenerate resamples are handled
 explicitly rather than by imputation: with few positives a resample can contain none, in which case
 AUROC is undefined, so such resamples are discarded and do not count toward the requested total.
 The count is reported beside an interval only where that interval's own artifact stored it, which
@@ -971,16 +877,7 @@ reproduced as a reference table in Appendix~\ref{app:survey} rather than asserte
 \section{Data Use, Ethics, and Compliance}
 \label{sec:m-ethics}
 
-All clinical data in this project is governed by one instrument, the PhysioNet Credentialed Health
-Data Use Agreement (v1.5.0) for MIMIC-III v1.4, and the compliance posture below follows from it
-rather than from a general good-practice statement.
-
-\paragraph{Note text, and third-party transmission.} No clinical note text, and no admission or
-subject identifier, appears anywhere in this document or any released artifact; note-derived
-intermediate files stay outside the version-controlled tree, and the export script scans every
-candidate file for note-text markers and aborts on a hit.
-
-During this project, sentence pairs extracted from MIMIC-III notes were sent to hosted large
+\paragraph{Note text, and third-party transmission.} During this project, sentence pairs extracted from MIMIC-III notes were sent to hosted large
 language model services in several runs. PhysioNet's guidance of 24 September 2025,
 \emph{Use of MIMIC Data with Large Language Models and Online Services}, states that the
 Credentialed Data Use Agreement prohibits sharing access to the data with third parties including
@@ -988,8 +885,7 @@ sending it through APIs or using it on online platforms, and that MIMIC data mus
 retained by third-party LLM services, with locally deployed models strongly recommended instead.
 Every result obtained through a hosted service has been withdrawn from this thesis: no figure,
 table or number reported in any chapter derives from any such transmission, and the numeric
-provenance gate enforces this by excluding those values from the set against which a reported
-figure may resolve, rather than leaving it to prose. The model comparisons this thesis does report
+provenance gate enforces this rather than leaving it to prose. The model comparisons this thesis does report
 were produced by models served locally on the analysis machine, which is the route that guidance
 recommends. Whether the withdrawn transmissions were consistent with the agreement is a
 determination for PhysioNet and for the institution rather than one this thesis makes, and no
@@ -998,56 +894,30 @@ is retained in the project's correction record and in the committed run artifact
 to either on request.
 
 \paragraph{Storage and compute outside the repository.} Credentialed files, including a file joining
-note sentences to weak labels and the raw database tables, were at one point held in the author's
-institutional cloud account and have since been consolidated under credentialed-only local storage,
-with a hash manifest recording the move and no script in the repository reading that account any
-longer.
+note sentences to weak labels, were at one point held in the author's institutional cloud account
+and have since been consolidated under credentialed-only local storage; no script in the repository
+reads that account.
 
 \paragraph{The annotator, and credentialed access.} The gold standard was produced by one
-board-certified pharmacist, annotating in the author's presence and on the author's machine. No copy
-of the candidate sheet was ever sent to or held by the annotator: no file was transferred, no
-printout was made, nothing was photographed, and the annotator retained nothing afterwards. The annotator read
-each pair on the author's screen and gave a judgment, which the author recorded. Custody of the
-material never left the credentialed environment.
+board-certified pharmacist, annotating in the author's presence and on the author's machine. The annotator
+read each pair on the author's screen and gave a judgment the author recorded; no file was
+transferred, printed or photographed, and nothing was retained. The annotator does not hold PhysioNet credentialed access, and the
+arrangement is described here so that it can be assessed; the written protocol governing the
+engagement did not itself record that status or the supervised, no-copy arrangement, a
+documentation failure rather than a disclosure failure.
 
-That matters because the sheet itself is restricted data: $300$ rows, no admission or subject
-identifier column of any kind, $544$ non-empty sentence cells capped at $200$ characters, and $95$
-of those cells still carrying the bracketed surrogates MIMIC-III uses to mark removed identifiers.
-Those surrogates settle the classification; a derived feature does not carry them, only copied note
-text does.
-
-The annotator does not hold PhysioNet credentialed access, and the arrangement is described above
-so that it can be assessed.
-
-The written protocol governing the engagement addressed confidentiality and de-identification but
-recorded neither the annotator's credentialing status nor the supervised, no-copy arrangement under
-which the work was done; that is a documentation failure rather than a disclosure. The correct
-procedure for any continuation is to record the arrangement at the time, who viewed restricted
-material, under whose supervision, on whose equipment, and what if anything they retained, and to
-verify and register a collaborator's credentialed status before any material is transferred to them
-directly.
-
-\paragraph{Re-identification and small cells.} No re-identification was attempted and no auxiliary
-dataset was joined against MIMIC-III at the patient level. Subgroup results are one-way marginals
-only; no multi-way disaggregation is published. Small cells, including some below ten observations,
-are reported without suppression, because the source data is de-identified under HIPAA Safe Harbor
-with no identifier crosswalk to re-link them; such cells are marked as unpowered for inference
-rather than withheld.
+\paragraph{Re-identification and small cells.} No re-identification was attempted and nothing was
+joined against MIMIC-III at the patient level. Subgroup results are one-way marginals
+only; no multi-way disaggregation is published. Small cells, some below ten observations, are
+reported without suppression because the source data is de-identified with no identifier crosswalk,
+and are marked unpowered rather than withheld.
 
 \paragraph{Clinical status, and code contribution.} Nothing in this thesis has been validated for
 clinical use. The system is a research artifact evaluated on retrospective, de-identified data, not
 a clinical decision support tool; its measured performance, reported in Chapter~\ref{ch:results},
-does not support deployment in any care setting, and Chapter~\ref{ch:discussion} states what that
-performance would mean if the system were deployed regardless. Separately, the data use agreement
-obliges contributing analysis code back to the community rather than keeping it private. The
-analysis code is released in the repository the verified-fact register and the appendices point to,
-and that release has one gap that bears on a reported result. Nothing in it would let the deployed
-weak-labelling run be repeated: its
-script is absent and its prompt is not among the four configurations the committed prompt table
-holds. That run produced the $1425$ weak labels the detector was trained on and the $261$ of $299$
-marginal Chapter~\ref{ch:results} reports as this thesis's weak-supervision finding, so those two
-numbers cannot be regenerated by anyone, including the author; they are reported as measured and are
-not reproducible, a weaker footing than any other number in this document. The detector's model and
-training source was a third gap and it is now closed: the module has been recovered and committed
-unmodified, so each finding built on it, including those of Section~\ref{sec:res-rq3}, can be
-checked directly against the code rather than taken on the author's word.
+does not support deployment in any care setting.
+The analysis code is released with the register and the appendices, with one gap that bears on a
+reported result: the deployed weak-labelling run cannot be repeated, because its script is absent
+and its prompt is not among the committed prompt configurations. That run produced the $1425$ weak
+labels the detector was trained on and the $261$ of $299$ marginal Chapter~\ref{ch:results}
+reports, so those two numbers are reported as measured and cannot be regenerated by anyone.

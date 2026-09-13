@@ -186,172 +186,123 @@ analysis on a case where the answer is known in advance, and let the result
 speak about the instrument rather than about the substantive question.
 
 The instrument is a comparison of a domain-pretrained encoder against an
-identically sized encoder trained from scratch, evaluated by a convergence sweep
-of $48$ runs. On a public four-class news classification task it resolves a
-pretraining benefit of $4.53$ points at $24$ epochs: $0.9379$ for the pretrained
-arm at SD $0.0029$ against $0.8925$ for the scratch arm at SD $0.0004$. The bands
-are disjoint by a wide margin. At $3$ epochs the gap is $5.07$ points, so the
-effect is present early and does not depend on the budget chosen.
+identically sized encoder trained from scratch, evaluated by a convergence
+sweep of $48$ runs. On a public four-class news classification task it
+resolves a pretraining benefit of $4.53$ points that appears as early as $3$
+epochs and persists once both arms have converged, across an eightfold range
+of training budget and well outside the standard deviations involved. The
+from-scratch curve at three parameter sizes does not approach the pretrained
+band either (Table~\ref{tab:scaling}), so the gap is a pretraining rather
+than a capacity effect, and the mortality control itself returns almost
+nothing (Figure~\ref{fig:forest}, last row).
 
-The budget is what closes the objection. Eight times the training budget bought
-the 100M-parameter scratch arm $0.41$ points, from $0.8885$ at $3$ epochs to $0.8925$
-at $24$; the pretrained arm moved $-0.13$ points over the same range. Both arms
-are converged. A gap that persists at convergence is not a gap in optimisation,
-and an instrument reporting a $4.53$-point difference at standard deviations
-at or below $0.0036$ is not an instrument that cannot see effects.
-
-Parameters do not close it either. Table~\ref{tab:scaling} reports the from-scratch
-arms at three sizes against the pretrained band on the public task. The
-from-scratch curve rises with size and does not approach the band, so the public
-gap is a pretraining effect rather than a capacity effect, and the mortality
-control returns almost nothing (Figure~\ref{fig:forest}, last row).
-
-
-The decision rule was committed before the sweep ran, at repository commit
-\texttt{b048829}, and the outcome it adjudicated
-is the one that keeps the claim rather than the one that discards it. That
-ordering is the whole value of pre-registration, and it could have gone the other
-way: arms that had not converged would have retired the positive control and with
-it the licence to call the mortality-control result a measurement. On the
-mortality control task, in-hospital mortality predicted from a patient's first
-$48$ hours of notes on $6{,}776$ held-out admissions holding $570$ positives, the
-same instrument, harness and protocol return $+0.0031$, with the pretrained arm
-at $0.7693$ (SD $0.0102$) against $0.7662$ (SD $0.0073$), each at three seeds.
-No significance test for that difference is registered, so no $p$ value is
-quoted; the two standard deviations alone make the gap look like noise around a
-shared value rather than a resolved difference, and the sign is not robust:
-restricting the from-scratch arm to the two runs whose data lineage is recorded
-gives $0.7703$ and a gap of $-0.0011$. Both readings are nulls and the argument
-below turns on neither. Same instrument, same protocol, two tasks, one
-showing $4.53$ points and the other showing nothing.
-
-The general result is not this thesis's. Pretraining loss is a poor proxy for
-downstream performance, and that is settled at far larger scale than $48$ runs
-\citep{lourie2025scaling,feng2026tessera}. The
-sweep here is a positive control for the mortality-task measurement, and writing
-it up as a contribution would misrepresent what it is for.
+The decision rule was committed before the sweep ran, at commit
+\texttt{b048829}: convergence was the criterion for trusting the result, so
+an unconverged arm would have voided the mortality-task measurement. On
+that task, in-hospital mortality predicted from a
+patient's first $48$ hours of notes on $6{,}776$ admissions holding $570$
+positives, the same instrument, harness and protocol return a null,
+$+0.0031$, with no significance test registered and a sign that is not
+robust to which runs are included. Same instrument, same protocol, two
+tasks: one shows $4.53$ points, the other shows nothing, and the general
+result behind that null is not this thesis's, since pretraining loss as a
+poor proxy for downstream performance is settled at far larger scale than
+$48$ runs \citep{lourie2025scaling,feng2026tessera}; writing it up as a
+contribution rather than a positive control would misrepresent its purpose.
 
 What this control licenses is narrower than it can sound: that the harness
-resolves a real difference at the sample sizes it was given, not the
-sensitivity of the twelve-positive contradiction evaluation, a different
-instrument with its own minimum detectable AUROC, $0.7355$ at $12$ positives
-against $241$ negatives ($0.7350$ on the $299$-pair set, $0.8058$ on the
-$6$-positive defect-free stratum), fixed by that evaluation's class counts and
-corroborated arithmetically by simulation in Chapter~\ref{ch:results}. This work
-therefore cannot establish that cross-note medication contradiction detection
-is unsolvable; it establishes that this pipeline does not solve it, and that an
-effect at or above $0.7355$ would have been visible had one been present. Only
-the second statement is made.
+resolves a real difference at the sample sizes given, not the sensitivity of
+the twelve-positive contradiction evaluation, whose own minimum detectable
+AUROC (Section~\ref{sec:disc-limits}) is fixed by its class counts and
+corroborated by simulation in Chapter~\ref{ch:results}. This work therefore
+cannot establish that
+cross-note medication contradiction detection is unsolvable; it establishes
+only that this pipeline does not solve it, and that an effect at that
+threshold would have been visible had one been present.
 
-A bootstrap standard deviation of $0.0870$ on the contaminated released run's
-$G_{299}$ AUROC is consistent
-with a mildly informative model and with a mildly inverted one. The three-seed
-ensemble's own $95\%$ bootstrap interval on the $253$-pair set,
-$[0.3210, 0.7034]$, is wide enough that its upper bound of $0.7034$ sits only
-$0.0321$ below the minimum detectable AUROC of $0.7355$, so interval width on its own does not rule out a
-modestly useful model. Three of the four estimators compared here, the single
-model, the three-seed ensemble and the TF-IDF baseline, could in principle have
-found separation and did not; the fourth, a majority-class predictor, returns
-AUROC $0.5$ by construction and was never in a position to look, so it is a
-reference point rather than a fourth line of evidence. What the three estimators
-that could fail and did not agree on is the evidence a sample this size can
-produce, not proof that no separation exists.
+The ensemble's own $95\%$ bootstrap interval on the $253$-pair set is wide
+enough that its upper bound sits only $0.0321$ below the minimum detectable
+AUROC, so interval width alone does not rule out a modestly useful model.
+Three of the four estimators here could in principle have found separation
+and did not; the fourth, a majority-class predictor, was never in a position
+to look, by construction. What the three that could fail and did not agree
+on is the evidence a sample this size can produce, not proof that no
+separation exists.
 
 \section{An Anomaly, Reported as an Anomaly}
 \label{sec:disc-anomaly}
 
 One result here is not explained, and this section reports it without
 explaining it. It is not counted among Chapter~\ref{ch:intro}'s
-contributions, and that billing is deliberate rather than an oversight: a
-contribution earns its place by explaining something, and this pattern
-explains nothing about itself. The population audited is simulated, not the
-clinical pipeline; it is retained because the same experiments also anchor
-the sign-provenance rule of Chapter~\ref{ch:results}, applied afterward to
-the clinical numbers, and because a pattern that does not fit is better
-reported than dropped.
+contributions, since a contribution earns its place by explaining something
+and this pattern explains nothing about itself. The population audited is
+simulated, not the clinical pipeline, and is retained because the same
+experiments anchor the sign-provenance rule of Chapter~\ref{ch:results},
+applied afterward to the clinical numbers, and because a pattern that does
+not fit is better reported than dropped.
 
 On two simulated populations, with baseline disparity held fixed, upstream
 selection channels were swept and the pool-level demographic parity gap
 audited at each step. The gap never changes sign within a sweep, but the
-direction it drifts in does: two channels swept on the same population give
-fitted drift slopes of opposite sign, and on the population where the sweep
-was extended across operating points as well as channel strength, the
-audited gap moves with both, so a single audited number describes one cell of
-a surface rather than the system that produced it. A further, controlled
-sweep of the same construct across baselines, channel strengths and
-replicates does not reproduce even that channel dependence: it inverts the
-mapping between channel and drift direction, so the direction a pool audit
-drifts in is not a stable function of the channel that produced it, at least
-across the region examined.
+direction it drifts in does: two channels on the same population give fitted
+drift slopes of opposite sign, and extending one sweep across operating
+points as well as channel strength shows the audited gap moving with both,
+so a single audited number describes one cell of a surface rather than the
+system that produced it. A further, controlled sweep across baselines,
+channel strengths and replicates does not even reproduce that channel
+dependence, inverting the mapping between channel and drift direction: the
+direction a pool audit drifts in is not a stable function of the channel
+that produced it.
 
 Five mechanism claims were proposed during this project to account for this
 pattern; each was tested against a parameter sweep and each failed, and a
-sixth is not offered. No subgroup harm is demonstrated, none is demonstrated
-anywhere in this work, and no general claim is made that disaggregated
-fairness evaluation is uninterpretable under selection; that argument belongs
-to others and predates this work
-\citep{pfohl2025disaggregated,fogliato2020fairness}, as does the observation
-that the design choices inside a disaggregated evaluation are consequential
-enough to need documenting \citep{barocas2021disaggregated}. The full sweep,
-the operating-point surface, and the failed mechanism accounts are given in
-Appendix~\ref{app:anomaly}.
+sixth is not offered. No subgroup harm is demonstrated anywhere in this work,
+and no general claim is made that disaggregated fairness evaluation is
+uninterpretable under selection; that argument, and the observation that the
+design choices inside a disaggregated evaluation are consequential enough to
+need documenting, belong to others and predate this work
+\citep{pfohl2025disaggregated,fogliato2020fairness,barocas2021disaggregated}.
+The full sweep, the operating-point surface, and the failed mechanism
+accounts are released with the analysis code rather than bound here.
 
 \section{Measurement Provenance}
 \label{sec:disc-provenance}
 
 Every disparity gap in this project was stored as an absolute value, and most
-ratio quantities as a minimum over a maximum, with no per-group values persisted.
-Each decision is individually reasonable: a magnitude is the right object for a
-pass or fail check against a tolerance. Together they destroy the information
-every directional sentence in the analysis depended on.
+ratio quantities as a minimum over a maximum, with no per-group values
+persisted; each decision is individually reasonable, since a magnitude is the
+right object for a pass or fail check against a tolerance, but together they
+destroy the information every directional sentence in the analysis depended
+on.
 
-The retrofit is the useful part. Signed storage was added alongside the existing
-fields rather than replacing them, and the recomputation reproduced every prior
-value with a maximum discrepancy of $0.0$; the reproduction check passes. Nothing
-previously reported changed by any amount. What changed was the sign of roughly
-half the drift slopes, and one credibility call: a slope whose stored interval
-crossed zero has a signed interval that does not. The flip count reported here, $7$ of $14$
-compared metric-slopes, is the figure carried into the verified register
-(Appendix~\ref{app:corrections}, C57). The field count behind the retrofit is not registered and
-is not quoted.
+The retrofit is the useful part: signed storage was added alongside the
+existing fields, and recomputation reproduced every prior value exactly, so
+nothing previously reported changed. What changed was the sign of roughly
+half the drift slopes, $7$ of $14$ compared metric-slopes
+(Appendix~\ref{app:corrections}, C57), and one credibility call: a slope
+whose stored interval crossed zero has a signed interval that does not.
 
-The rule is one sentence. A metric stored as a magnitude licenses no directional
-claim, and no downstream care recovers what the storage discarded. It is not
-novel and should not be dressed as novel; it is a specific case of a general
-point about measurement provenance and about the debt that accumulates when an
-intermediate representation is chosen for one consumer and read by another
-\citep{sculley2015debt}. What this work adds is a demonstrated true positive.
-Applied to this project's own artifacts, the check invalidated four directional
-readings, three of which were themselves corrections of earlier errors. A rule
-that catches a correcting analysis committing the error it is correcting has some
-claim on a practitioner's attention. Two qualifications: the check is cheap only
-because these sweeps were cheap, and where per-group values were never written
-the retrofit is a re-run rather than a recomputation; and the demonstration is on
-one project's artifacts, so no claim is made about how often the defect occurs
-elsewhere.
+The rule is one sentence: a metric stored as a magnitude licenses no
+directional claim, and no downstream care recovers what the storage
+discarded. It is a specific case of the general debt that accumulates when
+an intermediate representation is chosen for one consumer and read by
+another \citep{sculley2015debt}, and what this work adds is a demonstrated
+true positive: applied to this project's own artifacts, the check
+invalidated four directional readings, three of them corrections of earlier
+errors, catching a correcting analysis committing the error it is
+correcting. The demonstration is on one project's artifacts, so no claim is
+made about how often the defect occurs elsewhere.
 
 \subsection{What practice does with the upstream check}
 
-The survey speaks to whether the check that would have caught the upstream defect
-is run at all. Auditing a pipeline one stage at a time is not an exotic ask:
-\citet{biswas2021fairpreprocessing} do it for tabular preprocessing operators,
-and show that the local behaviour of each stage composes into the behaviour of
-the pipeline. On a $75$-paper corpus, $4$ papers audit the selection step under
-the strict reading and $14$ under the permissive one, so $61$ report it under
-neither. What those $61$ do instead is not recorded by this coding, which asks
-only whether the check appears; a separate coded field, how each paper handles
-null attribute values, is reported over the same $75$ papers in
-Table~\ref{tab:survey}, and the two fields are different variables on the same
-corpus rather than a partition of it.
-
-Both readings appear because the coding cannot separate them cleanly, and
-reporting only the one that suits the argument would be the error this thesis is
-about. The corpus was deliberately enriched for fairness-forward work, and the
-enrichment runs against the finding rather than for it: a corpus over-sampling
-the papers most likely to run the check still returns $4$ of $75$ strictly. This
-is not a prevalence estimate for clinical machine learning. Coverage is
-open-access and preprint venues rather than the literature as a whole, and
-$459$ screened-in papers were never retrieved in full text.
+The survey speaks to whether the check that would have caught the upstream
+defect is run at all. Auditing a pipeline one stage at a time is not exotic:
+\citet{biswas2021fairpreprocessing} do it for tabular preprocessing
+operators, showing that the local behaviour of each stage composes into the
+behaviour of the pipeline. Most of the enriched survey corpus
+(Section~\ref{sec:disc-limits}) runs it under neither reading, and the
+enrichment runs against the finding rather than for it: over-sampling the
+papers most likely to run the check still returns the same strict count.
 
 \section{What the Controls Cost}
 
@@ -367,10 +318,8 @@ would be an invented number in a thesis about invented numbers.
 \centering
 \caption[Recorded compute cost of controls]{Recorded compute for the controls. Person-hours are excluded and were
 not logged. The cost log records a $12$-run, $34.9$-minute public-task episode
-but omits the $48$-run, $555$-minute convergence sweep the argument in
-Section~\ref{sec:disc-null} rests on. The two are separate run sets, not one
-nested in the other: nine of the twelve cells differ from the convergence
-sweep's shortest-budget cells and all twelve recorded runtimes differ, so both
+but omits the $48$-run, $555$-minute convergence sweep Section~\ref{sec:disc-null}
+rests on; the two are separate run sets, not one nested in the other, so both
 are counted here.}
 \label{tab:disc-cost}
 \begin{tabular}{lrr}
@@ -389,53 +338,35 @@ Total, reconciled                         & 79 & 1216.4 \\
 \end{table}
 
 The control that retracted the directional core of three corrections cost
-$0.7 + 13.5 = 14.2$ GPU-minutes across both experiments. The convergence sweep that licenses the
-whole argument of Section~\ref{sec:disc-null} cost $555$ minutes on its own. Together with the
-clinical-task comparison the two larger sweeps cost $555 + 612.3 = 1167.3$
-GPU-minutes, and the reconciled total is $555 + 34.9 + 612.3 + 14.2 = 1216.4$
-GPU-minutes and $79$ runs in total, roughly twenty GPU-hours. The claim is not that
-controls are always cheap: re-annotation is not, a second annotator is not, and
-the one control here that cannot be recomputed from disk requires re-running the
-experiment that produced it. The claim is narrower. In this project the controls
-that reversed conclusions cost less compute than the experiments whose
-conclusions they reversed, and cost is not why they went unrun.
+$14.2$ GPU-minutes, and the convergence sweep that licenses the whole
+argument of Section~\ref{sec:disc-null} cost $555$ minutes on its own; the
+reconciled total across every control is $1216.4$ GPU-minutes and $79$
+runs. Controls are not always this cheap: re-annotation
+is not, a second annotator is not, and one control here cannot be
+recomputed from disk and requires re-running the experiment that produced
+it. The claim is narrower: in this project the controls that reversed
+conclusions cost less compute than the experiments whose conclusions they
+reversed, and cost is not why they went unrun.
 
-No comparison against prose checklists is offered. An earlier version of this
-work compared executable gates against checklist-style review, and that
-comparison was retracted: the gate recorded no failure in any run, so its catch
-rate is undefined, while the checklist arm computed the relevant defect, wrote it
-to disk, and was misread by a human. Executability was not the binding
-constraint, and no claim is made that executable gates outperform prose
-checklists. The nearest thing to evidence on that question comes from journal
-peer review rather than from here, where introducing an automated statistical
-consistency check is associated with a steep decline in reporting
-inconsistencies \citep{nuijten2023statcheck}, measured over a corpus this
-project cannot approach.
+No comparison against prose checklists is offered, and no claim is made that
+executable gates outperform them. The nearest thing to evidence on that
+question comes from journal peer review rather than from here, where
+introducing an automated statistical consistency check is associated with a
+steep decline in reporting inconsistencies \citep{nuijten2023statcheck},
+measured over a corpus this project cannot approach.
 
 \section{Limitations}
 \label{sec:disc-limits}
 
-\paragraph{RQ4's answer, now that the hosted channel is ruled out.} One dependency in this thesis
-ran through four chapters and is stated here as a settled finding rather than a hypothetical,
-because the question it depended on has been answered rather than left open. Section~\ref{sec:m-ethics}
-records that every hosted-service transmission this project made, on the Anthropic API and on AWS
-Bedrock alike, has been withdrawn: PhysioNet's guidance of 24 September 2025 prohibits third-party
-retention without a vendor qualifier, and every hosted route used here transmitted credentialed
-sentence pairs off the analysis machine, so every number those runs produced has been removed from
-the set a reported figure may resolve against. Those rows, not the local eight-billion-parameter
-models, were the evidence that the twelve-positive contradiction evaluation could resolve an effect
-at all, so Section~\ref{sec:r-frontier}'s demonstration reverts to the calculation it was built to
-replace, and RQ4's answer moves from ``the instrument was sensitive enough to see an effect of that
-size'' to ``the minimum detectable effect says an effect of that size should have been visible, and
-nothing that remains in the register confirms that one was.'' No vendor-specific fallback survives
-this: an earlier reading of this dependency distinguished Amazon Bedrock, on the retention test
-PhysioNet's guidance sets out, from the Anthropic API, but the withdrawal recorded in
-Section~\ref{sec:m-ethics} applies uniformly to every hosted route used here, so that distinction no
-longer has anything left to save. What still stands is the pretraining positive control, which
-shows the same measurement apparatus resolves a real difference on a public benchmark unconnected
-to any hosted transmission, and the rule-head transfer collapse, neither of which touches a hosted
-API. That is a weaker position than an earlier version of this chapter argued from, and it is the
-position this thesis now holds.
+\paragraph{RQ4's answer, now that the hosted channel is ruled out.} One dependency ran through four chapters and is settled here. Every hosted-service
+transmission this project made has been withdrawn (Section~\ref{sec:m-ethics}), and with it the
+only evidence that the twelve-positive evaluation had resolved an effect of the size the minimum
+detectable effect says should be visible. That evidence is not replaced. What RQ4 now asks
+does not depend on it: whether a labeller's capacity to show discrimination can be settled from
+its marginal before it scores a pair is answered by arithmetic on local rows
+(Section~\ref{sec:r-feasgate}). What still stands beside that answer is the pretraining positive
+control, which shows the measurement apparatus resolves a real difference on a public benchmark,
+and the rule-head transfer collapse; neither touches a hosted service.
 
 The limitations below are stated without hedging. Several are severe enough that
 a reader could reasonably decline to draw a conclusion from part of this work,
@@ -645,8 +576,7 @@ the base rate throughout \citep{saito2015prcurve}, and agreement statistics here
 are subject to the documented paradoxes
 \citep{feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}. Matthews
 correlation is used as the better-behaved default
-\citep{chicco2020mcc,delgado2019kappa} rather than as a solution, and applying
-that critique is not contributing it; it is thirty-six years old.
+\citep{chicco2020mcc,delgado2019kappa} rather than as a solution.
 
 The part of that critique this evaluation set makes concrete is the exchange
 rate. Each summary statistic implies a rate at which a forgone true positive is
@@ -656,32 +586,20 @@ counts rather than by anything clinical. The prevalence-adjusted bias-adjusted k
 reported here, which makes it the most majority-dominated of them despite the
 name, and none of the three was chosen by asking what a missed contradiction
 costs relative to a false alarm. That question is clinical and it was never
-posed. One worked example on this evaluation set makes the point without a
-figure. The local \texttt{granite3.3:8b} few-shot labeller of
+posed. The local \texttt{granite3.3:8b} few-shot labeller of
 Section~\ref{sec:m-control-rq2} carries a confusion matrix of $10$ true
 positives and $75$ true negatives against ACCORD's $11$ true positives and
-$18$ true negatives on the same $253$ rows: it trades one additional forgone
-true positive for far more gained true negatives, which is worse on the
-first axis and far better on the second, and Matthews correlation prices that
-trade as a net gain rather than a net loss, which is why the labeller's
-coefficient of $0.0668$ is positive on this set where ACCORD's $-0.0070$ is
-not, even though the class counts are what move the statistic here, not a
-clinical judgement of which errors matter more. The same two confusion
-matrices could support opposite readings under a statistic with a different
-exchange rate, so the choice of summary statistic is not a neutral reporting
-convention but a decision about which errors are worth trading, taken before
+$18$ true negatives on the same $253$ rows. It gives up one true positive
+for far more true negatives, and Matthews correlation prices that trade as a
+net gain, $0.0668$ against ACCORD's $-0.0070$, on class counts rather than on
+any clinical judgement of which errors matter more. A statistic with a
+different exchange rate could read the same two matrices the other way, so
+choosing one is a decision about which errors are worth trading, taken before
 any result is seen.
 
-Finally, the
-survey's coded construct admits two defensible readings, and the gap between the
-strict and permissive counts is the size of that ambiguity.
-
-Three results would change these conclusions, and they are tests rather than
-hedges. Re-annotation against corrected exemplars would convert the
-pool-precision bound into an estimate. A cohort with substantially more than $12$
-positives would move the minimum detectable effect down far enough that a modest
-true signal, if one exists, would be visible; at present a true AUROC around
-$0.65$ is indistinguishable from chance in this design. An explanation of the
-selection-channel anomaly that survives a parameter sweep, unlike the five that
-did not, would convert Section~\ref{sec:disc-anomaly} from a report into a
-finding. None is available from the data collected here.
+Finally, the survey's coded construct admits two defensible readings, and the
+gap between the strict and permissive counts is the size of that ambiguity.
+Three results would change these conclusions: re-annotation against corrected exemplars, which
+would turn the pool-precision bound into an estimate; a cohort with far more than $12$ positives,
+which would lower the minimum detectable effect; and an explanation of the anomaly that survives a
+parameter sweep. None is available from these data.
