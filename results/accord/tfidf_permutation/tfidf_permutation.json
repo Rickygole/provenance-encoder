@@ -1,0 +1,101 @@
+{
+  "seed": 42,
+  "reproduction_check": {
+    "auroc_g299_recomputed": 0.5760743321718931,
+    "ap_g299_recomputed": 0.1570977148911732,
+    "auroc_g299_registered": 0.5760743321718931,
+    "ap_g299_registered": 0.1570977148911732,
+    "matched_to_4_decimals": true
+  },
+  "task_a": {
+    "g299": {
+      "n": 299,
+      "n_pos": 12,
+      "observed_auroc": 0.5760743321718931,
+      "observed_ap": 0.1570977148911732,
+      "null_auroc_mean": 0.5008727351916376,
+      "null_ap_mean": 0.05698021673010539,
+      "p_permutation_auroc_one_sided": 0.1944,
+      "p_permutation_ap_one_sided": 0.0109,
+      "B": 10000
+    },
+    "g253": {
+      "n": 253,
+      "n_pos": 12,
+      "observed_auroc": 0.5729598893499308,
+      "observed_ap": 0.1650667451480374,
+      "null_auroc_mean": 0.4992646957123098,
+      "null_ap_mean": 0.0668723017135316,
+      "p_permutation_auroc_one_sided": 0.197,
+      "p_permutation_ap_one_sided": 0.0159,
+      "B": 10000
+    },
+    "auroc_g253": 0.5729598893499308,
+    "ap_g253": 0.1650667451480374,
+    "note": "g253 scored by the SAME fitted classifier as g299/g134, no refit -- the run the thesis says never happened.",
+    "decision": "A",
+    "decision_rule": "A iff p_permutation_ap_one_sided on G_299 < 0.05"
+  },
+  "task_b": {
+    "n": 253,
+    "n_pos": 12,
+    "n_neg": 241,
+    "grid": [
+      0.001,
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0
+    ],
+    "fold_best_C": [
+      0.1,
+      0.1,
+      0.01,
+      100.0,
+      1.0,
+      0.01,
+      1.0,
+      0.001,
+      0.1,
+      0.001,
+      0.001,
+      0.001
+    ],
+    "fold_test_sizes": [
+      22,
+      21,
+      21,
+      21,
+      21,
+      21,
+      21,
+      21,
+      21,
+      21,
+      21,
+      21
+    ],
+    "pooled_out_of_fold_auroc": 0.3433609958506224,
+    "pooled_out_of_fold_ap": 0.03620399456598259,
+    "mannwhitney_u": 993.0,
+    "mannwhitney_p_one_sided_greater": 0.9665954276900275,
+    "permutation_null": {
+      "n": 253,
+      "n_pos": 12,
+      "observed_auroc": 0.3433609958506224,
+      "observed_ap": 0.03620399456598259,
+      "null_auroc_mean": 0.5000786307053943,
+      "null_ap_mean": 0.06676037034108294,
+      "p_permutation_auroc_one_sided": 0.9675,
+      "p_permutation_ap_one_sided": 0.9799,
+      "B": 10000
+    },
+    "mde_auroc_reference": 0.7355,
+    "decision": "B",
+    "decision_rule": "A iff pooled_out_of_fold_auroc >= mde_auroc_reference AND mannwhitney_p_one_sided_greater < 0.05"
+  },
+  "n_train": 1183,
+  "n_gold": 299,
+  "n_g253": 253
+}

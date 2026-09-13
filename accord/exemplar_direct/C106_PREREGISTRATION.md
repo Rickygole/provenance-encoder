@@ -128,3 +128,66 @@ criterion, or the cap threshold after the outcome is seen.
 
 ## Outcome
 
+Recorded 2026-09-13 after the run; the rule above is unchanged.
+
+**Outcome B, does not settle the conflict, and lands far outside both existing
+readings.** Of the 165 Rule 1 (134) and Rule 2 (31) candidates, 146 are decidable
+(19 undecidable: 13 nursing-side, 5 discharge-side, 1 both, the target drug's own
+regex not found in that displayed sentence at all). Among the 146 decidable rows,
+136 are called wrong under this instrument's opposite-action criterion: defect
+rate 0.9315068493150684 (136/146), Wilson 95% interval
+[0.8785152243518337, 0.962373545629886]. That interval excludes both existing
+point estimates, 0 (the 23-row key join) and 0.4745 (the 137-row reconstruction),
+so per the rule above this is Outcome B, not A: the direct measurement does not
+land near either existing reading, it lands well above both, and settles neither.
+15 of the 165 discharge cells sit at the 200-character cap; excluding them,
+137 decidable rows remain and the rate is 129/137 = 0.9416058394160584, interval
+[0.8890051616346314, 0.970116868292974] -- capping is not what is driving the
+high rate, since removing the capped rows moves it up, not down.
+
+**Why the number is this high, most likely: the isolated-sentence context window,
+not the historical selection defect.** Of the 136 rows called wrong, 69 have
+`unclassified` on at least one side (the extractor found the target drug but no
+action-pattern keyword anywhere in that one sentence) and 67 have a real,
+classified action on both sides that is simply not the opposite pair (both
+`continuation`, both `initiation`, or a non-opposite mix such as
+`continuation`+`initiation`). This pre-registration flagged this risk before
+running: `extract_mentions_from_doc`'s own context window is normally three
+sentences (the sentence plus one neighbor each side) drawn from an un-truncated
+note; here, by construction, it is exactly the one sentence the pharmacist saw,
+frequently truncated to 200 characters. A cessation cue ("hold", "discontinued")
+one clause before or after the extracted sentence is invisible to this
+instrument and was not invisible to the historical extraction that produced the
+`nursing_action`/`discharge_action` columns audited by the other two readings.
+The 69 `unclassified`-involving rows are the more clearly context-window-driven
+half; the 67 both-classified-but-wrong rows are closer in spirit to the defect
+the other two readings measure, though still short of it, since a same-polarity
+or off-pair reading here does not distinguish "the pharmacist's displayed pair
+genuinely does not conflict" from "this one-sentence window missed the cue that
+would have made it conflict."
+
+**Reading against the thesis.** This is a third number, not a tiebreaker, and it
+is reported as such: `msu_ch4_results.tex`'s "range" of 0 to 0.4745
+(Section "The exemplar selection defect") does not contain 0.9315, so a reader
+who wanted a single quotable ceiling from this exercise should not take either
+existing number as one; the true ceiling, under any instrument tried so far,
+is unknown. This measurement is reported beside the other two, not in place of
+them, per the pre-registration's own caveat: it is an unvalidated extractor
+applied under a materially harder condition (one truncated sentence, no
+neighbor) than either of the other two instruments faced, and the gap is very
+plausibly instrument artifact rather than a true rate three times the
+reconstruction's.
+
+**What could not be done, as disclosed in advance.** Row-level agreement with the
+23 key-joined or 137 reconstructed rows was not attempted: no artifact in this
+repo retains which of the 165 `pair_id`s belong to either subset (only aggregate
+counts survive in
+`results/accord/exemplar/exemplar_correctness_recomputed.json` and
+`~/mimic_local_only/accord_exemplar/audit_exemplar_correctness_rule_only.csv`,
+neither of which carries `pair_id`), so only the aggregate comparison above is
+reported.
+
+Artifact: `results/accord/exemplar_direct/exemplar_direct.json`. Register prefix
+`exemplardirect.*` (register script written, not run; see
+`accord/exemplar_direct/register_exemplardirect.py`).
+

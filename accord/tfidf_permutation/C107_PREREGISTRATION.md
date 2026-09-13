@@ -110,3 +110,52 @@ fails, no permutation number is computed or reported from that run.
 
 ## Outcome
 
+Recorded 2026-09-13 after the run; the rule above is unchanged.
+
+**Reproduction (task a, step 2): passed.** Recomputed AUROC 0.5760743321718931 and
+AP 0.1570977148911732 on $G_{299}$ match `results/accord/control/baselines.json`
+to 4 decimals (0.5761 / 0.1571). The run proceeded.
+
+**Task (a), Outcome A: the linear baseline carries signal, by the pre-registered
+test on AP.** One-sided label-permutation p for AP on $G_{299}$ is 0.0109 (10,000
+draws, seed 42), below the 0.05 threshold this pre-registration set as the
+deciding number. The same test on AUROC is not significant (p = 0.1944), so the
+picture is metric-dependent; only the AP test on $G_{299}$ was pre-registered as
+decisive, and it clears. $G_{253}$, run here for the first time (never run in the
+thesis): AUROC 0.5729598893499308, AP 0.1650667451480374, one-sided permutation p
+0.0159 for AP and 0.1970 for AUROC -- the same direction and the same
+metric-dependence as $G_{299}$. This is inconsistent with
+`msu_ch4_results.tex`'s dismissal of the baseline's ranking as noise
+("sits inside that same noise", the paragraph after Table~tab:baselines):
+that sentence is unsupported by a test and the one pre-registered here does not
+support it for AP, whatever it says for AUROC. Reported as a contradiction of that
+prose claim (file `accord/thesis/msu_ch4_results.tex`, the paragraph beginning
+"The bag-of-words baseline outranking the neural configurations is not a real
+ordering either").
+
+**Task (b), Outcome B: not resolved, and the point estimate is below chance.**
+Pooled out-of-fold AUROC 0.3433609958506224, AP 0.03620399456598259 (no-skill line
+on $G_{253}$ is 12/253 = 0.0474), one-sided Mann-Whitney p 0.9666 (positives are
+not ranked above negatives out-of-fold; if anything the reverse), against the
+registered MDE of 0.7355. Both the primary AUROC-vs-MDE-and-p condition and the
+secondary permutation null (p = 0.9675 for AUROC, 0.9799 for AP) say the same
+thing: a TF-IDF/logistic model trained only on 253 gold rows in nested
+leave-one-positive-out CV does not generalize out-of-fold at all at this sample
+size; it is worse than the constant-score floor. This is not evidence against a
+signal existing (the confidence interval this design can resolve is wide), it is
+evidence that this particular gold-only estimator, at this sample size, is not
+the way to find it.
+
+Per-fold selected `C`: `[0.1, 0.1, 0.01, 100.0, 1.0, 0.01, 1.0, 0.001, 0.1, 0.001,
+0.001, 0.001]` -- the inner selection is unstable across folds (spans the whole
+grid), consistent with 11 positives being too few to choose a regularization
+strength reliably.
+
+Artifact: `results/accord/tfidf_permutation/tfidf_permutation.json`. Register
+prefix `tfidfperm.*` (register script written, not run; see
+`accord/tfidf_permutation/register_tfidfperm.py`). Task (a) adds four p values
+(AP and AUROC, on $G_{299}$ and $G_{253}$) to the hypothesis family
+`accord/stats/test_register.py` enumerates; that register was not edited by this
+run, per the edit-scope restriction on this task, so the family's stated count in
+Chapter 4 is now short by up to four entries until someone adds them there.
+
