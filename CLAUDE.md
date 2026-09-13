@@ -63,7 +63,8 @@ No figure is "random": if it does not carry a claim the text depends on, delete 
 - **Never accept an API key pasted in chat.** Direct the user to revoke it.
 - **Never use the `attacker-user` AWS account** (`495599736555`). Patient data goes
   only through accounts the user owns; the Bedrock account is `162774483375`.
-- **refs.bib stays at 93 entries.** Only references the user supplied. Never add one.
+- **refs.bib stays at 94 entries.** Only references the user supplied or approved. Never add one unasked.
+  The 94th, Tarone (1990), was verified by the user against PubMed 2364136 on 2026-09-13.
 - **No en dashes or em dashes anywhere.** Pass 1 gates this.
 - **Nothing in prose that is not backed by an artifact.** Pass 2 gates the digits;
   the gate is a digit match, not a provenance proof, so it is a floor not a proof.
