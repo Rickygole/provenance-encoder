@@ -67,7 +67,7 @@ Weak supervision & A high-recall labeller usable in place of expert annotation &
 \addlinespace
 Architecture & Three named components credited with the reported performance & Three different failures, not one: the authority scalars are falsified, sitting at initialisation across seeds; the rule-type head is confounded, its metric vacated by a target one linear layer from an input feature that equals it; the harm head is vacuous, with no term in the objective to train it. No randomisation control was run on any of the three & Reversed \\
 \addlinespace
-Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & At chance on the defect-free stratum, with an instrument shown to resolve $4.53$ points where an effect existed & Survived \\
+Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & At chance on the defect-free stratum; the training harness, not the clinical instrument, is shown to resolve $4.53$ points on a public benchmark & Survived \\
 \addlinespace
 Reporting & Drift slopes read directionally from stored gap magnitudes & Same magnitudes, reproduced to a maximum discrepancy of $0.0$; roughly half the slope signs invert & Reversed \\
 \bottomrule
@@ -101,9 +101,9 @@ Feinstein and Cicchetti described for a different instrument thirty-six years ag
 human-established base rate before believing anything about agreement. Against the $299$ annotated
 pairs the deployed local labeller assigned the positive class to $261$; the pharmacist assigned it
 to $12$. Saying yes to $87\%$ of a pool whose true positive rate is $4\%$ is not a decision, it is a
-prior with a text prompt attached, and three further local eight-billion-parameter models reproduce
-the same miscalibration at over-calling ratios from $15.8196$ to $23.5959$
-(Chapter~\ref{ch:results}), so this is not one model misbehaving. Correcting a marginal this biased
+prior with a text prompt attached, and two further local eight-billion-parameter models reproduce
+comparable miscalibration, over-calling ratios of $15.8196$ and $17.9863$ against the deployed
+labeller's own $23.5959$ (Chapter~\ref{ch:results}), so this is not one model misbehaving. Correcting a marginal this biased
 needs gold labels on the same distribution \citep{forman2008quantifying,egami2023surrogates}, which
 a workflow built to avoid annotation cannot supply, so the student inherits the marginal rather
 than the task \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}. What this
@@ -132,9 +132,12 @@ rather than the architecture, tested whether anisotropy rather than clinical hom
 high similarity score: unrelated non-clinical sentences return a mean pairwise similarity of
 $0.9113$ against $0.9176$ on matched clinical pairs, a Welch test rejecting exact equality
 ($t = 4.0001$, Cohen's $d = 0.2808$), which undercuts the homogeneity account without establishing
-identity. A component credited by a system's own authors and never given a substitute that should
-not work, the control-task logic \citet{hewitt2019control} developed and this thesis applies rather
-than invents, has simply not been tested.
+identity. RQ3, whether the three credited components contribute what they are credited with
+(Section~\ref{sec:m-control-rq3}), is answered component by component: one parameter is falsified,
+one metric is vacated by leakage, and one module was never trained, and because no randomisation
+control ran on any of the three, the control-task logic \citet{hewitt2019control} developed and this
+thesis applies rather than invents did not settle RQ3 for the component it was never given the
+chance to test.
 
 \subsection{Evaluation: survived}
 
@@ -185,20 +188,23 @@ if no positive control existed. One does. The device adapts the one
 analysis on a case where the answer is known in advance, and let the result
 speak about the instrument rather than about the substantive question.
 
-The instrument is a comparison of a domain-pretrained encoder against an
-identically sized encoder trained from scratch, evaluated by a convergence
-sweep of $48$ runs. On a public four-class news classification task it
-resolves a pretraining benefit of $4.53$ points that appears as early as $3$
-epochs and persists once both arms have converged, across an eightfold range
-of training budget and well outside the standard deviations involved. The
-from-scratch curve at three parameter sizes does not approach the pretrained
-band either (Table~\ref{tab:scaling}), so the gap is a pretraining rather
-than a capacity effect, and the mortality control itself returns almost
-nothing (Figure~\ref{fig:forest}, last row).
+The instrument compares a domain-pretrained encoder against encoders trained from scratch at
+several parameter scales, evaluated by a convergence sweep of $48$ runs; none is sized to match its
+pretrained counterpart, the largest public from-scratch arm carrying $99{,}234{,}820$
+parameters against the pretrained encoder's $85{,}648{,}132$, and the clinical from-scratch arm
+$10{,}638{,}720$ non-embedding parameters against a BioMedBERT-based pretrained encoder. On a public four-class news classification
+task it resolves a pretraining benefit of $4.53$ points that appears as early as $3$ epochs and
+persists once both arms have converged, across an eightfold range of training budget and well
+outside the standard deviations involved. The from-scratch curve at three parameter sizes does not
+approach the pretrained band either (Table~\ref{tab:scaling}), so the gap is a pretraining rather
+than a capacity effect, and the mortality control itself returns almost nothing (Figure~\ref{fig:forest},
+last row).
 
-The decision rule was committed before the sweep ran, at commit
-\texttt{b048829}: convergence was the criterion for trusting the result, so
-an unconverged arm would have voided the mortality-task measurement. On
+The decision rule was committed before the sweep ran, at commit \texttt{b048829}
+(Table~\ref{tab:m-prereg}): a gap of at least $3.0$ accuracy points between the largest from-scratch
+arm and the pretrained arm at the longest budget, with non-overlapping one-standard-deviation bands,
+was required to certify the control, and anything short of that would have voided the mortality-task
+measurement rather than licensed it. On
 that task, in-hospital mortality predicted from a
 patient's first $48$ hours of notes on $6{,}776$ admissions holding $570$
 positives, the same instrument, harness and protocol return a null,
@@ -359,14 +365,15 @@ measured over a corpus this project cannot approach.
 \label{sec:disc-limits}
 
 \paragraph{RQ4's answer, now that the hosted channel is ruled out.} One dependency ran through four chapters and is settled here. Every hosted-service
-transmission this project made has been withdrawn (Section~\ref{sec:m-ethics}), and with it the
-only evidence that the twelve-positive evaluation had resolved an effect of the size the minimum
-detectable effect says should be visible. That evidence is not replaced. What RQ4 now asks
-does not depend on it: whether a labeller's capacity to show discrimination can be settled from
-its marginal before it scores a pair is answered by arithmetic on local rows
-(Section~\ref{sec:r-feasgate}). What still stands beside that answer is the pretraining positive
-control, which shows the measurement apparatus resolves a real difference on a public benchmark,
-and the rule-head transfer collapse; neither touches a hosted service.
+transmission this project made has been withdrawn (Section~\ref{sec:m-ethics}), and nothing at that
+scale replaces it. RQ4, whether the detector's null is real, does not depend on it: local evidence
+answers it instead, the pretraining positive control, which shows the measurement apparatus resolves
+a real difference on a public benchmark, and the minimum detectable effect, which bounds the
+twelve-positive evaluation's own sensitivity (Section~\ref{sec:m-mde}). The feasibility gate on the
+labeller's marginal (Section~\ref{sec:r-feasgate}) answers a narrower question: it explains the
+degenerate operating point a thresholded labeller can reach, and it is silent on the AUROC null. What
+still stands beside RQ4's answer is the rule-head transfer collapse; neither it nor the positive
+control touches a hosted service.
 
 The limitations below are stated without hedging. Several are severe enough that
 a reader could reasonably decline to draw a conclusion from part of this work,
@@ -378,17 +385,17 @@ power is $0.7355$ on the primary set and $0.8058$ on the stratum. The intervals
 are wide and the ordering between the two systems this pipeline produced is
 unidentified, their Matthews correlations being $-0.0436$ and $-0.0070$, both
 within $0.05$ of chance. The limit is not that $12$ positives cannot separate
-anything: two of the local weak-labeller replicates from
-Section~\ref{sec:m-control-rq2}, \texttt{granite3.3:8b} zero-shot and
-\texttt{llama3:8b} few-shot, carry Matthews correlation intervals against these
-same $253$ rows that exclude zero, at $0.1326$ and $0.0540$. That is a claim
-about those two labeller configurations on the agreement-with-gold question, not
-about the contradiction detector, and the qualification belongs in the same
-breath as the claim rather than later: $12$ positives can separate a system from
-chance when the effect is large enough, so the null the detector and its control
-return is a statement about those two architectures, which sit close to chance
-and to each other, rather than a statement that no instrument at this sample
-size could ever resolve anything. No ablation carries a significance claim.
+anything: one local weak-labeller replicate from Section~\ref{sec:m-control-rq2},
+\texttt{granite3.3:8b} zero-shot, returns a one-sided hypergeometric $p$ of
+$0.0242$ against these same $253$ rows, reported here as nominal and
+uncorrected rather than as an interval. That is a claim about that one labeller
+configuration on the agreement-with-gold question, not about the contradiction
+detector, and the qualification belongs in the same breath as the claim rather
+than later: $12$ positives can separate a system from chance when the effect is
+large enough, so the null the detector and its control return is a statement
+about that architecture, which sits close to chance, rather than a statement
+that no instrument at this sample size could ever resolve anything. No ablation
+carries a significance claim.
 
 \paragraph{Deployment risk, and automation bias.} A system with recall
 $0.7778$ and precision $0.0424$ generates a large number of false alarms per
@@ -492,12 +499,10 @@ the danger ratings, rests on that unmeasured instrument. Board certification is
 a credential, not a reliability coefficient, and it is not offered as one here.
 
 \paragraph{No rate is claimed from the correction record.} The self-audit record
-is an appendix and a demonstration, not a statistic. An attempt to compute an
-error rate from it was retracted: the generating script was not saved, the
-denominator advanced without the numerator, and an independent hand-code
-intersected the original list on a minority of the union. The record supports
-named instances, including four cases of a correcting analysis committing the
-error it was correcting.
+is a demonstration, not a statistic; an attempt to compute an error rate from it
+was retracted because it could not be reproduced. It supports named instances,
+such as C11, C15, C47 and C52, where a correcting analysis committed the error it
+was correcting.
 
 \section{Threats to Validity}
 \label{sec:disc-threats}
@@ -597,9 +602,6 @@ different exchange rate could read the same two matrices the other way, so
 choosing one is a decision about which errors are worth trading, taken before
 any result is seen.
 
-Finally, the survey's coded construct admits two defensible readings, and the
-gap between the strict and permissive counts is the size of that ambiguity.
-Three results would change these conclusions: re-annotation against corrected exemplars, which
-would turn the pool-precision bound into an estimate; a cohort with far more than $12$ positives,
-which would lower the minimum detectable effect; and an explanation of the anomaly that survives a
-parameter sweep. None is available from these data.
+Re-annotation against corrected exemplars, a cohort with far more than $12$ positives, or an
+anomaly explanation that survives a parameter sweep would change these conclusions; none is
+available from these data.

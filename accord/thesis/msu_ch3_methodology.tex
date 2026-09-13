@@ -340,14 +340,11 @@ For the replication in Section~\ref{sec:m-control-rq2} the evaluation baseline's
 recovered verbatim from the committed prompt table rather than rewritten, and reused unchanged
 across models. It is not the deployed weak labeller's prompt, which the table does not contain, so
 the replication reproduces the baseline configuration rather than the configuration that produced
-the training labels, and Section~\ref{sec:res-rq2} reports the $165$ labels that separate them.
-Decoding is greedy at temperature zero for the local models, so a model's label for a row is
-deterministic within a model, a guarantee that does not extend to the hosted frontier model
-reported alongside them in Chapter~\ref{ch:results}: it does not accept a temperature parameter, so
-its per-pair labels are single draws from a distribution rather than fixed values, and
-Section~\ref{sec:r-frontier} states what that does to the precision of the figures derived from
-them. Generations that do not parse are recorded in their own category and never defaulted to a
-class, which would otherwise inflate a positive rate mechanically and silently.
+the training labels; the deployed run and the same model's baseline-prompt replication disagree on
+$165$ labels across the full pool (Section~\ref{sec:res-rq2}). Decoding is greedy at temperature zero
+for the local models, so a model's label for a row is deterministic within a model. Generations that
+do not parse are recorded in their own category and never defaulted to a class, which would otherwise
+inflate a positive rate mechanically and silently.
 
 \subsection{How \texttt{weak\_confidence} was derived}
 
@@ -581,6 +578,21 @@ a domain control: if the magnitude of over-calling generalises, a comparable lab
 public non-clinical text will show a comparable ratio, and if only the mechanism generalises the
 ratio will be materially smaller while the direction persists, which governs what may be claimed.
 
+\subsection{The marginal feasibility gate}
+\label{sec:m-feasgate}
+
+A thresholded labeller's flag count and the gold standard's confirmed-positive count fix, before any
+score is compared, the largest attainable agreement and the smallest attainable one-sided
+hypergeometric $p$ that marginal permits: placing every confirmed case inside the flagged set gives
+the best table that marginal could produce. A labeller whose floor sits above the read-at threshold
+could not have rejected the null however it behaved. The bound covers a hard, thresholded decision
+only; a scored labeller can sweep its threshold and rank well regardless of flag rate, so this says
+nothing about a ranking metric. Applied to every hard-label marginal this thesis prints, it was added
+after the hosted results were withdrawn, unlike the controls above, specified before any result was
+seen. The ceiling is the prevalence-and-bias problem of \citet{feinstein1990paradoxes} and
+\citet{cicchetti1990resolving}, corrected by \citet{byrt1993pabak}; no novelty claim attaches to the
+floor.
+
 \subsection{RQ3: do the architectural components contribute what they are credited with?}
 \label{sec:m-control-rq3}
 
@@ -650,13 +662,14 @@ rather than reporting them. The precondition also applies retrospectively to an 
 this project and fails there, which is why no subgroup harm is demonstrated or claimed anywhere in
 this thesis.
 
-\subsection{RQ4: is the null a property of the task or of the instrument?}
+\subsection{RQ4: is the detector's null real?}
 
-\textbf{Condition.} A null is a measurement only if the instrument that produced it can be shown to
-resolve an effect of comparable size where one is known to exist. Without that, every negative
-result reduces to an experiment that was too small. The positive control therefore runs the same
-instrument on a task where the effect is known to be present, and its outcome is bound in advance
-to a written decision rule.
+\textbf{Condition.} A null result is evidence only if the instrument that produced it can be shown
+to resolve an effect of comparable size where one is known to exist, and only if the evaluation had
+enough power to see an effect at all. Two local checks answer this together: the minimum detectable
+effect for the evaluation's own sample size (Section~\ref{sec:m-mde}), and a positive control that
+runs the same pretraining-effect instrument on a task where the effect is known to be present, its
+outcome bound in advance to a written decision rule.
 
 The proxy under test is whether a difference in self-supervised pretraining, measured as a loss
 gap, predicts a difference in downstream discrimination. On the clinical side the comparison runs
@@ -796,12 +809,10 @@ is not everywhere: among the intervals printed in Chapters~\ref{ch:results}
 and~\ref{ch:discussion}, those computed for the control model carry a recorded count of valid
 resamples, in every case the full $10{,}000$ requested, while the decontaminated ensemble's
 intervals and the Matthews correlation intervals store no count of either kind. Where no count is
-stored, none is quoted, and those intervals should be read as computed over the requested number
-of resamples less an unrecorded number of degenerate draws. A separate bootstrap of the
-defect-free stratum, run at a different setting and not printed in this thesis, does record its
-discards, $20$ of $10{,}000$, a rate of $0.002$, which is the only direct measurement of that
-rate anywhere in this work and is the order of magnitude the unrecorded cases should be assumed
-to sit at.
+stored, none is quoted; read those intervals as computed over the requested resamples less an
+unrecorded number of degenerate draws. A separate bootstrap of the defect-free stratum, not
+printed in this thesis, does record its discards, $20$ of $10{,}000$, a rate of $0.002$, the only
+direct measurement of that rate in this work.
 
 Two systems scored on the same rows produce correlated ROC curves, so an unpaired comparison
 overstates the variance of their difference. Comparisons between the control model and the
@@ -812,6 +823,7 @@ analysis code released alongside this thesis, and the per-comparison outputs, in
 error of the difference, are written to the control report rather than recomputed in prose.
 
 \subsection{Minimum detectable effect}
+\label{sec:m-mde}
 
 The sensitivity of the evaluation is a property of the evaluation set rather than of any model, so
 it belongs in the methods. Under the null of no discrimination, the standard error of an AUROC
@@ -871,7 +883,7 @@ earlier one. And a reference row in any comparison table must be produced by the
 protocol as the rows it is compared against; where that is not true, the comparison is reported as
 directional with no significance claim attached. Finally, every quantity in
 Chapter~\ref{ch:results} maps to the committed artifact that produced it, and that mapping is
-reproduced as a reference table in Appendix~\ref{app:survey} rather than asserted
+reproduced in the register released with the analysis code rather than asserted
 (Appendix~\ref{app:provenance}).
 
 \section{Data Use, Ethics, and Compliance}
@@ -899,25 +911,19 @@ and have since been consolidated under credentialed-only local storage; no scrip
 reads that account.
 
 \paragraph{The annotator, and credentialed access.} The gold standard was produced by one
-board-certified pharmacist, annotating in the author's presence and on the author's machine. The annotator
-read each pair on the author's screen and gave a judgment the author recorded; no file was
-transferred, printed or photographed, and nothing was retained. The annotator does not hold PhysioNet credentialed access, and the
-arrangement is described here so that it can be assessed; the written protocol governing the
-engagement did not itself record that status or the supervised, no-copy arrangement, a
-documentation failure rather than a disclosure failure.
+board-certified pharmacist, who read each pair on the author's screen, in the author's presence, and
+gave a judgment the author recorded; no file was transferred, printed or photographed, and nothing
+was retained. The annotator does not hold PhysioNet credentialed access, and the written protocol
+recorded neither that status nor this arrangement, which is described so that it can be assessed.
 
 \paragraph{Re-identification and small cells.} No re-identification was attempted and nothing was
-joined against MIMIC-III at the patient level. Subgroup results are one-way marginals
-only; no multi-way disaggregation is published. Small cells, some below ten observations, are
-reported without suppression because the source data is de-identified with no identifier crosswalk,
-and are marked unpowered rather than withheld.
+joined against MIMIC-III at the patient level. Subgroup results are one-way marginals only. Small
+cells, some below ten observations, are reported without suppression and marked unpowered.
 
 \paragraph{Clinical status, and code contribution.} Nothing in this thesis has been validated for
-clinical use. The system is a research artifact evaluated on retrospective, de-identified data, not
-a clinical decision support tool; its measured performance, reported in Chapter~\ref{ch:results},
-does not support deployment in any care setting.
-The analysis code is released with the register and the appendices, with one gap that bears on a
-reported result: the deployed weak-labelling run cannot be repeated, because its script is absent
-and its prompt is not among the committed prompt configurations. That run produced the $1425$ weak
-labels the detector was trained on and the $261$ of $299$ marginal Chapter~\ref{ch:results}
-reports, so those two numbers are reported as measured and cannot be regenerated by anyone.
+clinical use or supports deployment in any care setting. The analysis code is released, with one
+gap: the deployed weak-labelling run cannot be repeated, because its script and prompt were not
+committed. That run produced $1{,}425$ positive labels among the $1{,}679$-row weak-labelled pool,
+which subject-disjoint exclusion narrows to the $1{,}183$-row training pool of
+Table~\ref{tab:m-strata}, and the $261$ of $299$ marginal Chapter~\ref{ch:results} reports, so those
+numbers cannot be regenerated by anyone.

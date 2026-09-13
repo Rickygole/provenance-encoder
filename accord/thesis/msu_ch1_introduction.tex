@@ -104,9 +104,9 @@ that holds for any classifier at that prevalence though its size varies
 even among labellers at the same scale, so no capability ordering is
 established here, and an evaluation built on a fixed number of confirmed
 positives is limited by that number regardless of who trains the detector.
-The remaining four are not implementation bugs; each produced a number that
-would have passed peer review, and each has a one-line check that is the
-transferable finding.
+Four specific defects behind them are not implementation bugs; each
+produced a number that would have passed peer review, and each has a
+one-line check that is the transferable finding.
 
 The first is a bug class this thesis names \textbf{trigger-exemplar
 dissociation}: a mining rule whose predicate quantifies over a set of
@@ -158,7 +158,7 @@ row is categorical because no committed result file carries a number for it.}
 
 The pipeline does not work. This thesis establishes where it fails and why,
 by running at each stage the control that separates a real result from an
-artifact of measurement; every stage failed its control. The cleanest expression of
+artifact of measurement; each stage's reading was tested against its control. The cleanest expression of
 the failure is the decontaminated detector's behaviour on the $253$
 non-ambiguous pairs: at the configured threshold it predicts positive for
 nearly the whole pool rather than ranking within it, and its ranking is at
@@ -166,9 +166,9 @@ chance rather than merely inaccurate (Chapter~\ref{ch:results},
 Section~\ref{sec:res-rq4}, Table~\ref{tab:decontam}).
 Figure~\ref{fig:ceiling} carries the mechanism: the weak labeller's
 positive rate against the pharmacist's confirmed rate on the same pool
-fixes an agreement ceiling that RQ2 below reports and RQ4 uses as a
-precondition, not an explanation. A positive control on the same harness
-resolves a real effect on a public benchmark.
+fixes an agreement ceiling that RQ2 below reports as a precondition, not an
+explanation of the ranking null RQ4 asks about. A positive control on the
+same harness resolves a real effect on a public benchmark.
 
 \section{Research Questions}
 \label{sec:intro-rqs}
@@ -177,7 +177,9 @@ The project was organized around five questions: four about the stages of the
 pipeline and one about the field that publishes pipelines like it. Each is
 stated as posed, followed by the answer in one sentence; evidence sits in
 Chapter~\ref{ch:results}, and the control for each stage is specified in
-Chapter~\ref{ch:method} before any result was seen.
+Chapter~\ref{ch:method} before any result was seen, with one post hoc
+exception: the feasibility check reported under RQ2 was added only after the
+hosted results it stood in for were withdrawn.
 
 \begin{description}
 
@@ -206,7 +208,25 @@ same mechanism tops out at $3.5000$ times (Section~\ref{sec:res-rq2}), so the
 direction of the failure transfers across domains and its size does not.
 Substitution fails at every local configuration measured; whether it fails
 less at a scale this project could not run through a compliant channel is not
-established.}
+established. An earlier draft attributed this multiplier's size to the
+pool's base rate rather than the model, using a since-withdrawn
+hosted-channel cell; that attribution is open again, and a multiplier
+reported without naming both quantities is uninterpretable. A precondition
+check reported here (Section~\ref{sec:r-feasgate}) asks a narrower question:
+holding a labeller's flagged count and the gold standard's confirmed count
+fixed gives the best table of agreement the two marginals could ever
+produce, a ceiling that is arithmetic rather than a property of what the
+labeller knows
+\citep{feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}, applied
+here rather than devised here. Measured this way across nine labeller
+configurations, five could not have rejected the null at $\alpha = 0.05$ at
+any outcome their own marginal permitted, all five the same model,
+\texttt{llama3:8b}, including the
+deployed weak labeller and the evaluation baseline prompted once;
+\texttt{granite3.3:8b} and \texttt{qwen3:8b} do not share that ceiling. This
+bounds a thresholded decision only, and explains nothing about the ranking
+null RQ4 asks about beyond the deployed labeller's degenerate operating
+point.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
 what they are credited with?
@@ -220,30 +240,18 @@ labels by $0.3277$ nats with no significance claim attached, while an
 arbitrary positional ordinal, a different feature rather than a randomised
 version of the same one, beats both.}
 
-\item[RQ4. Evaluation.] Can a labeller's capacity to show discrimination
-against a gold standard be established before it scores a single pair, from
-its marginal alone, and do the labellers this pipeline actually ran fail that
-test?
-\emph{Yes, and yes. Holding a labeller's flagged count and the gold
-standard's confirmed count fixed fixes the best table of agreement that
-marginal can ever produce, a ceiling that is arithmetic rather than a
-property of what the labeller knows
-\citep{feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}, applied
-here as a precondition rather than an explanation. Measured this way on
-eight local labeller-and-basis rows, four could not have rejected the null at
-$\alpha = 0.05$ at any outcome their own marginal permitted, because the
-smallest one-sided $p$ value their marginal allows already exceeds it, and
-four sit exactly on their marginal-implied ceiling, so their reported
-agreement reports their flag rate and nothing else. The weak labeller
-supplying the detector's training signal flags $261$ of $299$, the same
-marginal as one of those four, so it could not have rejected the null either.
-This bounds a thresholded decision only: a labeller that emits a continuous
-score is not bounded this way, because the operating threshold can be swept,
-and a model that flags most of a pool at one threshold can still rank the
-pool perfectly at another. Section~\ref{sec:res-rq4} reports the eight rows
-in full and states separately what the twelve-positive evaluation's own
-class counts fix as a minimum detectable effect, a second and narrower
-constraint on the same null.}
+\item[RQ4. Evaluation.] Is the trained detector's ranking null real, given
+what this project's own instrument can show?
+\emph{The null holds at the configurations tested: on the $253$ non-ambiguous
+pairs three configurations of the decontaminated detector sit at chance, a
+paired comparison cannot separate two of them, and a bag-of-words baseline
+outranks all three (Section~\ref{sec:res-rq4}). That null is informative only
+above the minimum detectable effect the evaluation's own twelve-positive
+class counts fix, an AUROC of $0.7355$ at $80\%$ power, and a pre-registered
+positive control on a public benchmark shows the same harness resolves a
+real difference, $4.53$ accuracy points, where one exists. Whether a
+clinical effect smaller than that floor exists is not determinable from this
+evidence.}
 
 \item[RQ5. Practice.] Does published work audit the selection step upstream
 of the model it evaluates, the one control this survey was built to measure?
@@ -257,10 +265,10 @@ work runs the other four controls RQ1 through RQ4 applied to this pipeline.}
 
 \end{description}
 
-RQ4 is the load-bearing check: without it, the ranking null
-Section~\ref{sec:res-rq4} reports on the trained detector would read as a
-surprising failure rather than the outcome the screening test already
-predicted before training.
+RQ4 is the check that keeps the other nulls in this pipeline from reading as
+one underpowered study: without its positive control and minimum detectable
+effect, a null anywhere here would be indistinguishable from an insensitive
+instrument.
 
 \section{Contributions}
 \label{sec:intro-contributions}
@@ -269,7 +277,7 @@ The methods applied here are not novel; Chapter~\ref{ch:lit} attributes
 each control to its owner
 \citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}.
 What is new is the measurement on this pipeline and the fact that the
-controls were actually run. Seven contributions follow, each stated at the
+controls were actually run. Six contributions follow, each stated at the
 size the evidence supports, and one further result is reported separately
 below the list because it does not meet the bar a contribution should
 meet. The twelve confirmed contradictions bound only two strands below; the
@@ -293,28 +301,20 @@ enforces it. Separately, every disparity gap here was persisted through an
 absolute value; retrofitting signed storage reproduced every prior value
 exactly, maximum discrepancy $0.0$, while reversing the sign of seven of
 fourteen comparable drift slopes.
-\item \textbf{A measured null on clinical pretraining transfer, rather than
-an underpowered one.} That pretraining loss poorly proxies downstream
-performance is settled elsewhere at far larger scale
-\citep{lourie2025scaling,feng2026tessera}; this $48$-run sweep replicates it
-as a measurement: under an adjudication rule committed before the runs, the
-same harness resolves $4.53$ points on AG News and returns $+0.0031$ on the
-clinical task.
+\item \textbf{A pretraining transfer measurement on the clinical task, not a
+settled null.} That pretraining loss poorly proxies downstream performance
+is settled elsewhere at far larger scale
+\citep{lourie2025scaling,feng2026tessera}; this $48$-run sweep measures it
+under an adjudication rule committed before the runs: the same harness
+resolves $4.53$ points on AG News and returns $+0.0031$ on the clinical
+task, an untested gap that reverses sign to $-0.0011$ on the seed subset
+with confirmed split lineage.
 \item \textbf{A prevalence of practice measurement with released rows.} On
 $75$ papers, $4$ audit the selection step under the strict reading and $14$
 under the permissive one. A blind second coder on $19$ overlapping papers
 gives $\kappa = 0.855$ on the permissive field; on the strict field both
 coders agree on all $19$ papers, so $\kappa$ is \emph{undefined} rather
 than perfect.
-\item \textbf{Prevalence mismatch contrast.} The same three local 8B models
-over-call on the clinical pool by roughly sixteen to twenty-four times the
-base rate and on public text by at most about three and a half times; the
-direction transfers across domains and the magnitude does not. An earlier
-version attributed the magnitude to the pool's base rate rather than to the
-model using a hosted-channel cell now withdrawn under the compliance action
-Chapter~\ref{ch:method} records, so that attribution is open again rather
-than closed: a multiplier reported without naming both the base rate and
-the model that produced it is uninterpretable.
 \item \textbf{The misaligned-block arm and the global-positions confound
 check.} Both are additions to a borrowed control-task design, run on the
 second system, not the clinical detector. A hard block mask with zero
@@ -322,6 +322,9 @@ trainable parameters beats every learned attention-bias arm by $0.1306$
 nats, and an arbitrary positional ordinal beats true role labels; restoring
 global positions recovers none of the segmentation gain, closing the
 confound that the gain was position bought back by a handicapped baseline.
+This matters here because the same borrowed design licenses RQ3's
+role-label control above, so a confound in its own baseline measurement
+limits how much weight this pipeline's architecture ablation can carry.
 \item \textbf{What the controls cost.} Nobody reports this, so it is
 reported here: the reconciled total across every control is $1216.4$ GPU
 minutes over $79$ runs (Chapter~\ref{ch:discussion}), against a raw log of
@@ -329,7 +332,7 @@ $661.4$ minutes that omits the $555$-minute convergence sweep entirely.
 Person hours were never logged, so the claim is compute only.
 \end{enumerate}
 
-\paragraph{A reported observation, not an eighth contribution.} Two
+\paragraph{A reported observation, not a seventh contribution.} Two
 selection channels on one population produce demographic parity drift slopes
 of opposite sign, and a controlled simulator sweep inverts the mapping rather
 than reproducing it \citep{pfohl2025disaggregated,fogliato2020fairness}.
@@ -343,11 +346,3 @@ boundary of this negative result is argued; one line belongs here because
 RQ1 above points to it directly. Trigger-exemplar dissociation is not
 evidence that the measured base rate is wrong: $0.0401$ is an upper bound on
 annotation validity, not a figure to be revised in either direction.
-
-\section{Organization of the Thesis}
-\label{sec:intro-structure}
-
-Chapter~\ref{ch:lit} reviews the literature, Chapter~\ref{ch:method}
-states the controls, Chapter~\ref{ch:results} reports them,
-Chapter~\ref{ch:discussion} interprets them, and Chapter~\ref{ch:conclusion}
-names the work left open.

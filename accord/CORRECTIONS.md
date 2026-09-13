@@ -4784,3 +4784,59 @@ behind them." It was the same 100 keys, the same namespace, and the second time
 it was not a hand-maintained key but a hand-maintained *test*. The lesson that
 generalises is not about labelnoise. It is that any check keyed on what a thing
 is called will eventually meet a thing that is not called that.
+
+## C97. RQ4 was replaced after the results were known, under a sentence saying it was not
+
+Committee round after C95. Two findings, independently reached, changed the
+structure of the thesis.
+
+**The integrity finding.** Chapter 1 states that each research question is given as
+posed, with its control specified in Chapter 3 before any result was seen. C95
+replaced RQ4 with the marginal feasibility gate after every labeller output already
+existed, and no pre-registration for the gate exists. The sentence was therefore
+false for RQ4, and it is the one place a committee could move from criticising the
+framing to questioning the conduct. RQ4 returns to the question Chapter 4 answers
+with local evidence alone, whether the ranking null is real. The gate is reported
+under RQ2 as a post hoc precondition check, Chapter 3 now specifies it and says it
+was added after the hosted results were withdrawn, and Chapter 1 names it as the
+one post hoc exception.
+
+**The counting finding.** "Eight labeller configurations, half of which could not
+reject" was two models by two prompts by two bases, and G_253 is a subset of G_299,
+so it was four configurations on two nested bases. The could-not-reject set and the
+at-ceiling set overlapped on llama3 few-shot, so "a separate four" was false. The
+gate had also been applied only to rows that happened to have per-pair prediction
+files, while the thesis printed five further hard-label marginals it never gated.
+The generator now gates every printed hard-label marginal from registered counts:
+nine configurations, five of which could not have reached p below 0.05 at any
+outcome, and all five are llama3:8b configurations, including the deployed weak
+labeller (261 of 299) and the prompted-once evaluation baseline (242 of 253).
+granite3.3:8b and qwen3:8b pass.
+
+**Readings withdrawn.** The gate bounds a thresholded decision and says nothing about
+an AUROC, so every sentence crediting the marginal with predicting the ranking null
+is removed. A labeller at its ceiling flagged every confirmed positive; the text had
+said its agreement reported nothing but its flag rate, which discarded the one
+positive signal in the thesis. A limitations sentence offered llama3 few-shot's
+bootstrap interval excluding zero as evidence that twelve positives can separate a
+system from chance, when that row could not reject at any outcome and its interval
+excludes zero only because every positive is flagged; percentile bootstrap intervals
+are now stated to be invalid as a test at the ceiling, and granite3.3 zero-shot is
+reported by its nominal, uncorrected hypergeometric p instead. "No local labeller
+was put to this test" was false for the ambiguity gradient; the local Fisher tests
+are reported and in the family.
+
+**Not cited, and flagged rather than resolved.** The committee noted that the
+minimum attainable p-value under fixed margins is Tarone (1990, *Biometrics*
+46:515-522). refs.bib is frozen at the author-supplied 93 entries, so it is not
+cited; instead the thesis makes no novelty claim about the floor and calls the gate
+applied rather than its own. The author should decide whether to add the reference.
+
+Also in this round: the 1,425 figure was attached to the training set (it is the
+positive-label count on the 1,679-row pool; training used 1,183 rows); "no join" was
+said of a ceiling computed on joined rows; "identically sized encoder" contradicted
+the parameter table; "every stage failed its control" contradicted the synthesis
+table; Appendix A said the full reference tables were bound in a supplement that no
+longer exists; the annotator paragraph called the unrecorded credential status "a
+documentation failure rather than a disclosure failure", which is a compliance
+conclusion the thesis is not entitled to reach.

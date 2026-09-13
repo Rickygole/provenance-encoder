@@ -345,14 +345,15 @@ def main():
         r"% Numbered rather than starred: four chapters reference this section by number,",
         r"% and a \label on a starred section captures the previous section counter, which",
         r"% made every one of those references print the number of A.3 instead.",
-        r"\section{Reference Tables Bound in the Supplement}",
+        r"\section{Reference Tables Released with the Code}",
         r"\label{app:provenance}",
         "",
         "Three reference tables belong to the record behind this thesis, machine-generated "
         "by the appendix builder and the claim tracer in the analysis code released with "
-        "this thesis, and reproduced complete, without abbreviation, in the supplementary "
-        "file that accompanies this document; together they run to more than thirty pages "
-        f"of table, none of which is read sequentially. The first is the register of "
+        "this thesis. The first two are released with that code rather than bound, "
+        "because together they run to more than thirty pages of table, none of which is "
+        "read sequentially. The first is the "
+        "register of "
         f"reported quantities: {len(F)} values, each extracted from a stored result file "
         "by script rather than transcribed by hand, listed with the file it was read from. "
         f"The second is the claim and evidence trace, which scans the chapters for "
@@ -362,10 +363,10 @@ def main():
         f"uniquely and {trace['n_ambiguous_rows']} are matched among more than one "
         "candidate and marked as indicative rather than definitive. The remaining "
         f"{trace['n_untraced']} literals are not resolved to any registered value and are "
-        "listed as untraced rather than omitted. The third is the survey coding table "
-        "behind the prevalence measurement in Chapter~\\ref{ch:results}: all "
-        f"{survey_n} coded papers, reproduced in full so the counts can be recomputed "
-        "rather than taken on trust.", "",
+        "listed as untraced rather than omitted. The third, the survey coding table "
+        "behind the prevalence measurement in Chapter~\\ref{ch:results}, is bound in "
+        f"this document as the next appendix: all {survey_n} coded papers, reproduced in "
+        "full so the counts can be recomputed rather than taken on trust.", "",
     ]
     (THESIS / "msu_appB_pointer.tex").write_text("\n".join(pointer) + "\n")
 

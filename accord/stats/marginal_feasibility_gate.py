@@ -85,6 +85,39 @@ def attainable_floor_p(n, n_pos, n_flag):
     return float(hypergeom.sf(min(n_pos, n_flag) - 1, n, n_pos, n_flag))
 
 
+# Hard-label marginals the thesis prints for labellers whose per-pair predictions
+# are not in a frontier_*metrics artifact. The committee review found that the
+# gate was applied only to rows that happened to have per-pair files, while the
+# thesis printed other hard-label marginals it never gated, which is a selection
+# the text did not state. The gate needs only two counts, so every printed
+# hard-label marginal can be gated whether or not it was scored: these rows carry
+# a ceiling and a floor and no observed agreement, which is exactly the point of
+# a check computable before scoring. Each count is read from a registered value;
+# rates are converted back to counts and the conversion must land on an integer.
+MARGINAL_ONLY = [
+    # (row id, description, basis, n key or int, positives key or int,
+    #  flagged key, flagged is a rate?)
+    ("deployed_weak_labeller_g_299", "deployed weak labeller", "G_299",
+     "gold.n_total", 12, "gold.weaklabel_contradiction", False),
+    ("llama_baseline_g_253", "evaluation baseline, prompted once", "G_253",
+     253, 12, "derived.llama_baseline.n_flagged", False),
+    ("replication_llama3_8b_g_299", "replication prompt, llama3:8b", "G_299",
+     "gold.n_total", 12, "overcall.llama3_8b.gold.positive_rate", True),
+    ("replication_granite3_3_8b_g_299", "replication prompt, granite3.3:8b", "G_299",
+     "gold.n_total", 12, "overcall.granite3_3_8b.gold.positive_rate", True),
+    ("replication_qwen3_8b_g_299", "replication prompt, qwen3:8b", "G_299",
+     "gold.n_total", 12, "overcall.qwen3_8b.gold.positive_rate", True),
+]
+
+
+def _reg(facts, key_or_value):
+    if isinstance(key_or_value, int):
+        return key_or_value
+    if key_or_value not in facts or key_or_value.startswith("withdrawn."):
+        raise SystemExit(f"marginal-only row needs live register key {key_or_value}")
+    return facts[key_or_value]["value"]
+
+
 def main():
     mde = json.loads((ROOT / "results" / "accord"
                       / "mde_recomputed.json").read_text())
@@ -131,10 +164,45 @@ def main():
                     ("could_reject_at_0_05", bool(floor <= 0.05)),
                 ])
 
+    facts_in = json.loads(FACTS.read_text())
+    # The positive counts in MARGINAL_ONLY are typed as 12 because that is the
+    # confirmed count on both bases; check it against the register rather than
+    # trusting the literal.
+    assert _reg(facts_in, "exemplar.power_analysis.n_positives_total") == 12
+    marginal_only = collections.OrderedDict()
+    for rid, desc, basis, n_k, pos_k, flag_k, is_rate in MARGINAL_ONLY:
+        n = int(_reg(facts_in, n_k)); n_pos = int(_reg(facts_in, pos_k))
+        raw = _reg(facts_in, flag_k)
+        n_flag = raw * n if is_rate else raw
+        if abs(n_flag - round(n_flag)) > 1e-6:
+            raise SystemExit(f"{rid}: {flag_k} x {n} is not a count ({n_flag})")
+        n_flag = int(round(n_flag))
+        tp, tn, fp, fn = best_table(n, n_pos, n_flag)
+        floor = attainable_floor_p(n, n_pos, n_flag)
+        marginal_only[rid] = collections.OrderedDict([
+            ("description", desc), ("basis", basis), ("n", n),
+            ("n_positives", n_pos), ("n_flagged", n_flag),
+            ("flag_rate", round(n_flag / n, 4)),
+            ("ceiling_mcc", round(mcc(tp, tn, fp, fn), 4)),
+            ("ceiling_kappa", round(kappa(tp, tn, fp, fn), 4)),
+            ("attainable_floor_p_one_sided", floor),
+            ("could_reject_at_0_05", bool(floor <= 0.05)),
+            ("flagged_read_from", flag_k),
+        ])
+
     n_rows = len(rows)
     n_infeasible = sum(1 for r in rows.values() if not r["could_reject_at_0_05"])
     n_attaining = sum(1 for r in rows.values() if r["attains_ceiling"])
 
+    # The eight scored rows are two labellers by two prompts by two bases, and
+    # G_253 is a subset of G_299, so they are four configurations measured on two
+    # nested bases, not eight independent labellers. Counted both ways so prose
+    # cannot report the larger number without the smaller one beside it.
+    configs = {(r["model"], r["strategy"]) for r in rows.values()}
+    cfg_infeasible = {(r["model"], r["strategy"]) for r in rows.values()
+                      if not r["could_reject_at_0_05"]}
+    cfg_attaining = {(r["model"], r["strategy"]) for r in rows.values()
+                     if r["attains_ceiling"]}
     out = collections.OrderedDict([
         ("provenance", {
             "generated_by": "accord/stats/marginal_feasibility_gate.py",
@@ -149,6 +217,18 @@ def main():
         ("n_rows", n_rows),
         ("n_could_not_reject_at_0_05", n_infeasible),
         ("n_attaining_their_ceiling", n_attaining),
+        ("n_configurations", len(configs)),
+        ("n_configurations_could_not_reject", len(cfg_infeasible)),
+        ("n_configurations_attaining", len(cfg_attaining)),
+        ("n_configurations_both", len(cfg_infeasible & cfg_attaining)),
+        ("n_marginal_only_rows", len(marginal_only)),
+        ("n_marginal_only_could_not_reject",
+         sum(1 for r in marginal_only.values() if not r["could_reject_at_0_05"])),
+        ("n_all_configurations", len(configs) + len(marginal_only)),
+        ("n_all_could_not_reject",
+         len(cfg_infeasible)
+         + sum(1 for r in marginal_only.values() if not r["could_reject_at_0_05"])),
+        ("marginal_only", marginal_only),
         ("rows", rows),
     ])
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -164,7 +244,11 @@ def main():
              ("value", value)])
 
     for key in ("n_rows", "n_could_not_reject_at_0_05",
-                "n_attaining_their_ceiling"):
+                "n_attaining_their_ceiling", "n_configurations",
+                "n_configurations_could_not_reject",
+                "n_configurations_attaining", "n_configurations_both",
+                "n_marginal_only_rows", "n_marginal_only_could_not_reject",
+                "n_all_configurations", "n_all_could_not_reject"):
         put(key, out[key], key)
     for rk, r in rows.items():
         slug = (rk.replace("::", ".").replace(":", "").replace(".", "_")
@@ -174,11 +258,24 @@ def main():
                       "n", "n_positives", "n_flagged"):
             if r[field] is not None:
                 put(f"{slug}.{field}", r[field], f"rows.{rk}.{field}")
+    for rid, r in marginal_only.items():
+        for field in ("n", "n_positives", "n_flagged", "flag_rate", "ceiling_mcc",
+                      "ceiling_kappa", "attainable_floor_p_one_sided"):
+            put(f"marginal_only.{rid}.{field}", r[field],
+                f"marginal_only.{rid}.{field}")
     FACTS.write_text(json.dumps(facts, indent=1) + "\n")
 
     print(f"{n_rows} labeller rows; {n_infeasible} could not reject at 0.05 "
           f"before scoring a pair; {n_attaining} sit on their ceiling. "
           f"MDE AUROC for reference (not compared): {mde_auc}")
+    print(f"as configurations: {len(configs)} configurations on two nested bases; "
+          f"{len(cfg_infeasible)} could not reject, {len(cfg_attaining)} attain, "
+          f"{len(cfg_infeasible & cfg_attaining)} both")
+    for rid, r in marginal_only.items():
+        print(f"  marginal only  {r['description'][:36]:36s} {r['basis']}  "
+              f"{r['n_flagged']:3d}/{r['n']}  ceil_mcc={r['ceiling_mcc']:.4f} "
+              f"kap={r['ceiling_kappa']:.4f}  floor={r['attainable_floor_p_one_sided']:.3e} "
+              f"{'PASS' if r['could_reject_at_0_05'] else 'FAIL'}")
     print()
     hdr = f"{'labeller':34s} {'strat':10s} {'basis':7s} {'flag':>6s} {'obs':>8s} {'ceil':>8s} {'kap':>7s} {'frac':>6s} {'floor':>9s} {'gate':>6s}"
     print(hdr)

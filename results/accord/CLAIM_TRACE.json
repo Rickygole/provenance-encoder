@@ -1,9 +1,9 @@
 {
-  "n_traced": 963,
+  "n_traced": 1018,
   "n_untraced": 10,
-  "n_distinct": 496,
-  "n_unique_rows": 231,
-  "n_ambiguous_rows": 265,
+  "n_distinct": 528,
+  "n_unique_rows": 243,
+  "n_ambiguous_rows": 285,
   "records": [
     {
       "chapter": "msu_ch1_introduction.tex",
@@ -11,7 +11,7 @@
       "sentence": "The pharmacist annotated $299$ candidate pairs and confirmed $12$, a base rate of $0.",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "ranking.full_299_harm_score_vs_danger_rating.n",
@@ -43,7 +43,7 @@
       "sentence": "0401$ in a pool four hand written rules had already enriched; restricting to the $253$ pairs the annotator did not mark ambiguous leaves the same $12$ positives, a base rate of $0.",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -107,14 +107,14 @@
       "sentence": "Stage four's multiplier is the weak labeller's positive rate on the $299$-pair gold set over the pharmacist's base rate on those same pairs.",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
-        "gold.n_total",
-        "control.baselines.n_gold"
+        "gold.n_total"
       ]
     },
     {
@@ -135,7 +135,7 @@
       "sentence": "The cleanest expression of the failure is the decontaminated detector's behaviour on the $253$ non-ambiguous pairs: at the configured threshold it predicts positive for nearly the whole pool rather than ranking within it, and its ranking is",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -151,7 +151,7 @@
       "sentence": "] Can rule-based mining over paired clinical notes yield a candidate pool with usable precision? \\emph{No: four rules enrich the pool to $12$ true contradictions in $299$ annotated pairs, a base rate of $0.",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "ranking.full_299_contra_prob_vs_danger_rating.n",
@@ -197,11 +197,12 @@
       "chapter": "msu_ch1_introduction.tex",
       "value": "261",
       "sentence": "] Can a language model weak labeller substitute for expert annotation at this base rate? \\emph{No: the weak labeller assigned the contradiction class to $261$ of the $299$ annotated pairs against $12$ true positives, and every labeller test",
-      "register_key": "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
-      "artifact": "results/accord/step0_1_join_and_calibration.json",
-      "n_candidate_keys": 4,
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "n_candidate_keys": 5,
       "attribution": "ambiguous",
       "other_candidates": [
+        "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
         "gold.weaklabel_contradiction",
         "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
         "feasgate.ollama_llama3_zero_shot_g_299.n_flagged"
@@ -213,14 +214,14 @@
       "sentence": "] Can a language model weak labeller substitute for expert annotation at this base rate? \\emph{No: the weak labeller assigned the contradiction class to $261$ of the $299$ annotated pairs against $12$ true positives, and every labeller test",
       "register_key": "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.accord_contra_prob_same_299_pairs.gold_all.n",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
         "control.baselines.majority_class.gold_all.n",
-        "ranking.full_299_contra_prob_vs_danger_rating.n",
-        "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n"
+        "ranking.full_299_contra_prob_vs_danger_rating.n"
       ]
     },
     {
@@ -334,33 +335,56 @@
     },
     {
       "chapter": "msu_ch1_introduction.tex",
-      "value": "261",
-      "sentence": "The weak labeller supplying the detector's training signal, at $261$ of $299$, is one of the four that could not have rejected the null before it scored a single pair.",
-      "register_key": "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
-      "artifact": "results/accord/step0_1_join_and_calibration.json",
-      "n_candidate_keys": 4,
+      "value": "253",
+      "sentence": "] Is the trained detector's ranking null real, given what this project's own instrument can show? \\emph{The null holds at the configurations tested: on the $253$ non-ambiguous pairs three configurations of the decontaminated detector sit at",
+      "register_key": "decontam_gold.configuration.n_pairs",
+      "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
-        "gold.weaklabel_contradiction",
-        "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
-        "feasgate.ollama_llama3_zero_shot_g_299.n_flagged"
+        "decontam_gold.per_seed.0.n_pairs",
+        "decontam_gold.per_seed.1.n_pairs",
+        "decontam_gold.per_seed.2.n_pairs",
+        "decontam.n",
+        "signal.harm_score_vs_pharm_label__ambiguous_excluded_n253.n"
       ]
     },
     {
       "chapter": "msu_ch1_introduction.tex",
-      "value": "299",
-      "sentence": "The weak labeller supplying the detector's training signal, at $261$ of $299$, is one of the four that could not have rejected the null before it scored a single pair.",
-      "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
-      "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "value": "0.7355",
+      "sentence": "That null is informative only above the minimum detectable effect the evaluation's own twelve-positive class counts fix, an AUROC of $0.",
+      "register_key": "mde_recomputed.gold_ambiguous_excluded.minimum_detectable_auc",
+      "artifact": "results/accord/mde_recomputed.json",
+      "n_candidate_keys": 2,
       "attribution": "ambiguous",
       "other_candidates": [
-        "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
-        "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
-        "ranking.full_299_harm_score_vs_danger_rating.n",
-        "gold.n_total",
-        "control.baselines.n_gold"
+        "injection_sensitivity.mde_analytic_compared"
       ]
+    },
+    {
+      "chapter": "msu_ch1_introduction.tex",
+      "value": "80",
+      "sentence": "7355$ at $80\\%$ power, and a pre-registered positive control on a public benchmark shows the same harness resolves a real difference, $4.",
+      "register_key": "control.power_ceiling.referenced_gold_all_ambiguous_excluded.power",
+      "artifact": "results/accord/control/final_report.json",
+      "n_candidate_keys": 11,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "power.power",
+        "mining.top_drugs.insulin",
+        "decontam_gold.aggregate.ece.mean",
+        "publicsweep.results.qwen3:8b.B_baserate_abstain.0.1.n_decided",
+        "publicsweep.results.qwen3:8b.B_baserate_abstain.0.05.n_decided"
+      ]
+    },
+    {
+      "chapter": "msu_ch1_introduction.tex",
+      "value": "4.53",
+      "sentence": "7355$ at $80\\%$ power, and a pre-registered positive control on a public benchmark shows the same harness resolves a real difference, $4.",
+      "register_key": "conv.gap_E24_pts",
+      "artifact": "results/accord/scaling/convergence_results.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
     },
     {
       "chapter": "msu_ch1_introduction.tex",
@@ -479,7 +503,7 @@
       "sentence": "Separately, every disparity gap here was persisted through an absolute value; retrofitting signed storage reproduced every prior value exactly, maximum discrepancy $0.",
       "register_key": "signed.reproduction_max_discrepancy",
       "artifact": "results/accord/signed_gap_analysis.json",
-      "n_candidate_keys": 449,
+      "n_candidate_keys": 457,
       "attribution": "ambiguous",
       "other_candidates": [
         "drift.E9_MIMIC_drift_vs_beta.demographic_parity_gap.signed_slope",
@@ -492,7 +516,7 @@
     {
       "chapter": "msu_ch1_introduction.tex",
       "value": "48",
-      "sentence": "} That pretraining loss poorly proxies downstream performance is settled elsewhere at far larger scale ; this $48$-run sweep replicates it as a measurement: under an adjudication rule committed before the runs, the same harness resolves $4.",
+      "sentence": "} That pretraining loss poorly proxies downstream performance is settled elsewhere at far larger scale ; this $48$-run sweep measures it under an adjudication rule committed before the runs: the same harness resolves $4.",
       "register_key": "conv.n_runs",
       "artifact": "results/accord/scaling/convergence_results.json",
       "n_candidate_keys": 3,
@@ -505,7 +529,7 @@
     {
       "chapter": "msu_ch1_introduction.tex",
       "value": "4.53",
-      "sentence": "} That pretraining loss poorly proxies downstream performance is settled elsewhere at far larger scale ; this $48$-run sweep replicates it as a measurement: under an adjudication rule committed before the runs, the same harness resolves $4.",
+      "sentence": "} That pretraining loss poorly proxies downstream performance is settled elsewhere at far larger scale ; this $48$-run sweep measures it under an adjudication rule committed before the runs: the same harness resolves $4.",
       "register_key": "conv.gap_E24_pts",
       "artifact": "results/accord/scaling/convergence_results.json",
       "n_candidate_keys": 1,
@@ -519,6 +543,19 @@
       "artifact": "results/task_runs.json",
       "n_candidate_keys": 1,
       "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch1_introduction.tex",
+      "value": "0.0011",
+      "sentence": "0031$ on the clinical task, an untested gap that reverses sign to $-0.",
+      "register_key": "task.mortality.gap_lineage_pinned",
+      "artifact": "results/task_runs.json, derived: pretrained three-seed mean 0.769264 minus lineage-pinned two-seed mean 0.770337",
+      "n_candidate_keys": 3,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "conv.scratch_10M.E12.sd",
+        "conv.scratch_100M.E12.sd"
+      ]
     },
     {
       "chapter": "msu_ch1_introduction.tex",
@@ -741,14 +778,14 @@
       "sentence": "The deployment literature is equally clear about the consequence: report override rates of 49\\% to 96\\% for low-precision drug safety alerts, and find acceptance associated with alert-stream complexity rather than workload, so a cross-note ",
       "register_key": "goldstrata.llama_implied_precision_by_rule_if_uninformative.1.llama_predicts_positive_rate",
       "artifact": "results/accord/step0_1_join_and_calibration.json",
-      "n_candidate_keys": 12,
+      "n_candidate_keys": 13,
       "attribution": "ambiguous",
       "other_candidates": [
+        "feasgate.marginal_only.llama_baseline_g_253.flag_rate",
         "goldstrata.rule_stratified_calibration.1.llama_weak_label_pos_rate_on_these_299_pairs",
         "aniso.anisotropy_control.max",
         "rulehead.test_rule_type_macro_f1",
-        "transfer.hf_reference.rule_type_f1",
-        "decontam.per_seed.seed2.mannwhitney_p"
+        "transfer.hf_reference.rule_type_f1"
       ]
     },
     {
@@ -821,7 +858,7 @@
       "sentence": "The correlation between pretraining loss and downstream performance has an absolute Pearson coefficient below 0.",
       "register_key": "power.gap_above_chance",
       "artifact": "results/accord/section6_auroc_power.json",
-      "n_candidate_keys": 151,
+      "n_candidate_keys": 153,
       "attribution": "ambiguous",
       "other_candidates": [
         "config.dose_threshold_tau",
@@ -1319,15 +1356,15 @@
     {
       "chapter": "msu_ch3_methodology.tex",
       "value": "165",
-      "sentence": "It is not the deployed weak labeller's prompt, which the table does not contain, so the replication reproduces the baseline configuration rather than the configuration that produced the training labels, and Section~ reports the $165$ labels",
+      "sentence": "It is not the deployed weak labeller's prompt, which the table does not contain, so the replication reproduces the baseline configuration rather than the configuration that produced the training labels; the deployed run and the same model's",
       "register_key": "overcall.deployed_vs_replication.labels_differing_on_pool",
       "artifact": "derived: (0.9469922572960096 - 0.848719475878499) * 1679",
       "n_candidate_keys": 6,
       "attribution": "ambiguous",
       "other_candidates": [
+        "exemplar.accord_model_stats_rule12_vs_rule34.rule_1_2.n",
         "exemplar_recomputed.rule_1_2_pooled.n",
         "exemplar.confounded_proxy_rule12_vs_rule34.rule_1_2.n",
-        "exemplar.accord_model_stats_rule12_vs_rule34.rule_1_2.n",
         "exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.n",
         "exemplar.power_analysis.min_detectable_rate_diff_80pct_power_alpha05.n1_rule12"
       ]
@@ -1338,7 +1375,7 @@
       "sentence": "Optimisation uses AdamW at learning rate $2\\times 10^{-5}$ with weight decay $0.",
       "register_key": "config.detector.weight_decay",
       "artifact": "accord/control/train.py",
-      "n_candidate_keys": 67,
+      "n_candidate_keys": 68,
       "attribution": "ambiguous",
       "other_candidates": [
         "stats.precision_vs_base_rate_margin_253",
@@ -1508,7 +1545,7 @@
       "sentence": "The returned annotation set has $n = 299$ pairs, one fewer than the frame; the per-rule breakdown, 134, 31, 79 and 55, shows the missing row belongs to Rule 4, since Rules 1 through 3 returned every sampled pair and Rule 4 returned one fewe",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "gold.n_total",
@@ -1602,7 +1639,7 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrrl} \\toprule \\textbf{Stratum} & \\textbf{$n$} & \\textbf{Positives} & \\textbf{Defined by} \\\\ \\midrule Gold, all annotated pairs & 299 & 12 & Ambiguous rows retained as negatives \\\\ Gold, defect-free subse",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
@@ -1634,7 +1671,7 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrrl} \\toprule \\textbf{Stratum} & \\textbf{$n$} & \\textbf{Positives} & \\textbf{Defined by} \\\\ \\midrule Gold, all annotated pairs & 299 & 12 & Ambiguous rows retained as negatives \\\\ Gold, defect-free subse",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -1743,7 +1780,7 @@
       "sentence": "On the clinical side the comparison runs on a task built for this control rather than on the contradiction detector: in-hospital mortality predicted from a bundle of a patient's first 48 hours of notes, evaluated on $6,776$ held-out admissi",
       "register_key": "signal.contra_prob_vs_pharm_label__ambiguous_excluded_n253.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam.n",
@@ -1971,7 +2008,7 @@
     {
       "chapter": "msu_ch3_methodology.tex",
       "value": "20",
-      "sentence": "A separate bootstrap of the defect-free stratum, run at a different setting and not printed in this thesis, does record its discards, $20$ of $10,000$, a rate of $0.",
+      "sentence": "A separate bootstrap of the defect-free stratum, not printed in this thesis, does record its discards, $20$ of $10,000$, a rate of $0.",
       "register_key": "mccint.E3_defect_free_stratum.draws_dropped_zero_positives",
       "artifact": "results/accord/stats/intervals.json",
       "n_candidate_keys": 8,
@@ -1987,7 +2024,7 @@
     {
       "chapter": "msu_ch3_methodology.tex",
       "value": "10,000",
-      "sentence": "A separate bootstrap of the defect-free stratum, run at a different setting and not printed in this thesis, does record its discards, $20$ of $10,000$, a rate of $0.",
+      "sentence": "A separate bootstrap of the defect-free stratum, not printed in this thesis, does record its discards, $20$ of $10,000$, a rate of $0.",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_defect_free_rule34.bootstrap.n_boot_valid",
       "artifact": "results/accord/control/final_report.json",
       "n_candidate_keys": 37,
@@ -2003,7 +2040,7 @@
     {
       "chapter": "msu_ch3_methodology.tex",
       "value": "0.002",
-      "sentence": "A separate bootstrap of the defect-free stratum, run at a different setting and not printed in this thesis, does record its discards, $20$ of $10,000$, a rate of $0.",
+      "sentence": "A separate bootstrap of the defect-free stratum, not printed in this thesis, does record its discards, $20$ of $10,000$, a rate of $0.",
       "register_key": "mccint.E3_defect_free_stratum.drop_rate",
       "artifact": "results/accord/stats/intervals.json",
       "n_candidate_keys": 21,
@@ -2151,8 +2188,8 @@
     },
     {
       "chapter": "msu_ch3_methodology.tex",
-      "value": "1425",
-      "sentence": "That run produced the $1425$ weak labels the detector was trained on and the $261$ of $299$ marginal Chapter~ reports, so those two numbers are reported as measured and cannot be regenerated by anyone.",
+      "value": "1,425",
+      "sentence": "That run produced $1,425$ positive labels among the $1,679$-row weak-labelled pool that subject-disjoint exclusion narrows to the $1,183$-row training pool of Table~ , and the $261$ of $299$ marginal Chapter~ reports, so those numbers are r",
       "register_key": "goldstrata.weak_confidence_is_degenerate.crosstab_label_x_confidence.0.95.contradiction",
       "artifact": "results/accord/step0_1_join_and_calibration.json",
       "n_candidate_keys": 1,
@@ -2160,13 +2197,32 @@
     },
     {
       "chapter": "msu_ch3_methodology.tex",
-      "value": "261",
-      "sentence": "That run produced the $1425$ weak labels the detector was trained on and the $261$ of $299$ marginal Chapter~ reports, so those two numbers are reported as measured and cannot be regenerated by anyone.",
-      "register_key": "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
+      "value": "1,679",
+      "sentence": "That run produced $1,425$ positive labels among the $1,679$-row weak-labelled pool that subject-disjoint exclusion narrows to the $1,183$-row training pool of Table~ , and the $261$ of $299$ marginal Chapter~ reports, so those numbers are r",
+      "register_key": "goldstrata.weak_confidence_is_degenerate.crosstab_total_1679",
       "artifact": "results/accord/step0_1_join_and_calibration.json",
-      "n_candidate_keys": 4,
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch3_methodology.tex",
+      "value": "1,183",
+      "sentence": "That run produced $1,425$ positive labels among the $1,679$-row weak-labelled pool that subject-disjoint exclusion narrows to the $1,183$-row training pool of Table~ , and the $261$ of $299$ marginal Chapter~ reports, so those numbers are r",
+      "register_key": "control.baselines.n_train",
+      "artifact": "results/accord/control/final_report.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch3_methodology.tex",
+      "value": "261",
+      "sentence": "That run produced $1,425$ positive labels among the $1,679$-row weak-labelled pool that subject-disjoint exclusion narrows to the $1,183$-row training pool of Table~ , and the $261$ of $299$ marginal Chapter~ reports, so those numbers are r",
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "n_candidate_keys": 5,
       "attribution": "ambiguous",
       "other_candidates": [
+        "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
         "gold.weaklabel_contradiction",
         "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
         "feasgate.ollama_llama3_zero_shot_g_299.n_flagged"
@@ -2175,17 +2231,17 @@
     {
       "chapter": "msu_ch3_methodology.tex",
       "value": "299",
-      "sentence": "That run produced the $1425$ weak labels the detector was trained on and the $261$ of $299$ marginal Chapter~ reports, so those two numbers are reported as measured and cannot be regenerated by anyone.",
-      "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
-      "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "sentence": "That run produced $1,425$ positive labels among the $1,679$-row weak-labelled pool that subject-disjoint exclusion narrows to the $1,183$-row training pool of Table~ , and the $261$ of $299$ marginal Chapter~ reports, so those numbers are r",
+      "register_key": "exemplar.audit_to_candidates_join.n_audit_rows",
+      "artifact": "results/accord/exemplar/step2plus_results.json",
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
-        "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
-        "gold.n_total",
-        "control.baselines.n_gold",
-        "frontier_ollama_llama3.few_shot.G_299.n"
+        "feasgate.marginal_only.replication_qwen3_8b_g_299.n",
+        "feasgate.marginal_only.replication_llama3_8b_g_299.n",
+        "feasgate.marginal_only.replication_granite3_3_8b_g_299.n"
       ]
     },
     {
@@ -2194,7 +2250,7 @@
       "sentence": "Every metric below carries its denominator, and a quantity that is a ratio of two registered counts is written as that ratio, for example $12/253$.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -2210,7 +2266,7 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrrrl} \\toprule \\textbf{Set} & \\textbf{$n$} & \\textbf{Positives} & \\textbf{Negatives} & \\textbf{Definition} \\\\ \\midrule $G_{299}$ & 299 & 12 & 287 & all annotated pairs, ambiguous counted negative \\\\ $G_{",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
@@ -2226,7 +2282,7 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrrrl} \\toprule \\textbf{Set} & \\textbf{$n$} & \\textbf{Positives} & \\textbf{Negatives} & \\textbf{Definition} \\\\ \\midrule $G_{299}$ & 299 & 12 & 287 & all annotated pairs, ambiguous counted negative \\\\ $G_{",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
@@ -2251,7 +2307,7 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrrrl} \\toprule \\textbf{Set} & \\textbf{$n$} & \\textbf{Positives} & \\textbf{Negatives} & \\textbf{Definition} \\\\ \\midrule $G_{299}$ & 299 & 12 & 287 & all annotated pairs, ambiguous counted negative \\\\ $G_{",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -2267,7 +2323,7 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrrrl} \\toprule \\textbf{Set} & \\textbf{$n$} & \\textbf{Positives} & \\textbf{Negatives} & \\textbf{Definition} \\\\ \\midrule $G_{299}$ & 299 & 12 & 287 & all annotated pairs, ambiguous counted negative \\\\ $G_{",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -2343,7 +2399,7 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrrrl} \\toprule \\textbf{Set} & \\textbf{$n$} & \\textbf{Positives} & \\textbf{Negatives} & \\textbf{Definition} \\\\ \\midrule $G_{299}$ & 299 & 12 & 287 & all annotated pairs, ambiguous counted negative \\\\ $G_{",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
@@ -2359,7 +2415,7 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrrrl} \\toprule \\textbf{Set} & \\textbf{$n$} & \\textbf{Positives} & \\textbf{Negatives} & \\textbf{Definition} \\\\ \\midrule $G_{299}$ & 299 & 12 & 287 & all annotated pairs, ambiguous counted negative \\\\ $G_{",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -2448,7 +2504,7 @@
       "sentence": "$G_{134}$ is a subset of $G_{299}$ and holds half of the 12 confirmed contradictions.",
       "register_key": "ranking.full_299_contra_prob_vs_danger_rating.n",
       "artifact": "results/accord/step5_ranking.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.accord_contra_prob_same_299_pairs.gold_all.n",
@@ -2464,7 +2520,7 @@
       "sentence": "\\subsection{The pool and its base rate} A board-certified pharmacist annotated 299 candidate pairs: 12 contradictions, 241 not contradictions, 46 ambiguous.",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
@@ -2512,7 +2568,7 @@
       "sentence": "The base rate is $12/299$ on $G_{299}$, $12/253$ on $G_{253}$ and $6/134$ on $G_{134}$.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -2528,7 +2584,7 @@
       "sentence": "The base rate is $12/299$ on $G_{299}$, $12/253$ on $G_{253}$ and $6/134$ on $G_{134}$.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -2544,7 +2600,7 @@
       "sentence": "The base rate is $12/299$ on $G_{299}$, $12/253$ on $G_{253}$ and $6/134$ on $G_{134}$.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -2560,7 +2616,7 @@
       "sentence": "The base rate is $12/299$ on $G_{299}$, $12/253$ on $G_{253}$ and $6/134$ on $G_{134}$.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -2624,7 +2680,7 @@
       "sentence": "0401$ on $G_{299}$ and $0.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -2713,7 +2769,7 @@
       "sentence": "Pharmacist precision, measured on the 299-pair gold sample, does not track that share.",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "gold.n_total",
@@ -2888,7 +2944,7 @@
       "sentence": "55\\% \\\\ \\bottomrule \\end{tabular} \\apanote{The four strata sum to 299.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -3034,7 +3090,7 @@
       "sentence": "Combined, Rules 3 and 4 account for 134 of the 299 pairs and 6 of the 12 confirmed contradictions, so the positives are spread across the rule set rather than concentrated in one rule.",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
@@ -3510,7 +3566,7 @@
       "sentence": "A separate join, across all four rules rather than Rule 1 and 2 alone, matches the $299$-row annotated sample to the rebuilt candidates table on $35$ rows; that is a different operation with a different denominator, not a third reading of t",
       "register_key": "exemplar.audit_to_candidates_join.n_audit_rows",
       "artifact": "results/accord/exemplar/step2plus_results.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "gold.n_total",
@@ -3586,27 +3642,28 @@
       "chapter": "msu_ch4_results.tex",
       "value": "299",
       "sentence": "\\subsection{The marginal} On the 299 annotated pairs the weak labeller called 261 pairs contradictions and the pharmacist called 12.",
-      "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
-      "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n",
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
+        "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
         "control.accord_contra_prob_same_299_pairs.gold_all.n",
-        "ranking.full_299_harm_score_vs_danger_rating.n",
-        "ranking.full_299_contra_prob_vs_danger_rating.n"
+        "ranking.full_299_harm_score_vs_danger_rating.n"
       ]
     },
     {
       "chapter": "msu_ch4_results.tex",
       "value": "261",
       "sentence": "\\subsection{The marginal} On the 299 annotated pairs the weak labeller called 261 pairs contradictions and the pharmacist called 12.",
-      "register_key": "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
-      "artifact": "results/accord/step0_1_join_and_calibration.json",
-      "n_candidate_keys": 4,
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "n_candidate_keys": 5,
       "attribution": "ambiguous",
       "other_candidates": [
+        "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
         "gold.weaklabel_contradiction",
         "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
         "feasgate.ollama_llama3_zero_shot_g_299.n_flagged"
@@ -3618,7 +3675,7 @@
       "sentence": "\\begin{table}[H] \\caption[Predicted-positive counts by source]{Predicted-positive counts on the 299 annotated pairs.",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
@@ -3634,14 +3691,14 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrl} \\toprule \\textbf{Source} & \\textbf{Called contradiction} & \\textbf{Denominator} \\\\ \\midrule Pharmacist (gold) & 12 & 299 \\\\ Llama 3 8B weak labeller & 261 & 299 \\\\ ACCORD, released per-pair decision ",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
-        "gold.n_total",
-        "control.baselines.n_gold"
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
+        "gold.n_total"
       ]
     },
     {
@@ -3650,9 +3707,10 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrl} \\toprule \\textbf{Source} & \\textbf{Called contradiction} & \\textbf{Denominator} \\\\ \\midrule Pharmacist (gold) & 12 & 299 \\\\ Llama 3 8B weak labeller & 261 & 299 \\\\ ACCORD, released per-pair decision ",
       "register_key": "gold.weaklabel_contradiction",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 4,
+      "n_candidate_keys": 5,
       "attribution": "ambiguous",
       "other_candidates": [
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n_flagged",
         "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
         "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
         "feasgate.ollama_llama3_zero_shot_g_299.n_flagged"
@@ -3664,14 +3722,14 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrl} \\toprule \\textbf{Source} & \\textbf{Called contradiction} & \\textbf{Denominator} \\\\ \\midrule Pharmacist (gold) & 12 & 299 \\\\ Llama 3 8B weak labeller & 261 & 299 \\\\ ACCORD, released per-pair decision ",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
-        "gold.n_total",
-        "control.baselines.n_gold"
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
+        "gold.n_total"
       ]
     },
     {
@@ -3692,14 +3750,14 @@
       "sentence": "} \\centering \\small \\begin{tabular}{lrl} \\toprule \\textbf{Source} & \\textbf{Called contradiction} & \\textbf{Denominator} \\\\ \\midrule Pharmacist (gold) & 12 & 299 \\\\ Llama 3 8B weak labeller & 261 & 299 \\\\ ACCORD, released per-pair decision ",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
-        "gold.n_total",
-        "control.baselines.n_gold"
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
+        "gold.n_total"
       ]
     },
     {
@@ -3724,12 +3782,13 @@
       "sentence": "The 261 and the 278 count two different columns produced by two different systems on the same 299 rows and are not two readings of one quantity.",
       "register_key": "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
       "artifact": "results/accord/step0_1_join_and_calibration.json",
-      "n_candidate_keys": 4,
+      "n_candidate_keys": 5,
       "attribution": "ambiguous",
       "other_candidates": [
         "gold.weaklabel_contradiction",
         "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
-        "feasgate.ollama_llama3_zero_shot_g_299.n_flagged"
+        "feasgate.ollama_llama3_zero_shot_g_299.n_flagged",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n_flagged"
       ]
     },
     {
@@ -3750,7 +3809,7 @@
       "sentence": "The 261 and the 278 count two different columns produced by two different systems on the same 299 rows and are not two readings of one quantity.",
       "register_key": "exemplar.audit_to_candidates_join.n_audit_rows",
       "artifact": "results/accord/exemplar/step2plus_results.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.accord_contra_prob_same_299_pairs.gold_all.n",
@@ -3766,11 +3825,12 @@
       "sentence": "} \\end{table} $261$ against $12$, on identical inputs, is the finding.",
       "register_key": "gold.weaklabel_contradiction",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 4,
+      "n_candidate_keys": 5,
       "attribution": "ambiguous",
       "other_candidates": [
         "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
         "feasgate.ollama_llama3_zero_shot_g_299.n_flagged",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n_flagged",
         "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction"
       ]
     },
@@ -3796,7 +3856,7 @@
       "sentence": "\\begin{table}[H] \\caption[Over-calling ratios by labeller and evaluation set]{Every over-calling ratio this chapter reports on the candidate pool and on $G_{253}$, by labeller, evaluation set, positive rate, and the count the rate is measur",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_excluded_n253.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.contra_prob_vs_pharm_label__ambiguous_excluded_n253.n",
@@ -3855,7 +3915,7 @@
       "sentence": "5959 & 1,679 \\\\ & $G_{299}$, gold set & 0.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -3871,8 +3931,11 @@
       "sentence": "5959 & 1,679 \\\\ & $G_{299}$, gold set & 0.",
       "register_key": "overcall.llama3_8b.gold.positive_rate",
       "artifact": "results/accord/multillm/per_model_results.json",
-      "n_candidate_keys": 1,
-      "attribution": "unique"
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.replication_llama3_8b_g_299.flag_rate"
+      ]
     },
     {
       "chapter": "msu_ch4_results.tex",
@@ -3892,7 +3955,7 @@
       "sentence": "75 & 299 \\\\ & Candidate pool & 0.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -3935,7 +3998,7 @@
       "sentence": "9863 & 1,679 \\\\ & $G_{299}$, gold set & 0.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -3951,8 +4014,11 @@
       "sentence": "9863 & 1,679 \\\\ & $G_{299}$, gold set & 0.",
       "register_key": "overcall.granite3_3_8b.gold.positive_rate",
       "artifact": "results/accord/multillm/per_model_results.json",
-      "n_candidate_keys": 1,
-      "attribution": "unique"
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.replication_granite3_3_8b_g_299.flag_rate"
+      ]
     },
     {
       "chapter": "msu_ch4_results.tex",
@@ -3969,7 +4035,7 @@
       "sentence": "5 & 299 \\\\ & Candidate pool & 0.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -4012,7 +4078,7 @@
       "sentence": "8196 & 1,679 \\\\ & $G_{299}$, gold set & 0.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -4028,8 +4094,11 @@
       "sentence": "8196 & 1,679 \\\\ & $G_{299}$, gold set & 0.",
       "register_key": "overcall.qwen3_8b.gold.positive_rate",
       "artifact": "results/accord/multillm/per_model_results.json",
-      "n_candidate_keys": 1,
-      "attribution": "unique"
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.replication_qwen3_8b_g_299.flag_rate"
+      ]
     },
     {
       "chapter": "msu_ch4_results.tex",
@@ -4044,16 +4113,16 @@
       "chapter": "msu_ch4_results.tex",
       "value": "299",
       "sentence": "4167 & 299 \\\\ Llama 3, deployed weak labeller & Candidate pool & $1425/1679$ & 21.",
-      "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
-      "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n",
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
+        "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
         "gold.n_total",
-        "control.baselines.n_gold",
-        "frontier_ollama_llama3.few_shot.G_299.n"
+        "control.baselines.n_gold"
       ]
     },
     {
@@ -4098,7 +4167,7 @@
       "sentence": "1473 & 1,679 \\\\ \\bottomrule \\end{tabular} \\apanote{Each ratio divides a positive rate by the unrounded $12/299$ gold base rate, so recomputing from the printed $0.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -4179,17 +4248,17 @@
     {
       "chapter": "msu_ch4_results.tex",
       "value": "0.9",
-      "sentence": "The supervision the detector was trained on could not have carried more than that, whatever the labeller knew, and that ceiling follows from the two marginals alone, needing no join: it is the mechanism behind the detector's own degeneracy,",
+      "sentence": "The supervision the detector was trained on could not have carried more than that, whatever the labeller knew, and that ceiling follows from two counts on the joined rows, before any training: it is the mechanism behind the detector's own d",
       "register_key": "goldstrata.rule_stratified_calibration.1.llama_weak_label_pos_rate_on_full_1679_train_pool",
       "artifact": "results/accord/step0_1_join_and_calibration.json",
-      "n_candidate_keys": 118,
+      "n_candidate_keys": 119,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.train_pos_rate",
         "withdrawn.hosted.ceiling.llama8b_fs.flag_rate",
         "withdrawn.hosted.ceiling.llama8b_zs.flag_rate",
         "control.baselines.majority_class.train_majority_rate",
-        "conv.scratch_10M.E3.mean"
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.flag_rate"
       ]
     },
     {
@@ -4198,7 +4267,7 @@
       "sentence": "The weak-label file and the gold file share no identifying column, so any pair-level comparison is a reconstruction through a nursing-side key, matching on rule at $95$ of $299$ against $94.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -4244,7 +4313,7 @@
       "sentence": "\\begin{table}[H] \\caption[Per-pair calls on the core evaluation set]{Per-pair calls on the 253 non-ambiguous pairs.",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -4352,7 +4421,7 @@
       "sentence": "9167 \\\\ \\bottomrule \\end{tabular} \\apanote{On $G_{253}$, 12 positives and 241 negatives.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -4400,7 +4469,7 @@
       "sentence": "0$ by construction at precision exactly equal to the base rate of whichever set it is scored on, and that predictor, the mining rules treated as the whole system, is the floor the two rows above have to clear: both sit below $12/253$.",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_excluded_n253.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam.n",
@@ -4477,65 +4546,49 @@
     {
       "chapter": "msu_ch4_results.tex",
       "value": "253",
-      "sentence": "Table~ and Figure~ apply the gate to the eight local labeller rows this chapter can still report: and , zero-shot and few-shot, on $G_{253}$ and $G_{299}$.",
-      "register_key": "frontier_ollama_llama3.zero_shot.G_253.n",
-      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 25,
+      "sentence": "Table~ and Figure~ apply the gate to every local labeller-and-prompt configuration this chapter scores against the pharmacist on this pool: and , zero-shot and few-shot, each on both $G_{253}$ and $G_{299}$, four configurations on two neste",
+      "register_key": "signal.harm_score_vs_pharm_label__ambiguous_excluded_n253.n",
+      "artifact": "results/accord/step2_signal_check.json",
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
+        "frontier_ollama_llama3.zero_shot.G_253.n",
         "feasgate.ollama_llama3_zero_shot_g_253.n",
         "withdrawn.hosted.frontier.zero_shot.G_253.n",
         "frontier_ollama_granite33.zero_shot.G_253.n",
-        "feasgate.ollama_granite33_zero_shot_g_253.n",
-        "withdrawn.hosted.frontier_bedrock_metallama38binstructv1.zero_shot.G_253.n"
+        "feasgate.ollama_granite33_zero_shot_g_253.n"
       ]
     },
     {
       "chapter": "msu_ch4_results.tex",
       "value": "299",
-      "sentence": "Table~ and Figure~ apply the gate to the eight local labeller rows this chapter can still report: and , zero-shot and few-shot, on $G_{253}$ and $G_{299}$.",
-      "register_key": "frontier_ollama_llama3.zero_shot.G_299.n",
-      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 28,
+      "sentence": "Table~ and Figure~ apply the gate to every local labeller-and-prompt configuration this chapter scores against the pharmacist on this pool: and , zero-shot and few-shot, each on both $G_{253}$ and $G_{299}$, four configurations on two neste",
+      "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
+      "artifact": "results/accord/step2_signal_check.json",
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
+        "frontier_ollama_llama3.zero_shot.G_299.n",
         "feasgate.ollama_llama3_zero_shot_g_299.n",
         "withdrawn.hosted.frontier.zero_shot.G_299.n",
         "frontier_ollama_granite33.zero_shot.G_299.n",
-        "feasgate.ollama_granite33_zero_shot_g_299.n",
-        "withdrawn.hosted.frontier_bedrock_metallama38binstructv1.zero_shot.G_299.n"
+        "feasgate.ollama_granite33_zero_shot_g_299.n"
       ]
     },
     {
       "chapter": "msu_ch4_results.tex",
       "value": "299",
-      "sentence": "zero-shot on the $299$-pair gold set sits exactly on its own ceiling (Table~ ), and few-shot on $G_{253}$ sits at a flag rate whose floor already sits near even odds: no outcome the model could have returned would have cleared the conventio",
-      "register_key": "frontier_ollama_llama3.zero_shot.G_299.n",
-      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 28,
+      "sentence": "That adds five rows: the deployed weak labeller (Table~ ), the once-prompted Llama 3 8B evaluation baseline (Table~ ), and the three replication-prompt local labellers on $G_{299}$ (Table~ ).",
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n",
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
-        "feasgate.ollama_llama3_zero_shot_g_299.n",
-        "withdrawn.hosted.frontier.zero_shot.G_299.n",
-        "frontier_ollama_granite33.zero_shot.G_299.n",
-        "feasgate.ollama_granite33_zero_shot_g_299.n",
-        "withdrawn.hosted.frontier_bedrock_metallama38binstructv1.zero_shot.G_299.n"
-      ]
-    },
-    {
-      "chapter": "msu_ch4_results.tex",
-      "value": "253",
-      "sentence": "zero-shot on the $299$-pair gold set sits exactly on its own ceiling (Table~ ), and few-shot on $G_{253}$ sits at a flag rate whose floor already sits near even odds: no outcome the model could have returned would have cleared the conventio",
-      "register_key": "frontier_ollama_llama3.zero_shot.G_253.n",
-      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 25,
-      "attribution": "ambiguous",
-      "other_candidates": [
-        "feasgate.ollama_llama3_zero_shot_g_253.n",
-        "withdrawn.hosted.frontier.zero_shot.G_253.n",
-        "frontier_ollama_granite33.zero_shot.G_253.n",
-        "feasgate.ollama_granite33_zero_shot_g_253.n",
-        "withdrawn.hosted.frontier_bedrock_metallama38binstructv1.zero_shot.G_253.n"
+        "exemplar.audit_to_candidates_join.n_audit_rows",
+        "feasgate.marginal_only.replication_qwen3_8b_g_299.n",
+        "feasgate.marginal_only.replication_llama3_8b_g_299.n",
+        "feasgate.marginal_only.replication_granite3_3_8b_g_299.n",
+        "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n"
       ]
     },
     {
@@ -4544,7 +4597,7 @@
       "sentence": "\\ $\\kappa$} & \\textbf{Floor $p$} & \\textbf{Verdict} \\\\ \\midrule , few-shot & $G_{253}$ & 0.",
       "register_key": "frontier_ollama_llama3.few_shot.G_253.n",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "feasgate.ollama_llama3_few_shot_g_253.n",
@@ -4611,7 +4664,7 @@
       "sentence": "0114 & Could reject \\\\ , few-shot & $G_{299}$ & 0.",
       "register_key": "frontier_ollama_llama3.few_shot.G_299.n",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "feasgate.ollama_llama3_few_shot_g_299.n",
@@ -4678,7 +4731,7 @@
       "sentence": "0131 & Could reject \\\\ , zero-shot & $G_{253}$ & 0.",
       "register_key": "frontier_ollama_llama3.zero_shot.G_253.n",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "feasgate.ollama_llama3_zero_shot_g_253.n",
@@ -4754,7 +4807,7 @@
       "sentence": "0242 & Could reject, at ceiling \\\\ , zero-shot & $G_{299}$ & 0.",
       "register_key": "frontier_ollama_llama3.zero_shot.G_299.n",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "feasgate.ollama_llama3_zero_shot_g_299.n",
@@ -4832,7 +4885,7 @@
       "sentence": "0290 & Could reject, at ceiling \\\\ , few-shot & $G_{253}$ & 0.",
       "register_key": "frontier_ollama_llama3.few_shot.G_253.n",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "feasgate.ollama_llama3_few_shot_g_253.n",
@@ -4910,7 +4963,7 @@
       "sentence": "4971 & Could not reject, at ceiling \\\\ , few-shot & $G_{299}$ & 0.",
       "register_key": "frontier_ollama_llama3.few_shot.G_299.n",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "feasgate.ollama_llama3_few_shot_g_299.n",
@@ -4987,7 +5040,7 @@
       "sentence": "4679 & Could not reject, at ceiling \\\\ , zero-shot & $G_{253}$ & 0.",
       "register_key": "frontier_ollama_llama3.zero_shot.G_253.n",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "feasgate.ollama_llama3_zero_shot_g_253.n",
@@ -5065,7 +5118,7 @@
       "sentence": "1898 & Could not reject \\\\ , zero-shot & $G_{299}$ & 0.",
       "register_key": "frontier_ollama_llama3.zero_shot.G_299.n",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "feasgate.ollama_llama3_zero_shot_g_299.n",
@@ -5081,10 +5134,11 @@
       "sentence": "1898 & Could not reject \\\\ , zero-shot & $G_{299}$ & 0.",
       "register_key": "frontier_ollama_llama3.zero_shot.G_299.flag_rate",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 2,
+      "n_candidate_keys": 3,
       "attribution": "ambiguous",
       "other_candidates": [
-        "feasgate.ollama_llama3_zero_shot_g_299.flag_rate"
+        "feasgate.ollama_llama3_zero_shot_g_299.flag_rate",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.flag_rate"
       ]
     },
     {
@@ -5105,8 +5159,11 @@
       "sentence": "0269 & 0.",
       "register_key": "feasgate.ollama_llama3_zero_shot_g_299.ceiling_mcc",
       "artifact": "results/accord/stats/marginal_feasibility_gate.json::rows.ollama_llama3::zero_shot::G_299.ceiling_mcc",
-      "n_candidate_keys": 1,
-      "attribution": "unique"
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.ceiling_mcc"
+      ]
     },
     {
       "chapter": "msu_ch4_results.tex",
@@ -5114,10 +5171,11 @@
       "sentence": "0780 & 0.",
       "register_key": "feasgate.ollama_llama3_zero_shot_g_299.ceiling_kappa",
       "artifact": "results/accord/stats/marginal_feasibility_gate.json::rows.ollama_llama3::zero_shot::G_299.ceiling_kappa",
-      "n_candidate_keys": 2,
+      "n_candidate_keys": 3,
       "attribution": "ambiguous",
       "other_candidates": [
-        "withdrawn.hosted.labelnoise.zero_shot.sweep.p20.p_mcc_le_zero"
+        "withdrawn.hosted.labelnoise.zero_shot.sweep.p20.p_mcc_le_zero",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.ceiling_kappa"
       ]
     },
     {
@@ -5126,20 +5184,329 @@
       "sentence": "0121 & 0.",
       "register_key": "signed.E9_selection_experiment.dp_true_max",
       "artifact": "results/accord/signed_gap_analysis.json",
-      "n_candidate_keys": 3,
+      "n_candidate_keys": 4,
       "attribution": "ambiguous",
       "other_candidates": [
         "signed.E9_selection_experiment.dp_at_max_selection",
-        "feasgate.ollama_llama3_zero_shot_g_299.attainable_floor_p_one_sided"
+        "feasgate.ollama_llama3_zero_shot_g_299.attainable_floor_p_one_sided",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.attainable_floor_p_one_sided"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "299",
+      "sentence": "1894 & Could not reject \\\\ \\midrule Llama 3, deployed weak labeller & $G_{299}$ & 0.",
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n",
+      "n_candidate_keys": 32,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
+        "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
+        "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
+        "gold.n_total",
+        "control.baselines.n_gold"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.8729",
+      "sentence": "1894 & Could not reject \\\\ \\midrule Llama 3, deployed weak labeller & $G_{299}$ & 0.",
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.flag_rate",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.flag_rate",
+      "n_candidate_keys": 3,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "frontier_ollama_llama3.zero_shot.G_299.flag_rate",
+        "feasgate.ollama_llama3_zero_shot_g_299.flag_rate"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0780",
+      "sentence": "8729 & not scored & 0.",
+      "register_key": "feasgate.ollama_llama3_zero_shot_g_299.ceiling_mcc",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::rows.ollama_llama3::zero_shot::G_299.ceiling_mcc",
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.ceiling_mcc"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0121",
+      "sentence": "0780 & 0.",
+      "register_key": "feasgate.ollama_llama3_zero_shot_g_299.ceiling_kappa",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::rows.ollama_llama3::zero_shot::G_299.ceiling_kappa",
+      "n_candidate_keys": 3,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "withdrawn.hosted.labelnoise.zero_shot.sweep.p20.p_mcc_le_zero",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.ceiling_kappa"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.1894",
+      "sentence": "0121 & 0.",
+      "register_key": "signed.E9_selection_experiment.dp_true_max",
+      "artifact": "results/accord/signed_gap_analysis.json",
+      "n_candidate_keys": 4,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "signed.E9_selection_experiment.dp_at_max_selection",
+        "feasgate.ollama_llama3_zero_shot_g_299.attainable_floor_p_one_sided",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.attainable_floor_p_one_sided"
       ]
     },
     {
       "chapter": "msu_ch4_results.tex",
       "value": "253",
-      "sentence": "Basis is $G_{253}$ or $G_{299}$ (Table~ ).",
+      "sentence": "\\ baseline, prompted once & $G_{253}$ & 0.",
+      "register_key": "mccint.E2_mcc_intervals.llama_baseline.n",
+      "artifact": "results/accord/stats/intervals.json",
+      "n_candidate_keys": 26,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.llama_baseline_g_253.n",
+        "decontam.n",
+        "decontam_gold.per_seed.0.n_pairs",
+        "decontam_gold.per_seed.1.n_pairs",
+        "decontam_gold.per_seed.2.n_pairs"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.9565",
+      "sentence": "\\ baseline, prompted once & $G_{253}$ & 0.",
+      "register_key": "feasgate.marginal_only.llama_baseline_g_253.flag_rate",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.llama_baseline_g_253.flag_rate",
+      "n_candidate_keys": 3,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "aniso.anisotropy_control.max",
+        "decontam.per_seed.seed2.mannwhitney_p"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0476",
+      "sentence": "9565 & not scored & 0.",
+      "register_key": "frontier_ollama_granite33.few_shot.G_253.mcc_ci_lo",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_granite33.json",
+      "n_candidate_keys": 3,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "frontier_ollama_granite33.few_shot.G_299.precision",
+        "feasgate.marginal_only.llama_baseline_g_253.ceiling_mcc"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0045",
+      "sentence": "0476 & 0.",
+      "register_key": "feasgate.marginal_only.llama_baseline_g_253.ceiling_kappa",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.llama_baseline_g_253.ceiling_kappa",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.5795",
+      "sentence": "0045 & 0.",
+      "register_key": "feasgate.marginal_only.llama_baseline_g_253.attainable_floor_p_one_sided",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.llama_baseline_g_253.attainable_floor_p_one_sided",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "299",
+      "sentence": "5795 & Could not reject \\\\ , replication prompt & $G_{299}$ & 0.",
+      "register_key": "feasgate.marginal_only.replication_qwen3_8b_g_299.n",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_qwen3_8b_g_299.n",
+      "n_candidate_keys": 32,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.replication_llama3_8b_g_299.n",
+        "feasgate.marginal_only.replication_granite3_3_8b_g_299.n",
+        "gold.n_total",
+        "control.baselines.n_gold",
+        "frontier_ollama_llama3.few_shot.G_299.n"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.9532",
+      "sentence": "5795 & Could not reject \\\\ , replication prompt & $G_{299}$ & 0.",
+      "register_key": "feasgate.marginal_only.replication_llama3_8b_g_299.flag_rate",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_llama3_8b_g_299.flag_rate",
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "overcall.llama3_8b.gold.positive_rate"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0453",
+      "sentence": "9532 & not scored & 0.",
+      "register_key": "feasgate.marginal_only.replication_llama3_8b_g_299.ceiling_mcc",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_llama3_8b_g_299.ceiling_mcc",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0041",
+      "sentence": "0453 & 0.",
+      "register_key": "decontam_gold.aggregate.kappa.max",
+      "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
+      "n_candidate_keys": 4,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "decontam_gold.per_seed.1.metrics.kappa",
+        "decontam_gold.per_seed.seed1.metrics.kappa",
+        "feasgate.marginal_only.replication_llama3_8b_g_299.ceiling_kappa"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.5562",
+      "sentence": "0041 & 0.",
+      "register_key": "feasgate.marginal_only.replication_llama3_8b_g_299.attainable_floor_p_one_sided",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_llama3_8b_g_299.attainable_floor_p_one_sided",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "299",
+      "sentence": "5562 & Could not reject \\\\ , replication prompt & $G_{299}$ & 0.",
+      "register_key": "feasgate.marginal_only.replication_qwen3_8b_g_299.n",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_qwen3_8b_g_299.n",
+      "n_candidate_keys": 32,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.replication_llama3_8b_g_299.n",
+        "feasgate.marginal_only.replication_granite3_3_8b_g_299.n",
+        "gold.n_total",
+        "control.baselines.n_gold",
+        "frontier_ollama_llama3.few_shot.G_299.n"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.7425",
+      "sentence": "5562 & Could not reject \\\\ , replication prompt & $G_{299}$ & 0.",
+      "register_key": "feasgate.marginal_only.replication_granite3_3_8b_g_299.flag_rate",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_granite3_3_8b_g_299.flag_rate",
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "overcall.granite3_3_8b.gold.positive_rate"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.1204",
+      "sentence": "7425 & not scored & 0.",
+      "register_key": "feasgate.marginal_only.replication_granite3_3_8b_g_299.ceiling_mcc",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_granite3_3_8b_g_299.ceiling_mcc",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0286",
+      "sentence": "1204 & 0.",
+      "register_key": "ranking.full_299_contra_prob_vs_danger_rating.spearman_rho",
+      "artifact": "results/accord/step5_ranking.json",
+      "n_candidate_keys": 3,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.replication_granite3_3_8b_g_299.ceiling_kappa",
+        "withdrawn.hosted.frontier_bedrock_metallama38binstructv1.zero_shot.G_299.mcc"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0259",
+      "sentence": "0286 & 0.",
+      "register_key": "feasgate.marginal_only.replication_granite3_3_8b_g_299.attainable_floor_p_one_sided",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_granite3_3_8b_g_299.attainable_floor_p_one_sided",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "299",
+      "sentence": "0259 & Could reject \\\\ , replication prompt & $G_{299}$ & 0.",
+      "register_key": "feasgate.marginal_only.replication_qwen3_8b_g_299.n",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_qwen3_8b_g_299.n",
+      "n_candidate_keys": 32,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.replication_llama3_8b_g_299.n",
+        "feasgate.marginal_only.replication_granite3_3_8b_g_299.n",
+        "gold.n_total",
+        "control.baselines.n_gold",
+        "frontier_ollama_llama3.few_shot.G_299.n"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.6187",
+      "sentence": "0259 & Could reject \\\\ , replication prompt & $G_{299}$ & 0.",
+      "register_key": "feasgate.marginal_only.replication_qwen3_8b_g_299.flag_rate",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_qwen3_8b_g_299.flag_rate",
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "overcall.qwen3_8b.gold.positive_rate"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.1605",
+      "sentence": "6187 & not scored & 0.",
+      "register_key": "feasgate.marginal_only.replication_qwen3_8b_g_299.ceiling_mcc",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_qwen3_8b_g_299.ceiling_mcc",
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "withdrawn.hosted.labelnoise_claudehaiku4520251001.zero_shot.sweep.p40.ci_hi"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0502",
+      "sentence": "1605 & 0.",
+      "register_key": "frontier_ollama_llama3.few_shot.G_253.precision",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.replication_qwen3_8b_g_299.ceiling_kappa"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0027",
+      "sentence": "0502 & 0.",
+      "register_key": "feasgate.marginal_only.replication_qwen3_8b_g_299.attainable_floor_p_one_sided",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.replication_qwen3_8b_g_299.attainable_floor_p_one_sided",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "253",
+      "sentence": "Basis is $G_{253}$ or $G_{299}$ (Table~ ); every cell is generated, none is typed.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -5152,10 +5519,10 @@
     {
       "chapter": "msu_ch4_results.tex",
       "value": "299",
-      "sentence": "Basis is $G_{253}$ or $G_{299}$ (Table~ ).",
+      "sentence": "Basis is $G_{253}$ or $G_{299}$ (Table~ ); every cell is generated, none is typed.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -5171,14 +5538,14 @@
       "sentence": "} \\end{table} \\begin{figure}[t] \\centering \\caption[The agreement ceiling a labeller's marginal imposes]{Largest Cohen's kappa any thresholded labeller can reach against the pharmacist, as a function of its positive rate on the $299$ gold p",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
         "gold.n_total",
-        "control.baselines.n_gold",
-        "control.baselines.tfidf_logreg.gold_all.n"
+        "control.baselines.n_gold"
       ]
     },
     {
@@ -5196,9 +5563,81 @@
     {
       "chapter": "msu_ch4_results.tex",
       "value": "287",
-      "sentence": "\\subsection{What the false positives land on} Whether the more capable labellers concentrate their false positives on the pairs the pharmacist declined to call, rather than spreading them evenly across the $287$ non-confirmed pairs, was tes",
+      "sentence": "\\subsection{What the false positives land on} Whether a labeller concentrates its false positives on the pairs the pharmacist declined to call, rather than spreading them evenly across the $287$ non-confirmed pairs, was tested by a one-side",
       "register_key": "control.power_ceiling.recomputed_same_formula_gold_all_ambiguous_included_n299.n_neg",
       "artifact": "results/accord/control/final_report.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "1.2801",
+      "sentence": "The two local labellers were put to the same test: returns an odds ratio of $1.",
+      "register_key": "frontier_ollama_granite33.ambiguity_gradient.few_shot.odds_ratio",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_granite33.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.3110",
+      "sentence": "2801$ at $p = 0.",
+      "register_key": "frontier_ollama_granite33.ambiguity_gradient.few_shot.fisher_p_one_sided",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_granite33.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "1.5505",
+      "sentence": "3110$ few-shot and $1.",
+      "register_key": "frontier_ollama_granite33.ambiguity_gradient.zero_shot.odds_ratio",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_granite33.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.1788",
+      "sentence": "5505$ at $p = 0.",
+      "register_key": "frontier_ollama_granite33.ambiguity_gradient.zero_shot.fisher_p_one_sided",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_granite33.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.6476",
+      "sentence": "1788$ zero-shot; returns $0.",
+      "register_key": "frontier_ollama_llama3.ambiguity_gradient.few_shot.odds_ratio",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.8577",
+      "sentence": "6476$ at $p = 0.",
+      "register_key": "frontier_ollama_llama3.ambiguity_gradient.few_shot.fisher_p_one_sided",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.9841",
+      "sentence": "8577$ few-shot and $0.",
+      "register_key": "frontier_ollama_llama3.ambiguity_gradient.zero_shot.odds_ratio",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.6220",
+      "sentence": "9841$ at $p = 0.",
+      "register_key": "frontier_ollama_llama3.ambiguity_gradient.zero_shot.fisher_p_one_sided",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
       "n_candidate_keys": 1,
       "attribution": "unique"
     },
@@ -5331,7 +5770,7 @@
       "sentence": "Over the 299 annotated pairs its output ranges from $0.",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "gold.n_total",
@@ -5371,7 +5810,7 @@
       "sentence": "Its rank correlation against the pharmacist danger rating over all 299 pairs is $\\rho = -0.",
       "register_key": "ranking.full_299_harm_score_vs_danger_rating.n",
       "artifact": "results/accord/step5_ranking.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "ranking.full_299_contra_prob_vs_danger_rating.n",
@@ -5923,10 +6362,11 @@
       "sentence": "8528$ to $0.",
       "register_key": "aniso.anisotropy_control.max",
       "artifact": "results/accord/stage0/anisotropy_control.json",
-      "n_candidate_keys": 2,
+      "n_candidate_keys": 3,
       "attribution": "ambiguous",
       "other_candidates": [
-        "decontam.per_seed.seed2.mannwhitney_p"
+        "decontam.per_seed.seed2.mannwhitney_p",
+        "feasgate.marginal_only.llama_baseline_g_253.flag_rate"
       ]
     },
     {
@@ -5935,7 +6375,7 @@
       "sentence": "\\subsection{Three configurations at chance} \\begin{table}[H] \\caption[Decontaminated detector at chance]{Decontaminated detector on the 253 non-ambiguous pairs.",
       "register_key": "decontam_gold.configuration.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -6053,10 +6493,11 @@
       "sentence": "0533 & 0.",
       "register_key": "aniso.anisotropy_control.max",
       "artifact": "results/accord/stage0/anisotropy_control.json",
-      "n_candidate_keys": 2,
+      "n_candidate_keys": 3,
       "attribution": "ambiguous",
       "other_candidates": [
-        "decontam.per_seed.seed2.mannwhitney_p"
+        "decontam.per_seed.seed2.mannwhitney_p",
+        "feasgate.marginal_only.llama_baseline_g_253.flag_rate"
       ]
     },
     {
@@ -6101,7 +6542,7 @@
       "sentence": "8668 & \\\\ \\midrule Contaminated run, same 253 pairs & 0.",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -6138,7 +6579,7 @@
       "sentence": "6418 & \\\\ \\bottomrule \\end{tabular} \\apanote{$G_{253}$, 12 positives and 241 negatives; bootstrap resampling uses $B = 10,000$ at seed 42.",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -6186,7 +6627,7 @@
       "sentence": "Average precision is the appropriate summary at this imbalance and its no-skill line is $12/253$.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -6202,7 +6643,7 @@
       "sentence": "The percentile bootstrap interval for the ensemble AUROC on $G_{253}$ is $0.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -6236,7 +6677,7 @@
       "sentence": "} \\end{table} \\begin{table}[H] \\caption[Operating point of the decontaminated detector]{The decontaminated detector at its decision threshold, per seed and as a mean, on the $253$ non-ambiguous pairs.",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -6398,11 +6839,12 @@
       "sentence": "8333 & $-0.",
       "register_key": "decontam_gold.aggregate.kappa.max",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 3,
+      "n_candidate_keys": 4,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.metrics.kappa",
-        "decontam_gold.per_seed.seed1.metrics.kappa"
+        "decontam_gold.per_seed.seed1.metrics.kappa",
+        "feasgate.marginal_only.replication_llama3_8b_g_299.ceiling_kappa"
       ]
     },
     {
@@ -6589,7 +7031,7 @@
       "sentence": "5$; each row sums to $253$.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -6698,7 +7140,7 @@
       "sentence": "The contaminated run, trained on the pairs it scores, lands below chance on the same 253 pairs: leakage did not manufacture signal, because there was none to manufacture.",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_excluded_n253.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -6714,7 +7156,7 @@
       "sentence": "\\ SD} \\\\ \\midrule $G_{299}$ & Control model, three-seed ensemble & 0.",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -6769,7 +7211,7 @@
       "sentence": "0937 \\\\ $G_{299}$ & Control model, per-seed mean $\\pm$ SD & \\multicolumn{4}{l}{$0.",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -6829,7 +7271,7 @@
       "sentence": "0024$)} \\\\ $G_{299}$ & ACCORD, contaminated released run & 0.",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "gold.n_total",
@@ -7086,7 +7528,7 @@
       "sentence": "The two ACCORD rows are the contaminated released run of Tables~ , and ; its $G_{253}$ counterpart is the $0.",
       "register_key": "mccint.E2_mcc_intervals.accord_binary_at_0.5_253core.n",
       "artifact": "results/accord/stats/intervals.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam.n",
@@ -7146,7 +7588,7 @@
       "sentence": "Among the fifteen highest-scored pairs, the decontaminated seeds recover 1, 0 and 0 true contradictions on $G_{253}$; on $G_{299}$ the three control seeds recover 1, 0 and 0, their ensemble recovers 1, and the contaminated released run, whi",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -7162,7 +7604,7 @@
       "sentence": "Among the fifteen highest-scored pairs, the decontaminated seeds recover 1, 0 and 0 true contradictions on $G_{253}$; on $G_{299}$ the three control seeds recover 1, 0 and 0, their ensemble recovers 1, and the contaminated released run, whi",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.accord_contra_prob_same_299_pairs.gold_all.n",
@@ -7194,7 +7636,7 @@
       "sentence": "Among the fifteen highest-scored pairs, the decontaminated seeds recover 1, 0 and 0 true contradictions on $G_{253}$; on $G_{299}$ the three control seeds recover 1, 0 and 0, their ensemble recovers 1, and the contaminated released run, whi",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -7226,7 +7668,7 @@
       "sentence": "Among the fifteen highest-scored pairs, the decontaminated seeds recover 1, 0 and 0 true contradictions on $G_{253}$; on $G_{299}$ the three control seeds recover 1, 0 and 0, their ensemble recovers 1, and the contaminated released run, whi",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.accord_contra_prob_same_299_pairs.gold_all.n",
@@ -7242,7 +7684,7 @@
       "sentence": "On $G_{253}$ it is $0.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -7307,7 +7749,7 @@
       "sentence": "} & \\textbf{$z$} & \\textbf{$p$} \\\\ \\midrule $G_{299}$ & Control ensemble vs.",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -7378,7 +7820,7 @@
       "sentence": "9300 \\\\ $G_{299}$ & Control seed 42 vs.",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -7451,7 +7893,7 @@
       "sentence": "9912 \\\\ $G_{299}$ & Control seed 123 vs.",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -7522,7 +7964,7 @@
       "sentence": "6630 \\\\ $G_{299}$ & Control seed 2024 vs.",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -7731,7 +8173,7 @@
       "sentence": "} \\centering \\small \\begin{tabular}{llrrr} \\toprule \\textbf{Set} & \\textbf{Baseline} & \\textbf{AUROC} & \\textbf{AP} & \\textbf{Top-15 TP} \\\\ \\midrule $G_{299}$ & TF-IDF plus logistic regression & 0.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -7765,7 +8207,7 @@
       "sentence": "1571 & 2 \\\\ $G_{299}$ & Majority class & 0.",
       "register_key": "control.baselines.majority_class.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "gold.n_total",
@@ -7940,7 +8382,7 @@
       "sentence": "} \\end{table} TF-IDF plus logistic regression outperforms every $G_{299}$ and $G_{134}$ neural configuration in Table~ , the matched sets it was evaluated on; it was not run on $G_{253}$, so no comparison is drawn here against Table~ .",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -7972,7 +8414,7 @@
       "sentence": "} \\end{table} TF-IDF plus logistic regression outperforms every $G_{299}$ and $G_{134}$ neural configuration in Table~ , the matched sets it was evaluated on; it was not run on $G_{253}$, so no comparison is drawn here against Table~ .",
       "register_key": "decontam_gold.configuration.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam.n",
@@ -8016,7 +8458,7 @@
       "sentence": "\\ detectable} \\\\ \\midrule $G_{253}$ & 12 & 241 & 0.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -8082,7 +8524,7 @@
       "sentence": "7355 \\\\ $G_{299}$ & 12 & 287 & 0.",
       "register_key": "gold.n_total",
       "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.baselines.n_gold",
@@ -8211,7 +8653,7 @@
       "sentence": "} \\end{table} On $G_{253}$ nothing below an AUROC of $0.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -8369,7 +8811,7 @@
       "sentence": "The claim that survives is the one the formula already supported: the $253$-pair evaluation's null is informative about true AUROC values at or above $0.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -8394,23 +8836,111 @@
     {
       "chapter": "msu_ch4_results.tex",
       "value": "253",
-      "sentence": "Neither surviving block is close to independent either: the five Mann-Whitney tests are three seeds of one model, their ensemble, and one further run, all scored on the same $253$ rows, and the five DeLong tests are five comparisons against",
+      "sentence": "No surviving block is close to independent: the five Mann-Whitney tests are three seeds of one model, their ensemble, and one further run, all on the same $253$ rows; the five DeLong tests are five comparisons against a single reference run",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
         "decontam_gold.per_seed.2.n_pairs",
-        "signal.harm_score_vs_pharm_label__ambiguous_excluded_n253.n",
         "decontam.n",
-        "decontam_gold.configuration.n_pairs"
+        "decontam_gold.configuration.n_pairs",
+        "frontier_ollama_llama3.few_shot.G_253.n"
       ]
     },
     {
       "chapter": "msu_ch4_results.tex",
+      "value": "46",
+      "sentence": "No surviving block is close to independent: the five Mann-Whitney tests are three seeds of one model, their ensemble, and one further run, all on the same $253$ rows; the five DeLong tests are five comparisons against a single reference run",
+      "register_key": "frontier_ollama_llama3.ambiguity_gradient.few_shot.n_ambiguous",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
+      "n_candidate_keys": 12,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "frontier_ollama_llama3.ambiguity_gradient.zero_shot.n_ambiguous",
+        "withdrawn.hosted.frontier.ambiguity_gradient.few_shot.n_ambiguous",
+        "frontier_ollama_granite33.ambiguity_gradient.few_shot.n_ambiguous",
+        "withdrawn.hosted.frontier.ambiguity_gradient.zero_shot.n_ambiguous",
+        "frontier_ollama_granite33.ambiguity_gradient.zero_shot.n_ambiguous"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "241",
+      "sentence": "No surviving block is close to independent: the five Mann-Whitney tests are three seeds of one model, their ensemble, and one further run, all on the same $253$ rows; the five DeLong tests are five comparisons against a single reference run",
+      "register_key": "power.n_negatives",
+      "artifact": "results/accord/section6_auroc_power.json",
+      "n_candidate_keys": 14,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "frontier_ollama_llama3.ambiguity_gradient.few_shot.n_clear_negative",
+        "frontier_ollama_llama3.ambiguity_gradient.zero_shot.n_clear_negative",
+        "withdrawn.hosted.frontier.ambiguity_gradient.few_shot.n_clear_negative",
+        "frontier_ollama_granite33.ambiguity_gradient.few_shot.n_clear_negative",
+        "withdrawn.hosted.frontier.ambiguity_gradient.zero_shot.n_clear_negative"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0286",
+      "sentence": "Two more Spearman tests against the same target are disclosed here rather than left out silently: the contradiction-probability score against the danger rating returns $\\rho = -0.",
+      "register_key": "ranking.full_299_contra_prob_vs_danger_rating.spearman_rho",
+      "artifact": "results/accord/step5_ranking.json",
+      "n_candidate_keys": 3,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.replication_granite3_3_8b_g_299.ceiling_kappa",
+        "withdrawn.hosted.frontier_bedrock_metallama38binstructv1.zero_shot.G_299.mcc"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.6224",
+      "sentence": "0286$ at $p = 0.",
+      "register_key": "ranking.full_299_contra_prob_vs_danger_rating.p_value",
+      "artifact": "results/accord/step5_ranking.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "299",
+      "sentence": "6224$ over all $299$ pairs and $\\rho = -0.",
+      "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
+      "artifact": "results/accord/control/final_report.json",
+      "n_candidate_keys": 32,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "gold.n_total",
+        "control.baselines.n_gold",
+        "frontier_ollama_llama3.few_shot.G_299.n",
+        "feasgate.ollama_llama3_few_shot_g_299.n",
+        "frontier_ollama_llama3.zero_shot.G_299.n"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.2771",
+      "sentence": "6224$ over all $299$ pairs and $\\rho = -0.",
+      "register_key": "ranking.positives_only_n12_contra_prob_vs_danger_rating.spearman_rho",
+      "artifact": "results/accord/step5_ranking.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.3833",
+      "sentence": "2771$ at $p = 0.",
+      "register_key": "ranking.positives_only_n12_contra_prob_vs_danger_rating.p_value",
+      "artifact": "results/accord/step5_ranking.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
       "value": "0.6621",
-      "sentence": "One test not reported elsewhere is disclosed here rather than left out silently: of four Spearman correlations against the pharmacist's danger rating, the untrained harm head against the rating restricted to the $12$ positives returns $\\rho",
+      "sentence": "3833$ over the $12$ positives, and the harm score against the rating restricted to the $12$ positives returns $\\rho = -0.",
       "register_key": "ranking.positives_only_n12_harm_score_vs_danger_rating.spearman_rho",
       "artifact": "results/accord/step5_ranking.json",
       "n_candidate_keys": 1,
@@ -8427,6 +8957,22 @@
       "other_candidates": [
         "withdrawn.hosted.labelnoise.few_shot.sweep.p05.p_mcc_le_zero",
         "ranking.positives_only_n12_harm_score_vs_danger_rating.p_value"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "299",
+      "sentence": "05$ on twelve cases; Section~ already reports the fourth, the harm score over all $299$ pairs.",
+      "register_key": "ranking.full_299_harm_score_vs_danger_rating.n",
+      "artifact": "results/accord/step5_ranking.json",
+      "n_candidate_keys": 32,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
+        "control.accord_contra_prob_same_299_pairs.gold_all.n",
+        "gold.n_total",
+        "control.baselines.n_gold",
+        "frontier_ollama_llama3.few_shot.G_299.n"
       ]
     },
     {
@@ -8466,7 +9012,7 @@
       "sentence": "The control has a public arm, AG News, and a clinical arm built for this control rather than for its own sake, in-hospital mortality predicted from a patient's first 48 hours of notes, evaluated on $6,776$ held-out admissions holding $570$ ",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -8510,6 +9056,47 @@
       "artifact": "results/accord/scaling/convergence_results.json",
       "n_candidate_keys": 1,
       "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "3.0",
+      "sentence": "The adjudication rule (Table~ ) was committed before the sweep ran: a gap of at least $3.",
+      "register_key": "config.prereg.outcome_a_points",
+      "artifact": "accord/scaling/C44_PREREGISTRATION.md",
+      "n_candidate_keys": 5,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "withdrawn.hosted.frontier.ambiguity_gradient.few_shot.odds_ratio",
+        "withdrawn.hosted.frontier_anthropic_claudehaiku4520251001.few_shot.G_299.hypergeom_expected_tp_under_null",
+        "withdrawn.hosted.frontier_bedrock_metallama370binstructv1.few_shot.G_299.hypergeom_expected_tp_under_null",
+        "withdrawn.hosted.frontier_anthropic_claudehaiku4520251001.zero_shot.G_299.hypergeom_expected_tp_under_null"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "2.5",
+      "sentence": "0$ accuracy points between the pretrained arm and the best from-scratch arm at the longest budget, with non-overlapping one-standard-deviation bands, licenses reading the clinical null as measured; a smaller or unresolved gap reverts it to ",
+      "register_key": "publicsweep.results.granite3.3:8b.A_bare.0.02.over_call_ratio",
+      "artifact": "accord/prevalence_replication/results/sweep_results.json",
+      "n_candidate_keys": 3,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "config.prereg.inconclusive_lo",
+        "withdrawn.hosted.capability.across_family_step_c67"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "3.5",
+      "sentence": "5$ to $3.",
+      "register_key": "config.prereg.inconclusive_hi",
+      "artifact": "accord/scaling/C44_PREREGISTRATION.md",
+      "n_candidate_keys": 3,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "ablation.true_role_labels.val_loss_mean",
+        "publicsweep.results.llama3:8b.A_bare.0.02.over_call_ratio"
+      ]
     },
     {
       "chapter": "msu_ch4_results.tex",
@@ -9254,8 +9841,17 @@
     },
     {
       "chapter": "msu_ch4_results.tex",
+      "value": "4.53",
+      "sentence": "53$-point headline is Table~ 's pre-registered sweep, not this budget; no significance test exists for the mortality gap, and the $4.",
+      "register_key": "conv.gap_E24_pts",
+      "artifact": "results/accord/scaling/convergence_results.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
       "value": "0.7703",
-      "sentence": "The arms do not share a seed set (pretrained $1,2,3$; from-scratch $0,1,2$): dropping seed $0$, which lacks split lineage, gives a two-seed mean of $0.",
+      "sentence": "The arms share no seed set (pretrained $1,2,3$; scratch $0,1,2$): dropping seed $0$, lacking split lineage, gives a two-seed mean of $0.",
       "register_key": "task.mortality.scratch_lineage_pinned_mean_auroc",
       "artifact": "results/task_runs.json, derived: mean of ours_current_s1 and ours_current_s2 auroc, the two from-scratch runs carrying a recorded data_lineage",
       "n_candidate_keys": 1,
@@ -9264,7 +9860,7 @@
     {
       "chapter": "msu_ch4_results.tex",
       "value": "0.0011",
-      "sentence": "7703$ and flips the sign to $-0.",
+      "sentence": "7703$, flipping the sign to $-0.",
       "register_key": "conv.scratch_10M.E12.sd",
       "artifact": "results/accord/scaling/convergence_results.json",
       "n_candidate_keys": 3,
@@ -9273,15 +9869,6 @@
         "conv.scratch_100M.E12.sd",
         "task.mortality.gap_lineage_pinned"
       ]
-    },
-    {
-      "chapter": "msu_ch4_results.tex",
-      "value": "4.53",
-      "sentence": "0011$; the $4.",
-      "register_key": "conv.gap_E24_pts",
-      "artifact": "results/accord/scaling/convergence_results.json",
-      "n_candidate_keys": 1,
-      "attribution": "unique"
     },
     {
       "chapter": "msu_ch4_results.tex",
@@ -9305,7 +9892,7 @@
       "sentence": "\\subsection{The exchange rate} Balanced accuracy is the unweighted mean of sensitivity and specificity, so a classifier that forgoes one true positive is preferred whenever it avoids more than $Q/P$ false positives, which on $G_{253}$ is $2",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -9337,7 +9924,7 @@
       "sentence": "\\subsection{The ordering and its intervals} \\begin{table}[H] \\caption[Matthews correlation with bootstrap intervals]{Matthews correlation on the 253 non-ambiguous pairs.",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -9414,8 +10001,11 @@
       "sentence": "0753$ \\\\ Llama 3 8B evaluation baseline & $11 + 231 = 242$ & $-0.",
       "register_key": "derived.llama_baseline.n_flagged",
       "artifact": "results/accord/reconciliation_c28.json::d_measured_vs_what_the_tex_says.findings.llama_predicted_positive_printed",
-      "n_candidate_keys": 1,
-      "attribution": "unique"
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.marginal_only.llama_baseline_g_253.n_flagged"
+      ]
     },
     {
       "chapter": "msu_ch4_results.tex",
@@ -9468,6 +10058,65 @@
     },
     {
       "chapter": "msu_ch4_results.tex",
+      "value": "0.0242",
+      "sentence": "This chapter does have one local-only labeller row that is: zero-shot rejects the null at a nominal, uncorrected one-sided hypergeometric $p$ of $0.",
+      "register_key": "frontier_ollama_granite33.zero_shot.G_253.hypergeom_p_one_sided",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_granite33.json",
+      "n_candidate_keys": 2,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.ollama_granite33_zero_shot_g_253.attainable_floor_p_one_sided"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "253",
+      "sentence": "0242$ on $G_{253}$ and $0.",
+      "register_key": "decontam.n",
+      "artifact": "results/accord/decontam/corrected_gold_metrics.json",
+      "n_candidate_keys": 26,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "decontam_gold.per_seed.0.n_pairs",
+        "decontam_gold.per_seed.1.n_pairs",
+        "decontam_gold.per_seed.2.n_pairs",
+        "decontam_gold.configuration.n_pairs",
+        "frontier_ollama_llama3.few_shot.G_253.n"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "0.0290",
+      "sentence": "0242$ on $G_{253}$ and $0.",
+      "register_key": "frontier_ollama_llama3.zero_shot.G_253.mcc",
+      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
+      "n_candidate_keys": 5,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "feasgate.ollama_llama3_zero_shot_g_253.observed_mcc",
+        "frontier_ollama_granite33.zero_shot.G_299.hypergeom_p_one_sided",
+        "feasgate.ollama_granite33_zero_shot_g_299.attainable_floor_p_one_sided",
+        "withdrawn.hosted.frontier_bedrock_metallama38binstructv1.zero_shot.G_253.mcc"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
+      "value": "299",
+      "sentence": "0290$ on $G_{299}$ (Table~ ).",
+      "register_key": "gold.n_total",
+      "artifact": "results/accord/reconciliation_c28.json",
+      "n_candidate_keys": 32,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "control.baselines.n_gold",
+        "frontier_ollama_llama3.few_shot.G_299.n",
+        "feasgate.ollama_llama3_few_shot_g_299.n",
+        "frontier_ollama_llama3.zero_shot.G_299.n",
+        "feasgate.ollama_llama3_zero_shot_g_299.n"
+      ]
+    },
+    {
+      "chapter": "msu_ch4_results.tex",
       "value": "241",
       "sentence": "What the sample-size reading never covered, and still does not, is a comparison that lives on the $241$ clear negatives rather than on the 12 positives, and over-calling, the headline finding of Section~ , is measured there.",
       "register_key": "frontier_ollama_llama3.ambiguity_gradient.few_shot.n_clear_negative",
@@ -9504,7 +10153,7 @@
       "sentence": "The two AUROC rows are different systems on different sets, $G_{253}$ and $G_{134}$.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -9557,7 +10206,7 @@
       "sentence": "The signed re-analysis reproduced the stored values exactly, at a maximum discrepancy of $0.",
       "register_key": "signed.reproduction_max_discrepancy",
       "artifact": "results/accord/signed_gap_analysis.json",
-      "n_candidate_keys": 449,
+      "n_candidate_keys": 457,
       "attribution": "ambiguous",
       "other_candidates": [
         "signed.E10_pums_regimeB.dp_true_max",
@@ -10249,11 +10898,12 @@
       "chapter": "msu_ch5_discussion.tex",
       "value": "261",
       "sentence": "0401$ is an upper bound on annotation validity, not an estimate of pool quality & Narrowed \\\\ \\addlinespace Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ gold pairs labelled positive against",
-      "register_key": "gold.weaklabel_contradiction",
-      "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 4,
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "n_candidate_keys": 5,
       "attribution": "ambiguous",
       "other_candidates": [
+        "gold.weaklabel_contradiction",
         "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
         "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
         "feasgate.ollama_llama3_zero_shot_g_299.n_flagged"
@@ -10265,20 +10915,20 @@
       "sentence": "0401$ is an upper bound on annotation validity, not an estimate of pool quality & Narrowed \\\\ \\addlinespace Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ gold pairs labelled positive against",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
         "gold.n_total",
         "control.baselines.n_gold",
-        "control.baselines.tfidf_logreg.gold_all.n",
-        "control.baselines.majority_class.gold_all.n"
+        "control.baselines.tfidf_logreg.gold_all.n"
       ]
     },
     {
       "chapter": "msu_ch5_discussion.tex",
       "value": "4.53",
-      "sentence": "No randomisation control was run on any of the three & Reversed \\\\ \\addlinespace Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & At chance on the defect-free stratum, with an instrument shown to resol",
+      "sentence": "No randomisation control was run on any of the three & Reversed \\\\ \\addlinespace Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & At chance on the defect-free stratum; the training harness, not the cli",
       "register_key": "conv.gap_E24_pts",
       "artifact": "results/accord/scaling/convergence_results.json",
       "n_candidate_keys": 1,
@@ -10287,10 +10937,10 @@
     {
       "chapter": "msu_ch5_discussion.tex",
       "value": "0.0",
-      "sentence": "53$ points where an effect existed & Survived \\\\ \\addlinespace Reporting & Drift slopes read directionally from stored gap magnitudes & Same magnitudes, reproduced to a maximum discrepancy of $0.",
+      "sentence": "53$ points on a public benchmark & Survived \\\\ \\addlinespace Reporting & Drift slopes read directionally from stored gap magnitudes & Same magnitudes, reproduced to a maximum discrepancy of $0.",
       "register_key": "drift.E9_MIMIC_drift_vs_beta.fpr_gap.abs_slope",
       "artifact": "results/accord/sign_provenance_drift_recomputation.json",
-      "n_candidate_keys": 449,
+      "n_candidate_keys": 457,
       "attribution": "ambiguous",
       "other_candidates": [
         "drift.E9_MIMIC_drift_vs_beta.ppv_gap.abs_slope",
@@ -10322,7 +10972,7 @@
       "sentence": "0401$, $12$ true contradictions in the $299$-pair full annotated set; on the $253$-pair decontaminated core the same $12$ positives sit against $241$ negatives for a base rate of $0.",
       "register_key": "ranking.full_299_contra_prob_vs_danger_rating.n",
       "artifact": "results/accord/step5_ranking.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.accord_contra_prob_same_299_pairs.gold_all.n",
@@ -10338,7 +10988,7 @@
       "sentence": "0401$, $12$ true contradictions in the $299$-pair full annotated set; on the $253$-pair decontaminated core the same $12$ positives sit against $241$ negatives for a base rate of $0.",
       "register_key": "decontam.n",
       "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.0.n_pairs",
@@ -10540,25 +11190,26 @@
       "sentence": "Against the $299$ annotated pairs the deployed local labeller assigned the positive class to $261$; the pharmacist assigned it to $12$.",
       "register_key": "signal.harm_score_vs_pharm_label__ambiguous_as_negative_n299.n",
       "artifact": "results/accord/step2_signal_check.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_negative_n299.n",
         "control.baselines.majority_class.gold_all.n",
-        "ranking.full_299_harm_score_vs_danger_rating.n",
-        "control.accord_contra_prob_same_299_pairs.gold_all.n"
+        "ranking.full_299_harm_score_vs_danger_rating.n"
       ]
     },
     {
       "chapter": "msu_ch5_discussion.tex",
       "value": "261",
       "sentence": "Against the $299$ annotated pairs the deployed local labeller assigned the positive class to $261$; the pharmacist assigned it to $12$.",
-      "register_key": "gold.weaklabel_contradiction",
-      "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 4,
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "n_candidate_keys": 5,
       "attribution": "ambiguous",
       "other_candidates": [
+        "gold.weaklabel_contradiction",
         "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
         "feasgate.ollama_llama3_zero_shot_g_299.n_flagged",
         "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction"
@@ -10567,10 +11218,10 @@
     {
       "chapter": "msu_ch5_discussion.tex",
       "value": "87",
-      "sentence": "Saying yes to $87\\%$ of a pool whose true positive rate is $4\\%$ is not a decision, it is a prior with a text prompt attached, and three further local eight-billion-parameter models reproduce the same miscalibration at over-calling ratios f",
+      "sentence": "Saying yes to $87\\%$ of a pool whose true positive rate is $4\\%$ is not a decision, it is a prior with a text prompt attached, and two further local eight-billion-parameter models reproduce comparable miscalibration, over-calling ratios of ",
       "register_key": "withdrawn.hosted.ceiling.llama8b_zs.flag_rate",
       "artifact": "results/accord/stats/marginal_ceilings.json::frontier_bedrock_metrics_metallama38binstructv1::zero_shot.flag_rate",
-      "n_candidate_keys": 21,
+      "n_candidate_keys": 22,
       "attribution": "ambiguous",
       "other_candidates": [
         "ablation.true_role_labels.pct_of_segment_index",
@@ -10583,7 +11234,7 @@
     {
       "chapter": "msu_ch5_discussion.tex",
       "value": "15.8196",
-      "sentence": "Saying yes to $87\\%$ of a pool whose true positive rate is $4\\%$ is not a decision, it is a prior with a text prompt attached, and three further local eight-billion-parameter models reproduce the same miscalibration at over-calling ratios f",
+      "sentence": "Saying yes to $87\\%$ of a pool whose true positive rate is $4\\%$ is not a decision, it is a prior with a text prompt attached, and two further local eight-billion-parameter models reproduce comparable miscalibration, over-calling ratios of ",
       "register_key": "overcall.qwen3_8b.pool.ratio",
       "artifact": "results/accord/multillm/per_model_results.json",
       "n_candidate_keys": 1,
@@ -10591,8 +11242,17 @@
     },
     {
       "chapter": "msu_ch5_discussion.tex",
+      "value": "17.9863",
+      "sentence": "8196$ and $17.",
+      "register_key": "overcall.granite3_3_8b.pool.ratio",
+      "artifact": "results/accord/multillm/per_model_results.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch5_discussion.tex",
       "value": "23.5959",
-      "sentence": "8196$ to $23.",
+      "sentence": "9863$ against the deployed labeller's own $23.",
       "register_key": "overcall.llama3_8b.pool.ratio",
       "artifact": "results/accord/multillm/per_model_results.json",
       "n_candidate_keys": 1,
@@ -10658,7 +11318,7 @@
       "sentence": "8668$) on the $253$ non-ambiguous pairs against $0.",
       "register_key": "decontam_gold.per_seed.0.n_pairs",
       "artifact": "results/accord/decontam/accord_v2_decontam_gold_aggregate.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "decontam_gold.per_seed.1.n_pairs",
@@ -10716,7 +11376,7 @@
       "sentence": "0350$ on all $299$ pairs (ensemble $0.",
       "register_key": "control.ensemble_mean_of_seed_scores.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
         "control.accord_contra_prob_same_299_pairs.gold_all.n",
@@ -10920,7 +11580,7 @@
     {
       "chapter": "msu_ch5_discussion.tex",
       "value": "48",
-      "sentence": "The instrument is a comparison of a domain-pretrained encoder against an identically sized encoder trained from scratch, evaluated by a convergence sweep of $48$ runs.",
+      "sentence": "The instrument compares a domain-pretrained encoder against encoders trained from scratch at several parameter scales, evaluated by a convergence sweep of $48$ runs; none is sized to match its pretrained counterpart, the largest public from",
       "register_key": "conv.n_runs",
       "artifact": "results/accord/scaling/convergence_results.json",
       "n_candidate_keys": 3,
@@ -10932,12 +11592,54 @@
     },
     {
       "chapter": "msu_ch5_discussion.tex",
+      "value": "99,234,820",
+      "sentence": "The instrument compares a domain-pretrained encoder against encoders trained from scratch at several parameter scales, evaluated by a convergence sweep of $48$ runs; none is sized to match its pretrained counterpart, the largest public from",
+      "register_key": "scaling.scratch_100M.params",
+      "artifact": "results/accord/scaling/scaling_results.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch5_discussion.tex",
+      "value": "85,648,132",
+      "sentence": "The instrument compares a domain-pretrained encoder against encoders trained from scratch at several parameter scales, evaluated by a convergence sweep of $48$ runs; none is sized to match its pretrained counterpart, the largest public from",
+      "register_key": "scaling.pretrained_bert.params",
+      "artifact": "results/accord/scaling/scaling_results.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch5_discussion.tex",
+      "value": "10,638,720",
+      "sentence": "The instrument compares a domain-pretrained encoder against encoders trained from scratch at several parameter scales, evaluated by a convergence sweep of $48$ runs; none is sized to match its pretrained counterpart, the largest public from",
+      "register_key": "c37.scratch_nonemb_params",
+      "artifact": "results/task_runs.json",
+      "n_candidate_keys": 1,
+      "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch5_discussion.tex",
       "value": "4.53",
       "sentence": "On a public four-class news classification task it resolves a pretraining benefit of $4.",
       "register_key": "conv.gap_E24_pts",
       "artifact": "results/accord/scaling/convergence_results.json",
       "n_candidate_keys": 1,
       "attribution": "unique"
+    },
+    {
+      "chapter": "msu_ch5_discussion.tex",
+      "value": "3.0",
+      "sentence": "The decision rule was committed before the sweep ran, at commit (Table~ ): a gap of at least $3.",
+      "register_key": "config.prereg.outcome_a_points",
+      "artifact": "accord/scaling/C44_PREREGISTRATION.md",
+      "n_candidate_keys": 5,
+      "attribution": "ambiguous",
+      "other_candidates": [
+        "withdrawn.hosted.frontier.ambiguity_gradient.few_shot.odds_ratio",
+        "withdrawn.hosted.frontier_anthropic_claudehaiku4520251001.few_shot.G_299.hypergeom_expected_tp_under_null",
+        "withdrawn.hosted.frontier_bedrock_metallama370binstructv1.few_shot.G_299.hypergeom_expected_tp_under_null",
+        "withdrawn.hosted.frontier_anthropic_claudehaiku4520251001.zero_shot.G_299.hypergeom_expected_tp_under_null"
+      ]
     },
     {
       "chapter": "msu_ch5_discussion.tex",
@@ -11005,16 +11707,16 @@
       "chapter": "msu_ch5_discussion.tex",
       "value": "253",
       "sentence": "The ensemble's own $95\\%$ bootstrap interval on the $253$-pair set is wide enough that its upper bound sits only $0.",
-      "register_key": "decontam.n",
-      "artifact": "results/accord/decontam/corrected_gold_metrics.json",
-      "n_candidate_keys": 25,
+      "register_key": "feasgate.marginal_only.llama_baseline_g_253.n",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.llama_baseline_g_253.n",
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
+        "decontam.n",
         "decontam_gold.per_seed.0.n_pairs",
         "decontam_gold.per_seed.1.n_pairs",
         "decontam_gold.per_seed.2.n_pairs",
-        "decontam_gold.configuration.n_pairs",
-        "frontier_ollama_llama3.few_shot.G_253.n"
+        "decontam_gold.configuration.n_pairs"
       ]
     },
     {
@@ -11135,7 +11837,7 @@
       "sentence": "3 \\\\ Signed re-run, selection experiment & 1 & 0.",
       "register_key": "cost.c52_signed_re-run_e9.minutes",
       "artifact": "results/accord/control_cost_log.json",
-      "n_candidate_keys": 65,
+      "n_candidate_keys": 66,
       "attribution": "ambiguous",
       "other_candidates": [
         "power.minimum_detectable_auc",
@@ -11222,19 +11924,6 @@
     },
     {
       "chapter": "msu_ch5_discussion.tex",
-      "value": "24",
-      "sentence": "Section~ records that every hosted-service transmission this project made, on the Anthropic API and on AWS Bedrock alike, has been withdrawn: PhysioNet's guidance of 24 September 2025 prohibits third-party retention without a vendor qualifi",
-      "register_key": "withdrawn.capability_ladder_local_llama38b_ratio_llama_baseline_c94",
-      "artifact": "withdrawn: the Local llama3:8b over-calling ratio under config_id=llama_baseline (results/accord/multillm/per_model_results.json via the pre-C94 register key overcall.llama3_8b.gold.ratio, which itself remains live and unchanged), superseded as the ladder's local 8B row by the frontier-zero-shot-prompt-matched value at capability.ladder.llama38b.ratio once C94's Ollama rerun landed. See accord/differential/C94_PREREGISTRATION.md.",
-      "n_candidate_keys": 3,
-      "attribution": "ambiguous",
-      "other_candidates": [
-        "overcall.llama3_8b.gold.ratio",
-        "overcall.llama3_8b.pool.ratio"
-      ]
-    },
-    {
-      "chapter": "msu_ch5_discussion.tex",
       "value": "80",
       "sentence": "The minimum detectable AUROC at $80\\%$ power is $0.",
       "register_key": "power.power",
@@ -11297,44 +11986,30 @@
     },
     {
       "chapter": "msu_ch5_discussion.tex",
-      "value": "253",
-      "sentence": "The limit is not that $12$ positives cannot separate anything: two of the local weak-labeller replicates from Section~ , zero-shot and few-shot, carry Matthews correlation intervals against these same $253$ rows that exclude zero, at $0.",
-      "register_key": "frontier_ollama_llama3.zero_shot.G_253.n",
-      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 25,
-      "attribution": "ambiguous",
-      "other_candidates": [
-        "feasgate.ollama_llama3_zero_shot_g_253.n",
-        "withdrawn.hosted.frontier.zero_shot.G_253.n",
-        "frontier_ollama_granite33.zero_shot.G_253.n",
-        "feasgate.ollama_granite33_zero_shot_g_253.n",
-        "withdrawn.hosted.frontier_bedrock_metallama38binstructv1.zero_shot.G_253.n"
-      ]
-    },
-    {
-      "chapter": "msu_ch5_discussion.tex",
-      "value": "0.1326",
-      "sentence": "The limit is not that $12$ positives cannot separate anything: two of the local weak-labeller replicates from Section~ , zero-shot and few-shot, carry Matthews correlation intervals against these same $253$ rows that exclude zero, at $0.",
-      "register_key": "frontier_ollama_granite33.zero_shot.G_253.mcc",
+      "value": "0.0242",
+      "sentence": "The limit is not that $12$ positives cannot separate anything: one local weak-labeller replicate from Section~ , zero-shot, returns a one-sided hypergeometric $p$ of $0.",
+      "register_key": "frontier_ollama_granite33.zero_shot.G_253.hypergeom_p_one_sided",
       "artifact": "results/accord/differential/frontier_ollama_metrics_granite33.json",
-      "n_candidate_keys": 3,
+      "n_candidate_keys": 2,
       "attribution": "ambiguous",
       "other_candidates": [
-        "feasgate.ollama_granite33_zero_shot_g_253.ceiling_mcc",
-        "feasgate.ollama_granite33_zero_shot_g_253.observed_mcc"
+        "feasgate.ollama_granite33_zero_shot_g_253.attainable_floor_p_one_sided"
       ]
     },
     {
       "chapter": "msu_ch5_discussion.tex",
-      "value": "0.0540",
-      "sentence": "1326$ and $0.",
-      "register_key": "frontier_ollama_llama3.few_shot.G_253.mcc",
-      "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 3,
+      "value": "253",
+      "sentence": "0242$ against these same $253$ rows, reported here as nominal and uncorrected rather than as an interval.",
+      "register_key": "decontam.n",
+      "artifact": "results/accord/decontam/corrected_gold_metrics.json",
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
-        "feasgate.ollama_llama3_few_shot_g_253.ceiling_mcc",
-        "feasgate.ollama_llama3_few_shot_g_253.observed_mcc"
+        "decontam_gold.per_seed.0.n_pairs",
+        "decontam_gold.per_seed.1.n_pairs",
+        "decontam_gold.per_seed.2.n_pairs",
+        "decontam_gold.configuration.n_pairs",
+        "frontier_ollama_llama3.few_shot.G_253.n"
       ]
     },
     {
@@ -11477,11 +12152,12 @@
       "chapter": "msu_ch5_discussion.tex",
       "value": "261",
       "sentence": "The weak-supervision finding needs no base-rate estimate at all: $261$ of the $299$ gold pairs were labelled positive against $12$ confirmed, a marginal comparison with no denominator to estimate.",
-      "register_key": "gold.weaklabel_contradiction",
-      "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 4,
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n_flagged",
+      "n_candidate_keys": 5,
       "attribution": "ambiguous",
       "other_candidates": [
+        "gold.weaklabel_contradiction",
         "goldstrata.weak_confidence_is_degenerate.same_pattern_in_audit_299.0.95.contradiction",
         "frontier_ollama_llama3.zero_shot.G_299.n_flagged",
         "feasgate.ollama_llama3_zero_shot_g_299.n_flagged"
@@ -11493,14 +12169,14 @@
       "sentence": "The weak-supervision finding needs no base-rate estimate at all: $261$ of the $299$ gold pairs were labelled positive against $12$ confirmed, a marginal comparison with no denominator to estimate.",
       "register_key": "control.accord_contra_prob_same_299_pairs.gold_all.n",
       "artifact": "results/accord/control/final_report.json",
-      "n_candidate_keys": 28,
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
+        "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
         "signal.contra_prob_vs_pharm_label__ambiguous_as_positive_n299.n",
         "gold.n_total",
         "control.baselines.n_gold",
-        "control.baselines.tfidf_logreg.gold_all.n",
-        "control.baselines.majority_class.gold_all.n"
+        "control.baselines.tfidf_logreg.gold_all.n"
       ]
     },
     {
@@ -11646,16 +12322,16 @@
       "chapter": "msu_ch5_discussion.tex",
       "value": "299",
       "sentence": "No inter-rater or intra-rater agreement statistic exists for the 299-pair gold standard, one cannot be recovered from the two-pass design, and every clinical result in this thesis, the pool precision, the weak-labeller comparison, the detec",
-      "register_key": "gold.n_total",
-      "artifact": "results/accord/reconciliation_c28.json",
-      "n_candidate_keys": 28,
+      "register_key": "feasgate.marginal_only.deployed_weak_labeller_g_299.n",
+      "artifact": "results/accord/stats/marginal_feasibility_gate.json::marginal_only.deployed_weak_labeller_g_299.n",
+      "n_candidate_keys": 32,
       "attribution": "ambiguous",
       "other_candidates": [
+        "gold.n_total",
         "control.baselines.n_gold",
         "control.baselines.tfidf_logreg.gold_all.n",
         "control.baselines.majority_class.gold_all.n",
-        "control.ensemble_mean_of_seed_scores.gold_all.n",
-        "control.accord_contra_prob_same_299_pairs.gold_all.n"
+        "control.ensemble_mean_of_seed_scores.gold_all.n"
       ]
     },
     {
@@ -11875,7 +12551,7 @@
       "sentence": "The local few-shot labeller of Section~ carries a confusion matrix of $10$ true positives and $75$ true negatives against ACCORD's $11$ true positives and $18$ true negatives on the same $253$ rows.",
       "register_key": "frontier_ollama_llama3.few_shot.G_253.n",
       "artifact": "results/accord/differential/frontier_ollama_metrics_llama3.json",
-      "n_candidate_keys": 25,
+      "n_candidate_keys": 26,
       "attribution": "ambiguous",
       "other_candidates": [
         "feasgate.ollama_llama3_few_shot_g_253.n",

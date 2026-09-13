@@ -285,7 +285,7 @@ unreachable: holding the flagged count fixed and placing every confirmed case
 inside it, the largest Matthews correlation any thresholded label could
 express is $0.0768$. The supervision the detector was trained on could not
 have carried more than that, whatever the labeller knew, and that ceiling
-follows from the two marginals alone, needing no join: it is the mechanism
+follows from two counts on the joined rows, before any training: it is the mechanism
 behind the detector's own degeneracy, a model fit to labels emitted at a
 marginal of $0.9$ inheriting the marginal, which is what
 Table~\ref{tab:operating} shows it doing.
@@ -306,11 +306,11 @@ The over-calling ratios above are not undercut by this: they measure what they
 claim, and the ceiling explains why a high positive rate on a rare event caps
 what any downstream model can inherit. Nor does this section adjudicate
 whether the task or the pipeline fails, since a labeller at chance is what
-both readings predict; the evidence that would have carried that separation,
-a hosted-API labeller returning an interval that excludes zero on these same
-rows, is withdrawn along with the run that produced it (Section~\ref{sec:r-frontier}),
-so this thesis does not establish whether the task is unlearnable at this
-sample size from that direction either.
+both readings predict; an analysis that might have separated the two readings
+was run through a hosted service and is withdrawn along with the run that
+produced it (Section~\ref{sec:r-frontier}), so this thesis does not establish
+whether the task is unlearnable at this sample size from that direction
+either.
 
 \subsection{Whether a stronger labeller removes it}
 
@@ -432,27 +432,46 @@ optional, because the unqualified claim is false. A labeller that emits a
 continuous score is not bounded this way, because the threshold that turns a
 score into a flag can be swept; a model that flags most of a pool at one
 threshold can still rank the pool well at another. Everything below is a
-statement about the eight labeller-and-prompt configurations in this thesis
-that emit a hard label on this pool, not about a score-emitting model.
+statement about labeller-and-prompt configurations in this thesis that emit a
+hard label on this pool, not about a score-emitting model.
 
-Table~\ref{tab:feasgate} and Figure~\ref{fig:ceiling} apply the gate to the eight local labeller rows
-this chapter can still report: \texttt{granite3.3:8b} and \texttt{llama3:8b},
-zero-shot and few-shot, on $G_{253}$ and $G_{299}$. Four of the eight could not
-have rejected the null at $0.05$ before scoring a single pair, because the
-smallest $p$ their own marginal permits already exceeds $0.05$. A separate
-four sit exactly on their marginal-implied ceiling: their observed agreement
-equals the best any labeller at that flag rate could achieve, so no
-retuning of that labeller at that marginal could have moved it further.
-\texttt{granite3.3:8b} zero-shot on the $299$-pair gold set sits exactly on
-its own ceiling (Table~\ref{tab:feasgate}), and \texttt{llama3:8b} few-shot on
-$G_{253}$ sits at a flag rate whose floor already sits near even odds: no
-outcome the model could have returned would have cleared the conventional
-threshold.
+Table~\ref{tab:feasgate} and Figure~\ref{fig:ceiling} apply the gate to every
+local labeller-and-prompt configuration this chapter scores against the
+pharmacist on this pool: \texttt{granite3.3:8b} and \texttt{llama3:8b},
+zero-shot and few-shot, each on both $G_{253}$ and $G_{299}$, four
+configurations on two nested bases, eight rows. Two of the four,
+\texttt{llama3:8b} at both prompts, could not have rejected the null at
+$0.05$ on either basis before scoring a single pair, because the smallest $p$
+their own marginal permits already exceeds $0.05$. Two of the four sit
+exactly on their marginal-implied ceiling on both bases,
+\texttt{granite3.3:8b} zero-shot and \texttt{llama3:8b} few-shot: their
+observed agreement equals the best any labeller at that flag rate could
+achieve, so no retuning of that labeller at that marginal could have moved it
+further. The two sets overlap on \texttt{llama3:8b} few-shot, which sits on
+its ceiling while unable to reject the null, the least a labeller can show at
+that marginal; \texttt{granite3.3:8b} zero-shot sits on its ceiling while
+rejecting the null, the most that marginal permits.
+
+The table also carries every other hard-label marginal this chapter prints,
+whether or not this project ever joined it to the pharmacist's labels row by
+row: the inclusion rule is every hard-label marginal this chapter prints.
+That adds five rows: the deployed weak labeller (Table~\ref{tab:marginal}),
+the once-prompted Llama 3 8B evaluation baseline (Table~\ref{tab:systems253}),
+and the three replication-prompt local labellers on $G_{299}$
+(Table~\ref{tab:overcalling}). None of the five was scored against the
+pharmacist row by row, so their observed column reads \emph{not scored}, and
+each carries only the ceiling and floor its own marginal implies. Across all
+nine configurations the table now covers, five could not have rejected the
+null at $0.05$ before a single pair was scored, and every one of those five
+is a \texttt{llama3:8b} configuration: the two local prompts already noted
+above and the three \texttt{llama3:8b} marginals just added.
 
 \begin{table}[H]
-\caption[The marginal feasibility gate, eight local labellers]{The marginal
-feasibility gate applied to every local labeller and prompt this chapter
-reports, on both gold denominators.}
+\caption[The marginal feasibility gate, every hard-label marginal this
+chapter prints]{The marginal feasibility gate applied to every hard-label
+labeller marginal this chapter prints: scored where this project joined the
+labeller to the pharmacist row by row, unscored where only the marginal
+survives.}
 \centering
 \footnotesize
 \begin{tabular}{llrrrrrl}
@@ -468,15 +487,22 @@ reports, on both gold denominators.}
 \texttt{llama3:8b}, few-shot      & $G_{299}$ & 0.9398 & 0.0518 & 0.0518 & 0.0053 & 0.4679 & Could not reject, at ceiling \\
 \texttt{llama3:8b}, zero-shot     & $G_{253}$ & 0.8735 & 0.0290 & 0.0849 & 0.0143 & 0.1898 & Could not reject \\
 \texttt{llama3:8b}, zero-shot     & $G_{299}$ & 0.8729 & 0.0269 & 0.0780 & 0.0121 & 0.1894 & Could not reject \\
+\midrule
+Llama 3, deployed weak labeller       & $G_{299}$ & 0.8729 & not scored & 0.0780 & 0.0121 & 0.1894 & Could not reject \\
+Llama 3 8B eval.\ baseline, prompted once & $G_{253}$ & 0.9565 & not scored & 0.0476 & 0.0045 & 0.5795 & Could not reject \\
+\texttt{llama3:8b}, replication prompt      & $G_{299}$ & 0.9532 & not scored & 0.0453 & 0.0041 & 0.5562 & Could not reject \\
+\texttt{granite3.3:8b}, replication prompt  & $G_{299}$ & 0.7425 & not scored & 0.1204 & 0.0286 & 0.0259 & Could reject \\
+\texttt{qwen3:8b}, replication prompt       & $G_{299}$ & 0.6187 & not scored & 0.1605 & 0.0502 & 0.0027 & Could reject \\
 \bottomrule
 \end{tabular}
 \apanote{Ceiling MCC and ceiling $\kappa$ hold every confirmed case inside the
-flagged set, the best table the two marginals permit; observed MCC is the
-labeller's actual score on the same rows. Floor $p$ is the smallest one-sided
-hypergeometric $p$ the marginal allows, read against this chapter's single
-threshold of $0.05$ (Section~\ref{sec:r-multiplicity}). Basis is $G_{253}$ or
-$G_{299}$ (Table~\ref{tab:denoms}). Every cell is generated from the local
-labellers' committed predictions, none is typed.}
+flagged set. The five rows below the rule were never joined to the
+pharmacist row by row; their observed column reads \emph{not scored}, not a
+dash. Floor $p$ is the smallest one-sided hypergeometric $p$ the marginal
+allows (Section~\ref{sec:r-multiplicity}), a precondition rather than a test
+unless observed MCC equals ceiling MCC, where it is also the exact test
+observed. Basis is $G_{253}$ or $G_{299}$ (Table~\ref{tab:denoms}); every
+cell is generated, none is typed.}
 \label{tab:feasgate}
 \end{table}
 
@@ -497,25 +523,30 @@ elsewhere in this chapter; it is read beside them, as a check on what a table
 could have shown before it is read as showing it. A labeller whose floor sits
 above the threshold, \texttt{llama3:8b} at both prompts here, was never going
 to distinguish itself from chance at this marginal, and a labeller sitting on
-its ceiling was already reporting the most agreement its flag rate allows,
-whatever it actually knew about the pairs.
+its ceiling flagged every confirmed positive; at that flag rate it could not
+have scored higher, whatever it otherwise knew about the pairs.
 
 \subsection{What the false positives land on}
 \label{sec:r-ambiguity}
 
-Whether the more capable labellers concentrate their false positives on the
-pairs the pharmacist declined to call, rather than spreading them evenly across
-the $287$ non-confirmed pairs, was tested by replicating a gradient across four
-hosted labellers under two prompts each. Every one of those eight tests was run
-through the Anthropic API or AWS Bedrock, so every odds ratio, every $p$ value,
-and the gradient itself are withdrawn with the runs that produced them
-(Section~\ref{sec:r-frontier}). No local labeller was put to this test, so this
-chapter does not establish whether the ambiguous pairs are disproportionately
-flagged by capable labellers, by weak ones, or by neither. The one confound
-that would have bounded any surviving reading, that an odds ratio compresses
-toward $1$ as a labeller's marginal saturates, is recorded here because it
-would still apply if the question were re-run on labellers this thesis can
-report on.
+Whether a labeller concentrates its false positives on the pairs the
+pharmacist declined to call, rather than spreading them evenly across the
+$287$ non-confirmed pairs, was tested by a one-sided Fisher exact test on flag
+rate, ambiguous against clear-negative, replicated across labellers under two
+prompts each. Four hosted labellers under two prompts each were tested this
+way, eight tests in total; every one was run through the Anthropic API or AWS
+Bedrock, so every odds ratio, every $p$ value, and the gradient itself are
+withdrawn with the runs that produced them (Section~\ref{sec:r-frontier}). The
+two local labellers were put to the same test: \texttt{granite3.3:8b} returns
+an odds ratio of $1.2801$ at $p = 0.3110$ few-shot and $1.5505$ at $p = 0.1788$
+zero-shot; \texttt{llama3:8b} returns $0.6476$ at $p = 0.8577$ few-shot and
+$0.9841$ at $p = 0.6220$ zero-shot, none rejecting the null at $0.05$
+(Section~\ref{sec:r-multiplicity}). This chapter therefore does not establish
+that the ambiguous pairs are disproportionately flagged by any labeller tested
+here. The one confound that would have bounded any surviving reading, that an
+odds ratio compresses toward $1$ as a labeller's marginal saturates, is
+recorded here because it applies to the local tests just reported as much as
+to the withdrawn ones.
 
 \subsection{What the instability costs, and what it does not}
 \label{sec:r-labelnoise}
@@ -531,12 +562,13 @@ than a resampled distribution over labels.
 \section{Architecture}
 \label{sec:res-rq3}
 
-Do the purpose-built components contribute what they were credited with? Three
-claims were audited and none survives. An audit alone leaves the objection that
-the mechanisms were never given a fair test, so three controls were run whose
-positive readings, not their silence, refute the claims.
+Do the purpose-built components contribute what they were credited with? No
+component survives what a code audit finds. No randomisation control was run
+on any of these three clinical components; what follows are audit findings,
+not controls firing: one parameter is falsified as an initialisation artifact,
+one metric is vacated by label leakage, and one module was never trained.
 
-\subsection{Three falsifications}
+\subsection{One falsified, one vacated by leakage, one never trained}
 
 \paragraph{Authority conditioning is an initialisation artifact.} The parameter
 reported as converging to the clinical note hierarchy is initialised at $1.0$
@@ -717,10 +749,11 @@ land within a few hundredths of matched clinical pairs, close enough that the
 proposed mechanism, present and manipulated, does not carry the outcome it was
 credited with.
 
-What the ten-arm table establishes divides by seed count: the seven
-three-seed arms are resolved well outside seed noise and carry a significance
-claim, while the random-roles control task and the segment ordinal ran at a
-single seed each and are read as direction only.
+No arm in this table carries a significance claim; no test was run on any of
+the ten. What it establishes divides by seed count instead: the seven
+three-seed arms are resolved well outside seed noise, while the random-roles
+control task and the segment ordinal ran at a single seed each and are read as
+direction only.
 
 \section{Is the Null Real}
 \label{sec:res-rq4}
@@ -970,27 +1003,37 @@ values at or above $0.7355$ and silent below that line.
 
 \textbf{No multiple-comparison correction is applied anywhere in this thesis.}
 The single threshold every reported $p$ value in this chapter is read against
-is the conventional $\alpha = 0.05$, uncorrected. Each $p$ value states its
-sidedness where it is reported; the feasibility gate's attainable floor is
-one-sided because it bounds the most agreeable outcome a marginal permits, and
-no result in this chapter is described as surviving or
-clearing a correction it was never subjected to. A correction record documents
-this history (C68, C76, C79, C85, C88, C90, C92) rather than narrating it
-here.
+is the conventional $\alpha = 0.05$, uncorrected, and no result in this
+chapter is described as surviving or clearing a correction it was never
+subjected to. Sidedness is stated plainly rather than left implicit: the
+Mann-Whitney tests of Table~\ref{tab:decontam}, the DeLong tests of
+Table~\ref{tab:delong}, the mechanism Fisher test, the Welch test on the
+anisotropy control, and the minimum-detectable-effect calculation of
+Section~\ref{sec:res-rq4} are all two-sided; the local ambiguity-gradient
+Fisher tests and the feasibility gate's attainable floor are one-sided,
+because each bounds the most agreeable outcome a marginal permits; sidedness
+for the Spearman correlations below is not recorded in the artifact behind
+them. The gate's hypergeometric floors (Table~\ref{tab:feasgate}) are
+preconditions, not members of this family: each is computable before a pair
+is scored, so it bounds what a test could show rather than testing what was
+observed. A correction record documents this history (C68, C76, C79, C85,
+C88, C90, C92) rather than narrating it here.
 
 The tests this chapter still reports are enumerated in the committed register
 released with the analysis code, one entry per test bound to the artifact and
 key its $p$ value is read from; the withdrawal removed the eight frontier
 Fisher exact tests, the four frontier Mann-Whitney tests, the four Bedrock
-discrimination tests, and the eight ambiguity-gradient tests, because the runs
-behind every one of them are withdrawn (Section~\ref{sec:r-frontier}). What
-remains is the five Mann-Whitney tests of Table~\ref{tab:decontam}, the five
-DeLong tests of Table~\ref{tab:delong}, the one Fisher exact test on the Rule
-1/2 versus Rule 3/4 mechanism split (Section~\ref{sec:res-rq1}), the one Welch
-two-sample $t$ test on the anisotropy control, and two Spearman rank
-correlations against the pharmacist's danger rating. No committed script has
-recomputed a family size since the withdrawal, so none is typed here; a
-reader who needs the current count should read it from the register.
+discrimination tests, and the eight hosted ambiguity-gradient tests, because
+the runs behind every one of them are withdrawn (Section~\ref{sec:r-frontier}).
+What remains is the five Mann-Whitney tests of Table~\ref{tab:decontam}, the
+five DeLong tests of Table~\ref{tab:delong}, the one Fisher exact test on the
+Rule 1/2 versus Rule 3/4 mechanism split (Section~\ref{sec:res-rq1}), the four
+local Fisher exact tests on the ambiguity gradient
+(Section~\ref{sec:r-ambiguity}), the one Welch two-sample $t$ test on the
+anisotropy control, and four Spearman rank correlations against the
+pharmacist's danger rating. No committed script has recomputed a family size
+since the withdrawal, so none is typed here; a reader who needs the current
+count should read it from the register.
 
 A test belongs to this family by its inferential target, not by what a run
 was commissioned for: two tests asking the same question of the same rows
@@ -998,22 +1041,27 @@ count once regardless of which experiment produced the artifact, a
 sensitivity analysis on a nested subset is a robustness check rather than a
 second test, and a test whose target is this project's own bookkeeping, such
 as the joinability check of Section~\ref{sec:r-exemplar}, is outside every
-family here (C90). Neither surviving block is close to independent either:
-the five Mann-Whitney tests are three seeds of one model, their ensemble, and
-one further run, all scored on the same $253$ rows, and the five DeLong tests
-are five comparisons against a single reference run, so the absence of a
-rejection across either correlated block is weaker evidence than the same
-absence would be for a single pre-specified test, and any single rejection
-inside one would be correspondingly weaker evidence of an effect.
+family here (C90). No surviving block is close to independent: the five
+Mann-Whitney tests are three seeds of one model, their ensemble, and one
+further run, all on the same $253$ rows; the five DeLong tests are five
+comparisons against a single reference run; and the four local ambiguity
+tests are two models under two prompts each, scored on the same $46$
+ambiguous and $241$ clear-negative pairs. The absence of a rejection across
+any correlated block is weaker evidence than the same absence would be for a
+single pre-specified test, and any single rejection inside one would be
+correspondingly weaker evidence of an effect.
 
-One test not reported elsewhere is disclosed here rather than left out
-silently: of four Spearman correlations against the pharmacist's danger
-rating, the untrained harm head against the rating restricted to the $12$
-positives returns $\rho = -0.6621$ at $p = 0.019$, nominally below $0.05$ on
-twelve cases. It is not treated as evidence of anything, since
-Section~\ref{sec:res-rq3} already reads the harm head as untrained; it is
-disclosed for completeness rather than read as a finding in either direction,
-since reporting only the null member of a family the reader cannot see is the
+Two more Spearman tests against the same target are disclosed here rather
+than left out silently: the contradiction-probability score against the
+danger rating returns $\rho = -0.0286$ at $p = 0.6224$ over all $299$ pairs
+and $\rho = -0.2771$ at $p = 0.3833$ over the $12$ positives, and the harm
+score against the rating restricted to the $12$ positives returns
+$\rho = -0.6621$ at $p = 0.019$, nominally below $0.05$ on twelve cases;
+Section~\ref{sec:res-rq3} already reports the fourth, the harm score over all
+$299$ pairs. None of the four is treated as evidence of anything, since the
+harm head is already read there as untrained and the contradiction-probability
+score is this project's own detector rather than an external labeller;
+reporting only the null members of a family the reader cannot see is the
 defect this subsection exists to prevent.
 
 \subsection{The positive control}
@@ -1028,10 +1076,14 @@ admissions holding $570$ positives, a different task and cohort from
 the $253$-pair contradiction evaluation above. Four arms on the public task,
 a pretrained encoder and three from-scratch encoders at different
 pretraining scales, were each trained at 3, 6, 12 and 24 epochs, three seeds
-per cell, for 48 runs and 555 minutes of compute. The adjudication rule was
-committed before the sweep ran: if the gap between the pretrained arm and the
-best from-scratch arm closed as the budget grew, the mortality-task null
-would be attributable to under-training, and if not, not.
+per cell, for 48 runs and 555 minutes of compute. The adjudication rule
+(Table~\ref{tab:m-prereg}) was committed before the sweep ran: a gap of at
+least $3.0$ accuracy points between the pretrained arm and the best
+from-scratch arm at the longest budget, with non-overlapping
+one-standard-deviation bands, licenses reading the clinical null as measured;
+a smaller or unresolved gap reverts it to an insensitivity finding; $2.5$ to
+$3.5$ points is inconclusive in advance, and the rule forbids resolving that
+by adding seeds.
 
 \begin{table}[H]
 \caption[Convergence sweep across training budgets]{Convergence sweep: four arms at four training budgets.}
@@ -1079,14 +1131,22 @@ Mortality control  & Gap, three seeds each &         & $+0.0031$ \\
 Mortality control  & Gap, lineage-pinned seeds only & & $-0.0011$ \\
 \bottomrule
 \end{tabular}
-\apanote{Public-benchmark rows are accuracy at a single budget; mortality rows are AUROC on the same split. The from-scratch arm has more parameters than pretrained and still trails it by a gap larger than the mortality gap. The $4.53$-point headline is the pre-registered sweep of Table~\ref{tab:conv}, not this budget, and no significance test exists for the mortality gap. The arms do not share a seed set (pretrained $1,2,3$; from-scratch $0,1,2$): dropping seed $0$, which lacks split lineage, gives a two-seed mean of $0.7703$ and flips the sign to $-0.0011$; the $4.53$-point test also omits \texttt{equal\_var=False}, so any $p$ would be Student's, not Welch.}
+\apanote{Public rows are accuracy at one budget; mortality rows are AUROC.
+The from-scratch arm has more parameters than pretrained yet trails it by a
+gap larger than the mortality gap. The $4.53$-point headline is Table~\ref{tab:conv}'s
+pre-registered sweep, not this budget; no significance test exists for the
+mortality gap, and the $4.53$-point test omits \texttt{equal\_var=False}, so
+any $p$ is Student's, not Welch. The arms share no seed set (pretrained
+$1,2,3$; scratch $0,1,2$): dropping seed $0$, lacking split lineage, gives a
+two-seed mean of $0.7703$, flipping the sign to $-0.0011$.}
 \label{tab:scaling}
 \end{table}
 
 The bag-of-words baseline outranking the neural configurations is not a real
 ordering either: Table~\ref{tab:delong} cannot separate configurations four
-points apart, and an eight-point gap measured on the same 12 positives sits
-inside the same noise.
+points apart, and whatever gap the baseline shows over the neural
+configurations, measured on the same 12 positives, sits inside that same
+noise.
 
 \section{Metrics Near the Base Rate}
 \label{sec:res-metrics}
@@ -1142,11 +1202,19 @@ their whole length. Figure~\ref{fig:forest} is that analysis in one view. No
 claim in this thesis rests on the ordering between them.
 
 Whether 12 positives could ever resolve a discrimination result at all is not a
-question this table can answer on its own: the frontier row that would have
-carried that argument was a hosted-API result and is withdrawn along with every
-number computed from it. Neither system this pipeline produced is
-distinguishable from chance on the 12 positives, and this chapter does not
-have a local-only labeller row that is.
+question this table can answer on its own: an analysis that might have
+addressed it directly was run through a hosted service and is withdrawn along
+with every number computed from it. Neither system this pipeline produced,
+ACCORD at $\tau = 0.5$ nor the Llama 3 8B evaluation baseline, is
+distinguishable from chance on the 12 positives. This chapter does have one
+local-only labeller row that is: \texttt{granite3.3:8b} zero-shot rejects the
+null at a nominal, uncorrected one-sided hypergeometric $p$ of $0.0242$ on
+$G_{253}$ and $0.0290$ on $G_{299}$ (Table~\ref{tab:feasgate}). That row also
+sits exactly on its own ceiling, so a percentile-bootstrap MCC interval is not
+a valid test of it on top of the hypergeometric one: at that flag rate almost
+every resample still flags almost every confirmed case, so almost every
+resample returns a positive MCC, and no interval excluding zero for a row at
+ceiling is evidence of anything the ceiling does not already guarantee.
 The instrument's sensitivity to a real effect at this sample size is instead
 established the way Section~\ref{sec:res-rq4} establishes it, on the mortality
 positive control rather than on this task. The marginal feasibility gate of

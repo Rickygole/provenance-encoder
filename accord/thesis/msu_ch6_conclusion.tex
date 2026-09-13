@@ -34,17 +34,18 @@ standard-shaped pipeline to answer it: rule-based candidate mining, language
 model weak supervision, and a purpose-built neural detector over a
 domain-pretrained clinical encoder. Five questions were posed, four about
 the stages and one about the field that publishes pipelines like this one;
-every stage failed a control, and Section~\ref{sec:conc-found} keeps rather
-than collapses the distinction between failures that carry different
-weight.
+each stage's reading was tested against its control, and
+Section~\ref{sec:conc-found} keeps rather than collapses the distinction
+between failures that carry different weight.
 
 \section{What Was Found}
 \label{sec:conc-found}
 
 Chapter~\ref{ch:discussion}, Table~\ref{tab:disc-spine} synthesises what
 each stage reported before its control and what the control changed; this
-section states the outcome once. Every one of the five questions failed a
-control. The candidate pool's enrichment is real, but its precision is
+section states the outcome once. Each of the five questions' readings was
+tested against its control, and not every reading changed. The candidate
+pool's enrichment is real, but its precision is
 bounded above by an exemplar defect that made the evidence displayed to the
 annotator, the weak labeller, and the detector independent of the evidence
 that triggered the candidate. The weak labeller's marginal fixes an
@@ -54,8 +55,8 @@ conventional significance threshold at any outcome its own marginal
 permitted. None of three credited architectural components is left holding
 what it was credited with, and the three failures are of three different
 kinds. The trained detector's ranking is at chance under both evaluation
-bases and under subject-disjoint splits, a result the labeller's marginal
-already predicts rather than one that needed explaining after the fact, and
+bases and under subject-disjoint splits, a result a positive control
+elsewhere in this chapter shows is not mere underpowering, and
 a TF-IDF logistic regression ranks above both neural configurations, which
 is either surface-form signal or small-sample noise and is not established
 either way. A $75$-paper corpus deliberately enriched toward careful work
@@ -164,8 +165,7 @@ and the sharpest thing this thesis can say is that sentence together with the me
 it. The weak labeller assigns the contradiction class to the large majority of a pool whose
 confirmed rate is a twentieth of that, and at that marginal the largest agreement any
 thresholded label could express with the pharmacist is bounded before training begins. That
-bound follows from two marginals alone, needing no join, no significance test, and no vendor,
-which is why the detector inherits a marginal rather than a judgement. Every other failure in
+bound follows from two counts alone, which is why the detector inherits a marginal rather than a judgement. Every other failure in
 this thesis is attached to a mechanism of the same kind, read out of the code or the counts
 rather than inferred from a null.
 
@@ -176,14 +176,11 @@ control that fired, except the harm head, which needed no control because nothin
 The practical recommendation is one sentence. Before training anything downstream of a weak
 labeller for a rare clinical event, measure that labeller's positive rate against the gold
 standard's confirmed rate and check what agreement its own marginal permits before spending a
-training budget on the rest. This project's local evaluation baseline was such a check run late
-rather than early: prompted once with no training, it returned the same null on the same rows
-the finished pipeline did. Run first, it would have named the marginal ceiling this thesis
-instead spent a pipeline discovering.
+training budget on the rest. The prompted-once evaluation baseline flags $242$ of $253$ pairs
+and could not have rejected the null at any outcome (Table~\ref{tab:feasgate}); that count alone,
+checked first, would have said so.
 
-A negative result that has been diagnosed is worth more than one that has not. Part of that
-diagnosis was a set of controls that belong to other people's papers
+The diagnosis used controls from other people's papers
 \citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,egami2023surrogates,feinstein1990paradoxes},
-cost $1216.4$ GPU minutes in total, and had not been run on this pipeline before this work. The rest is four checks of its own: the marginal feasibility gate, trigger-exemplar
-dissociation, the degeneracy precondition, and sign provenance. Each is cheap, each catches a
-defect no reported metric here was sensitive to, and none is a new method.
+costing $1216.4$ GPU minutes, plus three cheap checks: trigger-exemplar dissociation, the
+degeneracy precondition, and sign provenance.
