@@ -43,6 +43,20 @@ PREFIX = "transmission"
 PATTERN = "results/accord/differential/frontier_*_shot*.json"
 
 
+def _per_channel(runs):
+    """Prompts per channel.
+
+    The 2025 guidance judges a route by whether the service retains, and the two
+    routes used here fall on opposite sides of that test, so the total is no
+    longer the quantity the compliance argument needs. The per-channel split is
+    computed from the same artifacts the total is, and never typed.
+    """
+    out = {}
+    for r in runs:
+        out[r["channel"]] = out.get(r["channel"], 0) + r["prompts"]
+    return out
+
+
 def main():
     runs = collections.defaultdict(lambda: {"prompts": 0, "conditions": [],
                                             "artifacts": []})
@@ -82,6 +96,7 @@ def main():
         },
         "runs": ledger,
         "total_prompts": sum(r["prompts"] for r in ledger),
+        "per_channel": _per_channel(ledger),
         "n_runs": len(ledger),
     }
     os.makedirs(os.path.dirname(OUT), exist_ok=True)

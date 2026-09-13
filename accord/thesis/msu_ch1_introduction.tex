@@ -290,8 +290,12 @@ pairs, is reported with every other headline estimate in
 Figure~\ref{fig:forest}. The two systems this pipeline produced both carry
 intervals containing zero, so the ordering between them is an ordering over
 noise. That is a statement about those two systems and not about the sample
-size: the frontier labellers on the same $253$ pairs carry intervals that
-exclude zero, which Chapter~\ref{ch:results} reports. The ACCORD row there is the
+size: two Anthropic labellers on the same $253$ pairs carry intervals that
+exclude zero, which Chapter~\ref{ch:results} reports. A third labeller from a
+second maker, Llama 3 70B, does not: at margins identical to one of those two it
+returns a Matthews correlation of $0.1379$ against $0.2253$ and does not clear the
+corrected threshold, so the separation demonstrated here is a property of two
+models from one maker rather than of frontier scale in general. The ACCORD row there is the
 contaminated released run flagged in Chapter~\ref{ch:results}'s per-pair calls
 table.
 
@@ -391,11 +395,16 @@ instruments used to measure it?
 chance on the $253$ and $299$ pair evaluations, and the twelve-positive
 evaluation's own class counts put its minimum detectable AUROC at $0.7355$, so
 the null is informative above that line and silent below it. Two further
-configurations, frontier labellers added to the same $253$ pairs, reach balanced
-accuracies of $0.7941$ and $0.7254$, each with a Matthews interval that excludes
-zero, which is above the line this evaluation set for itself, and each separating the
-confirmed cases from the rest, under the zero-shot prompt, at a significance that
-survives correction over the whole family of tests in this thesis. The same two models
+configurations, two Anthropic models added to the same $253$ pairs, separate the
+confirmed cases from the rest under the zero-shot prompt at a significance that
+survives correction over the whole family of tests in this thesis. Their balanced
+accuracies are $0.7941$ and $0.7254$, and an earlier version of this paragraph said
+both were above the line the evaluation set for itself. Only the first is: $0.7254$
+sits below $0.7355$, and the Haiku configuration that clears the line on that
+quantity is the few-shot one at $0.7358$, which is not the configuration the
+sentence names. The two-labeller claim rests on the two zero-shot exact tests,
+which do clear the corrected threshold, and not on balanced accuracy read against
+the detectable line. The same two models
 under the few-shot prompt do not both survive it, which is stated where the family is
 (Section~\ref{sec:r-multiplicity}). That two independent labellers clear it, rather
 than one, is what makes the instrument's sensitivity a measurement rather than a single

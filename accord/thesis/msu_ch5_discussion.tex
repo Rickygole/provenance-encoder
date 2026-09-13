@@ -64,7 +64,7 @@ Candidate mining & Pool base rate $0.0401$ read as a property of the mining rule
 \addlinespace
 Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ gold pairs labelled positive against $12$ true positives; a prior, not a decision & Reversed \\
 \addlinespace
-Architecture & Named components credited with the reported performance & Components falsified positively by control tasks, not by absence of evidence & Reversed \\
+Architecture & Three named components credited with the reported performance & Three different failures, not one: the authority scalars are falsified, sitting at initialisation across seeds; the rule-type head is confounded, its metric vacated by a target one linear layer from an input feature that equals it; the harm head is vacuous, with no term in the objective to train it. No randomisation control was run on any of the three & Reversed \\
 \addlinespace
 Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & At chance on the defect-free stratum, with an instrument shown to resolve $4.53$ points where an effect existed & Survived \\
 \addlinespace
@@ -98,8 +98,15 @@ evidence at $0.8934$ to $0.9508$ fidelity because the original row order
 cannot be recovered exactly, resolves 137 of the 165 Rule 1 and Rule 2
 candidates and finds 65 of them justified by the wrong sentence, a rate of
 $0.4745$, with a further 28 unresolved. A true key join, exact where it
-applies, applies to only 23 of the 165 rows, and finds all 23 correct. The
-honest range for the wrong rate is 0 to $0.4745$, not a single figure.
+applies, applies to only 23 of the 165 rows, and finds all 23 correct. Two measurements of the wrong rate therefore exist, $0.4745$ from the
+reconstruction and zero from the exact join, and they are not two ends of one
+interval. The arithmetic rules that reading out. If the reconstruction's rate
+described the rows the join covers, all of those rows coming back correct is too
+unlikely to entertain, and that holds whether the joinable rows are treated as a
+subset of the resolved ones or as disjoint from them. One of the two procedures
+is right about these rows and the other is wrong. The record cannot say which,
+and no figure between the two is supported by anything, so the two measurements
+are reported as mutually exclusive rather than as the ends of a range.
 
 That is a construct problem before it is a precision problem. The quantity the
 annotation exercise was supposed to measure is whether a mined pair is a
@@ -178,25 +185,37 @@ the labeller's marginal was a property nobody checked, and the failure is
 invisible to any evaluation that never compares it to a human-established base
 rate \citep{pangakis2023validation}.
 
-\subsection{Architecture: reversed, and positively}
+\subsection{Architecture: reversed, in three different ways}
 
-The architectural controls did the most damage because they fired positively. A
-component that fails to beat its ablation has produced an absence of evidence. A
-component whose credited mechanism is reproduced by a deliberately meaningless
-substitute has been falsified. That is the randomisation logic
-\citet{adebayo2018sanity} apply to saliency maps, moved to a different kind of
-component: replace what the component consumes with something that cannot carry
-the credited signal, hold the training conditions fixed, and see whether the
-credited contribution survives.
+The architectural checks did the most damage, and the word for what they did is
+not the same in all three cases. A component that fails to beat its ablation has
+produced an absence of evidence. A component whose credited mechanism is
+reproduced by a deliberately meaningless substitute has been falsified, which is
+the randomisation logic \citet{adebayo2018sanity} apply to saliency maps:
+replace what the component consumes with something that cannot carry the
+credited signal, hold the training conditions fixed, and see whether the
+credited contribution survives. That is worth stating because no randomisation
+control was run on any of the three clinical components. The randomised
+substitute arms in this thesis belong to a second system, a
+provenance-conditioned encoder, and nothing about them transfers here. The three
+failures below were established by other means, and they are not the same kind
+of failure.
 
-Chapter~\ref{ch:results} reports two. The authority parameter described as
-discovered was initialised at the value reported as discovered and sits behind a
-normalisation that removes its gradient. An auxiliary rule label was readable
-from the input features, so the rule head measured leakage rather than learning,
-which is the textbook symptom \citet{kaufman2012leakage} describe: a target that
-is not independent of what the model already has.
+Only the authority scalars are falsified, and the falsified claim is a specific
+one. Training was said to have discovered those values. The parameter was
+initialised at the value reported as discovered, it sits behind a normalisation
+that removes its gradient, and it agrees across independent seeds, so the claim
+that training found it is refuted. The rule-type head is not falsified but
+confounded: its auxiliary target was readable from the input features, one linear
+layer from a feature that equals it, so what the head measured was leakage rather
+than learning, which is the textbook symptom \citet{kaufman2012leakage} describe.
+The metric is vacated and the component is untested, which is weaker than
+refuted. The harm head is neither, because there was nothing there to falsify: no
+term in the objective trains it, so no trained mechanism ever asserted anything
+that a control could refute. The claim attached to it is withdrawn as vacuous
+rather than reported as refuted.
 
-A third control, the anisotropy control, targeted the representation: if the
+A further control, the anisotropy control, targeted the representation: if the
 frozen encoder is anisotropic, a high mean cosine similarity between the two
 notes in a pair is a property of the encoder rather than a signal about the
 pair. On unrelated non-clinical sentence pairs through the same frozen
@@ -208,7 +227,7 @@ than identity, close enough to undercut the interpretation offered for the
 high similarity once a control task returns nearly the same number on text
 sharing no content.
 
-A fourth control, borrowed rather than built here, targets the architecture
+One more control, borrowed rather than built here, targets the architecture
 directly: Hewitt and Liang own the control-task construction and its
 randomised-substitute logic \citep{hewitt2019control}, while the
 misaligned-block and global-positions arms applied to it are this thesis's own
@@ -528,17 +547,26 @@ project cannot approach.
 dependency in this thesis runs through four chapters and should be stated as a
 single point of failure rather than left for a reader to assemble.
 Section~\ref{sec:m-ethics} records that the routes carrying the four Claude rows were
-selected against published guidance before use, and that whether that guidance covers
-the first-party route is an open question for the chair and the institutional data
-steward. If the answer is no, those rows are withdrawn on the same principle that
+selected against guidance PhysioNet had already replaced, and that the instrument in
+force when the runs were made asks whether the service stores or retains the data.
+Amazon Bedrock satisfies that test on its published terms and the Anthropic API does
+not, because it deletes within thirty days rather than not retaining, and holds
+flagged requests for longer. Whether that difference withdraws the Claude rows is an
+open question for the chair and the institutional data steward. If the answer is no, those rows are withdrawn on the same principle that
 withdrew the original comparison, and the withdrawal is not cosmetic: they are the
 evidence that the twelve-positive evaluation can resolve an effect at all, so
 Section~\ref{sec:r-frontier}'s demonstration reverts to the calculation it replaced
 and RQ4's answer returns from "the instrument was sensitive enough to see an effect of
 that size" to "the minimum detectable effect says it should have been, and no
-measurement on these rows confirms it." What would still stand is the pretraining
-positive control, which shows the apparatus resolves a real difference on a public
-benchmark, and the rule-head transfer collapse, neither of which touches a hosted API.
+measurement on these rows confirms it." The obvious fallback does not hold. The Bedrock rows are on the route that
+satisfies the retention test, so they would survive the withdrawal, but Llama 3 70B
+does not replicate the separation: at an operating margin identical to one of the
+Claude rows it returns a lower correlation and does not clear the corrected
+threshold, and its power floor shows that failure is real rather than an artifact of
+how often it flagged. So the compliant remainder cannot carry the demonstration the
+withdrawn rows carried. What would still stand is the pretraining positive control,
+which shows the apparatus resolves a real difference on a public benchmark, and the
+rule-head transfer collapse, neither of which touches a hosted API.
 That is a weaker position than the one this chapter argues from, and it is the
 position this thesis would hold. Naming it here costs nothing and is the only way a
 reader can price the dependency.
@@ -553,8 +581,15 @@ power is $0.7355$ on the primary set and $0.8058$ on the stratum. The intervals
 are wide and the ordering between the two systems this pipeline produced is
 unidentified, their Matthews correlations being $-0.0436$ and $-0.0070$, both
 within $0.05$ of chance. The limit is not that $12$
-positives cannot separate anything: two frontier labellers on the same rows carry
-intervals that exclude zero, at $+0.3189$ and $+0.2253$. It is that $12$ positives cannot separate systems
+positives cannot separate anything: two Anthropic labellers on the same rows,
+Claude Sonnet 5 and Claude Haiku 4.5, carry intervals that exclude zero, at
+$+0.3189$ and $+0.2253$. That is a claim about those two models and not about
+frontier capability in general, and the qualification belongs in the same breath
+as the claim rather than later. Llama 3 70B, a third labeller from a second
+maker, flags at $0.2372$ on these rows, the identical rate to the Haiku
+configuration above, and returns $0.1379$ with an interval that includes zero. It
+is the same operating margin, so its non-replication is not an artifact of how
+often it flagged. It is that $12$ positives cannot separate systems
 whose effects are this small, which is a statement about those systems. No ablation carries a
 significance claim.
 
@@ -707,7 +742,7 @@ Exemplar defect on action-conflict candidates & Severe for pool precision, not d
 \addlinespace
 Single annotator, no inter-rater or intra-rater reliability & Severe; bounds every gold-label conclusion & Stated; the earlier circular coefficient is retracted, and the two-pass design cannot recover an intra-rater figure because the passes were not retained separately \\
 \addlinespace
-Weak-label leakage into model inputs & Moderate to severe & Falsified positively by the rule-head control; the affected metric is withdrawn \\
+Weak-label leakage into model inputs & Moderate to severe & Demonstrated on the rule-type head, whose target is one linear layer from an input feature that equals it; the affected metric is vacated, which leaves the head untested rather than falsified \\
 \addlinespace
 Extraction never validated against human annotation & Moderate to severe; no downstream error rate decomposes & Stated; first item of any continuation \\
 \bottomrule

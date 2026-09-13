@@ -69,14 +69,19 @@ pre-registered runs separate those factors, and changing the prompt moves one mo
 than changing the serving channel does. What does not move is that no labeller tested is
 calibrated at this base rate.
 
-\textbf{RQ3, architecture.} None of the proposed components contributes what it was credited
-with, and the controls establish this positively rather than by absence of evidence. The
-authority parameters reported as learned finish within two percent of their initialisation and
-agree to two decimals across independent seeds, which is not a parameter discovered by
-training. The harm head emits scores spanning the range of an untrained sigmoid and its
-correlation with the pharmacist's danger rating is indistinguishable from zero; that null
-measures an untrained module and says nothing about whether clinical severity is predictable.
-On a second system, a provenance-conditioned encoder built for this analysis rather than the
+\textbf{RQ3, architecture.} None of the three proposed components is left holding what it was
+credited with, and the three failures are of three different kinds. Only the authority scalars
+are falsified: they were reported as learned, they finish within two percent of their
+initialisation and agree to two decimals across independent seeds, which refutes the specific
+claim that training discovered those values. The rule-type head is confounded rather than
+falsified, because its auxiliary target sits one linear layer from an input feature that equals
+it, so the metric it earned is vacated and the head is untested. The harm head is neither,
+because there was never anything there to falsify: no term in the objective trains it, it emits
+scores spanning the range of an untrained sigmoid, and its correlation with the pharmacist's
+danger rating is indistinguishable from zero; that null measures an untrained module and says
+nothing about whether clinical severity is predictable. No randomisation control was run on any
+of the three. The randomised substitute arms in this thesis belong to a different system.
+On that second system, a provenance-conditioned encoder built for this analysis rather than the
 clinical detector, a randomised control over the same role-label alphabet directionally loses
 to true role labels while an arbitrary positional ordinal beats both, so role semantics look
 like they carry something real and a provenance-free position looks like it carries more.
@@ -134,16 +139,17 @@ slope is $-0.0078$ signed under one selection regime and $+0.0118$ under the
 other, and both invert when stored as magnitudes. A quantity stored as a
 magnitude licenses no directional claim.
 
-The randomisation controls changed the sign of the architecture argument on
-the second system, not on the clinical detector, but not through the arm built
-for that purpose: the pre-specified role-label control ran underpowered
-(RQ3 above), not falsified. The sharper result is
-the segment-index arm, an arbitrary ordinal carrying no provenance meaning,
-which reduces the loss by $0.9476$ nats against true role labels' $0.8244$
-nats: a substitute with no provenance content outperforming the credited
-component is not consistent with that component working as credited, the way
-a mere ablation drop would be. Chapter~\ref{ch:results} reports both comparisons, which is why RQ3
-is answered negatively rather than left open.
+The randomisation controls were run on the second system and not on the
+clinical detector, and the arm built to test the credited component did not
+settle anything: the pre-specified role-label control ran underpowered
+(RQ3 above), not falsified. The segment-index arm does not reinstate that
+falsification. An arbitrary ordinal carrying no provenance meaning reduces the
+loss by $0.9476$ nats against true role labels' $0.8244$ nats, which is a
+competing hypothesis about what the mechanism exploits, not a control task, and
+not evidence that role semantics contribute nothing. Chapter~\ref{ch:results}
+reports both comparisons and neither refutes the role-label claim. RQ3 is
+answered negatively on the clinical detector's own three components, not on
+this arm.
 
 The controls were cheap. Logged control compute totals $1216.4$ GPU minutes across $79$ runs: the
 AG News convergence sweep $555$ minutes over $48$ runs, a separate
@@ -249,11 +255,15 @@ Dangerous medication contradictions between nursing notes and discharge summarie
 recurring, and worth detecting. A standard-shaped pipeline built for them does not detect them,
 and the sharpest thing this thesis can say is not that sentence but the comparison beside it.
 On the $253$ non-ambiguous pairs the pipeline's detector and a separately prompted Llama 3 8B
-baseline both return Matthews correlations whose intervals contain chance, while two frontier
-labellers given one zero-shot prompt and no training at all return $+0.3189$ and $+0.2253$,
-both intervals excluding it. Only the stronger of the two is also separated from the pipeline:
-Sonnet's interval begins above the detector's upper bound and Haiku's overlaps it, so the claim
-that a frontier labeller outranks this pipeline rests on the Sonnet row alone. This thesis
+baseline both return Matthews correlations whose intervals contain chance, while two Anthropic
+labellers, Claude Sonnet 5 and Claude Haiku 4.5, given one zero-shot prompt and no training at
+all return $+0.3189$ and $+0.2253$, both intervals excluding it. That is a result about those
+two models and not about frontier capability, and the counter-case is part of it: Llama 3 70B,
+from a second maker, flags at the same rate of $0.2372$ as the Haiku configuration and returns
+$0.1379$ with an interval that includes chance, so the identical operating margin rules out its
+flag rate as the explanation. Only the stronger of the two Anthropic rows is also separated from
+the pipeline: Sonnet's interval begins above the detector's upper bound and Haiku's overlaps it,
+so the claim that a prompted model outranks this pipeline rests on the Sonnet row alone. This thesis
 commits to claiming an ordering among systems only on an interval around the difference, and no
 such interval was computed, so the non-overlap is the weaker evidence that is available and the
 ordering claim is scoped to it (Table~\ref{tab:mcc}).
@@ -261,8 +271,8 @@ ordering claim is scoped to it (Table~\ref{tab:mcc}).
 Those systems saw the same rows, the same exemplars, the same base rate, the same twelve
 positives and the same single annotator. What that rules out is narrower than it first appears.
 It rules out the evaluation being unable to resolve an effect at this sample size, and it rules
-out the base rate and the exemplar defect making the task unresolvable, because the prompted
-systems faced both and separated the cases anyway. It does not rule out rarity as a cause of
+out the base rate and the exemplar defect making the task unresolvable, because the two
+Anthropic labellers faced both and separated the cases anyway. It does not rule out rarity as a cause of
 this pipeline's failure, because rarity reaches this pipeline through a learned label
 distribution the prompted systems never had: the labeller's degenerate marginal is why the
 detector cannot rank, and that marginal is a response to prevalence. Nor does it rule out the
@@ -274,9 +284,10 @@ is the label distribution or the detector's construction is not settled here, be
 this thesis trains a detector of this shape on non-degenerate labels.
 
 The practical recommendation that follows is one sentence. Before building a pipeline of this
-shape for a rare clinical event, prompt a frontier model on the evaluation set and make the
-pipeline beat it. This project did not do that, and doing it would have cost an afternoon at
-the start rather than a thesis at the end.
+shape for a rare clinical event, prompt a strong instruction-tuned model on the evaluation set
+and make the pipeline beat it. Which model is part of the check rather than a detail: the two
+Claude rows here clear chance and the Llama 3 70B row does not. This project did not do that,
+and doing it would have cost an afternoon at the start rather than a thesis at the end.
 
 Two of these findings should recur in direction in a differently built version of this
 pipeline, and neither magnitude should be carried across: high-recall rules on an event this
@@ -291,8 +302,10 @@ rest fall into.
 
 None of that establishes that the task cannot be done, a limit stated once and not re-argued
 here (Section~\ref{sec:disc-null}). What it establishes is narrower and more useful: each
-failure has a located mechanism, and each was separated from measurement artifact by a control
-that fired.
+failure has a located mechanism, and the failures a control could reach were separated from
+measurement artifact by a control that fired. The harm head is the exception, and it is an
+exception in the other direction: no control was needed, because no term in the objective ever
+trained it.
 
 A negative result that has been diagnosed is worth more than one that has not. Part of that
 diagnosis was a set of controls that belong to other people's papers

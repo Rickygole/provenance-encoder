@@ -531,6 +531,106 @@ difference of a fraction of one case and means nothing at this sample size. The
 false-positive rates, $0.1618$ against $0.9253$, are measured on $241$ clear
 negatives, and that is the best-powered comparison in this chapter.
 
+\subsection{The same control, applied to the rejection}
+\label{sec:r-defectfree}
+
+The asymmetry is worth stating before the numbers. Every row above is scored on
+$G_{253}$, which carries the Rule 1 and Rule 2 pairs the exemplar defect of
+Section~\ref{sec:r-exemplar} corrupts, so a reader is entitled to ask whether the
+separation those rows report is a property of the labellers or a property of a
+gold set in which some annotations were made against the wrong evidence.
+$G_{134}$ is the stratum built to answer exactly that, because Rule 3 selects the
+maximum-difference dose pair and Rule 4 has no discharge sentence to select, and
+the defect cannot fire on either. That stratum was constructed, and until now it
+was scored only where the answer was a null: Section~\ref{sec:res-rq4} restricts
+the control model and the contaminated released run to it, and the frontier
+comparison this section leads with was never restricted to it at all. Applying
+the strongest available control to the result that fails and not to the result
+that succeeds is the defect class this thesis exists to describe, and it was
+inside this chapter's headline. The control has now been run on the rejection and
+Table~\ref{tab:defectfree} is what it returned.
+
+Dropping the ambiguous rows from that stratum, as $G_{253}$ does from $G_{299}$,
+leaves $108$ pairs carrying $6$ confirmed contradictions. The positives halve
+against the $12$ every row above rests on, so wider intervals are the expected
+consequence of the restriction rather than a finding in it.
+
+\begin{table}[H]
+\caption[Frontier labellers on the defect-free stratum]{Every frontier labeller
+rescored on the defect-free stratum, $108$ pairs with $6$ confirmed
+contradictions, with the smallest $p$ each row's margins could have returned.}
+\centering
+\small
+\begin{tabular}{lrrlrr}
+\toprule
+\textbf{Labeller} & \textbf{Flagged} & \textbf{MCC} & \textbf{95\% CI} &
+\textbf{$p$} & \textbf{Attainable floor} \\
+\midrule
+Claude Sonnet 5, zero-shot  & $25$ & $0.2502$ & $0.0$ to $0.458$        & $0.0248934$ & $9.25503 \times 10^{-5}$ \\
+Claude Sonnet 5, few-shot   & $13$ & $0.283$  & $-0.0517$ to $0.5664$   & $0.0224207$ & $8.96761 \times 10^{-7}$ \\
+Claude Haiku 4.5, zero-shot & $30$ & $0.2106$ & $-0.0216$ to $0.4057$   & $0.0491266$ & $0.0003103$ \\
+Claude Haiku 4.5, few-shot  & $17$ & $0.3392$ & $0.0402$ to $0.5818$    & $0.00539393$ & $6.46755 \times 10^{-6}$ \\
+Llama 3 70B, zero-shot      & $44$ & $0.0457$ & $-0.1441$ to $0.2302$   & $0.471393$ & $0.00368897$ \\
+Llama 3 70B, few-shot       & $23$ & $0.17$   & $-0.0806$ to $0.4021$   & $0.10948$  & $5.27537 \times 10^{-5}$ \\
+Llama 3 8B, zero-shot       & $87$ & $0.017$  & $-0.1873$ to $0.1437$   & $0.669397$ & $0.263897$ \\
+Llama 3 8B, few-shot        & $87$ & $0.017$  & $-0.1873$ to $0.1437$   & $0.669397$ & $0.263897$ \\
+\bottomrule
+\end{tabular}
+\apanote{One set throughout, the defect-free stratum with its ambiguous rows
+dropped, $108$ pairs and $6$ positives, so the rows are comparable to each other
+and not to Table~\ref{tab:mcc}, which is scored on $253$ pairs and $12$
+positives. The $p$ column is the one-sided exact conditional test, the instrument
+C85 established for these tables. The attainable floor is the smallest $p$ that
+row's margins could return with every one of the $6$ confirmed cases inside its
+flagged set, so a floor above the threshold a row is read against means the row
+could not have cleared it whatever the labeller knew. Intervals are percentile
+bootstraps on the same convention as Table~\ref{tab:mcc}. The two Llama 3 8B
+rows are identical in every column, which is a property of the retained
+prediction artifacts on these rows rather than a value carried across.}
+\label{tab:defectfree}
+\end{table}
+
+The effect sizes survive. The four Anthropic Matthews correlations on the clean
+stratum, $0.2502$, $0.283$, $0.2106$ and $0.3392$, sit in the same band as the
+$+0.3189$, $+0.2137$, $+0.2253$ and $+0.2431$ Table~\ref{tab:mcc} reports for the
+same four runs on $G_{253}$, and the capability ordering is unchanged in kind:
+both Llama 3 70B rows and both Llama 3 8B rows stay far below them, the 8B rows
+at effectively zero. So the separation is not an artifact of the corrupted
+stratum. Whatever the exemplar defect did to the annotations, it did not
+manufacture this chapter's rejection.
+
+Statistical significance does not survive, and the failure is not an underpowering
+excuse. No row in Table~\ref{tab:defectfree} clears the corrected threshold of
+$0.0017$ that Section~\ref{sec:r-multiplicity} derives. The best of them, Haiku
+few-shot at $0.00539393$, misses by a factor of about three. The attainable floors
+are what make that a genuine failure to clear: five of the eight rows carry floors
+orders of magnitude below the threshold, the four Anthropic rows at
+$9.25503 \times 10^{-5}$, $8.96761 \times 10^{-7}$, $0.0003103$ and
+$6.46755 \times 10^{-6}$ and Llama 3 70B few-shot at $5.27537 \times 10^{-5}$.
+Those rows had the margins to reject at the corrected threshold and did not. Only
+the two 8B rows, at floors of $0.263897$, and Llama 3 70B zero-shot, at
+$0.00368897$, are incapable of rejection before the model sees a pair, and they
+are silent rather than negative.
+
+At the conventional $0.05$, which is the threshold this thesis actually applies
+because Section~\ref{sec:r-multiplicity} states plainly that no correction is
+used anywhere in it, all four Anthropic rows clear: $0.0248934$, $0.0224207$,
+$0.0491266$ and $0.00539393$. Neither Llama row does. Read against zero rather
+than against a threshold the picture is thinner still, and that is the honest
+reading of the halved positive count: only Haiku few-shot has an interval that
+excludes zero, from $0.0402$ to $0.5818$, and Sonnet zero-shot's lower bound sits
+at $0.0$, which touches zero and does not exclude it.
+
+What the control establishes is therefore narrow and two-sided. The effect is
+there on pairs the defect cannot have touched, at magnitudes comparable to the
+ones this chapter leads with, and on that stratum it is significant only at an
+uncorrected threshold. Adding these eight tests to the family
+Section~\ref{sec:r-multiplicity} enumerates would tighten the corrected threshold
+rather than loosen it, so the verdict above does not depend on the family count,
+which is the one direction that needs no arithmetic to check.
+
+One coincidence in the table needs stating so a reader does not read it as a transcription error. The two Llama 3 8B rows carry identical cells in every column. The two conditions are not identical: they disagree on twelve of these pairs. Six of those flips run each way and they cancel exactly, so the confusion matrix, and therefore every statistic computed from it, coincides while the underlying predictions do not. It was checked as a possible fault in the generator and is not one.
+
 \subsection{Whether capability or vendor orders the over-calling}
 \label{sec:r-capability}
 
@@ -1334,7 +1434,22 @@ already applies, they are members.
 
 The direction is what makes it a defect rather than an oversight. All four are null, so a
 second vendor had already failed to replicate the result this chapter leads with, and the
-family that omitted them was the family under which the headline cleared. How much of a
+family that omitted them was the family under which the headline cleared.
+
+One further set of tests is deliberately not counted, and the rule that keeps them out is
+stated here with what it costs, because the rule is favourable to this chapter and an
+unstated favourable rule is the thing this subsection exists to catch. Section~\ref{sec:r-defectfree}
+re-runs the eight discrimination tests on the defect-free stratum. They are not eight new
+hypotheses. They are the same eight hypotheses, about the same eight labeller and prompt
+combinations, re-asked on a nested subset of the same rows, which is a sensitivity analysis of
+a result already counted rather than an addition to the family. Counting a hypothesis once and
+its robustness check separately would inflate any family in proportion to how carefully it was
+probed, which penalises exactly the behaviour this chapter argues for. That is the reading
+applied. A reader who prefers the other reading should know the arithmetic rather than have to
+derive it: at thirty-eight tests the threshold is $0.0013$, and Claude Haiku 4.5's zero-shot
+discrimination test at $0.0015$ would not clear it, so the two-labeller claim would revert to a
+single model. The choice of rule therefore decides a headline, which is why it is stated as a
+rule and not as a count. How much of a
 failure to replicate they represent needs stating precisely, because two of the four could not
 have replicated anything. Llama 3 8B flags $221$ and $224$ of the $253$ pairs. At those
 margins the smallest $p$ the conditional test could return at any outcome, with every one of
