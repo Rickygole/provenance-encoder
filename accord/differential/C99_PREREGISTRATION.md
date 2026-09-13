@@ -67,6 +67,21 @@ first pair, never spliced. A second kill of the same run is Outcome C.
 
 ## Outcome
 
-Recorded after the run; the rule above is unchanged.
+Recorded 2026-09-13 after the run; the rule above is unchanged.
 
-PLACEHOLDER_OUTCOME_FILLED_AFTER_RUN
+**Outcome B, not separable from between-model noise.** Both runs valid: `qwen3:8b`
+and `qwen3:14b` each scored all 300 pairs, 0 failed parses, 0 non-empty thinking
+blocks, 0 truncated prompts, digests matched the values recorded above
+(`500a1f06...b41` and `bdbd181c...be8`). D was frozen at commit `922dda9`, before
+any `qwen3:14b` datum existed. S = 1.0559 (`qwen3:8b` ratio 14.1667 / `qwen3:14b`
+ratio 13.4167 on G_299, frontier zero-shot), D = 1.5353. S is inside the (1/D, D)
+band `(0.6513, 1.5353)`, so the ceiling condition fails outright; the exact
+two-sided McNemar test on the 51 discordant G_299 zero-shot pairs (30 `qwen3:8b`
+flags `qwen3:14b` did not, 21 the reverse) gives p = 0.2624, not significant either.
+The within-family step from 8B to 14B is not distinguishable from the spread the
+three 8B models already show at fixed capability; nothing is concluded about a
+scale step in either direction. `qwen3:14b` is explicitly NOT frontier scale and
+this outcome is not evidence about frontier-scale capability.
+
+Artifact: `results/accord/differential/scale_step_c99.json`; register prefix
+`scalestep.*`.
