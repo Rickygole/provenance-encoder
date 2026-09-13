@@ -433,7 +433,11 @@ continuous score is not bounded this way, because the threshold that turns a
 score into a flag can be swept; a model that flags most of a pool at one
 threshold can still rank the pool well at another. Everything below is a
 statement about labeller-and-prompt configurations in this thesis that emit a
-hard label on this pool, not about a score-emitting model.
+hard label on this pool, not about a score-emitting model. One score-emitting model was measured,
+under a rule registered before the run (C98): \texttt{granite3.3:8b}'s first-token
+log-odds of a contradiction, graded across the $253$ non-ambiguous pairs, reaches
+an AUROC of $0.5467$ (one-sided Mann-Whitney $p = 0.2934$), below the $0.7355$
+this evaluation can resolve. Sweeping its threshold does not rescue it.
 
 Table~\ref{tab:feasgate} and Figure~\ref{fig:ceiling} apply the gate to every
 local labeller-and-prompt configuration this chapter scores against the
@@ -456,15 +460,15 @@ The table also carries every other hard-label marginal this chapter prints,
 whether or not this project ever joined it to the pharmacist's labels row by
 row: the inclusion rule is every hard-label marginal this chapter prints.
 That adds five rows: the deployed weak labeller (Table~\ref{tab:marginal}),
-the once-prompted Llama 3 8B evaluation baseline (Table~\ref{tab:systems253}),
-and the three replication-prompt local labellers on $G_{299}$
-(Table~\ref{tab:overcalling}). None of the five was scored against the
-pharmacist row by row, so their observed column reads \emph{not scored}, and
-each carries only the ceiling and floor its own marginal implies. Across all
-nine configurations the table now covers, five could not have rejected the
-null at $0.05$ before a single pair was scored, and every one of those five
-is a \texttt{llama3:8b} configuration: the two local prompts already noted
-above and the three \texttt{llama3:8b} marginals just added.
+the Llama 3 8B evaluation baseline on $G_{253}$ (Table~\ref{tab:systems253}),
+and the three baseline-prompt local labellers on $G_{299}$
+(Table~\ref{tab:overcalling}). The evaluation baseline is the one of these
+scored row by row, and its observed MCC is printed; the other four read
+\emph{not scored}. The baseline and the \texttt{llama3:8b} baseline-prompt row
+are one configuration on two nested bases, so the table covers eight
+configurations, not nine. Four could not have rejected the null at $0.05$ at any
+outcome, all \texttt{llama3:8b}. The check was added after the hosted results
+were withdrawn and is reported here as a post hoc precondition.
 
 \begin{table}[H]
 \caption[The marginal feasibility gate, every hard-label marginal this
@@ -489,16 +493,15 @@ survives.}
 \texttt{llama3:8b}, zero-shot     & $G_{299}$ & 0.8729 & 0.0269 & 0.0780 & 0.0121 & 0.1894 & Could not reject \\
 \midrule
 Llama 3, deployed weak labeller       & $G_{299}$ & 0.8729 & not scored & 0.0780 & 0.0121 & 0.1894 & Could not reject \\
-Llama 3 8B eval.\ baseline, prompted once & $G_{253}$ & 0.9565 & not scored & 0.0476 & 0.0045 & 0.5795 & Could not reject \\
-\texttt{llama3:8b}, replication prompt      & $G_{299}$ & 0.9532 & not scored & 0.0453 & 0.0041 & 0.5562 & Could not reject \\
-\texttt{granite3.3:8b}, replication prompt  & $G_{299}$ & 0.7425 & not scored & 0.1204 & 0.0286 & 0.0259 & Could reject \\
-\texttt{qwen3:8b}, replication prompt       & $G_{299}$ & 0.6187 & not scored & 0.1605 & 0.0502 & 0.0027 & Could reject \\
+Llama 3 8B eval.\ baseline, prompted once & $G_{253}$ & 0.9565 & $-0.0436$ & 0.0476 & 0.0045 & 0.5795 & Could not reject \\
+\texttt{llama3:8b}, baseline prompt      & $G_{299}$ & 0.9532 & not scored & 0.0453 & 0.0041 & 0.5562 & Could not reject \\
+\texttt{granite3.3:8b}, baseline prompt  & $G_{299}$ & 0.7425 & not scored & 0.1204 & 0.0286 & 0.0259 & Could reject \\
+\texttt{qwen3:8b}, baseline prompt       & $G_{299}$ & 0.6187 & not scored & 0.1605 & 0.0502 & 0.0027 & Could reject \\
 \bottomrule
 \end{tabular}
 \apanote{Ceiling MCC and ceiling $\kappa$ hold every confirmed case inside the
-flagged set. The five rows below the rule were never joined to the
-pharmacist row by row; their observed column reads \emph{not scored}, not a
-dash. Floor $p$ is the smallest one-sided hypergeometric $p$ the marginal
+flagged set. Of the five rows below the rule only the evaluation baseline was
+scored row by row; the others read \emph{not scored}. Floor $p$ is the smallest one-sided hypergeometric $p$ the marginal
 allows (Section~\ref{sec:r-multiplicity}), a precondition rather than a test
 unless observed MCC equals ceiling MCC, where it is also the exact test
 observed. Basis is $G_{253}$ or $G_{299}$ (Table~\ref{tab:denoms}); every
@@ -1219,9 +1222,10 @@ The instrument's sensitivity to a real effect at this sample size is instead
 established the way Section~\ref{sec:res-rq4} establishes it, on the mortality
 positive control rather than on this task. The marginal feasibility gate of
 Section~\ref{sec:r-feasgate} is the precondition a reader should apply to any
-hard-label row before reading its agreement as evidence; it was not run on
-these two rows, which are this project's own systems rather than the labellers
-it targets, so no ceiling claim is made about them here. What the sample-size
+hard-label row before reading its agreement as evidence. It covers the
+evaluation baseline (Table~\ref{tab:feasgate}), which could not have rejected
+the null at any outcome; it was not run on the ACCORD row, so no ceiling claim
+is made about that one. What the sample-size
 reading never covered, and still does not, is a comparison
 that lives on the $241$ clear negatives rather than on the 12 positives, and
 over-calling, the headline finding of Section~\ref{sec:res-rq2}, is measured

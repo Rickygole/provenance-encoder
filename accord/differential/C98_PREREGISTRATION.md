@@ -48,4 +48,12 @@ If the run is interrupted, it is restarted from scratch, never spliced.
 
 ## Outcome
 
-(appended after the run)
+Recorded 2026-09-13 after the run; the rule above is unchanged.
+
+**Outcome B, not resolved.** All 253 pairs scored, 0 degenerate, 251 distinct score
+values, so the score was genuinely graded and ties were not the constraint. AUROC
+0.5467, one-sided Mann-Whitney p 0.2934, against a registered minimum detectable AUROC
+of 0.7355. A graded local score does not reach the effect size this evaluation can
+resolve; nothing is concluded about a smaller effect. Artifact:
+`results/accord/differential/graded_score_granite33_g253.json`; register prefix
+`gradedscore.*`.

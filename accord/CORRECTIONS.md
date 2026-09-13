@@ -4840,3 +4840,24 @@ table; Appendix A said the full reference tables were bound in a supplement that
 longer exists; the annotator paragraph called the unrecorded credential status "a
 documentation failure rather than a disclosure failure", which is a compliance
 conclusion the thesis is not entitled to reach.
+
+## C98. Committee re-review: a double count reintroduced by C97, and a graded score measured
+
+The re-review of C97 found that the fix repeated the error it removed. The
+methodology chapter states the replication reused the evaluation baseline's prompt
+unchanged, so the baseline on G_253 and the baseline-prompt llama3:8b row on G_299
+are one configuration on nested bases. "Nine configurations, five could not reject"
+is eight and four. The generator now counts configurations, not rows, and a
+configuration is infeasible if it could not reject on any basis it was measured on.
+All four remain llama3:8b. The evaluation baseline was also printed as "not scored"
+although it is scored row by row (MCC -0.0436); it now carries that value. A pointer
+saying the gate was not run on the baseline contradicted the table and the
+conclusion that relied on it. Chapter 1 said each research question is "stated as
+posed", which was false for RQ4 after C97; the rewording is now disclosed in place.
+
+The thesis stated that a score-emitting labeller is not bounded by its marginal and
+never measured one. A graded local score was pre-registered before the first datum
+(commit 57d42a2, `accord/differential/C98_PREREGISTRATION.md`) and run locally:
+granite3.3:8b first-token log-odds on G_253, 251 distinct values, 0 degenerate,
+AUROC 0.5467, one-sided Mann-Whitney p 0.2934, below the registered minimum
+detectable AUROC 0.7355. Outcome B. Sweeping the threshold does not rescue it.

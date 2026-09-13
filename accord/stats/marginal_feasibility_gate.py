@@ -94,19 +94,29 @@ def attainable_floor_p(n, n_pos, n_flag):
 # a ceiling and a floor and no observed agreement, which is exactly the point of
 # a check computable before scoring. Each count is read from a registered value;
 # rates are converted back to counts and the conversion must land on an integer.
+# Each row names its CONFIGURATION (model and prompt), because a configuration
+# measured on two nested bases is one configuration, not two. The first version of
+# this list counted the evaluation baseline and the replication-prompt llama3:8b
+# row separately; the methodology chapter states the replication reused the
+# baseline's prompt unchanged, so they are one configuration on G_253 and G_299,
+# and the committee re-review caught the double count this list was added to
+# remove. The optional last field names a registered observed MCC where the row
+# was in fact scored pair by pair, so a scored row is never reported as unscored.
 MARGINAL_ONLY = [
-    # (row id, description, basis, n key or int, positives key or int,
-    #  flagged key, flagged is a rate?)
-    ("deployed_weak_labeller_g_299", "deployed weak labeller", "G_299",
-     "gold.n_total", 12, "gold.weaklabel_contradiction", False),
-    ("llama_baseline_g_253", "evaluation baseline, prompted once", "G_253",
-     253, 12, "derived.llama_baseline.n_flagged", False),
-    ("replication_llama3_8b_g_299", "replication prompt, llama3:8b", "G_299",
-     "gold.n_total", 12, "overcall.llama3_8b.gold.positive_rate", True),
-    ("replication_granite3_3_8b_g_299", "replication prompt, granite3.3:8b", "G_299",
-     "gold.n_total", 12, "overcall.granite3_3_8b.gold.positive_rate", True),
-    ("replication_qwen3_8b_g_299", "replication prompt, qwen3:8b", "G_299",
-     "gold.n_total", 12, "overcall.qwen3_8b.gold.positive_rate", True),
+    # (row id, configuration, description, basis, n, positives, flagged key,
+    #  flagged is a rate?, observed MCC key or None)
+    ("deployed_weak_labeller_g_299", "llama3:8b::deployed", "deployed weak labeller",
+     "G_299", "gold.n_total", 12, "gold.weaklabel_contradiction", False, None),
+    ("llama_baseline_g_253", "llama3:8b::baseline", "llama3:8b, baseline prompt",
+     "G_253", 253, 12, "derived.llama_baseline.n_flagged", False,
+     "baselines.llama_baseline.mcc"),
+    ("replication_llama3_8b_g_299", "llama3:8b::baseline", "llama3:8b, baseline prompt",
+     "G_299", "gold.n_total", 12, "overcall.llama3_8b.gold.positive_rate", True, None),
+    ("replication_granite3_3_8b_g_299", "granite3.3:8b::baseline",
+     "granite3.3:8b, baseline prompt", "G_299", "gold.n_total", 12,
+     "overcall.granite3_3_8b.gold.positive_rate", True, None),
+    ("replication_qwen3_8b_g_299", "qwen3:8b::baseline", "qwen3:8b, baseline prompt",
+     "G_299", "gold.n_total", 12, "overcall.qwen3_8b.gold.positive_rate", True, None),
 ]
 
 
@@ -170,7 +180,7 @@ def main():
     # trusting the literal.
     assert _reg(facts_in, "exemplar.power_analysis.n_positives_total") == 12
     marginal_only = collections.OrderedDict()
-    for rid, desc, basis, n_k, pos_k, flag_k, is_rate in MARGINAL_ONLY:
+    for rid, config, desc, basis, n_k, pos_k, flag_k, is_rate, obs_k in MARGINAL_ONLY:
         n = int(_reg(facts_in, n_k)); n_pos = int(_reg(facts_in, pos_k))
         raw = _reg(facts_in, flag_k)
         n_flag = raw * n if is_rate else raw
@@ -180,7 +190,9 @@ def main():
         tp, tn, fp, fn = best_table(n, n_pos, n_flag)
         floor = attainable_floor_p(n, n_pos, n_flag)
         marginal_only[rid] = collections.OrderedDict([
-            ("description", desc), ("basis", basis), ("n", n),
+            ("configuration", config), ("description", desc), ("basis", basis),
+            ("n", n),
+            ("observed_mcc", (round(_reg(facts_in, obs_k), 4) if obs_k else None)),
             ("n_positives", n_pos), ("n_flagged", n_flag),
             ("flag_rate", round(n_flag / n, 4)),
             ("ceiling_mcc", round(mcc(tp, tn, fp, fn), 4)),
@@ -199,6 +211,14 @@ def main():
     # nested bases, not eight independent labellers. Counted both ways so prose
     # cannot report the larger number without the smaller one beside it.
     configs = {(r["model"], r["strategy"]) for r in rows.values()}
+    # A configuration is infeasible if it could not reject on any basis it was
+    # measured on; with nested bases that is the conservative reading.
+    all_configs = ({f"{m}::frontier_{st}" for m, st in configs}
+                   | {r["configuration"] for r in marginal_only.values()})
+    all_infeasible = ({f"{r['model']}::frontier_{r['strategy']}" for r in rows.values()
+                       if not r["could_reject_at_0_05"]}
+                      | {r["configuration"] for r in marginal_only.values()
+                         if not r["could_reject_at_0_05"]})
     cfg_infeasible = {(r["model"], r["strategy"]) for r in rows.values()
                       if not r["could_reject_at_0_05"]}
     cfg_attaining = {(r["model"], r["strategy"]) for r in rows.values()
@@ -224,10 +244,12 @@ def main():
         ("n_marginal_only_rows", len(marginal_only)),
         ("n_marginal_only_could_not_reject",
          sum(1 for r in marginal_only.values() if not r["could_reject_at_0_05"])),
-        ("n_all_configurations", len(configs) + len(marginal_only)),
-        ("n_all_could_not_reject",
-         len(cfg_infeasible)
-         + sum(1 for r in marginal_only.values() if not r["could_reject_at_0_05"])),
+        ("n_all_configurations", len(all_configs)),
+        ("n_all_could_not_reject", len(all_infeasible)),
+        ("all_could_not_reject_are_llama3",
+         all(c.startswith("llama3:8b") for c in all_infeasible)),
+        ("n_marginal_only_rows_scored",
+         sum(1 for r in marginal_only.values() if r["observed_mcc"] is not None)),
         ("marginal_only", marginal_only),
         ("rows", rows),
     ])
@@ -248,7 +270,8 @@ def main():
                 "n_configurations_could_not_reject",
                 "n_configurations_attaining", "n_configurations_both",
                 "n_marginal_only_rows", "n_marginal_only_could_not_reject",
-                "n_all_configurations", "n_all_could_not_reject"):
+                "n_all_configurations", "n_all_could_not_reject",
+                "n_marginal_only_rows_scored"):
         put(key, out[key], key)
     for rk, r in rows.items():
         slug = (rk.replace("::", ".").replace(":", "").replace(".", "_")
@@ -260,7 +283,9 @@ def main():
                 put(f"{slug}.{field}", r[field], f"rows.{rk}.{field}")
     for rid, r in marginal_only.items():
         for field in ("n", "n_positives", "n_flagged", "flag_rate", "ceiling_mcc",
-                      "ceiling_kappa", "attainable_floor_p_one_sided"):
+                      "ceiling_kappa", "attainable_floor_p_one_sided", "observed_mcc"):
+            if r[field] is None:
+                continue
             put(f"marginal_only.{rid}.{field}", r[field],
                 f"marginal_only.{rid}.{field}")
     FACTS.write_text(json.dumps(facts, indent=1) + "\n")
