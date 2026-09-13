@@ -91,31 +91,37 @@ def check_population_auroc(kind, target, params, pos_pool, neg_pool, pos_z, neg_
     return float(roc_auc_score(y, s))
 
 
-def run_construction(kind, pos_pool, neg_pool, pos_z, neg_z, a0, master_seed):
-    seed_seq = np.random.SeedSequence(master_seed)
+def run_construction(kind, construction_seed_seq, pos_pool, neg_pool, pos_z, neg_z, a0):
+    """`construction_seed_seq` is this construction's own node in the single
+    shared `SeedSequence(42)` tree rooted in `main()` (spawned once per
+    (rule, grid point, construction), per the C101 pre-registration): one
+    `.spawn(len(GRID))` call here gives each grid point its own child, in
+    GRID's fixed order, and each grid point then spawns its own pop-check and
+    rule children in one further fixed-order call."""
+    grid_seed_seqs = construction_seed_seq.spawn(len(GRID))
     grid_results = []
     validity = {"rejection_rate_at_0_50": {}, "population_auroc_off_target": {}}
 
-    for target in GRID:
-        cell_seed_seq = seed_seq.spawn(1)[0]
-        rng_setup = np.random.default_rng(cell_seed_seq)
+    for target, cell_seed_seq in zip(GRID, grid_seed_seqs):
+        # Fixed order, one call: [pop_check, rule_0, rule_1, ..., rule_last].
+        cell_children = cell_seed_seq.spawn(1 + len(ALL_RULES))
+        pop_check_seed_seq, rule_seeds = cell_children[0], cell_children[1:]
 
         if kind == "label_mix":
             lam = ev.label_mix_lambda(a0, target)
             params = {"lambda": lam}
         else:
-            sigma, achieved = ev.bisect_sigma_for_target(pos_z, neg_z, target,
-                                                          seed=int(cell_seed_seq.generate_state(1)[0]))
+            sigma, achieved = ev.bisect_sigma_for_target(
+                pos_z, neg_z, target, seed=int(cell_seed_seq.generate_state(1)[0]))
             params = {"sigma": sigma, "bisection_achieved": achieved}
 
-        pop_check_rng = np.random.default_rng(cell_seed_seq.spawn(1)[0])
+        pop_check_rng = np.random.default_rng(pop_check_seed_seq)
         pop_auroc = check_population_auroc(kind, target, params, pos_pool, neg_pool,
                                            pos_z, neg_z, pop_check_rng)
         off_target = abs(pop_auroc - target)
         validity["population_auroc_off_target"][f"{target}"] = round(off_target, 5)
 
         fire_rates = {}
-        rule_seeds = seed_seq.spawn(len(ALL_RULES))
         for rule, rule_seed_seq in zip(ALL_RULES, rule_seeds):
             n_reps = N_REPS_BOOTSTRAP if rule == RULE_BOOTSTRAP else N_REPS_CHEAP
             rng = np.random.default_rng(rule_seed_seq)
@@ -157,9 +163,15 @@ def main():
     meta, pos_pool, neg_pool, pos_z, neg_z, a0 = load_pools()
 
     valid = a0 >= 0.90
-    label_mix = run_construction("label_mix", pos_pool, neg_pool, pos_z, neg_z, a0, MASTER_SEED)
-    noise_mix = run_construction("noise_mix", pos_pool, neg_pool, pos_z, neg_z, a0,
-                                 MASTER_SEED + 1)
+    # One shared SeedSequence(42) tree for the whole run, per the C101
+    # pre-registration ("Seeds from numpy SeedSequence(42).spawn"): construction
+    # is the first spawn dimension, in the fixed order [label_mix, noise_mix].
+    root_seed_seq = np.random.SeedSequence(MASTER_SEED)
+    label_mix_seed_seq, noise_mix_seed_seq = root_seed_seq.spawn(2)
+    label_mix = run_construction("label_mix", label_mix_seed_seq,
+                                 pos_pool, neg_pool, pos_z, neg_z, a0)
+    noise_mix = run_construction("noise_mix", noise_mix_seed_seq,
+                                 pos_pool, neg_pool, pos_z, neg_z, a0)
 
     facts = json.loads(FACTS.read_text())
     mde_key = "mde_recomputed.gold_ambiguous_excluded.minimum_detectable_auc"
