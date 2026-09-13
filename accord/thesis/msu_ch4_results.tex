@@ -682,7 +682,7 @@ Claude Haiku 4.5                        & Hosted API           & 6.2500 \\
 Claude Sonnet 5                         & Hosted API           & 5.3333 \\
 \bottomrule
 \end{tabular}
-\apanote{One denominator throughout, the $299$ labelled pairs of Table~\ref{tab:denoms}, and one prompt condition, so the rows are comparable. Three of the five rows are one model family at two parameter counts on two serving channels, which is what lets the factors be read separately: rows two and three differ only in scale and give $2.0635$, rows one and two differ only in serving channel and give $1.0962$. An earlier version of this note quoted $2.2619$ here as the scale-only step; that figure is rows one against three, which differ in both, so it was a compound of the two, superseded by the pair above, and survives in the record as the figure C68 reported before the channel was controlled. Row two is the same family and maker as row one at the same parameter count, served through the same channel as row three, so the pair (row 1, row 2) isolates the channel and the pair (row 2, row 3) isolates capability, run under its own committed rule and returning the outcome that leaves the capability reading intact.}
+\apanote{One denominator throughout, the $299$ labelled pairs of Table~\ref{tab:denoms}, and one prompt condition, so the rows are comparable. Three of the five rows are one model family at two parameter counts on two serving channels, which is what lets the factors be read separately: rows two and three differ only in scale and give $2.0635$, rows one and two differ only in serving channel and give $1.0038$. That figure was $1.0962$ until C94 re-ran the local row under the same template the hosted rows use; the earlier value was an upper bound confounded with a prompt difference and is superseded rather than corrected, because the quantity it estimated was never the one it was read as. An earlier version of this note quoted $2.2619$ here as the scale-only step; that figure is rows one against three, which differ in both, so it was a compound of the two, superseded by the pair above, and survives in the record as the figure C68 reported before the channel was controlled. Row two is the same family and maker as row one at the same parameter count, served through the same channel as row three, so the pair (row 1, row 2) isolates the channel and the pair (row 2, row 3) isolates capability, run under its own committed rule and returning the outcome that leaves the capability reading intact.}
 \label{tab:capability}
 \end{table}
 
@@ -690,23 +690,47 @@ Three factors move this quantity and the table above, read in pairs, separates
 them. Holding family, maker and channel fixed and changing only scale, the step
 from eight billion parameters to seventy is $2.0635$. Holding family, maker and
 scale fixed and changing only the serving path, the step from local to hosted is
-$1.0962$. Holding everything fixed but the prompt, the 70B moves by $1.6800$: its
+$1.0038$. Holding everything fixed but the prompt, the 70B moves by $1.6800$: its
 few-shot ratio on the same set is $6.2500$, which is not merely inside the frontier
 band but exactly Haiku's zero-shot value and above Sonnet's.
 
-So the ordering is capability first, prompt second, channel third, and the middle
-term is the one worth stating plainly because it was not anticipated. A change of
-prompt moves one model further than a change of serving path moves it, and further
-than some steps in capability. The channel confound is worth about ten percent,
-which is small and is now measured. One qualification travels with that figure and is not optional: the local
-build is a four-bit quantisation and the hosted serving precision is not published,
-so the two members of that pair differ in numerical precision as well as in serving
-path. The $1.0962$ therefore bounds channel and precision together, and a small net
-factor is also consistent with two larger effects that cancel. What the run
-establishes is that whatever those two do jointly, they do not reach this decision
-rate by more than about a tenth. The attenuation claim in
+The channel figure was $1.0962$ until this section's own disclosure was acted on,
+and the correction is the point rather than a footnote. The local row was run under
+a different prompt from the four hosted rows, which this chapter recorded and which
+made the channel step an upper bound confounded with a prompt difference larger than
+itself. Re-running the same model locally under the same template the hosted rows
+used, which needed no new data, no hosted call and no approval, separates them. The
+serving path is then worth $1.0038$: local and hosted serving of one model family at
+one scale differ by four parts in a thousand. Almost the whole of the apparent
+channel effect was the prompt. The pre-registration committed in advance to
+reporting the reverse outcome, that a clean channel term exceeding $1.6800$ would
+make the ordering below wrong as written, and it does not.
+
+So the ordering is capability first, prompt second, channel third, and it is now
+measured rather than bounded at the third term. The middle term is the one worth
+stating plainly because it was not anticipated: a change of prompt moves one model
+further than a change of serving path moves it, and further than some steps in
+capability. The serving path, once the prompt is held fixed, moves it almost not at
+all.
+
+One qualification travels with the new figure and is not optional. The local build
+is a four-bit quantisation and the hosted serving precision is not published, so the
+two members of that pair still differ in numerical precision as well as in serving
+path. The $1.0038$ therefore bounds channel and precision together, and a net factor
+this close to unity is also consistent with two larger effects that cancel. What the
+run establishes is that whatever those two do jointly, they do not reach this
+decision rate by more than a fraction of a percent. The attenuation claim in
 Chapters~\ref{ch:intro} and~\ref{ch:discussion} is scoped to a fixed prompt for the
 second of these reasons, not the third.
+
+A third local model was run under the same template and is reported in the ladder at
+$18.6667$. A fourth was started and did not finish: the machine serving these models
+holds sixteen gigabytes and its memory manager stopped that run twice, once in a
+batch and once alone. Its rung is recorded as absent in the generated ladder rather
+than dropped from it, and no partial run was spliced in to fill the gap, which the
+committed rule for this experiment requires. Nothing in the decomposition above
+depends on it: the channel step is one model against itself across two serving
+paths, and both of those runs completed.
 
 \subsection{What the false positives land on}
 \label{sec:r-ambiguity}

@@ -4587,3 +4587,49 @@ keys sat in note fields rather than comments. Moved to comments, entry count unc
 
 **One defect introduced and caught inside this entry.** The rewritten appendix named a repository
 filename in prose, which Pass 9 forbids and duly caught. The gate worked; the writer did not.
+
+---
+
+## C94. The channel effect was almost entirely the prompt
+
+The capability ladder disclosed, in its own generator and twice in its provenance note, that its
+local 8B row was run under a different prompt from the four hosted rows, and that the channel step
+computed from that pair was therefore an upper bound confounded with a prompt difference. The
+prompt effect it was confounded with, 1.6800, is larger than the channel effect it contaminated.
+A disclosure that names its own defect and leaves it in place is a disclosure, not a control.
+
+The fix needed no new data, no hosted call, no money and no approval: the same model, already
+installed, re-run locally under the same template the hosted rows use. PhysioNet's guidance of
+24 September 2025 recommends locally deployed models, so this route raises no question under the
+agreement at all.
+
+**The channel effect falls from 1.0962 to 1.0038.** Local and hosted serving of one model family
+at one scale differ by four parts in a thousand. Almost the whole of the apparent serving-channel
+effect was the prompt. The three-factor decomposition is now capability 2.0635, prompt 1.6800,
+channel 1.0038, and the third term is measured rather than bounded.
+
+The pre-registration at 0140c77 was committed before the first call and named the reverse outcome
+in advance: a clean channel term reaching 1.6800 would have made the ordering this chapter reports
+wrong as written. It did not, and saying so beforehand is why the result can be read as a test
+rather than as a figure chosen after the fact. The superseded local ratio of 23.75 and the
+superseded channel effect of 1.0962 are withdrawn to keys placed outside the generator's own
+prefix, because every generator here deletes its prefix wholesale before rewriting and a
+withdrawal parked inside one is erased on the next run.
+
+**Two departures, recorded rather than tidied.** The qwen3 run did not complete: the machine
+serving these models holds sixteen gigabytes and was already deep in swap, and its memory manager
+stopped that run twice, once inside the batch and once running alone. The ladder generator was
+changed to record an absent rung in the artifact rather than silently omit it, and no partial run
+was spliced, which the committed rule requires. Nothing in the decision rule depends on the
+missing rung: the channel step is one model against itself across two serving paths and both of
+those runs completed with zero unparseable pairs. Second, the raised token ceiling for that model
+was pre-recorded in the pre-registration, because it returns an empty string at the archived
+ceiling when a reasoning block consumes the budget, which was confirmed by one synthetic call
+before the rule was written.
+
+**What this does not do.** It does not replace the hosted rows and is not evidence about them.
+The measured ceiling on this machine is roughly 14B; a 70B model needs about four times the
+available memory and more than the free disk. And it does not un-send the 1,320 prompts already
+transmitted to the Anthropic API. A local run changes what happens next and changes nothing that
+already happened, and the disclosure obligation for those transmissions is unaffected by anything
+measured here.

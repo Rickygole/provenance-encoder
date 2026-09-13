@@ -1,26 +1,34 @@
 {
  "across_family_step_c67": 2.466666666666667,
- "channel_effect_at_8b_local_over_hosted": 1.0961538461538463,
+ "channel_effect_at_8b_local_over_hosted": 1.003846153846154,
  "channel_effect_confound": {
-  "channel_effect_at_8b": 1.0961538461538463,
-  "confounded_with_prompt": true,
+  "channel_effect_at_8b": 1.003846153846154,
+  "confounded_with_prompt": false,
   "prompt_effect_exceeds_channel_effect": true,
   "prompt_effect_within_70b_same_channel": 1.68,
-  "reason": "channel_effect_at_8b_local_over_hosted divides the Local llama3:8b row by the hosted Bedrock 8B row, and those two rows differ in prompt_source as well as in channel."
+  "reason": "Before C94, channel_effect_at_8b_local_over_hosted divided the Local llama3:8b row (config_id=llama_baseline) by the hosted Bedrock 8B row (frontier zero-shot), which differed in prompt as well as in channel. Both rows now come from ratio() against the frontier zero-shot template; see the LOCAL and HOSTED source paths in the ladder.",
+  "resolved_by": "C94",
+  "withdrawn_llama_baseline_prompt_channel_effect_at_8b": 1.0961538461538463,
+  "withdrawn_register_key": "withdrawn.capability_channel_effect_at_8b_local_over_hosted_llama_baseline_c94"
  },
  "ladder": [
   {
    "channel": "Local",
    "labeller": "llama3:8b",
-   "prompt_source": "prompts_existing.csv, config_id=llama_baseline (verbatim)",
-   "ratio": 23.75,
-   "source": "results/accord/VERIFIED_FACTS.json::overcall.llama3_8b.gold.ratio"
+   "ratio": 21.75,
+   "source": "results/accord/differential/frontier_ollama_metrics_llama3.json"
   },
   {
    "channel": "AWS Bedrock",
    "labeller": "meta.llama3-8b-instruct-v1:0",
    "ratio": 21.666666666666664,
    "source": "results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json"
+  },
+  {
+   "channel": "Local",
+   "labeller": "granite3.3:8b",
+   "ratio": 18.666666666666664,
+   "source": "results/accord/differential/frontier_ollama_metrics_granite33.json"
   },
   {
    "channel": "AWS Bedrock",
@@ -42,13 +50,16 @@
   }
  ],
  "llama70b_few_shot_ratio": 6.25,
+ "local_runs_not_completed": [
+  "qwen3:8b"
+ ],
  "prompt_effect_within_70b": 1.68,
  "provenance": {
   "basis": "G_299",
   "generated_by": "accord/differential/capability_ladder.py",
-  "note": "One denominator across all five rows. Four of the five share one prompt condition, the frontier zero-shot template; the fifth (Local llama3:8b) does not, and its own prompt_source is recorded on its row. The ratios below are quotients of the ladder, computed here so that none of them is typed into prose.",
+  "note": "One denominator, one prompt condition (the frontier zero-shot template) across every row, hosted and local alike. Before C94 the Local llama3:8b row was read from a different pipeline under config_id=llama_baseline; that value and the channel effect it produced are kept under withdrawn.* in the register rather than deleted. The ratios below are quotients of the ladder, computed here so that none of them is typed into prose.",
   "strategy": "zero_shot"
  },
  "within_channel_step_8b_to_70b": 2.0634920634920633,
- "within_family_step_8b_to_70b": 2.261904761904762
+ "within_family_step_8b_to_70b": 2.0714285714285716
 }

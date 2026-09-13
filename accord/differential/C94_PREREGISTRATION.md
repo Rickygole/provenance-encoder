@@ -92,4 +92,19 @@ partway it is restarted from the beginning and that is recorded; partial runs ar
 
 ## Outcome
 
-> **NOT YET RUN.** This line is filled in after the result lands and the rule above is not edited.
+> **OUTCOME A, recorded 2026-09-12.** The prompt-matched channel effect is 1.0038, below the
+> 1.6800 prompt effect the rule set as the threshold, so the ordering stands: capability first at
+> 2.0635, prompt second at 1.6800, channel third at 1.0038. The rule was committed at 0140c77
+> before the first call and was not edited after the result.
+>
+> The outcome is cleaner than Outcome A anticipated. The rule asked only whether the channel term
+> stayed below the prompt term. It did, and it also collapsed: from 1.0962, an upper bound
+> confounded with the prompt, to four parts in a thousand. Almost the whole of the apparent
+> serving-channel effect was the prompt difference the ladder disclosed against itself.
+>
+> Two departures from the plan, both recorded rather than tidied. The qwen3 run did not complete:
+> the machine's memory manager stopped it twice, once inside the batch and once running alone, and
+> its rung is recorded as absent in the generated ladder rather than dropped from it. No partial
+> run was spliced. And the raised token ceiling for that model, pre-recorded here, was applied.
+> Nothing in the decision rule depends on the missing rung: the channel step is one model against
+> itself across two serving paths, and both of those runs completed with zero unparseable pairs.
