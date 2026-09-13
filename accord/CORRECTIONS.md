@@ -4490,3 +4490,57 @@ and 0.1379. The normalised ordering is stated and explicitly declined in the sam
 *Also fixed.* The ceiling generator recorded "anthropic" as a model id because both top-level
 model fields are null in every metrics file and it fell through to the filename; the real ids
 were unused one level down, per strategy.
+
+---
+
+## C92, second addendum. A second adversarial round on the fix, and three defects the fix introduced
+
+The subsection written to answer round one was itself round two's target, and three of its
+findings are defects introduced by that fix rather than inherited.
+
+**The remedy table used the tail C92 closed, and cited C85 as permission.** The generator
+computed a one-sided exact test only, and the table note called it "the instrument C85
+established for these tables". C85 established exactness against a rank test. C92 separately
+settled the tail and put the two-sided value in the family for every row, precisely because the
+agreement of the two tails is an accident of particular margins. The defect-free stratum is new
+margins, 108 rows and 6 positives at flag counts from 13 to 87, and the guard was not carried
+across. Computing both now shows the divergence is real: the four Anthropic rows and Llama 3 70B
+few-shot agree, and the other three do not. Llama 3 70B zero-shot moves from 0.4714 to 0.6859 and
+both Llama 3 8B rows from 0.6694 to 1.0. The printed column was mixing tails across exactly the
+cross-vendor rows the section reads. Corrected to two-sided throughout, and the false attribution
+replaced with what each correction actually established.
+
+**A conditional was inverted in the sentence that prices the thesis's largest dependency.** The
+limitations paragraph read "Whether that difference withdraws the Claude rows is an open question
+... If the answer is no, those rows are withdrawn." As written a favourable ruling destroyed the
+evidence. It now reads "If it does". The sentence was introduced in the same edit that
+re-anchored the compliance section, which is to say the repair and the defect arrived together.
+
+**The compliance fix left three sections asserting what it had just withdrawn.** A paragraph
+heading still read "Every transmission through a compliant channel, enumerated" over a table in
+which 1,320 of 2,520 prompts are, by the paragraph's own text, on a route whose status is open.
+The results chapter introduced the headline table by saying the run went "through one of the
+services Section m-ethics identifies as acceptable for credentialed data", which that section no
+longer says. And a claim that no channel was unreviewed rested on guidance the same page had just
+called superseded. All three corrected.
+
+**The rule stated in the first addendum was applied for its arithmetic and not for its
+consequence.** Eight tests were kept out of the family as a sensitivity analysis of a hypothesis
+already counted. That is defensible, and it means the primary claim has failed its own
+sensitivity analysis: on the stratum where the annotation defect cannot have operated, neither of
+the two zero-shot tests named as the two-labeller warrant clears the corrected threshold and
+neither interval excludes zero, and the only row that does exclude zero is a configuration
+Chapter 1 already declined to rest the claim on. Both branches of the rule are adverse. Under the
+other branch the count reaches thirty-eight and the same warrant loses a labeller to the tighter
+threshold. The chapter now takes the consequence rather than reporting only the arithmetic.
+
+**And an affirmation of a null, in the paragraph defending the fix.** "So the separation is not an
+artifact of the corrupted stratum" is a claim of no difference between strata, drawn from four
+point estimates on six positives whose intervals run from below zero to above one half. It is the
+inference this thesis condemns throughout, deployed in its own defence. Replaced with the narrow
+statement the evidence supports: the effect survives the control and the evidence for it does not.
+
+The pattern across both addenda is worth naming. Every defect in this entry was introduced by a
+correction, not by the original work, and three of the five were introduced today by the same
+hands that found the originals. A repair is an edit like any other and inherits the same
+obligation to be checked.

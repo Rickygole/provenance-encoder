@@ -424,8 +424,8 @@ the cell it does not contain is a frontier-scale labeller on the clinical pool.
 Figure~\ref{fig:missing-cell} is that design, and the hole in it.
 That cell was filled by Claude Sonnet 5, run with the same recovered prompt, the
 same synthetic demonstrations and the same pairs as the comparison it supersedes,
-through one of the services Section~\ref{sec:m-ethics} identifies as acceptable
-for credentialed data. The earlier rows are not reported anywhere in this thesis.
+through the Anthropic API, whose status under the guidance in force when the run
+was made is the open question Section~\ref{sec:m-ethics} states and does not resolve. The earlier rows are not reported anywhere in this thesis.
 
 \clearpage
 \begin{figure}[H]
@@ -579,8 +579,15 @@ Llama 3 8B, few-shot        & $87$ & $0.017$  & $-0.1873$ to $0.1437$   & $0.669
 \apanote{One set throughout, the defect-free stratum with its ambiguous rows
 dropped, $108$ pairs and $6$ positives, so the rows are comparable to each other
 and not to Table~\ref{tab:mcc}, which is scored on $253$ pairs and $12$
-positives. The $p$ column is the one-sided exact conditional test, the instrument
-C85 established for these tables. The attainable floor is the smallest $p$ that
+positives. The $p$ column is the two-sided exact conditional test. C85
+established exactness for these tables, against a rank test that was anti-conservative on a
+binary vector, and C92 separately settled the tail: the family reads the two-sided value for
+every row, because the agreement of the two tails is an accident of particular margins rather
+than a property of the test. An earlier version of this table printed one-sided values and
+cited C85 as its authority, which was the correction that established exactness and not the one
+that settled the tail. On this stratum the two agree for the four Anthropic rows and for
+Llama 3 70B few-shot and diverge for the other three, so a mixed column would have compared
+unlike quantities across the cross-vendor rows this section reads. The attainable floor is the smallest $p$ that
 row's margins could return with every one of the $6$ confirmed cases inside its
 flagged set, so a floor above the threshold a row is read against means the row
 could not have cleared it whatever the labeller knew. Intervals are percentile
@@ -595,9 +602,13 @@ stratum, $0.2502$, $0.283$, $0.2106$ and $0.3392$, sit in the same band as the
 $+0.3189$, $+0.2137$, $+0.2253$ and $+0.2431$ Table~\ref{tab:mcc} reports for the
 same four runs on $G_{253}$, and the capability ordering is unchanged in kind:
 both Llama 3 70B rows and both Llama 3 8B rows stay far below them, the 8B rows
-at effectively zero. So the separation is not an artifact of the corrupted
-stratum. Whatever the exemplar defect did to the annotations, it did not
-manufacture this chapter's rejection.
+at effectively zero. What that does and does not show needs care, because the
+obvious reading is one this chapter forbids elsewhere. Nothing here suggests the
+exemplar defect manufactured the effect, and that is not the same as showing it
+did not. Four point estimates on six positives, with intervals running from below
+zero to above one half, cannot carry a claim of no difference between strata. The
+statement this chapter makes is the narrow one: the effect survives the control
+and the evidence for it does not.
 
 Statistical significance does not survive, and the failure is not an underpowering
 excuse. No row in Table~\ref{tab:defectfree} clears the corrected threshold of
@@ -1434,7 +1445,17 @@ already applies, they are members.
 
 The direction is what makes it a defect rather than an oversight. All four are null, so a
 second vendor had already failed to replicate the result this chapter leads with, and the
-family that omitted them was the family under which the headline cleared.
+family that omitted them was the family under which the headline cleared. How much of a
+failure to replicate they represent needs stating precisely, because two of the four could not
+have replicated anything. Llama 3 8B flags $221$ and $224$ of the $253$ pairs. At those
+margins the smallest $p$ the conditional test could return at any outcome, with every one of
+the $12$ confirmed cases inside the flagged set, is $0.190$ and $0.224$. Both rows are
+incapable of rejection before the model sees a pair, so they are silent on discrimination and
+the vendor claim does not rest on them. Llama 3 70B is a different matter: at $105$ and $60$
+flagged its best attainable values are $1.8 \times 10^{-5}$ and $1.3 \times 10^{-8}$, either of
+which would clear the corrected threshold by orders of magnitude, and it returned $0.2444$ and
+$0.0391$. That labeller had the power to replicate and did not. The second-vendor failure is
+one model in two prompt conditions, stated as one rather than two.
 
 One further set of tests is deliberately not counted, and the rule that keeps them out is
 stated here with what it costs, because the rule is favourable to this chapter and an
@@ -1449,17 +1470,17 @@ applied. A reader who prefers the other reading should know the arithmetic rathe
 derive it: at thirty-eight tests the threshold is $0.0013$, and Claude Haiku 4.5's zero-shot
 discrimination test at $0.0015$ would not clear it, so the two-labeller claim would revert to a
 single model. The choice of rule therefore decides a headline, which is why it is stated as a
-rule and not as a count. How much of a
-failure to replicate they represent needs stating precisely, because two of the four could not
-have replicated anything. Llama 3 8B flags $221$ and $224$ of the $253$ pairs. At those
-margins the smallest $p$ the conditional test could return at any outcome, with every one of
-the $12$ confirmed cases inside the flagged set, is $0.190$ and $0.224$. Both rows are
-incapable of rejection before the model sees a pair, so they are silent on discrimination and
-the vendor claim does not rest on them. Llama 3 70B is a different matter: at $105$ and $60$
-flagged its best attainable values are $1.8 \times 10^{-5}$ and $1.3 \times 10^{-8}$, either of
-which would clear the corrected threshold by orders of magnitude, and it returned $0.2444$ and
-$0.0391$. That labeller had the power to replicate and did not. The second-vendor failure is
-one model in two prompt conditions, stated as one rather than two.
+rule and not as a count. And the reading applied carries a consequence that has to be
+taken rather than only its arithmetic. A sensitivity analysis exists to find out whether a
+result holds when a choice in its construction is varied. Section~\ref{sec:r-defectfree} varies
+the one choice that matters most here, and the result does not hold: on the stratum where the
+annotation defect cannot have operated, neither of the two zero-shot tests this thesis names as
+its two-labeller warrant clears the corrected threshold, and neither interval excludes zero.
+The only row that does exclude zero is a configuration Chapter~\ref{ch:intro} has already
+declined to rest the claim on. So the branch taken here does not rescue the warrant; it
+relocates the failure from the family count to the robustness check, and the warrant is weaker
+under either branch. The effect sizes are comparable across the two strata and the evidence for
+them is not, and this thesis reports the second fact as plainly as the first.
 
 One comparison inside those rows is worth isolating, because it needs no normalisation and no
 assumption. Claude Haiku 4.5 zero-shot and Llama 3 70B few-shot flagged the same number of

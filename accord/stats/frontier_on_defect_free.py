@@ -32,7 +32,7 @@ import pathlib
 
 import numpy as np
 import pandas as pd
-from scipy.stats import hypergeom
+from scipy.stats import fisher_exact, hypergeom
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 DIFF = ROOT / "results" / "accord" / "differential"
@@ -78,6 +78,16 @@ def main():
         fn = int(((y == 1) & (yh == 0)).sum()); tn = int(((y == 0) & (yh == 0)).sum())
         n, n_pos, n_flag = len(ids), int(y.sum()), int(yh.sum())
         p_one = float(hypergeom.sf(tp - 1, n, n_pos, n_flag)) if n_flag else 1.0
+        # C92 established that the family reads the TWO-sided value for every row,
+        # because the coincidence of the two tails is an accident of particular
+        # margins and not a property of the test. This stratum has new margins,
+        # 108 rows and 6 positives at flag counts from 13 to 87, so the guard has
+        # to be carried here rather than assumed. An earlier version of this file
+        # computed the one-sided value only and cited C85 as its authority, which
+        # was the correction that established exactness, not the one that settled
+        # the tail. That reintroduced on this table the defect C92 closed.
+        _, p_two = fisher_exact([[tp, fp], [fn, tn]], alternative="two-sided")
+        p_two = float(p_two)
         best = float(hypergeom.sf(min(n_pos, n_flag) - 1, n, n_pos, n_flag)) if n_flag else 1.0
         lo, hi = boot_ci(tp, fp, fn, tn)
         rows[pathlib.Path(f).stem.replace("frontier_", "")] = {
@@ -88,6 +98,8 @@ def main():
             "mcc_ci95": [round(lo, 4), round(hi, 4)],
             "ci_excludes_zero": bool(lo > 0 or hi < 0),
             "p_one_sided": p_one,
+            "p_two_sided": p_two,
+            "tails_agree": bool(abs(p_one - p_two) < 1e-12),
             "best_attainable_p": best,
             "can_reach_significance_at_0.05": bool(best < 0.05),
         }
