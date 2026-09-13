@@ -200,15 +200,17 @@ figure.}
 \item[RQ2. Weak supervision.] Can a language model weak labeller substitute for
 expert annotation at this base rate?
 \emph{No: the weak labeller assigned the contradiction class to $261$ of the
-$299$ annotated pairs against $12$ true positives, and every labeller tested
-over-calls. Three local eight-billion-parameter models, run on an identical
+$299$ annotated pairs against $12$ true positives, and every labeller tested over-calls on
+the clinical pairs. Three local eight-billion-parameter models, run on an identical
 prompt, over-call the candidate pool's confirmed rate by a multiplier from
 $15.8196$ to $23.5959$ (Table~\ref{tab:overcalling}); the three already differ
 from one another at this single point on any capability axis, and this
 design has no compliant second point left to order them by scale. On a
-public-text sweep run with the same three models and the same prompt, the
-same mechanism tops out at $3.5000$ times (Section~\ref{sec:res-rq2}), so the
-direction of the failure transfers across domains and its size does not.
+public-text sweep with the same three models but generic sentence-pair prompts,
+over-calling appears only in some settings, one model never over-calls, and
+the largest multiplier is $3.5000$ (Section~\ref{sec:res-rq2}); the sweep
+differs from the clinical pool in prompt and in negatives as well as domain,
+so it does not show that the direction of the failure transfers.
 Substitution fails at every local configuration measured; whether it fails
 less at a scale this project could not run through a compliant channel is not
 established. An earlier draft attributed this multiplier's size to the

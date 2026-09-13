@@ -350,12 +350,12 @@ rules alone would reach for free.
 
 \subsection{The public-text replication}
 
-The magnitude is task specific and the mechanism is not. The same labeller was
-run over a public-text classification sweep in which the true positive rate was
-varied and its marginal recorded at each setting, with the same recovered prompt
-and the same greedy decoding at temperature zero. It under-responds to prevalence
-everywhere, and the mismatch on public text is far smaller than the mismatch
-here.
+The same three local models were run over a public-text contradiction sweep on
+SNLI in which the true positive rate was varied and each model's marginal recorded
+at every setting, with the same greedy decoding at temperature zero but with
+generic sentence-pair prompts, not the recovered clinical prompt. The mismatch on
+public text is far smaller than the mismatch here, and it is not consistently in
+one direction.
 
 Figure~\ref{fig:prevalence-response} shows the sweep in full. The maximum over-calling ratio measured across it, three models, two prompts and four
 prevalence levels on SNLI, is $3.5000$, reached by \texttt{llama3:8b} under the bare prompt at 2
@@ -363,8 +363,10 @@ percent true prevalence; the next highest is $3.4000$, the same model and prompt
 prevalence. Both sit well below the
 $15.8196$ to $23.5959$ range of pool over-calling ratios Table~\ref{tab:overcalling} records above
 in this section. The magnitude of the failure is therefore not a general property of an
-instruction-tuned labeller asked for a rare positive class. What survives the domain change is
-the direction: over-calling that does not track the true rate, not its size.
+instruction-tuned labeller asked for a rare positive class. Neither is its direction: most
+public-text settings under-call, \texttt{qwen3:8b} never over-calls there, and because the
+sweep changed the prompt and the kind of negative as well as the domain, it cannot say which
+of the three produces the clinical gap.
 
 Attributing the gap's size to the pool's base rate rather than to the model
 would require a frontier-scale labeller on the clinical pool, the cell the
