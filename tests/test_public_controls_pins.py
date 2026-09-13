@@ -114,12 +114,18 @@ def test_ablations_file_never_imported_as_a_module():
     """Guard against a regression where some public-controls script imports
     the frozen file directly (which would run its pip installs and Drive
     mount at import time)."""
+    forbidden_import_patterns = (
+        "import accord_phase3_v2_ablations",
+        "from accord.detector.accord_phase3_v2_ablations import",
+        "from accord.detector import accord_phase3_v2_ablations",
+        "from accord_phase3_v2_ablations import",
+    )
     for py in PUBLIC_CONTROLS_DIR.rglob("*.py"):
+        if py.name == "frozen_ablations_loader.py":
+            continue
         text = py.read_text()
-        assert "accord_phase3_v2_ablations" not in text.replace(
-            "frozen_ablations_loader", ""
-        ) or py.name == "frozen_ablations_loader.py", (
-            f"{py} references accord_phase3_v2_ablations outside the safe loader")
+        for pattern in forbidden_import_patterns:
+            assert pattern not in text, f"{py} imports the frozen file directly: {pattern}"
 
 
 def test_ablations_file_still_has_the_side_effects_the_loader_avoids():
