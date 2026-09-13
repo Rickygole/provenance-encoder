@@ -111,23 +111,35 @@ def binomial_probability_table(fire_count_20):
     return {str(r): float(binom.pmf(fire_count_20, 20, r)) for r in (0.5, 0.7, 0.9, 0.95)}
 
 
-def verdict(clean_result, plant_results):
-    """General C102 verdict rule applied to S1b: validated needs the clean
-    arm's fire rate (first 20) <= 2/20 AND at least one plant rate's fire
-    count (first 20) >= 18/20; otherwise named per the plan's categories."""
+def verdict_for_rate(clean_result, plant_result):
+    """Each plant rate is read against the >=18/20 sensitivity bar
+    INDEPENDENTLY (per the pre-registration's "Read as" note), against the
+    SAME shared clean arm's false-alarm count."""
     clean_fires = clean_result["fire_count_first_20"]
+    plant_fires = plant_result["fire_count_first_20"]
     if clean_fires > 5:
-        return "unvalidated_false_alarm", f"clean fired {clean_fires}/20"
-    best_plant = max(plant_results, key=lambda r: r["fire_count_first_20"])
-    if best_plant["fire_count_first_20"] >= 18:
-        if clean_fires <= 2:
-            return "validated", (f"clean {clean_fires}/20, best plant "
-                                 f"(rate={best_plant['rate']}) {best_plant['fire_count_first_20']}/20")
-        return "specificity_marginal", f"clean {clean_fires}/20 (3-5 range)"
+        return "unvalidated_false_alarm"
+    if plant_fires >= 18:
+        return "validated" if clean_fires <= 2 else "specificity_marginal"
     if 3 <= clean_fires <= 5:
-        return "specificity_marginal", f"clean {clean_fires}/20"
-    return "not_validated_sensitivity", (f"best plant (rate={best_plant['rate']}) "
-                                         f"only {best_plant['fire_count_first_20']}/20")
+        return "specificity_marginal"
+    return "not_validated_sensitivity"
+
+
+def verdict(clean_result, plant_results):
+    """Overall summary: validated only if at least one plant rate is
+    independently validated against the clean arm; otherwise the strongest
+    non-validated category across the plant rates, so one weak rate cannot
+    be hidden behind a stronger one."""
+    per_rate = {r["rate"]: verdict_for_rate(clean_result, r) for r in plant_results}
+    if any(v == "validated" for v in per_rate.values()):
+        best_rate = next(rate for rate, v in per_rate.items() if v == "validated")
+        return "validated", f"validated at rate={best_rate}; per_rate={per_rate}"
+    if any(v == "unvalidated_false_alarm" for v in per_rate.values()):
+        return "unvalidated_false_alarm", f"per_rate={per_rate}"
+    if any(v == "specificity_marginal" for v in per_rate.values()):
+        return "specificity_marginal", f"per_rate={per_rate}"
+    return "not_validated_sensitivity", f"per_rate={per_rate}"
 
 
 def main():
@@ -138,6 +150,7 @@ def main():
     clean = next(r for r in results if r["rate"] == 0.0)
     plants = [r for r in results if r["rate"] != 0.0]
     verdict_label, verdict_note = verdict(clean, plants)
+    per_rate_verdicts = {str(r["rate"]): verdict_for_rate(clean, r) for r in plants}
 
     for r in results:
         r["binomial_probability_of_first_20_count_at_true_rate"] = \
@@ -150,6 +163,7 @@ def main():
         "results_by_rate": results,
         "verdict": verdict_label,
         "verdict_note": verdict_note,
+        "verdict_per_plant_rate": per_rate_verdicts,
         "seed": SEED,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
