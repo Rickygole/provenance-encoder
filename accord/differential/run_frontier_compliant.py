@@ -83,14 +83,77 @@ import os
 import pathlib
 import sys
 import time
+import urllib.parse
 
 import pandas as pd
 import requests
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from accord.differential.model_tags import ollama_model_tag  # noqa: E402
+
 OUT_DIR = ROOT / "results" / "accord" / "differential"
 DEFAULT_API_VERSION = "2024-02-01"
 DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-5"
+
+_LOOPBACK_HOSTNAMES = {"127.0.0.1", "localhost", "::1"}
+
+
+def assert_loopback_host(host):
+    """Refuse an Ollama host that is not the local loopback interface.
+
+    A local run is the only route this script's --provider ollama exists to
+    use; a non-loopback host would mean the "nothing leaves the machine"
+    compliance note above is false.
+    """
+    hostname = urllib.parse.urlparse(host).hostname
+    if hostname not in _LOOPBACK_HOSTNAMES and not (
+            hostname and hostname.startswith("127.")):
+        sys.exit(f"OLLAMA_HOST {host!r} is not loopback; refusing to run "
+                 f"--provider ollama against a non-local host")
+
+
+def parse_think_env():
+    """ACCORD_OLLAMA_THINK -> True, False, or None (unset, legacy behaviour).
+
+    Unset reproduces the pre-existing payload exactly: no "think" key is sent
+    at all. Any other value must parse to a boolean; anything else is a
+    misconfiguration and is refused rather than silently coerced.
+    """
+    raw = os.environ.get("ACCORD_OLLAMA_THINK")
+    if raw is None:
+        return None
+    v = raw.strip().lower()
+    if v in ("1", "true", "yes", "on"):
+        return True
+    if v in ("0", "false", "no", "off"):
+        return False
+    sys.exit(f"ACCORD_OLLAMA_THINK={raw!r} is not a recognised boolean")
+
+
+def ollama_model_digest(host, model):
+    """The model's content digest, read from /api/tags.
+
+    /api/show (Ollama 0.32.5, checked on this machine) returns license,
+    modelfile, parameters, template, details, model_info, tensors,
+    capabilities and modified_at, but no digest field, verbose or not. /api/tags
+    lists every installed model with its digest, so the digest is read from
+    there instead and matched by exact model name; if the model is not
+    installed this raises rather than returning a stale or guessed digest.
+    """
+    r = requests.get(f"{host.rstrip('/')}/api/tags", timeout=30)
+    r.raise_for_status()
+    for m in r.json().get("models", []):
+        if m.get("model") == model or m.get("name") == model:
+            return m["digest"]
+    sys.exit(f"model {model!r} not found in /api/tags; pull it first")
+
+
+def ollama_version(host):
+    r = requests.get(f"{host.rstrip('/')}/api/version", timeout=30)
+    r.raise_for_status()
+    return r.json().get("version")
 
 # The parser from the original run: case-insensitive match on the first word.
 # Anything else is a parse failure and is counted, never defaulted to a class.
@@ -169,7 +232,7 @@ def parse(reply):
     return None
 
 
-def call(cfg, system, user, temperature, max_tokens, retries=4):
+def call(cfg, system, user, temperature, max_tokens, retries=4, stats_sink=None):
     """One request, to whichever compliant provider is configured.
 
     Both providers named here appear in PhysioNet's guidance of 18 April 2023
@@ -203,15 +266,30 @@ def call(cfg, system, user, temperature, max_tokens, retries=4):
 
     if cfg["provider"] == "ollama":
         url = f"{cfg['host'].rstrip('/')}/api/generate"
+        options = {"temperature": temperature, "num_predict": max_tokens}
+        if cfg.get("num_ctx") is not None:
+            options["num_ctx"] = cfg["num_ctx"]
         payload = {"model": cfg["model"], "system": system, "prompt": user,
-                   "stream": False,
-                   "options": {"temperature": temperature,
-                               "num_predict": max_tokens}}
+                   "stream": False, "options": options}
+        # think is sent ONLY when recorded explicitly. Unset (None) reproduces
+        # the payload exactly as it was before this key existed.
+        if cfg.get("think") is not None:
+            payload["think"] = cfg["think"]
         for attempt in range(retries):
             try:
                 r = requests.post(url, json=payload, timeout=180)
                 r.raise_for_status()
-                return r.json().get("response")
+                j = r.json()
+                if stats_sink is not None:
+                    # Counts and lengths only, never the thinking text itself:
+                    # a thinking block can restate the prompt, which carries
+                    # note sentences.
+                    thinking = j.get("thinking")
+                    stats_sink.append({
+                        "prompt_eval_count": j.get("prompt_eval_count"),
+                        "thinking_nonempty": bool(thinking and thinking.strip()),
+                    })
+                return j.get("response")
             except Exception as exc:
                 # Same discipline as every other route: the type only. A local
                 # server is not a third party, but an exception body can still
@@ -393,9 +471,13 @@ def main():
         model_label = cfg["model"]
     elif args.provider == "ollama":
         # Local. No key, no endpoint secret, nothing to omit from the repository.
-        cfg = {"provider": "ollama",
-               "host": os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434"),
-               "model": os.environ.get("OLLAMA_MODEL", "llama3:8b")}
+        host = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
+        assert_loopback_host(host)
+        num_ctx_env = os.environ.get("ACCORD_OLLAMA_NUM_CTX")
+        cfg = {"provider": "ollama", "host": host,
+               "model": os.environ.get("OLLAMA_MODEL", "llama3:8b"),
+               "think": parse_think_env(),
+               "num_ctx": int(num_ctx_env) if num_ctx_env else None}
         model_label = cfg["model"]
     elif args.provider == "vertex":
         # No key. ADC is resolved by the client library from the gcloud
@@ -450,8 +532,40 @@ def main():
     if args.limit:
         df = df.head(args.limit)
 
+    # Model tag, output path, and the refuse-to-overwrite check all happen
+    # BEFORE the (potentially hours-long) call loop starts, not after it, so a
+    # collision or an accidental re-run is caught before any compute is spent.
+    suffix = f"_rep{args.replicates}" if args.replicates > 1 else ""
+    model_tag = ""
+    if args.provider == "anthropic" and model_label != DEFAULT_ANTHROPIC_MODEL:
+        model_tag = "_" + model_label.replace("-", "").replace(".", "")
+    elif args.provider == "ollama":
+        # accord/differential/model_tags.py: family_size(+_nothink), refusing a
+        # label with no explicit size, closing the qwen3:14b/qwen3:8b collision
+        # the split(":")[0] scheme used to produce.
+        model_tag = ollama_model_tag(model_label, cfg["think"])
+    elif args.provider in ("bedrock", "vertex"):
+        model_tag = "_" + (model_label.split("/")[-1].split(":")[0]
+                           .replace("-", "").replace(".", ""))
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out = OUT_DIR / f"frontier_{args.provider}{model_tag}_{args.strategy}{suffix}.json"
+    if out.exists():
+        sys.exit(f"{out.relative_to(ROOT)} already exists; refusing to "
+                 f"overwrite it. Move or delete it first if this run is an "
+                 f"intentional restart.")
+
+    model_digest = ollama_vers = None
+    ollama_stats = None
+    if args.provider == "ollama":
+        model_digest = ollama_model_digest(cfg["host"], cfg["model"])
+        ollama_vers = ollama_version(cfg["host"])
+        ollama_stats = []
+
     print(f"strategy={args.strategy}  provider={args.provider}  "
           f"model={model_label}  pairs={len(df)}  temperature={temperature}")
+    if args.provider == "ollama":
+        print(f"  ollama_version={ollama_vers}  model_digest={model_digest}  "
+              f"think={cfg['think']}  num_ctx={cfg['num_ctx']}")
 
     preds, failed, failed_pairs = [], 0, 0
     for i, row in df.iterrows():
@@ -472,7 +586,7 @@ def main():
         draws = []
         for _ in range(max(1, args.replicates)):
             draws.append(parse(call(cfg, system, prompt, temperature,
-                                    max_tokens)))
+                                    max_tokens, stats_sink=ollama_stats)))
         usable = [d for d in draws if d is not None]
         failed += len(draws) - len(usable)
 
@@ -500,30 +614,9 @@ def main():
             print(f"  {i + 1}/{len(df)}")
 
     flagged = sum(1 for p in preds if p["pred"] == 1)
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # A replicated run must never overwrite the single-draw artifact. Both are
-    # reported: the single draw is what the first pass measured, the replicated
-    # run is what the thesis should quote, and the difference between them is
-    # itself the finding.
-    suffix = f"_rep{args.replicates}" if args.replicates > 1 else ""
-    # Tag the filename with the model whenever it is not the default. Without
-    # this, running a second model writes over the first: a Haiku run would
-    # silently destroy the committed Sonnet artifacts that Chapter 4 depends
-    # on, and the loss would not be visible until the metrics were recomputed.
-    # A second model on the same provider must not overwrite the first, so the
-    # non-default model goes in the filename. Bedrock has no default: every
-    # model there is tagged, because the family is the variable under test.
-    model_tag = ""
-    if args.provider == "anthropic" and model_label != DEFAULT_ANTHROPIC_MODEL:
-        model_tag = "_" + model_label.replace("-", "").replace(".", "")
-    elif args.provider in ("bedrock", "vertex", "ollama"):
-        # Vertex is tagged for the same reason bedrock is: the model is the
-        # variable under test on this route, so it belongs in the filename and
-        # a second model must not overwrite the first.
-        model_tag = "_" + (model_label.split("/")[-1].split(":")[0]
-                           .replace("-", "").replace(".", ""))
-    out = OUT_DIR / f"frontier_{args.provider}{model_tag}_{args.strategy}{suffix}.json"
+    # model_tag, out and the refuse-to-overwrite check happened before the
+    # loop above, not here: see the comment there for why.
 
     stability = None
     if args.replicates > 1:
@@ -560,10 +653,31 @@ def main():
                          "unresolved rather than broken toward either class"),
         }
 
+    # Ollama-only run metadata. None on every other channel: these fields
+    # describe a locally served model, and there is nothing to fill them from
+    # on a hosted route.
+    max_prompt_eval_count = n_prompt_truncated = n_thinking_nonempty = None
+    if args.provider == "ollama":
+        counts = [s["prompt_eval_count"] for s in ollama_stats
+                  if s["prompt_eval_count"] is not None]
+        max_prompt_eval_count = max(counts) if counts else None
+        n_prompt_truncated = (
+            sum(1 for c in counts if cfg["num_ctx"] is not None
+                and c >= cfg["num_ctx"]))
+        n_thinking_nonempty = sum(1 for s in ollama_stats
+                                  if s["thinking_nonempty"])
+
     json.dump({
         "strategy": args.strategy,
         "channel": args.provider,
         "model": model_label,
+        "model_digest": model_digest,
+        "think": cfg.get("think") if args.provider == "ollama" else None,
+        "ollama_version": ollama_vers,
+        "num_ctx": cfg.get("num_ctx") if args.provider == "ollama" else None,
+        "max_prompt_eval_count": max_prompt_eval_count,
+        "n_prompt_truncated": n_prompt_truncated,
+        "n_thinking_nonempty": n_thinking_nonempty,
         "compliance_note": COMPLIANCE_NOTE[args.provider],
 
         "temperature": (None if cfg.get("no_temperature") else temperature),

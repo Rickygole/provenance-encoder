@@ -37,8 +37,13 @@ import json
 import math
 import os
 import pathlib
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from accord.differential.model_tags import LEGACY_TAGS, ollama_model_tag  # noqa: E402
+
 OUT = ROOT / "results" / "accord" / "stats" / "test_register.json"
 ALPHA = 0.05
 
@@ -254,6 +259,74 @@ FAMILY = [
 ]
 
 
+# The frozen legacy map, exactly as it shipped in C94/C98-era runs. Frozen
+# here as a literal rather than re-derived from LEGACY_TAGS, so a change to
+# model_tags.py that alters the map is caught by a diff against this literal,
+# not just against itself.
+_FROZEN_LEGACY_TAGS = {
+    ("llama3:8b", None): "_llama3",
+    ("granite3.3:8b", None): "_granite33",
+    ("qwen3:8b", None): "_qwen3",
+}
+
+# Every (label, think) combination this project has actually produced or is
+# about to produce, used to check model_tags.py's invariants. Not every
+# combination that could ever exist: the point is to catch a regression in the
+# labels this project uses, not to enumerate the whole input space.
+_KNOWN_MODEL_THINK_PAIRS = [
+    ("llama3:8b", None),
+    ("granite3.3:8b", None),
+    ("qwen3:8b", None),
+    ("qwen3:8b", False),
+    ("qwen3:8b", True),
+    ("qwen3:14b", False),
+    ("qwen3:14b", True),
+]
+
+
+def check_model_tags():
+    """Invariants accord/differential/model_tags.py must hold.
+
+    1. The frozen legacy map is unchanged.
+    2. No two of the known (label, think) pairs produce the same tag: a
+       collision here is exactly the qwen3:14b/qwen3:8b defect this file
+       exists to close.
+    3. No tag equals another tag with "_zero" or "_few" appended. The runner
+       builds filenames as f"...{model_tag}_{strategy}..." with strategy
+       "zero_shot" or "few_shot"; a tag that is itself another tag plus a
+       "_zero"/"_few" fragment would make two distinct (model, strategy)
+       filenames differ only in where the model/strategy boundary falls,
+       which is the "model tag in the wrong filename position" defect
+       CLAUDE.md records twice.
+    """
+    if LEGACY_TAGS != _FROZEN_LEGACY_TAGS:
+        raise AssertionError(
+            f"model_tags.LEGACY_TAGS changed from the frozen map: "
+            f"{dict(LEGACY_TAGS)} != {_FROZEN_LEGACY_TAGS}")
+
+    tags = {}
+    for label, think in _KNOWN_MODEL_THINK_PAIRS:
+        tag = ollama_model_tag(label, think)
+        if tag in tags:
+            raise AssertionError(
+                f"tag collision: {label!r} think={think!r} and "
+                f"{tags[tag]!r} both produce {tag!r}")
+        tags[tag] = (label, think)
+
+    all_tags = list(tags)
+    for t1 in all_tags:
+        for t2 in all_tags:
+            if t1 == t2:
+                continue
+            for frag in ("_zero", "_few"):
+                if t1 == t2 + frag:
+                    raise AssertionError(
+                        f"tag {t1!r} ({tags[t1]!r}) equals tag {t2!r} "
+                        f"({tags[t2]!r}) plus {frag!r}")
+    print(f"model_tags: PASS  ({len(all_tags)} known tags, no collisions, "
+          f"legacy map unchanged)")
+
+
 def resolve(source):
     """Read a p value out of a committed artifact at path::dotted.key."""
     path, _, key = source.partition("::")
@@ -266,6 +339,7 @@ def resolve(source):
 
 
 def main():
+    check_model_tags()
     tests = []
     for entry in FAMILY:
         e = dict(entry)

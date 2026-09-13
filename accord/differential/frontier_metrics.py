@@ -181,10 +181,30 @@ def main():
         "ambiguity_gradient": {},
     }
 
+    expected_model = os.environ.get("ACCORD_FRONTIER_EXPECTED_MODEL")
+    expected_think_raw = os.environ.get("ACCORD_FRONTIER_EXPECTED_THINK")
+    if MODEL_TAG and not (expected_model and expected_think_raw is not None):
+        sys.exit("ACCORD_FRONTIER_EXPECTED_MODEL and "
+                 "ACCORD_FRONTIER_EXPECTED_THINK must both be set when "
+                 "ACCORD_FRONTIER_MODEL_TAG is set, so this script cannot "
+                 "silently score whichever artifact happens to sit at that "
+                 "tag under a model or think setting nobody asked for.")
+    expected_think = ({"true": True, "false": False}[expected_think_raw.lower()]
+                      if MODEL_TAG else None)
+
+    raw_by_strategy = {}
     for strat in STRATEGIES:
         art = ("results/accord/differential/"
                f"frontier_{PROVIDER}{MODEL_TAG}_{strat}{SUFFIX}.json")
         raw = json.load(open(art))
+        if MODEL_TAG:
+            if raw.get("model") != expected_model:
+                sys.exit(f"{art}: model {raw.get('model')!r} != expected "
+                         f"{expected_model!r}")
+            if raw.get("think") != expected_think:
+                sys.exit(f"{art}: think {raw.get('think')!r} != expected "
+                         f"{expected_think!r}")
+        raw_by_strategy[strat] = raw
         pr = pd.DataFrame(raw["predictions"])
         # A replicated run writes pred=null where the draws split evenly or none
         # parsed. Those pairs carry no label, so they are dropped and counted:
@@ -224,6 +244,21 @@ def main():
             "rate_clear_negative": c / len(neg),
             "odds_ratio": float(odds), "fisher_p_one_sided": float(p),
         }
+
+    # Both strategy artifacts must be the SAME model run under the SAME think
+    # setting, sharing one digest. Scoring a zero-shot run of one model against
+    # a few-shot run of another under one register prefix is exactly the class
+    # of defect CLAUDE.md records twice.
+    if PROVIDER == "ollama":
+        models = {raw_by_strategy[s].get("model") for s in STRATEGIES}
+        thinks = {raw_by_strategy[s].get("think") for s in STRATEGIES}
+        digests = {raw_by_strategy[s].get("model_digest") for s in STRATEGIES}
+        if len(models) != 1 or len(thinks) != 1 or len(digests) != 1:
+            sys.exit(f"strategy artifacts disagree on model/think/digest: "
+                     f"models={models} thinks={thinks} digests={digests}")
+        out["model"] = models.pop()
+        out["think"] = thinks.pop()
+        out["model_digest"] = digests.pop()
 
     print(f"register keys under {PREFIX}.*: {update_register(out)} written")
     os.makedirs(os.path.dirname(OUT), exist_ok=True)

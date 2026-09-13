@@ -144,6 +144,11 @@ def main():
     for f in sorted(glob.glob(str(DIFF / "frontier_*metrics*.json"))):
         d = json.loads(pathlib.Path(f).read_text())
         label = pathlib.Path(f).stem.replace("frontier_", "").replace("_metrics", "")
+        # think lives at the artifact's top level (frontier_metrics.py writes
+        # it only for the ollama channel, after asserting both strategies
+        # share one), not per-strategy, so it is read once per file and
+        # applied to every row the file contributes.
+        think = d.get("think")
         for strat, node in (d.get("by_strategy") or {}).items():
             for basis, cell in node.items():
                 if not isinstance(cell, dict) or "tp" not in cell:
@@ -157,6 +162,7 @@ def main():
                 obs = cell["mcc"]
                 rows[f"{label}::{strat}::{basis}"] = collections.OrderedDict([
                     ("model", node.get("model") or label),
+                    ("think", think),
                     ("strategy", strat), ("basis", basis),
                     ("n", n), ("n_positives", n_pos), ("n_flagged", n_flag),
                     ("flag_rate", round(n_flag / n, 4)),
@@ -206,22 +212,36 @@ def main():
     n_infeasible = sum(1 for r in rows.values() if not r["could_reject_at_0_05"])
     n_attaining = sum(1 for r in rows.values() if r["attains_ceiling"])
 
+    # The configuration key is (model, think, strategy): the same model served
+    # with thinking on and off is not the same measurement (see the superseded
+    # qwen3:8b zero-shot artifact, think on, 67 parse failures, discarded under
+    # C94's rule), so think has to be part of what counts as "one configuration"
+    # exactly as model and strategy already are.
+    #
     # The eight scored rows are two labellers by two prompts by two bases, and
     # G_253 is a subset of G_299, so they are four configurations measured on two
     # nested bases, not eight independent labellers. Counted both ways so prose
     # cannot report the larger number without the smaller one beside it.
-    configs = {(r["model"], r["strategy"]) for r in rows.values()}
+    configs = {(r["model"], r["think"], r["strategy"]) for r in rows.values()}
+
+    def _cfg_str(model, think, strat):
+        # think is folded into the string (not just the tuple) so that a
+        # config string never collides across a think setting, and the
+        # leading token stays the raw model name so the
+        # all_could_not_reject_are_llama3 startswith check below is unaffected.
+        return f"{model}::think={think}::frontier_{strat}"
+
     # A configuration is infeasible if it could not reject on any basis it was
     # measured on; with nested bases that is the conservative reading.
-    all_configs = ({f"{m}::frontier_{st}" for m, st in configs}
+    all_configs = ({_cfg_str(m, th, st) for m, th, st in configs}
                    | {r["configuration"] for r in marginal_only.values()})
-    all_infeasible = ({f"{r['model']}::frontier_{r['strategy']}" for r in rows.values()
-                       if not r["could_reject_at_0_05"]}
+    all_infeasible = ({_cfg_str(r["model"], r["think"], r["strategy"])
+                       for r in rows.values() if not r["could_reject_at_0_05"]}
                       | {r["configuration"] for r in marginal_only.values()
                          if not r["could_reject_at_0_05"]})
-    cfg_infeasible = {(r["model"], r["strategy"]) for r in rows.values()
+    cfg_infeasible = {(r["model"], r["think"], r["strategy"]) for r in rows.values()
                       if not r["could_reject_at_0_05"]}
-    cfg_attaining = {(r["model"], r["strategy"]) for r in rows.values()
+    cfg_attaining = {(r["model"], r["think"], r["strategy"]) for r in rows.values()
                      if r["attains_ceiling"]}
     out = collections.OrderedDict([
         ("provenance", {
@@ -274,8 +294,15 @@ def main():
                 "n_marginal_only_rows_scored"):
         put(key, out[key], key)
     for rk, r in rows.items():
+        # think is folded into the slug explicitly, not left to whatever the
+        # filename happened to embed: a register key must distinguish a
+        # think=True run from a think=False run of the same model and
+        # strategy on its own, without relying on the artifact's filename
+        # convention to have done it first.
+        think_slug = {True: "thinktrue", False: "thinkfalse",
+                     None: "thinkunset"}[r["think"]]
         slug = (rk.replace("::", ".").replace(":", "").replace(".", "_")
-                .replace("-", "").lower())
+                .replace("-", "").lower() + "_" + think_slug)
         for field in ("flag_rate", "observed_mcc", "ceiling_mcc", "ceiling_kappa",
                       "fraction_of_ceiling", "attainable_floor_p_one_sided",
                       "n", "n_positives", "n_flagged"):
