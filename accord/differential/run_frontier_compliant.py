@@ -117,6 +117,13 @@ COMPLIANCE_NOTE = {
                 "controls, which is the author's reasoning rather than the "
                 "document's. Added to vary vendor and channel while holding the "
                 "model family constant; see C68."),
+    "ollama": ("Served locally through Ollama on the analysis machine. Nothing "
+               "leaves the machine, so this route raises no question under the "
+               "data use agreement at all: PhysioNet's guidance of 24 September "
+               "2025 recommends locally deployed models, and a local run is not "
+               "a transmission to a third party. Added under C94 to remove the "
+               "prompt confound in the channel term, not to replace the hosted "
+               "rows, which this machine cannot reach at high capability."),
     "vertex": ("Run through Google Vertex AI in a Google Cloud project the "
                "author owns. Gemini via Vertex AI is one of four services "
                "PhysioNet's guidance of 18 April 2023 suggests in place of a "
@@ -190,6 +197,27 @@ def call(cfg, system, user, temperature, max_tokens, retries=4):
                 # back, and the request carries note sentences.
                 if attempt == retries - 1:
                     print(f"      bedrock {type(exc).__name__} after "
+                          f"{retries} attempts", file=sys.stderr)
+                    return None
+                time.sleep(2 ** attempt)
+
+    if cfg["provider"] == "ollama":
+        url = f"{cfg['host'].rstrip('/')}/api/generate"
+        payload = {"model": cfg["model"], "system": system, "prompt": user,
+                   "stream": False,
+                   "options": {"temperature": temperature,
+                               "num_predict": max_tokens}}
+        for attempt in range(retries):
+            try:
+                r = requests.post(url, json=payload, timeout=180)
+                r.raise_for_status()
+                return r.json().get("response")
+            except Exception as exc:
+                # Same discipline as every other route: the type only. A local
+                # server is not a third party, but an exception body can still
+                # quote the request back into a log file.
+                if attempt == retries - 1:
+                    print(f"      ollama {type(exc).__name__} after "
                           f"{retries} attempts", file=sys.stderr)
                     return None
                 time.sleep(2 ** attempt)
@@ -315,7 +343,7 @@ def main():
     ap.add_argument("--strategy", choices=["zero_shot", "few_shot"],
                     required=True)
     ap.add_argument("--provider",
-                    choices=["anthropic", "azure", "bedrock", "vertex"],
+                    choices=["anthropic", "azure", "bedrock", "vertex", "ollama"],
                     default="anthropic",
                     help="which compliant route to use. anthropic and vertex "
                          "need no opt-out form; azure requires Modified Abuse "
@@ -362,6 +390,12 @@ def main():
                            region_name=os.environ.get("AWS_REGION", "us-east-1")),
                "model": os.environ.get("BEDROCK_MODEL",
                                        "meta.llama3-70b-instruct-v1:0")}
+        model_label = cfg["model"]
+    elif args.provider == "ollama":
+        # Local. No key, no endpoint secret, nothing to omit from the repository.
+        cfg = {"provider": "ollama",
+               "host": os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434"),
+               "model": os.environ.get("OLLAMA_MODEL", "llama3:8b")}
         model_label = cfg["model"]
     elif args.provider == "vertex":
         # No key. ADC is resolved by the client library from the gcloud
@@ -483,7 +517,7 @@ def main():
     model_tag = ""
     if args.provider == "anthropic" and model_label != DEFAULT_ANTHROPIC_MODEL:
         model_tag = "_" + model_label.replace("-", "").replace(".", "")
-    elif args.provider in ("bedrock", "vertex"):
+    elif args.provider in ("bedrock", "vertex", "ollama"):
         # Vertex is tagged for the same reason bedrock is: the model is the
         # variable under test on this route, so it belongs in the filename and
         # a second model must not overwrite the first.
