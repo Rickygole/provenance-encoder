@@ -33,7 +33,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 OUT_PATH = os.path.join(REPO, "results/accord/reconciliation_c28.json")
 
 # The released per-pair ACCORD decision file (the "raw file" of C28 item 2).
-GOLD_PATH = "/Users/rickygole/Downloads/gold_standard_accord_results.csv"
+GOLD_PATH = "/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv"
 
 # pair_id -> HADM_ID/drug/rule/sentences bridge, and the weak-label carrier.
 # run_experiments.py referenced the Google Drive copy; the Drive mount is gone

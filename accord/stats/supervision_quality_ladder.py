@@ -47,7 +47,7 @@ from sklearn.model_selection import StratifiedKFold
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 LOCAL = pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-08-08" / "outputs"
-GOLD = pathlib.Path.home() / "Downloads" / "gold_standard_accord_results.csv"
+GOLD = pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"
 DIFF = ROOT / "results" / "accord" / "differential"
 OUT = ROOT / "results" / "accord" / "stats" / "supervision_quality_ladder.json"
 SEEDS = (0, 1, 2)

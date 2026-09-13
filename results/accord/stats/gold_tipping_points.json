@@ -1,0 +1,66 @@
+{
+  "provenance": {
+    "generated_by": "accord/stats/gold_tipping_points.py",
+    "precondition_checked_first": true
+  },
+  "c_auroc_precondition": {
+    "n": 253,
+    "n_pos": 12,
+    "auc_recomputed": 0.4595435684647302,
+    "auc_recomputed_rounded4": 0.4595,
+    "auc_registered": 0.4595,
+    "matches_to_4dp": true
+  },
+  "a_greedy_flip_to_mde": {
+    "target_auc": 0.7355,
+    "target_source": "results/accord/VERIFIED_FACTS.json::mde_recomputed.gold_ambiguous_excluded.minimum_detectable_auc",
+    "baseline_auc": 0.4595435684647302,
+    "n_flips_greedy": 7,
+    "n_flips_as_fraction_of_n": 0.0277,
+    "n_flips_as_fraction_of_n_pos": 0.5833,
+    "final_auc_after_flips": 0.7572590011614402,
+    "flip_directions": {
+      "neg_to_pos": 1,
+      "pos_to_neg": 6
+    },
+    "target_reached_within_cap": true,
+    "search_cap": 80,
+    "auc_trace_by_flip_count": [
+      0.4595,
+      0.5029,
+      0.5446,
+      0.5879,
+      0.6325,
+      0.6808,
+      0.7235,
+      0.7573
+    ],
+    "method": "Greedy: at each step, flip whichever remaining label increases AUROC the most; stop once the target is reached. This is an upper-bound heuristic on the adversarial flip count, not a proof of the true minimum (greedy search is not guaranteed globally optimal), and it is a bound on how many labels an adversary would have to get wrong, not a probability that they are wrong."
+  },
+  "b_flip_to_public_max_over_call": {
+    "min_ratio_row": "granite3.3:8b::few_shot::G_253",
+    "min_ratio_row_is_frontier_template": true,
+    "min_ratio_value": 14.666666666666668,
+    "public_max_over_call_ratio": 3.5000000000000004,
+    "public_max_over_call_ratio_cell": "llama3:8b::A_bare::p0.02",
+    "computable": true,
+    "n_flagged": 176,
+    "n_positives": 12,
+    "n_flagged_negatives_available_to_reclassify": 166,
+    "direction_1_discount_confirmed_positives": {
+      "formula": "ratio(m) = n_flagged / (n_positives - m)",
+      "monotonically_increasing_in_m": true,
+      "conclusion": "This direction moves the ratio AWAY from the public-text maximum for every m > 0; no finite number of direction-1-only flips reaches it. The largest number of direction-1 flips that help is therefore 0."
+    },
+    "direction_2_relabel_flagged_negatives_as_missed_contradictions": {
+      "formula": "ratio(m) = n_flagged / (n_positives + m)",
+      "m_exact_real_valued": 38.28571428571428,
+      "n_flips_to_reach_public_max": 39,
+      "feasible_within_available_flagged_negatives": true,
+      "ratio_at_m_flips": 3.450980392156863,
+      "ratio_at_m_minus_1_flips": 3.52,
+      "largest_n_flips_that_keep_ratio_above_public_max": 38,
+      "conclusion": "Reclassifying 39 of the 166 pairs this row flagged as negative (out of the 12 confirmed positives being fixed) as missed true contradictions brings this row's ratio to or below the public-text maximum of 3.5000x."
+    }
+  }
+}

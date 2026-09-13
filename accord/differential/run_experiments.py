@@ -188,7 +188,7 @@ log("(admission-level covariate table kept in-memory only; not written to disk p
 #    gold set -- so the audit file carries the correct pre-decontam weak label
 #    for the gold-evaluated pairs).
 # ---------------------------------------------------------------------------
-GOLD_PATH = "/Users/rickygole/Downloads/gold_standard_accord_results.csv"
+GOLD_PATH = "/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv"
 # Repointed off the Google Drive mount. This file carries verbatim note
 # sentences joined to HADM_ID, so a cloud-synced path was the one thing
 # the .gitignore rules and sync gate exist to prevent, and README.md

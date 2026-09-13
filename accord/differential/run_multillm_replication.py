@@ -159,7 +159,7 @@ log(f"Original (v1) Llama-3-8B weak_label positive rate on this pool: "
 # 2. LOAD THE 299-ROW PHARMACIST GOLD SET, join pair_id <-> HADM_ID
 #    (identical join logic to accord/differential/run_experiments.py)
 # ---------------------------------------------------------------------------
-GOLD_PATH = "/Users/rickygole/Downloads/gold_standard_accord_results.csv"
+GOLD_PATH = "/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv"
 # Repointed off the Google Drive mount. This file carries verbatim note
 # sentences joined to HADM_ID, so a cloud-synced path was the one thing
 # the .gitignore rules and sync gate exist to prevent, and README.md

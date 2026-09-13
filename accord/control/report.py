@@ -34,7 +34,7 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from delong import delong_roc_test
 
 OUT_DIR = "/Users/rickygole/mimic_local_only/accord_control"
-GOLD_PATH = "/Users/rickygole/Downloads/gold_standard_accord_results.csv"
+GOLD_PATH = "/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv"
 POWER_REF_PATH = str(Path(__file__).resolve().parents[2] / "results/accord/section6_auroc_power.json")
 
 N_BOOT = 10_000

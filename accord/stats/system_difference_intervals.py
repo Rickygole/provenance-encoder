@@ -31,7 +31,7 @@ import pandas as pd
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 DIFF = ROOT / "results" / "accord" / "differential"
-GOLD = pathlib.Path.home() / "Downloads" / "gold_standard_accord_results.csv"
+GOLD = pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"
 OUT = ROOT / "results" / "accord" / "stats" / "system_difference_intervals.json"
 B, SEED = 10000, 42
 

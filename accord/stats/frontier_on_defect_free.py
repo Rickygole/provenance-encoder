@@ -36,7 +36,7 @@ from scipy.stats import fisher_exact, hypergeom
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 DIFF = ROOT / "results" / "accord" / "differential"
-GOLD = pathlib.Path.home() / "Downloads" / "gold_standard_accord_results.csv"
+GOLD = pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"
 OUT = ROOT / "results" / "accord" / "stats" / "frontier_on_defect_free.json"
 DEFECT_FREE_RULES = (3, 4)
 B, SEED = 10000, 42

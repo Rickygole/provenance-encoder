@@ -53,7 +53,7 @@ for k, v in base.items():
 res["E2_mcc_intervals"] = e2
 
 # ---- E3 -------------------------------------------------------------------
-g = pd.read_csv("/Users/rickygole/Downloads/gold_standard_accord_results.csv")
+g = pd.read_csv("/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv")
 sub = g[g.rule.isin([3, 4])]
 y = (sub.pharm_label == 1).astype(int).values if sub.pharm_label.dtype != object else \
     sub.pharm_label.astype(str).str.lower().isin(["1", "true", "contradiction", "yes"]).astype(int).values

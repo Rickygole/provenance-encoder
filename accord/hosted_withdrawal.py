@@ -46,7 +46,6 @@ HOSTED_ARTIFACT_TOKENS = (
     "frontier_bedrock",            # Llama 3 70B and Llama 3 8B metrics
     "frontier_label_noise_claudehaiku",
     "transmission_ledger",         # the ledger of the transmissions themselves
-    "capability_ladder",           # mixes hosted and local rungs; see below
     # node paths inside the derived analyses, which key off the run label
     "::anthropic",
     "::bedrock",
@@ -107,22 +106,33 @@ ALREADY_WITHDRAWN_PREFIXES = ("withdrawn.",)
 
 
 def _provenance_inputs(path):
-    """Artifacts this artifact declares it was computed from."""
+    """Every results artifact this artifact references, anywhere in its body.
+
+    The first version read only a provenance block's input fields, and C96 showed
+    why a narrow reading fails: a derived file can name its hosted source in any
+    field. The capability ladder names its rows under ladder[].source, not under
+    provenance. So every string in the artifact that is a path to a results JSON is
+    followed. A path that does not exist on disk is still classified by its name,
+    which is how a withdrawn source that has been moved away is still caught.
+    """
     try:
         d = json.loads((_ROOT / path).read_text())
     except Exception:
         return ()
-    prov = d.get("provenance") if isinstance(d, dict) else None
-    if not isinstance(prov, dict):
-        return ()
-    out = []
-    for field in ("input", "inputs", "generated_from", "source", "sources"):
-        v = prov.get(field)
-        if isinstance(v, str):
-            out.append(v)
-        elif isinstance(v, (list, tuple)):
-            out.extend(x for x in v if isinstance(x, str))
-    return tuple(out)
+    found = []
+
+    def walk(o):
+        if isinstance(o, dict):
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+        elif isinstance(o, str) and o.startswith("results/") and ".json" in o:
+            found.append(o.split("::")[0].strip())
+
+    walk(d)
+    return tuple(dict.fromkeys(f for f in found if f != path))
 
 
 @functools.lru_cache(maxsize=None)
