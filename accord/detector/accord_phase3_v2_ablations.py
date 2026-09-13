@@ -34,6 +34,19 @@
 #
 # It contains no note text, no admission or subject identifier, and no
 # credential. That was verified before committing.
+#
+# CUSTODY REMEDIATION, added after recovery, not part of the recovered file:
+# OUT below is the Colab-mounted Google Drive path this script actually read
+# training data from and wrote checkpoints to. It is left exactly as
+# recovered -- it is evidence of what happened, not configuration to be
+# quietly fixed, and silently repointing it would erase the thing the
+# correction record cites. Instead, a guard immediately after the OUT
+# assignment (clearly marked, see there) makes the script refuse to run
+# unconditionally, because OUT still resolves inside Google Drive as
+# committed. That guard is the only code in this file that is not part of
+# the recovered source. See accord/cloud_paths.py for the reusable check it
+# calls, and the comment beside the guard for why an assertion was chosen
+# over a rewrite.
 # ============================================================================
 
 # -*- coding: utf-8 -*-
@@ -79,6 +92,52 @@ from sklearn.metrics import accuracy_score, f1_score
 from sklearn.utils.class_weight import compute_class_weight
 
 OUT = '/content/drive/MyDrive/thesis/outputs'
+
+# ============================================================================
+# COMPLIANCE GUARD -- added when this file was recovered and committed. This
+# block, and only this block, is not part of the recovered source; see the
+# header at the top of this file.
+#
+# This script trains on MIMIC-III-derived weak labels and writes model
+# checkpoints with torch.save. PhysioNet's guidance of 24 September 2025
+# strongly recommends locally deployed models, and the Credentialed Health
+# Data Use Agreement's clause 4 requires reasonable and prudent care over
+# electronic security. OUT above still names the Google Drive path the
+# original run actually used, kept unmodified as evidence rather than
+# rewritten to a working local path -- a rewrite here would be the same
+# mistake this file exists to prevent: quietly changing recorded evidence.
+# A short assertion that refuses to run is safer than a rewrite: it makes the
+# custody problem impossible to ignore without erasing the record of it.
+#
+# To actually re-run this script: point OUT at a local, credentialed-only
+# directory -- for example os.environ.get('ACCORD_DETECTOR_OUT',
+# os.path.expanduser('~/mimic_local_only/accord_detector')), the same
+# env-var-with-local-default convention used in
+# accord/differential/run_frontier_compliant.py -- pass that through
+# assert_local_only again, and only then remove this exit(). Do not just
+# delete the check.
+import os
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))  # repo root
+from accord.cloud_paths import assert_local_only, CloudStoragePathError
+
+_LOCAL_DEFAULT = os.path.expanduser("~/mimic_local_only/accord_detector")
+try:
+    assert_local_only(OUT)
+except CloudStoragePathError as _exc:
+    sys.exit(
+        f"{_exc}\n\n"
+        f"accord_phase3_v2_ablations.py: OUT is the recovered Colab Drive path "
+        f"and has been left unmodified as evidence (see the file header). "
+        f"This script refuses to run against it. Set OUT to a local path "
+        f"before running for real, e.g. via "
+        f"ACCORD_DETECTOR_OUT={_LOCAL_DEFAULT!r}, matching the convention in "
+        f"accord/differential/run_frontier_compliant.py."
+    )
+# ============================================================================
+
 MODEL_NAME = 'microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext'
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 

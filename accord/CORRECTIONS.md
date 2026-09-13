@@ -4544,3 +4544,46 @@ The pattern across both addenda is worth naming. Every defect in this entry was 
 correction, not by the original work, and three of the five were introduced today by the same
 hands that found the originals. A repair is an edit like any other and inherits the same
 obligation to be checked.
+
+---
+
+## C93. Custody moved off cloud storage, and the annotator correction made visible in the bound thesis
+
+**All eight artifacts that mounted Google Drive now resolve to credentialed-only local storage.**
+Six notebooks and two scripts. Each reads its output path from the environment with a local
+default under the quarantine directory, matching the convention the frontier runner already uses.
+A reusable guard at accord/cloud_paths.py resolves a path and refuses it if it lands inside any
+cloud-synced location, which on current macOS is one directory covering Drive, Dropbox, OneDrive,
+iCloud and Box. It was tested against the Colab path, the real mount, and a genuine local path.
+
+**The detector's training script is guarded rather than rewritten, and that choice is deliberate.**
+That file is a recovered source committed unmodified as a record of what actually ran. Quietly
+changing its output path would be an edit to evidence, which is the thing the recovery header
+exists to prevent. Instead it now calls the guard on its own output path and exits with a clear
+message, so the script cannot run against cloud storage while the record of where it did run
+stays intact.
+
+**What this does not do.** It changes where code points. It does not move the files already on
+the drive, and it does not delete the 23 model checkpoints there, which is the author's action to
+take after verifying his own backups. PhysioNet's guidance on derived datasets and models says a
+model trained on credentialed data should be treated as carrying sensitive information, so those
+checkpoints are in scope whatever the code now does.
+
+**The correction record exempted itself from its own standard, and a reviewer was right to look.**
+An external review charged that the annotator account had moved in the direction that clears the
+author with no numbered correction behind it. The charge was wrong on the fact: C87 records the
+move, the evidence for it and the date. It was right on the risk. Appendix A surfaces only the ten
+corrections that changed a number this thesis prints, and C87 changed a fact rather than a number,
+so a reader of the bound document could not see that a compliance fact had moved late and
+favourably. The appendix now distinguishes the two kinds and names C87 in the second, including
+the part that matters: the account rests finally on the author's testimony about what happened,
+which no artifact can replace.
+
+**Two smaller repairs in the same pass.** The appendix said the full record is reproduced in a
+supplementary file accompanying the document, which was true when this thesis was bound as two
+documents and false since they were merged; it now points at the released repository. And four
+bibliography entries printed internal database keys as if they were APA descriptions, because the
+keys sat in note fields rather than comments. Moved to comments, entry count unchanged at 93.
+
+**One defect introduced and caught inside this entry.** The rewritten appendix named a repository
+filename in prose, which Pass 9 forbids and duly caught. The gate worked; the writer did not.

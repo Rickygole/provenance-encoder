@@ -6,10 +6,10 @@
 # =============================================================================
 import os, sys, shutil, pathlib, subprocess, time
 
-from google.colab import drive
-drive.mount('/content/drive', force_remount=True)
+# REMOVED for custody: mounted Google Drive. See accord/cloud_paths.py.
+# REMOVED for custody: mounted Google Drive. See accord/cloud_paths.py.
 
-DRIVE  = pathlib.Path('/content/drive/MyDrive/This is paper')
+DRIVE  = pathlib.Path(os.environ.get('ACCORD_FIG_OUT', os.path.expanduser('~/mimic_local_only/accord_figures')))
 BUNDLE = DRIVE / '02_figures' / 'colab_bundle'
 DEST   = DRIVE / '02_figures'
 WORK   = pathlib.Path('/content/figures')

@@ -105,6 +105,15 @@ def main():
     facts = json.load(open(FACTS), object_pairs_hook=collections.OrderedDict)
     for k in [k for k in facts if k.split(".")[0] == PREFIX]:
         del facts[k]
+    # The per-channel roll-up is written HERE, by the generator, not registered by
+    # hand elsewhere. Every key under this prefix is deleted above before the
+    # rewrite, so a hand-added per-channel key is destroyed on the next run and the
+    # counts the methodology chapter prints become untraceable. That is the failure
+    # this file's header records for the superseded total, one level down.
+    for ch, n in _per_channel(ledger).items():
+        facts[f"{PREFIX}.per_channel.{ch}"] = collections.OrderedDict(
+            [("artifact", f"{OUT}::per_channel.{ch}"), ("value", n)])
+
     for r in ledger:
         slug = r["run"].replace("-", "").replace(".", "").replace(":", "").lower()
         for field in ("prompts", "n_pairs", "replicates_per_pair"):
