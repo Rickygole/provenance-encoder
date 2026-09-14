@@ -73,6 +73,13 @@ HOSTED_ARTIFACT_TOKENS = (
     "claude",
     "llama70b",
     "metallama",
+    # Quantities that only ever existed as quotients of hosted rows. The rebuilt
+    # capability ladder is local-only and reuses the same artifact path, so the
+    # path cannot identify them; these names can, and no local analysis produces
+    # them. Without these, a regenerated hosted quotient would pass as local.
+    "_70b",
+    "channel_effect_at_8b",
+    "across_family_step_c67",
 )
 
 # Local tokens win over hosted ones. capability_ladder.json holds both the
@@ -132,7 +139,15 @@ def _provenance_inputs(path):
             found.append(o.split("::")[0].strip())
 
     walk(d)
-    return tuple(dict.fromkeys(f for f in found if f != path))
+    # The register is not an input artifact. It holds every value, including the
+    # withdrawn hosted ones under withdrawn.hosted.*, and each of its entries is
+    # classified on its own. Following it would mark every analysis that reads a
+    # base rate or a threshold from the register as hosted, which is how the first
+    # version of this walk flagged 1,158 local and public values. Skipping it is
+    # safe because a generator that read a withdrawn.hosted.* key would have to
+    # name that key, and the gate refuses any such key as citable.
+    return tuple(dict.fromkeys(f for f in found
+                               if f != path and not f.endswith("VERIFIED_FACTS.json")))
 
 
 @functools.lru_cache(maxsize=None)
