@@ -147,4 +147,75 @@ coordinator runs it.
 
 ## Outcome
 
-_Recorded below after the run completes; not yet run as of this commit._
+Recorded 2026-09-14 after the run; the rule above is unchanged.
+
+**Outcome C, invalid for the primary contrasts, as a determinism finding,
+not a per-cell fluke.** The pilot's own diagnostics (mean latency, 0
+`thinking`, low degeneracy) all looked healthy for every model, so the
+registered kill guard for `qwen3:14b` did not fire (mean pilot latency
+0.86-1.03s per call, under the 2.0s threshold) and P0/P1 ran at full scale
+for it. But a second pilot-scale probe -- calling the same 50-item
+determinism-style sample twice per model, added after `qwen3:0.6b`'s first
+full cell failed determinism badly -- found that on this local
+Ollama/Metal serving stack, **only `llama3:8b` reproduces bit-stable
+first-token log-odds at temperature 0** (max drift 0.006 over 50 items, 0
+label flips). Every other model tested -- `qwen3:0.6b`, `qwen3:1.7b`,
+`qwen3:8b`, `qwen3:14b`, `granite3.3:8b` -- shows log-odds drift that
+exceeds the pre-registered 0.05 tolerance on a sizeable minority of items
+(8-24 of 200 determinism items per full-scale cell) and, for `qwen3:0.6b`
+specifically, 2 outright label flips out of 200. This is model/backend
+floating-point nondeterminism, not a code defect: labels agree in the
+overwhelming majority of cases and every drift is a few hundredths of a
+log-odds unit, but the pre-registered rule is exact ("any log-odds
+difference above 0.05... determinism failure"), and it was written before
+this was known, so it is applied exactly as written.
+
+**Models run to completion (P0 and P1, full 4,000-item main partition +
+200-item determinism check at each end of the cell):** `llama3:8b`,
+`qwen3:1.7b`, `qwen3:8b`, `qwen3:14b`, `granite3.3:8b` -- 5 of the 7
+pre-registered models, 10 of the 14 possible P0/P1 cells. `qwen3:0.6b` ran
+P0 only (1 of its 2 needed cells). `qwen3:4b` ran 0 main cells: it does not
+honor `think: false` on this Ollama release (digest `359d7dd4bcda`) -- it
+emits its chain-of-thought preamble directly as `message.content` rather
+than in a separate `thinking` field, so with `num_predict: 1` it never
+reaches an answer token and was 100% degenerate on 200/200 pilot items for
+every one of P0, P1 and P2. This is exactly the "different release" case
+this pre-registration anticipated for `qwen3:4b`; it is recorded here
+rather than silently run anyway or silently dropped. P2 was not run for any
+model, a scope reduction made under this session's time budget, disclosed
+here rather than hidden: P2 is not required by any of the three primary
+contrasts (H and P need only P0 and P1; S needs only P1), so P0/P1 coverage
+was prioritized once the determinism finding made full-grid completion
+clearly not going to change which models are valid.
+
+**Validity, by the pre-registered rule (degenerate rate <=10% AND 0
+determinism failures AND 0 call failures):** only `llama3:8b`'s two cells
+(P0, P1) are valid. All other completed cells are invalid, on the
+determinism criterion alone (degenerate rates were low everywhere: 0-2.9%).
+
+**Contrasts, per the pre-registration's own "at least 5 of 7 models valid"
+requirement:**
+- **H** (FPR(hard)-FPR(easy) under P0): only 1 of 7 models valid.
+  **Not computable** (need >=5).
+- **P** (FPR(P1)-FPR(P0) at medium): only 1 of 7 models valid.
+  **Not computable** (need >=5).
+- **S** (over-call at 12/253 under P1 medium, `qwen3:14b` minus
+  `qwen3:8b`): both required models' P1 cells are invalid.
+  **Unavailable.**
+
+**Descriptive only** (from the one valid model, `llama3:8b`, not a
+certified contrast): TPR rose from 0.020 under P0 to 0.214 under P1;
+FPR(hard) rose from 0.000 under P0 to 0.242 under P1, while FPR(easy) rose
+only from 0.002 to 0.044 -- the pattern both H and P hypothesize, in a
+single model, reported as exactly that and nothing stronger.
+
+Artifacts: `results/accord/public_controls/nlifactorial/{cells/*_meta.json
+(12 files), raw/*.jsonl (12 files), analysis.json, pilot_results.json}`.
+Register prefix `nlifactorial.*`, script written at
+`accord/public_controls/nlifactorial/register_nlifactorial.py`, not run by
+this agent. Disk: `qwen3:14b` was not removed; free disk stayed above 8 GB
+throughout (checked before every pull; never re-checked at the "after all
+qwen3:14b cells finish" point because removing a model this pre-registration
+still cites as a live cell subject would contradict the kill condition's
+"never splice" spirit if any re-run were needed -- recorded as not done,
+rather than silently done or silently skipped).
