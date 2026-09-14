@@ -6,14 +6,15 @@
 %  natbib (\citep), booktabs. Bibliography: accord/thesis/refs.bib
 %
 %  Every number in this chapter is keyed to results/accord/VERIFIED_FACTS.json.
-%  Nothing is carried over from an earlier draft without a key.
+%  Nothing is carried over from an earlier draft without a key. This chapter
+%  restates findings argued in full in Chapters 3 and 4; it does not add
+%  evidence of its own.
 %
-%  The control-literature attributions are now wired to refs.bib: Lipsitch,
-%  Adebayo, Hewitt & Liang, Egami, Forman, Feinstein, Byrt, Lourie, TESSERA,
-%  Pfohl, Fogliato, Biswas & Rajan, Jacobs and DeLong.
+%  The control-literature attributions are wired to refs.bib: Lipsitch,
+%  Adebayo, Hewitt & Liang, Egami, Forman, Feinstein, Byrt, Biswas & Rajan.
 %
 %  Figures: fig:pipeline-status (Section "The Pipeline the Field Would Build")
-%  and fig:intro-headline (Section "The Finding"). Both are rendered by
+%  and fig:exemplar (same section). Both are rendered by
 %  accord/thesis/figures/make_figures.py from committed result files; see
 %  figures/manifest.json for the per-panel source list.
 % ============================================================================
@@ -46,20 +47,19 @@ danger scale $1$ was rated $4$ and $3$ were rated $5$: a small category of
 drugs where a wrong instruction does damage quickly.
 
 Unintended medication discrepancies are common at both admission and
-discharge \citep{cornish2005discrepancies,wong2008reconciliation}, and
-post-discharge adverse drug events are frequent, often preventable, and
-traceable to the discontinuity between inpatient and outpatient care, where
-information transfer is unreliable \citep{forster2003adverse,moore2003discontinuity,kripalani2007deficits}.
-Adverse drug events were named a first order inpatient safety problem three
-decades ago \citep{bates1995ade}, and the transition-of-care piece of that
-problem has not been solved since.
+discharge \citep{cornish2005discrepancies,wong2008reconciliation}; post-discharge
+adverse drug events are frequent, often preventable, and traceable to
+unreliable information transfer across that transition
+\citep{forster2003adverse,moore2003discontinuity,kripalani2007deficits}, a
+first order safety problem named three decades ago \citep{bates1995ade} and
+not solved since.
 
 This thesis takes one narrow, checkable instance as its object: a
 \emph{cross-note medication contradiction}, a disagreement about a specific
 drug between a nursing progress note and the discharge summary of the same
 admission, in MIMIC-III \citep{johnson2016mimic} under PhysioNet
-credentialed use. No note text or identifier appears in this document; every
-quantity reported is an aggregate.
+credentialed use; no note text or identifier appears in this document, and
+every quantity reported is an aggregate.
 
 The phenomenon is real and it is rare. The pharmacist annotated $299$
 candidate pairs and confirmed $12$, a base rate of $0.0401$ in a pool four
@@ -76,14 +76,13 @@ described next.
 Given a rare event, expensive expert labels, and a large corpus of paired
 notes, the standard construction is close to automatic: mine candidates with
 high recall rules; label them with an instruction tuned language model,
-because expert annotation does not scale and recent work reports such models
-matching or exceeding crowd annotators on several classification tasks
-\citep{gilardi2023chatgpt}; distil the labels into a purpose-built neural
-detector, referred to throughout this thesis as ACCORD, over a
-domain-pretrained clinical encoder \citep{gu2021biomedbert,alsentzer2019clinicalbert};
-and evaluate against the expert annotations. Chapter~\ref{ch:lit} traces the
-literature behind each step; the construction is defensible at every one of
-them, and this project executed it end to end.
+since expert annotation does not scale \citep{gilardi2023chatgpt}; distil
+the labels into a purpose-built neural detector, referred to throughout
+this thesis as ACCORD, over a domain-pretrained clinical encoder
+\citep{gu2021biomedbert,alsentzer2019clinicalbert}; and evaluate against
+the expert annotations. Chapter~\ref{ch:lit} traces the literature behind
+each step, each one defensible on its own, and this project executed it
+end to end.
 
 What it does not come with is a control at each stage: no candidate miner
 confirms its displayed evidence is the evidence that triggered the
@@ -96,28 +95,39 @@ Each check is old and cheap; none was run here before this work.
 
 Figure~\ref{fig:pipeline-status} is the whole project in one view: four
 stages that each reported a number no standard metric flagged, and the
-check that catches what it hid; fixing any one stage alone would still have
-left a system with no ranking signal. Three of the four verdicts are
-properties of the construction itself: high recall rules over a rare event
-land near a low base rate, an over-caller flags a rare class for a reason
-that holds for any classifier at that prevalence though its size varies
-even among labellers at the same scale, so no capability ordering is
-established here, and an evaluation built on a fixed number of confirmed
-positives is limited by that number regardless of who trains the detector.
-Four specific defects behind them are not implementation bugs; each
-produced a number that would have passed peer review, and each has a
-one-line check that is the transferable finding.
+check that catches what it hid. Three of the four verdicts are properties
+of the construction itself: high recall rules over a rare event land near a
+low base rate, an over-caller flags a rare class for a reason that holds
+for any classifier at that prevalence though its size varies even among
+labellers at the same scale, and an evaluation built on a fixed number of
+confirmed positives is limited by that number regardless of who trains the
+detector.
 
-The first is a bug class this thesis names \textbf{trigger-exemplar
+\begin{figure}[!ht]
+
+\centering
+\caption[The pipeline stage by stage]{The four stages whose reported number no
+standard metric flagged, each with the check sensitive to what it hid. Stages
+$1$ and $2$ reconcile in count and were never diagnosed. The scarlet carrier
+marks the stage $3$ exemplar defect, which the weak labeller, the detector and
+the pharmacist each saw; it records shared input, not cause. The architecture
+row is categorical because no committed result file carries a number for it.}
+\includegraphics[width=0.98\linewidth]{figures/fig-pipeline-status.pdf}
+\label{fig:pipeline-status}
+\end{figure}
+
+The fourth is a bug class this thesis names \textbf{trigger-exemplar
 dissociation}: a mining rule whose predicate quantifies over a set of
 candidate mentions, an exemplar selector that picks from that set by
 position rather than by membership, and no assertion tying the two
-together. The check is one line: assert that the selected exemplar belongs
-to the set that satisfied the trigger predicate. Here the selector indexed
-candidates positionally instead (Figure~\ref{fig:exemplar}), and the pool's
-reported precision of $0.0401$ carried no trace of it, because no metric
-computed on the pool compares displayed evidence against triggering
-evidence.
+together. The check is one line: assert the selected exemplar belongs to
+the trigger set. Here the selector indexed candidates positionally instead
+(Figure~\ref{fig:exemplar}), and the pool's reported precision carried no
+trace of it, because no metric compares displayed evidence against
+triggering evidence. How often it fired is unresolved rather than
+established: Chapter~\ref{ch:results} reports three measurements on the
+same rules that disagree with one another, spanning $0$ to $0.9416$
+depending on the instrument used.
 
 \begin{figure}[!ht]
 
@@ -130,28 +140,13 @@ abstract and carry no clinical text.}
 \label{fig:exemplar}
 \end{figure}
 
-The second is the harm head, which received no term in the training
-objective, so its reported outputs are an untrained module's, caught only by
-checking a parameter's displacement from initialisation
-(Chapter~\ref{ch:method}). The third is the row-level candidate split,
-corrected to subject-level before any result here was generated, checked by
-a subject-disjointness assertion. The fourth, scispaCy and medspaCy
-abandoned over dependency resolution rather than evaluated and rejected, is
-a scope limitation, and no check applies to it. Stage four's multiplier is
-the weak labeller's positive rate on the $299$-pair gold set over the
-pharmacist's base rate on those same pairs.
-
-\begin{figure}[!t]
-
-\caption[The pipeline stage by stage]{The four stages whose reported number no
-standard metric flagged, each with the check sensitive to what it hid. Stages
-$1$ and $2$ reconcile in count and were never diagnosed. The scarlet carrier
-marks the stage $3$ exemplar defect, which the weak labeller, the detector and
-the pharmacist each saw; it records shared input, not cause. The architecture
-row is categorical because no committed result file carries a number for it.}
-\includegraphics[width=0.98\linewidth]{figures/fig-pipeline-status.pdf}
-\label{fig:pipeline-status}
-\end{figure}
+Three further defects are argued in full in Chapter~\ref{ch:method}: the
+harm head received no term in the training objective, so its reported
+outputs are an untrained module's; the row-level candidate split was
+corrected to subject-level before any result here was generated; and
+scispaCy and medspaCy were abandoned over dependency resolution rather than
+evaluated and rejected, a scope limitation rather than a defect a check
+could have caught.
 
 \section{The Finding}
 \label{sec:intro-finding}
@@ -163,8 +158,9 @@ the failure is the decontaminated detector's behaviour on the $253$
 non-ambiguous pairs: at the configured threshold it predicts positive for
 nearly the whole pool rather than ranking within it, and its ranking is at
 chance rather than merely inaccurate (Chapter~\ref{ch:results},
-Section~\ref{sec:res-rq4}, Table~\ref{tab:decontam}).
-Figure~\ref{fig:ceiling} carries the mechanism: the weak labeller's
+Section~\ref{sec:res-rq4}, Table~\ref{tab:decontam}). That null holds on
+the defect-free stratum too, at a resolution RQ4 below validates against
+real scores. Figure~\ref{fig:ceiling} carries a separate mechanism: the weak labeller's
 positive rate against the pharmacist's confirmed rate on the same pool
 fixes an agreement ceiling that RQ2 below reports as a precondition, not an
 explanation of the ranking null RQ4 asks about. A positive control on the
@@ -173,16 +169,18 @@ same harness resolves a real effect on a public benchmark.
 \section{Research Questions}
 \label{sec:intro-rqs}
 
-The project was organized around five questions: four about the stages of the
-pipeline and one about the field that publishes pipelines like it. Each is
-followed by the answer in one sentence. RQ4 is reworded from its original form,
-whether the failure was a property of the task or of the instrument, because the
-results that answered that form were withdrawn (Appendix~\ref{app:corrections});
-evidence sits in
-Chapter~\ref{ch:results}, and the control for each stage is specified in
-Chapter~\ref{ch:method} before any result was seen, with one post hoc
-exception: the feasibility check reported under RQ2 was added only after the
-hosted results it stood in for were withdrawn.
+The project was organized around four questions, one about each stage of
+the pipeline; a fifth, on whether published work audits the selection step,
+is reported as a practice survey in the supplement rather than restated
+here. Each of the four is followed by the answer in one sentence. RQ4 is
+reworded from its
+original form, whether the failure was a property of the task or of the
+instrument, because the results that answered that form were withdrawn
+(Appendix~\ref{app:corrections}); evidence sits in Chapter~\ref{ch:results},
+and the control for each stage is specified in Chapter~\ref{ch:method}
+before any result was seen, with one post hoc exception: the feasibility
+check reported under RQ2 was added only after the hosted results it stood
+in for were withdrawn.
 
 \begin{description}
 
@@ -192,46 +190,36 @@ notes yield a candidate pool with usable precision?
 annotated pairs, a base rate of $0.0401$, and the evidence shown for each
 candidate was selected independently of the evidence that triggered it, an
 instance of the trigger-exemplar dissociation named in
-Section~\ref{sec:intro-pipeline}. Section~\ref{sec:intro-contributions} below
-gives the measured range at which that defect fired, and
-Section~\ref{sec:intro-notclaim} states what it leaves of the $0.0401$
+Section~\ref{sec:intro-pipeline}. How often that defect fired is not
+resolved: three separate measurements on the Rule 1 and Rule 2 pool span
+from $0$ to $0.9416$ depending on the instrument used, and
+Section~\ref{sec:intro-notclaim} states what that leaves of the $0.0401$
 figure.}
 
-\item[RQ2. Weak supervision.] Can a language model weak labeller substitute for
-expert annotation at this base rate?
-\emph{No: the weak labeller assigned the contradiction class to $261$ of the
-$299$ annotated pairs against $12$ true positives, and every labeller tested over-calls on
-the clinical pairs. Three local eight-billion-parameter models, run on an identical
-prompt, over-call the candidate pool's confirmed rate by a multiplier from
-$15.8196$ to $23.5959$ (Table~\ref{tab:overcalling}); the three already differ
-from one another at this single point on any capability axis, and this
-design has no compliant second point left to order them by scale. On a
-public-text sweep with the same three models but generic sentence-pair prompts,
-over-calling appears only in some settings, one model never over-calls, and
-the largest multiplier is $3.5000$ (Section~\ref{sec:res-rq2}); the sweep
-differs from the clinical pool in prompt and in negatives as well as domain,
-so it does not show that the direction of the failure transfers.
-Substitution fails at every local configuration measured; whether it fails
-less at a scale this project could not run through a compliant channel is not
-established. An earlier draft attributed this multiplier's size to the
-pool's base rate rather than the model, using a since-withdrawn
-hosted-channel cell; that attribution is open again, and a multiplier
-reported without naming both quantities is uninterpretable. A precondition
-check reported here (Section~\ref{sec:r-feasgate}) asks a narrower question:
-holding a labeller's flagged count and the gold standard's confirmed count
-fixed gives the best table of agreement the two marginals could ever
-produce, a ceiling that is arithmetic rather than a property of what the
-labeller knows
-\citep{feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}, applied
-here rather than devised here. Measured this way across eight labeller
-configurations, four could not have rejected the null at $\alpha = 0.05$ at
-any outcome their own marginal permitted, all four the same model,
-\texttt{llama3:8b}, including the
-deployed weak labeller and the evaluation baseline prompted once;
-\texttt{granite3.3:8b} and \texttt{qwen3:8b} do not share that ceiling. This
-bounds a thresholded decision only, and explains nothing about the ranking
-null RQ4 asks about beyond the deployed labeller's degenerate operating
-point.}
+\item[RQ2. Weak supervision.] Can a language model weak labeller substitute
+for expert annotation at this base rate?
+\emph{No, in three parts. First, the
+marginal and its ceiling: the deployed weak labeller assigned the
+contradiction class to $261$ of the $299$ annotated pairs against $12$
+confirmed, and at that marginal the largest Matthews correlation any
+thresholded label could express with the pharmacist is $0.0768$, before a
+single pair is scored. A post hoc check extends this to every hard-label
+marginal measured: of eight labeller-and-prompt configurations, four, all
+\texttt{llama3:8b}, could not have rejected the null at $\alpha = 0.05$ at
+any outcome their marginal permitted; \texttt{granite3.3:8b} and
+\texttt{qwen3:8b} do not share that ceiling. Second, what the excess
+depends on: naming the specific conflict type lowers over-calling for two
+of the three local models tested and raises it for the third, and reading
+the $46$ ambiguous pairs as confirmed rather than as negative moves every
+ratio toward one, reaching exactly the confirmed rate for one model under
+one prompt while staying above four for another under every prompt tried;
+how much a labeller over-calls therefore turns on the prompt and the
+reading, not on one multiplier. Third, whether a score rescues it: a score
+is not bounded by that ceiling, because its threshold can be swept; the one
+score-emitting configuration tested, under a rule fixed before the run,
+reaches an AUROC of $0.5467$ ($p = 0.2934$), below the $0.7355$ effect size
+this evaluation can resolve, so sweeping does not rescue it. No claim is
+licensed about a labeller, a prompt, or a domain not tested.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
 what they are credited with?
@@ -247,26 +235,22 @@ version of the same one, beats both.}
 
 \item[RQ4. Evaluation.] Is the trained detector's ranking null real, given
 what this project's own instrument can show?
-\emph{The null holds at the configurations tested: on the $253$ non-ambiguous
-pairs three configurations of the decontaminated detector sit at chance, a
-paired comparison cannot separate two of them, and a bag-of-words baseline
-outranks all three (Section~\ref{sec:res-rq4}). That null is informative only
-above the minimum detectable effect the evaluation's own twelve-positive
-class counts fix, an AUROC of $0.7355$ at $80\%$ power, and a pre-registered
-positive control on a public benchmark shows the same harness resolves a
-real difference, $4.53$ accuracy points, where one exists. Whether a
-clinical effect smaller than that floor exists is not determinable from this
+\emph{The null holds at the configurations tested, including on the rows
+free of the exemplar-selection defect. On the $253$ non-ambiguous pairs
+three configurations of the decontaminated detector sit at chance, a paired
+comparison cannot separate two of them, and a bag-of-words baseline
+trained on the same weak labels recovers a small precision-only signal the
+detector itself does not show (Section~\ref{sec:res-rq4}). Restricted to
+the $108$ defect-free Rules 3 and 4 pairs, the released detector's AUROC is
+$0.5114$, $p = 0.4686$, not significant; at $6$ positives this can fail to
+show the null is an artifact of the exemplar defect but cannot establish
+that it is not. This evaluation is informative only above an AUROC of
+$0.7355$ at $80\%$ power, corroborated at $0.7466$ by an independent check
+on a real natural-language-inference score distribution rather than a
+synthetic one, and a pre-registered positive control on a public benchmark
+resolves a real difference, $4.53$ accuracy points, where one exists.
+Whether a smaller clinical effect exists is not determinable from this
 evidence.}
-
-\item[RQ5. Practice.] Does published work audit the selection step upstream
-of the model it evaluates, the one control this survey was built to measure?
-\emph{Rarely, on that one control: on a $75$ paper corpus deliberately
-enriched toward work that attends to selection, $4$ papers audit the
-selection step under the strict reading and $14$ under the permissive one,
-with both readings reported side by side and the gap between them named as a
-coding ambiguity rather than resolved in the flattering direction. The survey
-speaks to this one adjacent check; it is not evidence about whether published
-work runs the other four controls RQ1 through RQ4 applied to this pipeline.}
 
 \end{description}
 
@@ -282,66 +266,41 @@ The methods applied here are not novel; Chapter~\ref{ch:lit} attributes
 each control to its owner
 \citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}.
 What is new is the measurement on this pipeline and the fact that the
-controls were actually run. Six contributions follow, each stated at the
-size the evidence supports, and one further result is reported separately
-below the list because it does not meet the bar a contribution should
-meet. The twelve confirmed contradictions bound only two strands below; the
-exemplar audit, the survey, the convergence sweep, and the mortality
-control each carry their own denominator, at the $165$-pair Rule 1 and Rule
-2 pool, $75$ papers, $48$ runs, and $6{,}776$ admissions respectively.
+controls were actually run. Three contributions follow, each stated at the
+size the evidence supports.
 
 \begin{enumerate}
-\item \textbf{Trigger-exemplar dissociation.} A mining rule whose predicate
-quantifies over a candidate set while its exemplar selector picks by
-position, with no assertion linking the two, silently corrupts the
-annotator, the weak labeller, and the detector through the same wrong
-exemplar. The one-line fix would have caught it at no model cost; on the
-$165$-pair Rule 1 and Rule 2 pool it fired at a rate from $0$ to $0.4745$
-(Figure~\ref{fig:exemplar}, Chapter~\ref{ch:results}).
-\item \textbf{Two cheap, transferable checks: the degeneracy precondition
-and sign provenance.} A classifier that predicts one class for nearly every
-input cannot exhibit a parity disparity, so an audit reporting none reports
-its own operating point, not the model; a planted-gap positive control
-enforces it. Separately, every disparity gap here was persisted through an
-absolute value; retrofitting signed storage reproduced every prior value
-exactly, maximum discrepancy $0.0$, while reversing the sign of seven of
-fourteen comparable drift slopes.
-\item \textbf{A pretraining transfer measurement on the clinical task, not a
-settled null.} That pretraining loss poorly proxies downstream performance
-is settled elsewhere at far larger scale
-\citep{lourie2025scaling,feng2026tessera}; this $48$-run sweep measures it
-under an adjudication rule committed before the runs: the same harness
-resolves $4.53$ points on AG News and returns $+0.0031$ on the clinical
-task, an untested gap that reverses sign to $-0.0011$ on the seed subset
-with confirmed split lineage.
-\item \textbf{A prevalence of practice measurement with released rows.} On
-$75$ papers, $4$ audit the selection step under the strict reading and $14$
-under the permissive one. A blind second coder on $19$ overlapping papers
-gives $\kappa = 0.855$ on the permissive field; on the strict field both
-coders agree on all $19$ papers, so $\kappa$ is \emph{undefined} rather
-than perfect.
-\item \textbf{The misaligned-block arm and the global-positions confound
-check.} Both are additions to a borrowed control-task design, run on the
-second system, not the clinical detector. A hard block mask with zero
-trainable parameters beats every learned attention-bias arm by $0.1306$
-nats, and an arbitrary positional ordinal beats true role labels; restoring
-global positions recovers none of the segmentation gain, closing the
-confound that the gain was position bought back by a handicapped baseline.
-This matters here because the same borrowed design licenses RQ3's
-role-label control above, so a confound in its own baseline measurement
-limits how much weight this pipeline's architecture ablation can carry.
-\item \textbf{What the controls cost.} Nobody reports this, so it is
-reported here: the reconciled total across every control is $1216.4$ GPU
-minutes over $79$ runs (Chapter~\ref{ch:discussion}), against a raw log of
-$661.4$ minutes that omits the $555$-minute convergence sweep entirely.
-Person hours were never logged, so the claim is compute only.
+\item \textbf{What a weak labeller's over-calling depends on, bounded by
+where the pharmacist's own labels would have to be wrong.} RQ2 above gives
+the prompt and ambiguous-pair dependence; sized against the
+labeller-and-prompt configuration closest to the highest ratio measured,
+$39$ of the $166$ pairs it flags without pharmacist confirmation would have
+to be relabelled as missed contradictions, more than three times the
+number this evaluation currently confirms, before its ratio falls to the
+ceiling already measured on public text.
+
+\item \textbf{Evidence that the ranking null is real above a resolution
+validated against real scores, including on the rows free of the
+exemplar-selection defect.} RQ4 above gives the resolution, the
+defect-free-stratum check, and the bag-of-words model's precision-only
+signal that the detector itself does not show.
+
+\item \textbf{A check-validation record.} A pre-registered planted-defect
+benchmark, sized to this evaluation and built to test the Fisher exact test
+behind Chapter~\ref{ch:results}'s Rule 1/2 versus Rule 3/4 mechanism
+comparison, did not reach the required firing rate on its own planted
+defect at either rate it was tried against, so that comparison's own null
+is read as an instrument limit rather than as evidence the two mechanism
+groups are equal. The positive control described under RQ4 above is the
+same record's other half: the same harness resolving a real effect where
+one exists.
 \end{enumerate}
 
-\paragraph{A reported observation, not a seventh contribution.} Two
-selection channels on one population produce demographic parity drift slopes
-of opposite sign, and a controlled simulator sweep inverts the mapping rather
-than reproducing it \citep{pfohl2025disaggregated,fogliato2020fairness}.
-Chapter~\ref{ch:discussion} reports it as an anomaly, not a finding.
+Two further threads are reported in the supplement rather than argued here:
+the degeneracy precondition and the sign-provenance correction, both run
+on a second, provenance-conditioned system rather than the clinical
+detector; the $75$-paper practice survey; and this project's own compute
+cost.
 
 \section{What This Thesis Does Not Claim}
 \label{sec:intro-notclaim}
