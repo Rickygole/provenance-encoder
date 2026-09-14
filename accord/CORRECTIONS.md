@@ -5004,3 +5004,6 @@ two supplement pointers still named Chapter 4 for content moved to S6; Chapter 1
 
 The author dropped "Controlled" from the title, which is now "Where a Cross-Note Medication Contradiction Detection
 Pipeline Fails: A Failure Analysis", because the thesis ran checks and audits rather than randomised controls.
+
+Restored on 2026-09-14 at the author's request: the title is again "Where a Cross-Note Medication Contradiction Detection
+Pipeline Fails: A Controlled Failure Analysis".
