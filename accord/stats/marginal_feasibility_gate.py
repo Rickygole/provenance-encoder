@@ -106,7 +106,7 @@ MARGINAL_ONLY = [
     # (row id, configuration, description, basis, n, positives, flagged key,
     #  flagged is a rate?, observed MCC key or None)
     ("deployed_weak_labeller_g_299", "llama3:8b::deployed", "deployed weak labeller",
-     "G_299", "gold.n_total", 12, "gold.weaklabel_contradiction", False, None),
+     "G_299", "gold.n_total", 12, "gold.weaklabel_contradiction", False, "c120.g299.mcc"),
     ("llama_baseline_g_253", "llama3:8b::baseline", "llama3:8b, baseline prompt",
      "G_253", 253, 12, "derived.llama_baseline.n_flagged", False,
      "baselines.llama_baseline.mcc"),
@@ -238,6 +238,10 @@ def main():
                     ("strategy", strat), ("basis", basis),
                     ("n", n), ("n_positives", n_pos), ("n_flagged", n_flag),
                     ("tp", tp),
+                    # Rates beside the ratio: at low prevalence a flag-rate ratio is
+                    # roughly FPR over prevalence, so the two rates say what it hides.
+                    ("tpr", round(tp / n_pos, 4)),
+                    ("fpr", round((n_flag - tp) / (n - n_pos), 4)),
                     ("flag_rate", round(n_flag / n, 4)),
                     ("observed_mcc", round(obs, 4)),
                     ("ceiling_mcc", round(ceil_mcc, 4)),
@@ -491,7 +495,7 @@ def main():
                 .replace("-", "").lower() + "_" + think_slug)
         for field in ("flag_rate", "observed_mcc", "ceiling_mcc", "ceiling_kappa",
                       "fraction_of_ceiling", "attainable_floor_p_one_sided",
-                      "n", "n_positives", "n_flagged", "tp",
+                      "n", "n_positives", "n_flagged", "tp", "tpr", "fpr",
                       "observed_p_one_sided_hypergeom", "actually_rejects_at_0_05"):
             if r[field] is not None:
                 put(f"{slug}.{field}", r[field], f"rows.{rk}.{field}")
