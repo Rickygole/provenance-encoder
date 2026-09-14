@@ -164,3 +164,22 @@ Artifacts: `results/accord/public_controls/priorfix/{replicates/rep*.json
 Register prefix `priorfix.*`, script written at
 `accord/public_controls/priorfix/register_priorfix.py`, not run by this
 agent.
+
+## Correction to the Outcome above (2026-09-14, coordinator review)
+
+The rule above is unchanged. The Outcome recorded above is corrected, not replaced.
+
+It states "0 of 10 replicates had a training-pool teacher hard-positive-rate below 2x
+pi_hat (ratios 1.4x-2.4x pi_hat, all above the floor)". That sentence contradicts
+itself, since a ratio of 1.4 is below 2, and it is wrong on the artifacts: in 8 of 10
+replicates the teacher's hard-positive rate on the training pool was below twice
+pi_hat. The analysis script never evaluated Outcome C, so it could only return A or B.
+It also compared against a field named teacher_marginal_on_pool that holds the pool's
+true label mean, not the teacher's flag rate.
+
+Under the registered rule ("Outcome C, invalid: teacher marginal on a training pool
+below 2x pi_hat"), **C105 is Outcome C**. The teacher over-called the true pool rate
+by only about 1.36 to 1.59 times, so there was little prior shift to correct, which is
+exactly the situation the rule declares uninformative. The delta-AP interval below zero
+is reported as descriptive only and is not evidence that prior correction harms
+distillation. The analysis script now evaluates C first; the re-run returns C.

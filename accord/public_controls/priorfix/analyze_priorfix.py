@@ -83,7 +83,15 @@ def main():
             row[f"{arm}_ap"] = m[arm]["ap"]
             row[f"{arm}_auc"] = m[arm]["auc"]
             row[f"{arm}_flag_rate_0_5"] = r["arms"][arm]["flag_rate_at_0_5"]
-        row["teacher_marginal_on_pool"] = r["teacher_marginal_on_pool"]
+        # "teacher_marginal_on_pool" in the replicate files is the pool's TRUE
+        # label mean (run_priorfix.py computes it as pool["class"].mean()), not
+        # the teacher's flag rate, despite its name. It is kept under an honest
+        # name. The teacher's actual marginal is its hard-positive rate, which is
+        # the quantity the registered Outcome C condition is about.
+        row["pool_true_positive_rate"] = r["teacher_marginal_on_pool"]
+        row["teacher_hard_positive_rate"] = r["teacher_hard_positive_rate_on_pool"]
+        row["teacher_below_2x_pi_hat"] = bool(
+            r["teacher_hard_positive_rate_on_pool"] < 2 * r["pi_hat"])
         per_rep_summary.append(row)
 
     delta_ap = two_level_bootstrap_delta(reps_metrics, "S1", "H", "ap", B, SEED)
@@ -95,6 +103,14 @@ def main():
     ci_auc = [float(np.percentile(delta_auc, 2.5)), float(np.percentile(delta_auc, 97.5))]
 
     outcome_a = bool(mean_delta_ap > 0 and ci_ap[0] > 0 and mean_delta_auc > -0.01)
+    # Outcome C, as registered: "teacher marginal on a training pool below 2x
+    # pi_hat; teacher degeneracy above 10%; or a replicate incomplete." The
+    # first version of this script never evaluated C, so it could only return A
+    # or B, and the recorded outcome reported the check as passing when 8 of 10
+    # pools failed it. C is evaluated before A/B and takes precedence.
+    n_below = sum(1 for row in per_rep_summary if row["teacher_below_2x_pi_hat"])
+    incomplete = len(reps) != 10
+    outcome_c = bool(n_below > 0 or incomplete)
 
     # Secondary: resampled 12/253 c98-rule rejection rate per arm, over the
     # B bootstrap resamples already drawn for delta_ap (reuse the same
@@ -122,7 +138,15 @@ def main():
         "per_replicate": per_rep_summary,
         "delta_ap_s1_minus_h": {"mean": mean_delta_ap, "ci95": ci_ap},
         "delta_auc_s1_minus_h": {"mean": mean_delta_auc, "ci95": ci_auc},
-        "outcome": "A" if outcome_a else "B",
+        "outcome_c_condition": {
+            "n_pools_teacher_below_2x_pi_hat": n_below,
+            "n_replicates_expected": 10,
+            "replicates_complete": not incomplete,
+            "note": ("teacher degeneracy is recorded in the teacher labelling "
+                     "artifacts, not here; the recorded values are far under 10 "
+                     "percent and do not trigger C"),
+        },
+        "outcome": "C" if outcome_c else ("A" if outcome_a else "B"),
         "c98_rule_rejection_rate_bootstrap": c98_rates,
     }
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
