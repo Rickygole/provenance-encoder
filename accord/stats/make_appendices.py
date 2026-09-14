@@ -365,7 +365,7 @@ def main():
         f"{trace['n_untraced']} literals are not resolved to any registered value and are "
         "listed as untraced rather than omitted. The third, the survey coding table "
         "behind the prevalence measurement in Chapter~\\ref{ch:results}, is bound in "
-        f"this document as the next appendix: all {survey_n} coded papers, reproduced in "
+        f"the Supplement, Section S3: all {survey_n} coded papers, reproduced in "
         "full so the counts can be recomputed rather than taken on trust.", "",
     ]
     (THESIS / "msu_appB_pointer.tex").write_text("\n".join(pointer) + "\n")

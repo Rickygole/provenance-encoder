@@ -8,12 +8,19 @@
 %  Every number restated here is derived in Chapters 3 to 5 and keyed to
 %  results/accord/VERIFIED_FACTS.json. No new claim and no new number.
 %
-%  Citations here are attribution only: each borrowed control is named against
-%  its owner at least once, because the frame depends on the borrowing being
-%  explicit. No citation supports a finding of this thesis.
+%  Rewritten to match the rewritten Chapter 4: the central claim is the
+%  resolvable-effect floor, the prompt- and reading-dependent over-calling
+%  margin, the chance-level detector on both evaluation sets including the
+%  defect-free stratum, and the bag-of-words baseline's small precision
+%  signal. Compute cost and sign provenance are side-strand material now
+%  bound in the supplement and are not restated here; the selection-channel
+%  anomaly is dropped from future work for the same reason it carries no
+%  claim this chapter depends on (Section~\ref{sec:disc-anomaly}). The
+%  reversed-prompt AUROC cell is descriptive pending C109 and is not treated
+%  as a finding here either.
 %
-%  Figure: fig:exemplar in Section "Things to Check If You Are Building This",
-%  where it illustrates the check rather than a result.
+%  Figure: fig:exemplar, referenced from Chapter~\ref{ch:intro} in the
+%  practical-lesson section, illustrating the check rather than a result.
 % ============================================================================
 
 \chapter{Summary and Conclusion}
@@ -32,155 +39,121 @@ This thesis asked whether that disagreement can be detected automatically
 from paired clinical notes in MIMIC-III \citep{johnson2016mimic}, and built a
 standard-shaped pipeline to answer it: rule-based candidate mining, language
 model weak supervision, and a purpose-built neural detector over a
-domain-pretrained clinical encoder. Five questions were posed, four about
-the stages and one about the field that publishes pipelines like this one;
-each stage's reading was tested against its control, and
-Section~\ref{sec:conc-found} keeps rather than collapses the distinction
-between failures that carry different weight.
+domain-pretrained clinical encoder. Each stage's reading was tested against a
+control, and Section~\ref{sec:conc-found} states what survived that testing.
 
 \section{What Was Found}
 \label{sec:conc-found}
 
-Chapter~\ref{ch:discussion}, Table~\ref{tab:disc-spine} synthesises what
-each stage reported before its control and what the control changed; this
-section states the outcome once. Each of the five questions' readings was
-tested against its control, and not every reading changed. The candidate
-pool's enrichment is real, but its precision is
-bounded above by an exemplar defect that made the evidence displayed to the
-annotator, the weak labeller, and the detector independent of the evidence
-that triggered the candidate. The weak labeller's marginal fixes an
-agreement ceiling before training begins, and the labeller that actually
-supplied the detector's training signal could not have cleared the
-conventional significance threshold at any outcome its own marginal
-permitted. None of three credited architectural components is left holding
-what it was credited with, and the three failures are of three different
-kinds. The trained detector's ranking is at chance under both evaluation
-bases and under subject-disjoint splits, a result a positive control
-elsewhere in this chapter shows is not mere underpowering, and
-a TF-IDF logistic regression ranks above both neural configurations, which
-is either surface-form signal or small-sample noise and is not established
-either way. A $75$-paper corpus deliberately enriched toward careful work
-still finds the one control this survey measures rare. Not every failure
-carries the same weight, a distinction Chapter~\ref{ch:discussion} keeps
-rather than collapses.
+With 12 pharmacist-confirmed contradictions in 299 pairs, this evaluation
+resolves only large effects, reliably from about an AUROC of 0.75, exactly
+0.7355 at 80 percent power (Section~\ref{sec:res-rq4}), a floor checked
+against a real score distribution rather than only a synthetic one and not
+merely computed by formula. Within that limit, local language-model
+labellers flagged far more pairs than the pharmacist confirmed: the deployed
+labeller called 261 of the 299 pairs contradictions against 12 confirmed, and
+three local eight-billion-parameter models measured on the same pool over-call
+by a factor of 15.8196 to 23.5959 against the confirmed rate
+(Section~\ref{sec:res-rq2}). How much more depended heavily on the prompt and
+on how the 46 ambiguous pairs are read: naming the specific conflict type
+moved two of the three models' positive rates down sharply and the third up;
+reading the ambiguous pairs as confirmed rather than as negative brings one
+model's neutral-prompt ratio to 1.0001, indistinguishable from the confirmed
+rate, while the least-affected model still over-calls above a factor of four
+under every prompt tried. Neither reading is preferred over the other in this
+thesis.
 
-\section{What the Controls Changed}
-\label{sec:conc-controls}
+The detector trained on those labels ranked at chance, including on the
+defect-free rows. On the 253 non-ambiguous pairs the decontaminated ensemble
+reaches an AUROC of 0.5145, its bootstrap interval straddling chance; on the
+134-pair stratum that the exemplar-selection defect of
+Section~\ref{sec:r-exemplar} cannot reach, a defect-free control model still
+returns an ensemble AUROC of 0.5469, also straddling chance. A bag-of-words
+model trained on the same labels the detector consumed, by contrast,
+recovered a small precision signal: its average precision clears its own
+no-skill line at $p = 0.0109$ on the full annotated set and $p = 0.0159$ on
+the non-ambiguous set, a result its ranking statistic alone does not show and
+that does not survive being retrained on the gold labels alone at this sample
+size.
 
-Without controls, everything above reads as a small underpowered study that
-found nothing; the controls convert the same results into measurements with
-a stated resolution. The positive control carries the most weight: adapting
-one observational-epidemiology device \citep{lipsitch2010negative} by
-running the analysis where the answer is known, it resolves $4.53$ accuracy
-points on AG News under the identical harness, while the same harness
-returns a null, $+0.0031$, on the clinical task built for this control
-alone; what that pairing licenses is argued in
-Section~\ref{sec:disc-null}. The general proposition
-that pretraining loss predicts downstream utility poorly is established
-elsewhere, at a scale this project cannot approach
-\citep{lourie2025scaling,feng2026tessera}.
+\section{What This Establishes, and What It Does Not}
+\label{sec:conc-establishes}
 
-Decontamination changed the headline, not its usefulness: the number
-reported before it was contaminated, and nothing in the metrics said so.
-Sign provenance changed no value and several conclusions, reproducing every
-prior figure exactly while reversing seven of fourteen comparable drift
-slopes, because a quantity stored as a magnitude licenses no directional
-claim. The randomisation control on the second system did not settle RQ3:
-the pre-specified role-label control ran underpowered, not falsified, and
-an arm showing an arbitrary ordinal outperforming true role labels is a
-rival hypothesis, not a control task.
+The labeller's own marginal fixes an agreement ceiling before a single pair
+is scored: holding the confirmed and flagged counts fixed, the largest
+Matthews correlation any thresholded label at that marginal could express
+against the pharmacist is 0.0768. That ceiling is consistent with why the
+detector trained on those labels lands where it does; it does not prove the
+mechanism, which is named rather than assumed. The resolvable-effect floor
+above was validated against a real score distribution, which certifies that
+the class of test this thesis runs resolves an effect where the analytic
+calculation says it should; it does not certify that this evaluation's null
+is free of the exemplar-selection defect, since a check restricted to the
+defect-free stratum has only six positives to work with and can fail to show
+the defect is present without showing it is absent.
 
-\section{Things to Check If You Are Building This}
+\section{Practical Lesson}
 \label{sec:conc-practice}
 
-These are the checks that, run when they were available, would have
-changed what is reported here.
-
-Check that the evidence a candidate is displayed with is the evidence that
-triggered it. The check is a one-line assertion, illustrated in
-Figure~\ref{fig:exemplar}, and here it would have caught the largest
-upstream defect in this project before any annotation was commissioned.
-Estimate the base rate on a human-labelled sample before generating weak
-labels, and print the labeller's marginal beside it; the dependence of
-agreement statistics on the marginals has been documented since 1990
-\citep{feinstein1990paradoxes,byrt1993pabak}. Report precision against the
-pool's own base rate, with the denominator stated, and prefer a coefficient
-that uses all four confusion-matrix cells when the classes are this skewed
-\citep{chicco2020mcc}. Run a randomised counterpart of any component
-reported as learned, under the same training conditions, and log the
-distance a learned parameter moved from its initialisation. Run a positive
-control on the instrument before reporting a null from it, and report
-achieved power alongside any comparison that returns no difference. Keep
-denominators separate and state them with every metric; conflating two of
-them in this project inverted a central claim that survived several rounds
-of internal review.
+The lesson this project draws, stated as a lesson rather than as a
+demonstrated safeguard, is to check a weak labeller's marginal against a
+human-established base rate before training anything on its output, and to
+report a simple baseline's own significance test alongside a neural ranking
+result rather than assume the ranking statistic is the only one that
+matters. The check that this project ran after the fact, illustrated for the
+upstream candidate pool by Figure~\ref{fig:exemplar} in
+Chapter~\ref{ch:intro}, is cheap relative to the training budget it would
+have been read against; that it is cheap is a reason to run it earlier next
+time, not a claim that running it here would have changed what this
+evaluation could resolve at 12 positives.
 
 \section{Future Work}
 \label{sec:conc-future}
 
-Three pieces of work follow directly from the limitations, and a fourth
-rejoins them where an earlier draft of this thesis reported it as already
-settled. Each needs a resource this project did not have: the annotator's
-time, an annotation budget, a controlled simulator, and, for the fourth, a
-second model scale reachable through a channel this thesis can use
-compliantly. That fourth item would order the over-calling multiplier by
-parameter count; the cell an earlier draft relied on to report it came
-through a hosted channel now withdrawn under the compliance action
-Chapter~\ref{ch:method} records, so the question returns to future work
-rather than staying answered.
+\textbf{A larger annotated set.} Every interval in this thesis rests on 12
+positives, and the minimum detectable AUROC at that count, 0.7355, sets the
+size of the annotation effort a future attempt needs before a modest
+detector could be told apart from chance.
 
-\textbf{Re-annotate against corrected exemplars.} The base rate of $0.0401$
-remains an upper bound rather than an estimate. By reconstruction the
-exemplar matched the trigger for $72$ of the $137$ resolved Rule 1 and Rule
-2 candidates, a rate of $0.5255$; by an exact join covering far fewer rows,
-all $23$ of the $23$ it can resolve match. Rebuilding the selector so the
-displayed pair is the pair that fired the rule, then re-annotating the same
-candidate identifiers, would establish how much of the measured base rate
-is real. The rules and the pool exist and the defect is located, so this is
-bounded work.
+\textbf{The C109 confirmation, if it has not already reported.} A
+pre-registered check of whether the reversed-prompt AUROC cell of
+Section~\ref{sec:res-rq2} generalises across wording is committed and, as of
+this writing, not yet run; until it reports, that cell stays descriptive and
+is not treated as a finding in this thesis.
 
-\textbf{Assemble a cohort with more positives.} Every interval here rests
-on $12$ positives. The minimum detectable AUROC at that count is $0.7355$
-at $80\%$ power and $\alpha = 0.05$, and the smallest stratum difference
-the exemplar comparison could detect is $0.0895$ in absolute rate. A
-cohort large enough to resolve effects where a useful clinical system
-would operate is the single change that would most alter what can be
-concluded, and it means annotation budget rather than modelling effort.
+\textbf{A validated exemplar instrument.} Three measurements of how often the
+candidate pool's exemplar selector showed the annotator a pair that did not
+carry the conflict it asserted disagree with one another
+(Section~\ref{sec:r-exemplar}), and none is a direct measurement of the exact
+pair the pharmacist saw at scale. Building and validating an instrument that
+is, then re-annotating against it, would convert the pool's base rate from an
+upper bound into an estimate.
 
-\textbf{Explain the selection channel anomaly.} Two selection channels on
-one population with baseline disparity held fixed produce demographic
-parity drift slopes of opposite sign, $-0.0078$ and $+0.0118$, and a
-controlled simulator sweep inverts rather than reproduces the mapping. The
-pattern is stable, reproducible, and unexplained; five candidate mechanisms
-were proposed and refuted inside this project, and the sixth is left to
-work that can hold more of the generating process fixed than this design
-allows.
+\textbf{Frontier-scale local labellers, when feasible.} The comparison this
+project needed, a frontier-scale model against the same local labellers on
+the same pool, was attempted through a hosted API and withdrawn under the
+compliance action Section~\ref{sec:m-ethics} records
+(Section~\ref{sec:r-frontier}). Whether the over-calling this chapter
+measures attenuates with scale is answerable only by a labeller served
+locally, at a scale a hosted channel is not required to reach.
 
 \section{Closing}
 \label{sec:conc-closing}
 
-Dangerous medication contradictions between nursing notes and discharge summaries are real,
-recurring, and worth detecting. A standard-shaped pipeline built for them does not detect them,
-and the sharpest thing this thesis can say is that sentence together with the mechanism behind
-it. The weak labeller assigns the contradiction class to the large majority of a pool whose
-confirmed rate is a twentieth of that, and at that marginal the largest agreement any
-thresholded label could express with the pharmacist is bounded before training begins. That
-bound follows from two counts alone, which is why the detector inherits a marginal rather than a judgement. Every other failure in
-this thesis is attached to a mechanism of the same kind, read out of the code or the counts
-rather than inferred from a null.
+Dangerous medication contradictions between nursing notes and discharge
+summaries are real, recurring, and worth detecting. At the size this thesis
+could annotate, twelve confirmed contradictions in 299 pairs, the pipeline
+built to detect them did not: its own detector ranks at chance on both the
+full evaluation and the stratum the pool's one identified defect cannot
+reach, while a plain bag-of-words model trained on the identical weak labels
+finds a small precision signal the neural ranking statistic does not. Local
+labellers flagged far more pairs than the pharmacist confirmed, but this
+thesis does not put one number on how much more, because that number moves
+with the prompt and with how the ambiguous pairs are read, and reports both
+rather than choosing one for the reader.
 
-None of that establishes that the task cannot be done (Section~\ref{sec:disc-null}). It
-establishes that each failure has a located mechanism, separated from measurement artifact by a
-control that fired, except the harm head, which needed no control because nothing ever trained it.
-
-The practical recommendation is one sentence. Before training anything downstream of a weak
-labeller for a rare clinical event, measure that labeller's positive rate against the gold
-standard's confirmed rate and check what agreement its own marginal permits before spending a
-training budget on the rest. The prompted-once evaluation baseline flags $242$ of $253$ pairs
-and, by a post hoc check, could not have rejected the null at any outcome (Table~\ref{tab:feasgate}); that count alone,
-checked first, would have said so.
-
-The diagnosis used controls from other people's papers
-\citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,egami2023surrogates,feinstein1990paradoxes},
-costing $1216.4$ GPU minutes, plus three cheap checks: trigger-exemplar dissociation, the
-degeneracy precondition, and sign provenance.
+None of that establishes that the task cannot be done
+(Section~\ref{sec:disc-null}). It establishes what a resolvable-effect floor
+of 0.7355 lets a 253-pair evaluation say and what it stays silent on, and it
+leaves the size and the design of the next attempt to the future work above
+rather than to this one.
