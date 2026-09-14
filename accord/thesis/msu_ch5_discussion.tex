@@ -42,10 +42,10 @@ did not, but no paired test separates the three.
 
 Table~\ref{tab:disc-spine} is the summary this section argues through.
 
-The pipeline has four stages. Each produced a number a competent paper could
+The pipeline has four stages. Each of the first three produced a number a competent paper could
 have reported, and no standard metric at that stage was sensitive to the
-defect sitting behind the number; each was then subjected to a control or code audit, cheap
-against what it checked, that was. The controls are not new: negative controls
+defect behind it; each was then subjected to a control or code audit, cheap
+against what it checked, that was. The fourth, evaluation, returned a null the controls bounded. The controls are not new: negative controls
 from observational epidemiology \citep{lipsitch2010negative}, with the positive
 direction adapted rather than taken from that source; randomisation sanity
 checks from interpretability \citep{adebayo2018sanity}; control tasks from
@@ -148,7 +148,7 @@ narrowed is what that null licenses. The decontaminated ACCORD ensemble
 reaches AUROC $0.5145$ ($p = 0.8668$) on the $253$ non-ambiguous pairs against $0.4595$ for the
 contaminated released run; the leaked rows carried the weak labeller's labels rather than the
 pharmacist's, so the leak had no channel to inflate agreement with gold, making the contaminated
-figure a conservative rather than an inflated comparator. A separate, defect-free control model, a
+figure not an inflated comparator. A separate, defect-free control model, a
 plain BioMedBERT with none of ACCORD's authority parameters, rule head or harm head, reaches a
 three-seed mean AUROC of $0.4967 \pm 0.0350$ on all $299$ pairs (ensemble $0.4692$) and
 $0.5295 \pm 0.0158$ on the $134$-pair Rule 3 and Rule 4 stratum (ensemble $0.5469$), both intervals
@@ -157,12 +157,12 @@ the defect-free rows, and what the baselines add, is taken up in Section~\ref{se
 
 \subsection{What survived}
 
-No stage in Table~\ref{tab:disc-spine} is rated Survived; two readings held in a narrowed
-form. The chance-level ranking held under decontamination and seed
+No stage in Table~\ref{tab:disc-spine} is rated Survived; candidate mining and evaluation are
+Narrowed, weak supervision Reversed. The chance-level ranking held under decontamination and seed
 variation, and the defect-free control model, compared by DeLong test only against the contaminated
 released run, was null as well; what survives is no AUROC effect above the floor on $G_{253}$, and
 whether the null is an artifact of the exemplar defect is a question six positives cannot settle
-(Section~\ref{sec:disc-null}). The over-calling held across three
+(Section~\ref{sec:disc-null}). The over-calling, the after-reading of the Reversed row, held across three
 changes of local model family, but its size did not, moving by a large factor with the prompt and the
 ambiguity reading (Section~\ref{sec:disc-overcalling}), and a post hoc tipping point shows the least
 over-calling row would fall below the public-text ceiling after $5$ relabelled pairs
@@ -260,8 +260,8 @@ value was known. A registered follow-up (C111) found the signal survives $11$ of
 leave-one-positive-out drops and comes from a training set sharing $0$ pairs and $0$ subjects with gold; the
 ensemble's own average precision, $0.0598$, is not above its permutation null, $p = 0.4629$. The
 off-the-shelf entailment model, never trained on the weak labels, also clears its no-skill line on
-average precision on both sets, so by the registered interpretation this is a surface lexical
-signal a label-free model also finds, not evidence that the weak labels carried signal. No paired
+average precision on both sets, so this is an average-precision signal, which C111's registered interpretation calls a surface
+lexical or semantic-similarity signal, that a label-free model also finds, not evidence that the weak labels carried signal. No paired
 test on within-system ranks separates any two of the three on $G_{253}$ (C116): bag-of-words minus
 ensemble $p = 0.17875$, entailment minus ensemble $p = 0.1452$, bag-of-words minus entailment
 $p = 0.96465$, so neither simple model is shown to exceed the detector. Retrained on gold labels alone in

@@ -579,7 +579,7 @@ the old exemplar happened to be correct on the other. The second half of the con
 rather than measured. Rules 3 and 4 have no positional selector, so the gold pairs drawn from them
 form a defect-free stratum fixed before any model score exists, and the detection metrics in
 Chapter~\ref{ch:results} are reported on that stratum as well as on the full set. If the two strata
-disagree, the exemplar defect is doing work; if they agree, it is not.
+disagree, the exemplar defect is doing work.
 
 A pre-registered re-scoring sharpens this comparison: C110 scored the contaminated released detector,
 and C112 re-ran its rule on the decontaminated ensemble this thesis reports, scoring it, the
@@ -662,7 +662,8 @@ that \citet{tarone1990modified} derives from the marginal totals of a discrete t
 
 \textbf{Condition.} A component credited with a semantic contribution must, at minimum, exist in the
 running code with learned parameters, receive a loss signal, and take an input the credited target is
-not trivially derivable from. Failing any one of those is a falsification of the credit, checkable
+not trivially derivable from. A credited parameter that sits at initialisation falsifies the credit;
+a metric whose target is in its input leaves the credit untested, confounded rather than falsified. Each failure is checkable
 by reading the executed code path rather than by training an arbitrary-substitute control: a
 component with zero learned parameters cannot have learned the property it is credited with, a head
 that never receives a gradient cannot have been fit to anything, and an auxiliary target that is a
@@ -740,9 +741,9 @@ Inconclusive & Gap in the range $2.5$ to $3.5$ points, or the bands touch withou
 \textbf{Condition.} Balanced accuracy, PABAK, $\kappa$ and MCC depend on prevalence as well as on
 discrimination, so a value of any of them is uninterpretable without the value the same statistic
 takes for a trivial predictor on the same margins. No prevalence-dependent metric is reported alone
-here. Each appears beside the value achieved on identical confusion-matrix margins by a
-majority-class predictor and by a constant-positive predictor, and an ordering among systems is
-claimed only if the bootstrap interval on the difference excludes zero.
+here. Each hard-label MCC and $\kappa$ appears beside the ceiling the same statistic can reach on
+identical margins (Section~\ref{sec:r-feasgate}), each average precision beside the majority-class
+no-skill line, and an ordering among systems is claimed only if the bootstrap interval on the difference excludes zero.
 
 This is applied literature, not a contribution: the prevalence dependence of chance-corrected
 agreement is set out by \citet{feinstein1990paradoxes} and \citet{cicchetti1990resolving}, the

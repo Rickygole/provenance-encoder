@@ -714,16 +714,17 @@ detector rather than a labeller, appears in Section~\ref{sec:res-rq4}.
 
 Everything in part (a) bounds a labeller that emits a hard flag; a labeller
 that emits a continuous score is not bounded by that ceiling, because its
-threshold can be swept after the fact. One score-emitting model was measured,
-under a rule registered before the run (C98): \texttt{granite3.3:8b}'s
-first-token log-odds of a contradiction, graded across the $253$ non-ambiguous
+threshold can be swept after the fact. The first graded score, registered
+before its run (C98), \texttt{granite3.3:8b}'s first-token log-odds of a contradiction across the $253$ non-ambiguous
 pairs, reaches an AUROC of $0.5467$ (one-sided Mann-Whitney $p = 0.2934$),
-below every per-rule floor of Section~\ref{sec:res-rq4}. Sweeping its threshold does
-not rescue it: a score that is not separated from chance stays unseparated at
-every cutoff, not only the one this project happened to try first.
+below every per-rule floor of Section~\ref{sec:res-rq4}. It is not the only graded score: the
+nine pre-registered C103 cells (Supplement, Section S5) reach AUROC $0.7503$
+($p = 0.0017$) for \texttt{llama3:8b} and $0.7365$ for \texttt{granite3.3:8b},
+both under the reversed prompt, so whether a graded score escapes the ceiling
+is not settled by this project.
 
-A reversed-direction zero-shot score on \texttt{llama3:8b} was also graded
-rather than thresholded, and a pre-registered confirmation (C109) tested its
+The strongest of these, \texttt{llama3:8b} under the reversed prompt, was put to
+a pre-registered confirmation (C109) that tested its
 wording with three new paraphrases plus a byte-for-byte rerun, which
 reproduced exactly. The score ranked above chance under every wording tried at the uncorrected $0.05$ level,
 but cleared the Bonferroni threshold under the first new wording only, and reached the registered $0.7355$ threshold under none of the three new ones: AUROC
@@ -1043,15 +1044,16 @@ known. A pre-registered robustness check (C111) found the average-precision
 result survives $11$ of $12$ leave-one-positive-out drops and comes
 from a training set sharing $0$ pairs and $0$ subjects with gold. But the
 off-the-shelf NLI model below, never trained on the weak labels, is also
-significant on average precision ($p = 0.01335$ on $G_{253}$, $0.0120$ on
+significant on average precision in C111's own-null test ($p = 0.01335$ on $G_{253}$, $0.0120$ on
 $G_{299}$), while the detector ensemble's average precision, $0.0598$, is not
 above its permutation null ($p = 0.4629$). No paired test separates any of the
 three. C111's and C114's paired tests swapped raw scores that sit on different
 scales, and are superseded by C116 (requested by the committee after these
 results, pre-registered before its run), which permutes within-system ranks on
 $G_{253}$: TF-IDF minus the detector ensemble $p = 0.17875$, NLI minus the
-detector ensemble $p = 0.1452$, TF-IDF minus NLI $p = 0.96465$. By the
-registered interpretation this is a surface lexical signal that a label-free
+detector ensemble $p = 0.1452$, TF-IDF minus NLI $p = 0.96465$. This is an
+average-precision signal, which C111's registered
+interpretation calls a surface lexical or semantic-similarity signal, that a label-free
 model also finds, not evidence that the weak labels carried signal, and not
 evidence that either model exceeds the detector. Nor does a gold-only retrain
 find it: a second, also pre-registered check, a
@@ -1062,9 +1064,7 @@ $0.3434$, AP $0.0362$, one-sided Mann-Whitney $p = 0.9666$, worse than a
 constant-score floor. This is not evidence against a precision signal
 existing at this sample size; it is evidence that this particular
 gold-only estimator, retrained from scratch inside a twelve-fold
-leave-one-positive-out split, does not find it. Read together, TF-IDF's and
-NLI's average precision exceed their own nulls and the detector's does not, a
-surface lexical signal that a model never trained on the weak labels also finds.
+leave-one-positive-out split, does not find it.
 
 A pre-registered, off-the-shelf natural-language-inference model,
 \citet{liu2019roberta}'s architecture trained for entailment rather than for

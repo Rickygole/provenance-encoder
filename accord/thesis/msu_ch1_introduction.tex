@@ -147,7 +147,7 @@ could have caught.
 
 At the size this thesis could annotate, $12$ confirmed contradictions in
 $299$ pairs, the pipeline does not work. This thesis establishes where it fails and
-what each failure can and cannot be attributed to, by running at each stage the control that separates a real result from an
+what each failure can and cannot be attributed to, by running at each stage a control or code audit that separates a real result from an
 artifact of measurement. The cleanest expression of
 the failure is the decontaminated detector's behaviour on the $253$
 non-ambiguous pairs: at the configured threshold it predicts positive for
@@ -212,10 +212,17 @@ flagged pairs would bring the lowest hard-label ratio under the
 ambiguous-negative reading, $4.8333$, below the highest ratio
 measured on public text.
 Third, whether a score escapes the ceiling: a score
-is not bounded by that ceiling, because its threshold can be swept; the one
-score-emitting configuration tested, under a rule fixed before the run,
-reaches an AUROC of $0.5467$ ($p = 0.2934$), below every per-rule floor
-given under RQ4, so sweeping does not help. No claim is
+is not bounded by that ceiling, because its threshold can be swept. The
+graded score registered first (C98, \texttt{granite3.3:8b} under its own
+one-word prompt) reaches an AUROC of $0.5467$ ($p = 0.2934$), below every per-rule
+floor given under RQ4. The pre-registered prompt contrast (C103) adds nine
+graded cells on the $253$ non-ambiguous pairs; the strongest,
+\texttt{llama3:8b} under a reversed-direction prompt, reaches $0.7503$
+($p = 0.0017$), and \texttt{granite3.3:8b} under the same prompt reaches
+$0.7365$. The \texttt{llama3:8b} score did not confirm under three new
+wordings (C109, Outcome B), and its signal sits in the rows carrying the
+exemplar defect, so whether a graded score escapes the agreement ceiling is
+not settled. No claim is
 licensed about a labeller, a prompt, or a domain not tested.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
@@ -243,13 +250,14 @@ and the ensemble's average precision, $0.0598$, is not above its permutation
 null ($p = 0.4629$). By average precision, a statistic chosen after its value
 was known, two simple models are above their own permutation nulls where the
 detector is not: a bag-of-words model trained on the weak labels
-($p = 0.01315$), whose result holds in $11$ of $12$ leave-one-positive-out
-drops, and an inference model never trained on the weak labels
-($p = 0.01335$). No paired permutation test on within-system ranks separates
+($p = 0.0159$ on the $253$ non-ambiguous pairs, C107), whose result holds in
+$11$ of $12$ leave-one-positive-out drops, and an inference model never
+trained on the weak labels ($p = 0.01335$ against its own null, C111). No paired permutation test on within-system ranks separates
 any two of the three (bag-of-words against the detector, $p = 0.17875$;
 inference model against the detector, $p = 0.1452$), so neither is shown to
-find a signal the detector lacks; what stands is a surface lexical signal
-that a label-free model also finds (Section~\ref{sec:res-rq4}). On the $108$ defect-free Rules 3 and 4 pairs the
+find a signal the detector lacks; what stands is an average-precision
+signal that a label-free model also finds, which C111's registered
+interpretation calls a surface lexical or semantic-similarity signal (Section~\ref{sec:res-rq4}). On the $108$ defect-free Rules 3 and 4 pairs the
 decontaminated detector's AUROC is $0.6095$ ($95$ percent bootstrap interval
 $0.3029$ to $0.9010$, $p = 0.1910$), above the $0.4221$ on Rules 1 and 2, which
 is the direction the defect-artifact reading predicts. Its pre-registered

@@ -43,8 +43,9 @@ resolves only large AUROC effects, stated per decision rule: a power analysis
 on a real score distribution puts 80 percent power at 0.7466 for a two-sided
 Mann-Whitney test and 0.8084 for the registered decision rule, which has power
 of only 0.52075 at the analytic minimum detectable AUROC of 0.7355
-(Section~\ref{sec:res-rq4}). The floor is about AUROC; average precision did
-resolve a small top-heavy signal, reported below. Within that limit, every 8B
+(Section~\ref{sec:res-rq4}). The floor is about AUROC; separately, a baseline's
+average precision exceeded its own permutation null, on a statistic chosen
+after its value was known, as reported below. Within that limit, every 8B
 labeller under the clinical-pharmacist framing flagged several times the
 confirmed count when ambiguous pairs are counted negative: the deployed
 labeller called 261 of the 299 pairs contradictions against 12 confirmed, and
@@ -65,8 +66,8 @@ flagged pairs would bring the lowest hard-label ratio under the ambiguous-negati
 4.8333, below the
 highest ratio measured on public text.
 
-The detector trained on those labels was not distinguishable from chance.
-On the 253 non-ambiguous pairs the decontaminated ensemble reaches an AUROC
+The detector trained on those labels was not distinguishable from chance
+on the 253 non-ambiguous pairs: the decontaminated ensemble reaches an AUROC
 of 0.5145, its bootstrap interval excluding values above 0.7034, and its
 average precision, 0.0598, is not above its permutation null ($p = 0.4629$).
 On the 108 non-ambiguous Rules 3 and 4 pairs the exemplar-selection defect of
@@ -80,15 +81,16 @@ this fails to show the null is a defect artifact and cannot establish that it
 is not. Average precision, a statistic chosen after its value was known,
 gives a narrower result. A bag-of-words model trained on the weak labels
 clears its no-skill line at $p = 0.0109$ on the full annotated set and
-$p = 0.0159$ on the non-ambiguous set and holds in 11 of 12
+$p = 0.0159$ on the 253 non-ambiguous pairs (C107) and holds in 11 of 12
 leave-one-positive-out drops; an inference model never trained on the weak
 labels is also above its own permutation null on the non-ambiguous set
-($p = 0.01335$), and the detector ensemble is not. No paired permutation test
+($p = 0.01335$, C111), and the detector ensemble is not. No paired permutation test
 on within-system ranks separates any two of the three (bag-of-words against
 the detector, $p = 0.17875$; inference model against the detector,
 $p = 0.1452$), so neither simple model is shown to find a signal the detector
-lacks. That is a surface lexical signal a label-free model also finds, not
-evidence that the weak labels carried signal.
+lacks. That is an average-precision signal a label-free model also finds,
+which C111's registered interpretation calls a surface lexical or
+semantic-similarity signal, not evidence that the weak labels carried signal.
 
 \section{What This Establishes, and What It Does Not}
 \label{sec:conc-establishes}
@@ -168,7 +170,7 @@ mining-bug class caught by a one-line assertion. In support, the detector
 shows no AUROC effect above about 0.75 to 0.81 on the 253 non-ambiguous pairs,
 the defect-free stratum cannot settle whether that null is a defect artifact,
 and a bag-of-words model and a model never trained on the weak labels both
-find a surface lexical signal by average precision that no paired test
+find an average-precision signal that no paired test
 separates from the detector. The planted-defect benchmark, a synthetic mirror-image check of
 the Rule 1/2 versus Rule 3/4 Fisher test rather than a validation of it, did
 not reach its required firing rate, a limitation this thesis discloses
