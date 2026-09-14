@@ -2,7 +2,7 @@
   "preregistration": "accord/public_controls/C102_PREREGISTRATION.md",
   "stage": "3",
   "status": "CPU_SMOKE_TEST_ONLY_NOT_A_VERDICT",
-  "note": "2 tiny replicates, untrained random-init weights, tiny dimensions. Full run (real dims, trained checkpoint, BiomedBERT feature cache) is deferred to the coordinator's MPS run; thresholds above are fixed and will not change.",
+  "note": "2 tiny replicates, untrained random-init weights, tiny dimensions. Full run (real dims, 20 replicates, MPS) is `registered_run()`, run only once the coordinator confirms the GPU is free; thresholds above are fixed and unchanged.",
   "smoke_seeds": [
     1001,
     1002
@@ -18,16 +18,32 @@
   },
   "all_outputs_finite": true,
   "results": {
-    "s3a": [
+    "s3a_plant": [
       {
-        "displacement": 0.00016754865646362305,
+        "displacement": 0.0003102347254753113,
         "fires": false,
-        "threshold": 0.02
+        "threshold": 0.02,
+        "clean": false
       },
       {
-        "displacement": 0.00036951154470443726,
+        "displacement": 0.0004469025880098343,
         "fires": false,
-        "threshold": 0.02
+        "threshold": 0.02,
+        "clean": false
+      }
+    ],
+    "s3a_clean": [
+      {
+        "displacement": 0.0,
+        "fires": false,
+        "threshold": 0.02,
+        "clean": true
+      },
+      {
+        "displacement": 0.0,
+        "fires": false,
+        "threshold": 0.02,
+        "clean": true
       }
     ],
     "s3b_plant": [
