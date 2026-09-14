@@ -4949,3 +4949,14 @@ reran the tests on within-system ranks, which leaves AP unchanged: TF-IDF minus 
 detector p 0.14520. The claim that TF-IDF finds a signal the detector lacks is withdrawn from the text; C111
 task b's p and C114 task A's p are superseded. C111 task a (each system against its own label-permutation
 null) is unaffected.
+
+## C117. Final committee passes after C116 (2026-09-14)
+
+Final pass 1 (three reviewers) and final pass 2 found, and the text now reflects: the ceiling check described as run before
+training (it was run after); the stage-wise claim widened to all four stages; an untested rarity causal sentence; the
+rule-type head called a copy; a false direction-of-corrections sentence; llama3:8b's framing direction still read in Ch1/Ch6;
+the claim that only one graded score was tested (C103 reports nine; the strongest did not confirm under C109); two p values
+for one TF-IDF test (C107's 0.0159 kept); "surface lexical signal" stated as a finding (attributed to C111's registered
+interpretation); Ch3 "falsification" vs Ch5 "confounded" for the rule-type head; a Ch3 clause affirming a null; Ch5 What
+survived out of step with its table; a comparator called conservative; C98's prompt mislabelled as the plain prompt (it has
+its own one-word prompt).
