@@ -4916,3 +4916,26 @@ agreement ceiling at 261 of 299 is 0.0780; 0.0768 belongs to the joined G_253 ro
 **Refuted:** that the qwen3:8b local Fisher tests were missing from the multiplicity family
 (they were present); that Appendix A's counts were hard-coded (they were generated; one
 hard-coded "the last correction" phrase was fixed).
+
+## C115. Committee rounds after C113 (2026-09-14)
+
+Round 2 (idea-stress-tester, strategic skeptic) and round 3 (paper-reviewer) found, and the text now reflects:
+- The detector tipping point was computed from the contaminated released column; C114 Task B recomputes it from the
+  decontaminated ensemble (5, 6 and 7 flips to 0.7355, 0.7466, 0.8084).
+- "Two simple models find a signal the detector lacks" inferred NLI's superiority from a non-significant NLI vs TF-IDF
+  test; C114 Task A (p 0.10035, Outcome A2) restricts the claim to TF-IDF.
+- The defect-free stratum carried no interval (C114 Task C, 0.3029 to 0.9010) and a floor for the wrong subset
+  (0.8058 is the 134-pair subset; the 108-pair stratum's is 0.8064).
+- The resolution floor was stated as 0.7355; it is now stated per rule from C108 (0.7466, 0.8084), scoped to AUROC.
+- Round 1 of this pass (C113 fix list item F8) wrongly made 0.9315 the primary exemplar defect rate; C106 is Outcome B
+  and no instrument establishes the rate. Reversed.
+- The llama3:8b replication run and the frontier zero-shot / C103 P_asserting run use byte-identical prompt text but
+  different reply parsers, seed options and run dates, and flag 285 and 261 of 299. The llama3:8b framing direction is
+  within that gap and is no longer interpreted.
+- The deployed weak labeller and the frontier zero-shot run share a 261 of 299 marginal and TP 11 but disagree on 24
+  pairs (accord/stats/deployed_vs_frontier_zeroshot.py); they remain separate configurations.
+- "No threshold rescues this detector" rested on the contaminated file; scoped to it.
+- The C102 S1b benchmark is a synthetic one-sided mirror of the Chapter 4 Fisher test, not a validation of it.
+- Contributions re-centred on the stage-wise audit, the marginal-implied agreement ceiling and trigger-exemplar
+  dissociation; the detector null is a bounded supporting result; C102 demoted to a limitation.
+- Title change from "Why" to "Where" recommended; held for the author's decision.
