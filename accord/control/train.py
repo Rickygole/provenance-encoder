@@ -119,6 +119,12 @@ def main():
     ap.add_argument("--lr", type=float, default=2e-5)
     ap.add_argument("--out-dir", default=OUT_DIR)
     args = ap.parse_args()
+    # Scores written here are derived from credentialed data: refuse any output
+    # directory that resolves into cloud-synced storage.
+    import sys as _sys
+    _sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+    from accord.cloud_paths import assert_local_only
+    args.out_dir = str(assert_local_only(args.out_dir))
 
     set_seed(args.seed)
     device = get_device()

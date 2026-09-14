@@ -441,6 +441,12 @@ def main():
                          "reply for each so unparseable answers can be seen. "
                          "Prints to the console only and writes nothing.")
     args = ap.parse_args()
+    # Hosted routes are withdrawn from this project (PhysioNet guidance of 24 September
+    # 2025). A hosted run must never happen by accident: it requires an explicit opt-in
+    # in the environment in addition to --provider and its key.
+    if args.provider != "ollama" and os.environ.get("ACCORD_ALLOW_HOSTED") != "1":
+        ap.error(f"--provider {args.provider} is a hosted route; hosted runs are withdrawn "
+                 "from this project and require ACCORD_ALLOW_HOSTED=1 to proceed")
     if args.replicates < 1:
         # Zero or negative still takes one draw per pair, but labels the output
         # "majority of 0 draws" and, having no _rep suffix, writes it over the
