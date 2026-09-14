@@ -194,3 +194,31 @@ Artifacts: `results/accord/prompt_sensitivity/cells/*.json` (9 files),
 `results/accord/prompt_sensitivity/egress_evidence_c103_20260913T192835.txt`
 (loopback only, confirmed). Register prefix `promptsens.*`, script written at
 `accord/prompt_sensitivity/register_promptsens.py`, not run by this agent.
+
+## Correction to the Outcome text (2026-09-14, after an independent audit)
+
+The decision rule and the Outcome letter above are unchanged. Two statements in the
+Outcome prose were wrong, and are corrected here rather than rewritten in place, so
+the original record stays visible. The audit is `accord/prompt_sensitivity/audit_reversed.py`,
+artifact `results/accord/prompt_sensitivity/audit_reversed.json`.
+
+1. "Only one of the nine cells clears the registered minimum detectable AUROC" is
+   false. Two do: `llama3:8b/P_reversed` (0.7503) and `granite3.3:8b/P_reversed`
+   (0.7365, above 0.7355 by about 0.001). The quoted range for the other cells,
+   0.578 to 0.737, included the granite cell; without it the top is 0.693.
+2. The Secondary result was described as a one-sided Mann-Whitney test "vs MDE
+   0.7355". The test is `alternative="greater"` against AUROC 0.5, that is against
+   chance, not against the MDE. A p value of 0.0017 means above chance. It does not
+   mean above 0.7355: a stratified bootstrap puts 38 percent of resamples below the
+   MDE (95 percent interval about 0.64 to 0.86). The same wording appears in the
+   pre-registered Secondary section, which is not edited.
+
+What the audit established about the `llama3:8b/P_reversed` cell, all aggregates:
+the value is reproduced exactly and is correctly oriented (reversed orientation
+0.2497; label and score agree in sign on every pair; no floored scores; a 20,000
+draw permutation test gives p 0.0011). It is fragile: dropping one positive at a
+time ranges it from 0.7276 to 0.7801, below the MDE in 2 of 12 drops. It is
+concentrated in Rules 1 and 2 (0.8525, n 145, 6 positives), the rows carrying the
+exemplar-selection defect, and falls to 0.6042 (p 0.20) on the defect-free G_134
+stratum, whose MDE is 0.8058. It remains a secondary, descriptive result and is not
+relied on until confirmed under its own pre-registration.
