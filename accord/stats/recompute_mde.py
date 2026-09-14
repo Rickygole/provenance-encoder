@@ -43,7 +43,14 @@ STRATA = [
     {"name": "gold_ambiguous_excluded", "n_pos": 12, "n_neg": 241},
     {"name": "gold_ambiguous_retained", "n_pos": 12, "n_neg": 287},
     {"name": "defect_free_subset", "n_pos": 6, "n_neg": 128},
+    # C110/C112's Rules 3+4 stratum with ambiguous rows dropped (108 pairs). The
+    # 134-pair floor above was being applied to it; committee round after C113.
+    {"name": "rules34_ambiguous_dropped", "n_pos": 6, "n_neg": 102},
 ]
+
+FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"
+PREFIX = "mde_recomputed"
+FIELDS = ("gap_above_chance", "minimum_detectable_auc", "se0_null_approx")
 
 
 def se0(n_pos, n_neg):
@@ -87,6 +94,15 @@ def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2) + "\n")
     print(json.dumps(out, indent=2))
+    # Register from the artifact just written; the prefix was previously kept by hand.
+    import collections
+    facts = json.loads(FACTS.read_text(), object_pairs_hook=collections.OrderedDict)
+    for k in [k for k in facts if k.split(".")[0] == PREFIX]:
+        del facts[k]
+    for name, st in out["strata"].items():
+        for f in FIELDS:
+            facts[f"{PREFIX}.{name}.{f}"] = {"artifact": "results/accord/mde_recomputed.json", "value": st[f]}
+    FACTS.write_text(json.dumps(facts, indent=2) + "\n")
 
 
 if __name__ == "__main__":
