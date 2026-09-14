@@ -230,4 +230,106 @@ to quote, exactly the gap C107 already flagged and left open.
 
 ## Outcome
 
-_Recorded after the run; the rule above is unchanged._
+Recorded 2026-09-14 after the run; the rule above is unchanged.
+
+**All gates passed; no Outcome C.** TF-IDF reproduction matched
+`tfidfperm.task_a.g299.ap` (0.1570977148911732) and `tfidfperm.task_a.g253.ap`
+(0.1650667451480374) to full float precision. Detector per-seed AUROC
+(0.5494 / 0.5090 / 0.5048) and ensemble AUROC (0.5145) matched
+`results/accord/decontam/corrected_gold_metrics.json` to full float
+precision. All three $G_{253}$ score sources shared exactly 253 common
+`pair_id`s; label agreement was exact (0 mismatches) between `pharm_label`,
+NLI's `label_clean`, and the decontam file's `y_true`.
+
+**(a) One-sided AP permutation, 20,000 draws, seed 42.**
+
+| system | stratum | n | pos | AP | AUROC (descriptive) | p (AP) |
+|---|---|---|---|---|---|---|
+| detector seed0 | $G_{253}$ | 253 | 12 | 0.0613 | 0.5494 | 0.4336 |
+| detector seed1 | $G_{253}$ | 253 | 12 | 0.0592 | 0.5090 | 0.4672 |
+| detector seed2 | $G_{253}$ | 253 | 12 | 0.0533 | 0.5048 | 0.5979 |
+| detector ensemble | $G_{253}$ | 253 | 12 | 0.0598 | 0.5145 | 0.4629 |
+| detector (contaminated `accord_contra_prob`, descriptive only) | $G_{299}$ | 299 | 12 | 0.0394 | 0.4602 | 0.7731 |
+| NLI (`contra_prob_mean`) | $G_{253}$ | 253 | 12 | 0.1685 | 0.5861 | **0.0134** |
+| NLI (`contra_prob_mean`) | $G_{299}$ | 299 | 12 | 0.1537 | 0.5758 | **0.0120** |
+| TF-IDF | $G_{253}$ | 253 | 12 | 0.1651 | 0.5730 | **0.0132** |
+| TF-IDF | $G_{299}$ | 299 | 12 | 0.1571 | 0.5761 | **0.0101** |
+
+The detector (every individual seed and the ensemble) does not clear the
+permutation null on $G_{253}$; TF-IDF and NLI both do, on both strata. The
+detector's $G_{299}$ figure is the contaminated single-run configuration,
+descriptive only per the pre-registered score-source note, and is not part
+of the decision rule; it also does not clear the null.
+
+**(b) Paired comparison of AP, $G_{253}$, two-sided, 20,000 draws, seed 42.**
+TF-IDF minus detector ensemble: AP 0.1651 vs 0.0598, observed difference
++0.1053, p = 0.0001. TF-IDF beats the detector ensemble by a margin the
+paired-swap null essentially never reproduces. TF-IDF minus NLI: AP 0.1651
+vs 0.1685, observed difference -0.0035, p = 0.9912. TF-IDF and the
+off-the-shelf NLI model are statistically indistinguishable on this basis,
+consistent with objection 3.
+
+**(c) Leave-one-positive-out, TF-IDF, 20,000-draw permutation p per drop.**
+$G_{253}$: AP ranges 0.0673 to 0.1758 across the 12 drops, p ranges 0.0107
+to 0.2870, **11 of 12 drops keep p < 0.05** (the twelfth drop's p is 0.2870,
+so one single positive pair is responsible for pushing the test over the
+0.05 line when it alone is removed; the finding is not carried by that one
+pair, since removing any of the other 11 leaves it significant, but it is
+not perfectly uniform either). $G_{299}$: AP ranges 0.0600 to 0.1677, p
+ranges 0.0073 to 0.2563, also 11 of 12. The pre-registered threshold (>= 10
+of 12) is cleared on $G_{253}$.
+
+**(d) Training-set disjointness.** 1,183 training rows, 299 gold rows: 0
+rows share the `(HADM_ID, drug, rule, nursing_sentence, discharge_sentence)`
+key with any gold pair, and 0 `SUBJECT_ID`s are shared between the training
+pool and the gold set. Independently re-derived here, not merely trusted
+from `accord/control/data.py`'s own assertions.
+
+**Decision: Outcome A.** TF-IDF's $G_{253}$ AP permutation p is 0.0132 (<
+0.05); it survives leave-one-positive-out in 11 of 12 drops (>= 10); the
+detector ensemble's $G_{253}$ AP permutation p is 0.4629 (>= 0.05); the
+training set has 0 pair and 0 subject overlap with gold. All four legs of
+the Outcome-A condition hold, so, narrowly read, the bag-of-words finding
+stands as a signal the trained detector's own scores do not carry.
+
+**Registered interpretation triggers, and changes what Outcome A means.**
+NLI's AP permutation p is significant on both $G_{253}$ (0.0134) and
+$G_{299}$ (0.0120) -- consistent in direction and magnitude with TF-IDF's
+own p-values, and paired testing (task b) cannot distinguish TF-IDF from NLI
+at all (p = 0.9912). Per the interpretation fixed before this run: **the
+signal cannot be attributed to the weak labels specifically.** An
+off-the-shelf NLI model that never saw a weak label finds the same
+ranking, at the same significance, to within sampling noise of the same
+permutation test. What C107 demonstrated and this pre-registration confirms
+under a matched test is real and survives its fragility check: something in
+these 253-299 pairs separates the 12 confirmed contradictions from the rest
+well enough for a permutation test to notice, using either bag-of-words
+features or a pretrained NLI model's sentence embeddings -- and the trained
+detector's own weak-label-supervised scores do not carry it (p = 0.4629,
+and the detector loses the paired comparison to TF-IDF outright, p =
+0.0001). But because a label-free model finds essentially the same thing,
+the correct description is a surface lexical/semantic-similarity signal
+present in the raw sentence pairs, not a signal specifically attributable to
+the weak labels TF-IDF and the detector were both meant to be trained
+against. C107's phrase "a weak-label signal the detector lacks" is not
+supported by this run; "a signal in the raw text neither the weak-label
+training pool nor the trained detector was able to convert into a working
+score, and which is not specific to being trained on the weak labels" is.
+
+**What could not be done.** The detector's $G_{299}$ permutation test could
+not be run against the decontaminated 3-seed ensemble, because no per-pair
+score from the decontaminated retrain was retained for the 46 ambiguous
+pairs (`msu_ch4_results.tex`, paragraph around line 220-221). The
+descriptive-only substitute reported above uses the contaminated single-run
+`accord_contra_prob` column and is explicitly not part of the decision
+rule.
+
+Artifact: `results/accord/c111_robustness/c111_robustness.json`. Register
+prefix `c111.*` (register script written, not run, per task scope; see
+`accord/c111_robustness/register_c111.py`). This run adds AP permutation
+tests, a paired comparison, and a leave-one-positive-out check for two more
+systems (detector, NLI) to the hypothesis family
+`accord/stats/test_register.py` enumerates; that register is out of edit
+scope for this task and was not touched, so the family's stated count in
+Chapter 4 remains short by however many of these the thesis goes on to
+quote -- the same gap C107 already flagged, now larger.
