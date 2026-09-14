@@ -262,9 +262,23 @@ def draw_label_mix_replicate(pos_pool, neg_pool, n_pos, n_neg, lam, rng):
 def draw_noise_mix_replicate(pos_z, neg_z, n_pos, n_neg, sigma, rng):
     """One replicate under the noise-mix construction: resample from the
     z-scored empirical pools with replacement, then add iid N(0, sigma^2).
+
+    `sigma == INFINITE_SIGMA` (the target-0.50 case, see
+    `bisect_sigma_for_target`) is handled as the construction's own
+    sigma -> infinity limit made exact: both slot groups are drawn, with
+    replacement, from the SAME pooled positive+negative z-scored
+    distribution, independent of slot role. Two draws from the identical
+    distribution have population AUROC exactly 0.5 (ties broken at 0.5, as
+    usual), so this is the pure label-permutation realization of "infinite
+    noise" rather than an approximation of it with some large finite sigma.
     """
-    pos_slot_scores = rng.choice(pos_z, n_pos, replace=True) + rng.normal(0, sigma, n_pos)
-    neg_slot_scores = rng.choice(neg_z, n_neg, replace=True) + rng.normal(0, sigma, n_neg)
+    if sigma == INFINITE_SIGMA:
+        pooled = np.concatenate([pos_z, neg_z])
+        pos_slot_scores = rng.choice(pooled, n_pos, replace=True)
+        neg_slot_scores = rng.choice(pooled, n_neg, replace=True)
+    else:
+        pos_slot_scores = rng.choice(pos_z, n_pos, replace=True) + rng.normal(0, sigma, n_pos)
+        neg_slot_scores = rng.choice(neg_z, n_neg, replace=True) + rng.normal(0, sigma, n_neg)
     y = np.r_[np.ones(n_pos, dtype=int), np.zeros(n_neg, dtype=int)]
     s = np.r_[pos_slot_scores, neg_slot_scores]
     return y, s
@@ -272,8 +286,13 @@ def draw_noise_mix_replicate(pos_z, neg_z, n_pos, n_neg, sigma, rng):
 
 def estimate_noise_mix_auroc(pos_z, neg_z, sigma, rng, n_mc=20_000):
     """Monte Carlo estimate of the population AUROC of the noise-mix
-    construction at a given sigma, used only inside the bisection search
-    that calibrates sigma to a target AUROC (not used per-replicate)."""
+    construction at a given sigma. Kept for callers that want a sampled
+    estimate (e.g. a held-out validity check that must not reuse the exact
+    calibration machinery below); NOT used by `bisect_sigma_for_target`
+    itself any more -- see the C108 pre-registration / diagnosis in
+    C101_PREREGISTRATION.md for why a single Monte Carlo draw is not an
+    acceptable substitute for an exact or low-standard-error evaluation
+    inside a calibration search."""
     a = rng.choice(pos_z, n_mc, replace=True) + rng.normal(0, sigma, n_mc)
     b = rng.choice(neg_z, n_mc, replace=True) + rng.normal(0, sigma, n_mc)
     y = np.r_[np.ones(n_mc, dtype=int), np.zeros(n_mc, dtype=int)]
@@ -281,30 +300,132 @@ def estimate_noise_mix_auroc(pos_z, neg_z, sigma, rng, n_mc=20_000):
     return float(roc_auc_score(y, s))
 
 
-def bisect_sigma_for_target(pos_z, neg_z, target, seed, tol=0.002, max_iter=40):
-    """Bisection on sigma so the noise-mix population AUROC (Monte Carlo
-    estimate, n_mc=20,000 each side, fixed seed per evaluation) lands within
-    `tol` of `target`. AUROC is monotonically non-increasing in sigma
-    (more noise -> less separation -> AUROC -> 0.5), so bisection applies."""
-    rng = np.random.default_rng(seed)
-    lo_sigma, hi_sigma = 0.0, 50.0
-    a_lo = estimate_noise_mix_auroc(pos_z, neg_z, lo_sigma, rng)
-    a_hi = estimate_noise_mix_auroc(pos_z, neg_z, hi_sigma, rng)
+# Sentinel for the noise-mix construction's sigma -> infinity limit (the
+# target-AUROC-0.50 case; see `bisect_sigma_for_target` and
+# `draw_noise_mix_replicate` below). Never a valid finite sigma, so it can
+# never collide with a real calibrated value.
+INFINITE_SIGMA = float("inf")
+
+
+def noise_mix_population_auroc(pos_z, neg_z, sigma, chunk=200):
+    """EXACT (deterministic, no Monte Carlo, no RNG) population AUROC of the
+    noise-mix construction at a given sigma, computed on the FULL z-scored
+    pools.
+
+    Under the construction, a positive-slot draw is X = pos_z[i] + Ni and a
+    negative-slot draw is Y = neg_z[j] + Nj, with i, j drawn uniformly (with
+    replacement) from the full pools and Ni, Nj iid N(0, sigma^2), fresh and
+    independent of everything else. Then
+        X - Y = (pos_z[i] - neg_z[j]) + (Ni - Nj),  Ni - Nj ~ N(0, 2*sigma^2),
+    independent of i and j, so
+        P(X > Y | i, j) = Phi((pos_z[i] - neg_z[j]) / (sigma * sqrt(2))).
+    Averaging that over every (i, j) pair in the full pools, uniformly (i.e.
+    exactly the "draw i, j uniformly with replacement" the construction
+    uses), gives the construction's population AUROC exactly -- no sampling
+    error, so no standard error to bound. This is what `bisect_sigma_for_target`
+    calibrates against below, replacing the single noisy 20,000-per-side
+    Monte Carlo draw that under-calibrated the noise-mix target-0.50 cell in
+    C101 (see C101_PREREGISTRATION.md's diagnosis).
+
+    At sigma == 0 there is no noise to convolve with, so this reduces to the
+    plain empirical AUROC of the (order-preserving, z-scored) pooled scores,
+    computed directly rather than through the Phi formula (which would need
+    a division by zero).
+
+    Chunked over the positive pool (`chunk` rows of the pos x neg pairwise
+    difference matrix at a time) so memory stays bounded regardless of pool
+    size; the result is exact regardless of chunk size, chunk size only
+    trades memory for a few extra Python-level loop iterations.
+    """
+    pos_z = np.asarray(pos_z, dtype=float)
+    neg_z = np.asarray(neg_z, dtype=float)
+    m, n = len(pos_z), len(neg_z)
+    if sigma <= 0:
+        y = np.r_[np.ones(m), np.zeros(n)]
+        s = np.r_[pos_z, neg_z]
+        return float(roc_auc_score(y, s))
+    scale = sigma * np.sqrt(2.0)
+    total = 0.0
+    for start in range(0, m, chunk):
+        block = pos_z[start:start + chunk][:, None]  # (b, 1)
+        diff = (block - neg_z[None, :]) / scale  # (b, n)
+        total += float(_stats.norm.cdf(diff).sum())
+    return total / (m * n)
+
+
+def bisect_sigma_for_target(pos_z, neg_z, target, tol=0.002, max_iter=60,
+                            hi_sigma_cap=1.0e6):
+    """Calibrates sigma so the EXACT population AUROC of the noise-mix
+    construction (`noise_mix_population_auroc`, computed deterministically on
+    the full pools, not sampled) lands within `tol` of `target`.
+
+    Deterministic: no RNG, no `seed` argument (the previous version's single
+    20,000-per-side Monte Carlo draw at each search boundary is what let an
+    unlucky draw at the sigma cap escape the tolerance check entirely; see
+    C101_PREREGISTRATION.md's diagnosis). Because
+    `noise_mix_population_auroc` has zero sampling error, every value this
+    function compares against `tol` is exact, so there is no standard error
+    to bound and no "unlucky draw" that can slip past the check.
+
+    `target == 0.50` is handled explicitly as the sigma -> infinity limit:
+    Phi(x / (sigma*sqrt(2))) -> Phi(0) = 0.5 for every finite x as sigma
+    grows without bound, so the construction's population AUROC approaches
+    0.50 but, for these pools, never reaches it at any finite sigma (unless
+    the positive and negative pools are already identical distributions).
+    Rather than searching for a finite sigma that provably cannot satisfy
+    the tolerance, this returns the `INFINITE_SIGMA` sentinel with an exact
+    achieved AUROC of 0.5; callers must draw replicates for that cell by
+    pure label permutation (see `draw_noise_mix_replicate`), not by
+    resampling with some numerically large but finite sigma.
+
+    Raises ValueError -- rather than silently returning a boundary value --
+    if the achieved AUROC at either search boundary, or at the point the
+    bisection loop stops, is not within `tol` of `target`. This is the fix
+    for the C101 bug: that version's early returns accepted a boundary value
+    unconditionally; this version always re-checks the tolerance before
+    returning, for every code path, including the boundaries.
+    """
+    if abs(target - 0.5) < 1e-9:
+        return INFINITE_SIGMA, 0.5
+
+    a_lo = noise_mix_population_auroc(pos_z, neg_z, 0.0)
     if target >= a_lo:
+        if abs(a_lo - target) > tol:
+            raise ValueError(
+                f"target {target} is at or above the sigma=0 (no-noise) "
+                f"achieved AUROC {a_lo}; the noise-mix construction can only "
+                f"REDUCE separation, so this target is not reachable by it.")
         return 0.0, a_lo
+
+    lo_sigma, hi_sigma = 0.0, hi_sigma_cap
+    a_hi = noise_mix_population_auroc(pos_z, neg_z, hi_sigma)
     if target <= a_hi:
+        if abs(a_hi - target) > tol:
+            raise ValueError(
+                f"target {target} is at or below the sigma={hi_sigma_cap:g} "
+                f"achieved AUROC {a_hi}, but not within tol={tol} of it and "
+                f"not the target-0.50 special case; refusing to return a "
+                f"sigma-cap value without a tolerance check (this is exactly "
+                f"the C101 bug: an unchecked boundary return).")
         return hi_sigma, a_hi
+
     for _ in range(max_iter):
         mid = 0.5 * (lo_sigma + hi_sigma)
-        a_mid = estimate_noise_mix_auroc(pos_z, neg_z, mid, rng)
+        a_mid = noise_mix_population_auroc(pos_z, neg_z, mid)
         if abs(a_mid - target) <= tol:
             return mid, a_mid
-        # AUROC decreases as sigma increases
+        # AUROC decreases as sigma increases.
         if a_mid > target:
             lo_sigma = mid
         else:
             hi_sigma = mid
-    a_mid = estimate_noise_mix_auroc(pos_z, neg_z, 0.5 * (lo_sigma + hi_sigma), rng)
-    return 0.5 * (lo_sigma + hi_sigma), a_mid
+    mid = 0.5 * (lo_sigma + hi_sigma)
+    a_mid = noise_mix_population_auroc(pos_z, neg_z, mid)
+    if abs(a_mid - target) > tol:
+        raise ValueError(
+            f"bisection did not converge within tol={tol} of target={target} "
+            f"after {max_iter} iterations (last achieved={a_mid}); raising "
+            f"rather than returning an out-of-tolerance sigma.")
+    return mid, a_mid
 
 
