@@ -34,3 +34,14 @@ Local only; stdout/stderr to ~/mimic_local_only/logs; output JSON holds counts a
 
 ## Outcome
 (appended after the run)
+
+**Outcome A** (run 2026-09-14, artifact `results/accord/c120_exact_join/c120.json`). All three gates held:
+299 rows, 1:1, pharmacist label identical on all 299.
+
+- G_299: 261 flagged, TP 11, FP 250, FN 1, TN 37; MCC 0.0269 against a marginal ceiling of 0.0780
+  (0.3443 of it); one-sided hypergeometric p 0.5347; 0.5442 of random joins score at least as high.
+- G_253: 223 flagged (0.8814), TP 11, FP 212, FN 1, TN 29; MCC 0.0243 against a ceiling of 0.0818;
+  p 0.5722; 0.5711 of random joins score at least as high.
+
+The deployed labeller's agreement is measured, and it is indistinguishable from chance. C88's
+nursing-side reconstruction (228 of 253 flagged, 19 conflicted rows, ceiling 0.0768) is superseded.
