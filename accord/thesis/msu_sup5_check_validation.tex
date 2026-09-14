@@ -104,11 +104,19 @@ S2b is unvalidated\_false\_alarm: L2 (the clean arm under this reading) fires
 plant-side arm under this reading) also misses the 18-of-20 sensitivity bar
 at 0 of 20.
 
-\textbf{Stages 3 and 4 are not yet run.} Stage 3 ran only a 2-replicate CPU
-smoke test that proves the frozen detector code executes and returns finite
-numbers, not a validated or unvalidated verdict, and Stage 4 has not been run
-at all because it needs Stage 3's full output.
-%PENDING-C102-STAGE34
+\textbf{Stages 3 and 4 were not run as registered.} The registration specifies
+the frozen detector with its trained weights for Stage 3 and that trained
+detector's scores for Stage 4. Both stages were run with untrained, randomly
+initialised weights instead. Three of the four Stage 3 checks, the normalisation
+displacement, the shortcut gradient ratio and the rule-feature ablation, are
+defined on behaviour only a trained model can exhibit, and Stage 4 received
+scores that carry no signal by construction, so their failures to fire are not
+evidence about the checks: they carry no verdict, and nothing in the thesis
+relies on them. The fourth Stage 3 check asks only whether any gradient reaches
+the harm head when its loss is excluded, a property of the computation graph
+that holds without training; it fired on every plant replicate and on no clean
+replicate, and is the one detector check this benchmark validates. Under the
+registered rule these two stages are Outcome C, incomplete as registered.
 
 \subsection{C101: Outcome C}
 \label{sup:sec:s5-c101}
