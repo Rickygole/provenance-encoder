@@ -32,11 +32,12 @@ untrained weights rather than the trained detector the registration
 specifies, and are Outcome C for those stages (below). The two checks whose
 verdicts this thesis relies on are S2c and S3d.
 
-\textbf{Stage 1, S1b (defect-free-stratum disagreement).} A $253$-candidate
-population is split into group A (Rules 1 to 2, $139$ candidates, $7$ of the
-$12$ true positives) and group B (Rules 3 to 4, the defect-free stratum used
-elsewhere in this thesis, $114$ candidates, $5$ positives). An exemplar-failure
-rate is planted in group B only, at two severities. Table~\ref{sup:tab:s5-c102-s1}
+\textbf{Stage 1, S1b (a synthetic mirror-image check of group disagreement).} A synthetic
+$253$-candidate population is split proportionally into group A (Rules 1 to 2, $139$ candidates,
+$7$ of the $12$ true positives) and group B (Rules 3 to 4, $114$ candidates, $5$ positives), and
+tested one-sided. Group B is a synthetic construction, not the defect-free stratum used elsewhere in
+this thesis ($134$ pairs with $6$ positives, or $108$ with $6$ once ambiguous pairs are dropped).
+An exemplar-failure rate is planted in group B only, at two severities. Table~\ref{sup:tab:s5-c102-s1}
 gives the verdict at each.
 
 \begin{table}[H]
@@ -49,7 +50,7 @@ arm) at each planted severity.}
 \textbf{Group} & \textbf{$n$} & \textbf{Positives} & \textbf{Role} \\
 \midrule
 A (Rules 1 to 2)          & 139 & 7 & always carries the conflict \\
-B (Rules 3 to 4, defect-free) & 114 & 5 & exemplar fails independently at rate $r$ \\
+B (Rules 3 to 4, synthetic) & 114 & 5 & exemplar fails independently at rate $r$ \\
 \midrule
 \textbf{Plant rate $r$} & & & \textbf{Verdict} \\
 \midrule
@@ -62,8 +63,10 @@ $0.47$ & & & not\_validated\_sensitivity \\
 
 S1b does not clear the general verdict rule's sensitivity bar at either
 planted severity at this sample size, so it is not validated at this sample
-size, consistent with the same finding stated in the results and discussion
-chapters of the thesis.
+size. It mirrors, and does not validate, the real Chapter 4 mechanism test,
+which is two-sided on $299$ pairs ($165$ with $6$ positives against $134$ with $6$);
+the instrument limit of that test is carried by its own analytic power,
+$0.0576$, not by S1b.
 
 \textbf{Stage 2 (latent score, marginal, bootstrap and \texttt{c98\_rule}
 checks).} $n=253$, base rate $0.0474$, population AUROC $0.90$ by
@@ -267,7 +270,9 @@ one configuration measured more than once, not several, so the
 evaluation baseline and the C103 P\_asserting cell are one configuration, and
 likewise for \texttt{granite3.3:8b} and \texttt{qwen3:8b}. The deployed weak
 labeller stays a separate configuration, because no committed file records
-its decoding settings. After this deduplication there are $15$
+its decoding settings; it and the frontier zero-shot run both flag $261$ of
+$299$, but they are different labellings, disagreeing on $24$ pairs ($12$
+flagged only by the deployed labeller and $12$ only by the frontier run). After this deduplication there are $15$
 configurations. A configuration could reject the null at $0.05$ if it could on
 at least one measurement; observed rejection is given only where a confusion
 count exists, and marked n/a where only the marginal survives.
@@ -327,8 +332,16 @@ the frontier zero-shot run on $G_{299}$ and the C103 P\_asserting cell report
 the same flagged count and are printed as one row. For
 \texttt{qwen3:14b} the zero-shot template is not established as identical to
 that text, so it is its own configuration. The runs of one configuration do not
-always agree: \texttt{llama3:8b}'s P\_asserting text flags at $0.8729$ in one
-$G_{299}$ run and $0.9532$ in another. Floor $p$ under $0.001$ is given to
+always agree: \texttt{llama3:8b}'s P\_asserting text flags at $0.8729$ in the
+frontier zero-shot run and $0.9532$ in the replication run. Those two runs
+differ in reply parser (the replication run counts a reply positive if
+``contradiction'' appears anywhere and no negative marker such as
+``not\_contradiction'' does; the
+frontier runner reads only the first word), in seed option (the replication
+run sends seed $42$, the frontier run none) and in run date, and the Ollama
+build was not recorded; both report zero parse failures. That gap is larger
+than \texttt{llama3:8b}'s P\_asserting against P\_neutral shift ($0.8729$
+against $0.9365$), so the direction of that shift is not interpreted. Floor $p$ under $0.001$ is given to
 enough decimal places, or in scientific form, to show a non-zero digit rather
 than rounding to $0.0000$. Obs.\ is whether that measurement actually rejected
 the null at $0.05$, where a confusion count exists (n/a otherwise).}
@@ -386,8 +399,10 @@ reading the $46$ ambiguous $G_{299}$ pairs as positive, so every Ratio B is
 Ratio A multiplied by exactly $12/58$. It rescales the denominator and is not a
 property of the labeller: the Ratio B of $1.0000$ for \texttt{qwen3:8b}/P\_neutral
 means only that the cell flagged $58$ pairs, and says nothing about agreement.
-The local Fisher tests of the ambiguity gradient, run under the frontier template
-prompts (one-sided $p$ from $0.0843$ to $0.8577$), found no evidence that labellers
+The eight local Fisher tests of the ambiguity gradient, run under the frontier template
+prompts, zero-shot and few-shot (one-sided $p$: \texttt{llama3:8b} $0.6220$ and $0.8577$,
+\texttt{granite3.3:8b} $0.1788$ and $0.3110$, \texttt{qwen3:8b} $0.3925$ and $0.0843$,
+\texttt{qwen3:14b} $0.0906$ and $0.1052$), did not show that labellers
 flag ambiguous pairs more often than clear negatives; with $46$ ambiguous pairs that
 is absence of evidence, not a reason to read a Ratio B near $1.0$ as calibration.
 Two cells, not one, clear the analytic minimum detectable AUROC of $0.7355$, which
@@ -419,7 +434,12 @@ The clinical-pharmacist framing gives a higher positive rate than the plain
 yes/no prompt for \texttt{granite3.3:8b} ($0.7492$ against $0.3579$) and
 \texttt{qwen3:8b} ($0.5686$ against $0.1940$), and a lower one for
 \texttt{llama3:8b} ($0.8729$ against $0.9365$), the opposite of the direction
-the pre-registration's Outcome A criterion requires. For
+the pre-registration's Outcome A criterion requires, though that
+\texttt{llama3:8b} shift lies within the between-run spread of the same prompt
+text (Table~\ref{sup:tab:s5-feasgate}) and its direction is not interpreted.
+The \texttt{granite3.3:8b} and \texttt{qwen3:8b} shifts are far larger than the
+spread between their own runs of that text ($0.7492$ against $0.7425$, and
+$0.5686$ against $0.6187$). For
 \texttt{granite3.3:8b} and \texttt{qwen3:8b} the exact McNemar $p$ is
 $5.8\times10^{-32}$ and $8.1\times10^{-29}$, but under reading A the
 plain-prompt ratio ($8.9167$ and $4.8333$) still exceeds the registered
@@ -687,4 +707,4 @@ which started from the contaminated released run.
 \textbf{Task C, descriptive.} On the Rule 3 and Rule 4 stratum with ambiguous pairs dropped
 ($n = 108$, $6$ positives), the percentile bootstrap $95\%$ interval around the ensemble AUROC of
 $0.6095$ is $0.3029$ to $0.9010$ ($10000$ valid resamples), wide enough to hold both chance and the
-per-rule floors.
+per-rule floors; the stratum's own minimum detectable AUROC is $0.8064$.

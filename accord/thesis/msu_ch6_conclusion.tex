@@ -58,8 +58,8 @@ pairs as confirmed is a post hoc rescaling that multiplies every ratio by
 12/58 and says nothing about agreement; under it \texttt{qwen3:8b} and
 \texttt{granite3.3:8b} under the plain prompt fall to 1.0000 and 1.8448. The
 local Fisher tests, run under the frontier template prompts, did not show
-ambiguous pairs flagged more than clear negatives, which with 46 ambiguous pairs is absence of evidence, not evidence
-against. The margin is also fragile: relabelling 5
+that the labellers flag ambiguous pairs more than clear negatives, which with
+46 ambiguous pairs is absence of evidence, not evidence against. The margin is also fragile: relabelling 5
 flagged pairs would bring the lowest hard-label ratio, 4.8333, below the
 highest ratio measured on public text.
 
@@ -73,7 +73,7 @@ Section~\ref{sec:r-exemplar} cannot reach, the same ensemble reaches 0.6095
 0.4221 on Rules 1 and 2, the direction the defect-artifact reading predicts.
 The pre-registered Outcome A means only that this stratum fell within 0.10 of
 the full-set AUROC and was not significant, a margin of 0.0950 that turns on
-about one positive; with 6 positives and a minimum detectable AUROC of 0.8058
+about one positive; with 6 positives and a minimum detectable AUROC of 0.8064
 this fails to show the null is a defect artifact and cannot establish that it
 is not. A bag-of-words model trained on the weak labels finds a small surface
 lexical signal the detector lacks: its average precision, a statistic chosen
@@ -125,7 +125,9 @@ annotation effort a future attempt needs before a modest
 detector could be told apart from chance.
 
 \textbf{An independent set for wording-specific signals.} A reversed-direction
-zero-shot score ranked above chance under every wording tried but reached the
+zero-shot score ranked above chance at the uncorrected 0.05 level under every
+wording tried, cleared the registered Bonferroni threshold under only one of
+the three new wordings, and reached the
 registered 0.7355 threshold under none of the three new ones, a rule with power
 of only 0.52075 at that value, so the verdict is weak either way, and its signal sits in the
 rows carrying the exemplar defect (Section~\ref{sec:res-rq2}). Whether any
@@ -133,9 +135,9 @@ wording carries a real signal can only be tested on pairs it was not found on.
 
 \textbf{A validated exemplar instrument.} Three instruments give $0$,
 $0.4745$ and $0.9315$ for how often the exemplar selector showed a pair that
-did not carry the conflict it asserted (Section~\ref{sec:r-exemplar}); the
-primary estimate, $0.9315$, comes from an extractor never validated against
-human annotation. Validating it would establish whether the pool's confirmed
+did not carry the conflict it asserted (Section~\ref{sec:r-exemplar}), and
+none establishes the rate; the highest, $0.9315$, comes from an extractor never
+validated against human annotation and may be an artifact of it. Validating it would establish whether the pool's confirmed
 base rate is valid.
 
 \textbf{Frontier-scale local labellers, when feasible.} The comparison this
@@ -161,9 +163,9 @@ mining-bug class caught by a one-line assertion. In support, the detector
 shows no AUROC effect above about 0.75 to 0.81 on the 253 non-ambiguous pairs,
 the defect-free stratum cannot settle whether that null is a defect artifact,
 and a bag-of-words model finds a small surface lexical signal the detector
-does not. The planted-defect benchmark built to validate the Fisher test
-behind the Rule 1/2 versus Rule 3/4 comparison did not reach its required
-firing rate, a limitation this thesis discloses
+does not. The planted-defect benchmark, a synthetic mirror-image check of
+the Rule 1/2 versus Rule 3/4 Fisher test rather than a validation of it, did
+not reach its required firing rate, a limitation this thesis discloses
 rather than a result it claims.
 
 None of that establishes that the task cannot be done

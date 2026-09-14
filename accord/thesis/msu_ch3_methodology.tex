@@ -342,17 +342,18 @@ detector, and a 205-row validation pool used only to monitor the training loss.
 For the replication in Section~\ref{sec:m-control-rq2} a replication prompt, a clinical-pharmacist
 framing that names no conflict type or rule, was recovered verbatim and reused unchanged across
 models. Its text is byte-identical to the frontier zero-shot template and to $P_{\text{asserting}}$
-below; those runs differ from it in decoding and run settings, not in wording. It is not the deployed weak labeller's prompt, which the table
+below. Those runs differ from it in three named settings, not wording: the replication parser counts
+a reply positive when \texttt{contradiction} appears anywhere and no negative form does, the frontier
+runner reads only the first word; the replication run sends Ollama seed 42, the frontier runner none;
+and the run dates differ, Ollama build unrecorded. Both report zero parse failures, yet
+\texttt{llama3:8b} flags $0.9532$ of $299$ gold pairs in one and $0.8729$ in the other. The replication prompt is not the deployed weak labeller's prompt, which the table
 does not contain, so the deployed run and the same model's replication-prompt run differ by
-$165$ positive labels across the full pool, a lower bound on the rows they disagree on (Section~\ref{sec:res-rq2}). Decoding is greedy at temperature zero
-for the local models, so a model's label for a row is deterministic within a model, in principle.
-A pre-registered determinism check (C104) found, on its public-text workload, that only
+$165$ positive labels across the full pool, a lower bound on the rows they disagree on (Section~\ref{sec:res-rq2}). The deployed and frontier zero-shot runs each flag $261$ of $299$ with $11$ true positives yet
+disagree on $12 + 12 = 24$ pairs. Greedy temperature-zero decoding makes a label repeatable within one setting at most.
+A pre-registered determinism check (C104) found, on its public-text workload and one setting, that only
 \texttt{llama3:8b} reproduced bit-stable first-token log-odds on repeated calls, while
-\texttt{qwen3:8b} and \texttt{granite3.3:8b} drifted above tolerance on a minority of items,
-floating-point nondeterminism in this serving stack rather than a code defect; on the clinical rows,
-C109's rerun reproduced \texttt{granite3.3:8b} exactly. Generations that
-do not parse are recorded in their own category and never defaulted to a class, which would otherwise
-inflate a positive rate mechanically and silently.
+\texttt{qwen3:8b} and \texttt{granite3.3:8b} drifted above tolerance on a minority of items; on the clinical rows,
+C109's rerun reproduced \texttt{granite3.3:8b} exactly. Unparseable generations are kept in their own category, never defaulted to a class.
 
 \subsection{How \texttt{weak\_confidence} was derived}
 
@@ -617,9 +618,8 @@ ratio will be materially smaller while the direction persists, which governs wha
 
 What over-calling depends on is tested along several further axes, each pre-registered separately.
 A within-family scale step (C99) compares \texttt{qwen3:8b} against \texttt{qwen3:14b}, the largest
-model this machine can serve locally, against the spread the three 8B models already show at fixed
-capability, so a step from 8B to 14B is read as separable from ordinary between-model noise only if
-it exceeds that spread. A wording control (C103) holds the model fixed and varies only the prompt:
+model this machine can serve locally, and reads the step as real only if it exceeds the spread the
+three 8B models already show. A wording control (C103) holds the model fixed and varies only the prompt:
 $P_{\text{asserting}}$, the frontier zero-shot template recovered verbatim, a clinical-pharmacist
 framing asking about a dangerous contradiction that names no conflict type or rule, against
 $P_{\text{neutral}}$, a plain yes/no prompt, and a reversed yes/no prompt asking whether the sentences

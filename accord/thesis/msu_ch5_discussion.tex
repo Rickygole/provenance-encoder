@@ -157,16 +157,16 @@ the defect-free rows, and what the baselines add, is taken up in Section~\ref{se
 
 \subsection{What survived}
 
-Two things survived their controls, each narrower than it first sounds, and a section in which
-nothing survives is not a finding. The chance-level ranking survived decontamination and seed
+No stage in Table~\ref{tab:disc-spine} is rated Survived; two readings held in a narrowed
+form. The chance-level ranking held under decontamination and seed
 variation, and the defect-free control model, compared by DeLong test only against the contaminated
 released run, was null as well; what survives is no AUROC effect above the floor on $G_{253}$, and
 whether the null is an artifact of the exemplar defect is a question six positives cannot settle
-(Section~\ref{sec:disc-null}). The over-calling survived three
+(Section~\ref{sec:disc-null}). The over-calling held across three
 changes of local model family, but its size did not, moving by a large factor with the prompt and the
 ambiguity reading (Section~\ref{sec:disc-overcalling}), and a post hoc tipping point shows the least
 over-calling row would fall below the public-text ceiling after $5$ relabelled pairs
-(Section~\ref{sec:disc-limits}); whether it also survives a change of scale or
+(Section~\ref{sec:disc-limits}); whether it survives a change of scale or
 serving vendor is indeterminate, since the comparisons built to test that were withdrawn along with
 every hosted number they produced (Section~\ref{sec:m-ethics}). What did not survive is any claim
 about mechanism or about scale: this is a measurement of a pipeline under the conditions this
@@ -175,24 +175,22 @@ project tested.
 \section{What Drives the Over-Calling, and What It Does Not Settle}
 \label{sec:disc-overcalling}
 
-The weak-supervision reading above is not one number. Four things were varied to find out what it
-depends on.
+The weak-supervision reading is not one number. Four things were varied to see what drives it.
 
 \textbf{The prompt contrast (C103), and how the ambiguous pairs are read.} A clinical-pharmacist
 framing prompt and a plain yes/no prompt differ in persona, the word ``dangerous'', answer vocabulary,
 system prompt and field labels at once, so no single difference is identified, and the contrast does
-not move all three local models the same way: the plain prompt lowers \texttt{granite3.3:8b}'s
+not move the three local models alike: the plain prompt lowers \texttt{granite3.3:8b}'s
 positive rate from $0.7492$ to $0.3579$ and \texttt{qwen3:8b}'s from $0.5686$ to $0.1940$ (McNemar
-$p = 5.8 \times 10^{-32}$ and $8.1 \times 10^{-29}$) but raises \texttt{llama3:8b}'s, from $0.8729$ to
-$0.9365$. Neither lowered plain-prompt ratio, ambiguous pairs counted negative, $8.9167$ and $4.8333$,
+$p = 5.8 \times 10^{-32}$ and $8.1 \times 10^{-29}$). \texttt{llama3:8b} moves from $0.8729$ to $0.9365$,
+but two runs of that same prompt text, differing in reply parser, seed option and run date, gave
+$0.8729$ and $0.9532$, so that direction lies within between-run spread and is not read. Neither lowered plain-prompt ratio, ambiguous pairs counted negative, $8.9167$ and $4.8333$,
 reaches the public-text ceiling of $3.5000$ set in advance as the test of sufficiency. A post hoc
 sensitivity analysis counting the $46$ ambiguous pairs as confirmed only rescales the denominator,
 multiplying every ratio by exactly $12/58$, which puts both plain-prompt rows below the ceiling,
 $1.0000$ for \texttt{qwen3:8b} and $1.8448$ for \texttt{granite3.3:8b}; the $1.0000$ means that model
-flagged $58$ pairs, not that it agrees with the pharmacist. The local Fisher tests, run under the
-frontier template prompts, found no labeller flagging ambiguous pairs more than clear negatives, but
-with $46$ ambiguous pairs that is absence of evidence, not a reason to read that ratio as calibration. A ratio quoted
-without naming its prompt and reading is not a comparable number.
+flagged $58$ pairs, not that it agrees with the pharmacist. The eight local Fisher tests (Section~\ref{sec:r-ambiguity}) did not show any labeller flagging
+ambiguous pairs more than clear negatives; with $46$ ambiguous pairs that is absence of evidence, not calibration.
 
 \textbf{Scale (C99), public text, and what a single run means (C104).} \texttt{qwen3:8b} against
 \texttt{qwen3:14b}, the largest model this project's hardware serves and explicitly not frontier
@@ -251,7 +249,7 @@ scoring the decontaminated ensemble on Rule 3 and Rule 4 rows alone, ambiguous p
 (C114), permutation $p = 0.1910$, against $0.4221$ on Rule 1 and Rule 2. That direction is the one
 the defect-artifact reading predicts; Outcome A means only that the stratum AUROC fell within $0.10$
 of its $G_{253}$ value without significance, and the margin, $0.0950$, turns on about one positive.
-With $6$ positives against a minimum detectable AUROC of $0.8058$, this fails to show that the null
+With $6$ positives against a minimum detectable AUROC of $0.8064$, this fails to show that the null
 is a defect artifact and cannot establish that it is not. An earlier run of the same rule (C110) scored the
 contaminated released detector and is superseded.
 
@@ -290,23 +288,22 @@ counts ambiguous pairs as confirmed; both tipping-point checks; the decompositio
 public-sweep ratios; and the three committee-requested C114 checks, each pre-registered before its run.
 
 \paragraph{Twelve positives.} Every ranking measurement rests on $12$ positive
-cases, and the defect-free stratum on $6$. At $80\%$ power the primary set resolves
+cases, and the $108$-pair defect-free stratum on $6$. At $80\%$ power the primary set resolves
 AUROC $0.7466$ under a two-sided Mann-Whitney test and $0.8084$ under the registered
 rule (C108), with $0.7355$ as the analytic cross-check; the stratum's analytic
-floor is $0.8058$. The intervals
+floor is $0.8064$. The intervals
 are wide and the ordering between the two systems this pipeline produced is
 unidentified, their Matthews correlations being $-0.0436$ and $-0.0070$, both
 within $0.05$ of chance. The limit is not that $12$ positives cannot separate
 anything: two configurations sit exactly at their own marginal-implied
 ceiling, \texttt{granite3.3:8b} zero-shot and \texttt{llama3:8b} few-shot, and
-the first of those returns a one-sided hypergeometric $p$ of $0.0242$ on these
-same $253$ rows, a claim about that one thresholded labeller, not the
-detector, and bounded only because it is thresholded. A reversed-direction
-zero-shot score from \texttt{llama3:8b} ranked above chance under every wording
+the first gives a one-sided hypergeometric $p$ of $0.0242$ on these
+$253$ rows, a claim about that thresholded labeller, not the detector. A reversed-direction
+zero-shot score from \texttt{llama3:8b} ranked above chance at the uncorrected $0.05$ level under every wording
 tried but reached the analytic $0.7355$ floor, where the registered rule has
 power of only $0.52075$, under none of the three new wordings of a
-confirmatory pre-registration (C109); one of them had permutation $p = 0.0030$,
-below its Bonferroni threshold, and failed on AUROC, $0.7310$, not on
+confirmatory pre-registration (C109); only one, with permutation $p = 0.0030$, fell
+below its Bonferroni threshold, and it failed on AUROC, $0.7310$, not on
 significance, and the signal sits in the rows carrying the exemplar defect. So
 $12$ positives can separate a thresholded labeller from chance when the effect
 is large enough; the null the detector and its

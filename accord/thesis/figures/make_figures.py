@@ -239,10 +239,15 @@ def mcc_from_counts(tp, tn, fp, fn):
 # Every number below is read from the same four files the v3 figure read;
 # nothing new is loaded and nothing is typed in.
 def make_fig_pipeline_status():
-    # C106's primary estimate (register exemplardirect.defect_rate), replacing
-    # the earlier range read from the recomputed instrument.
+    # C106 settles neither outcome: no instrument establishes the exemplar
+    # defect rate, so the chip shows the range across instruments, from the
+    # step2plus join (1 - rule_1_2 pooled correct rate, register
+    # exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate) to the direct
+    # extractor (register exemplardirect.defect_rate). No single rate is drawn.
     exemplar, p_exemplar = load("exemplar_direct", "exemplar_direct.json")
     defect_rate = exemplar["defect_rate"]
+    step2plus, p_step2plus = load("exemplar", "step2plus_results.json")
+    defect_rate_low = 1.0 - step2plus["rule_1_2_pooled_exemplar_correct_rate_in_299"]["rate"]
 
     # v7 (fourth-round review, external reviewer). step0_1_join_and_calibration.json
     # used to be loaded here for weak_pos_rate, and step2_signal_check.json's
@@ -317,7 +322,7 @@ def make_fig_pipeline_status():
         (3, "Rule-based candidate\ngeneration",
          f"{pharm_rate_all:.4f} reported\nprecision",
          "Action-set match vs position index",
-         f"{defect_rate:.4f} wrong"),
+         f"{defect_rate_low:.0f} to {defect_rate:.4f} by instrument"),
         (4, "LLM weak supervision",
          # Rewrapped (v7): the old "0.8729 positive on\ngold set" put 76.5pt
          # of "0.8729 positive on" against an 80pt column, one of the
@@ -436,7 +441,7 @@ def make_fig_pipeline_status():
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
     register(fname, "fig:pipeline-status",
-             [p_exemplar, p_step2, p_exp1a, p_decontam],
+             [p_exemplar, p_step2plus, p_step2, p_exp1a, p_decontam],
              "Stages 1 and 2 (cohort construction, medication extraction) carry no "
              "committed numeric source and are summarized in one note line rather "
              "than drawn as rows. The detector-training row's finding is categorical "
@@ -446,8 +451,11 @@ def make_fig_pipeline_status():
              "rate on the same 299 gold pairs (0.8729, "
              "exp1a_gold_error_rates_by_group.json), and the decontaminated AUROC "
              "point estimate alone (0.5145, corrected_gold_metrics.json). The "
-             "check-finding column reads C106's primary exemplar defect rate (0.9315 "
-             "of decidable Rule 1/2 candidates, exemplar_direct.json), the "
+             "check-finding column reads the range of the exemplar defect rate across "
+             "instruments, which no instrument establishes (C106 settles neither): 0 "
+             "from the step2plus join (step2plus_results.json) to 0.9315 of decidable "
+             "Rule 1/2 candidates from the unvalidated direct extractor "
+             "(exemplar_direct.json); it also reads the "
              "prevalence multiplier (~22x, same gold-set ratio fig:intro-headline "
              "brackets), and the bootstrap 95% CI on AUROC ([0.32, 0.70], "
              "corrected_gold_metrics.json). The spine asserts shared corrupted "

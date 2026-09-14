@@ -112,13 +112,13 @@ $134$ pairs with $6$ positives, a rate of $0.0448$. A Fisher exact test on that 
 gives an odds ratio of $0.805$ at $p = 0.7725$, achieved power is $0.0576$, and the smallest
 absolute rate difference detectable at $80\%$ power is $0.0895$, more than twice the overall base
 rate. The two mechanism groups are indistinguishable at this sample size, which is not the same as equal.
-A pre-registered planted-defect benchmark built to check exactly this kind of test, one group's confirmed rate
-against another's on a stratified split of this evaluation's own size, found the check
-not validated at either of the two exemplar-failure rates it was tried against: it did not reach the
-required firing rate on its own planted defect at this sample size. A null from a check that has not
-been shown able to detect the effect it is checking for is not evidence that the effect is absent, so
-the indistinguishability above is read as an instrument limit, not as support for treating the two
-mechanism groups, or the Rules 3 and 4 stratum specifically, as defect-free by this test.
+That achieved power, not a benchmark, carries the instrument-limit point: a test with power $0.0576$
+at the observed effect cannot show the groups equal. A pre-registered planted-defect check (C102 S1b)
+is a synthetic mirror of this test, not a validation of it: $253$ simulated pairs, $139$ with $7$
+positives against $114$ with $5$, a one-sided test, and a defect planted only in the Rules 3 and 4
+group. It did not reach its required firing rate at either planted rate, which agrees with the low
+power above, so the indistinguishability is read as an instrument limit, not as support for treating
+the two mechanism groups, or the Rules 3 and 4 stratum specifically, as defect-free by this test.
 The per-rule reading stops at Table~\ref{tab:rule-precision}. A ranking statistic computed inside a
 single rule would rest on a handful of confirmed positives with no committed interval to bound it,
 so none is reported for a rule on its own.
@@ -218,7 +218,7 @@ the defect-free control model's, ACCORD's contaminated released run with an
 NLI and a TF-IDF baseline (C110), and the decontaminated ensemble with the
 ambiguous pairs dropped (C112). The restriction widens the intervals, as a
 stratification down to 6 positives at a minimum detectable AUROC of
-$0.8058$ has to. The base rate $0.0401$ is the confirmed rate on the
+$0.8058$ on $G_{134}$ has to. The base rate $0.0401$ is the confirmed rate on the
 annotated pairs; the exemplar defect means its validity is not established.
 
 \section{Weak Supervision}
@@ -573,8 +573,8 @@ The three local models already differ in more than one way at once, so a
 within-family step, the same model family at a larger size, isolates scale
 alone. \texttt{qwen3:8b} and \texttt{qwen3:14b}, the largest model this
 machine's memory can serve and explicitly not a frontier-scale model, were
-each run zero-shot under the frontier template on all $300$ pairs, $0$ failed
-parses, $0$ non-empty thinking blocks, $0$ truncated prompts for either. The
+each run zero-shot under the frontier template on all $300$ annotated pairs and
+scored on the $299$ that carry a gold label ($G_{299}$), $0$ failed parses, $0$ non-empty thinking blocks, $0$ truncated prompts for either. The
 ratio of \texttt{qwen3:8b}'s over-calling ratio ($14.1667$) to
 \texttt{qwen3:14b}'s ($13.4167$) is $1.0559$; the spread already measured
 across the three different 8B models under the same template is $1.5353$.
@@ -638,8 +638,13 @@ Replacing the clinical framing with the plain yes/no prompt lowers
 two-sided McNemar $p$ of order $10^{-32}$) and
 \texttt{qwen3:8b}'s from $0.5686$ to $0.1940$ ($p$ of order $10^{-29}$);
 for \texttt{llama3:8b} it moves the other way, from $0.8729$ to $0.9365$
-($p = 0.0054$). The framing is therefore a real contributor for two of the
-three models and not for the third, though which of its confounded
+($p = 0.0054$). That last shift is smaller than the gap between two runs of
+the identical clinical-framing text on \texttt{llama3:8b} ($0.9532$ in the
+replication run against $0.8729$ here, which differ in parser, seed and date;
+Section~\ref{sec:m-weak}), so its direction is not interpreted. The
+\texttt{granite3.3:8b} and \texttt{qwen3:8b} shifts are many times their own
+between-run gaps ($0.7425$ against $0.7492$; $0.6187$ against $0.5686$), so the
+framing is read as a contributor for those two models only, though which of its confounded
 differences acts is not identified, and the pre-registered criterion this
 project set for calling the reduction sufficient, that the plain-prompt
 ratio come down to the $3.5000$ ceiling already measured on public text under
@@ -650,15 +655,11 @@ ambiguous-negative reading, both still above that ceiling. Reading the
 ambiguous pairs as confirmed contradictions instead moves every ratio in this
 table toward one by the fixed factor $12/58$; \texttt{qwen3:8b} under the
 plain prompt lands at exactly $1.0000$, which means only that it flagged $58$
-pairs, and says nothing about agreement. The local Fisher tests of
-Section~\ref{sec:r-ambiguity} find no local labeller flagging ambiguous pairs more
-than clear negatives, which is absence of evidence rather than evidence either
-way about that $1.0000$. The size of the excess turns on
+pairs, not that it agrees with anyone. The size of the excess turns on
 the prompt, and both readings are reported without preferring either.
 
-On the C104 public workload only \texttt{llama3:8b} reproduced bit-stable
-per-item log-odds at temperature zero on this machine's serving stack
-(supplement); on the clinical rows, C109 reproduced \texttt{granite3.3:8b}
+On the C104 public workload, within one run setting, only \texttt{llama3:8b} reproduced bit-stable
+per-item log-odds at temperature zero (supplement); on the clinical rows, C109 reproduced \texttt{granite3.3:8b}
 exactly (maximum score difference $0.0$ over $299$ rows). A single-run
 \texttt{qwen3:8b} result here is not established as a reproducible draw.
 
@@ -687,20 +688,16 @@ to the local tests just reported as much as to the withdrawn ones.
 \subsection{(b) What the instability costs, and what it does not}
 \label{sec:r-labelnoise}
 
-A label-instability analysis was run on the frontier labeller's per-pair
-draws, asking how much a Matthews correlation would move if individual labels
-flipped at random. Every cell that analysis read from is a hosted-API result
-and is withdrawn along with it (Section~\ref{sec:r-frontier}); no equivalent
+A label-instability analysis on the frontier labeller's per-pair draws read
+only hosted-API results and is withdrawn (Section~\ref{sec:r-frontier}); no equivalent
 instability bound is reported for a local labeller in this thesis, because the
-open-weights runs were single deterministic draws under greedy decoding rather
-than a resampled distribution over labels.
+open-weights runs were single greedy draws rather
+than a resampled distribution, and runs of one text under different settings disagree (Section~\ref{sec:m-weak}).
 
 \subsection{(b) How many labels would have to be wrong (post hoc)}
 
-\textbf{Post hoc.} This sensitivity check was computed after every result it
-draws on was already in hand; it is a tipping-point analysis on existing
-numbers, not a pre-registered test with its own kill condition, and is read
-that way. A different way to size the excess is to ask how many of the pharmacist's
+\textbf{Post hoc.} This tipping-point check was computed after its inputs were
+in hand and has no kill condition of its own. A different way to size the excess is to ask how many of the pharmacist's
 labels would have to change before a labeller's over-calling ratio matched the
 ceiling already measured on public text. Discounting confirmed positives
 moves a ratio away from the ceiling, so only reclassifying flagged negatives
@@ -728,13 +725,12 @@ every cutoff, not only the one this project happened to try first.
 A reversed-direction zero-shot score on \texttt{llama3:8b} was also graded
 rather than thresholded, and a pre-registered confirmation (C109) tested its
 wording with three new paraphrases plus a byte-for-byte rerun, which
-reproduced exactly. The score ranked above chance under every wording tried
-but reached the registered $0.7355$ threshold under none of the three new ones: AUROC
+reproduced exactly. The score ranked above chance under every wording tried at the uncorrected $0.05$ level,
+but cleared the Bonferroni threshold under the first new wording only, and reached the registered $0.7355$ threshold under none of the three new ones: AUROC
 $0.7310$, $0.6432$ and $0.6515$, $0$ of $3$ against a required $2$. That
 rule has power only $0.52075$ at $0.7355$ (C108), so the verdict is weak
 evidence either way. The
-first failed on AUROC, not on its Bonferroni-corrected permutation test
-($p = 0.0030$, below the threshold). Its signal sits in the Rule 1 and 2 rows
+first failed on AUROC, not on its permutation test ($p = 0.0030$). Its signal sits in the Rule 1 and 2 rows
 that carry the exemplar defect (Supplement, Section S5), and it is not
 established as contradiction detection that generalises across phrasing.
 
@@ -931,7 +927,7 @@ The direction, defect-free above defect-exposed, is the one a defect-artifact
 reading predicts. Outcome A means only that the stratum AUROC was within
 $0.10$ of the $G_{253}$ value and not significant; the gap is $0.0950$, a
 margin that turns on about one positive. With 6 positives and a minimum
-detectable AUROC of $0.8058$ this fails to show the null is a defect
+detectable AUROC of $0.8064$ this fails to show the null is a defect
 artifact and cannot establish that it is not.
 
 Among the fifteen highest-scored pairs, the decontaminated seeds recover 1, 0 and
@@ -947,7 +943,7 @@ One objection to Table~\ref{tab:operating} has to be answered rather than left s
 table reports the configured threshold of $0.5$, and a threshold is a free parameter, so a
 different cutoff might expose signal the table hides. The answer is the best Matthews
 correlation attainable at any cutoff whatever, chosen with the pharmacist's labels already in
-hand. On $G_{253}$ it is $0.0554$ on the contradiction probability and $0.0631$ on the harm
+hand. On $G_{253}$, in the contaminated released run, it is $0.0554$ on the contradiction probability and $0.0631$ on the harm
 score.
 
 Those two figures must not be read against zero: a statistic maximised over a
@@ -956,15 +952,14 @@ under the null, since the maximum of a noisy process is positive by
 construction. Against the same maximisation run on random scores at this
 sample size and positive count, whose median is $0.0968$, the observed
 optima sit at the $0.8195$ and $0.7642$ points, so the best cutoff that
-exists performs worse than roughly four in five pure-noise runs: no threshold
-rescues this detector, and the operating point in Table~\ref{tab:operating}
-is not an unlucky choice of one. The harm-score optimum rests on two true
+exists performs worse than roughly three in four pure-noise runs: on the
+contaminated released run no threshold rescues the detector. That result
+is not transferred to the decontaminated ensemble behind
+Table~\ref{tab:operating}, for which no threshold sweep is reported. The harm-score optimum rests on two true
 positives and is quoted only as a bound.
 
-These figures come from the released score file, the contaminated release,
-not from the three-seed run behind Table~\ref{tab:operating}, and a reader
-recomputing the operating point from the released file will get a different
-number. Within the released file the harm score at $0.5$ is a
+A reader recomputing the operating point from the released file will get a
+different number. Within the released file the harm score at $0.5$ is a
 near-constant positive like the table, so the direction is not even
 consistent across decision variables within one file. Both are degenerate,
 neither discriminates, and no claim here turns on which.
@@ -1006,8 +1001,9 @@ $G_{134}$ & Control ensemble vs.\ ACCORD  & 0.5469 & 0.5078 & $0.0391$  & $0.788
 
 The seeds and the ensemble are correlated predictors scored on the same pairs,
 so the comparison has to be paired, and the first row carries the section: its
-standard error on the difference is eleven times the difference itself. Every
-row has that shape, and at 12 positives none could have another.
+standard error on the difference is eleven times the difference itself. Most
+rows have that shape; seed 2024 and $G_{134}$ have standard errors only somewhat
+above their differences, and none of the five approaches significance.
 
 \subsection{Reference baselines: bag-of-words and off-the-shelf NLI}
 
@@ -1026,14 +1022,14 @@ $G_{299}$ & TF-IDF plus logistic regression & 0.5761 & 0.1571 & 2 \\
 $G_{299}$ & NLI, RoBERTa-large-MNLI          & 0.5758 & 0.1537 & 2 \\
 $G_{299}$ & Majority class                  & 0.5000 & 0.0401 & n/a \\
 $G_{253}$ & TF-IDF plus logistic regression & 0.5730 & 0.1651 & n/a \\
-$G_{253}$ & NLI, RoBERTa-large-MNLI          & 0.5861 & n/a    & n/a \\
+$G_{253}$ & NLI, RoBERTa-large-MNLI          & 0.5861 & 0.1685 & n/a \\
 $G_{253}$ & Majority class                  & 0.5000 & 0.0474 & n/a \\
 $G_{134}$ & TF-IDF plus logistic regression & 0.5729 & 0.2768 & 2 \\
 $G_{134}$ & NLI, RoBERTa-large-MNLI          & 0.5013 & 0.2082 & n/a \\
 $G_{134}$ & Majority class                  & 0.5000 & 0.0448 & n/a \\
 \bottomrule
 \end{tabular}
-\apanote{Both bag-of-words rows are fitted on 1,183 training rows at a positive rate of $0.8521$, the same weak supervision the detector consumed; TF-IDF is capped at 5,000 features. The NLI rows use \citet{liu2019roberta}'s architecture, an off-the-shelf entailment model, not trained on any pair from this pipeline. A majority-class predictor assigns every row the identical score, so it has no ranking among rows and no well-defined top 15; the column is marked n/a for both majority-class rows rather than reporting whatever count an arbitrary tie-break happened to produce. The majority-class average precisions are the base rates of the three sets and fix the no-skill line for that column. The $G_{253}$ TF-IDF row is a later, pre-registered rerun (C107) of the same fitted classifier scored on the non-ambiguous pairs, and its own top-15 count was not part of that rerun, so it reads n/a rather than an uncomputed number; the $G_{253}$ NLI row's average precision and top-15 count were likewise not part of its own pre-registration, which reported AUROC there only, and are marked n/a rather than invented. The $G_{134}$ NLI row is from the defect-free rescore (C110).}
+\apanote{Both bag-of-words rows are fitted on 1,183 training rows at a positive rate of $0.8521$, the same weak supervision the detector consumed; TF-IDF is capped at 5,000 features. The NLI rows use \citet{liu2019roberta}'s architecture, an off-the-shelf entailment model, not trained on any pair from this pipeline. A majority-class predictor assigns every row the identical score, so it has no ranking among rows and no well-defined top 15; the column is marked n/a for both majority-class rows rather than reporting whatever count an arbitrary tie-break happened to produce. The majority-class average precisions are the base rates of the three sets and fix the no-skill line for that column. The $G_{253}$ TF-IDF row is a later, pre-registered rerun (C107) of the same fitted classifier scored on the non-ambiguous pairs, and its own top-15 count was not part of that rerun, so it reads n/a rather than an uncomputed number; the $G_{253}$ NLI row's average precision is from the robustness check (C111), and its top-15 count was not computed, so it reads n/a. The $G_{134}$ NLI row is from the defect-free rescore (C110).}
 \label{tab:baselines}
 \end{table}
 
@@ -1052,7 +1048,7 @@ either set, $p = 0.1944$ on $G_{299}$ and $p = 0.1970$ on $G_{253}$. Average
 precision was chosen as this rerun's (C107) statistic after its value was
 known. A pre-registered robustness check (C111) found the average-precision
 result survives $11$ of $12$ leave-one-positive-out drops, exceeds the
-detector ensemble's in a paired permutation test ($p = 0.00005$), and comes
+detector ensemble's in a paired permutation test ($p = 0.00005$, the smallest value its draw count can return), and comes
 from a training set sharing $0$ pairs and $0$ subjects with gold. But the
 off-the-shelf NLI model below, never trained on the weak labels, is also
 significant on average precision ($p = 0.01335$ on $G_{253}$, $0.0120$ on
