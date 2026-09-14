@@ -175,5 +175,89 @@ is not executed as part of this task.
 
 ## Outcome
 
-Pending. Recorded after the run in a second commit; the rule above this line is
-unchanged from the first commit.
+Recorded 2026-09-14 after the run; the rule above is unchanged. Artifact:
+`results/accord/c112_decontam_defectfree/c112_defectfree.json`. Script:
+`accord/c112_decontam_defectfree/c112_run.py`.
+
+**Label-agreement checks.** `pharm_label` (in `gold_standard_accord_results.csv`) vs
+`label_clean` (in `pharmacist_labeled_clean.csv`): 0 mismatches over the 299-row join.
+`y_true` (in `gold_eval_decontam_predictions.csv`) vs a `label_clean`-derived label: 0
+mismatches over the 253-row join. Both checks passed; Outcome C does not apply on this
+ground.
+
+**Reproduction check.** Recomputed on all 253 pairs from
+`gold_eval_decontam_predictions.csv`: seed0 AUROC 0.5494, seed1 AUROC 0.5090, seed2
+AUROC 0.5048, ensemble (mean of the three `prob_seed*` columns) AUROC 0.5145
+(0.5145228215767634 at full precision). All four match
+`results/accord/decontam/corrected_gold_metrics.json`'s `per_seed.seed0.auroc`
+(0.5494467496542186), `per_seed.seed1.auroc` (0.5089903181189488),
+`per_seed.seed2.auroc` (0.5048409405255878), and `aggregate.ensemble_auroc`
+(0.5145228215767634) to 4 decimals. Reproduction check passed; Outcome C does not
+apply on this ground either.
+
+**Strata.** Rules 3+4, ambiguous-dropped (decision cell): n=108, positives=6 -- exact
+match to C110's `rules34_ambiguous_dropped` cell
+(`results/accord/defectfree_rescore/dfrescore_strata.json`). Rules 1+2,
+ambiguous-dropped (descriptive): n=145, positives=6 -- exact match to C110's
+`rules12_ambiguous_dropped` cell. Both stratum row counts matched their C110
+counterparts exactly, as expected since the row set is identical and only the
+detector instrument changed. The decision cell clears the >=5-positives floor, so
+Outcome C does not apply on that ground either.
+
+**Numbers (seed 42, B=20,000 permutation draws per AUROC/AP per system per
+stratum):**
+
+| stratum | system | n | pos | AUROC | AP | p_perm(AUROC) | p_perm(AP) |
+|---|---|---|---|---|---|---|---|
+| Rules 3+4, ambig. dropped | ensemble | 108 | 6 | 0.6095 | 0.1264 | 0.1911 | 0.1763 |
+| Rules 3+4, ambig. dropped | seed0 | 108 | 6 | 0.5899 | 0.0997 | 0.2339 | 0.2753 |
+| Rules 3+4, ambig. dropped | seed1 | 108 | 6 | 0.5866 | 0.1013 | 0.2464 | 0.2776 |
+| Rules 3+4, ambig. dropped | seed2 | 108 | 6 | 0.5882 | 0.1086 | 0.2412 | 0.2343 |
+| Rules 1+2, ambig. dropped | ensemble | 145 | 6 | 0.4221 | 0.0421 | 0.7353 | 0.7652 |
+| Rules 1+2, ambig. dropped | seed0 | 145 | 6 | 0.5192 | 0.0509 | 0.4342 | 0.5720 |
+| Rules 1+2, ambig. dropped | seed1 | 145 | 6 | 0.3681 | 0.0398 | 0.8601 | 0.8193 |
+| Rules 1+2, ambig. dropped | seed2 | 145 | 6 | 0.4209 | 0.0404 | 0.7397 | 0.8056 |
+
+G_253 reference (this run's own recomputation, used as the decision rule's reference
+value, not the pre-existing contaminated 0.4595): ensemble AUROC 0.5145228215767634,
+matching `results/accord/decontam/corrected_gold_metrics.json`'s
+`aggregate.ensemble_auroc` exactly (the reproduction check above). The pre-existing
+contaminated-column reference C110 used, `signal.contra_prob_vs_pharm_label__
+ambiguous_excluded_n253.auroc` = 0.4595, is carried in the artifact for context only
+and plays no role in this run's decision.
+
+**Decision.** Decision cell: Rules 3+4, ambiguous dropped (n=108, 6 positives).
+Ensemble AUROC there is 0.6095, within 0.10 of its own G_253 ensemble AUROC of 0.5145
+(gap 0.0950). Ensemble's AUROC permutation p there is 0.1911, which is >= 0.05. Both
+legs of the Outcome-A condition hold.
+
+**Outcome A: the decontaminated detector's null is not concentrated in the defect
+rows**, subject to the registered interpretive ceiling below.
+
+**Registered interpretation, restated.** Outcome A holds under the rule fixed above,
+but the Rules 3+4 stratum carries only 6 positives against a registered minimum
+detectable AUROC of 0.8058. Per the interpretation fixed before this run: Outcome A
+cannot establish that the null is not an instrument artifact of the exemplar-selection
+defect; it only fails to show that it is, at an effect size below about 0.30
+AUROC-points above chance that this evaluation cannot resolve with 6 positives.
+Nothing stronger is claimed. This is the same registered ceiling C110 stated, applied
+now to the decontaminated instrument; both runs land on Outcome A, but neither run
+resolves the question the ceiling describes.
+
+**C110 vs C112, side by side (descriptive, not decided on).** On the same 108-row,
+6-positive decision cell: C110's contaminated `accord_contra_prob` scored AUROC
+0.5114 (p_perm 0.4686); this run's decontaminated ensemble scores AUROC 0.6095
+(p_perm 0.1911) -- higher point estimate, still not permutation-significant, still
+Outcome A by the same rule form applied to each instrument's own G_253 reference. The
+two runs answer the same question about two different, non-interchangeable
+instruments and are not pooled or averaged here.
+
+**What could not be done / was not done.** No new model runs were made. All four
+systems' (ensemble, seed0, seed1, seed2) stratum numbers come from the existing
+`gold_eval_decontam_predictions.csv` score file; no NLI or TF-IDF baseline was rerun
+in this pre-registration (out of scope for this specific re-run, unlike C110, which
+covered three systems). The `c112`-prefixed register script
+(`accord/c112_decontam_defectfree/register_c112.py`) was written but not run, per
+instruction; the numbers above are quoted from
+`results/accord/c112_decontam_defectfree/c112_defectfree.json` directly, not from the
+central register.
