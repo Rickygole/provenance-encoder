@@ -232,7 +232,18 @@ def main():
         ])
 
     for model, slug, prompt in C103_ROWS:
-        rate = reg(facts, f"promptsens.{slug}.{prompt}.positive_rate_299")
+        # The exact count, not the registered rate. promptsens.*.positive_rate_299
+        # is stored rounded (qwen3:8b neutral is registered as 0.194), and dividing
+        # a rounded rate gave ratios such as 1.0001 and 23.3345 where the exact
+        # values are 58/58 = 1 and 280/12 = 23.3333. The cell artifact carries the
+        # flagged count, so the rate is recomputed from it; the registered rounded
+        # rate is kept only as a cross-check that the right cell was read.
+        cell = json.loads((ROOT / "results/accord/prompt_sensitivity/cells"
+                           / f"_{slug}_nothink__{prompt}.json").read_text())
+        rate = cell["n_flagged"] / cell["n"]
+        registered = reg(facts, f"promptsens.{slug}.{prompt}.positive_rate_299")
+        assert cell["n"] == 299, (slug, prompt, cell["n"])
+        assert abs(rate - registered) < 5e-4, (slug, prompt, rate, registered)
         ratio_A, (a_lo, a_hi), ratio_B, (b_lo, b_hi) = ratio_and_bounds(rate)
         above_A, above_B = ratio_A > public_max, ratio_B > public_max
         above_A_conservative, above_B_conservative = a_lo > public_max, b_lo > public_max

@@ -117,7 +117,13 @@ def main():
                 "n_degenerate": n_degenerate,
                 "n_thinking_nonempty": n_thinking, "n_truncated": n_truncated,
                 "n_flagged_299": n_flag_299, "n_scored_299": n_scored,
-                "positive_rate_299": round(n_flag_299 / n, 4) if n else None,
+                # Stored exact. It was rounded to 4 decimals and every ratio
+                # downstream then divided the rounded rate, so llama3:8b neutral
+                # read 23.3345 where 280/12 is 23.3333 and qwen3:8b neutral read
+                # 1.0001 against the ambiguous-as-positive rate where 58/58 is 1.
+                # No verdict moved: the rule compares against the public maximum
+                # of 3.5, far from every affected fourth decimal.
+                "positive_rate_299": (n_flag_299 / n) if n else None,
                 "auroc_253": auc, "mannwhitney_p_one_sided_253": mw_p,
                 "marginal_feasibility_floor_p": floor_p,
                 "valid": bool(valid),
