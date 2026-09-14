@@ -1,0 +1,60 @@
+% S6a: Pretraining positive control (C44), methods.
+%
+% Moved verbatim from Chapter 3 of the thesis (round 7, N6): the control's own
+% registration forbids reading it against the contradiction evaluation. Only
+% cross-references to thesis labels were changed to plain text; the table label
+% is unchanged because the moved results text refers to it.
+
+\subsection{Methods}
+
+A separate positive control (C44) runs the pretraining-effect instrument
+on a task where the effect is known to be present; its registration makes it a control for that
+instrument only and forbids merging it with the contradiction evaluation.
+
+The proxy under test is whether a difference in self-supervised pretraining, measured as a loss gap,
+predicts a difference in downstream discrimination. On the clinical side the comparison runs on a
+task built for this control rather than on the contradiction detector: in-hospital mortality
+predicted from a bundle of a patient's first 48 hours of notes, evaluated on $6{,}776$ held-out
+admissions holding $570$ positives, a different task and cohort from the $253$-pair contradiction
+evaluation. The comparison there is a from-scratch encoder against a domain-pretrained encoder under
+a matched fine-tuning protocol at three seeds each; the two arms do not share a seed set, so the
+comparison is unpaired, and one from-scratch run carries no recorded split lineage against the other
+five, so Chapter 4 of the thesis reports the three-seed gap as primary and a two-seed,
+lineage-pinned gap beside it. On the public side the same comparison runs on AG News across four
+arms, a pretrained BERT encoder against three from-scratch encoders at three smaller parameter
+scales.
+
+One threat has to be answered before the public comparison can serve as a control: an initial sweep
+trained every arm for the same short budget with no per-arm tuning, so a gap between pretrained and
+from-scratch arms could measure training budget rather than pretraining. A convergence sweep instead
+gives every arm four full budgets, reported at the final epoch; this departs from the registration, which specified
+selection on a held-out validation split (C113). At three seeds per cell, for $48$ runs and $555$ minutes of compute. The
+decision rule in Table~\ref{tab:m-prereg} was committed to the project repository at commit
+\texttt{b048829}, before the sweep started, and applied without edit after the first result landed.
+
+\begin{table}[H]
+\caption[Pre-registered decision rule for the control]{Pre-registered decision rule for the pretraining positive control, committed before the
+sweep was run.}
+\label{tab:m-prereg}
+\centering
+\small
+\begin{tabular}{p{0.14\linewidth}p{0.38\linewidth}p{0.40\linewidth}}
+\toprule
+\textbf{Outcome} & \textbf{Condition at the longest budget} & \textbf{Consequence} \\
+\midrule
+A & Gap of at least $3.0$ accuracy points between the largest from-scratch arm and the pretrained
+    arm, and the two arms' one-standard-deviation bands do not overlap
+  & The instrument has a verified positive control. The mortality null may be read as a measured
+    null. \\
+\addlinespace
+B & Gap below $3.0$ accuracy points, or the ordering is not resolved across seeds
+  & The positive control fails. The clinical comparison reverts to an experiment too insensitive to
+    see anything and must be written that way. \\
+\addlinespace
+Inconclusive & Gap in the range $2.5$ to $3.5$ points, or the bands touch without overlapping
+  & Neither A nor B may be asserted. Report the budget curve as the finding and state that the
+    control is unresolved at this compute scale. \\
+\bottomrule
+\end{tabular}
+\apanote{The rule also forbids resolving a boundary case by adding seeds until it moves, which is optional stopping. It does not decide whether pretraining helps on the clinical task; it decides only whether the public comparison is sensitive enough to serve as a control, and the two questions must not be merged. The thresholds shown are configuration decided in advance, not results.}
+\end{table}

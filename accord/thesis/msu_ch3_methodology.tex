@@ -157,7 +157,7 @@ the classes non-exclusive in effect, since a window carrying vocabulary from two
 whichever is tested first; and the negation rewrite is a hard flip with no scope model, where a
 purpose-built context algorithm would model scope explicitly \citep{chapman2001negex}.
 
-Two fields exist only in the rebuild: a numeric dose parser reducing a matched dose string to a value
+The rebuild records two fields: a numeric dose parser, reimplemented because the original pipeline's source does not survive, reducing a matched dose string to a value
 and a canonical unit, converting within the mass family only, since other unit families need
 drug-specific conversion the resource lacks; and a sentence index and character offset on every
 mention, without which the defect in Section~\ref{sec:m-exemplar} is enabled, since two mentions of
@@ -237,8 +237,7 @@ T_3(a,d) = \exists\,(m_N, m_D):\
 with $\tau$ fixed at $0.20$ in the mining implementation. The threshold is a judgement call
 with no empirical derivation, it is not tuned, and it is not clinically grounded, since a given
 proportional change in a statin dose and the same change in a warfarin dose are not comparable
-events. Its exemplar selection is correct by construction, because the exemplar is the pair
-achieving the largest proportional difference.
+events. The rebuild's Rule 3 exemplar is the pair achieving the largest proportional difference.
 
 Rule 4 fires when a drug receives a cessation action in the nursing note and is absent from every
 extracted mention in the discharge summary, classified or not:
@@ -256,18 +255,18 @@ discharge side is a literal marker, so any difference in labeller or model behav
 at least two explanations, clinical reasoning and a formatting response to a degenerate input,
 which the design cannot separate.
 
-Rules 3 and 4 exist only in the rebuild, since the reference extractor never parsed dose strings or
-recorded positional information; comparison between rebuild and reference behaviour is therefore
-restricted to Rules 1 and 2, which is what defines the defect-free stratum used in
-Section~\ref{sec:m-control-rq1}.
+Rules 3 and 4 were implemented in the original pipeline, whose source does not survive; the rebuild
+reimplements them, so its selectors are not the code that produced the annotated exemplars. The
+Rules 3 and 4 stratum of Section~\ref{sec:m-control-rq1} is not subject to the documented Rules 1
+and 2 positional defect, but its exemplar correctness in the gold set is assumed, not verified.
 
-Applied to the classified mentions, the four rules return a raw pool of 1,980 candidates before any
+Applied to the classified mentions, the original pipeline's four rules return a raw pool of 1,980 candidates before any
 temporal check, split 886 from Rule 1, 203 from Rule 2, 521 from Rule 3 and 370 from Rule 4,
 covering 1,205 distinct admissions. A temporal prefilter requiring a resolvable ordering between the
 two notes drops the pool to 1,978 candidates, split 886, 202, 520 and 370, out of 1,068 admissions
 carrying a usable date window and 643 carrying an intermediate note between the two selected notes.
-Every candidate count elsewhere in this thesis is the post-prefilter figure, 1,978, unless stated
-otherwise.
+Every candidate count elsewhere in this thesis is this post-prefilter figure, 1,978, unless stated
+otherwise; the gold sample was drawn from this pool, not from the rebuilt one.
 
 \subsection{Exemplar selection, and the defect in it}
 \label{sec:m-exemplar}
@@ -303,8 +302,8 @@ the character distance from $m$ to the nearest dose-bearing mention in the same 
 is a heuristic with a stated rationale and no validation: a mention adjacent to a concrete dose is
 more likely to be a substantive instruction than a passing reference in an allergy or problem list,
 and with no dose-bearing mention it falls back to the earliest qualifying sentence for determinism.
-Because it chooses among mentions that already qualify it cannot reintroduce the original defect,
-and whether it changes a clinical judgement was not measured.
+This fixes the selector for future runs; no gold exemplar passed through the fix, and whether it
+changes a clinical judgement was not measured.
 
 A third, pre-registered check (C106) reads the defect rate a different way again: rather than
 reconstructing or joining against a mentions-table snapshot, it re-runs the project's own extractor
@@ -331,8 +330,8 @@ results showing such models matching or exceeding crowd annotators on several cl
 
 The production labeller is Llama 3 8B \citep{grattafiori2024llama3}, run locally and presented with
 each candidate's exemplar sentence pair and the identifier of the rule that generated it, asked for
-a binary judgement plus a confidence value. The prompt is a fixed template with no demonstrations
-and no chain-of-thought elicitation. The labelled pool is the candidate pool minus the pairs put to the pharmacist, disjoint
+a binary judgement plus a confidence value, with a fixed template and no demonstrations or
+chain-of-thought elicitation; that prompt was never committed, so this description cannot be verified. The labelled pool is the candidate pool minus the pairs put to the pharmacist, disjoint
 at the row level by construction; Section~\ref{sec:m-data} explains why that was insufficient. The
 weak-labelled candidate pool from this calibration join holds 1,679 rows before subject-disjoint
 exclusion; removing the 291 rows whose subject also appears in an evaluation split leaves 1,388,
@@ -436,7 +435,7 @@ checkpoint for the wider configuration does exist on a drive mount an earlier se
 (correction record, R6); the claim here rests on the code path and the gradient check
 alone.
 
-\subsection{The defect-free control model}
+\subsection{The vanilla control model}
 \label{sec:m-control-model}
 
 Because the detector carries documented defects, a null measured on it alone cannot be attributed
@@ -460,7 +459,7 @@ positive rate, and a TF-IDF representation with at most $5{,}000$ features feedi
 regression. The constant score yields an AUROC of exactly $0.5$ by construction, making it the
 correct reference point for reading any AUROC near chance. A pre-registered check (C107) tests the
 TF-IDF baseline's own ranking against a label-permutation null rather than only against the
-constant-score line, extends it to the decontaminated evaluation (Table~\ref{tab:m-strata}) for the
+constant-score line, extends it to the 253-pair non-ambiguous evaluation (Table~\ref{tab:m-strata}) for the
 first time, and separately fits a second, gold-only version of the identical pipeline in nested
 cross-validation, one held-out fold per confirmed positive, with no weak-label pool in its training
 data at all, so any signal it carries cannot come from the training-pool marginal.
@@ -480,13 +479,13 @@ in its own outcome record rather than patched and silently rerun.
 
 \subsection{Sampling and annotation protocol}
 
-A stratified sample was drawn from the candidate pool, allocated across the four rules in
+The original pipeline drew a stratified sample from its 1,978-candidate pool, allocated across the four rules in
 proportion to each rule's share of the pool (886, 202, 520 and 370 candidates for Rules 1 through
 4), rounded to whole pairs and not oversampled toward any rule. The frame draws 134 pairs from Rule
 1, 31 from Rule 2, 79 from Rule 3 and 56 from Rule 4, for 300 pairs total, the same sampling
 fraction in every stratum to within rounding, and was fixed before annotation began. Proportional
 allocation has a consequence Chapter~\ref{ch:results} relies on: under it, the gold sample's base
-rate is an unbiased estimate of the pool's base rate, the denominator the over-calling ratios in
+rate is an unbiased estimate of that pool's base rate, not of the rebuilt pool's, the denominator the over-calling ratios in
 that chapter divide against. The returned annotation set has $n = 299$ pairs, one fewer than the
 frame; the per-rule breakdown, 134, 31, 79 and 55, shows the missing row belongs to Rule 4, since
 Rules 1 through 3 returned every sampled pair and Rule 4 returned one fewer than it was sent.
@@ -508,7 +507,7 @@ difference between the $287$ and $241$ negative counts of Table~\ref{tab:m-mde}.
 cost in the evaluation layer, handled the same way throughout this thesis rather than resolved once
 and reused silently: every control and every check in this chapter that touches the gold set is run
 under both readings, ambiguous pairs retained as negatives in the primary, 299-pair stratum and
-ambiguous pairs excluded from the decontaminated, 253-pair stratum, and neither reading is preferred
+ambiguous pairs excluded from the non-ambiguous, 253-pair stratum, and neither reading is preferred
 over the other by default. Over-calling ratios are also shown with every ambiguous pair counted as a
 contradiction; that post hoc sensitivity reading rescales every ratio's denominator by one constant
 and says nothing about the labeller. Section~\ref{sec:m-stats} reports the minimum detectable effect under
@@ -547,12 +546,13 @@ a single-rater instrument with no inter-rater or intra-rater agreement statistic
 \textbf{Stratum} & \textbf{$n$} & \textbf{Positives} & \textbf{Defined by} \\
 \midrule
 Gold, all annotated pairs & 299 & 12 & Ambiguous rows retained as negatives \\
-Gold, defect-free subset  & 134 & 6  & Rules 3 and 4 only \\
-Decontaminated evaluation & 253 & 12 & Ambiguous rows excluded \\
+Gold, Rules 3 and 4       & 134 & 6  & Rules 3 and 4 only \\
+Rules 3 and 4, ambiguous dropped & 108 & 6 & Also ambiguous rows excluded \\
+Non-ambiguous evaluation  & 253 & 12 & Ambiguous rows excluded \\
 Weak-label training pool  & 1,183 & \multicolumn{2}{l}{Positive rate 0.8521} \\
 \bottomrule
 \end{tabular}
-\apanote{The defect-free subset is fixed by rule membership before any score is computed. The training pool's positive rate is the weak labeller's marginal on the rows surviving subject-level exclusion, and it is the reference against which any agreement figure on weak labels must be read.}
+\apanote{The Rules 3 and 4 strata are fixed by rule membership before any score is computed. The training pool's positive rate is the weak labeller's marginal on the rows surviving subject-level exclusion, and it is the reference against which any agreement figure on weak labels must be read.}
 \end{table}
 
 \section{The Controls}
@@ -568,28 +568,27 @@ listed in Section~\ref{sec:m-feasgate}. None of these controls is novel, and non
 \textbf{Condition.} If the exemplar selector agrees with its own trigger on substantially every
 action-conflict candidate, the pharmacist judged the evidence that caused the candidate to exist,
 and the measured precision estimates the pool's precision. If it does not agree, the measured
-precision is an upper bound on the validity of the annotation exercise, and the direction of the
-bias is not determinable from the data collected.
+precision is biased as an estimate of the annotation exercise's validity, in a direction the data
+collected cannot determine.
 
 The audit instruments both selectors and records, for every action-conflict candidate, whether the
 positional exemplar's action pair matched the pair required by the branch that fired, and whether
 the corrected selector changed the chosen rows. Two quantities follow, an agreement rate and a
 change rate, and they are not the same quantity: a candidate can change exemplar on one side while
 the old exemplar happened to be correct on the other. The second half of the control is structural
-rather than measured. Rules 3 and 4 have no positional selector, so the gold pairs drawn from them
-form a defect-free stratum fixed before any model score exists, and the detection metrics in
-Chapter~\ref{ch:results} are reported on that stratum as well as on the full set. If the two strata
-disagree, the exemplar defect is doing work.
+rather than measured. Rules 3 and 4 are not subject to the documented positional defect, so the gold
+pairs drawn from them form a stratum fixed before any model score exists, and Chapter~\ref{ch:results} reports the detection metrics on it as well as
+on the full set. A difference between the two rule groups is confounded with rule content and base
+rate, so it is a comparison between rule groups, not a test of the defect.
 
 A pre-registered re-scoring sharpens this comparison: C110 scored the contaminated released detector,
-and C112 re-ran its rule on the decontaminated ensemble this thesis reports, scoring it, the
-off-the-shelf NLI baseline and the TF-IDF baseline on the Rules-1-and-2 stratum and the Rules-3-and-4
-defect-free stratum alike, under both readings of the ambiguous pairs, with a label-permutation null
+and C112 re-ran its rule on the decontaminated (subject-disjoint retrain) ensemble, scoring it, the
+off-the-shelf NLI baseline and the TF-IDF baseline on the Rules 1 and 2 and the Rules 3 and 4 strata alike, under both readings of the ambiguous pairs, with a label-permutation null
 on every AUROC and average-precision figure, so a difference between strata is tested rather than
 read off a single point estimate. The registered interpretation is fixed before the run: with six
-confirmed positives in the defect-free stratum, against the minimum detectable AUROC of this
-evaluation's own sensitivity (Section~\ref{sec:m-mde}), a stratum that fails to show a difference
-cannot establish that the exemplar defect is not doing work; it can only fail to show that it is.
+confirmed positives in the Rules 3 and 4 stratum, against the minimum detectable AUROC of
+Section~\ref{sec:m-mde}, a failure to show a difference cannot establish that the exemplar defect is
+not doing work.
 
 \subsection{RQ2: is the labeller's error noise or prior?}
 \label{sec:m-control-rq2}
@@ -653,8 +652,11 @@ only; a scored labeller can sweep its threshold and rank well regardless of flag
 nothing about a ranking metric. Applied to every hard-label marginal this thesis prints, it is a post
 hoc check, added after the hosted results were withdrawn. So are the ambiguous-positive reading,
 both tipping-point checks, the public sweep decomposition and the choice of average precision as
-C107's headline statistic, and so are C114 (a paired average-precision test, a decontaminated tipping point and a defect-free stratum interval) and C116 (the paired average-precision tests on within-system ranks), which the committee requested after the results were in and which were each pre-registered before their own run; the other controls above were specified before any result was seen. The ceiling is the prevalence-and-bias problem of \citet{feinstein1990paradoxes} and
-\citet{cicchetti1990resolving}, corrected by \citet{byrt1993pabak}, and the floor is the minimum attainable significance level
+C107's headline statistic, and so are C114 (a paired average-precision test, a decontaminated tipping point and a Rules 3 and 4 stratum interval), C116 (the paired average-precision tests on within-system ranks) and C120 (the deployed labeller's agreement on the exact gold join), which the committee requested after the results were in and which were each pre-registered before their own run; the other controls above were specified before any result was seen. The ceiling is the classical maximum of a chance-corrected agreement statistic given its marginals
+\citep{cohen1960kappa}, the prevalence-and-bias problem of \citet{feinstein1990paradoxes} and
+\citet{cicchetti1990resolving}, which PABAK \citep{byrt1993pabak} sidesteps rather than removes; what
+is used here is that bound as a check on an LLM weak labeller's marginal, which needs a gold base rate
+from a small human-labelled sample. The floor is the minimum attainable significance level
 that \citet{tarone1990modified} derives from the marginal totals of a discrete test.
 
 \subsection{RQ3: does the code the detector runs contain what it is credited with?}
@@ -684,57 +686,9 @@ rather than here, since it bears on a fairness audit rather than on the contradi
 \textbf{Condition.} A null result is evidence only if the instrument that produced it can be shown
 to resolve an effect of comparable size, and only if the evaluation had enough power to see one.
 For the contradiction evaluation that is the minimum detectable effect and the C108 power analysis
-(Section~\ref{sec:m-mde}). A separate positive control (C44) runs the pretraining-effect instrument
-on a task where the effect is known to be present; its registration makes it a control for that
-instrument only and forbids merging it with the contradiction evaluation.
-
-The proxy under test is whether a difference in self-supervised pretraining, measured as a loss gap,
-predicts a difference in downstream discrimination. On the clinical side the comparison runs on a
-task built for this control rather than on the contradiction detector: in-hospital mortality
-predicted from a bundle of a patient's first 48 hours of notes, evaluated on $6{,}776$ held-out
-admissions holding $570$ positives, a different task and cohort from the $253$-pair contradiction
-evaluation. The comparison there is a from-scratch encoder against a domain-pretrained encoder under
-a matched fine-tuning protocol at three seeds each; the two arms do not share a seed set, so the
-comparison is unpaired, and one from-scratch run carries no recorded split lineage against the other
-five, so Chapter~\ref{ch:results} reports the three-seed gap as primary and a two-seed,
-lineage-pinned gap beside it. On the public side the same comparison runs on AG News across four
-arms, a pretrained BERT encoder against three from-scratch encoders at three smaller parameter
-scales.
-
-One threat has to be answered before the public comparison can serve as a control: an initial sweep
-trained every arm for the same short budget with no per-arm tuning, so a gap between pretrained and
-from-scratch arms could measure training budget rather than pretraining. A convergence sweep instead
-gives every arm four full budgets, reported at the final epoch; this departs from the registration, which specified
-selection on a held-out validation split (C113). At three seeds per cell, for $48$ runs and $555$ minutes of compute. The
-decision rule in Table~\ref{tab:m-prereg} was committed to the project repository at commit
-\texttt{b048829}, before the sweep started, and applied without edit after the first result landed.
-
-\begin{table}[H]
-\caption[Pre-registered decision rule for the control]{Pre-registered decision rule for the pretraining positive control, committed before the
-sweep was run.}
-\label{tab:m-prereg}
-\centering
-\small
-\begin{tabular}{p{0.14\linewidth}p{0.38\linewidth}p{0.40\linewidth}}
-\toprule
-\textbf{Outcome} & \textbf{Condition at the longest budget} & \textbf{Consequence} \\
-\midrule
-A & Gap of at least $3.0$ accuracy points between the largest from-scratch arm and the pretrained
-    arm, and the two arms' one-standard-deviation bands do not overlap
-  & The instrument has a verified positive control. The mortality null may be read as a measured
-    null. \\
-\addlinespace
-B & Gap below $3.0$ accuracy points, or the ordering is not resolved across seeds
-  & The positive control fails. The clinical comparison reverts to an experiment too insensitive to
-    see anything and must be written that way. \\
-\addlinespace
-Inconclusive & Gap in the range $2.5$ to $3.5$ points, or the bands touch without overlapping
-  & Neither A nor B may be asserted. Report the budget curve as the finding and state that the
-    control is unresolved at this compute scale. \\
-\bottomrule
-\end{tabular}
-\apanote{The rule also forbids resolving a boundary case by adding seeds until it moves, which is optional stopping. It does not decide whether pretraining helps on the clinical task; it decides only whether the public comparison is sensitive enough to serve as a control, and the two questions must not be merged. The thresholds shown are configuration decided in advance, not results.}
-\end{table}
+(Section~\ref{sec:m-mde}). A separate positive control (C44) runs the pretraining-effect instrument on a public task where the
+effect is known to be present; its registration makes it a control for that instrument only and
+forbids merging it with the contradiction evaluation, so its methods are in Supplement S6.
 
 \subsection{Base-rate comparison for the low-prevalence metrics}
 
@@ -772,7 +726,7 @@ none, in which case AUROC is undefined, so such resamples are discarded and do n
 requested total. The count of valid resamples is reported beside an interval only where that
 interval's own artifact stored it, which is not everywhere; where no count is stored, none is quoted,
 and that interval is read as computed over the requested resamples less an unrecorded number of
-degenerate draws. A separate bootstrap of the defect-free stratum, not printed in this thesis, does
+degenerate draws. A separate bootstrap of the Rules 3 and 4 stratum, not printed in this thesis, does
 record its discards, $20$ of $10{,}000$, a rate of $0.002$, the only direct measurement of that rate
 in this work.
 
@@ -801,7 +755,7 @@ $(a - 0.5) / \sqrt{\mathrm{Var}(a)} \geq z_{1-\alpha/2} + z_{1-\beta}$ by search
 $\mathrm{Var}(a)$ depends on $a$. The full procedure was reimplemented and rerun for this thesis,
 and the values below are that recomputation's output (correction record, R9).
 Table~\ref{tab:m-mde} evaluates this under
-each treatment of the ambiguous rows and on the defect-free stratum
+each treatment of the ambiguous rows and on both Rules 3 and 4 strata
 (Figure~\ref{fig:power}, Chapter~\ref{ch:results}).
 
 \begin{table}[H]
@@ -815,7 +769,8 @@ each treatment of the ambiguous rows and on the defect-free stratum
 \midrule
 Gold, ambiguous excluded & 12 & 241 & 0.0856 & 0.7355 \\
 Gold, ambiguous retained & 12 & 287 & 0.0852 & 0.7350 \\
-Defect-free subset       &  6 & 128 & 0.1210 & 0.8058 \\
+Rules 3 and 4             &  6 & 128 & 0.1210 & 0.8058 \\
+Rules 3 and 4, ambiguous dropped & 6 & $108 - 6$ & 0.1218 & 0.8064 \\
 \bottomrule
 \end{tabular}
 \apanote{$\mathrm{AUROC}_{\min}$ is computed by the same procedure that also drives the marker positions in Figure~\ref{fig:power}. Values are rounded to four decimal places. These figures bound what the evaluation could have seen and are not results about any model. They also state the limit of the thesis's negative claim: nothing here can establish that the task is unsolvable, only that this pipeline does not solve it at a sensitivity this coarse.}
@@ -823,8 +778,8 @@ Defect-free subset       &  6 & 128 & 0.1210 & 0.8058 \\
 
 The table above is an analytic approximation. A pre-registered power analysis (C108) checks it
 on a real score distribution at this evaluation's own size rather than on the binormal assumption the
-analytic procedure makes: replicate evaluation sets of the same shape as the decontaminated stratum
-are drawn from the scores of the off-the-shelf NLI baseline against a large held-out pool, at a grid
+analytic procedure makes: replicate evaluation sets of the same shape as the 253-pair non-ambiguous stratum
+are drawn from the off-the-shelf NLI baseline's scores on held-out SNLI validation and test items, at a grid
 of true AUROC values constructed two independent ways, and the power of several rejection rules,
 including the one this thesis applies to a hard AUROC comparison, is measured, so the resolvable
 AUROC is stated per rule rather than once. This is a corrected rerun of an earlier attempt (C101), which is not superseded quietly: C101
@@ -838,7 +793,9 @@ The subject-disjoint control and the decontaminated retrain each run at three se
 model initialisation, dropout and data loader shuffle order but not the train and validation split,
 which is fixed once by a separate split seed, so the spread across seeds reflects training
 stochasticity and not resampled training data, a deliberate narrowing that keeps the error bars
-interpretable as run-to-run variability and excludes sampling variance.
+interpretable as run-to-run variability and excludes sampling variance. The register holds no
+training hyperparameters for the decontaminated retrain; its seeds, decision threshold and bootstrap
+count are recorded in the aggregate artifact of that run, released with the code.
 
 Error bars reported as $\pm$ are standard deviations across those three seeds, not standard errors
 and not confidence intervals, and the convention is not uniform in the underlying artifacts: the

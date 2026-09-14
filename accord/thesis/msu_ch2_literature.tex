@@ -12,7 +12,7 @@
 \label{ch:lit}
 
 This thesis builds nothing new. It takes a pipeline whose shape is standard in clinical natural
-language processing, rule-based candidate mining followed by language model weak supervision
+language processing (NLP), rule-based candidate mining followed by language model weak supervision
 followed by a purpose-built neural detector, and runs at each stage the control that separates a real
 finding from an artifact of the measurement. The controls are borrowed, each credited again wherever
 it appears later, so what this chapter has to establish is narrower than a conventional review: not
@@ -24,9 +24,9 @@ importance suggests; weak supervision and label noise, where a single language m
 rare class falls outside the theory the field's tooling rests on; evaluation under low prevalence, a
 literature now thirty-six years old that this thesis applies rather than extends; controls and
 construct validity, the methodological backbone; pretraining loss as a predictor of downstream
-utility, settled recently at a scale this thesis cannot approach; and selection and stage-by-stage
-auditing of pipelines. Each thread supplies a constraint the next has to respect, and each thread's
-gap is named in the chapter's final section, which states what all six leave.
+utility, studied recently at a scale this thesis cannot approach; and selection and stage-by-stage
+auditing of pipelines. Each thread supplies a constraint the next has to respect, and the final section states what the
+six leave.
 
 \section{Contradiction and Inconsistency Detection in Clinical Text}
 \label{sec:lit-contradiction}
@@ -189,7 +189,8 @@ noticing before running the annotator rather than after.
 
 Cohen's kappa \citep{cohen1960kappa} corrects observed agreement for the agreement expected by
 chance under the observed marginals, a function of those marginals in ways that surprise readers who
-take it for a corrected accuracy. \citet{feinstein1990paradoxes} set out the two paradoxes: high
+take it for a corrected accuracy, and bounded above by a maximum the marginals themselves fix.
+\citet{feinstein1990paradoxes} set out the two paradoxes: high
 observed agreement can coexist with a low kappa when the marginals are badly unbalanced, and
 unbalanced marginals can raise rather than lower kappa; the companion paper
 \citep{cicchetti1990resolving} works through the resolution and recommends reporting the marginals
@@ -203,7 +204,7 @@ the papers in this thread do not address.
 
 \subsection{The Matthews line and its limits}
 
-The Matthews correlation coefficient, introduced for assessing secondary structure prediction
+The Matthews correlation coefficient (MCC), introduced for assessing secondary structure prediction
 \citep{matthews1975mcc}, is the Pearson correlation between the binary prediction and the binary
 label, computed from all four confusion matrix cells. \citet{chicco2020mcc} argue it should be
 preferred to accuracy and $F_1$ under imbalance because it is high only when all four cells are
@@ -214,7 +215,7 @@ it should be avoided in favour of MCC.
 
 Balanced accuracy, the unweighted mean of sensitivity and specificity \citep{brodersen2010balanced},
 is the measure most often reached for when a prevalence-blind summary is wanted, and its implicit
-weighting is the least often written down. Under heavy negative skew the ROC curve is dominated by
+weighting is the least often written down. Under heavy negative skew the receiver operating characteristic (ROC) curve is dominated by
 the majority class and can look acceptable while precision-recall behaviour sits at the no-skill
 line, which is why \citet{saito2015prcurve} argue the precision-recall curve should be the primary
 tool at high skew; both are reported in this thesis. Two areas under the curve computed on the same
@@ -232,7 +233,7 @@ characterisation of when imbalance actually hurts \citep{japkowicz2002imbalance}
 several forms \citep{lin2017focal,cui2019classbalanced,cao2019ldam,menon2021logitadjust}, and
 positive-unlabelled formulations \citep{bekker2020pu}. Their relevance here is bounded by a single
 result: \citet{vandengoorbergh2022harm} show, in clinical risk prediction, that imbalance corrections
-including undersampling, oversampling and SMOTE produce severe miscalibration without improving
+including undersampling, oversampling and SMOTE (synthetic minority oversampling) produce severe miscalibration without improving
 discrimination as measured by AUROC, and that whatever sensitivity gain they deliver is available by
 shifting the threshold instead. Such corrections move the operating point along a ranking; they do
 not create ranking information.
@@ -250,7 +251,7 @@ before a results table exists.
 
 This section describes the methodological backbone of the thesis, and everything in it is
 borrowed; laying it out at length makes the attribution unambiguous. Each subsection names
-the owner, states the design, and identifies the stage of this project it is applied to.
+the owner, states the design, and says whether this project ran it.
 
 \subsection{Negative and positive controls in observational research}
 
@@ -262,11 +263,10 @@ none can exist is evidence that the analysis is picking up confounding, recall b
 procedure, though the control does not identify which. A positive control runs the same analysis in
 the opposite direction, on a case where an effect is already known to exist, so the result speaks
 about the instrument rather than the question asked of it; \citet{lipsitch2010negative} do not
-formalise this direction, and this thesis adapts their device to build one on the same terms. The
-transfer to a machine learning pipeline is direct: replace the substantive input with one that cannot
-carry the claimed information, hold everything else fixed, and see whether the reported effect
-survives, evidence rather than an absence of it, because the control fires and produces a number
-where the theory says there should be none.
+formalise this direction. The transfer to a machine learning pipeline is direct: replace the
+substantive input with one that cannot carry the claimed information, hold everything else fixed,
+and see whether the reported effect survives. No negative control of this kind was run on this
+pipeline.
 
 \subsection{Randomisation tests for attribution}
 
@@ -276,12 +276,13 @@ randomisation test retrains on permuted labels and asks the same; some widely us
 visually plausible maps independent of both, so those maps cannot be evidence about the model. The
 design generalises past saliency to any component credited with contributing something: replace what
 it consumes with something that cannot contain the credited signal and see whether the contribution
-persists.
+persists. No randomisation test was run here; the architecture components were examined by code
+audit instead.
 
 \subsection{Control tasks and selectivity}
 
-\citet{hewitt2019control} supply the design the architecture control in this thesis is built on. A
-probe trained to predict a linguistic property from a neural representation may succeed because the
+\citet{hewitt2019control} supply the design an architecture control would follow, though none was
+run here. A probe trained to predict a linguistic property from a neural representation may succeed because the
 representation encodes the property, or merely because the probe is expressive enough to memorise the
 mapping. Their control task assigns random outputs to word types, trains the same probe on that, and
 defines selectivity as the gap between linguistic and control task accuracy; common probing setups
@@ -290,9 +291,7 @@ selective representation layer can win despite lower raw accuracy. \citet{belink
 synthesises the literature that followed: probe accuracy alone identifies neither what a
 representation encodes nor whether the model uses it, an ordinal or categorical feature a component
 is credited with exploiting can be replaced with an arbitrary assignment of the same shape, and if
-that assignment recovers the gain, the credited feature was not the source. The comparison must be
-built into the design rather than added after a result looks suspicious, because a control chosen
-after the fact is a different object.
+that assignment recovers the gain, the credited feature was not the source.
 
 \subsection{Leakage and measurement}
 
@@ -313,27 +312,26 @@ detector reaches some score but whether what is scored, a rule-mined candidate p
 annotator against heuristic-selected evidence, is a measurement of clinical contradiction.
 
 \paragraph{What this thesis takes, and what it does not claim.}
-Table~\ref{tab:lit-controls} lists the instruments and their owners. Every row is a method
-applied without modification to a new object. None is a contribution of this thesis, and the
-Methodology chapter repeats the attribution at the point of use.
+Table~\ref{tab:lit-controls} lists the checks this thesis actually ran and the work each borrows
+from; the negative, randomisation and control-task designs above were not run. No row is itself a
+contribution.
 
 \begin{table}[H]
-\caption[Controls and their literature sources]{Controls applied in this thesis and the work that owns each one.}
+\caption[Checks and their literature sources]{Checks run in this thesis and the work each borrows from.}
 \label{tab:lit-controls}
 \centering
 \small
-\begin{tabular}{@{}p{1.9in}p{2.1in}p{1.9in}@{}}
+\begin{tabular}{@{}p{2.1in}p{1.8in}p{1.7in}@{}}
 \toprule
-Instrument & Owner & Stage it is applied to \\
+Check run & Borrowed from & Stage \\
 \midrule
-Negative control & \citet{lipsitch2010negative} & Candidate generation \\
-Randomisation sanity check & \citet{adebayo2018sanity} & Architecture components \\
-Control task and selectivity & \citet{hewitt2019control} & Architecture components \\
-Leakage diagnosis & \citet{kaufman2012leakage} & Auxiliary training objective \\
-Surrogate label bias & \citet{egami2023surrogates} & Weak supervision \\
-Prevalence-dependent agreement & \citet{feinstein1990paradoxes} & Reported metrics \\
-Positive control, adapted & \citet{lipsitch2010negative}, negative controls & Evaluation instrument \\
-Construct validity framing & \citet{jacobs2021measurement} & The task definition \\
+Code audit of the exemplar selector & \citet{sculley2015debt} & Candidate generation \\
+Marginal agreement ceiling & \citet{cohen1960kappa}, \citet{feinstein1990paradoxes} & Weak supervision \\
+Measured agreement with expert labels & \citet{pangakis2023validation} & Weak supervision \\
+Code audit for target leakage & \citet{kaufman2012leakage} & Architecture \\
+Rule-stratum comparison & \citet{barocas2021disaggregated} & Evaluation \\
+Power analysis for AUROC & \citet{hanley1982meaning} & Evaluation \\
+Construct validity framing & \citet{jacobs2021measurement} & Task definition \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -352,7 +350,7 @@ predictable scaling, small-scale results extrapolating to larger scales, occurs 
 cases, 39\% of the time by their count, because small variations in experimental setup change
 scaling behaviour enough to matter: the conditions under which scaling laws hold are
 uncharacterised, so an extrapolation is a hypothesis rather than a prediction.
-\citet{feng2026tessera} settle the narrower question of whether pretraining loss predicts
+\citet{feng2026tessera} address the narrower question of whether pretraining loss predicts
 downstream utility, at a scale no thesis can match: within a Barlow Twins framework for Earth
 observation foundation models, across 395 controlled training experiments and 15 downstream tasks,
 the correlation between pretraining loss and downstream performance has an absolute Pearson
@@ -360,10 +358,8 @@ coefficient below 0.2, a general result about self-supervised pretraining, obtai
 clinical text, and stronger evidence on the general proposition than anything this thesis could
 produce.
 
-The consequence is a limitation on what may be claimed, adopted rather than resisted: the Results
-chapter reports a convergence experiment on the same harness for this reason, and the Introduction
-states what it licenses for the clinical null rather than offering it as a contribution to the
-scaling literature.
+The consequence is a limitation on what may be claimed, adopted rather than resisted; the supplement
+reports a convergence experiment for this reason, not as a contribution to the scaling literature.
 
 \section{Selection, Pipelines, and Disaggregated Evaluation}
 \label{sec:lit-selection}
@@ -391,31 +387,22 @@ boundaries rather than inside any one of them, without proposing per-stage check
 \section{What Is Left}
 \label{sec:lit-gap}
 
-The six threads leave one opening, and it is not a methodological one: each establishes what has
-been built, checked or settled elsewhere, at a scale or in a subfield this thesis borrows rather than
-extends, and each stops at a version of the same edge, named below one thread at a time. No
-cross-note, free-text-to-free-text medication contradiction system or benchmark was found, and the
-gap sits earlier than modelling, in whether a candidate pool can be assembled whose members are the
-right pairs at all. No protocol was found for a single language-model annotator at low prevalence
-used as the training signal itself, and every available correction requires gold labels the workflow
-was built to avoid. None of the agreement-statistics papers states, for a given evaluation set, the
-exchange rate a chosen measure imposes between a missed positive and an avoided false alarm
-\citep{feinstein1990paradoxes}. No published work applies the instruments of
-Section~\ref{sec:lit-controls} together across a pipeline's successive stages. Neither scaling paper
-addresses what a positive control should look like for a clinical task with only a handful of
-confirmed positives, where the question is whether a single comparison has power at all, not whether
-a trend is predictable. And neither the disaggregated-evaluation nor the stage-auditing literature
-supplies a per-stage check on the validity of an evidential claim in a text pipeline.
+No cross-note, free-text-to-free-text medication contradiction system or benchmark was found, and the
+six threads leave three further openings, one for each contribution of this thesis. First, no work
+was found that runs a stage-appropriate check at every stage of a clinical text pipeline and reports
+each outcome whichever way it falls: \citet{biswas2021fairpreprocessing} audit by stage for a metric
+defined at every stage, and \citet{sculley2015debt} name the hazard at component boundaries without
+per-stage checks. Second, the maximum agreement attainable under fixed marginals is classical
+\citep{cohen1960kappa}, and automated annotation must be validated against human labels
+\citep{pangakis2023validation,egami2023surrogates}; no work was found that uses the bound as a check on
+a single language-model labeller's marginal before training, a check that needs only a base rate from
+a small expert-labelled sample. Third, the nearest descriptions of the mining bug are neighbours, not
+instances: leakage \citep{kaufman2012leakage} is target information a model should not see, label
+errors \citep{northcutt2021labelerrors} are wrong labels on correctly displayed items, and boundary
+defects \citep{sculley2015debt} are named without a check. In trigger-exemplar dissociation the label
+may be right while the evidence displayed with it is not what triggered the candidate, and none of
+those framings supplies the one-line assertion that catches it.
 
-What has not been done is to take one clinical pipeline, apply the appropriate control at every
-stage, and report the outcome whichever way it falls. Each control is cheap and standard in the
-subfield that owns it; none was run on this pipeline before this work. The interesting output is the
-joint pattern rather than any single control result: whether failures at successive stages are
-independent defects or one defect propagating, and whether a labeller's own marginal already settled
-what its evaluation could show.
-
-Put in one sentence, the question this thesis asks is narrower than the pipeline that motivates it:
-whether a language-model weak labeller's positive rate, set against expert-confirmed prevalence under
-an honest reading of ambiguous cases, predicts what a trained detector can then show, at a sample
-size that resolves only large effects. Nothing that follows claims to resolve more than that, and
-nothing that follows claims a method this chapter has attributed to someone else.
+The question this thesis asks is therefore narrower than the pipeline that motivates it: what each
+stage's reported number is worth once its check is run, at a sample size that resolves only large
+effects. Nothing that follows claims a method this chapter has attributed to someone else.

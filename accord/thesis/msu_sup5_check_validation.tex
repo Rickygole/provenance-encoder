@@ -35,8 +35,10 @@ verdicts this thesis relies on are S2c and S3d.
 \textbf{Stage 1, S1b (a synthetic mirror-image check of group disagreement).} A synthetic
 $253$-candidate population is split proportionally into group A (Rules 1 to 2, $139$ candidates,
 $7$ of the $12$ true positives) and group B (Rules 3 to 4, $114$ candidates, $5$ positives), and
-tested one-sided. Group B is a synthetic construction, not the defect-free stratum used elsewhere in
-this thesis ($134$ pairs with $6$ positives, or $108$ with $6$ once ambiguous pairs are dropped).
+tested one-sided. Group B is a synthetic construction, not the Rules 3 and 4 stratum used elsewhere in
+this thesis ($134$ pairs with $6$ positives, or $108$ with $6$ once ambiguous pairs are dropped). That
+stratum is not subject to the documented Rules 1/2 positional defect; its exemplar correctness in the
+gold set is assumed, not verified, because the original pipeline's Rules 3/4 selector code does not survive.
 An exemplar-failure rate is planted in group B only, at two severities. Table~\ref{sup:tab:s5-c102-s1}
 gives the verdict at each.
 
@@ -63,10 +65,14 @@ $0.47$ & & & not\_validated\_sensitivity \\
 
 S1b does not clear the general verdict rule's sensitivity bar at either
 planted severity at this sample size, so it is not validated at this sample
-size. It mirrors, and does not validate, the real Chapter 4 mechanism test,
-which is two-sided on $299$ pairs ($165$ with $6$ positives against $134$ with $6$);
-the instrument limit of that test is carried by its own analytic power,
-$0.0576$, not by S1b.
+size. It mirrors, and does not validate, the Chapter 4 comparison between rule groups,
+which is two-sided on $299$ pairs ($165$ with $6$ positives against $134$ with $6$) and is
+confounded with rule content and base rate, so it is not a test of the defect;
+the instrument limit of that comparison is carried by its own power at the observed rates,
+$0.0495$, not by S1b. That power is computed by exact enumeration: its committed generator sums
+the two binomial probabilities over every outcome pair on which the two-sided Fisher exact test
+rejects at $0.05$, and reports $0.094$ as the smallest excess of the Rules 1/2 rate over the base
+rate that reaches $80\%$ power.
 
 \textbf{Stage 2 (latent score, marginal, bootstrap and \texttt{c98\_rule}
 checks).} $n=253$, base rate $0.0474$, population AUROC $0.90$ by
@@ -194,7 +200,7 @@ $[0.03, 0.07]$ band.}
 \texttt{mw\_two\_sided} (primary)      & 0.0480 & 0.0485 \\
 \texttt{c98\_rule}                     & 0.0008 & 0.0030 \\
 \texttt{delong\_single\_one\_sided}    & 0.0570 & 0.0600 \\
-\texttt{delong\_paired\_vs\_null}      & 0.0597 & 0.0680 \\
+\texttt{delong\_paired\_vs\_null}      & 0.0598 & 0.0680 \\
 \texttt{bootstrap\_lower\_excludes\_chance} & 0.0470 & 0.0450 \\
 \bottomrule
 \end{tabular}
@@ -303,12 +309,12 @@ P\_reversed       & C103                    & $G_{299}$ & 0.6957 & 0.1353 & 0.01
 P\_asserting text & frontier zero-shot, C103 & $G_{299}$ & 0.8729 & 0.0780 & 0.1894 & no  & no \\
                   & frontier zero-shot      & $G_{253}$ & 0.8735 & 0.0849 & 0.1898 & no  & \\
                   & replication             & $G_{299}$ & 0.9532 & 0.0453 & 0.5562 & n/a & \\
-                  & evaluation baseline     & $G_{253}$ & 0.9565 & 0.0476 & 0.5795 & n/a & \\
+                  & evaluation baseline     & $G_{253}$ & 0.9565 & 0.0476 & 0.5795 & no  & \\
 few-shot template & frontier few-shot       & $G_{299}$ & 0.9398 & 0.0518 & 0.4679 & no  & no \\
                   & frontier few-shot       & $G_{253}$ & 0.9447 & 0.0540 & 0.4971 & no  & \\
 P\_neutral        & C103                    & $G_{299}$ & 0.9365 & 0.0533 & 0.4479 & n/a & no \\
 P\_reversed       & C103                    & $G_{299}$ & 0.8829 & 0.0745 & 0.2178 & n/a & no \\
-deployed          & weak labeller           & $G_{299}$ & 0.8729 & 0.0780 & 0.1894 & n/a & no \\
+deployed          & weak labeller           & $G_{299}$ & 0.8729 & 0.0780 & 0.1894 & no  & no \\
 \midrule
 \multicolumn{8}{l}{\texttt{qwen3:8b}} \\
 P\_asserting text & frontier zero-shot, C103 & $G_{299}$ & 0.5686 & 0.1781 & 0.0010 & no  & yes \\
@@ -344,7 +350,10 @@ than \texttt{llama3:8b}'s P\_asserting against P\_neutral shift ($0.8729$
 against $0.9365$), so the direction of that shift is not interpreted. Floor $p$ under $0.001$ is given to
 enough decimal places, or in scientific form, to show a non-zero digit rather
 than rounding to $0.0000$. Obs.\ is whether that measurement actually rejected
-the null at $0.05$, where a confusion count exists (n/a otherwise).}
+the null at $0.05$, where a confusion count exists (n/a otherwise). The
+\texttt{llama3:8b} evaluation baseline's confusion counts give MCC $-0.0436$; the deployed
+labeller's come from the exact five-key join (C120, Section~\ref{sup:sec:s5-c120}), observed MCC
+$0.0269$ against its ceiling of $0.0780$.}
 \label{sup:tab:s5-feasgate}
 \end{table}
 
@@ -352,6 +361,43 @@ Of the $15$ configurations, $5$ could not have rejected the null at $0.05$ on
 any measurement, and all $5$ are \texttt{llama3:8b}: every \texttt{llama3:8b}
 configuration shares that property, and no configuration of any other model
 does.
+
+\subsection{C120: The Deployed Labeller on the Exact Join}
+\label{sup:sec:s5-c120}
+% Artifact: results/accord/c120_exact_join/c120.json.
+% Register key prefix: c120.*
+
+C120 is pre-registered, committed before its first datum, and asks whether the deployed weak
+labeller's agreement with the pharmacist can be measured rather than bounded. The exact five-key
+join, in the released reconciliation code, bridges the gold file, through the annotation
+sample's pair identifier, to the weak-label file on five keys: admission, drug, rule and both
+sentences. Its rule makes the join authoritative only if it
+returns $299$ rows, one weak label per row, and a pharmacist label identical to the gold file's on
+every row. All three gates held, so the run is \textbf{Outcome A}.
+Table~\ref{sup:tab:s5-c120} gives the measured agreement.
+
+\begin{table}[H]
+\caption[C120, the deployed labeller on the exact join]{Confusion counts, Matthews correlation
+against its marginal-constrained ceiling, one-sided hypergeometric $p$ for the true positives given
+both marginals, and the fraction of $10000$ random joins (seed $42$) scoring at least the observed
+MCC.}
+\centering
+\small
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+\textbf{Basis} & \textbf{Flagged} & \textbf{TP} & \textbf{FP} & \textbf{FN} & \textbf{TN} & \textbf{MCC} & \textbf{Ceiling} & \textbf{$p$} & \textbf{Random join} \\
+\midrule
+$G_{299}$ & 261 & 11 & 250 & 1 & 37 & 0.0269 & 0.0780 & 0.5347 & 0.5442 \\
+$G_{253}$ & 223 & 11 & 212 & 1 & 29 & 0.0243 & 0.0818 & 0.5722 & 0.5711 \\
+\bottomrule
+\end{tabular}
+\label{sup:tab:s5-c120}
+\end{table}
+
+The deployed labeller's agreement is measured and is indistinguishable from chance on both bases:
+the marginal check and the measured agreement agree. C88's nursing-side reconstruction is
+superseded. The ceilings remain marginal identities: $0.0780$ at $261$ of $299$ flagged and $0.0818$
+at $223$ of $253$.
 
 \subsection{C103: The Full Nine-Cell Table}
 \label{sup:sec:s5-c103}
@@ -477,8 +523,7 @@ $0.7355$ minimum detectable AUROC under none of the three new ones: $0$ of $3$ a
 of at least $2$, so this run is \textbf{Outcome B}: the $0.7503$ reading is not shown to survive
 rewording. \texttt{P\_rev\_agree} did clear the pre-registered Bonferroni threshold, with
 permutation $p$ $0.0030$; it failed on AUROC, $0.7310$ against the $0.7355$ floor, not on the
-threshold. That floor is the analytic one; at it the registered \texttt{c98\_rule} rejects on only
-$0.52075$ of replicates, and C108 puts its $80\%$ power crossing at $0.8084$
+threshold. That floor is the analytic one; C108 gives the per-rule $80\%$ power crossings
 (Section~\ref{sup:sec:s5-c108}).
 
 \begin{table}[H]
@@ -501,8 +546,8 @@ $\alpha = 0.05/3$.}
 The registered confound test found no cell confounded with rule-type membership: among
 negatives, every AUROC for predicting Rule 1-2 versus Rule 3-4 membership sits at or below
 $0.5566$, every permutation $p$ at or above $0.0679$. The registered stratum report placed the
-\texttt{llama3:8b} signal in the Rule 1 and 2 rows, the rows carrying the exemplar defect, AUROC $0.7218$ to $0.8525$ across the four
-prompts, falling to $0.5016$ to $0.6193$ on the defect-free Rule 3 and 4 rows, none significant;
+\texttt{llama3:8b} signal in the Rule 1 and 2 rows, the rule group subject to the exemplar defect, AUROC $0.7218$ to $0.8525$ across the four
+prompts, falling to $0.5016$ to $0.6193$ on the Rule 3 and 4 rows, none significant;
 with $6$ positives on each stratum, this run's own registered ceiling means neither reading
 confirms a null or an effect. \texttt{granite3.3:8b}'s cells are descriptive only and are not
 folded into the primary decision; Table~\ref{sup:tab:s5-c109-granite} reports them.
@@ -534,12 +579,14 @@ pairs dropped ($n = 145$ for Rules 1 and 2, $n = 108$ for Rules 3 and 4, $6$ pos
 \end{table}
 
 Every wording ranks above chance on $G_{253}$ at the uncorrected $0.05$ level. The strongest
-stratum reading, \texttt{P\_rev\_agree} on the defect-free Rules 3 and 4 ($0.8775$ against
+stratum reading, \texttt{P\_rev\_agree} on the Rules 3 and 4 stratum ($0.8775$ against
 $0.7302$ on Rules 1 and 2), belongs to a wording picked as best after the fact, rests on $6$
 positives, and carries no multiplicity correction, because these cells were registered as
 descriptive and enter no decision. It does not change Outcome B, which is stated over
 \texttt{llama3:8b}; it does mean the defect-localised reading of that model's signal is not
-shown for \texttt{granite3.3:8b}, whose stratum ordering varies with the wording.
+shown for \texttt{granite3.3:8b}, whose stratum ordering varies with the wording. A stratum contrast
+compares rule groups that also differ in rule content and base rate, so neither ordering is a test of
+the defect.
 
 \subsection{The Public-Sweep Identity Failures}
 \label{sup:sec:s5-identity}

@@ -167,7 +167,7 @@ NUMBER_CHANGING = [
     ("C44", "The AG News pretraining benefit at one training budget generalises without a check.",
      "A pre-registered 48-run, four-budget sweep shows the 4.53-point gap persists at 24 epochs "
      "and both arms are converged, closing the under-training objection.",
-     "Ch. 4, positive control; Ch. 3, decision-rule table."),
+     "Supplement S6, pretraining positive control."),
     ("C49", "The survey's strict and permissive audit counts rest on a per-paper coding table.",
      "No per-paper coding table existed on disk when the counts were first reported; it and the "
      "coding behind it were rebuilt from the written instrument.",

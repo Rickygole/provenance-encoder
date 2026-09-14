@@ -32,24 +32,25 @@
   A nursing note and a discharge summary can disagree about a medication,
 and only the summary leaves the hospital.
 This thesis builds a four stage pipeline for such contradictions
-in an intensive care database, checking every stage with a control or code audit. It
-makes three contributions. First, the first three stages each reported a
-number their control or code audit did not support; of three credited
-architectural components, one parameter is an initialisation artifact, one
-metric had its target in its input, one module was never trained.
-Second, a check that can be run before training: a weak labeller flagging
-261 of 299 pairs, against 12 a pharmacist confirmed, fixes from counts alone
-a ceiling of 0.0780 on the Matthews correlation any thresholded label could
-reach. Third, a mining bug class, trigger-exemplar dissociation, where
-displayed evidence is picked by position, not from the triggering set,
-caught by a one line assertion. With 12 positives, the evaluation resolves
-only large effects on area under the curve, about 0.75 to 0.81. The trained
-detector was indistinguishable from chance on the 253 non-ambiguous pairs;
-on the 108 pairs free of the selection defect its area of 0.6095 (95 percent
-interval 0.3029 to 0.9010) leaves open whether the null is a defect
-artifact. By average precision, chosen post hoc, a bag-of-words model and a
-model never trained on the weak labels beat their chance baselines, unlike the
-detector, yet no paired test separates the three. The work does not
-show the task unsolvable.
+in an intensive care database and audits each
+stage. First, the first three stages reported a number their check did
+not support: of three credited architectural components, one parameter is an
+initialisation artifact, one metric had its target in its input, one module
+was never trained. Second, a pre-training check applies the classical
+fixed-marginal agreement bound to a weak labeller: flagging 261 of
+299 pairs, against 12 a pharmacist confirmed, caps its Matthews correlation
+at 0.0780; measured, it is 0.0269. Third, a mining bug class,
+trigger-exemplar dissociation, where displayed evidence is picked by position,
+not from the triggering set, caught by a one line assertion; reachable
+here, though its frequency is unestablished. With 12 positives,
+the evaluation resolves only large effects on area under the curve, about
+0.75 to 0.81. The detector was indistinguishable from chance on the 253
+non-ambiguous pairs; on the 108 Rules 3 and 4 pairs, which the documented
+selection defect does not affect, its area of 0.6095 (95 percent interval
+0.3029 to 0.9010) leaves open whether the null is a defect artifact. By
+average precision, chosen post hoc, a bag-of-words model and a model never
+trained on the weak labels beat their chance baselines, unlike the detector,
+though no paired test separates them. The work does not show the task
+unsolvable.
 \par}
 \end{frontmatterpage}

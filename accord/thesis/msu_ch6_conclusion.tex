@@ -13,8 +13,7 @@
 %  anomaly is dropped from future work for the same reason it carries no
 %  claim this chapter depends on (Section~\ref{sec:disc-anomaly}).
 %
-%  Figure: fig:exemplar, referenced from Chapter~\ref{ch:intro} in the
-%  practical-lesson section, illustrating the check rather than a result.
+%  Figure: fig:exemplar, referenced in the practical-lesson section.
 % ============================================================================
 
 \chapter{Summary and Conclusion}
@@ -39,126 +38,80 @@ domain-pretrained clinical encoder. Each stage's reading was checked, and Sectio
 \label{sec:conc-found}
 
 With 12 pharmacist-confirmed contradictions in 299 pairs, this evaluation
-resolves only large AUROC effects, stated per decision rule: a power analysis
-on a real score distribution puts 80 percent power at 0.7466 for a two-sided
-Mann-Whitney test and 0.8084 for the registered decision rule, which has power
-of only 0.52075 at the analytic minimum detectable AUROC of 0.7355
-(Section~\ref{sec:res-rq4}). The floor is about AUROC; separately, a baseline's
-average precision exceeded its own permutation null, on a statistic chosen
-after its value was known, as reported below. Within that limit, every 8B
-labeller under the clinical-pharmacist framing flagged several times the
-confirmed count when ambiguous pairs are counted negative: the deployed
-labeller called 261 of the 299 pairs contradictions against 12 confirmed, and
-three local models under the replication prompt
-over-call the same pool by a factor of 15.8196 to 23.5959 against the
-confirmed rate (Section~\ref{sec:res-rq2}). How much more depended heavily on
-the prompt: a clinical-pharmacist framing prompt, whose differences from a
-plain yes/no prompt are confounded, gave higher positive rates for
-granite3.3:8b and qwen3:8b; the llama3:8b shift lies within the gap between
-two runs of the same prompt text and is not interpreted. Counting the 46 ambiguous
-pairs as confirmed is a post hoc rescaling that multiplies every ratio by
-12/58 and says nothing about agreement; under it \texttt{qwen3:8b} and
-\texttt{granite3.3:8b} under the plain prompt fall to 1.0000 and 1.8448. The
-local Fisher tests, run under the frontier template prompts, did not show
-that the labellers flag ambiguous pairs more than clear negatives, which with
-46 ambiguous pairs is absence of evidence, not evidence against. The margin is also fragile: relabelling 5
-flagged pairs would bring the lowest hard-label ratio under the ambiguous-negative reading,
-4.8333, below the
-highest ratio measured on public text.
+resolves only large AUROC effects: 80 percent power sits at 0.7466 for a
+two-sided Mann-Whitney test and 0.8084 for the registered decision rule
+(Section~\ref{sec:res-rq4}). The deployed labeller called 261 of the 299
+pairs contradictions against 12 confirmed, and how far each 8B labeller
+over-called turned on the prompt (Section~\ref{sec:res-rq2}). Its measured
+MCC on the exact join, 0.0269, is at chance and below the 0.0780 ceiling its
+marginal fixes (Section~\ref{sec:res-rq2}).
 
-The detector trained on those labels was not distinguishable from chance
-on the 253 non-ambiguous pairs: the decontaminated ensemble reaches an AUROC
-of 0.5145, its bootstrap interval excluding values above 0.7034, and its
-average precision, 0.0598, is not above its permutation null ($p = 0.4629$).
-On the 108 non-ambiguous Rules 3 and 4 pairs the exemplar-selection defect of
-Section~\ref{sec:r-exemplar} cannot reach, the same ensemble reaches 0.6095
-($p = 0.1910$, 95 percent bootstrap interval 0.3029 to 0.9010), above the
-0.4221 on Rules 1 and 2, the direction the defect-artifact reading predicts.
-The pre-registered Outcome A means only that this stratum fell within 0.10 of
-the full-set AUROC and was not significant, a margin of 0.0950 that turns on
-about one positive; with 6 positives and a minimum detectable AUROC of 0.8064
-this fails to show the null is a defect artifact and cannot establish that it
-is not. Average precision, a statistic chosen after its value was known,
-gives a narrower result. A bag-of-words model trained on the weak labels
-clears its no-skill line at $p = 0.0109$ on the full annotated set and
-$p = 0.0159$ on the 253 non-ambiguous pairs (C107) and holds in 11 of 12
-leave-one-positive-out drops; an inference model never trained on the weak
-labels is also above its own permutation null on the non-ambiguous set
-($p = 0.01335$, C111), and the detector ensemble is not. No paired permutation test
-on within-system ranks separates any two of the three (bag-of-words against
-the detector, $p = 0.17875$; inference model against the detector,
-$p = 0.1452$), so neither simple model is shown to find a signal the detector
-lacks. That is an average-precision signal a label-free model also finds,
-which C111's registered interpretation calls a surface lexical or
-semantic-similarity signal, not evidence that the weak labels carried signal.
+The detector trained on those labels was not distinguishable from chance on
+the 253 non-ambiguous pairs, its ensemble's bootstrap interval excluding an
+AUROC above 0.7034 (Section~\ref{sec:res-rq4}). The Rules 3 and 4 stratum is
+not subject to the documented Rule 1 and Rule 2 positional defect, though its
+exemplar correctness in the gold set is assumed, not verified; on its 108
+non-ambiguous pairs the ensemble reaches 0.6095 (95 percent bootstrap
+interval 0.3029 to 0.9010), a comparison between rule groups that with 6
+positives can neither show nor exclude a defect artifact
+(Section~\ref{sec:res-rq4}). By average precision, a statistic chosen after
+its value was known, a bag-of-words model trained on the weak labels and an
+inference model never trained on them clear their permutation nulls where
+the detector does not, but no paired test separates any two of the three
+(Section~\ref{sec:res-rq4}).
 
 \section{What This Establishes, and What It Does Not}
 \label{sec:conc-establishes}
 
-The labeller's own marginal fixes an agreement ceiling before a single pair
-is scored: holding the confirmed and flagged counts fixed, the largest
-Matthews correlation any thresholded label at that marginal could express
-against the pharmacist, at 261 flagged of 299, is 0.0780. The ceiling bounds
-thresholded labels, not a ranking: it is a precondition to check before
-training, not an explanation of the detector's null. The resolvable-effect floor
-above rests on a power analysis, not an empirical validation of the clinical
-instrument, and it does not show that this evaluation's null is free of the
-exemplar-selection defect, since the defect-free stratum has only six
-positives.
+The agreement ceiling applies the classical maximum of agreement under fixed
+marginals \citep{cohen1960kappa} as a check on a weak labeller before
+training, needing only a base rate from a small expert-labelled sample: at
+261 flagged of 299 it is an MCC of 0.0780, and the measured 0.0269 agrees
+with it. It bounds thresholded labels, not a ranking, so it is a
+precondition rather than an explanation of the detector's null. The
+resolvable-effect floor rests on a power analysis, not an empirical
+validation of the clinical instrument, and the Rules 3 and 4 stratum, with
+six positives, cannot show that the null is free of the exemplar defect.
 
 \section{Practical Lesson}
 \label{sec:conc-practice}
 
-The lesson this project draws, stated as a lesson rather than as a
-demonstrated safeguard, is to check a weak labeller's marginal against a
-human-established base rate before training anything on its output, and to
-report a simple baseline's own significance test alongside a neural ranking
-result rather than assume the ranking statistic is the only one that
-matters. The check that this project ran after the fact, illustrated for the
-upstream candidate pool by Figure~\ref{fig:exemplar} in
-Chapter~\ref{ch:intro}, is cheap relative to the training budget it would
-have been read against; that it is cheap is a reason to run it earlier next
-time, not a claim that running it here would have changed what this
-evaluation could resolve at 12 positives.
+The lesson, stated as a lesson rather than as a demonstrated safeguard, is to
+check a weak labeller's marginal against a human-established base rate before
+training anything on its output, and to report a simple baseline's own
+significance test alongside a neural ranking result. The exemplar check
+(Figure~\ref{fig:exemplar}) is cheap relative to the training budget; that
+is a reason to run it earlier next time, not a claim that running it here
+would have changed what this evaluation could resolve at 12 positives.
 
 \section{Future Work}
 \label{sec:conc-future}
 
 \textbf{A larger annotated set.} Every interval in this thesis rests on 12
-positives, and the per-rule floors at that count, 0.7466 for a two-sided
-Mann-Whitney test and 0.8084 for the registered rule, set the size of the
-annotation effort a future attempt needs before a modest
+positives, and the per-rule floors at that count, 0.7466 and 0.8084, set the
+size of the annotation effort a future attempt needs before a modest
 detector could be told apart from chance.
 
-\textbf{An independent set for wording-specific signals.} A reversed-direction
-zero-shot score from llama3:8b ranked above chance at the uncorrected 0.05 level under every
-wording tried, cleared the registered Bonferroni threshold under only one of
-the three new wordings, and reached the
-registered 0.7355 threshold under none of the three new ones, a rule with power
-of only 0.52075 at that value, and the llama3:8b signal sits in the
-rows carrying the exemplar defect (Section~\ref{sec:res-rq2}). The descriptive
-granite3.3:8b C109 cells rank above chance under every wording and meet both
-registered criteria under two of the three new wordings, one by a narrow AUROC margin; its best wording,
-picked after the fact, most strongly on the defect-free Rules 3 and 4 (0.8775,
-6 positives). Whether a graded score escapes the agreement ceiling is not
-settled, and that result is the strongest reason not to read the detector's
-ranking null as evidence the task is unsolvable. A wording-specific signal can
-only be tested on pairs it was not found on.
+\textbf{An independent set for wording-specific signals.} The strongest
+pre-registered prompt cell, a reversed-direction llama3:8b score, did not
+confirm under three new wordings (C109, Outcome B), and its signal sits in
+the rows carrying the exemplar defect; granite3.3:8b's descriptive C109 cells
+rank above chance under every wording, so whether a graded score escapes the
+agreement ceiling is not settled (Section~\ref{sec:res-rq2}). A
+wording-specific signal can only be tested on pairs it was not found on.
 
 \textbf{A validated exemplar instrument.} Three instruments give $0$,
 $0.4745$ and $0.9315$ for how often the exemplar selector showed a pair that
-did not carry the conflict it asserted (Section~\ref{sec:r-exemplar}), and
-none establishes the rate; the highest, $0.9315$, comes from an extractor never
-validated against human annotation and may be an artifact of it. Validating it would establish whether the pool's confirmed
-base rate is valid.
+did not carry the conflict it asserted (Section~\ref{sec:r-exemplar}); the
+highest comes from an extractor never validated against human annotation.
+The bug class is reachable here; validating an instrument would establish
+its prevalence and whether the pool's confirmed base rate is valid.
 
-\textbf{Frontier-scale local labellers, when feasible.} The comparison this
-project needed, a frontier-scale model against the same local labellers on
-the same pool, was attempted through a hosted API and withdrawn under the
-compliance action Section~\ref{sec:m-ethics} records
-(Section~\ref{sec:r-frontier}). Whether the over-calling this chapter
-measures attenuates with scale is answerable only by a labeller served
-locally, at a scale a hosted channel is not required to reach.
+\textbf{Frontier-scale local labellers, when feasible.} The frontier-scale
+comparison this project needed was attempted through a hosted API and
+withdrawn under the compliance action Section~\ref{sec:m-ethics} records.
+Whether over-calling attenuates with scale is answerable only by a labeller
+served locally.
 
 \section{Closing}
 \label{sec:conc-closing}
@@ -169,21 +122,14 @@ could annotate, twelve confirmed contradictions in 299 pairs, the pipeline
 built to detect them did not, and the thesis leaves three results that need
 no statistical power: a stage-wise control audit in which the first three
 stages each reported a number that its control or code audit did not
-support; an agreement ceiling,
-computed from the weak labeller's marginal alone, of 0.0780 at 261 flagged of
-299, a check to run before any training; and trigger-exemplar dissociation, a
-mining-bug class caught by a one-line assertion. In support, the detector
-shows no AUROC effect above about 0.75 to 0.81 on the 253 non-ambiguous pairs,
-the defect-free stratum cannot settle whether that null is a defect artifact,
-and a bag-of-words model and a model never trained on the weak labels both
-find an average-precision signal that no paired test
-separates from the detector. The planted-defect benchmark, a synthetic mirror-image check of
-the Rule 1/2 versus Rule 3/4 Fisher test rather than a validation of it, did
-not reach its required firing rate, a limitation this thesis discloses
-rather than a result it claims.
+support; a pre-training agreement check on the weak labeller's marginal; and
+trigger-exemplar dissociation, a mining-bug class shown reachable and caught
+by a one-line assertion. In support, the detector shows no AUROC effect above
+about 0.75 to 0.81 on the 253 non-ambiguous pairs. The planted-defect
+benchmark did not reach its required firing rate, a limitation this thesis
+discloses rather than a result it claims.
 
 None of that establishes that the task cannot be done
 (Section~\ref{sec:disc-null}). It establishes what a per-rule floor of 0.7466
-to 0.8084 lets a 253-pair evaluation say and what it stays silent on, and it
-leaves the size and the design of the next attempt to the future work above
-rather than to this one.
+to 0.8084 lets a 253-pair evaluation say, and it leaves the size and the
+design of the next attempt to the future work above.

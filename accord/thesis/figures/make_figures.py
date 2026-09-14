@@ -162,145 +162,98 @@ def mcc_from_counts(tp, tn, fp, fn):
 
 
 # ============================================================================
-# Figure 1 -- fig:pipeline-status  (ch1_introduction.tex)
+# The thesis register. Every number the round-7 rebuilds draw is read here, by
+# key, and a withdrawn.* key is refused outright: withdrawn values are not
+# citable, and a figure that could draw one would be a way round that rule.
+_FACTS_PATH = os.path.join(RESULTS, "VERIFIED_FACTS.json")
+with open(_FACTS_PATH) as _f:
+    _FACTS = json.load(_f)
+
+
+def fact(key):
+    assert not key.startswith("withdrawn."), f"{key} is withdrawn, not citable"
+    return _FACTS[key]["value"]
+
+
+def fact_source(key):
+    """The artifact a register key points at, repo-relative, without the
+    ::json-path suffix; 'derived:' entries resolve to the register itself."""
+    a = _FACTS[key]["artifact"]
+    if a.startswith("derived") or a.startswith("["):
+        return _FACTS_PATH
+    return os.path.join(REPO, a.split("::", 1)[0])
+
+
 # ============================================================================
-# v4 REFRAME (second-round review). The v3 figure was a verdict table: a
-# coloured Works/Unvalidated/Fails/Falsified chip per stage, with the number
-# and the diagnostic both reduced to small italic text beside it. Chapter 1
-# Section 1.2 no longer argues "most stages failed"; it argues that four of
-# those failures were METRIC-BLIND -- each produced a number that would have
-# passed peer review, because no standard reported metric was sensitive to
-# the defect behind it, and each has a one-line check that is. The figure has
-# to carry that argument, not the verdict it used to carry. Three changes:
-#   (1) the verdict chip is gone. A stage's status is no longer a coloured
-#       box; it is the content of the row. The row's pale tint (a WASH, not a
-#       SOLID chip) is the only colour-coded state left, and it is reserved
-#       for a glance, not a claim.
-#   (2) the "reported number" -- what looked fine -- is now set in plain INK
-#       beside the stage, each one ending in the word "unflagged", stated
-#       once per row rather than as a separate sentence, because the four
-#       rows read as a set and the repetition is the point.
-#   (3) the check is the chip now: a solid INK box naming the one-line test,
-#       with the number it actually catches given underneath in SCARLET_DEEP
-#       -- the one semantic that colour carries in this set, the exact mark
-#       where the pipeline is broken, now attached to the check's finding
-#       rather than to a verdict word.
-#
-# v5 (third-round review, six verified defects). v4's INK-box-on-the-check
-# design got four things wrong at once:
-#   (1) CONTRAST. The finding line sat in SCARLET_DEEP directly on the row's
-#       SCARLET_TINT wash. Measured under WCAG's own formula that is 4.93:1,
-#       which clears the 4.5:1 AA floor for this pairing on paper, but the
-#       reviewer's tooling read it closer to 4:1 and flagged it as the
-#       figure's most serious defect twice running -- on a schematic where
-#       small italic type sits directly on a tinted fill, a nominal pass with
-#       no margin is not a fix. The finding no longer sits as coloured text
-#       on a tint at all: see (3).
-#   (2) PALETTE. Three washes (EMERALD_TINT row 1, MIST row 2, SCARLET_TINT
-#       rows 3-6) was the original traffic-light problem back, and worse in
-#       grayscale: TINT stops are pale by construction, so any two of them
-#       convert to nearly the same light grey (measured below) regardless of
-#       hue. A background wash cannot carry this distinction at the TINT
-#       stop, in any hue. It is now binary and it is not carried by the wash
-#       alone: FAULT rows keep a SCARLET_TINT ground (state is data on a
-#       schematic, and SCARLET's one semantic is exactly "the failure this
-#       thesis is reporting"); PASS/NONE rows carry no wash at all, which is
-#       maximally separable from a tint in luminance terms rather than
-#       marginally so. The real, greyscale-and-colour-blind-safe separator is
-#       (3): a solid chip appears on a fault row and nowhere else.
-#   (3) WEIGHT. The solid chip -- the highest-weight mark on the canvas --
-#       used to wrap the check (the diagnostic procedure, the least
-#       interesting column) while the finding it catches sat underneath as
-#       small plain text. That is backwards: the finding is the figure's
-#       point. The chip now wraps the finding, in SCARLET (the fault
-#       semantic, and F2 SOLID CHIP already buys >=7.7:1 for PAPER text on
-#       SCARLET_DEEP with no new colour needed); the check is demoted to
-#       plain italic text, the same voice every non-fault row's check column
-#       already used, because it is genuinely the supporting column now. It
-#       is GRAPHITE rather than MUTE on a FAULT row specifically, because it
-#       now sits directly on the row's own SCARLET_TINT wash rather than
-#       inside an opaque chip, and MUTE-on-SCARLET_TINT measures 3.98:1,
-#       under the 4.5:1 AA floor for 8.5pt text; GRAPHITE-on-SCARLET_TINT
-#       measures 7.93:1, and GRAPHITE is already this system's structural
-#       measurement tone, not a new colour.
-#   (4) Three correctness/consistency fixes that do not touch layout: row 2's
-#       reported and check columns said the same thing twice (dropped the
-#       check column's copy, since the reported column already carries "why
-#       there is nothing to report" for every PASS/NONE row); row 1's
-#       reported column no longer claims "no defect found" (Sec.3.2.2 records
-#       that the LOS filter was computed and never applied, so the note joins
-#       ran unfiltered -- "counts reconcile" is what the section supports,
-#       and the check column is reworded to name the reconciliation check
-#       rather than restate that same conclusion); and the rule-generation
-#       finding is now printed as a decimal (since v8, C106 primary), in the same
-#       plain digits as the pharmacist base rate two lines above it in the
-#       same row, rather than as a percentage that truncates instead of
-#       rounds.
-# Every number below is read from the same four files the v3 figure read;
-# nothing new is loaded and nothing is typed in.
+# Figure 1 -- fig:pipeline-status  (ch1_introduction.tex)
+PIPELINE_KEYS = [
+    "gold.base_rate_299",
+    "gold.n_total",
+    "exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate",
+    "exemplardirect.defect_rate",
+    "c120.g299.n",
+    "c120.g299.n_flagged",
+    "c120.g299.mcc",
+    "c120.g299.ceiling_mcc",
+    "rulehead.test_rule_type_macro_f1",
+    "decontam.aggregate.ensemble_auroc",
+    "decontam.aggregate.ensemble_ci95_hi",
+    "sizectl108.power_curves.primary_crossing_power_0_80",
+]
+
+
 def make_fig_pipeline_status():
-    # C106 settles neither outcome: no instrument establishes the exemplar
-    # defect rate, so the chip shows the range across instruments, from the
-    # step2plus join (1 - rule_1_2 pooled correct rate, register
-    # exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate) to the direct
-    # extractor (register exemplardirect.defect_rate). No single rate is drawn.
-    exemplar, p_exemplar = load("exemplar_direct", "exemplar_direct.json")
-    defect_rate = exemplar["defect_rate"]
-    step2plus, p_step2plus = load("exemplar", "step2plus_results.json")
-    defect_rate_low = 1.0 - step2plus["rule_1_2_pooled_exemplar_correct_rate_in_299"]["rate"]
+    # ROUND 7 REBUILD (fixes_r7 N9). The previous canvas numbered six stages,
+    # headlined "four of six stages hid a failure", drew evaluation as a
+    # failure, credited "three ablation claims" that no ablation ever tested and
+    # checked the architecture with an OOD transfer F1 the thesis does not
+    # interpret. This one draws the thesis's own four stages, numbered 1 to 4
+    # as Chapter 1 numbers them. Stages 1 to 3 each reported a number that its
+    # control or code audit does not support; stage 4 is a bounded null, and
+    # the two states are told apart by fill (solid chip against outlined chip)
+    # and by a word, so the distinction survives greyscale.
+    #
+    # The candidate chip is a RANGE, never a rate: no instrument establishes
+    # how often the positional exemplar misses (C106). The low end is one
+    # minus the step2plus join's pooled correct rate; the high end is the
+    # unvalidated direct extractor.
+    base = fact("gold.base_rate_299")
+    n_gold = fact("gold.n_total")
+    ex_lo = 1.0 - fact("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate")
+    ex_hi = fact("exemplardirect.defect_rate")
+    n_c120 = fact("c120.g299.n")
+    n_flag = fact("c120.g299.n_flagged")
+    mcc = fact("c120.g299.mcc")
+    mcc_ceil = fact("c120.g299.ceiling_mcc")
+    assert n_c120 == n_gold
+    f1_rule = fact("rulehead.test_rule_type_macro_f1")
+    auroc = fact("decontam.aggregate.ensemble_auroc")
+    ci_hi = fact("decontam.aggregate.ensemble_ci95_hi")
+    floor = fact("sizectl108.power_curves.primary_crossing_power_0_80")
+    # The bounded-null reading only holds while the interval's upper end sits
+    # under the floor; if either moves past the other the chip would lie.
+    assert ci_hi < floor, "interval upper bound no longer under the C108 floor"
 
-    # v7 (fourth-round review, external reviewer). step0_1_join_and_calibration.json
-    # used to be loaded here for weak_pos_rate, and step2_signal_check.json's
-    # ambiguous-excluded base rate for pharm_rate -- neither is read anywhere in
-    # this function, only assigned once and never referenced again. That dead
-    # pair put a source into this figure's own manifest entry that contributes
-    # nothing to the canvas, which is exactly the class of provenance rot the
-    # thesis is about; it should not be in the thesis's own manifest. Both loads
-    # and both dead variables are gone. step2 itself stays: pharm_rate_all below
-    # IS read, from the same file.
-    step2, p_step2 = load("diag", "step2_signal_check.json")
-    # One multiplier for the whole thesis, and it is the gold-set one: the weak
-    # labeller's marginal on the 299 annotated pairs over the pharmacist's base
-    # rate on those same 299 pairs. Both terms are measured on the same rows,
-    # which is the only version of this ratio that compares like with like.
-    # This figure used to divide the training-pool marginal by the gold base
-    # rate, which is a different denominator on each side of the division and
-    # gave a second, slightly different headline number that the introduction
-    # then had to spend a sentence in two captions explaining away.
-    exp1a, p_exp1a = load("differential", "exp1a_gold_error_rates_by_group.json")
-    _lang = exp1a["language_group3"]
-    gold_weak_pos = sum(g["TP"] + g["FP"] for g in _lang)
-    gold_n = sum(g["n"] for g in _lang)
-    _d299 = step2["contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]
-    pharm_rate_all = _d299["base_rate"]
-    ratio = (gold_weak_pos / gold_n) / pharm_rate_all
-    gold_weak_rate = gold_weak_pos / gold_n
+    UNSUP, BOUNDED = "unsupported", "bounded null"
+    rows = [
+        (1, "Candidate mining", UNSUP,
+         f"precision {base:.4f}\non {n_gold} gold pairs",
+         "Is the exemplar in the trigger set?",
+         f"{ex_lo:.0f} to {ex_hi:.4f} by instrument"),
+        (2, "Weak supervision", UNSUP,
+         f"{n_flag} of {n_c120} pairs\nflagged",
+         "Marginal ceiling, then measured agreement",
+         f"MCC {mcc:.4f}, ceiling {mcc_ceil:.4f}"),
+        (3, "Architecture", UNSUP,
+         f"rule-type F1 {f1_rule:.4f},\ntwo more components",
+         "Code audit of the three credited components",
+         "artifact, target in input, untrained"),
+        (4, "Evaluation", BOUNDED,
+         f"AUROC {auroc:.4f}",
+         "Interval upper end against the C108 floor",
+         f"upper {ci_hi:.4f}, floor {floor:.4f}"),
+    ]
 
-    decontam, p_decontam = load("decontam", "corrected_gold_metrics.json")
-    auroc = decontam["aggregate"]["ensemble_auroc"]
-    ci = decontam["aggregate"]["ensemble_ci95"]
-
-    # v7 REDESIGN (fourth-round review, external reviewer, rejected on all three
-    # prior rounds). v6 read as "a table with a headline": six uniform row
-    # bands, three of them a wash whose only job was fault/non-fault, and
-    # nothing on the canvas said that the stage 3 exemplar defect is the shared
-    # corrupted input the three stages after it then each independently
-    # mishandled -- the propagation claim the chapter actually rests on. Three
-    # changes:
-    #   (1) rows 1 and 2 (Cohort construction, Medication extraction) carried no
-    #       number and no finding; they are dropped from the row list entirely
-    #       and replaced by one grey stub line under the headline.
-    #   (2) a spine at x=22 runs the row column: a clean grey segment for
-    #       stages 1-2, a scarlet origin dot on row 3 (the defect enters here),
-    #       a heavier scarlet carrier down to row 6, and a delivery arrow into
-    #       rows 4/5/6 only -- row 3 gets no arrow, because it is the source,
-    #       not a recipient. Vertical position now reads as causal order,
-    #       which it did not before. This is the whole redesign.
-    #   (3) the row washes are gone. With rows 1-2 gone, all four remaining
-    #       rows are faults, so a wash on all four encoded nothing, added ink,
-    #       and reintroduced the MUTE-on-SCARLET_TINT contrast problem already
-    #       fixed once (v5). The finding chip is the only colour-coded mark
-    #       left, and it is sized to its own text rather than to the column.
     W, H = FIGW, 3.39
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
@@ -309,161 +262,87 @@ def make_fig_pipeline_status():
     ax.set_xlim(0, W * 72)
     ax.set_ylim(0, H * 72)
     ax.axis("off")
-    # A renderer has to exist before any text's get_window_extent() call below
-    # can measure anything; draw() once, on the still-empty axis, to get one.
     fig.canvas.draw()
 
-    # Four rows only -- stages 3 through 6, the four that hid a failure behind
-    # an unflagged number. The stage numeral keeps the six-stage pipeline's own
-    # numbering (3, 4, 5, 6), not a renumbering to 1-4, so it still names which
-    # stage this is in the same pipeline the stub line below summarizes stages
-    # 1-2 of.
-    rows = [
-        (3, "Rule-based candidate\ngeneration",
-         f"{pharm_rate_all:.4f} reported\nprecision",
-         "Action-set match vs position index",
-         f"{defect_rate_low:.0f} to {defect_rate:.4f} by instrument"),
-        (4, "LLM weak supervision",
-         # Rewrapped (v7): the old "0.8729 positive on\ngold set" put 76.5pt
-         # of "0.8729 positive on" against an 80pt column, one of the
-         # tightest margins on the canvas. "0.8729 positive\non gold set"
-         # measures 55.6pt on its first line instead.
-         f"{gold_weak_rate:.4f} positive\non gold set",
-         "Weak-label marginal vs gold marginal",
-         # Also kept as printed: 21.768... rounded with the same .0f used at
-         # fig:intro-headline for the identical ratio, so the two figures
-         # agree; no chapter states this multiplier to four decimals for
-         # that rounding to conflict with.
-         f"{ratio:.0f}x mismatch"),
-        (5, "Detector training",
-         "Three ablation\nclaims held",
-         r"$\|\Delta\theta\|$ from init, OOD transfer $F_1$",
-         # No committed numeric value exists for this stage -- the finding
-         # is categorical, not a number, so it is reported in the thesis's
-         # own words for it: a component "whose credited mechanism is
-         # reproduced by a deliberately meaningless substitute has been
-         # falsified" (Ch.5, "Architecture: reversed, and positively";
-         # Ch.4 Sec."Architecture" audits the same two components).
-         "Credited mechanisms falsified"),
-        (6, "Evaluation",
-         f"AUROC {auroc:.4f}\nalone",
-         "Bootstrap CI on AUROC before write-up",
-         # Not a percentage and not borderline (0.3210 and 0.7034 each round
-         # to their printed 2dp without ambiguity).
-         f"[{ci[0]:.2f}, {ci[1]:.2f}]"),
-    ]
-    # Vertical grid, points from the bottom. y_top=172.0, band_h=38.5,
-    # gutter=4.0, floor=6.0 solve to these four mids; written as a literal
-    # dict rather than re-derived, because the numeral (3, 4, 5, 6) is the row
-    # key everywhere below, not a 0-based loop index.
-    row_mid = {3: 152.75, 4: 110.25, 5: 67.75, 6: 25.25}
+    row_mid = {1: 158.0, 2: 115.0, 3: 72.0, 4: 29.0}
+    X_SPINE, X_NUM, X_NAME, X_REP, X_CHK = 20.0, 46.0, 58.0, 160.0, 262.0
 
-    # --- The spine: the load-bearing element, and the whole of the redesign.
-    # Vertical position now reads as causal order because the rail changes
-    # tone AND weight at the exact point the defect enters, and only rows 4-6
-    # -- the stages that consumed it -- get an arrowhead; row 3 alone has
-    # none, and that asymmetry IS the claim. GRAPHITE/thin above the origin is
-    # stages 1-2 (clean, unrelated to the defect); SCARLET_CORE/thick from the
-    # origin down is "this carries the stage 3 defect".
-    #
-    # OVERCLAIM GUARD: this rail asserts SHARED CORRUPTED INPUT into rows
-    # 4-6, not that rows 4-6's numbers follow causally from row 3's. The 22x
-    # mismatch at row 4 is a prevalence and specificity effect, not an effect
-    # of the exemplar defect, and nothing drawn here says or implies
-    # otherwise -- the rail only ever claims the same wrong exemplar reached
-    # all three, which is the carrier label's own words.
-    ax.plot([22, 22], [202.0, row_mid[3]], color=GRAPHITE, lw=1.2,
-            solid_capstyle="butt", zorder=3)
-    ax.add_patch(mpatches.Circle((22, 202.0), 2.5, facecolor=GRAPHITE,
-                                  edgecolor="none", zorder=3))
-    ax.add_patch(mpatches.Circle((22, row_mid[3]), 4.0, facecolor=SCARLET_DEEP,
-                                  edgecolor="none", zorder=6))
-    ax.plot([22, 22], [row_mid[3], row_mid[6]], color=SCARLET_CORE, lw=2.6,
-            zorder=4)
-    for n in (4, 5, 6):
-        arrow(ax, (22.0, row_mid[n]), (46.0, row_mid[n]), color=SCARLET_CORE,
-              lw=2.0, mutation_scale=11)
-    ax.text(11.0, 89.0, "the same wrong exemplar", rotation=90, ha="center",
+    # The carrier. It starts at stage 1, where the exemplar is chosen, and
+    # delivers into stages 2 to 4, each of which consumed that same exemplar.
+    # It records shared input, not cause, and not a defect rate.
+    ax.add_patch(mpatches.Circle((X_SPINE, row_mid[1]), 4.0,
+                                 facecolor=SCARLET_DEEP, edgecolor="none",
+                                 zorder=6))
+    ax.plot([X_SPINE, X_SPINE], [row_mid[1], row_mid[4]], color=SCARLET_CORE,
+            lw=2.6, zorder=4)
+    for n in (2, 3, 4):
+        arrow(ax, (X_SPINE, row_mid[n]), (X_NUM - 10.0, row_mid[n]),
+              color=SCARLET_CORE, lw=2.0, mutation_scale=11)
+    ax.text(X_SPINE - 10.0, (row_mid[2] + row_mid[4]) / 2,
+            "the same selected exemplar", rotation=90, ha="center",
             va="center", fontsize=T_NOTE, style="italic", color=SCARLET_DEEP,
             zorder=5)
 
-    # --- The four rows.
-    for n, name, reported, check, finding in rows:
+    for n, name, status, reported, check, finding in rows:
         mid = row_mid[n]
-        ax.text(54.0, mid, str(n), ha="center", va="center", fontsize=10.0,
+        ax.text(X_NUM, mid + 5.5, str(n), ha="center", va="center",
+                fontsize=10.0, color=INK, zorder=5)
+        ax.text(X_NAME, mid + 5.5, name, ha="left", va="center", fontsize=10.5,
                 color=INK, zorder=5)
-        ax.text(66.0, mid, name, ha="left", va="center", fontsize=10.5,
-                color=INK, linespacing=1.18, zorder=5)
-        ax.text(176.0, mid, reported, ha="left", va="center",
+        ax.text(X_NAME, mid - 8.0, status, ha="left", va="center",
+                fontsize=T_NOTE, style="italic",
+                color=SCARLET_DEEP if status == UNSUP else INK, zorder=5)
+        ax.text(X_REP, mid, reported, ha="left", va="center",
                 fontsize=T_SERIES, color=INK, linespacing=1.22, zorder=5)
-        ax.text(256.0, mid + 10.5, check, ha="left", va="center",
+        ax.text(X_CHK, mid + 9.5, check, ha="left", va="center",
                 fontsize=T_NOTE, style="italic", color=MUTE, zorder=5)
-        # Chips are sized to their own text, not to the column: a uniform
-        # chip wide enough for "Credited mechanisms falsified" left
-        # "[0.32, 0.70]" sitting in mostly-empty scarlet and reading as a
-        # table cell again. Measured once with a throwaway text artist at the
-        # chip's own font and weight, then discarded; style.chip stays the
-        # only call site that actually draws a chip, so tools/check_parity.py
-        # still sees one drawer.
         probe = ax.text(0, 0, finding, fontsize=T_CHIP, fontweight="bold")
         bbox = probe.get_window_extent(fig.canvas.get_renderer())
         w_i = bbox.width * 72.0 / fig.dpi + 12.0
         probe.remove()
-        chip(ax, 256.0, mid - 14.0, w_i, 12.5, SCARLET, finding,
-             fontsize=T_CHIP, radius=3.0, ha="left")
+        if status == UNSUP:
+            chip(ax, X_CHK, mid - 14.5, w_i, 13.0, SCARLET, finding,
+                 fontsize=T_CHIP, radius=3.0, ha="left")
+        else:
+            # Outlined, not filled: a bounded null is not a fault, and a
+            # greyscale reader tells an outline from a solid at a glance.
+            node(ax, X_CHK, mid - 14.5, w_i, 13.0, PAPER, GRAPHITE,
+                 radius=3.0, zorder=6, lw=1.4)
+            ax.text(X_CHK + 6.0, mid - 8.0, finding, ha="left", va="center",
+                    fontsize=T_CHIP, fontweight="bold", color=INK, zorder=7)
+        assert X_CHK + w_i < W * 72 - 4.0, f"chip overflows the plate: {finding}"
 
-    # Stages 1 and 2 carried no number and no finding; two full row bands to
-    # say "counts reconcile" and "never diagnosed" cost a third of the canvas
-    # for two facts that are not this figure's argument. One grey stub line,
-    # at the spine's clean-segment cap, replaces both rows.
-    ax.text(32.0, 202.0,
-            "1, 2   Cohort construction and medication extraction: counts "
-            "reconcile, never diagnosed.",
-            ha="left", va="center", fontsize=T_NOTE, style="italic",
-            color=MUTE, zorder=5)
-
-    # Column headers. This pipeline's font (STIXGeneral, Agg/pdf backend) has
-    # no reliable small-caps rendering, so terse upper-case at a reduced size
-    # stands in for the "small caps" header treatment.
-    ax.text(176.0, 183.0, "REPORTED", ha="left", va="center",
+    ax.text(X_REP, 186.0, "REPORTED", ha="left", va="center",
             fontsize=T_FLOOR, color=MUTE, zorder=5)
-    ax.text(256.0, 183.0, "CHECK", ha="left", va="center",
+    ax.text(X_CHK, 186.0, "CHECK AND FINDING", ha="left", va="center",
             fontsize=T_FLOOR, color=MUTE, zorder=5)
 
-    # Headline now states the propagation claim as well as the metric-blind
-    # one: four of six stages hid a failure behind an unflagged number, and
-    # the one at stage 3 is the input every stage after it consumed.
     signature(fig, SCARLET_DEEP,
-              headline="Four of six stages hid a failure behind an "
-              "unflagged number.\nThe stage 3 exemplar defect was consumed "
-              "by every stage after it.")
+              headline="Three of four stages reported a number their check "
+              "did not support.\nThe fourth, evaluation, returned a null its "
+              "controls bound.")
     fname = "fig-pipeline-status.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
-    register(fname, "fig:pipeline-status",
-             [p_exemplar, p_step2plus, p_step2, p_exp1a, p_decontam],
-             "Stages 1 and 2 (cohort construction, medication extraction) carry no "
-             "committed numeric source and are summarized in one note line rather "
-             "than drawn as rows. The detector-training row's finding is categorical "
-             "narrative with no committed numeric source (CORRECTIONS.md). The "
-             "reported-number column otherwise reads the pharmacist base rate on "
-             "G299 (0.0401, step2_signal_check.json), the weak labeller's positive "
-             "rate on the same 299 gold pairs (0.8729, "
-             "exp1a_gold_error_rates_by_group.json), and the decontaminated AUROC "
-             "point estimate alone (0.5145, corrected_gold_metrics.json). The "
-             "check-finding column reads the range of the exemplar defect rate across "
-             "instruments, which no instrument establishes (C106 settles neither): 0 "
-             "from the step2plus join (step2plus_results.json) to 0.9315 of decidable "
-             "Rule 1/2 candidates from the unvalidated direct extractor "
-             "(exemplar_direct.json); it also reads the "
-             "prevalence multiplier (~22x, same gold-set ratio fig:intro-headline "
-             "brackets), and the bootstrap 95% CI on AUROC ([0.32, 0.70], "
-             "corrected_gold_metrics.json). The spine asserts shared corrupted "
-             "input from the stage 3 exemplar defect into rows 4-6, not that rows "
-             "4-6's numbers follow causally from it: the 22x mismatch is a "
-             "prevalence and specificity effect. AUROC corrected per "
-             "CORRECTIONS.md C16 (was 0.460, now the decontaminated 3-seed ensemble "
-             "0.5145).")
+    srcs = [_FACTS_PATH] + sorted({fact_source(k) for k in PIPELINE_KEYS} - {_FACTS_PATH})
+    register(fname, "fig:pipeline-status", srcs,
+             "Four stages numbered 1 to 4 as Chapter 1 numbers them. Every number "
+             "is read by key from results/accord/VERIFIED_FACTS.json (keys: "
+             + ", ".join(PIPELINE_KEYS) + "); no withdrawn key is readable. "
+             "Stages 1 to 3 are marked unsupported (solid scarlet chip): the "
+             "candidate pool's precision against an exemplar defect whose rate "
+             "no instrument establishes (0 from the step2plus join to 0.9315 "
+             "from the unvalidated direct extractor); the weak labeller's 261 "
+             "of 299 flags against the marginal ceiling MCC 0.0780 and the "
+             "measured C120 MCC 0.0269; the three credited architectural "
+             "components against a code audit (initialisation artifact, "
+             "rule-type target in the input, untrained harm head), no "
+             "randomisation control run. Stage 4 is a bounded null (outlined "
+             "chip): the detector ensemble AUROC 0.5145 with bootstrap upper "
+             "bound 0.7034, under the C108 two-sided Mann-Whitney 80 percent "
+             "power floor 0.7466. The scarlet carrier records that stages 2 to "
+             "4 consumed the exemplar stage 1 selected; it asserts shared "
+             "input, not cause and not a defect rate.")
 
 
 # ============================================================================
@@ -778,16 +657,33 @@ def make_fig_exemplar():
         ax.text(x_note, y, text, ha="left", va="center", fontsize=T_NOTE,
                 color=tone, linespacing=1.24, zorder=5)
 
+    # ROUND 7 (fixes_r7 N9). The old headline, "The exemplar shown to everyone
+    # is row 1", read as a population claim: that every candidate showed the
+    # wrong mention. The thesis claims only that the bug class is reachable,
+    # and that its rate is not established. The headline now names the
+    # mechanism, and the deck says in so many words that this is one schematic
+    # candidate and that three instruments disagree on how often it happens.
+    ex_lo = 1.0 - fact("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate")
+    ex_mid = fact("exemplar_recomputed.rule_1_2_pooled.wrong_rate")
+    ex_hi = fact("exemplardirect.defect_rate")
     signature(fig, SCARLET_DEEP,
-              "The rule fires on the set.\nThe exemplar shown to everyone is row 1.")
+              "The rule fires on a set; the exemplar is picked by position.",
+              deck=(f"One schematic candidate. Its miss rate is not established: "
+                    f"{ex_lo:.0f}, {ex_mid:.4f} or {ex_hi:.4f} by instrument."))
     fname = "fig-exemplar.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
-    register(fname, "fig:exemplar", [p_exemplar],
-             "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes), no "
-             "clinical text and no number: the wrong-exemplar rate it used to carry is a "
-             "population rate and this panel draws a single candidate, so the rate is stated "
-             "in the chapter body instead.")
+    register(fname, "fig:exemplar",
+             [_FACTS_PATH, p_exemplar,
+              fact_source("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate"),
+              fact_source("exemplardirect.defect_rate")],
+             "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes) and "
+             "carry no clinical text. The drawing is one candidate, so it carries no rate; "
+             "the deck states that the rate is not established and prints the three "
+             "instruments' values, read from the register by key: "
+             "exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate (one minus it, 0), "
+             "exemplar_recomputed.rule_1_2_pooled.wrong_rate (0.4745), "
+             "exemplardirect.defect_rate (0.9315).")
 
 
 # ============================================================================

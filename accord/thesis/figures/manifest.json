@@ -4,13 +4,15 @@
       "file": "figures/fig-pipeline-status.pdf",
       "label": "fig:pipeline-status",
       "sources": [
-        "results/accord/exemplar_direct/exemplar_direct.json",
+        "results/accord/VERIFIED_FACTS.json",
+        "results/accord/c120_exact_join/c120.json",
+        "results/accord/decontam/corrected_gold_metrics.json",
         "results/accord/exemplar/step2plus_results.json",
-        "results/accord/diag/step2_signal_check.json",
-        "results/accord/differential/exp1a_gold_error_rates_by_group.json",
-        "results/accord/decontam/corrected_gold_metrics.json"
+        "results/accord/exemplar_direct/exemplar_direct.json",
+        "results/accord/public_controls/sizectl_c108/power_curves.json",
+        "results/accord/reconciliation_c28.json"
       ],
-      "note": "Stages 1 and 2 (cohort construction, medication extraction) carry no committed numeric source and are summarized in one note line rather than drawn as rows. The detector-training row's finding is categorical narrative with no committed numeric source (CORRECTIONS.md). The reported-number column otherwise reads the pharmacist base rate on G299 (0.0401, step2_signal_check.json), the weak labeller's positive rate on the same 299 gold pairs (0.8729, exp1a_gold_error_rates_by_group.json), and the decontaminated AUROC point estimate alone (0.5145, corrected_gold_metrics.json). The check-finding column reads the range of the exemplar defect rate across instruments, which no instrument establishes (C106 settles neither): 0 from the step2plus join (step2plus_results.json) to 0.9315 of decidable Rule 1/2 candidates from the unvalidated direct extractor (exemplar_direct.json); it also reads the prevalence multiplier (~22x, same gold-set ratio fig:intro-headline brackets), and the bootstrap 95% CI on AUROC ([0.32, 0.70], corrected_gold_metrics.json). The spine asserts shared corrupted input from the stage 3 exemplar defect into rows 4-6, not that rows 4-6's numbers follow causally from it: the 22x mismatch is a prevalence and specificity effect. AUROC corrected per CORRECTIONS.md C16 (was 0.460, now the decontaminated 3-seed ensemble 0.5145)."
+      "note": "Four stages numbered 1 to 4 as Chapter 1 numbers them. Every number is read by key from results/accord/VERIFIED_FACTS.json (keys: gold.base_rate_299, gold.n_total, exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate, exemplardirect.defect_rate, c120.g299.n, c120.g299.n_flagged, c120.g299.mcc, c120.g299.ceiling_mcc, rulehead.test_rule_type_macro_f1, decontam.aggregate.ensemble_auroc, decontam.aggregate.ensemble_ci95_hi, sizectl108.power_curves.primary_crossing_power_0_80); no withdrawn key is readable. Stages 1 to 3 are marked unsupported (solid scarlet chip): the candidate pool's precision against an exemplar defect whose rate no instrument establishes (0 from the step2plus join to 0.9315 from the unvalidated direct extractor); the weak labeller's 261 of 299 flags against the marginal ceiling MCC 0.0780 and the measured C120 MCC 0.0269; the three credited architectural components against a code audit (initialisation artifact, rule-type target in the input, untrained harm head), no randomisation control run. Stage 4 is a bounded null (outlined chip): the detector ensemble AUROC 0.5145 with bootstrap upper bound 0.7034, under the C108 two-sided Mann-Whitney 80 percent power floor 0.7466. The scarlet carrier records that stages 2 to 4 consumed the exemplar stage 1 selected; it asserts shared input, not cause and not a defect rate."
     },
     {
       "file": "figures/fig-funnel.pdf",
@@ -25,9 +27,12 @@
       "file": "figures/fig-exemplar.pdf",
       "label": "fig:exemplar",
       "sources": [
-        "results/accord/exemplar/exemplar_correctness_recomputed.json"
+        "results/accord/VERIFIED_FACTS.json",
+        "results/accord/exemplar/exemplar_correctness_recomputed.json",
+        "results/accord/exemplar/step2plus_results.json",
+        "results/accord/exemplar_direct/exemplar_direct.json"
       ],
-      "note": "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes), no clinical text and no number: the wrong-exemplar rate it used to carry is a population rate and this panel draws a single candidate, so the rate is stated in the chapter body instead."
+      "note": "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes) and carry no clinical text. The drawing is one candidate, so it carries no rate; the deck states that the rate is not established and prints the three instruments' values, read from the register by key: exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate (one minus it, 0), exemplar_recomputed.rule_1_2_pooled.wrong_rate (0.4745), exemplardirect.defect_rate (0.9315)."
     },
     {
       "file": "figures/fig-prevalence.pdf",

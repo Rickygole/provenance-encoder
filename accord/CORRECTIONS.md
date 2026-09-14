@@ -4976,3 +4976,33 @@ Found: granite3.3:8b meets C109's two registered criteria under two of three new
 p 0.0026, the latter above 0.7355 by 0.0007), which the thesis did not state, and Ch6 named no model when saying the
 reversed score reached the threshold under none. Ch6 now names llama3:8b; Ch4, Ch5, Ch6 and Supplement S5 state the
 granite result descriptively. C109 Outcome B, whose rule covers llama3:8b only, is unchanged.
+
+## C121. Stage 1 discovery round after the title change (2026-09-14)
+
+Five discovery agents (brutal reviewer, results auditor, red team, data-agreement review, format check) and one
+provenance investigation. Found and fixed:
+- Chapter 4 said the weak-label and gold files could not be joined while Chapter 3 used that join. C120
+  (pre-registered) confirmed the exact five-key join is 1:1; the deployed labeller's agreement is measured and at
+  chance (MCC 0.0269 of a possible 0.0780 on 299 pairs; 0.0243 of 0.0818 on 253). C88's reconstruction superseded.
+- The gold sample was drawn by the original pipeline from its 1,978-candidate pool before the rebuild existed; the
+  original Rules 3/4 selectors are lost. "Defect-free" is withdrawn as a label: the Rules 3 and 4 stratum is not
+  subject to the documented Rules 1/2 defect, but its exemplar correctness is assumed, not verified, and the rule-group
+  contrast is confounded with rule content and base rate. Ch3's "Rules 3 and 4 exist only in the rebuild" was false.
+- The Rule 1/2 vs 3/4 power (0.0576) had no generator; exact enumeration gives 0.0495 and a minimum detectable
+  difference of 0.094 (accord/stats/exemplar_power_exact.py).
+- 0.52075 was quoted as the power of C109's rule; it is the C98 rule's.
+- Contribution 2 is the classical marginal-constrained bound (Cohen 1960); the contribution is its use as a check on
+  an LLM labeller, which needs a small gold base-rate sample. Contribution 3's bug class is reachable; its prevalence
+  here is not established.
+- Chapter 2 credited negative, randomisation and control-task controls as run; none was. Table 2.1 and the gap
+  statement rewritten around the checks actually run and the three contributions.
+- Figures 1.1, exemplar, ceiling, power, forest and prevalence-response rebuilt to argue what the text claims.
+- The generated trace appendix resolved prose digits to 24 withdrawn hosted values; trace_claims.py now skips withdrawn
+  keys. Hosted per-pair outputs moved out of the tracked tree to local storage.
+- PhysioNet guidance wording corrected (the 2025 guidance requires zero retention and recommends local models; it is not
+  established that it withdrew the 2023 list).
+- C44 pretraining control moved to Supplement S6 (its registration forbids reading it against the evaluation).
+- Format: three tables overflowing the page, four smaller overflows, abbreviation list and first-use definitions.
+- Redundancy cut: main thesis 149 to 137 pages.
+Open for the author: the annotator's credentialed-access status (disclosed in Chapter 3); front-matter placeholders
+and the declaration wording.
