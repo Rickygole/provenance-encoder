@@ -1,10 +1,14 @@
 """C102 Stage 4: large synthetic gold, real detector scores.
 See ../C102_PREREGISTRATION.md.
 
-NOT RUN by this build: needs Stage 3's trained-detector output, which does
-not exist yet (Stage 3 here is a CPU smoke test only; the full, trained run
-is the coordinator's, on MPS, with the real BiomedBERT feature cache).
-`main()` checks for that artifact and exits without fabricating an input.
+Runs once Stage 3's output exists (`stage3.stage3_to_stage4_bridge`); before
+that, `main()` checks for the artifact and exits without fabricating an
+input. Stage 3's output in this build is the real, frozen
+AuthorityTemporalConflictGraph + GuidelineGroundedHarmEstimator pipeline's
+raw score on synthetic inputs, UNTRAINED (no training is in this build's
+scope) -- so `y` (the 12/253 synthetic gold) and `s` are independent by
+construction, and a null Stage 4 result is the expected, calibration-
+appropriate finding, not evidence anything is broken.
 """
 from __future__ import annotations
 
@@ -33,25 +37,55 @@ N_RESAMPLES = 1000
 SEED = 42
 
 
-def s4_c98_power(y, s, seed_seq, n_resamples=N_RESAMPLES):
-    """resample 0 (the true, unpermuted gold) plus the c98_rule fire rate
-    over `n_resamples` independent permutations of the gold labels (holding
-    `s` fixed), which is this stage's CLEAN construction. `y`, `s` on the
-    unpermuted labels is the PLANT reading (real detector scores against the
-    real synthetic gold)."""
+def s4_c98_power(y, s, plant_seed_seq, clean_seed_seq, n_resamples=N_RESAMPLES):
+    """`c98_rule` on resample 0, plus the fire rate over `n_resamples`
+    resamples, on BOTH arms:
+
+    PLANT: the real (y, s) pairing, unpermuted. resample 0 is that original
+    pairing itself; the 1,000-resample table is a case (row) bootstrap --
+    resampling the 253 (y_i, s_i) pairs together, WITH replacement, keeping
+    each label matched to its own score -- characterizing how the plant
+    reading's fire/no-fire holds up under resampling variation.
+
+    CLEAN: `s` fixed, `y` independently permuted (breaking the pairing).
+    resample 0 is the first permutation drawn from `clean_seed_seq`; the
+    1,000-resample table is the fire rate over 1,000 independent
+    permutations, characterizing the null (no true relationship) rate.
+    """
     y = np.asarray(y)
     s = np.asarray(s, dtype=float)
-    resample_0_fires = ev.rule_c98(y, s)
+    n = len(y)
 
-    rng = np.random.default_rng(seed_seq)
-    fires = []
+    plant_resample_0_fires = bool(ev.rule_c98(y, s))
+    rng_plant = np.random.default_rng(plant_seed_seq)
+    plant_fires = []
     for _ in range(n_resamples):
-        y_perm = rng.permutation(y)
-        fires.append(ev.rule_c98(y_perm, s))
+        i = rng_plant.integers(0, n, n)
+        plant_fires.append(ev.rule_c98(y[i], s[i]))
+
+    rng_clean = np.random.default_rng(clean_seed_seq)
+    clean_fires = []
+    clean_resample_0_fires = None
+    for rep in range(n_resamples):
+        y_perm = rng_clean.permutation(y)
+        fired = ev.rule_c98(y_perm, s)
+        if rep == 0:
+            clean_resample_0_fires = bool(fired)
+        clean_fires.append(fired)
+
     return {
-        "resample_0_on_true_gold_fires": bool(resample_0_fires),
-        "fire_rate_over_permuted_gold_resamples": float(np.mean(fires)),
-        "n_resamples": n_resamples,
+        "plant": {
+            "resample_0_fires": plant_resample_0_fires,
+            "fire_rate_over_1000_bootstrap_resamples": float(np.mean(plant_fires)),
+            "fire_count_first_20_bootstrap_resamples": int(sum(plant_fires[:20])),
+            "n_resamples": n_resamples,
+        },
+        "clean": {
+            "resample_0_fires": clean_resample_0_fires,
+            "fire_rate_over_1000_permutation_resamples": float(np.mean(clean_fires)),
+            "fire_count_first_20_permutation_resamples": int(sum(clean_fires[:20])),
+            "n_resamples": n_resamples,
+        },
     }
 
 
@@ -78,9 +112,25 @@ def main():
     assert len(y) == N and int(y.sum()) == N_POS, (
         "Stage 3's detector-score artifact is not at the pre-registered "
         "12/253 synthetic-gold size")
-    result = s4_c98_power(y, s, np.random.SeedSequence(SEED))
+    root = np.random.SeedSequence(SEED)
+    plant_seed_seq, clean_seed_seq = root.spawn(2)
+    result = s4_c98_power(y, s, plant_seed_seq, clean_seed_seq)
+
+    plant_fires_20 = result["plant"]["fire_count_first_20_bootstrap_resamples"]
+    clean_fires_20 = result["clean"]["fire_count_first_20_permutation_resamples"]
+    if clean_fires_20 > 5:
+        verdict = "unvalidated_false_alarm"
+    elif plant_fires_20 >= 18:
+        verdict = "validated" if clean_fires_20 <= 2 else "specificity_marginal"
+    elif 3 <= clean_fires_20 <= 5:
+        verdict = "specificity_marginal"
+    else:
+        verdict = "not_validated_sensitivity"
+
     out = {"preregistration": "accord/public_controls/C102_PREREGISTRATION.md",
-          "stage": "4", "check": "S4", **result}
+          "stage": "4", "check": "S4", "source_artifact": str(STAGE3_DETECTOR_SCORES.relative_to(ROOT)),
+          "source_note": payload.get("note"),
+          **result, "verdict": verdict}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, indent=2) + "\n")
     print(json.dumps(out, indent=2))
