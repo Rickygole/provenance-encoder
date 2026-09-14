@@ -262,4 +262,116 @@ SNLI/RoBERTa pools C101's bug manifested on, for both constructions.
 
 ## Outcome
 
-Recorded after the run; the rule above is unchanged.
+Recorded 2026-09-13/14 after the run; the rule above is unchanged.
+
+**Outcome A.** A0 = 0.9772 (18,066 pool-excluded SNLI dev/test items, 6,347
+contradiction, 11,717 not; identical to C101's A0 to the digit -- the rescored
+`roberta_scores.json` under this run's own path is byte-for-byte identical to
+C101's, 0 of 18,064 scored items differing, confirming the deterministic
+CPU-only RoBERTa-large scoring pipeline is exactly reproducible and the score
+source was not switched). All 11 grid points x 2 constructions x 6 rules
+completed (132 cells; the bootstrap-type rule at 1,000 replicates per cell,
+the other five at 4,000). Wall clock: 6,502.5 s (~108 minutes).
+
+The primary crossing (`mw_two_sided`, label-mix) is 0.7466, 0.0111 from the
+registered MDE of 0.7355 -- inside the 0.02 band Outcome A requires -- and the
+rejection rate at true AUROC 0.50 is 0.048, inside `[0.03, 0.07]`. The
+held-out, n=200,000-per-side Monte Carlo population-AUROC check's largest
+deviation from target across all 22 (grid point x construction) cells is
+0.00301 (noise-mix, target 0.72), under the 0.005 Outcome C bar; every other
+cell is closer still (full table below). Unlike C101, the noise-mix
+target-0.50 cell is no longer the outlier: its held-out check reads 0.5004,
+0.0004 off target (C101's equivalent cell read 0.5112, 0.0112 off target and
+was the sole reason for C101's Outcome C). Per the decision rule quoted
+above, none of the three invalidity conditions holds and both bands for
+Outcome A are satisfied, so this run is read as **Outcome A**: this
+instrument's own power curve, measured on a real score distribution at its
+own size, agrees with the analytic and synthetic-binormal MDE.
+
+**Calibration fix, verified in place.** The noise-mix construction's sigma is
+now calibrated by the exact, deterministic `noise_mix_population_auroc`
+(no Monte Carlo, no RNG) rather than a single noisy draw at the search
+boundary. Every non-0.50 grid point's `bisection_achieved` value (the exact
+population AUROC at the returned sigma) is within 0.002 of its target, as the
+bisection loop itself enforces and as `tests/test_sizectl_calibration.py`
+pins on these same pools:
+
+| target | noise-mix sigma | noise-mix bisection_achieved | off target |
+|---|---|---|---|
+| 0.50 | infinite (`INFINITE_SIGMA`, pure label permutation) | 0.5000 | 0.0000 |
+| 0.60 | 5.0068 | 0.6016 | 0.0016 |
+| 0.65 | 3.3379 | 0.6495 | 0.0005 |
+| 0.70 | 2.4438 | 0.6984 | 0.0016 |
+| 0.72 | 2.1458 | 0.7219 | 0.0019 |
+| 0.7355 | 1.9968 | 0.7356 | 0.0001 |
+| 0.75 | 1.8477 | 0.7508 | 0.0008 |
+| 0.78 | 1.6093 | 0.7789 | 0.0011 |
+| 0.80 | 1.4603 | 0.7991 | 0.0009 |
+| 0.85 | 1.1325 | 0.8508 | 0.0008 |
+| 0.90 | 0.8643 | 0.8980 | 0.0020 |
+
+Label-mix's population AUROC is exact by construction (closed-form lambda);
+every grid point's lambda satisfies `(1-lambda)*A0 + lambda*0.5 == target`
+algebraically (checked to 1e-9 by the same unit test), so no table of
+"achieved vs. target" is needed for label-mix beyond this identity.
+
+**Held-out population-AUROC check (n=200,000-per-side Monte Carlo, independent
+of the calibration machinery above), both constructions, all 11 targets:**
+
+| target | label-mix achieved | noise-mix achieved |
+|---|---|---|
+| 0.50 | 0.4994 | 0.5004 |
+| 0.60 | 0.5997 | 0.6006 |
+| 0.65 | 0.6504 | 0.6510 |
+| 0.70 | 0.6994 | 0.6984 |
+| 0.72 | 0.7187 | 0.7230 |
+| 0.7355 | 0.7341 | 0.7357 |
+| 0.75 | 0.7512 | 0.7511 |
+| 0.78 | 0.7798 | 0.7790 |
+| 0.80 | 0.7989 | 0.7973 |
+| 0.85 | 0.8488 | 0.8508 |
+| 0.90 | 0.9007 | 0.8976 |
+
+Maximum deviation from target across both tables: 0.00301 (noise-mix, 0.72),
+well under the 0.005 Outcome C bar and also under the 0.002 internal
+bisection tolerance except at three noise-mix cells (0.72: 0.0030, 0.80:
+0.0027, 0.90: 0.0024) where the held-out check's own Monte Carlo sampling
+noise (SE at n=200,000/side is on the order of 0.001) accounts for the gap
+between the exact `bisection_achieved` value and this independent sampled
+check, exactly as C101 itself noted was expected for the non-buggy cells.
+
+**Always reported, per the rule above, regardless of outcome:**
+
+Interpolated crossing at 80% power, every rule, both constructions:
+
+| rule | label-mix | noise-mix |
+|---|---|---|
+| mw_one_sided | 0.7211 | 0.7075 |
+| mw_two_sided (primary) | 0.7466 | 0.7318 |
+| c98_rule | 0.8084 | 0.7939 |
+| delong_single_one_sided | 0.7533 | 0.7051 |
+| delong_paired_vs_null | 0.8121 | 0.7842 |
+| bootstrap_lower_excludes_chance | 0.7766 | 0.7278 |
+
+`c98_rule`'s empirical rejection rate at true AUROC exactly 0.7355:
+**0.52075** (label-mix, 4,000 replicates; 0.529 under noise-mix) -- close to
+the "about half power at the MDE" this project's own KEY FINDINGS describe
+for C98's rule, measured directly rather than assumed, on a real score
+distribution at the evaluation's own size, and now free of the target-0.50
+calibration bug that made C101's own equivalent measurement invalid.
+
+Rejection rate at true AUROC 0.50, every rule (both constructions, for
+completeness; the primary decision rule only reads `mw_two_sided`):
+
+| rule | label-mix | noise-mix |
+|---|---|---|
+| mw_one_sided | 0.04725 | 0.05175 |
+| mw_two_sided (primary) | 0.04800 | 0.04850 |
+| c98_rule | 0.00075 | 0.00300 |
+| delong_single_one_sided | 0.05700 | 0.06000 |
+| delong_paired_vs_null | 0.05975 | 0.06800 |
+| bootstrap_lower_excludes_chance | 0.04700 | 0.04500 |
+
+Artifacts: `results/accord/public_controls/sizectl_c108/roberta_scores_meta.json`,
+`roberta_scores.json`, `power_curves.json`. Register script (not run):
+`accord/public_controls/sizectl_c108/register.py`, prefix `sizectl108.*`.
