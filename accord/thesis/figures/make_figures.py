@@ -191,6 +191,7 @@ PIPELINE_KEYS = [
     "gold.n_total",
     "exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate",
     "exemplardirect.defect_rate",
+    "exemplar_recomputed.rule_1_2_pooled.wrong_rate",
     "c120.g299.n",
     "c120.g299.n_flagged",
     "c120.g299.mcc",
@@ -221,6 +222,8 @@ def make_fig_pipeline_status():
     n_gold = fact("gold.n_total")
     ex_lo = 1.0 - fact("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate")
     ex_hi = fact("exemplardirect.defect_rate")
+    ex_mid = fact("exemplar_recomputed.rule_1_2_pooled.wrong_rate")
+    assert ex_lo < ex_mid < ex_hi
     n_c120 = fact("c120.g299.n")
     n_flag = fact("c120.g299.n_flagged")
     mcc = fact("c120.g299.mcc")
@@ -234,12 +237,18 @@ def make_fig_pipeline_status():
     # under the floor; if either moves past the other the chip would lie.
     assert ci_hi < floor, "interval upper bound no longer under the C108 floor"
 
-    UNSUP, BOUNDED = "unsupported", "bounded null"
+    # ROUND 8 (committee). Stage 1 is "not established", not "unsupported":
+    # three instruments disagree on the exemplar defect (0, 0.4745, 0.9315), so
+    # no check rejects the reported precision; none establishes it either. The
+    # three states are told apart in greyscale by chip value alone: solid
+    # scarlet (dark) for unsupported, a SCARLET_TINT fill under a dashed rim
+    # (mid grey) for not established, paper under a solid rim for bounded null.
+    NOTEST, UNSUP, BOUNDED = "not established", "unsupported", "bounded null"
     rows = [
-        (1, "Candidate mining", UNSUP,
+        (1, "Candidate mining", NOTEST,
          f"precision {base:.4f}\non {n_gold} gold pairs",
          "Is the exemplar in the trigger set?",
-         f"{ex_lo:.0f} to {ex_hi:.4f} by instrument"),
+         f"{ex_lo:.0f}, {ex_mid:.4f}, {ex_hi:.4f} by instrument"),
         (2, "Weak supervision", UNSUP,
          f"{n_flag} of {n_c120} pairs\nflagged",
          "Marginal ceiling, then measured agreement",
@@ -291,7 +300,7 @@ def make_fig_pipeline_status():
                 color=INK, zorder=5)
         ax.text(X_NAME, mid - 8.0, status, ha="left", va="center",
                 fontsize=T_NOTE, style="italic",
-                color=SCARLET_DEEP if status == UNSUP else INK, zorder=5)
+                color=SCARLET_DEEP if status != BOUNDED else INK, zorder=5)
         ax.text(X_REP, mid, reported, ha="left", va="center",
                 fontsize=T_SERIES, color=INK, linespacing=1.22, zorder=5)
         ax.text(X_CHK, mid + 9.5, check, ha="left", va="center",
@@ -303,6 +312,12 @@ def make_fig_pipeline_status():
         if status == UNSUP:
             chip(ax, X_CHK, mid - 14.5, w_i, 13.0, SCARLET, finding,
                  fontsize=T_CHIP, radius=3.0, ha="left")
+        elif status == NOTEST:
+            p = node(ax, X_CHK, mid - 14.5, w_i, 13.0, SCARLET_TINT,
+                     SCARLET_DEEP, radius=3.0, zorder=6, lw=1.4)
+            p.set_linestyle((0, (3.0, 1.8)))
+            ax.text(X_CHK + 6.0, mid - 8.0, finding, ha="left", va="center",
+                    fontsize=T_CHIP, fontweight="bold", color=INK, zorder=7)
         else:
             # Outlined, not filled: a bounded null is not a fault, and a
             # greyscale reader tells an outline from a solid at a glance.
@@ -318,9 +333,8 @@ def make_fig_pipeline_status():
             fontsize=T_FLOOR, color=MUTE, zorder=5)
 
     signature(fig, SCARLET_DEEP,
-              headline="Three of four stages reported a number their check "
-              "did not support.\nThe fourth, evaluation, returned a null its "
-              "controls bound.")
+              headline="No stage's reported number survived its check: one not "
+              "established,\ntwo unsupported, one a bounded null.")
     fname = "fig-pipeline-status.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -329,10 +343,12 @@ def make_fig_pipeline_status():
              "Four stages numbered 1 to 4 as Chapter 1 numbers them. Every number "
              "is read by key from results/accord/VERIFIED_FACTS.json (keys: "
              + ", ".join(PIPELINE_KEYS) + "); no withdrawn key is readable. "
-             "Stages 1 to 3 are marked unsupported (solid scarlet chip): the "
-             "candidate pool's precision against an exemplar defect whose rate "
-             "no instrument establishes (0 from the step2plus join to 0.9315 "
-             "from the unvalidated direct extractor); the weak labeller's 261 "
+             "Stage 1 is marked not established (scarlet tint chip, dashed rim): "
+             "the candidate pool's precision rests on an exemplar defect rate "
+             "that three instruments disagree on (0 from the step2plus join, "
+             "0.4745 from the recomputed correctness check, 0.9315 from the "
+             "unvalidated direct extractor). Stages 2 and 3 are marked "
+             "unsupported (solid scarlet chip): the weak labeller's 261 "
              "of 299 flags against the marginal ceiling MCC 0.0780 and the "
              "measured C120 MCC 0.0269; the three credited architectural "
              "components against a code audit (initialisation artifact, "

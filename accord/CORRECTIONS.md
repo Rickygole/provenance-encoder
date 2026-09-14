@@ -5006,3 +5006,18 @@ provenance investigation. Found and fixed:
 - Redundancy cut: main thesis 149 to 137 pages.
 Open for the author: the annotator's credentialed-access status (disclosed in Chapter 3); front-matter placeholders
 and the declaration wording.
+
+## C122. Committee round after C121 (2026-09-14)
+
+Paper reviewer (pass with majors), Reviewer 2 and strategic skeptic (fail on wording) found, and the text now reflects:
+the abstract dropped the "assumed, not verified" caveat on the Rules 3 and 4 pairs; "caught by a one-line assertion"
+claimed a check that never ran (the assertion is now demonstrated on 1,000 seeded synthetic candidates, catching all 485
+positional picks outside the trigger set with no false alarms, accord/mining/, and described as not measuring the
+defect's rate); the measured MCC was offered as agreeing with a ceiling it cannot exceed (contribution 2 now rests on the
+attainable floor p 0.1894, Tarone's minimum attainable significance, the 5 of 15 configurations that could not reject, and
+agreement measured at chance); stage verdicts disagreed between chapters and figure (now one scheme: not established,
+unsupported, unsupported by code audit, bounded null); "control" used for checks and audits that were not controls;
+Chapter 4 justified the Rules 3/4 stratum with the rebuild's selector; Appendix A kept the superseded PhysioNet wording;
+the power figure plotted the C44 mortality control beside the evaluation; ungenerated exemplar power keys remained citable.
+Open for the author: whether to keep "Controlled" in the title, given the thesis ran checks and audits, not randomised
+controls.

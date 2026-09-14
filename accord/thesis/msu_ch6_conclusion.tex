@@ -53,21 +53,22 @@ not subject to the documented Rule 1 and Rule 2 positional defect, though its
 exemplar correctness in the gold set is assumed, not verified; on its 108
 non-ambiguous pairs the ensemble reaches 0.6095 (95 percent bootstrap
 interval 0.3029 to 0.9010), a comparison between rule groups that with 6
-positives can neither show nor exclude a defect artifact
-(Section~\ref{sec:res-rq4}). By average precision, a statistic chosen after
-its value was known, a bag-of-words model trained on the weak labels and an
-inference model never trained on them clear their permutation nulls where
-the detector does not, but no paired test separates any two of the three
+positives can neither show nor exclude a defect artifact. By average
+precision, chosen after its value was known, a bag-of-words model and an
+inference model never trained on the weak labels clear their permutation
+nulls where the detector does not, with no paired test separating the three
 (Section~\ref{sec:res-rq4}).
 
 \section{What This Establishes, and What It Does Not}
 \label{sec:conc-establishes}
 
-The agreement ceiling applies the classical maximum of agreement under fixed
-marginals \citep{cohen1960kappa} as a check on a weak labeller before
-training, needing only a base rate from a small expert-labelled sample: at
-261 flagged of 299 it is an MCC of 0.0780, and the measured 0.0269 agrees
-with it. It bounds thresholded labels, not a ranking, so it is a
+The feasibility check applies the classical maximum of agreement under fixed
+marginals and the minimum attainable significance of a discrete test
+\citep{cohen1960kappa,tarone1990modified}, a check that can be run on a weak
+labeller before training and was applied here after the fact: at 261 flagged
+of 299 no outcome could have rejected the null, the smallest attainable
+one-sided $p$ being 0.1894. The measured MCC, 0.0269, sits below the
+0.0780 ceiling, as it must, and is at chance. It bounds thresholded labels, not a ranking, so it is a
 precondition rather than an explanation of the detector's null. The
 resolvable-effect floor rests on a power analysis, not an empirical
 validation of the clinical instrument, and the Rules 3 and 4 stratum, with
@@ -104,8 +105,9 @@ wording-specific signal can only be tested on pairs it was not found on.
 $0.4745$ and $0.9315$ for how often the exemplar selector showed a pair that
 did not carry the conflict it asserted (Section~\ref{sec:r-exemplar}); the
 highest comes from an extractor never validated against human annotation.
-The bug class is reachable here; validating an instrument would establish
-its prevalence and whether the pool's confirmed base rate is valid.
+The bug pattern is reachable here, and its rate cannot be recovered after the
+fact because the schema does not record the trigger; validating an instrument
+would bound that rate and whether the pool's confirmed base rate is valid.
 
 \textbf{Frontier-scale local labellers, when feasible.} The frontier-scale
 comparison this project needed was attempted through a hosted API and
@@ -120,12 +122,13 @@ Dangerous medication contradictions between nursing notes and discharge
 summaries are real, recurring, and worth detecting. At the size this thesis
 could annotate, twelve confirmed contradictions in 299 pairs, the pipeline
 built to detect them did not, and the thesis leaves three results that need
-no statistical power: a stage-wise control audit in which the first three
-stages each reported a number that its control or code audit did not
-support; a pre-training agreement check on the weak labeller's marginal; and
-trigger-exemplar dissociation, a mining-bug class shown reachable and caught
-by a one-line assertion. In support, the detector shows no AUROC effect above
-about 0.75 to 0.81 on the 253 non-ambiguous pairs. The planted-defect
+no statistical power: a stage-wise audit, in which no stage's reported number
+survived its check: one not established, two unsupported, one a bounded null;
+a feasibility check on the weak labeller's marginal, applied here after the
+fact; and trigger-exemplar dissociation, a reachable mining bug pattern that
+would be caught by a one-line assertion once the candidate schema records
+which mention fired. In support, the detector shows no AUROC effect above
+about 0.75 to 0.81. The planted-defect
 benchmark did not reach its required firing rate, a limitation this thesis
 discloses rather than a result it claims.
 

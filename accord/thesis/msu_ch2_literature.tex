@@ -11,10 +11,10 @@
 \chapter{Literature Review}
 \label{ch:lit}
 
-This thesis builds nothing new. It takes a pipeline whose shape is standard in clinical natural
+This thesis applies no new method. It takes a pipeline whose shape is standard in clinical natural
 language processing (NLP), rule-based candidate mining followed by language model weak supervision
-followed by a purpose-built neural detector, and runs at each stage the control that separates a real
-finding from an artifact of the measurement. The controls are borrowed, each credited again wherever
+followed by a purpose-built neural detector, and runs at each stage a check that separates a real
+finding from an artifact of the measurement. The checks are borrowed, each credited again wherever
 it appears later, so what this chapter has to establish is narrower than a conventional review: not
 that a gap exists in the space of methods, but that a gap exists in the space of things that have
 been checked.
@@ -326,7 +326,7 @@ contribution.
 Check run & Borrowed from & Stage \\
 \midrule
 Code audit of the exemplar selector & \citet{sculley2015debt} & Candidate generation \\
-Marginal agreement ceiling & \citet{cohen1960kappa}, \citet{feinstein1990paradoxes} & Weak supervision \\
+Marginal ceiling and attainable floor & \citet{cohen1960kappa}, \citet{tarone1990modified} & Weak supervision \\
 Measured agreement with expert labels & \citet{pangakis2023validation} & Weak supervision \\
 Code audit for target leakage & \citet{kaufman2012leakage} & Architecture \\
 Rule-stratum comparison & \citet{barocas2021disaggregated} & Evaluation \\
@@ -339,24 +339,20 @@ Construct validity framing & \citet{jacobs2021measurement} & Task definition \\
 \section{Pretraining Loss as a Proxy for Downstream Utility}
 \label{sec:lit-loss}
 
-A pipeline that fails can always be defended on the grounds that it was too small, and the
-counter-argument requires knowing whether the evaluation instrument could have registered a
-real effect, which makes the relationship between a training objective and downstream
-performance directly relevant. The recent literature on it is unusually clear, and two
-results carry most of the weight.
+A failed pipeline can always be defended as too small, so the relationship between a training
+objective and downstream performance is directly relevant. Two recent results carry most of the
+weight.
 
 \citet{lourie2025scaling} conduct a meta-analysis of published scaling results and find that
 predictable scaling, small-scale results extrapolating to larger scales, occurs in a minority of
-cases, 39\% of the time by their count, because small variations in experimental setup change
-scaling behaviour enough to matter: the conditions under which scaling laws hold are
-uncharacterised, so an extrapolation is a hypothesis rather than a prediction.
+cases, 39\% of the time by their count, because small setup variations change scaling behaviour,
+so an extrapolation is a hypothesis rather than a prediction.
 \citet{feng2026tessera} address the narrower question of whether pretraining loss predicts
 downstream utility, at a scale no thesis can match: within a Barlow Twins framework for Earth
 observation foundation models, across 395 controlled training experiments and 15 downstream tasks,
 the correlation between pretraining loss and downstream performance has an absolute Pearson
-coefficient below 0.2, a general result about self-supervised pretraining, obtained far from
-clinical text, and stronger evidence on the general proposition than anything this thesis could
-produce.
+coefficient below 0.2, a result obtained far from clinical text but stronger than anything this
+thesis could produce.
 
 The consequence is a limitation on what may be claimed, adopted rather than resisted; the supplement
 reports a convergence experiment for this reason, not as a contribution to the scaling literature.
@@ -394,14 +390,16 @@ each outcome whichever way it falls: \citet{biswas2021fairpreprocessing} audit b
 defined at every stage, and \citet{sculley2015debt} name the hazard at component boundaries without
 per-stage checks. Second, the maximum agreement attainable under fixed marginals is classical
 \citep{cohen1960kappa}, and automated annotation must be validated against human labels
-\citep{pangakis2023validation,egami2023surrogates}; no work was found that uses the bound as a check on
-a single language-model labeller's marginal before training, a check that needs only a base rate from
-a small expert-labelled sample. Third, the nearest descriptions of the mining bug are neighbours, not
+\citep{pangakis2023validation,egami2023surrogates}; no work was found that uses the bound, with the minimum attainable significance of a discrete test
+\citep{tarone1990modified}, as a check on a single language-model labeller's marginal, a check
+needing only a base rate from a small expert-labelled sample, which this thesis recommends before
+training but applied here after the fact. Third, the nearest descriptions of the mining bug pattern are neighbours, not
 instances: leakage \citep{kaufman2012leakage} is target information a model should not see, label
 errors \citep{northcutt2021labelerrors} are wrong labels on correctly displayed items, and boundary
 defects \citep{sculley2015debt} are named without a check. In trigger-exemplar dissociation the label
-may be right while the evidence displayed with it is not what triggered the candidate, and none of
-those framings supplies the one-line assertion that catches it.
+may be right while the evidence displayed with it is not what triggered the candidate, its rate cannot be
+recovered after the fact when the schema does not record the trigger, and none of those framings
+supplies the one-line assertion that would catch it once the schema does.
 
 The question this thesis asks is therefore narrower than the pipeline that motivates it: what each
 stage's reported number is worth once its check is run, at a sample size that resolves only large

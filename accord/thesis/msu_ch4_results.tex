@@ -209,10 +209,8 @@ depending on instrument, and a rate over a population does not belong welded
 to a picture of a single case, so the figure carries no number.
 
 The stratum comparison does not depend on that rate. Rules 3 and 4 are not
-subject to the documented positional defect: Rule 3 selects the
-maximum-difference dose pair, and Rule 4 has no discharge sentence to select,
-because the drug is absent from the discharge summary by construction; their
-exemplar correctness remains an assumption (Table~\ref{tab:denoms}). That
+subject to the documented positional defect, which is in the Rules 1/2 code,
+not theirs, but their exemplar correctness remains an assumption (Table~\ref{tab:denoms}). That
 yields $G_{134}$,
 scored in Section~\ref{sec:res-rq4} with the ambiguous pairs counted negative
 and dropped. The restriction widens the intervals, as a stratification down to
@@ -322,7 +320,8 @@ hypergeometric $p = 0.5347$, and $0.5442$ of random re-alignments of the same
 labels do at least as well. On $G_{253}$ it flags $223$ ($0.8814$), again with
 $11$ true positives: MCC $0.0243$ of a possible $0.0818$, $p = 0.5722$,
 random-join fraction $0.5711$. The labeller's agreement is at chance, and the
-marginal check and the measured agreement say the same thing. C88's
+measured MCC sits below the ceiling, as it must; the check's own content is
+the floor $p$ (Section~\ref{sec:r-feasgate}). C88's
 nursing-side reconstruction of this comparison is superseded by C120.
 
 The over-calling ratios measure what they claim, and the ceiling explains why
@@ -351,8 +350,7 @@ pharmacist's labels. That floor $p$ is a precondition rather than a result: it
 is computable before a single pair is scored, and it says whether the test
 that follows could have rejected the null at all.
 
-This bounds a thresholded decision only, and the qualification is not
-optional, because the unqualified claim is false. A labeller that emits a
+This bounds a thresholded decision only. A labeller that emits a
 continuous score is not bounded this way, because the threshold that turns a
 score into a flag can be swept; a model that flags most of a pool at one
 threshold can still rank the pool well at another. Everything below is a
@@ -439,13 +437,12 @@ way.}
 \label{fig:ceiling}
 \end{figure}
 
-What the gate does not do is replace the discrimination tests reported
-elsewhere in this chapter; it is read beside them, as a check on what a table
-could have shown before it is read as showing it. A labeller whose floor sits
-above the threshold, \texttt{llama3:8b} at both prompts here, was never going
-to distinguish itself from chance at this marginal, and a labeller sitting on
-its ceiling flagged every confirmed positive; at that flag rate it could not
-have scored higher, whatever it otherwise knew about the pairs.
+The gate does not replace the discrimination tests elsewhere in this chapter;
+it checks what a table could have shown before it is read as showing it. A
+labeller whose floor sits above the threshold, \texttt{llama3:8b} at both
+prompts here, could never distinguish itself from chance at this marginal, and
+a labeller on its ceiling flagged every confirmed positive, so could not have
+scored higher at that flag rate, whatever it otherwise knew about the pairs.
 
 \subsection{(b) Whether a stronger labeller removes it}
 
@@ -1123,8 +1120,7 @@ at 80\% power and two-sided $\alpha$ of 0.05, by Hanley and McNeil
 \citep{hanley1982meaning}, against the number of positives in the evaluation
 set. At this evaluation's $12$ positives the C108 simulation on a real score
 distribution gives floors of $0.7466$ for a two-sided Mann-Whitney test and
-$0.8084$ for the registered rule. The square is the mortality positive control
-(Supplement S6).}
+$0.8084$ for the registered rule.}
 \includegraphics[width=0.98\linewidth]{figures/fig-power.pdf}
 \label{fig:power}
 \end{figure}
@@ -1308,7 +1304,7 @@ on the $241$ clear negatives rather than on the 12 positives, and over-calling
 \begin{figure}[!t]
 
 \centering
-\caption[Headline estimates against zero]{The thesis's headline
+\caption[Headline estimates against chance]{The thesis's headline
 estimates on the clinical pairs, one panel per unit, each with its own scale, so no
 distance is comparable across panels. AUROC rows are the decontaminated detector
 ensemble with percentile bootstrap intervals; the Rules 3 and 4 stratum interval is

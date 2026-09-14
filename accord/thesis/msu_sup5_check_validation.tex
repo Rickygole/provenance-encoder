@@ -272,11 +272,11 @@ among them the C103 prompt-sensitivity cells, that the chapter excerpt omits: on
 grouped by configuration. A configuration is a model, a thinking setting and a
 prompt text; runs that used byte-identical prompt text on the same model are
 one configuration measured more than once, not several, so the
-\texttt{llama3:8b} replication run, the frontier zero-shot template run, the
+\texttt{llama3:8b} replication run, the frontier template zero-shot run (local), the
 evaluation baseline and the C103 P\_asserting cell are one configuration, and
 likewise for \texttt{granite3.3:8b} and \texttt{qwen3:8b}. The deployed weak
 labeller stays a separate configuration, because no committed file records
-its decoding settings; it and the frontier zero-shot run both flag $261$ of
+its decoding settings; it and the frontier template zero-shot run both flag $261$ of
 $299$, but they are different labellings, disagreeing on $24$ pairs ($12$
 flagged only by the deployed labeller and $12$ only by the frontier run). After this deduplication there are $15$
 configurations. A configuration could reject the null at $0.05$ if it could on
@@ -294,52 +294,52 @@ configuration.}
 \scriptsize
 \begin{tabular}{lllrrrll}
 \toprule
-\textbf{Configuration} & \textbf{Run} & \textbf{Basis} & \textbf{Flag rate} & \textbf{Ceil.\ MCC} & \textbf{Floor $p$} & \textbf{Obs.} & \textbf{Could reject?} \\
+\textbf{Configuration} & \textbf{Run (local)} & \textbf{Basis} & \textbf{Flag rate} & \textbf{Ceil.\ MCC} & \textbf{Floor $p$} & \textbf{Obs.} & \textbf{Could reject?} \\
 \midrule
 \multicolumn{8}{l}{\texttt{granite3.3:8b}} \\
-P\_asserting text & frontier zero-shot, C103 & $G_{299}$ & 0.7492 & 0.1183 & 0.0290 & yes & yes \\
-                  & frontier zero-shot      & $G_{253}$ & 0.7391 & 0.1326 & 0.0242 & yes & \\
+P\_asserting text & frontier template zero-shot, C103 & $G_{299}$ & 0.7492 & 0.1183 & 0.0290 & yes & yes \\
+                  & frontier template zero-shot      & $G_{253}$ & 0.7391 & 0.1326 & 0.0242 & yes & \\
                   & replication             & $G_{299}$ & 0.7425 & 0.1204 & 0.0259 & n/a & \\
-few-shot template & frontier few-shot       & $G_{299}$ & 0.7023 & 0.1331 & 0.0131 & no  & yes \\
-                  & frontier few-shot       & $G_{253}$ & 0.6957 & 0.1476 & 0.0114 & no  & \\
+few-shot template & frontier template few-shot       & $G_{299}$ & 0.7023 & 0.1331 & 0.0131 & no  & yes \\
+                  & frontier template few-shot       & $G_{253}$ & 0.6957 & 0.1476 & 0.0114 & no  & \\
 P\_neutral        & C103                    & $G_{299}$ & 0.3579 & 0.2739 & 0.000003 & n/a & yes \\
 P\_reversed       & C103                    & $G_{299}$ & 0.6957 & 0.1353 & 0.0116 & n/a & yes \\
 \midrule
 \multicolumn{8}{l}{\texttt{llama3:8b}} \\
-P\_asserting text & frontier zero-shot, C103 & $G_{299}$ & 0.8729 & 0.0780 & 0.1894 & no  & no \\
-                  & frontier zero-shot      & $G_{253}$ & 0.8735 & 0.0849 & 0.1898 & no  & \\
+P\_asserting text & frontier template zero-shot, C103 & $G_{299}$ & 0.8729 & 0.0780 & 0.1894 & no  & no \\
+                  & frontier template zero-shot      & $G_{253}$ & 0.8735 & 0.0849 & 0.1898 & no  & \\
                   & replication             & $G_{299}$ & 0.9532 & 0.0453 & 0.5562 & n/a & \\
                   & evaluation baseline     & $G_{253}$ & 0.9565 & 0.0476 & 0.5795 & no  & \\
-few-shot template & frontier few-shot       & $G_{299}$ & 0.9398 & 0.0518 & 0.4679 & no  & no \\
-                  & frontier few-shot       & $G_{253}$ & 0.9447 & 0.0540 & 0.4971 & no  & \\
+few-shot template & frontier template few-shot       & $G_{299}$ & 0.9398 & 0.0518 & 0.4679 & no  & no \\
+                  & frontier template few-shot       & $G_{253}$ & 0.9447 & 0.0540 & 0.4971 & no  & \\
 P\_neutral        & C103                    & $G_{299}$ & 0.9365 & 0.0533 & 0.4479 & n/a & no \\
 P\_reversed       & C103                    & $G_{299}$ & 0.8829 & 0.0745 & 0.2178 & n/a & no \\
 deployed          & weak labeller           & $G_{299}$ & 0.8729 & 0.0780 & 0.1894 & no  & no \\
 \midrule
 \multicolumn{8}{l}{\texttt{qwen3:8b}} \\
-P\_asserting text & frontier zero-shot, C103 & $G_{299}$ & 0.5686 & 0.1781 & 0.0010 & no  & yes \\
-                  & frontier zero-shot      & $G_{253}$ & 0.5652 & 0.1957 & 0.0009 & yes & \\
+P\_asserting text & frontier template zero-shot, C103 & $G_{299}$ & 0.5686 & 0.1781 & 0.0010 & no  & yes \\
+                  & frontier template zero-shot      & $G_{253}$ & 0.5652 & 0.1957 & 0.0009 & yes & \\
                   & replication             & $G_{299}$ & 0.6187 & 0.1605 & 0.0027 & n/a & \\
-few-shot template & frontier few-shot       & $G_{299}$ & 0.6187 & 0.1605 & 0.0027 & no  & yes \\
-                  & frontier few-shot       & $G_{253}$ & 0.6008 & 0.1819 & 0.0018 & no  & \\
+few-shot template & frontier template few-shot       & $G_{299}$ & 0.6187 & 0.1605 & 0.0027 & no  & yes \\
+                  & frontier template few-shot       & $G_{253}$ & 0.6008 & 0.1819 & 0.0018 & no  & \\
 P\_neutral        & C103                    & $G_{299}$ & 0.1940 & 0.4168 & $1.0\times10^{-9}$ & n/a & yes \\
 P\_reversed       & C103                    & $G_{299}$ & 0.6321 & 0.1560 & 0.0036 & n/a & yes \\
 \midrule
 \multicolumn{8}{l}{\texttt{qwen3:14b}, thinking off} \\
-zero-shot template & frontier zero-shot     & $G_{299}$ & 0.5385 & 0.1893 & 0.0005 & no  & yes \\
-                   & frontier zero-shot     & $G_{253}$ & 0.5217 & 0.2136 & 0.0003 & no  & \\
-few-shot template  & frontier few-shot      & $G_{299}$ & 0.5585 & 0.1818 & 0.0008 & no  & yes \\
-                   & frontier few-shot      & $G_{253}$ & 0.5415 & 0.2053 & 0.0005 & no  & \\
+zero-shot template & frontier template zero-shot     & $G_{299}$ & 0.5385 & 0.1893 & 0.0005 & no  & yes \\
+                   & frontier template zero-shot     & $G_{253}$ & 0.5217 & 0.2136 & 0.0003 & no  & \\
+few-shot template  & frontier template few-shot      & $G_{299}$ & 0.5585 & 0.1818 & 0.0008 & no  & yes \\
+                   & frontier template few-shot      & $G_{253}$ & 0.5415 & 0.2053 & 0.0005 & no  & \\
 \bottomrule
 \end{tabular}
 \apanote{P\_asserting text is the prompt text shared, byte for byte, by the
 replication prompt, the frontier zero-shot template and C103's P\_asserting;
-the frontier zero-shot run on $G_{299}$ and the C103 P\_asserting cell report
+the frontier template zero-shot run on $G_{299}$ and the C103 P\_asserting cell report
 the same flagged count and are printed as one row. For
 \texttt{qwen3:14b} the zero-shot template is not established as identical to
 that text, so it is its own configuration. The runs of one configuration do not
 always agree: \texttt{llama3:8b}'s P\_asserting text flags at $0.8729$ in the
-frontier zero-shot run and $0.9532$ in the replication run. Those two runs
+frontier template zero-shot run and $0.9532$ in the replication run. Those two runs
 differ in reply parser (the replication run counts a reply positive if
 ``contradiction'' appears anywhere and no negative marker such as
 ``not\_contradiction'' does; the
@@ -804,3 +804,18 @@ significant, so under the registered rule the claim that either simple model fin
 detector does not is removed. What stands is that both simple models, and not the ensemble, have
 average precision above their own permutation nulls (C111), which is a statement about each system
 against its null, not a comparison between systems.
+
+\subsection{The Trigger-Exemplar Assertion on Synthetic Candidates}
+\label{sup:sec:s5-assertion}
+
+Chapter 1 names trigger-exemplar dissociation and says a one-line assertion, that the displayed
+exemplar belongs to the set of mentions that fired the rule, would catch it once the candidate
+schema records that set. The assertion was run on $1{,}000$ seeded synthetic candidates, each
+holding one to six abstract mentions with one triggering mention at a random position
+($515$ with the trigger first). A positional selector, reproducing the original first-row pick,
+fails the assertion on $485$ candidates, every one whose trigger was not first; a selector
+restricted to the trigger set fails on $0$; and the assertion raises $0$ false alarms on
+exemplars inside the trigger set. The fixture carries no clinical text and is released with a
+unit test. It shows that the check discriminates as intended; it does not measure how often the
+defect occurred in this project's mining output, which the schema did not record.
+

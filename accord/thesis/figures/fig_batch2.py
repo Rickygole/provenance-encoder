@@ -401,12 +401,17 @@ def make_fig_forest():
              "MCC against the pharmacist, exact count, no resampling interval",
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
-    fig.add_artist(plt.Line2D([0.012, X_VALUE], [1.06 / H] * 2,
+    # ROUND 8: was 1.06 / H, which ran through the AUROC tick labels.
+    fig.add_artist(plt.Line2D([0.012, X_VALUE], [1.00 / H] * 2,
                               color=PLATE_EDGE, lw=0.6))
 
+    # ROUND 8 (committee). "At 12 positives" was false for the Rules 3 and 4
+    # row, which rests on 6. Both counts are read and named.
+    n_pos_253 = fact("decontam.n_positives")
+    assert n_pos_253 == fact("c120.g299.n_positives")
     signature(fig, GRAPHITE,
-              f"At {fact('c120.g299.n_positives')} positives, no headline "
-              "estimate is distinguishable from chance.",
+              f"At {n_pos_253} positives, or {fact('c114.task_c.n_pos')} for Rules 3 "
+              "and 4, no headline estimate\nis distinguishable from chance.",
               deck="Two units, two rulers: nothing is comparable across the "
                    "panel boundary.")
     fig.savefig(HERE / "fig-forest.pdf"); plt.close(fig)
@@ -443,9 +448,6 @@ def make_fig_power():
     pw = json.loads((ROOT / "results/accord/section6_auroc_power.json").read_text())
     n_pos_study, n_neg_study = pw["n_positives"], pw["n_negatives"]
     alpha_study, power_study = pw["alpha"], pw["power"]
-    _mort = json.loads((ROOT / "results/task_runs.json").read_text())["concat_s1"]["data_lineage"]
-    mort_n_pos = _mort["test_n_pos"]
-    mort_n_neg = _mort["test_n"] - mort_n_pos
 
 
     # The C108 floors, read by key, and the analytic point checked against the
@@ -461,8 +463,6 @@ def make_fig_power():
     mde_study = hanley_mde([n_pos_study], [n_neg_study], alpha_level=alpha_study,
                            power=power_study)[0]
     assert abs(mde_study - fact("sizectl108.power_curves.mde_analytic")) < 5e-5
-    mde_mort = hanley_mde([mort_n_pos], [mort_n_neg], alpha_level=alpha_study,
-                          power=power_study)[0]
 
     fig, ax = plt.subplots(figsize=(FIGW, 2.98))
     canvas(fig)
@@ -503,18 +503,11 @@ def make_fig_power():
     case(ax.text(6.0, 0.515, "under 80% power (analytic)",
                  fontsize=T_SERIES, color=INK, ha="left", va="bottom",
                  zorder=5))
-    # Both marks are labelled adjacent to themselves. No leaders anywhere.
-    # GRAPHITE, not the SLATE this used to carry: SLATE is 3.48:1 on paper and this
-    # set does not set type in it, and the checker that enforces that ban counts a
-    # marker inside a text call's own window as type. The mortality control point
-    # is a second measured quantity on this GRAPHITE curve, not an entity, so it
-    # takes the same structural measurement tone as the curve it sits on rather
-    # than SLATE's reference-line-and-seed-dot role. GRAPHITE on paper is 12.49:1.
-    ax.plot([mort_n_pos], [mde_mort], "s", color=GRAPHITE, ms=MS_MARK,
-            markeredgewidth=0, zorder=6)
-    case(ax.text(mort_n_pos, mde_mort + 0.022,
-                 f"mortality control, {mort_n_pos} positives", fontsize=T_SERIES,
-                 color=MUTE, ha="center", va="bottom", zorder=6))
+    # ROUND 8 (committee). The C44 mortality control point and its label are
+    # gone. C44 moved to the supplement because its registration forbids
+    # reading it against this evaluation, and a square on the same curve beside
+    # the evaluation marker was exactly that reading. results/task_runs.json is
+    # no longer read by this figure.
     # ROUND 7 (fixes_r7 N9). The old headline, "nothing below AUROC 0.7355 was ever
     # detectable", read an 80 percent power point as a detection threshold. The
     # claim the thesis makes is the C108 per-rule floor: on a real score

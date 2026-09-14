@@ -24,50 +24,46 @@ pairs, this evaluation resolves only large AUROC effects
 (Section~\ref{sec:res-rq4}). Within that limit, local language-model labellers
 flagged far more pairs than the pharmacist confirmed, by an amount that
 depended heavily on the prompt and on how the $46$ ambiguous pairs were read;
-the detector trained on those labels ranked at a level not distinguishable from
-chance on $G_{253}$; and a bag-of-words model trained on the same labels and an
-entailment model never trained on them cleared their own average-precision
-nulls where the detector did not, with no paired test separating the three.
+and the detector trained on those labels ranked at a level not distinguishable
+from chance on $G_{253}$.
 
 \section{What Each Check Changed}
 \label{sec:disc-spine}
 
 Table~\ref{tab:disc-spine} is the summary this section argues through. The
-pipeline has four stages. Each of the first three produced a number a competent
-paper could have reported, and no standard metric at that stage was sensitive
-to the defect behind it. The checks actually run were cheap against what they
-checked: a code audit of the miner's exemplar selector and of each credited
+pipeline has four stages; at the first three, no standard metric was sensitive
+to the defect behind the reported number. The checks run were cheap: a code audit of the miner's exemplar selector and of each credited
 architectural component, a marginal ceiling on the weak labeller followed by
 its agreement measured on the exact gold join, a comparison between rule
 strata, and power analyses of the evaluation. None of them is a randomisation
 control \citep{adebayo2018sanity}, a control task \citep{hewitt2019control} or
 a negative control \citep{lipsitch2010negative}; those designs were not run
-here. The fourth stage, evaluation, returned a null that the power analyses
-bound.
+here.
 
 \begin{table}[H]
 \centering
 \caption[Each pipeline stage before and after its check]{Each pipeline stage,
-the reading available before its check, and the reading after. Reversed: the
-direction of the conclusion changed. Narrowed: it survived in a smaller form.}
+the reading available before its check, and the reading after. No stage's
+reported number survived its check: one not established, two unsupported, one
+a bounded null.}
 \label{tab:disc-spine}
 \footnotesize
-\begin{tabular}{p{0.13\linewidth}p{0.24\linewidth}p{0.38\linewidth}p{0.09\linewidth}}
+\begin{tabular}{p{0.12\linewidth}p{0.22\linewidth}p{0.36\linewidth}p{0.14\linewidth}}
 \toprule
 \textbf{Stage} & \textbf{Before check} & \textbf{After check} & \textbf{Verdict} \\
 \midrule
-Candidate mining & Pool base rate $0.0401$ read as a property of the mining rules & Confirmed rate on the annotated pairs only; exemplar defect rate unresolved ($0$, $0.4745$, $0.9315$) & Narrowed \\
+Candidate mining & Pool base rate $0.0401$ read as a property of the mining rules & Confirmed rate on the annotated pairs only; exemplar defect rate unresolved ($0$, $0.4745$, $0.9315$) & Not established \\
 \addlinespace
-Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ flagged; agreement at chance, MCC $0.0269$ (C120); the size of the over-calling depends on prompt and ambiguity reading & Reversed \\
+Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ flagged; agreement at chance, MCC $0.0269$ (C120); the size of the over-calling depends on prompt and ambiguity reading & Unsupported \\
 \addlinespace
-Architecture & Three named components credited with the reported performance & Code audit: authority scalars falsified (at initialisation across seeds); rule-type head confounded (target in its input); harm head vacuous (untrained) & Reversed \\
+Architecture & Three named components credited with the reported performance & Code audit: authority scalars falsified (audit; at initialisation across seeds); rule-type head confounded (target in its input); harm head vacuous (untrained) & Unsupported (code audit) \\
 \addlinespace
-Evaluation & AUROC near chance, plausibly an artifact of a small, defective sample & Not distinguishable from chance in any configuration; only AUROC above $0.7466$ (Mann-Whitney) or $0.8084$ (registered rule) resolvable; defect-artifact reading unresolved & Narrowed \\
+Evaluation & AUROC near chance, plausibly an artifact of a small, defective sample & Not distinguishable from chance in any configuration; only AUROC above $0.7466$ (Mann-Whitney) or $0.8084$ (registered rule) resolvable; defect-artifact reading unresolved & Bounded null \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Candidate mining: narrowed}
+\subsection{Candidate mining: not established}
 
 The miner's pool has a base rate against pharmacist annotation of $0.0401$. For
 action-conflict candidates the trigger quantified over sets of medication
@@ -78,7 +74,7 @@ failure fired on the pooled Rule 1 and Rule 2 candidates
 smaller subset, and an extractor applied to the single truncated sentence the
 pharmacist saw, the last facing a harder condition than the multi-sentence
 windows the other two drew on. None is a tiebreaker, so the rate is unresolved
-rather than narrowed to a choice between readings. The gold sample was drawn by
+rather than settled by a choice between readings. The gold sample was drawn by
 the original pipeline from its own candidate pool, so $0.0401$ is the confirmed
 rate on the annotated pairs and an estimate for that pool; its validity as a
 property of the mining rules is not established. The Rules 3 and 4 stratum,
@@ -90,7 +86,7 @@ gold exemplar. Every comparison between that stratum and Rules 1 and 2 in this
 chapter is therefore a comparison between rule groups, confounded with rule
 content and base rate, not a test of the defect.
 
-\subsection{Weak supervision: a marginal that depends on how it is asked}
+\subsection{Weak supervision: unsupported}
 
 The labeller looked usable on the property it was checked against, recall. The
 check that would have caught it is the one Feinstein and Cicchetti described for
@@ -98,8 +94,9 @@ a different instrument \citep{feinstein1990paradoxes,cicchetti1990resolving}:
 compare the marginal against a human-established base rate before believing
 anything about agreement. Saying yes to $87\%$ of a pool whose confirmed rate is
 $4\%$ is not a decision, it is a prior with a text prompt attached, and the
-measurement agrees with the marginal: on the exact gold join the deployed
-labeller's agreement is at chance (Section~\ref{sec:res-rq2}). Three local 8B
+measured MCC sits below the ceiling, as it must: what the check shows is that
+at this marginal no outcome could have rejected the null, and on the exact gold
+join the deployed labeller's agreement is at chance (Section~\ref{sec:res-rq2}). Three local 8B
 models reproduce comparable over-calling under a shared prompt, but its size
 moves with the prompt and the ambiguity reading
 (Section~\ref{sec:disc-overcalling}), so the prompt and reading behind a quoted
@@ -114,7 +111,7 @@ weak labeller's marginal was a property nobody checked before training on it
 \citep{pangakis2023validation}, and how far it over-calls is a function of how
 it is asked.
 
-\subsection{Architecture: three components, three different failures}
+\subsection{Architecture: unsupported by code audit}
 
 The architectural checks did the most damage, and the word for what they did
 differs by component. No randomisation control was run on any of the three; the
@@ -131,10 +128,10 @@ neither, because no term in the objective trains it, so its severity claim is
 withdrawn as vacuous. RQ3 (Section~\ref{sec:m-control-rq3}) is therefore
 answered component by component from code-audit findings.
 
-\subsection{Evaluation: narrowed}
+\subsection{Evaluation: a bounded null}
 
 The detector's ranking is not distinguishable from chance under every check
-applied to it (Section~\ref{sec:res-rq4}); what narrowed is what that null
+applied to it (Section~\ref{sec:res-rq4}); what is bounded is what that null
 licenses. The subject-disjoint retrain did not rescue it, and because the leaked
 rows carried the weak labeller's labels rather than the pharmacist's, the leak
 had no channel to inflate agreement with gold, so the contaminated run is not an
@@ -144,7 +141,8 @@ credited components is null as well, on all $299$ pairs and on the Rules 3 and
 
 \subsection{What survived}
 
-No stage in Table~\ref{tab:disc-spine} is rated Survived. The chance-level
+No stage's reported number survived its check: one not established, two
+unsupported, one a bounded null (Table~\ref{tab:disc-spine}). The chance-level
 ranking held under the subject-disjoint retrain, seed variation and a control
 model without the credited components; whether it is an artifact of the exemplar
 defect is a question six positives cannot answer (Section~\ref{sec:disc-null}).
@@ -448,5 +446,4 @@ other way, so choosing one is a decision about which errors are worth trading,
 taken before any result is seen.
 
 Re-annotation against corrected exemplars, a cohort with far more than $12$
-positives, or an anomaly explanation that survives a parameter sweep would
-change these conclusions; none is available from these data.
+positives would change these conclusions; none is available from these data.
