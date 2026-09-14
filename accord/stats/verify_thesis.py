@@ -67,6 +67,20 @@ if _SUP_MAIN.exists():
 # SUPPLEMENT) for the \chapter/\label{ch:} requirement, because front matter and
 # the supplement's own side strands correctly need neither.
 PROSE = CHAPTERS + sorted((THESIS / "frontmatter").glob("*.tex"))
+# PROSE above was defined and never used: every pass looped over the chapters
+# only, so the abstract, the highest-visibility 250 words in the document, was
+# never scanned by the dash, number-provenance or style passes, while a comment
+# said it was. That is the gate-that-scans-nothing failure this project has
+# already recorded twice. The front matter is now scanned explicitly.
+#
+# Pass 1 (dashes) scans every front-matter page. Passes 2 and 4 scan only the
+# abstract: the title, approval and declaration pages carry template dates and
+# degree text that are not findings. The acknowledgements are the author's own
+# and are excluded from every pass, so no gate can ever require editing them.
+FRONTMATTER = [f for f in sorted((THESIS / "frontmatter").glob("*.tex"))
+               if f.name != "acknowledgements.tex"]
+ABSTRACT = [THESIS / "frontmatter" / "abstract.tex"]
+assert ABSTRACT[0].exists(), "abstract.tex missing: refusing to scan nothing"
 # The set every prose pass (1, 2, 3, 4) scans: chapters plus whatever side-strand
 # material is currently bound in the supplement by name. When SUPPLEMENT is
 # empty (the current, transitional state) this is exactly CHAPTERS, so today's
@@ -216,7 +230,7 @@ def main():
     # ---------------- pass 1: dashes ----------------
     print("PASS 1  dashes")
     bad = 0
-    for f in ALL_CHAPTERS:
+    for f in ALL_CHAPTERS + FRONTMATTER:
         for i, line in enumerate(f.read_text().splitlines(), 1):
             for ch, name in (("\u2014", "em dash"), ("\u2013", "en dash"), ("\u2212", "minus sign")):
                 if ch in line:
@@ -257,7 +271,7 @@ def main():
         n_held = sum(1 for k in FACTS if k.startswith("withdrawn.hosted."))
         print(f"   hosted channels: none live, {n_held} held for the record")
     unverified = []
-    for f in ALL_CHAPTERS:
+    for f in ALL_CHAPTERS + ABSTRACT:
         # The literature review reports figures from cited works, which by
         # definition are not in our fact sheet. It is checked separately:
         # every number there must sit in a sentence carrying a citation.
@@ -313,7 +327,7 @@ def main():
     # ---------------- pass 4: style ----------------
     print("PASS 4  machine-written tells")
     hits = 0
-    for f in ALL_CHAPTERS:
+    for f in ALL_CHAPTERS + ABSTRACT:
         text = f.read_text()
         low = text.lower()
         for phrase in BANNED_PHRASES:
