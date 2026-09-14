@@ -4939,3 +4939,13 @@ Round 2 (idea-stress-tester, strategic skeptic) and round 3 (paper-reviewer) fou
 - Contributions re-centred on the stage-wise audit, the marginal-implied agreement ceiling and trigger-exemplar
   dissociation; the detector null is a bounded supporting result; C102 demoted to a limitation.
 - Title change from "Why" to "Where" recommended; held for the author's decision.
+
+## C116. The paired AP permutation test mixed score scales (2026-09-14)
+
+Final committee pass (Reviewer 2) asked why TF-IDF minus detector (difference about 0.105) gave p 0.00005
+while NLI minus detector (0.1088) gave p 0.10035. Both used `c111_run.paired_swap_perm_ap`, which swaps raw
+scores between systems whose scales differ (G_253 medians 0.8858, 0.2966, 0.9647). C116 (pre-registered)
+reran the tests on within-system ranks, which leaves AP unchanged: TF-IDF minus detector p 0.17875, NLI minus
+detector p 0.14520. The claim that TF-IDF finds a signal the detector lacks is withdrawn from the text; C111
+task b's p and C114 task A's p are superseded. C111 task a (each system against its own label-permutation
+null) is unaffected.

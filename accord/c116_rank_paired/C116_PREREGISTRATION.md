@@ -37,3 +37,17 @@ Local only; stdout/stderr redirected to ~/mimic_local_only/logs; output JSON hol
 
 ## Outcome
 (appended after the run)
+
+Run 2026-09-14, artifact `results/accord/c116_rank_paired/c116.json`; all gates passed (TF-IDF
+and detector ensemble AP reproduced; rank transform left every observed AP unchanged).
+
+- **T1** TF-IDF minus detector ensemble on ranks: difference 0.1053, two-sided p 0.17875. Not below 0.05.
+- **T2** NLI minus detector ensemble on ranks: difference 0.1088, p 0.14520.
+- **T3** TF-IDF minus NLI on ranks: difference -0.0035, p 0.96465.
+
+**Decision: the "otherwise" branch.** Every claim that TF-IDF or any simple model finds a signal the
+detector lacks is removed. The raw-score scales on G_253 differ sharply (median score: TF-IDF 0.8858,
+NLI 0.2966, detector ensemble 0.9647), which is why the raw-score swap in C111 task b returned
+p 0.00005; that p is an artifact of mixing scales and is superseded. C114 task A's raw-score p
+(0.10035) is likewise superseded by T2. What stands: TF-IDF's and NLI's AP exceed their own
+label-permutation nulls on G_253 and G_299 (C111 task a) and the detector ensemble's does not.
