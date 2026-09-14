@@ -4938,7 +4938,7 @@ Round 2 (idea-stress-tester, strategic skeptic) and round 3 (paper-reviewer) fou
 - The C102 S1b benchmark is a synthetic one-sided mirror of the Chapter 4 Fisher test, not a validation of it.
 - Contributions re-centred on the stage-wise audit, the marginal-implied agreement ceiling and trigger-exemplar
   dissociation; the detector null is a bounded supporting result; C102 demoted to a limitation.
-- Title change from "Why" to "Where" recommended; held for the author's decision.
+- Title change from "Why" to "Where" recommended; adopted by the author on 2026-09-14.
 
 ## C116. The paired AP permutation test mixed score scales (2026-09-14)
 
