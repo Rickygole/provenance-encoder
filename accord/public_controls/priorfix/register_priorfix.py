@@ -8,7 +8,10 @@ import collections
 import json
 import pathlib
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+# Three directories below the repository root (accord/public_controls/priorfix/);
+# parents[2] resolved to accord/, the same defect that broke the nlifactorial
+# register script.
+ROOT = pathlib.Path(__file__).resolve().parents[3]
 SRC = "results/accord/public_controls/priorfix/analysis.json"
 FACTS = ROOT / "results/accord/VERIFIED_FACTS.json"
 PREFIX = "priorfix"

@@ -8,7 +8,10 @@ import collections
 import json
 import pathlib
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+# The script lives three directories below the repository root
+# (accord/public_controls/nlifactorial/); parents[2] pointed at accord/ and made
+# every artifact path resolve to accord/results/..., which does not exist.
+ROOT = pathlib.Path(__file__).resolve().parents[3]
 SRC = "results/accord/public_controls/nlifactorial/analysis.json"
 FACTS = ROOT / "results/accord/VERIFIED_FACTS.json"
 PREFIX = "nlifactorial"
