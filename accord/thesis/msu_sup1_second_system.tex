@@ -16,7 +16,7 @@
 % unchanged from the thesis chapters they were moved from; only
 % cross-references have been adjusted for the move, as noted at each site.
 
-\section{Second System: The Attention-Bias Ablation and the Anisotropy Control}
+\section{Second System: The Attention-Bias Ablation and the Anisotropy Check}
 \label{sup:s1}
 
 \subsection{Second system: do its attention-bias components contribute what they are credited with?}
@@ -51,7 +51,7 @@ simply learn the permuted table and the loss surface is isomorphic, fixing the r
 uncorrupted value by construction. It was implemented, recognised as powerless, and guarded against
 in code, because a control that cannot fail is worse than no control.
 
-A third control, the anisotropy control, addresses the representation rather than the mechanism.
+A third check, the anisotropy check, addresses the representation rather than the mechanism.
 The pretraining collapse was originally explained by clinical homogeneity, the claim that notes
 within an institution are too similar for a coherence objective to separate genuine from mismatched
 pairs, though nothing in the pipeline had measured note similarity. The control instead tests
@@ -59,14 +59,14 @@ whether the collapse follows from representational geometry in the encoder, pass
 unrelated non-clinical sentences through the identical frozen extraction path and comparing mean
 pairwise cosine similarity against matched and mismatched clinical pairs; text this similar to
 itself under the same extraction weakens the homogeneity explanation without asserting the two
-conditions are statistically identical, and the anisotropy-control paragraph below reports a Welch
+conditions are statistically identical, and the anisotropy-check paragraph below reports a Welch
 test that rejects exact equality.
 
 
 
-\subsection{Three controls that fired positively}
+\subsection{Checks on a second system}
 
-These controls run on a second system: a provenance-conditioned encoder trained with masked
+These checks run on a second system: a provenance-conditioned encoder trained with masked
 language modelling, not the clinical contradiction detector whose numbers appear in the thesis.
 
 \paragraph{A control task, a thesis-original alignment control, and locality alone.} Ten arms of a
@@ -146,9 +146,9 @@ trains without global position information, so the segmentation gain could
 be a positionally handicapped baseline buying position back rather
 than a genuine effect of provenance conditioning. Restoring global positions
 on top of the shuffled-segment setup recovers none of the segment-index gain:
-the confound this control was built to rule out does not hold.
+the confound this check was built to rule out does not hold.
 
-\paragraph{The anisotropy control.} The third control targets the proposed
+\paragraph{The anisotropy check.} The third check targets the proposed
 explanation rather than the effect: if the behaviour follows from
 representational anisotropy in the encoder, removing the anisotropy removes the
 behaviour. The control condition's mean pairwise similarity is
