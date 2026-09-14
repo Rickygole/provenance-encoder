@@ -15,9 +15,9 @@ sys.path.insert(0, str(ROOT))
 
 from accord.public_controls.evaluation import rule_c98  # noqa: E402
 
-HERE = pathlib.Path(__file__).resolve().parent
-REPLICATES_DIR = HERE / "replicates"
-OUT_PATH = HERE.parent.parent.parent.parent / "results" / "accord" / "public_controls" / "priorfix" / "analysis.json"
+RESULTS_DIR = ROOT / "results" / "accord" / "public_controls" / "priorfix"
+REPLICATES_DIR = RESULTS_DIR / "replicates"
+OUT_PATH = RESULTS_DIR / "analysis.json"
 ARMS = ["H", "S1", "T", "S0"]
 B = 10_000
 SEED = 42

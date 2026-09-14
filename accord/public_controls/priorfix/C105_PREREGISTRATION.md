@@ -113,4 +113,54 @@ replicates x 4 arms), never resumed partway.
 
 ## Outcome
 
-_Recorded below after the run completes; not yet run as of this commit._
+Recorded 2026-09-14 after the run; the rule above is unchanged.
+
+**Outcome B, the fix does not rescue distillation -- and the direction is
+the opposite of what would make it a viable substitute for hard labels.**
+All 40 planned runs (10 replicates x 4 arms) completed; no interruption, no
+restart needed. Teacher: `llama3:8b`/`P1`, the one model Item 11 (C104)
+found deterministic on this serving stack, so the teacher-labelling step
+does not inherit that finding's invalidity. Teacher validity checks: 0 of
+10 replicates had a training-pool teacher hard-positive-rate below 2x
+`pi_hat` (ratios 1.4x-2.4x `pi_hat`, all above the floor); teacher
+degeneracy was 0.35% on the 2,000-item top-up and 2.8% on Item 11's
+`llama3:8b`/`P1` positives, both far under 10%.
+
+**Delta-AP (S1 minus H):** mean -0.1532, 95% CI [-0.2745, -0.0206] (B=10,000,
+seed 42, two-level bootstrap: replicate then item). The interval is
+entirely BELOW 0, the opposite of Outcome A's requirement (lower bound
+above 0). **Delta-AUROC (S1 minus H):** mean -0.1989, CI [-0.3245, 0.0345].
+Neither condition of Outcome A holds.
+
+Per-replicate numbers (`results/accord/public_controls/priorfix/analysis.json
+::per_replicate`) show why: hard labels (H) beat every soft-target arm on
+every single one of the 10 replicates, not just on average. H's AP ranges
+0.089-0.294 (AUROC 0.53-0.79) across replicates; S1's AP ranges only
+0.046-0.071 (AUROC 0.48-0.59), essentially indistinguishable from S0
+(uncorrected sigmoid, AP 0.045-0.076) and T (rank pseudo-labels, AP
+0.051-0.080). The prior correction does not merely fail to help; on this
+teacher, at this scale, with this student, it does not separate itself
+from the uncorrected soft target it was meant to fix, and all three
+soft/pseudo-label arms are dominated by the plain hard-label arm
+throughout.
+
+**Secondary, resampled 12/253 C98-style rejection rate** (bootstrap over
+the same evaluation-set predictions, 2,000 trials per arm): H fires 69.25%
+of the time; S1, T and S0 fire 0% of the time. The hard-label student is
+the only arm that would, with any regularity, have cleared this project's
+own C98 decision rule on a resample; the corrected soft target does not
+approach it.
+
+**Reading, stated once:** on public SNLI data, a zero-shot LLM teacher's
+raw hard labels distill into a far more useful student than any of the
+three softened/corrected alternatives tried here, including the one with
+an explicit prevalence correction. The Saerens-Latinne-Decaestecker
+intercept shift, in its zero-shot-compatible form, is not a cheap fix for
+this distillation setting; it is reported as such, not rescued by trying
+another threshold or another correction, per the kill condition below.
+
+Artifacts: `results/accord/public_controls/priorfix/{replicates/rep*.json
+(10 files), analysis.json, raw/teacher_topup.jsonl, partitions.json}`.
+Register prefix `priorfix.*`, script written at
+`accord/public_controls/priorfix/register_priorfix.py`, not run by this
+agent.
