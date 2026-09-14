@@ -15,6 +15,14 @@ non-clinical SNLI sweep (results/accord/stats/overcall_decomposition.json
 ::public.max_over_call_ratio) under EITHER reading, BOTH readings, or
 NEITHER.
 
+Also covers the nine C103 prompt-sensitivity cells (llama3:8b, granite3.3:8b,
+qwen3:8b, each at P_asserting / P_neutral / P_reversed), all scored on the
+same G_299 basis. Their positive rates are read from the register's
+promptsens.<slug>.<prompt>.positive_rate_299 keys, which themselves point at
+results/accord/prompt_sensitivity/analysis.json -- a local artifact, not the
+per-pair C103 cache under ~/mimic_local_only, so no new local-only read is
+needed for this extension.
+
 Wilson intervals on the two base rates (12/299, 58/299) are carried into the
 ratio as a bound: since ratio = rate / p is monotonically decreasing in p,
 the base rate's Wilson upper bound gives the ratio's conservative (lowest)
@@ -72,6 +80,25 @@ BASELINE_G299_ROWS = [
     ("llama3:8b", "overcall.llama3_8b"),
     ("granite3.3:8b", "overcall.granite3_3_8b"),
     ("qwen3:8b", "overcall.qwen3_8b"),
+]
+
+# The nine C103 prompt-sensitivity cells (3 models x 3 prompt identities), all
+# on the same G_299 basis as everything else here (C103 scored all 299 pairs,
+# see results/accord/prompt_sensitivity/analysis.json::per_model_prompt.*.n).
+# Read from promptsens.*.positive_rate_299, which the register already carries
+# from results/accord/prompt_sensitivity/analysis.json (a local artifact: no
+# hosted channel token in that path, see accord/hosted_withdrawal.py), so no
+# new read of ~/mimic_local_only or of the per-pair C103 cache is needed here.
+C103_ROWS = [
+    ("llama3:8b", "llama3_8b", "P_asserting"),
+    ("llama3:8b", "llama3_8b", "P_neutral"),
+    ("llama3:8b", "llama3_8b", "P_reversed"),
+    ("granite3.3:8b", "granite33_8b", "P_asserting"),
+    ("granite3.3:8b", "granite33_8b", "P_neutral"),
+    ("granite3.3:8b", "granite33_8b", "P_reversed"),
+    ("qwen3:8b", "qwen3_8b", "P_asserting"),
+    ("qwen3:8b", "qwen3_8b", "P_neutral"),
+    ("qwen3:8b", "qwen3_8b", "P_reversed"),
 ]
 
 
@@ -204,6 +231,31 @@ def main():
             ("register_source", f"results/accord/VERIFIED_FACTS.json::{prefix}.gold.positive_rate"),
         ])
 
+    for model, slug, prompt in C103_ROWS:
+        rate = reg(facts, f"promptsens.{slug}.{prompt}.positive_rate_299")
+        ratio_A, (a_lo, a_hi), ratio_B, (b_lo, b_hi) = ratio_and_bounds(rate)
+        above_A, above_B = ratio_A > public_max, ratio_B > public_max
+        above_A_conservative, above_B_conservative = a_lo > public_max, b_lo > public_max
+        rows[f"{model}::{prompt}::c103"] = collections.OrderedDict([
+            ("model", model), ("strategy", prompt), ("prompt_family", "c103_prompt_sensitivity"),
+            ("positive_rate_g299", rate),
+            ("ratio_reading_A_ambiguous_as_negative", ratio_A),
+            ("ratio_reading_A_wilson_bound", [a_lo, a_hi]),
+            ("ratio_reading_B_ambiguous_as_positive", ratio_B),
+            ("ratio_reading_B_wilson_bound", [b_lo, b_hi]),
+            ("above_public_max_reading_A", above_A),
+            ("above_public_max_reading_B", above_B),
+            ("above_public_max_reading_A_conservative_bound", above_A_conservative),
+            ("above_public_max_reading_B_conservative_bound", above_B_conservative),
+            ("verdict", "both" if above_A and above_B else
+                        ("neither" if not above_A and not above_B else "one")),
+            ("verdict_conservative_bound",
+             "both" if above_A_conservative and above_B_conservative else
+             ("neither" if not above_A_conservative and not above_B_conservative else "one")),
+            ("register_source",
+             f"results/accord/VERIFIED_FACTS.json::promptsens.{slug}.{prompt}.positive_rate_299"),
+        ])
+
     n_verdict_both = sum(1 for r in rows.values() if r["verdict"] == "both")
     n_verdict_one = sum(1 for r in rows.values() if r["verdict"] == "one")
     n_verdict_neither = sum(1 for r in rows.values() if r["verdict"] == "neither")
@@ -240,6 +292,14 @@ def main():
     print(f"public max over-call ratio={public_max:.4f} ({public_max_cell})")
     print(f"verdicts: both={n_verdict_both} one={n_verdict_one} neither={n_verdict_neither} "
           f"of {len(rows)} rows")
+    print("C103 rows, reading B (58/299, ambiguous as contradiction):")
+    for model, slug, prompt in C103_ROWS:
+        r = rows[f"{model}::{prompt}::c103"]
+        print(f"  {model:16s} {prompt:12s} rate={r['positive_rate_g299']:.4f} "
+              f"ratio_B={r['ratio_reading_B_ambiguous_as_positive']:.4f} "
+              f"wilson=[{r['ratio_reading_B_wilson_bound'][0]:.4f},"
+              f"{r['ratio_reading_B_wilson_bound'][1]:.4f}] "
+              f"above_B={r['above_public_max_reading_B']} verdict={r['verdict']}")
     print(f"local cross-check matches register 241/46/12: {cross_check_matches_register} "
           f"(counts: {cross_check['label_clean_counts_per_pair']}, "
           f"n_inconsistent_pairs={cross_check['n_pairs_with_inconsistent_label_clean_across_rows']})")

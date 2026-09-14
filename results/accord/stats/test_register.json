@@ -1,27 +1,26 @@
 {
- "bonferroni_threshold": 0.0016666666666666668,
+ "bonferroni_threshold": 0.0011627906976744186,
  "clears_bonferroni": [
-  "fisher_frontier_sonnet_zs",
-  "welch_anisotropy",
-  "fisher_frontier_haiku_fs",
-  "fisher_frontier_haiku_zs"
+  "mcnemar_promptsens_granite33_8b",
+  "mcnemar_promptsens_qwen3_8b",
+  "welch_anisotropy"
  ],
  "dependence_groups": {
-  "ambiguity_gradient": [
-   "fisher_ambiguity_zs",
-   "fisher_ambiguity_fs"
+  "ambiguity_gradient_granite33_8b_ollama": [
+   "fisher_ambiguity_granite33_8b_zs_local",
+   "fisher_ambiguity_granite33_8b_fs_local"
   ],
-  "ambiguity_gradient_haiku": [
-   "fisher_ambiguity_haiku_zs",
-   "fisher_ambiguity_haiku_fs"
+  "ambiguity_gradient_llama3_8b_ollama": [
+   "fisher_ambiguity_llama3_8b_zs_local",
+   "fisher_ambiguity_llama3_8b_fs_local"
   ],
-  "ambiguity_gradient_llama70b": [
-   "fisher_ambiguity_llama70b_zs",
-   "fisher_ambiguity_llama70b_fs"
+  "ambiguity_gradient_qwen3_14b_ollama": [
+   "fisher_ambiguity_qwen3_14b_zs_local",
+   "fisher_ambiguity_qwen3_14b_fs_local"
   ],
-  "ambiguity_gradient_llama8b": [
-   "fisher_ambiguity_llama8b_zs",
-   "fisher_ambiguity_llama8b_fs"
+  "ambiguity_gradient_qwen3_8b_ollama": [
+   "fisher_ambiguity_qwen3_8b_zs_local",
+   "fisher_ambiguity_qwen3_8b_fs_local"
   ],
   "anisotropy": [
    "welch_anisotropy"
@@ -44,42 +43,70 @@
    "delong_seed2024_299",
    "delong_ensemble_134"
   ],
-  "frontier_discrimination": [
-   "fisher_frontier_sonnet_zs",
-   "fisher_frontier_sonnet_fs",
-   "fisher_frontier_haiku_zs",
-   "fisher_frontier_haiku_fs",
-   "fisher_frontier_llama70b_zs",
-   "fisher_frontier_llama70b_fs",
-   "fisher_frontier_llama8b_zs",
-   "fisher_frontier_llama8b_fs"
+  "gradedscore_granite33_8b": [
+   "mw_gradedscore_granite33_8b_g253"
   ],
   "mechanism": [
    "fisher_mechanism"
+  ],
+  "nlibaseline": [
+   "mw_nlibaseline_g253",
+   "delong_nlibaseline_vs_detector_g253",
+   "delong_nlibaseline_vs_detector_g299"
+  ],
+  "promptsens_granite33_8b": [
+   "mcnemar_promptsens_granite33_8b",
+   "mw_promptsens_granite33_8b_asserting",
+   "mw_promptsens_granite33_8b_neutral",
+   "mw_promptsens_granite33_8b_reversed"
+  ],
+  "promptsens_llama3_8b": [
+   "mcnemar_promptsens_llama3_8b",
+   "mw_promptsens_llama3_8b_asserting",
+   "mw_promptsens_llama3_8b_neutral",
+   "mw_promptsens_llama3_8b_reversed"
+  ],
+  "promptsens_qwen3_8b": [
+   "mcnemar_promptsens_qwen3_8b",
+   "mw_promptsens_qwen3_8b_asserting",
+   "mw_promptsens_qwen3_8b_neutral",
+   "mw_promptsens_qwen3_8b_reversed"
+  ],
+  "scalestep_c99": [
+   "mcnemar_scalestep_c99"
+  ],
+  "tfidfperm_taska": [
+   "perm_tfidf_taska_g253_auroc",
+   "perm_tfidf_taska_g253_ap",
+   "perm_tfidf_taska_g299_auroc",
+   "perm_tfidf_taska_g299_ap"
   ]
  },
- "familywise_bound_is_upper_only_because": "the tests are positively dependent: five Mann-Whitney tests on one set of 253 rows, five DeLong tests against a single reference run, two Fisher tests on one model under two prompts, and two Spearman correlations against one rating. The true familywise rate is lower and this thesis does not compute it.",
- "familywise_upper_bound": 0.7853612360570628,
+ "familywise_bound_is_upper_only_because": "the tests are positively dependent, in 12 dependence groups of more than one test: five Mann-Whitney tests on one set of 253 rows (decontam_253), five DeLong tests against a single reference run (delong_vs_one_ref), two Spearman correlations against one rating (danger_rating), one Mann-Whitney and two DeLong tests off a single NLI baseline run (nlibaseline), one McNemar and three Mann-Whitney tests per C103 model under three prompts on the same items (promptsens_llama3_8b, promptsens_granite33_8b, promptsens_qwen3_8b), four permutation tests off one fitted TF-IDF model on nested bases (tfidfperm_taska), and four pairs of one model under two prompts each for the local ambiguity gradient (ambiguity_gradient_*_ollama). The true familywise rate is lower and this thesis does not compute it.",
+ "familywise_upper_bound": 0.8898168897649947,
  "holm_rejections_for_reference": [
-  "fisher_frontier_sonnet_zs",
-  "welch_anisotropy",
-  "fisher_frontier_haiku_fs",
-  "fisher_frontier_haiku_zs",
-  "fisher_ambiguity_haiku_fs"
+  "mcnemar_promptsens_granite33_8b",
+  "mcnemar_promptsens_qwen3_8b",
+  "welch_anisotropy"
  ],
- "n_dependence_groups": 10,
- "n_tests": 30,
+ "n_dependence_groups": 16,
+ "n_tests": 43,
  "nominally_significant_uncorrected": [
-  "fisher_frontier_sonnet_zs",
+  "mcnemar_promptsens_granite33_8b",
+  "mcnemar_promptsens_qwen3_8b",
   "welch_anisotropy",
-  "fisher_frontier_haiku_fs",
-  "fisher_frontier_haiku_zs",
-  "fisher_ambiguity_haiku_fs",
-  "fisher_ambiguity_fs",
-  "fisher_frontier_sonnet_fs",
-  "fisher_ambiguity_zs",
+  "mw_promptsens_llama3_8b_reversed",
+  "mw_promptsens_granite33_8b_reversed",
+  "mcnemar_promptsens_llama3_8b",
+  "perm_tfidf_taska_g299_ap",
+  "mw_promptsens_llama3_8b_neutral",
+  "mw_promptsens_granite33_8b_asserting",
+  "mw_promptsens_qwen3_8b_neutral",
+  "perm_tfidf_taska_g253_ap",
   "spearman_pos12_harm",
-  "fisher_frontier_llama70b_fs"
+  "mw_promptsens_qwen3_8b_reversed",
+  "mw_promptsens_granite33_8b_neutral",
+  "mw_promptsens_llama3_8b_asserting"
  ],
  "provenance": {
   "alpha": 0.05,
@@ -229,164 +256,294 @@
    "where": "sec:r-multiplicity"
   },
   {
-   "group": "ambiguity_gradient",
-   "id": "fisher_ambiguity_zs",
-   "p": 0.0046399972977238,
+   "group": "scalestep_c99",
+   "id": "mcnemar_scalestep_c99",
+   "p": 0.2624375357110438,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_anthropic_metrics.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
+   "source": "results/accord/differential/scale_step_c99.json::mcnemar_exact_two_sided_p",
+   "test": "McNemar exact, two-sided",
+   "what": "qwen3:8b vs qwen3:14b flag agreement, local scale step",
+   "where": "C99"
+  },
+  {
+   "group": "nlibaseline",
+   "id": "mw_nlibaseline_g253",
+   "p": 0.15759560242183052,
+   "p_is_derived": false,
+   "source": "results/accord/differential/nli_roberta_large_mnli.json::primary_g253.mannwhitney_p_one_sided",
+   "test": "Mann-Whitney U",
+   "what": "roberta-large-mnli entailment score vs gold, G_253",
+   "where": "C100"
+  },
+  {
+   "group": "nlibaseline",
+   "id": "delong_nlibaseline_vs_detector_g253",
+   "p": 0.21131452523149608,
+   "p_is_derived": false,
+   "source": "results/accord/differential/nli_roberta_large_mnli.json::delong_vs_detector.g253.p",
+   "test": "DeLong",
+   "what": "roberta-large-mnli vs ACCORD detector AUROC, G_253",
+   "where": "C100"
+  },
+  {
+   "group": "nlibaseline",
+   "id": "delong_nlibaseline_vs_detector_g299",
+   "p": 0.254977809235712,
+   "p_is_derived": false,
+   "source": "results/accord/differential/nli_roberta_large_mnli.json::delong_vs_detector.g299.p",
+   "test": "DeLong",
+   "what": "roberta-large-mnli vs ACCORD detector AUROC, G_299",
+   "where": "C100"
+  },
+  {
+   "group": "promptsens_llama3_8b",
+   "id": "mcnemar_promptsens_llama3_8b",
+   "p": 0.005401572654591291,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::model_verdicts.llama3:8b.mcnemar_p_two_sided_exact",
+   "test": "McNemar exact, two-sided",
+   "what": "llama3:8b, flag agreement across P_asserting/P_neutral/P_reversed",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_llama3_8b",
+   "id": "mw_promptsens_llama3_8b_asserting",
+   "p": 0.03652324309844627,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::per_model_prompt.llama3:8b.P_asserting.mannwhitney_p_one_sided_253",
+   "test": "Mann-Whitney U",
+   "what": "llama3:8b, P_asserting score vs gold, G_253",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_llama3_8b",
+   "id": "mw_promptsens_llama3_8b_neutral",
+   "p": 0.012120015868672727,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::per_model_prompt.llama3:8b.P_neutral.mannwhitney_p_one_sided_253",
+   "test": "Mann-Whitney U",
+   "what": "llama3:8b, P_neutral score vs gold, G_253",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_llama3_8b",
+   "id": "mw_promptsens_llama3_8b_reversed",
+   "p": 0.0017264837024960212,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::per_model_prompt.llama3:8b.P_reversed.mannwhitney_p_one_sided_253",
+   "test": "Mann-Whitney U",
+   "what": "llama3:8b, P_reversed score vs gold, G_253",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_granite33_8b",
+   "id": "mcnemar_promptsens_granite33_8b",
+   "p": 5.835116341662609e-32,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::model_verdicts.granite3.3:8b.mcnemar_p_two_sided_exact",
+   "test": "McNemar exact, two-sided",
+   "what": "granite3.3:8b, flag agreement across P_asserting/P_neutral/P_reversed",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_granite33_8b",
+   "id": "mw_promptsens_granite33_8b_asserting",
+   "p": 0.013876397164458005,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::per_model_prompt.granite3.3:8b.P_asserting.mannwhitney_p_one_sided_253",
+   "test": "Mann-Whitney U",
+   "what": "granite3.3:8b, P_asserting score vs gold, G_253",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_granite33_8b",
+   "id": "mw_promptsens_granite33_8b_neutral",
+   "p": 0.03620116554774339,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::per_model_prompt.granite3.3:8b.P_neutral.mannwhitney_p_one_sided_253",
+   "test": "Mann-Whitney U",
+   "what": "granite3.3:8b, P_neutral score vs gold, G_253",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_granite33_8b",
+   "id": "mw_promptsens_granite33_8b_reversed",
+   "p": 0.0028674126582151995,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::per_model_prompt.granite3.3:8b.P_reversed.mannwhitney_p_one_sided_253",
+   "test": "Mann-Whitney U",
+   "what": "granite3.3:8b, P_reversed score vs gold, G_253",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_qwen3_8b",
+   "id": "mcnemar_promptsens_qwen3_8b",
+   "p": 8.139090460257346e-29,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::model_verdicts.qwen3:8b.mcnemar_p_two_sided_exact",
+   "test": "McNemar exact, two-sided",
+   "what": "qwen3:8b, flag agreement across P_asserting/P_neutral/P_reversed",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_qwen3_8b",
+   "id": "mw_promptsens_qwen3_8b_asserting",
+   "p": 0.18263581286688518,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::per_model_prompt.qwen3:8b.P_asserting.mannwhitney_p_one_sided_253",
+   "test": "Mann-Whitney U",
+   "what": "qwen3:8b, P_asserting score vs gold, G_253",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_qwen3_8b",
+   "id": "mw_promptsens_qwen3_8b_neutral",
+   "p": 0.01568850767541436,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::per_model_prompt.qwen3:8b.P_neutral.mannwhitney_p_one_sided_253",
+   "test": "Mann-Whitney U",
+   "what": "qwen3:8b, P_neutral score vs gold, G_253",
+   "where": "C103"
+  },
+  {
+   "group": "promptsens_qwen3_8b",
+   "id": "mw_promptsens_qwen3_8b_reversed",
+   "p": 0.02217354018232887,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/analysis.json::per_model_prompt.qwen3:8b.P_reversed.mannwhitney_p_one_sided_253",
+   "test": "Mann-Whitney U",
+   "what": "qwen3:8b, P_reversed score vs gold, G_253",
+   "where": "C103"
+  },
+  {
+   "group": "tfidfperm_taska",
+   "id": "perm_tfidf_taska_g253_auroc",
+   "p": 0.197,
+   "p_is_derived": false,
+   "source": "results/accord/tfidf_permutation/tfidf_permutation.json::task_a.g253.p_permutation_auroc_one_sided",
+   "test": "Permutation test (label shuffle)",
+   "what": "TF-IDF linear model, AUROC on G_253, no refit",
+   "where": "C107"
+  },
+  {
+   "group": "tfidfperm_taska",
+   "id": "perm_tfidf_taska_g253_ap",
+   "p": 0.0159,
+   "p_is_derived": false,
+   "source": "results/accord/tfidf_permutation/tfidf_permutation.json::task_a.g253.p_permutation_ap_one_sided",
+   "test": "Permutation test (label shuffle)",
+   "what": "TF-IDF linear model, average precision on G_253, no refit",
+   "where": "C107"
+  },
+  {
+   "group": "tfidfperm_taska",
+   "id": "perm_tfidf_taska_g299_auroc",
+   "p": 0.1944,
+   "p_is_derived": false,
+   "source": "results/accord/tfidf_permutation/tfidf_permutation.json::task_a.g299.p_permutation_auroc_one_sided",
+   "test": "Permutation test (label shuffle)",
+   "what": "TF-IDF linear model, AUROC on G_299, no refit",
+   "where": "C107"
+  },
+  {
+   "group": "tfidfperm_taska",
+   "id": "perm_tfidf_taska_g299_ap",
+   "p": 0.0109,
+   "p_is_derived": false,
+   "source": "results/accord/tfidf_permutation/tfidf_permutation.json::task_a.g299.p_permutation_ap_one_sided",
+   "test": "Permutation test (label shuffle)",
+   "what": "TF-IDF linear model, average precision on G_299, no refit",
+   "where": "C107"
+  },
+  {
+   "group": "gradedscore_granite33_8b",
+   "id": "mw_gradedscore_granite33_8b_g253",
+   "p": 0.29335079078643617,
+   "p_is_derived": false,
+   "source": "results/accord/differential/graded_score_granite33_g253.json::mannwhitney_p_one_sided",
+   "test": "Mann-Whitney U",
+   "what": "granite3.3:8b graded log-odds score vs gold, G_253",
+   "where": "C98"
+  },
+  {
+   "group": "ambiguity_gradient_llama3_8b_ollama",
+   "id": "fisher_ambiguity_llama3_8b_zs_local",
+   "p": 0.621990166267584,
+   "p_is_derived": false,
+   "source": "results/accord/differential/frontier_ollama_metrics_llama3.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
-   "what": "ambiguous vs clear negatives, zero-shot",
+   "what": "ambiguous vs clear negatives, llama3:8b (local), zero-shot",
    "where": "sec:r-ambiguity"
   },
   {
-   "group": "ambiguity_gradient",
-   "id": "fisher_ambiguity_fs",
-   "p": 0.0028501877096293034,
+   "group": "ambiguity_gradient_llama3_8b_ollama",
+   "id": "fisher_ambiguity_llama3_8b_fs_local",
+   "p": 0.8577323103402051,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_anthropic_metrics.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
+   "source": "results/accord/differential/frontier_ollama_metrics_llama3.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
-   "what": "ambiguous vs clear negatives, few-shot",
+   "what": "ambiguous vs clear negatives, llama3:8b (local), few-shot",
    "where": "sec:r-ambiguity"
   },
   {
-   "group": "ambiguity_gradient_haiku",
-   "id": "fisher_ambiguity_haiku_zs",
-   "p": 0.07904866533779949,
+   "group": "ambiguity_gradient_granite33_8b_ollama",
+   "id": "fisher_ambiguity_granite33_8b_zs_local",
+   "p": 0.17875442685660198,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
+   "source": "results/accord/differential/frontier_ollama_metrics_granite33.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
-   "what": "gradient replication, Haiku 4.5, zero-shot",
+   "what": "ambiguous vs clear negatives, granite3.3:8b (local), zero-shot",
    "where": "sec:r-ambiguity"
   },
   {
-   "group": "ambiguity_gradient_haiku",
-   "id": "fisher_ambiguity_haiku_fs",
-   "p": 0.0018908897281414614,
+   "group": "ambiguity_gradient_granite33_8b_ollama",
+   "id": "fisher_ambiguity_granite33_8b_fs_local",
+   "p": 0.3109730314380279,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
+   "source": "results/accord/differential/frontier_ollama_metrics_granite33.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
-   "what": "gradient replication, Haiku 4.5, few-shot",
+   "what": "ambiguous vs clear negatives, granite3.3:8b (local), few-shot",
    "where": "sec:r-ambiguity"
   },
   {
-   "group": "ambiguity_gradient_llama70b",
-   "id": "fisher_ambiguity_llama70b_zs",
-   "p": 0.3190002333148902,
+   "group": "ambiguity_gradient_qwen3_8b_ollama",
+   "id": "fisher_ambiguity_qwen3_8b_zs_local",
+   "p": 0.39249989460036666,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
+   "source": "results/accord/differential/frontier_ollama_metrics_qwen3_8b_nothink.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
-   "what": "gradient replication, Llama 3 70B, zero-shot",
+   "what": "ambiguous vs clear negatives, qwen3:8b nothink (local), zero-shot",
    "where": "sec:r-ambiguity"
   },
   {
-   "group": "ambiguity_gradient_llama70b",
-   "id": "fisher_ambiguity_llama70b_fs",
-   "p": 0.09963842045818058,
+   "group": "ambiguity_gradient_qwen3_8b_ollama",
+   "id": "fisher_ambiguity_qwen3_8b_fs_local",
+   "p": 0.08430556591161083,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
+   "source": "results/accord/differential/frontier_ollama_metrics_qwen3_8b_nothink.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
-   "what": "gradient replication, Llama 3 70B, few-shot",
+   "what": "ambiguous vs clear negatives, qwen3:8b nothink (local), few-shot",
    "where": "sec:r-ambiguity"
   },
   {
-   "group": "ambiguity_gradient_llama8b",
-   "id": "fisher_ambiguity_llama8b_zs",
-   "p": 0.7551383838922998,
+   "group": "ambiguity_gradient_qwen3_14b_ollama",
+   "id": "fisher_ambiguity_qwen3_14b_zs_local",
+   "p": 0.09063699970150448,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
+   "source": "results/accord/differential/frontier_ollama_metrics_qwen3_14b_nothink.json::ambiguity_gradient.zero_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
-   "what": "gradient replication, Llama 3 8B hosted, zero-shot",
+   "what": "ambiguous vs clear negatives, qwen3:14b nothink (local), zero-shot",
    "where": "sec:r-ambiguity"
   },
   {
-   "group": "ambiguity_gradient_llama8b",
-   "id": "fisher_ambiguity_llama8b_fs",
-   "p": 0.5597889708254331,
+   "group": "ambiguity_gradient_qwen3_14b_ollama",
+   "id": "fisher_ambiguity_qwen3_14b_fs_local",
+   "p": 0.10524078170010705,
    "p_is_derived": false,
-   "source": "results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
+   "source": "results/accord/differential/frontier_ollama_metrics_qwen3_14b_nothink.json::ambiguity_gradient.few_shot.fisher_p_one_sided",
    "test": "Fisher exact, one-sided",
-   "what": "gradient replication, Llama 3 8B hosted, few-shot",
+   "what": "ambiguous vs clear negatives, qwen3:14b nothink (local), few-shot",
    "where": "sec:r-ambiguity"
-  },
-  {
-   "group": "frontier_discrimination",
-   "id": "fisher_frontier_sonnet_zs",
-   "p": 2.2823375512280303e-05,
-   "p_is_derived": false,
-   "source": "results/accord/stats/frontier_discrimination_tests.json::anthropic::zero_shot.fisher_two_sided",
-   "test": "Fisher exact, two-sided",
-   "what": "Sonnet 5 zero-shot labels against the pharmacist on G_253",
-   "where": "sec:r-frontier"
-  },
-  {
-   "group": "frontier_discrimination",
-   "id": "fisher_frontier_sonnet_fs",
-   "p": 0.004229736267275807,
-   "p_is_derived": false,
-   "source": "results/accord/stats/frontier_discrimination_tests.json::anthropic::few_shot.fisher_two_sided",
-   "test": "Fisher exact, two-sided",
-   "what": "Sonnet 5 few-shot labels on G_253",
-   "where": "sec:r-frontier"
-  },
-  {
-   "group": "frontier_discrimination",
-   "id": "fisher_frontier_haiku_zs",
-   "p": 0.0014728939471449387,
-   "p_is_derived": false,
-   "source": "results/accord/stats/frontier_discrimination_tests.json::anthropic_claudehaiku4520251001::zero_shot.fisher_two_sided",
-   "test": "Fisher exact, two-sided",
-   "what": "Haiku 4.5 zero-shot labels on G_253",
-   "where": "sec:r-frontier"
-  },
-  {
-   "group": "frontier_discrimination",
-   "id": "fisher_frontier_haiku_fs",
-   "p": 0.0007654443228770725,
-   "p_is_derived": false,
-   "source": "results/accord/stats/frontier_discrimination_tests.json::anthropic_claudehaiku4520251001::few_shot.fisher_two_sided",
-   "test": "Fisher exact, two-sided",
-   "what": "Haiku 4.5 few-shot labels on G_253",
-   "where": "sec:r-frontier"
-  },
-  {
-   "group": "frontier_discrimination",
-   "id": "fisher_frontier_llama70b_zs",
-   "p": 0.24436255200717566,
-   "p_is_derived": false,
-   "source": "results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama370binstructv1::zero_shot.fisher_two_sided",
-   "test": "Fisher exact, two-sided",
-   "what": "Llama 3 70B zero-shot labels on G_253",
-   "where": "sec:r-frontier"
-  },
-  {
-   "group": "frontier_discrimination",
-   "id": "fisher_frontier_llama70b_fs",
-   "p": 0.039055464932457984,
-   "p_is_derived": false,
-   "source": "results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama370binstructv1::few_shot.fisher_two_sided",
-   "test": "Fisher exact, two-sided",
-   "what": "Llama 3 70B few-shot labels on G_253",
-   "where": "sec:r-frontier"
-  },
-  {
-   "group": "frontier_discrimination",
-   "id": "fisher_frontier_llama8b_zs",
-   "p": 1.0,
-   "p_is_derived": false,
-   "source": "results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama38binstructv1::zero_shot.fisher_two_sided",
-   "test": "Fisher exact, two-sided",
-   "what": "Llama 3 8B zero-shot labels on G_253, ceiling-bound at a flag rate of 0.8735",
-   "where": "sec:r-frontier"
-  },
-  {
-   "group": "frontier_discrimination",
-   "id": "fisher_frontier_llama8b_fs",
-   "p": 1.0,
-   "p_is_derived": false,
-   "source": "results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama38binstructv1::few_shot.fisher_two_sided",
-   "test": "Fisher exact, two-sided",
-   "what": "Llama 3 8B few-shot labels on G_253, ceiling-bound at a flag rate of 0.8854",
-   "where": "sec:r-frontier"
   }
  ]
 }

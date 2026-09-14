@@ -45,7 +45,17 @@ sys.path.insert(0, str(ROOT))
 from accord.differential.model_tags import LEGACY_TAGS, ollama_model_tag  # noqa: E402
 
 OUT = ROOT / "results" / "accord" / "stats" / "test_register.json"
+FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"
 ALPHA = 0.05
+# New prefix for this rebuild. Chosen and checked against
+# accord/hosted_withdrawal.py's HOSTED_ARTIFACT_TOKENS: "testfam" is not a
+# substring of any of them, and every source this family reads from (see
+# FAMILY below) is already live and non-withdrawn in the register under its
+# own prefix (decontam.*, control.*, exemplar/step2plus, step5_ranking,
+# scalestep.*, nlibaseline.*, promptsens.*, tfidfperm.*, gradedscore.*,
+# frontier_ollama_*), so nothing this script now points at can make
+# withdraw_hosted.py flag testfam.* either directly or by derivation.
+PREFIX = "testfam"
 
 # Each entry: the test, where its p value lives, and which tests it is
 # dependent with. `group` names the dependence block; tests sharing a group are
@@ -120,142 +130,175 @@ FAMILY = [
          group="danger_rating",
          source="results/accord/step5_ranking.json::positives_only_n12_harm_score_vs_danger_rating.p_value"),
 
-    # Two Fisher exact tests on the ambiguity gradient. These are the two the
-    # prose count omitted. They are the same model on the same items under two
-    # prompts, so they share one dependence block and the second carries much
-    # less than its face value.
-    dict(id="fisher_ambiguity_zs", test="Fisher exact, one-sided",
-         where="sec:r-ambiguity", what="ambiguous vs clear negatives, zero-shot",
-         group="ambiguity_gradient",
-         source="results/accord/differential/frontier_anthropic_metrics.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
-    dict(id="fisher_ambiguity_fs", test="Fisher exact, one-sided",
-         where="sec:r-ambiguity", what="ambiguous vs clear negatives, few-shot",
-         group="ambiguity_gradient",
-         source="results/accord/differential/frontier_anthropic_metrics.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+    # REMOVED (this rebuild): sixteen tests that lived here across C70, C72,
+    # C76, C79, C85, C88 to C92 -- two hosted Fisher tests on the ambiguity
+    # gradient (Sonnet), four hosted replications of it (Haiku 4.5, Llama 3
+    # 70B, Llama 3 8B, all through Bedrock or the Anthropic API), and ten
+    # hosted frontier-discrimination Fisher tests (Sonnet, Haiku 4.5, Llama 3
+    # 70B, Llama 3 8B, zero-shot and few-shot each). PhysioNet's "Use of MIMIC
+    # Data with Large Language Models and Online Services" (24 September 2025)
+    # withdrew every run this thesis made through a hosted channel; see
+    # accord/hosted_withdrawal.py. Their source artifacts
+    # (frontier_anthropic_metrics*.json, frontier_bedrock_metrics*.json) are no
+    # longer on disk, and every one of their p values is now unreachable except
+    # under withdrawn.hosted.* in the register. A test whose only source is a
+    # withdrawn artifact cannot be re-verified, so it cannot stay in a family
+    # this script re-derives from artifacts on every run: FAMILY entries that
+    # `resolve()` cannot resolve are a hard failure, not a silent gap, which is
+    # what caught this rebuild's predecessor (see the class of defect CLAUDE.md
+    # calls "a register key maintained by hand"). Removing them is not a
+    # verdict on C70 to C92's reasoning about the family's membership rule; it
+    # is that the tests those corrections argued about no longer exist to be a
+    # member of anything. The two prior grounds for exclusion recorded at C88
+    # and C90 (wrong inferential target; not a test of association) remain true
+    # of the exemplar joinability test and are why it is not resurrected here
+    # either.
+    #
+    # ADDED (this rebuild): every hard-label or graded-score hypothesis test
+    # this project has run and committed since, none of them hosted. C99's
+    # scale step and C100's NLI baseline replace nothing removed above; they
+    # are new local runs. C103's prompt-sensitivity family and C107's TF-IDF
+    # permutation family are new local runs too. The eight local
+    # frontier_ollama_* ambiguity-gradient Fisher tests were already computed
+    # and registered (frontier_ollama_*.ambiguity_gradient.*.fisher_p_one_sided)
+    # but were never added to this family; leaving a computed, registered,
+    # local test out of the family it belongs to is the same defect C68 and
+    # C72 record for the hosted replications, so they are added now rather than
+    # left for a future correction to catch. C98's graded-score Mann-Whitney is
+    # the same story.
 
-    # Four replication attempts of the gradient, on a second Anthropic model and
-    # on a Llama 3 70B through Bedrock. They are in the family because the
-    # chapter reports them. Adding them takes the count from sixteen to twenty
-    # and the threshold from 0.0031 to 0.0025, at which Sonnet's few-shot
-    # gradient stops clearing; that is the register doing the job a prose count
-    # could not, and is recorded as C70.
-    dict(id="fisher_ambiguity_haiku_zs", test="Fisher exact, one-sided",
-         where="sec:r-ambiguity", what="gradient replication, Haiku 4.5, zero-shot",
-         group="ambiguity_gradient_haiku",
-         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
-    dict(id="fisher_ambiguity_haiku_fs", test="Fisher exact, one-sided",
-         where="sec:r-ambiguity", what="gradient replication, Haiku 4.5, few-shot",
-         group="ambiguity_gradient_haiku",
-         source="results/accord/differential/frontier_anthropic_metrics_claudehaiku4520251001.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
-    dict(id="fisher_ambiguity_llama70b_zs", test="Fisher exact, one-sided",
-         where="sec:r-ambiguity", what="gradient replication, Llama 3 70B, zero-shot",
-         group="ambiguity_gradient_llama70b",
-         source="results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
-    dict(id="fisher_ambiguity_llama70b_fs", test="Fisher exact, one-sided",
-         where="sec:r-ambiguity", what="gradient replication, Llama 3 70B, few-shot",
-         group="ambiguity_gradient_llama70b",
-         source="results/accord/differential/frontier_bedrock_metrics_metallama370binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+    # C99: one McNemar test, a within-family scale step (qwen3:8b vs
+    # qwen3:14b, both local Ollama, Q4_K_M) on whether flagging changes with
+    # model scale. See accord/differential/C99_PREREGISTRATION.md.
+    dict(id="mcnemar_scalestep_c99", test="McNemar exact, two-sided",
+         where="C99", what="qwen3:8b vs qwen3:14b flag agreement, local scale step",
+         group="scalestep_c99",
+         source="results/accord/differential/scale_step_c99.json::mcnemar_exact_two_sided_p"),
 
-    # The fourth labeller. These two were computed by the C72 run, registered with
-    # its other 110 keys, and left out of this list, while the chapter said "four
-    # replication attempts on two further labellers" and "six tests". Four
-    # labellers were asked and eight tests exist. The omission is the exact defect
-    # C68 records one level up: a family understated by the tests that were run
-    # most recently. Adding them takes k from 20 to 22 and the threshold from
-    # 0.0025 to 0.0023; see C76.
-    dict(id="fisher_ambiguity_llama8b_zs", test="Fisher exact, one-sided",
-         where="sec:r-ambiguity", what="gradient replication, Llama 3 8B hosted, zero-shot",
-         group="ambiguity_gradient_llama8b",
-         source="results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
-    dict(id="fisher_ambiguity_llama8b_fs", test="Fisher exact, one-sided",
-         where="sec:r-ambiguity", what="gradient replication, Llama 3 8B hosted, few-shot",
-         group="ambiguity_gradient_llama8b",
-         source="results/accord/differential/frontier_bedrock_metrics_metallama38binstructv1.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+    # C100: the NLI baseline (roberta-large-mnli, local) scored against gold on
+    # its own primary basis (Mann-Whitney) and DeLong'd against the ACCORD
+    # detector on both G_253 and G_299. One model, one scored run, three
+    # statistics off it, so one dependence block.
+    dict(id="mw_nlibaseline_g253", test="Mann-Whitney U", where="C100",
+         what="roberta-large-mnli entailment score vs gold, G_253", group="nlibaseline",
+         source="results/accord/differential/nli_roberta_large_mnli.json::primary_g253.mannwhitney_p_one_sided"),
+    dict(id="delong_nlibaseline_vs_detector_g253", test="DeLong", where="C100",
+         what="roberta-large-mnli vs ACCORD detector AUROC, G_253", group="nlibaseline",
+         source="results/accord/differential/nli_roberta_large_mnli.json::delong_vs_detector.g253.p"),
+    dict(id="delong_nlibaseline_vs_detector_g299", test="DeLong", where="C100",
+         what="roberta-large-mnli vs ACCORD detector AUROC, G_299", group="nlibaseline",
+         source="results/accord/differential/nli_roberta_large_mnli.json::delong_vs_detector.g299.p"),
 
-    # The four frontier discrimination tests, on the same 253 rows. An earlier version
-    # of this list used Mann-Whitney U on the binary label vector. That is the wrong
-    # instrument: the comparison is a 2x2 table with fixed margins, the vector is
-    # binary so roughly 78 percent of pairs are ties, and the rank test's normal
-    # approximation is anti-conservative there. It was anti-conservative in all four
-    # cases, by factors of 4 to 54, and every error favoured this thesis's sharpest
-    # claim. The exact conditional test was already stored in the same artifacts. One
-    # of the four changes verdict: Sonnet few-shot cleared under the rank test and does
-    # not clear under the exact one. See C85. These are the same tables, on the same
-    # 253 rows, that Table tab:decontam runs five tests on, and
-    # they were computable from committed cells throughout. They were outside the
-    # family while the family was presented as exhaustive, and they are the only
-    # rejections on the clinical task, so the omission ran in the direction that
-    # kept the strongest results out of this thesis's own correction. Adding them
-    # takes k from 22 to 26 and the threshold from 0.0023 to 0.0019; both still
-    # clear it, which is why the omission is a reporting defect rather than a
-    # changed conclusion. See C79.
-    dict(id="fisher_frontier_sonnet_zs", test="Fisher exact, two-sided",
-         where="sec:r-frontier", what="Sonnet 5 zero-shot labels against the pharmacist on G_253",
-         group="frontier_discrimination",
-         source="results/accord/stats/frontier_discrimination_tests.json::anthropic::zero_shot.fisher_two_sided"),
-    dict(id="fisher_frontier_sonnet_fs", test="Fisher exact, two-sided",
-         where="sec:r-frontier", what="Sonnet 5 few-shot labels on G_253",
-         group="frontier_discrimination",
-         source="results/accord/stats/frontier_discrimination_tests.json::anthropic::few_shot.fisher_two_sided"),
-    dict(id="fisher_frontier_haiku_zs", test="Fisher exact, two-sided",
-         where="sec:r-frontier", what="Haiku 4.5 zero-shot labels on G_253",
-         group="frontier_discrimination",
-         source="results/accord/stats/frontier_discrimination_tests.json::anthropic_claudehaiku4520251001::zero_shot.fisher_two_sided"),
-    dict(id="fisher_frontier_haiku_fs", test="Fisher exact, two-sided",
-         where="sec:r-frontier", what="Haiku 4.5 few-shot labels on G_253",
-         group="frontier_discrimination",
-         source="results/accord/stats/frontier_discrimination_tests.json::anthropic_claudehaiku4520251001::few_shot.fisher_two_sided"),
-    # C88 added the exemplar joinability test here and C90 removes it. Two grounds,
-    # both independent of what it did to the threshold.
-    #
-    # First, a multiplicity family is defined by inferential target, and that test's
-    # target is this project's own bookkeeping rather than any claim about labellers
-    # or medication contradictions. This subsection said exactly that in print while
-    # counting it in the same denominator, which is an inconsistency inside one page.
-    #
-    # Second, and worse, it is not a test of association. Correctness for the 23
-    # key-joined rows was assessed BY the key join and for the 137 others by the
-    # reconstruction, so no row is measured by both instruments and the null it
-    # rejects contains the clause "the two instruments have equal error rates",
-    # which Section r-exemplar already declares false where it calibrates the
-    # reconstruction at 0.8934 and 0.9508 fidelity. Rejecting a null one clause of
-    # which the author has already denied in print is arithmetic, not evidence.
-    #
-    # Removing it restores k to 26, the threshold to 0.001923, and Haiku 4.5's
-    # few-shot ambiguity gradient at 0.0018909 to the clearing set. That the removal
-    # returns a rejection is why the reasoning is recorded here in full rather than
-    # asserted: the direction is favourable, so the ground has to be checkable.
-    # C92. These four were on disk, committed, generated by the same script on the
-    # same 253 rows against the same pharmacist labels, and were not in this
-    # family. C91's premise sentence asserted in writing that the Bedrock runs
-    # "produce no discrimination test on G_253"; they produce four. The ground
-    # for leaving them out was the purpose the run was commissioned for, which is
-    # not an inferential target and is exactly the reasoning C90 rejected when it
-    # set the membership rule. Their target is identical to the four above: does
-    # this labeller's positive set overlap the pharmacist's confirmed set more
-    # than chance on G_253.
-    #
-    # The direction is what makes this a correction the thesis owed. A second
-    # vendor had already failed to replicate the headline, twice, in two
-    # conditions each, and the family that omitted them was the family under which
-    # the headline cleared. Adding them takes k from 26 to 30 and costs the Haiku
-    # few-shot ambiguity gradient its rejection.
-    dict(id="fisher_frontier_llama70b_zs", test="Fisher exact, two-sided",
-         where="sec:r-frontier", what="Llama 3 70B zero-shot labels on G_253",
-         group="frontier_discrimination",
-         source="results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama370binstructv1::zero_shot.fisher_two_sided"),
-    dict(id="fisher_frontier_llama70b_fs", test="Fisher exact, two-sided",
-         where="sec:r-frontier", what="Llama 3 70B few-shot labels on G_253",
-         group="frontier_discrimination",
-         source="results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama370binstructv1::few_shot.fisher_two_sided"),
-    dict(id="fisher_frontier_llama8b_zs", test="Fisher exact, two-sided",
-         where="sec:r-frontier", what="Llama 3 8B zero-shot labels on G_253, ceiling-bound at a flag rate of 0.8735",
-         group="frontier_discrimination",
-         source="results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama38binstructv1::zero_shot.fisher_two_sided"),
-    dict(id="fisher_frontier_llama8b_fs", test="Fisher exact, two-sided",
-         where="sec:r-frontier", what="Llama 3 8B few-shot labels on G_253, ceiling-bound at a flag rate of 0.8854",
-         group="frontier_discrimination",
-         source="results/accord/stats/frontier_discrimination_tests.json::bedrock_metallama38binstructv1::few_shot.fisher_two_sided"),
+    # C103: three local models (llama3:8b, granite3.3:8b, qwen3:8b), each
+    # under three prompts (P_asserting, P_neutral, P_reversed) on G_299/G_253.
+    # Each model contributes one McNemar test (its three prompts' paired flag
+    # agreement) and three Mann-Whitney tests (each prompt's score vs gold on
+    # G_253), all on the same 299/253 items, so each model is its own
+    # dependence block -- the same "one model, same items, multiple prompts"
+    # rule the removed ambiguity-gradient entries used.
+    dict(id="mcnemar_promptsens_llama3_8b", test="McNemar exact, two-sided",
+         where="C103", what="llama3:8b, flag agreement across P_asserting/P_neutral/P_reversed",
+         group="promptsens_llama3_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::model_verdicts.llama3:8b.mcnemar_p_two_sided_exact"),
+    dict(id="mw_promptsens_llama3_8b_asserting", test="Mann-Whitney U", where="C103",
+         what="llama3:8b, P_asserting score vs gold, G_253", group="promptsens_llama3_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::per_model_prompt.llama3:8b.P_asserting.mannwhitney_p_one_sided_253"),
+    dict(id="mw_promptsens_llama3_8b_neutral", test="Mann-Whitney U", where="C103",
+         what="llama3:8b, P_neutral score vs gold, G_253", group="promptsens_llama3_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::per_model_prompt.llama3:8b.P_neutral.mannwhitney_p_one_sided_253"),
+    dict(id="mw_promptsens_llama3_8b_reversed", test="Mann-Whitney U", where="C103",
+         what="llama3:8b, P_reversed score vs gold, G_253", group="promptsens_llama3_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::per_model_prompt.llama3:8b.P_reversed.mannwhitney_p_one_sided_253"),
+    dict(id="mcnemar_promptsens_granite33_8b", test="McNemar exact, two-sided",
+         where="C103", what="granite3.3:8b, flag agreement across P_asserting/P_neutral/P_reversed",
+         group="promptsens_granite33_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::model_verdicts.granite3.3:8b.mcnemar_p_two_sided_exact"),
+    dict(id="mw_promptsens_granite33_8b_asserting", test="Mann-Whitney U", where="C103",
+         what="granite3.3:8b, P_asserting score vs gold, G_253", group="promptsens_granite33_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::per_model_prompt.granite3.3:8b.P_asserting.mannwhitney_p_one_sided_253"),
+    dict(id="mw_promptsens_granite33_8b_neutral", test="Mann-Whitney U", where="C103",
+         what="granite3.3:8b, P_neutral score vs gold, G_253", group="promptsens_granite33_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::per_model_prompt.granite3.3:8b.P_neutral.mannwhitney_p_one_sided_253"),
+    dict(id="mw_promptsens_granite33_8b_reversed", test="Mann-Whitney U", where="C103",
+         what="granite3.3:8b, P_reversed score vs gold, G_253", group="promptsens_granite33_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::per_model_prompt.granite3.3:8b.P_reversed.mannwhitney_p_one_sided_253"),
+    dict(id="mcnemar_promptsens_qwen3_8b", test="McNemar exact, two-sided",
+         where="C103", what="qwen3:8b, flag agreement across P_asserting/P_neutral/P_reversed",
+         group="promptsens_qwen3_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::model_verdicts.qwen3:8b.mcnemar_p_two_sided_exact"),
+    dict(id="mw_promptsens_qwen3_8b_asserting", test="Mann-Whitney U", where="C103",
+         what="qwen3:8b, P_asserting score vs gold, G_253", group="promptsens_qwen3_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::per_model_prompt.qwen3:8b.P_asserting.mannwhitney_p_one_sided_253"),
+    dict(id="mw_promptsens_qwen3_8b_neutral", test="Mann-Whitney U", where="C103",
+         what="qwen3:8b, P_neutral score vs gold, G_253", group="promptsens_qwen3_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::per_model_prompt.qwen3:8b.P_neutral.mannwhitney_p_one_sided_253"),
+    dict(id="mw_promptsens_qwen3_8b_reversed", test="Mann-Whitney U", where="C103",
+         what="qwen3:8b, P_reversed score vs gold, G_253", group="promptsens_qwen3_8b",
+         source="results/accord/prompt_sensitivity/analysis.json::per_model_prompt.qwen3:8b.P_reversed.mannwhitney_p_one_sided_253"),
+
+    # C107: four permutation tests, task A (the TF-IDF linear model fit on the
+    # released training pairs, scored on G_253 and G_299 without a refit, by
+    # AUROC and by average precision). Same fitted classifier, same scores,
+    # nested bases and two correlated rank statistics: one dependence block.
+    dict(id="perm_tfidf_taska_g253_auroc", test="Permutation test (label shuffle)",
+         where="C107", what="TF-IDF linear model, AUROC on G_253, no refit", group="tfidfperm_taska",
+         source="results/accord/tfidf_permutation/tfidf_permutation.json::task_a.g253.p_permutation_auroc_one_sided"),
+    dict(id="perm_tfidf_taska_g253_ap", test="Permutation test (label shuffle)",
+         where="C107", what="TF-IDF linear model, average precision on G_253, no refit", group="tfidfperm_taska",
+         source="results/accord/tfidf_permutation/tfidf_permutation.json::task_a.g253.p_permutation_ap_one_sided"),
+    dict(id="perm_tfidf_taska_g299_auroc", test="Permutation test (label shuffle)",
+         where="C107", what="TF-IDF linear model, AUROC on G_299, no refit", group="tfidfperm_taska",
+         source="results/accord/tfidf_permutation/tfidf_permutation.json::task_a.g299.p_permutation_auroc_one_sided"),
+    dict(id="perm_tfidf_taska_g299_ap", test="Permutation test (label shuffle)",
+         where="C107", what="TF-IDF linear model, average precision on G_299, no refit", group="tfidfperm_taska",
+         source="results/accord/tfidf_permutation/tfidf_permutation.json::task_a.g299.p_permutation_ap_one_sided"),
+
+    # C98: the graded-score probe's Mann-Whitney, granite3.3:8b log-odds score
+    # vs gold on G_253.
+    dict(id="mw_gradedscore_granite33_8b_g253", test="Mann-Whitney U", where="C98",
+         what="granite3.3:8b graded log-odds score vs gold, G_253", group="gradedscore_granite33_8b",
+         source="results/accord/differential/graded_score_granite33_g253.json::mannwhitney_p_one_sided"),
+
+    # The eight local ambiguity-gradient Fisher tests: llama3:8b, granite3.3:8b,
+    # qwen3:8b (nothink) and qwen3:14b (nothink), each zero-shot and few-shot,
+    # all served locally by Ollama. Already computed and registered under
+    # frontier_ollama_*.ambiguity_gradient.*.fisher_p_one_sided (see
+    # accord/stats/overcall_ambiguity_readings.py, which reads the same
+    # underlying n_ambiguous/n_clear_negative counts); added to this family for
+    # the first time here. One model under two prompts per dependence block,
+    # the same rule the removed hosted entries used.
+    dict(id="fisher_ambiguity_llama3_8b_zs_local", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="ambiguous vs clear negatives, llama3:8b (local), zero-shot",
+         group="ambiguity_gradient_llama3_8b_ollama",
+         source="results/accord/differential/frontier_ollama_metrics_llama3.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_llama3_8b_fs_local", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="ambiguous vs clear negatives, llama3:8b (local), few-shot",
+         group="ambiguity_gradient_llama3_8b_ollama",
+         source="results/accord/differential/frontier_ollama_metrics_llama3.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_granite33_8b_zs_local", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="ambiguous vs clear negatives, granite3.3:8b (local), zero-shot",
+         group="ambiguity_gradient_granite33_8b_ollama",
+         source="results/accord/differential/frontier_ollama_metrics_granite33.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_granite33_8b_fs_local", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="ambiguous vs clear negatives, granite3.3:8b (local), few-shot",
+         group="ambiguity_gradient_granite33_8b_ollama",
+         source="results/accord/differential/frontier_ollama_metrics_granite33.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_qwen3_8b_zs_local", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="ambiguous vs clear negatives, qwen3:8b nothink (local), zero-shot",
+         group="ambiguity_gradient_qwen3_8b_ollama",
+         source="results/accord/differential/frontier_ollama_metrics_qwen3_8b_nothink.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_qwen3_8b_fs_local", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="ambiguous vs clear negatives, qwen3:8b nothink (local), few-shot",
+         group="ambiguity_gradient_qwen3_8b_ollama",
+         source="results/accord/differential/frontier_ollama_metrics_qwen3_8b_nothink.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_qwen3_14b_zs_local", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="ambiguous vs clear negatives, qwen3:14b nothink (local), zero-shot",
+         group="ambiguity_gradient_qwen3_14b_ollama",
+         source="results/accord/differential/frontier_ollama_metrics_qwen3_14b_nothink.json::ambiguity_gradient.zero_shot.fisher_p_one_sided"),
+    dict(id="fisher_ambiguity_qwen3_14b_fs_local", test="Fisher exact, one-sided",
+         where="sec:r-ambiguity", what="ambiguous vs clear negatives, qwen3:14b nothink (local), few-shot",
+         group="ambiguity_gradient_qwen3_14b_ollama",
+         source="results/accord/differential/frontier_ollama_metrics_qwen3_14b_nothink.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
 ]
 
 
@@ -328,11 +371,31 @@ def check_model_tags():
 
 
 def resolve(source):
-    """Read a p value out of a committed artifact at path::dotted.key."""
+    """Read a p value out of a committed artifact at path::dotted.key.
+
+    A naive split on "." breaks for the C103 model_verdicts entries: the model
+    name "granite3.3:8b" itself contains a dot, so "model_verdicts.granite3.3:
+    8b.mcnemar_p_two_sided_exact".split(".") does not put the model name back
+    together as one segment. Walked greedily instead: at each step, the
+    LONGEST remaining run of dot-joined parts that is an actual key of the
+    current node is consumed as one segment, so "granite3" and "3:8b" recombine
+    into "granite3.3:8b" before "llama3:8b" (which has no internal dot and is
+    never split) would need any different handling.
+    """
     path, _, key = source.partition("::")
     node = json.load(open(ROOT / path))
-    for part in key.split("."):
-        node = node[part]
+    parts = key.split(".")
+    i = 0
+    while i < len(parts):
+        for j in range(len(parts), i, -1):
+            candidate = ".".join(parts[i:j])
+            if isinstance(node, dict) and candidate in node:
+                node = node[candidate]
+                i = j
+                break
+        else:
+            raise KeyError(f"{source}: no key at or after {parts[i]!r} "
+                           f"(remaining path {'.'.join(parts[i:])!r})")
     if not isinstance(node, (int, float)) or isinstance(node, bool):
         raise TypeError(f"{source} is not a number: {node!r}")
     return float(node)
@@ -392,11 +455,20 @@ def main():
         "bonferroni_threshold": threshold,
         "familywise_upper_bound": 1.0 - (1.0 - ALPHA) ** k,
         "familywise_bound_is_upper_only_because": (
-            "the tests are positively dependent: five Mann-Whitney tests on one "
-            "set of 253 rows, five DeLong tests against a single reference run, "
-            "two Fisher tests on one model under two prompts, and two Spearman "
-            "correlations against one rating. The true familywise rate is lower "
-            "and this thesis does not compute it."),
+            "the tests are positively dependent, in "
+            + str(sum(1 for v in groups.values() if len(v) > 1))
+            + " dependence groups of more than one test: five Mann-Whitney tests "
+            "on one set of 253 rows (decontam_253), five DeLong tests against a "
+            "single reference run (delong_vs_one_ref), two Spearman correlations "
+            "against one rating (danger_rating), one Mann-Whitney and two DeLong "
+            "tests off a single NLI baseline run (nlibaseline), one McNemar and "
+            "three Mann-Whitney tests per C103 model under three prompts on the "
+            "same items (promptsens_llama3_8b, promptsens_granite33_8b, "
+            "promptsens_qwen3_8b), four permutation tests off one fitted TF-IDF "
+            "model on nested bases (tfidfperm_taska), and four pairs of one model "
+            "under two prompts each for the local ambiguity gradient "
+            "(ambiguity_gradient_*_ollama). The true familywise rate is lower and "
+            "this thesis does not compute it."),
         "dependence_groups": groups,
         "n_dependence_groups": len(groups),
         "clears_bonferroni": [t["id"] for t in clears],
@@ -407,6 +479,40 @@ def main():
 
     os.makedirs(OUT.parent, exist_ok=True)
     json.dump(out, open(OUT, "w"), indent=1, sort_keys=True)
+
+    # Register the family size and dependence-group outputs under a NEW
+    # prefix (see PREFIX above), never by hand: this deletes and rewrites its
+    # own namespace wholesale on every run, the same convention every other
+    # generator in this project follows (CLAUDE.md: "a register key
+    # maintained by hand" is the defect this closes).
+    facts = json.load(open(FACTS), object_pairs_hook=__import__("collections").OrderedDict)
+    for fk in [fk for fk in facts if fk.split(".")[0] == PREFIX]:
+        del facts[fk]
+
+    def put(key, value, node):
+        facts[f"{PREFIX}.{key}"] = __import__("collections").OrderedDict(
+            [("artifact", f"results/accord/stats/test_register.json::{node}"),
+             ("value", value)])
+
+    put("n_tests", out["n_tests"], "n_tests")
+    put("bonferroni_threshold", out["bonferroni_threshold"], "bonferroni_threshold")
+    put("familywise_upper_bound", out["familywise_upper_bound"], "familywise_upper_bound")
+    put("n_dependence_groups", out["n_dependence_groups"], "n_dependence_groups")
+    put("n_clears_bonferroni", len(out["clears_bonferroni"]), "clears_bonferroni")
+    put("n_nominally_significant_uncorrected",
+        len(out["nominally_significant_uncorrected"]), "nominally_significant_uncorrected")
+    put("n_holm_rejections_for_reference",
+        len(out["holm_rejections_for_reference"]), "holm_rejections_for_reference")
+    for g, members in groups.items():
+        put(f"groups.{g}.n", len(members), f"dependence_groups.{g}.{len(members) - 1}")
+    for t in tests:
+        put(f"tests.{t['id']}.p", t["p"], f"tests.{tests.index(t)}.p")
+        put(f"tests.{t['id']}.p_is_derived", t["p_is_derived"],
+            f"tests.{tests.index(t)}.p_is_derived")
+    FACTS.write_text(json.dumps(facts, indent=1) + "\n")
+    print(f"registered {sum(1 for fk in facts if fk.startswith(PREFIX + '.'))} "
+          f"keys under {PREFIX}.*")
+
     print(f"wrote {OUT.relative_to(ROOT)}\n")
     print(f"{k} tests   Bonferroni {ALPHA}/{k} = {threshold:.6f}   "
           f"familywise upper bound {out['familywise_upper_bound']:.4f}")

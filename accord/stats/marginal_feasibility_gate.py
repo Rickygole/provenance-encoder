@@ -119,6 +119,71 @@ MARGINAL_ONLY = [
      "G_299", "gold.n_total", 12, "overcall.qwen3_8b.gold.positive_rate", True, None),
 ]
 
+# The nine C103 prompt-sensitivity cells, on G_299, one row per (model, prompt).
+# Flagged counts are read from the register's promptsens.*.positive_rate_299
+# keys (a rate, converted back to a count as MARGINAL_ONLY already does).
+#
+# Configuration identity follows prompt text, not the row's own label. P_asserting
+# is documented (accord/prompt_sensitivity/prompts.py) as copied verbatim from the
+# config_id "gpt4o_zeroshot" row of prompts_existing.csv, and a byte-for-byte
+# comparison of the two COMMITTED source files that carry that text --
+# accord/prompt_sensitivity/prompts.py (P_ASSERTING_SYSTEM / P_ASSERTING_USER) and
+# accord/differential/run_multillm_replication.py (SYSTEM_PROMPT / USER_TEMPLATE,
+# documented there as config_id "llama_baseline", used to produce the "::baseline"
+# configuration rows above) -- confirms they are identical strings. So a C103
+# P_asserting cell is the SAME configuration as its model's existing baseline-prompt
+# row, not a new one: its configuration string below is "<model>::baseline",
+# matching MARGINAL_ONLY exactly, so the two do not get double-counted in
+# n_all_configurations. P_neutral and P_reversed are authored fresh for C103
+# (see prompts.py) and share no text with any existing row, so each is its own new
+# configuration per model.
+C103_MARGINAL_ONLY = [
+    ("c103_llama3_8b_p_asserting", "llama3:8b::baseline",
+     "llama3:8b, C103 P_asserting (byte-identical to baseline prompt)",
+     "G_299", "gold.n_total", 12, "promptsens.llama3_8b.P_asserting.positive_rate_299",
+     True, None),
+    ("c103_llama3_8b_p_neutral", "llama3:8b::c103_p_neutral",
+     "llama3:8b, C103 P_neutral", "G_299", "gold.n_total", 12,
+     "promptsens.llama3_8b.P_neutral.positive_rate_299", True, None),
+    ("c103_llama3_8b_p_reversed", "llama3:8b::c103_p_reversed",
+     "llama3:8b, C103 P_reversed", "G_299", "gold.n_total", 12,
+     "promptsens.llama3_8b.P_reversed.positive_rate_299", True, None),
+    ("c103_granite33_8b_p_asserting", "granite3.3:8b::baseline",
+     "granite3.3:8b, C103 P_asserting (byte-identical to baseline prompt)",
+     "G_299", "gold.n_total", 12, "promptsens.granite33_8b.P_asserting.positive_rate_299",
+     True, None),
+    ("c103_granite33_8b_p_neutral", "granite3.3:8b::c103_p_neutral",
+     "granite3.3:8b, C103 P_neutral", "G_299", "gold.n_total", 12,
+     "promptsens.granite33_8b.P_neutral.positive_rate_299", True, None),
+    ("c103_granite33_8b_p_reversed", "granite3.3:8b::c103_p_reversed",
+     "granite3.3:8b, C103 P_reversed", "G_299", "gold.n_total", 12,
+     "promptsens.granite33_8b.P_reversed.positive_rate_299", True, None),
+    ("c103_qwen3_8b_p_asserting", "qwen3:8b::baseline",
+     "qwen3:8b, C103 P_asserting (byte-identical to baseline prompt)",
+     "G_299", "gold.n_total", 12, "promptsens.qwen3_8b.P_asserting.positive_rate_299",
+     True, None),
+    ("c103_qwen3_8b_p_neutral", "qwen3:8b::c103_p_neutral",
+     "qwen3:8b, C103 P_neutral", "G_299", "gold.n_total", 12,
+     "promptsens.qwen3_8b.P_neutral.positive_rate_299", True, None),
+    ("c103_qwen3_8b_p_reversed", "qwen3:8b::c103_p_reversed",
+     "qwen3:8b, C103 P_reversed", "G_299", "gold.n_total", 12,
+     "promptsens.qwen3_8b.P_reversed.positive_rate_299", True, None),
+]
+MARGINAL_ONLY = MARGINAL_ONLY + C103_MARGINAL_ONLY
+
+# Cross-reference for the "same configuration" claim above: which C103
+# P_asserting marginal-only row is the SAME MEASURED CELL (not just the same
+# configuration) as an already-scored frontier row, identified because the two
+# report an identical n_flagged out of an identical n on G_299 -- itself a
+# generated check below, not an assumption. Where it holds, that frontier row's
+# tp/fn give the OBSERVED (not best-case) one-sided hypergeometric p for the
+# C103 cell, which the promptsens.* aggregate does not carry.
+C103_ASSERTING_FRONTIER_ROW = {
+    "c103_llama3_8b_p_asserting": "ollama_llama3::zero_shot::G_299",
+    "c103_granite33_8b_p_asserting": "ollama_granite33::zero_shot::G_299",
+    "c103_qwen3_8b_p_asserting": "ollama_qwen3_8b_nothink::zero_shot::G_299",
+}
+
 
 def _reg(facts, key_or_value):
     if isinstance(key_or_value, int):
@@ -160,11 +225,19 @@ def main():
                 ceil_kap = kappa(tp, tn, fp, fn)
                 floor = attainable_floor_p(n, n_pos, n_flag)
                 obs = cell["mcc"]
+                tp = cell["tp"]
+                # The OBSERVED one-sided hypergeometric p, from the actual
+                # confusion counts this cell was scored with (not the best-case
+                # table the floor above uses). Same tail statistic, evaluated at
+                # the tp this labeller actually produced rather than at
+                # min(n_pos, n_flag).
+                observed_p = float(hypergeom.sf(tp - 1, n, n_pos, n_flag))
                 rows[f"{label}::{strat}::{basis}"] = collections.OrderedDict([
                     ("model", node.get("model") or label),
                     ("think", think),
                     ("strategy", strat), ("basis", basis),
                     ("n", n), ("n_positives", n_pos), ("n_flagged", n_flag),
+                    ("tp", tp),
                     ("flag_rate", round(n_flag / n, 4)),
                     ("observed_mcc", round(obs, 4)),
                     ("ceiling_mcc", round(ceil_mcc, 4)),
@@ -178,6 +251,8 @@ def main():
                     # states that no correction is used, so this is the threshold
                     # every reported p is read at.
                     ("could_reject_at_0_05", bool(floor <= 0.05)),
+                    ("observed_p_one_sided_hypergeom", observed_p),
+                    ("actually_rejects_at_0_05", bool(observed_p <= 0.05)),
                 ])
 
     facts_in = json.loads(FACTS.read_text())
@@ -185,17 +260,40 @@ def main():
     # confirmed count on both bases; check it against the register rather than
     # trusting the literal.
     assert _reg(facts_in, "exemplar.power_analysis.n_positives_total") == 12
+
+    # promptsens.*.positive_rate_299 is rounded to 4 decimals in the register
+    # (it is a display quantity elsewhere), so multiplying it back by 299 does
+    # not always land on an exact integer count. The nine C103 rows read their
+    # exact n_flagged_299 straight from the underlying artifact instead of
+    # reconstructing it from the rounded rate.
+    c103_analysis = json.loads(
+        (ROOT / "results" / "accord" / "prompt_sensitivity" / "analysis.json").read_text())
+    C103_EXACT_N_FLAGGED = {}
+    for rid, _config, _desc, _basis, _n_k, _pos_k, flag_k, _is_rate, _obs_k in C103_MARGINAL_ONLY:
+        # flag_k is "promptsens.<slug>.<prompt>.positive_rate_299"; recover the
+        # model / prompt names actually used as keys in analysis.json.
+        parts = flag_k.split(".")
+        model_disp = {"llama3_8b": "llama3:8b", "granite33_8b": "granite3.3:8b",
+                      "qwen3_8b": "qwen3:8b"}[parts[1]]
+        prompt = parts[2]
+        node = c103_analysis["per_model_prompt"][model_disp][prompt]
+        C103_EXACT_N_FLAGGED[rid] = (node["n_flagged_299"], node["n"])
+
     marginal_only = collections.OrderedDict()
     for rid, config, desc, basis, n_k, pos_k, flag_k, is_rate, obs_k in MARGINAL_ONLY:
-        n = int(_reg(facts_in, n_k)); n_pos = int(_reg(facts_in, pos_k))
-        raw = _reg(facts_in, flag_k)
-        n_flag = raw * n if is_rate else raw
-        if abs(n_flag - round(n_flag)) > 1e-6:
-            raise SystemExit(f"{rid}: {flag_k} x {n} is not a count ({n_flag})")
-        n_flag = int(round(n_flag))
+        if rid in C103_EXACT_N_FLAGGED:
+            n_flag, n = C103_EXACT_N_FLAGGED[rid]
+            n_pos = int(_reg(facts_in, pos_k))
+        else:
+            n = int(_reg(facts_in, n_k)); n_pos = int(_reg(facts_in, pos_k))
+            raw = _reg(facts_in, flag_k)
+            n_flag = raw * n if is_rate else raw
+            if abs(n_flag - round(n_flag)) > 1e-6:
+                raise SystemExit(f"{rid}: {flag_k} x {n} is not a count ({n_flag})")
+            n_flag = int(round(n_flag))
         tp, tn, fp, fn = best_table(n, n_pos, n_flag)
         floor = attainable_floor_p(n, n_pos, n_flag)
-        marginal_only[rid] = collections.OrderedDict([
+        row = collections.OrderedDict([
             ("configuration", config), ("description", desc), ("basis", basis),
             ("n", n),
             ("observed_mcc", (round(_reg(facts_in, obs_k), 4) if obs_k else None)),
@@ -207,6 +305,23 @@ def main():
             ("could_reject_at_0_05", bool(floor <= 0.05)),
             ("flagged_read_from", flag_k),
         ])
+        # This marginal-only cell has no confusion counts of its own, but it may
+        # be the SAME MEASURED CELL as a frontier row that does: cross-check by
+        # exact (n, n_flagged) match, never by assuming the configuration match
+        # above extends to the counts. If it matches, borrow that row's tp/fn
+        # and report the OBSERVED (not best-case) one-sided hypergeometric p.
+        frontier_key = C103_ASSERTING_FRONTIER_ROW.get(rid)
+        if frontier_key is not None:
+            fr = rows.get(frontier_key)
+            if fr is None:
+                raise SystemExit(f"{rid}: expected frontier row {frontier_key} not found")
+            same_cell = (fr["n"] == n and fr["n_flagged"] == n_flag)
+            row["same_measured_cell_as"] = frontier_key if same_cell else None
+            if same_cell:
+                row["observed_tp"] = fr["tp"]
+                row["observed_p_one_sided_hypergeom"] = fr["observed_p_one_sided_hypergeom"]
+                row["actually_rejects_at_0_05"] = fr["actually_rejects_at_0_05"]
+        marginal_only[rid] = row
 
     n_rows = len(rows)
     n_infeasible = sum(1 for r in rows.values() if not r["could_reject_at_0_05"])
@@ -243,6 +358,38 @@ def main():
                       if not r["could_reject_at_0_05"]}
     cfg_attaining = {(r["model"], r["think"], r["strategy"]) for r in rows.values()
                      if r["attains_ceiling"]}
+
+    # Of every entry (scored row or marginal-only cell) whose floor sits below
+    # 0.05 -- i.e. its marginals permit rejection in the best case -- which ones
+    # have confusion counts to check whether they actually rejected, and did
+    # they. A row can pass the floor test and still fail on its own observed
+    # table (qwen3:8b's C103/frontier zero_shot cell below is exactly that
+    # case), which is the reason this is checked rather than inferred from the
+    # floor.
+    floor_below_with_observed = []
+    for rk, r in rows.items():
+        if r["could_reject_at_0_05"]:
+            floor_below_with_observed.append(collections.OrderedDict([
+                ("id", rk), ("kind", "scored_row"),
+                ("configuration", _cfg_str(r["model"], r["think"], r["strategy"])),
+                ("basis", r["basis"]),
+                ("attainable_floor_p_one_sided", r["attainable_floor_p_one_sided"]),
+                ("observed_p_one_sided_hypergeom", r["observed_p_one_sided_hypergeom"]),
+                ("actually_rejects_at_0_05", r["actually_rejects_at_0_05"]),
+            ]))
+    for rid, r in marginal_only.items():
+        if r["could_reject_at_0_05"] and "observed_p_one_sided_hypergeom" in r:
+            floor_below_with_observed.append(collections.OrderedDict([
+                ("id", rid), ("kind", "marginal_only_with_borrowed_observed_counts"),
+                ("configuration", r["configuration"]), ("basis", r["basis"]),
+                ("attainable_floor_p_one_sided", r["attainable_floor_p_one_sided"]),
+                ("observed_p_one_sided_hypergeom", r["observed_p_one_sided_hypergeom"]),
+                ("actually_rejects_at_0_05", r["actually_rejects_at_0_05"]),
+            ]))
+    n_floor_below_with_observed = len(floor_below_with_observed)
+    n_floor_below_actually_rejecting = sum(
+        1 for e in floor_below_with_observed if e["actually_rejects_at_0_05"])
+
     out = collections.OrderedDict([
         ("provenance", {
             "generated_by": "accord/stats/marginal_feasibility_gate.py",
@@ -270,6 +417,9 @@ def main():
          all(c.startswith("llama3:8b") for c in all_infeasible)),
         ("n_marginal_only_rows_scored",
          sum(1 for r in marginal_only.values() if r["observed_mcc"] is not None)),
+        ("n_floor_below_0_05_with_observed_counts", n_floor_below_with_observed),
+        ("n_floor_below_0_05_actually_rejecting", n_floor_below_actually_rejecting),
+        ("floor_below_0_05_with_observed_counts", floor_below_with_observed),
         ("marginal_only", marginal_only),
         ("rows", rows),
     ])
@@ -291,7 +441,10 @@ def main():
                 "n_configurations_attaining", "n_configurations_both",
                 "n_marginal_only_rows", "n_marginal_only_could_not_reject",
                 "n_all_configurations", "n_all_could_not_reject",
-                "n_marginal_only_rows_scored"):
+                "all_could_not_reject_are_llama3",
+                "n_marginal_only_rows_scored",
+                "n_floor_below_0_05_with_observed_counts",
+                "n_floor_below_0_05_actually_rejecting"):
         put(key, out[key], key)
     for rk, r in rows.items():
         # think is folded into the slug explicitly, not left to whatever the
@@ -305,13 +458,16 @@ def main():
                 .replace("-", "").lower() + "_" + think_slug)
         for field in ("flag_rate", "observed_mcc", "ceiling_mcc", "ceiling_kappa",
                       "fraction_of_ceiling", "attainable_floor_p_one_sided",
-                      "n", "n_positives", "n_flagged"):
+                      "n", "n_positives", "n_flagged", "tp",
+                      "observed_p_one_sided_hypergeom", "actually_rejects_at_0_05"):
             if r[field] is not None:
                 put(f"{slug}.{field}", r[field], f"rows.{rk}.{field}")
     for rid, r in marginal_only.items():
         for field in ("n", "n_positives", "n_flagged", "flag_rate", "ceiling_mcc",
-                      "ceiling_kappa", "attainable_floor_p_one_sided", "observed_mcc"):
-            if r[field] is None:
+                      "ceiling_kappa", "attainable_floor_p_one_sided", "observed_mcc",
+                      "observed_tp", "observed_p_one_sided_hypergeom",
+                      "actually_rejects_at_0_05"):
+            if r.get(field) is None:
                 continue
             put(f"marginal_only.{rid}.{field}", r[field],
                 f"marginal_only.{rid}.{field}")
@@ -338,6 +494,22 @@ def main():
               f"{str(r['fraction_of_ceiling']):>6s} "
               f"{r['attainable_floor_p_one_sided']:9.2e} "
               f"{'PASS' if r['could_reject_at_0_05'] else 'FAIL':>6s}")
+
+    print()
+    print(f"all configurations (incl. marginal-only and C103): {len(all_configs)}; "
+          f"could not reject on any basis: {len(all_infeasible)}; "
+          f"all of those are llama3:8b: {out['all_could_not_reject_are_llama3']}")
+    print(f"of {len(all_infeasible)} could-not-reject configurations: "
+          f"{sorted(all_infeasible)}")
+    print()
+    print(f"entries with floor below 0.05 that have observed confusion counts: "
+          f"{n_floor_below_with_observed}; actually reject on their observed "
+          f"table: {n_floor_below_actually_rejecting}")
+    for e in floor_below_with_observed:
+        print(f"  {e['id']:34s} {e['configuration']:26s} {e['basis']:7s} "
+              f"floor={e['attainable_floor_p_one_sided']:.3e} "
+              f"observed_p={e['observed_p_one_sided_hypergeom']:.3e} "
+              f"{'REJECTS' if e['actually_rejects_at_0_05'] else 'DOES NOT REJECT'}")
 
 
 if __name__ == "__main__":
