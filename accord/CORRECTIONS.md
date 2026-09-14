@@ -4960,3 +4960,12 @@ for one TF-IDF test (C107's 0.0159 kept); "surface lexical signal" stated as a f
 interpretation); Ch3 "falsification" vs Ch5 "confounded" for the rule-type head; a Ch3 clause affirming a null; Ch5 What
 survived out of step with its table; a comparator called conservative; C98's prompt mislabelled as the plain prompt (it has
 its own one-word prompt).
+
+## C118. Third final committee pass (2026-09-14)
+
+Found: Ch1 prose and the pipeline caption still said all four stages reported an unsupported number (now three, plus a
+bounded null); and C109's registered, descriptive granite3.3:8b cells were never reported. Those cells rank above chance
+under every wording on G_253 (0.6788 to 0.7936), and the best wording, chosen after the fact, is strongest on the Rules 3/4
+stratum (0.8775, 6 positives) against Rules 1/2 (0.7302); the stratum ordering changes with wording. The "signal sits in the
+defect rows" reading is now scoped to llama3:8b, a descriptive granite table is in Supplement S5, and C109's primary
+Outcome B is unchanged.

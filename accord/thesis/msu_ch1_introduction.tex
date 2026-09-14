@@ -92,17 +92,18 @@ that could have resolved a real effect
 \citep{jacobs2021measurement,egami2023surrogates,adebayo2018sanity,hewitt2019control,lipsitch2010negative,biswas2021fairpreprocessing}.
 Each check is old and cheap; none was run here before this work.
 
-Figure~\ref{fig:pipeline-status} is the whole project in one view: four
-stages that each reported a number no standard metric flagged, and the
-check that catches what it hid. One constraint under all four is
+Figure~\ref{fig:pipeline-status} is the whole project in one view: three
+stages that each reported a number their control or code audit did not
+support, a fourth whose null the controls bounded, and the check for each. One constraint under all four is
 arithmetic rather than a finding: a fixed number of confirmed positives
 limits any evaluation built on them, whoever trains the detector.
 
 \begin{figure}[!ht]
 
 \centering
-\caption[The pipeline stage by stage]{The four stages whose reported number no
-standard metric flagged, each with the check sensitive to what it hid. Stages
+\caption[The pipeline stage by stage]{The four stages: the first three each
+reported a number its control or code audit did not support, and the fourth,
+evaluation, returned a null the controls bounded. Stages
 $1$ and $2$ reconcile in count and were never diagnosed. The scarlet carrier
 marks the stage $3$ exemplar defect, which the weak labeller, the detector and
 the pharmacist each saw; it records shared input, not cause. The architecture
@@ -218,11 +219,14 @@ one-word prompt) reaches an AUROC of $0.5467$ ($p = 0.2934$), below every per-ru
 floor given under RQ4. The pre-registered prompt contrast (C103) adds nine
 graded cells on the $253$ non-ambiguous pairs; the strongest,
 \texttt{llama3:8b} under a reversed-direction prompt, reaches $0.7503$
-($p = 0.0017$), and \texttt{granite3.3:8b} under the same prompt reaches
-$0.7365$. The \texttt{llama3:8b} score did not confirm under three new
-wordings (C109, Outcome B), and its signal sits in the rows carrying the
-exemplar defect, so whether a graded score escapes the agreement ceiling is
-not settled. No claim is
+($p = 0.0017$). It did not confirm under three new
+wordings (C109, Outcome B), and the \texttt{llama3:8b} signal sits in the rows
+carrying the exemplar defect; \texttt{granite3.3:8b}'s descriptive C109 cells
+rank above chance under every wording, its best wording, picked after the
+fact, most strongly on the defect-free Rules 3 and 4 ($0.8775$, $6$
+positives). Whether a graded score escapes the agreement ceiling is not
+settled, and that descriptive result is the strongest reason not to read the
+detector's ranking null as evidence the task is unsolvable. No claim is
 licensed about a labeller, a prompt, or a domain not tested.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
