@@ -143,17 +143,6 @@ def build():
     assert len(hard_main_ids) == N_MAIN, len(hard_main_ids)
     assert len(hard_pilot_ids) == N_PILOT, len(hard_pilot_ids)
 
-    # Determinism-check partition: 200 items drawn from the four MAIN
-    # partitions combined (not pilot), one fixed draw, reused at both the
-    # start and the end of every cell.
-    combo = ([("snli", int(i)) for i in pos_main.tolist()]
-             + [("snli", int(i)) for i in easy_main.tolist()]
-             + [("snli", int(i)) for i in med_main.tolist()]
-             + [("hans", pid) for pid in hard_main_ids])
-    combo_arr = np.array(combo, dtype=object)
-    det_sel = rng2.choice(len(combo_arr), size=N_DETERMINISM, replace=False)
-    determinism_items = [{"dataset": d, "row": r} for d, r in combo_arr[det_sel]]
-
     def snli_items(idx_array, label_name):
         return [{"dataset": "snli", "row": int(i), "label": label_name,
                   "hash": _hash_row("snli", "test+validation_dedup", int(i))}
@@ -163,6 +152,22 @@ def build():
         return [{"dataset": "hans", "pairID": pid, "label": "entailment",
                   "hash": _hash_row("hans", "heuristics_evaluation_set", pid)}
                 for pid in pair_ids]
+
+    # Determinism-check partition: 200 items drawn from the four MAIN
+    # partitions combined (not pilot), one fixed draw, reused at both the
+    # start and the end of every cell. Drawn from FULL item dicts (with
+    # hardness attached), not bare (dataset, row) pairs, so every field
+    # run_c104.py's label_items()/item_id()/get_text() need (label,
+    # hardness, pairID for a HANS item) is present on a determinism item
+    # exactly as it is on a main item.
+    combo_full = (
+        [dict(it, hardness="positives") for it in snli_items(pos_main, "contradiction")]
+        + [dict(it, hardness="easy") for it in snli_items(easy_main, "entailment")]
+        + [dict(it, hardness="medium") for it in snli_items(med_main, "neutral")]
+        + [dict(it, hardness="hard") for it in hans_items(hard_main_ids)]
+    )
+    det_sel = rng2.choice(len(combo_full), size=N_DETERMINISM, replace=False)
+    determinism_items = [combo_full[i] for i in det_sel.tolist()]
 
     manifest = {
         "provenance": {
