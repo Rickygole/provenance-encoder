@@ -4999,3 +4999,8 @@ Chapters 1 and 3 overstated what was fixed in advance (only the numbered pre-reg
 C102's power though it belongs to the Rules 1/2 versus 3/4 Fisher test; a deployment sentence contradicted the bounded null;
 two supplement pointers still named Chapter 4 for content moved to S6; Chapter 1 mixed pair sets for the baseline p values
 (now all on G_253 from C111); the audited component count and the rule-type head verdict word made consistent.
+
+## C125. Title (2026-09-14)
+
+The author dropped "Controlled" from the title, which is now "Where a Cross-Note Medication Contradiction Detection
+Pipeline Fails: A Failure Analysis", because the thesis ran checks and audits rather than randomised controls.

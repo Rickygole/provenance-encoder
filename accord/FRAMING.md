@@ -142,7 +142,7 @@ This list exists because every previous frame died by over-claiming, and the fai
 
 Current title asserts the claim C46 refuted and must go.
 
-> **Why Cross-Note Medication Contradiction Detection Fails: A Controlled Failure Analysis of a
+> **Why Cross-Note Medication Contradiction Detection Fails: A Failure Analysis of a
 > Clinical NLP Pipeline**
 
 It names the domain, the negative result, and the method, and it promises nothing the evidence does
