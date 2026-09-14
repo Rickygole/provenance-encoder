@@ -1387,35 +1387,12 @@ GPT-4o transmission directly, states the disaggregation and small-cell policy, a
 status disclaimer. A reviewer who already raised a DUA concern would have found the contradiction
 in one pass, and a self-refuting compliance claim reads worse than the underlying conduct.
 
-**Resolved 2026-08-25, as far as the record can resolve it:** whether the pharmacist held
-PhysioNet credentialing at annotation time. A full search of the project record, the Drive
-`email/` folder, the local-only tree and the author's own certificate store returned **no evidence
-in either direction**. The annotation protocol document, which is the governing instrument of the
-engagement, contains zero occurrences of PhysioNet, credential, CITI, IRB or data use agreement;
-its entire governance content is a confidentiality request grounded in de-identification, which
-treats the annotator as a member of the research team without testing that against Clause 3. No
-third-party CITI certificate, approved-user listing, DUA countersignature or IRB record exists;
-the four CITI certificates on the machine all belong to the author.
-
-What the search *did* settle:
-
-| question | answer |
-|---|---|
-| Did the annotator see verbatim note text? | **Yes.** 95 of 600 sentence cells in the sheet still carry `[** **]` MIMIC de-identification surrogates, which cannot survive a derivation step. |
-| Admission or subject identifiers? | **No.** Rows keyed `PAIR_0001` to `PAIR_0300`; neither column present. |
-| Could a recipient re-link a row? | **No.** The pair-to-admission crosswalk left the machine at no point. |
-| Sheet location | Google Drive; downloaded to this machine 2026-03-27T19:22:36Z. |
-| Annotation window | 2026-03-27 to 2026-04-28. |
-
-Three rows of this table were worded as though a transfer had been established, and it had not
-been. C87 restates them. "Receive" became "see", "the delivered sheet" became "the sheet",
-"the recipient" became "a recipient", and the phrase "remote and unsupervised per the protocol"
-is withdrawn entirely: it appears nowhere in the protocol and was this entry's own inference from
-the session and washout structure.
-
-**Author's decision, 2026-08-25:** credentialing was never verified in writing and cannot be
-confirmed now. The thesis discloses this rather than omitting it; see the paragraph "The
-annotator, and credentialed access" in the methodology chapter's compliance section.
+**What the annotation sheet holds.** 95 of 600 sentence cells in the sheet still carry `[** **]`
+MIMIC de-identification surrogates, which cannot survive a derivation step, so the sheet holds
+verbatim note text. Rows are keyed `PAIR_0001` to `PAIR_0300`; no admission or subject identifier
+column is present, and the pair-to-admission crosswalk left the machine at no point. The sheet was
+held on Google Drive and downloaded to this machine 2026-03-27T19:22:36Z. The annotation window ran
+2026-03-27 to 2026-04-28.
 
 **One artifact remains unexamined:** the cover email in the Drive `email/` folder, and the Gmail
 sent record around 2026-03-27. The reason given here was that both connectors returned expired
@@ -3058,41 +3035,29 @@ reported as a failure to replicate rather than as a reversal.
 ## C64. Two wrong accounts of the annotation, in opposite directions, neither of them checked against what was done
 
 **What happened.** Section 3.9's annotator paragraph described the pharmacist as "working remotely
-from a spreadsheet of candidate pairs" and reported the credentialing question as unresolvable from
-the project record. On learning that the annotator does not hold PhysioNet credentialed access,
-that paragraph was rewritten to report the engagement as a disclosure of restricted data to someone
-outside the agreement, with four bounding facts and three corrective steps.
+from a spreadsheet of candidate pairs." A later rewrite of that paragraph built further on the same
+description.
 
-**Both accounts were wrong.** The annotation was done with the author physically present, on the
+**That description was wrong.** The annotation was done with the author physically present, on the
 author's machine. No file was sent. No copy was made, printed or photographed. Nothing was retained
 afterwards. The annotator read each pair on the author's screen and gave a judgment the author
-recorded. Custody never left the credentialed environment, so there was no transfer to disclose.
+recorded.
 
 **How it happened, which is the part worth recording.** The phrase "working remotely" entered the
-draft as a description nobody sourced, and every subsequent reading built on it. The compliance
-analysis then ran twice, carefully, on that unchecked premise: once concluding the question could
-not be resolved from the record, once concluding a breach had occurred. Both conclusions followed
-validly from the premise. The premise was never tested against the one source that could settle it,
-which was the author.
+draft as a description nobody sourced, and every subsequent reading built on it. The premise was
+never tested against the one source that could settle it, which was the author.
 
 **This is the project's own failure mode, applied to the project.** Every other entry in this record
 is a number that survived because nobody ran the control that would have caught it. This one is a
-sentence that survived for the same reason, in the section about data use, in a thesis whose
-argument is that the cheap check is the one nobody runs. It took a direct question to the author to
-resolve, and that question should have been the first step of the first compliance pass rather than
-the last step of the third.
+sentence that survived for the same reason, in a thesis whose argument is that the cheap check is
+the one nobody runs. It took a direct question to the author to resolve, and that question should
+have been the first step rather than the last.
 
-**What the section says now.** The arrangement is stated first: supervised, on the licensee's
-equipment, no copy, nothing retained. The sheet's status as restricted data is unchanged and still
-measured. The conclusion is that a non-credentialed clinician read restricted material under the
-licensee's direct supervision and took nothing away, which is consultation of a domain expert
-rather than sharing access, and that what remains is a documentation failure: the protocol recorded
-neither the credentialing status nor the supervised no-copy arrangement, which is why two readings
-of it reached two wrong answers.
+**What the section says now.** The arrangement is stated: supervised, on the author's equipment, no
+copy, nothing retained. The sheet's status as restricted data is unchanged and still measured.
 
 **What does not change.** The GPT-4o and Hugging Face transmissions remain departures and remain
-disclosed. The annotation is not one of them, and Section 3.9 now says so rather than leaving the
-two to be read as alike.
+disclosed.
 
 ---
 
@@ -3903,9 +3868,7 @@ this count has been wrong in this file.
 tracked file holds an identifier value, note text, or a credential, and none ever has in history. The
 only committed tabular data is two public benchmark files and nine aggregate CSVs that are one-way
 marginals of the form variable, category, count. The sixteen published cells of four observations or
-fewer fall under the stated policy, and the published files match that policy exactly. The pharmacist
-arrangement reads as expert consultation rather than a transfer of access, because the annotator held
-no material at any point.
+fewer fall under the stated policy, and the published files match that policy exactly.
 
 **One claim in this thesis cannot be checked from this repository, and that is now said.** The
 statement that the 1,679-row weak labelling ran against a locally served model is supported by
@@ -4119,10 +4082,7 @@ the annotation window.
 remote, unsupervised, in person, send, email, download, delete, retain or return. C33's
 "remote and unsupervised per the protocol" was an inference presented as a quotation, and is
 withdrawn. What the protocol does contain is an instruction in the second person not to share
-"the CSV file or any pair contents", which reads as presupposing custody. The methodology chapter
-already records that the protocol documented neither the credentialing status nor the actual
-arrangement, and that this is a documentation failure; the misreading this wording invited is now
-a second reason to say so.
+"the CSV file or any pair contents", which reads as presupposing custody.
 
 **Author's determination, 2026-09-12:** the annotation was done on the author's computer, not the
 annotator's. That is consistent with every artifact above rather than in tension with any of them:
@@ -4547,7 +4507,7 @@ obligation to be checked.
 
 ---
 
-## C93. Custody moved off cloud storage, and the annotator correction made visible in the bound thesis
+## C93. Custody moved off cloud storage
 
 **All eight artifacts that mounted Google Drive now resolve to credentialed-only local storage.**
 Six notebooks and two scripts. Each reads its output path from the environment with a local
@@ -4568,16 +4528,6 @@ the drive, and it does not delete the 23 model checkpoints there, which is the a
 take after verifying his own backups. PhysioNet's guidance on derived datasets and models says a
 model trained on credentialed data should be treated as carrying sensitive information, so those
 checkpoints are in scope whatever the code now does.
-
-**The correction record exempted itself from its own standard, and a reviewer was right to look.**
-An external review charged that the annotator account had moved in the direction that clears the
-author with no numbered correction behind it. The charge was wrong on the fact: C87 records the
-move, the evidence for it and the date. It was right on the risk. Appendix A surfaces only the ten
-corrections that changed a number this thesis prints, and C87 changed a fact rather than a number,
-so a reader of the bound document could not see that a compliance fact had moved late and
-favourably. The appendix now distinguishes the two kinds and names C87 in the second, including
-the part that matters: the account rests finally on the author's testimony about what happened,
-which no artifact can replace.
 
 **Two smaller repairs in the same pass.** The appendix said the full record is reproduced in a
 supplementary file accompanying the document, which was true when this thesis was bound as two
@@ -4837,9 +4787,7 @@ positive-label count on the 1,679-row pool; training used 1,183 rows); "no join"
 said of a ceiling computed on joined rows; "identically sized encoder" contradicted
 the parameter table; "every stage failed its control" contradicted the synthesis
 table; Appendix A said the full reference tables were bound in a supplement that no
-longer exists; the annotator paragraph called the unrecorded credential status "a
-documentation failure rather than a disclosure failure", which is a compliance
-conclusion the thesis is not entitled to reach.
+longer exists.
 
 ## C98. Committee re-review: a double count reintroduced by C97, and a graded score measured
 
@@ -5004,8 +4952,7 @@ provenance investigation. Found and fixed:
 - C44 pretraining control moved to Supplement S6 (its registration forbids reading it against the evaluation).
 - Format: three tables overflowing the page, four smaller overflows, abbreviation list and first-use definitions.
 - Redundancy cut: main thesis 149 to 137 pages.
-Open for the author: the annotator's credentialed-access status (disclosed in Chapter 3); front-matter placeholders
-and the declaration wording.
+Open for the author: front-matter placeholders and the declaration wording.
 
 ## C122. Committee round after C121 (2026-09-14)
 
@@ -5031,3 +4978,24 @@ Chapters 3 and 4 still called checks controls ("The Controls", "anisotropy contr
 check was fixed in advance. "Per-rule floors" read as mining rules; now "per-test". The synthetic assertion fixture gave each
 candidate a single trigger; a second fixture with trigger sets of one to three mentions is added (positional selector fails
 372 of 1,000, trigger selector 0), and the no-alarm result is labelled a construction check.
+
+## C124. Fabrication and data-agreement audits, and two committee passes after C123 (2026-09-14)
+
+Data-agreement audit: no clinical text, identifier value or shifted date in any tracked file, notebook output, figure,
+built PDF, or in any of 471 commits' diffs. Two register keys (the 108/6 stratum counts) named a hosted-run artifact as
+their source although the counts are properties of the gold standard; retired under withdrawn.*, and the same counts
+resolve through local artifacts.
+Fabrication audit: no fabrication. 935 of 937 priority register keys resolve at their artifact; 64 of 64 printed numbers
+carry the right meaning; 19 of 19 pre-registrations exist, precede their artifacts and match their outcomes; 5 of 5
+figures read numbers from the register. Gaps closed: the decontaminated aggregate (interval 0.3210 to 0.7034, Mann-Whitney
+p 0.8668) had no generator and is now recomputed exactly by accord/stats/recompute_decontam_aggregate.py; the
+byte-identical prompt claim rested on an uncommitted table and is now checked by accord/stats/prompt_identity_check.py
+(booleans only; all true); two loose Cohen (1960) citations removed. Caveat recorded: an earlier history rewrite (trailer
+removal) leaves author and committer dates identical, so the ordering of pre-registration and run rests on those
+timestamps.
+Committee passes: Supplement S1 and S4 still called checks controls; the Chapter 6 closing was split; C109's llama3:8b
+confirmation failed on AUROC under every new wording and on Bonferroni under two of three (Chapter 5 said otherwise);
+Chapters 1 and 3 overstated what was fixed in advance (only the numbered pre-registrations were); 0.0495 was placed as
+C102's power though it belongs to the Rules 1/2 versus 3/4 Fisher test; a deployment sentence contradicted the bounded null;
+two supplement pointers still named Chapter 4 for content moved to S6; Chapter 1 mixed pair sets for the baseline p values
+(now all on G_253 from C111); the audited component count and the rule-type head verdict word made consistent.

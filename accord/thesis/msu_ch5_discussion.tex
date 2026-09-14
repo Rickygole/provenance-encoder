@@ -120,7 +120,7 @@ provenance-conditioned system and do not transfer. Only the authority scalars
 are falsified in the strict sense: the parameter is initialised at the value
 later reported as discovered, sits behind a normalisation that removes its
 gradient, and agrees across seeds, so the claim that training found it is
-refuted. The rule-type head is confounded rather than falsified, its auxiliary
+refuted. The rule-type head is confounded (target in its input), its auxiliary
 target readable from the input features one linear layer away, the textbook
 symptom of leakage rather than learning \citep{kaufman2012leakage}, which
 vacates the metric rather than refuting the component. The harm head is
@@ -260,26 +260,27 @@ zero-shot sits at its own marginal-implied ceiling with a one-sided
 hypergeometric $p$ of $0.0242$ on $G_{253}$, a claim about that thresholded
 labeller, not the detector. The graded reversed-prompt scores point the same way
 (C109, Section~\ref{sec:res-rq2}): the registered \texttt{llama3:8b}
-confirmation failed on AUROC rather than on significance, and
+confirmation failed on AUROC under all three new wordings and the Bonferroni
+threshold under two, and
 \texttt{granite3.3:8b}'s descriptive cells, uncorrected and with the best
 wording picked after the fact, met both criteria under two new wordings. So the
 null the detector and its control return is a statement about these trained
-models under this supervision, not a statement that no instrument at this
+models under this supervision, not that no instrument at this
 sample size could resolve anything; whether a graded score escapes the
 agreement ceiling is not settled. No ablation carries a significance claim.
 
 \paragraph{Deployment risk, and automation bias.} A system with recall
-$0.7778$ and precision $0.0424$ generates a large number of false alarms per
+$0.7778$ and precision $0.0424$ generates many false alarms per
 true contradiction: the subject-disjoint retrain's first seed alone raises
 $216$ false alarms against $9$ true contradictions. Alert burdens at that
 ratio are associated with reduced acceptance
 \citep{vandersijs2006overriding,ancker2017alertfatigue}, so this system should
 not be deployed in any form; it consumes clinician attention while providing no
-information. A second, more specific hazard sits inside the architecture: the
+information this evaluation could detect. A second, more specific hazard sits inside the architecture: the
 untrained harm head's outputs span $0.3977$ to $0.6096$, yet an earlier version
 of this work presented that range as a severity score, the most serious
-instance of automation bias this project produced. The diagnostic that catches
-it, printing the empirical range of every emitted score, costs one line.
+instance of automation bias this project produced. A one-line diagnostic,
+printing the empirical range of every emitted score, catches it.
 
 \paragraph{One institution, one corpus, one era.} MIMIC-III covers admissions
 to a single United States academic medical centre \citep{johnson2016mimic}.
@@ -390,7 +391,7 @@ Exemplar defect on action-conflict candidates & Severe for pool precision & Thre
 \addlinespace
 Single annotator, no reliability figure & Severe; bounds every gold-label conclusion & Stated; circular coefficient retracted; post hoc tipping points bound sensitivity to wrong labels \\
 \addlinespace
-Weak-label leakage into model inputs & Moderate to severe & Shown on the rule-type head, which is untested rather than falsified \\
+Weak-label leakage into model inputs & Moderate to severe & Shown on the rule-type head, confounded (target in its input) \\
 \addlinespace
 Extraction never validated against human annotation & Moderate to severe & Stated; first item of any continuation \\
 \bottomrule

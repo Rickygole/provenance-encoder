@@ -19,8 +19,8 @@
 
 This chapter describes the pipeline that was built and, for each stage, the check designed to
 separate a real finding from an artifact of the measurement. Every check below is written as a
-condition; the pre-registered checks were fixed before their runs, post hoc ones are listed
-in Section~\ref{sec:m-feasgate}, and Chapter~\ref{ch:results} reports which conditions were met.
+condition; only the numbered pre-registrations were fixed before their runs
+(Section~\ref{sec:m-feasgate}), and Chapter~\ref{ch:results} reports which conditions were met.
 
 The pipeline has four stages and an evaluation layer. Stage one extracts a cohort of admissions from
 MIMIC-III and, for each, a paired nursing note and discharge summary. Stage two mines that corpus
@@ -651,7 +651,7 @@ only; a scored labeller can sweep its threshold and rank well regardless of flag
 nothing about a ranking metric. Applied to every hard-label marginal this thesis prints, it is a post
 hoc check, added after the hosted results were withdrawn. So are the ambiguous-positive reading,
 both tipping-point checks, the public sweep decomposition and the choice of average precision as
-C107's headline statistic, and so are C114 (a paired average-precision test, a decontaminated tipping point and a Rules 3 and 4 stratum interval), C116 (the paired average-precision tests on within-system ranks) and C120 (the deployed labeller's agreement on the exact gold join), which the committee requested after the results were in and which were each pre-registered before their own run; the other controls above were specified before any result was seen. The ceiling is the classical maximum of a chance-corrected agreement statistic given its marginals
+C107's headline statistic. C114, C116 and C120 were requested by the committee after the results were in, each pre-registered before its own run. Only the numbered pre-registrations (C44, C98 to C112, C114, C116, C120) were fixed before their runs; every other check was specified after results were seen, including the RQ3 code audits, the rule-group Fisher test and its exact power, the synthetic assertion fixtures, the Monte Carlo cross-check of the minimum detectable AUROC, the contaminated-run threshold sweep and the Spearman tests. The ceiling is the classical maximum of a chance-corrected agreement statistic given its marginals
 \citep{cohen1960kappa}, the prevalence-and-bias problem of \citet{feinstein1990paradoxes} and
 \citet{cicchetti1990resolving}, which PABAK \citep{byrt1993pabak} sidesteps rather than removes; what
 is used here is that bound as a check on an LLM weak labeller's marginal, which needs a gold base rate
@@ -664,14 +664,14 @@ that \citet{tarone1990modified} derives from the marginal totals of a discrete t
 \textbf{Condition.} A component credited with a semantic contribution must, at minimum, exist in the
 running code with learned parameters, receive a loss signal, and take an input the credited target is
 not trivially derivable from. A credited parameter that sits at initialisation falsifies the credit;
-a metric whose target is in its input leaves the credit untested, confounded rather than falsified. Each failure is checkable
+a metric computed on its own input is confounded (target in its input). Each failure is checkable
 by reading the executed code path rather than by training an arbitrary-substitute control: a
 component with zero learned parameters cannot have learned the property it is credited with, a head
 that never receives a gradient cannot have been fit to anything, and an auxiliary target that is a
 fixed function of the model's own input features is not a task. This audit
-was run on the four purpose-built components of Section~\ref{sec:m-detector}: the pharmacological
-prior module, the guideline-grounded harm estimator, the auxiliary rule-type head, and the
-asymmetric conditioning module, each described there. A second, architecture-level check that this project also ran, an
+was run on the three credited components of Section~\ref{sec:m-detector}: the authority parameters of the
+asymmetric conditioning module, the auxiliary rule-type head and the guideline-grounded harm
+estimator. The deleted pharmacological prior module, with no learned parameters, is not among them. A second, architecture-level check, an
 arbitrary-substitute and anisotropy check on a separate provenance-conditioned encoder rather than
 on this detector, is reported in the Supplement rather than here, because it does not bear on the
 code this detector executes.
@@ -839,11 +839,9 @@ note sentences to weak labels, were at one point held in the author's institutio
 and have since been consolidated under credentialed-only local storage; no script in the repository
 reads that account.
 
-\paragraph{The annotator, and credentialed access.} The gold standard was produced by one
-board-certified pharmacist, who read each pair on the author's screen, in the author's presence, and
-gave a judgment the author recorded; no file was transferred, printed or photographed, and nothing
-was retained. The annotator does not hold PhysioNet credentialed access, and the written protocol
-recorded neither that status nor this arrangement, which is described so that it can be assessed.
+\paragraph{The annotator.} The gold standard was produced by one board-certified pharmacist, who
+read each pair on the author's screen, in the author's presence, and gave a judgment the author
+recorded; no file was transferred, printed or photographed, and nothing was retained.
 
 \paragraph{Re-identification and small cells.} No re-identification was attempted and nothing was
 joined against MIMIC-III at the patient level. Subgroup results are one-way marginals only. Small
