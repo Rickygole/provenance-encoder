@@ -21,3 +21,9 @@ released results tree by `scripts/export_results.py`.
 
 Whether the transmissions were consistent with the agreement is a determination
 for PhysioNet and for the institution, not one made here.
+
+## Where the files are
+
+The per-pair JSON outputs were removed from the tracked tree on 2026-09-14 and are held in
+credentialed local storage only. Earlier commits of this repository still contain them; they carry
+model predictions keyed by sequential pair index and no note text or identifiers.

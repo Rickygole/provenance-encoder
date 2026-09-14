@@ -79,6 +79,11 @@ def index_by_value():
     """
     idx, idx_pct = {}, {}
     for key, rec in FACTS.items():
+        # Withdrawn and superseded values are held for the record only. Resolving a
+        # prose digit to one would print a withdrawn (including hosted-channel) value
+        # into the generated trace appendix, which is tracked and public.
+        if key.startswith("withdrawn."):
+            continue
         v = rec["value"]
         # A register entry can hold a Wilson interval or another pair as a
         # two-element list, which is a legitimate value shape this function

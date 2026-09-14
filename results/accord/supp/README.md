@@ -1,3 +1,7 @@
+> **Superseded.** This README describes an earlier conference supplement and is kept for the record only.
+> Several files it lists, including results from hosted model services, are withdrawn and are not part of
+> the thesis; see `results/accord/withdrawn_hosted/README.md` and `accord/CORRECTIONS.md`.
+
 # Supplemental Material
 
 # Rate Calibration Is Not Safety: The Necessary Conditions
