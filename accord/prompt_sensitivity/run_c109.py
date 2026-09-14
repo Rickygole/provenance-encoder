@@ -334,10 +334,10 @@ def main():
             for prompt_name in args.prompts:
                 cell_key = f"{tag}::{prompt_name}"
                 attempt_n = bump_attempts(attempts_path, cell_key)
-                if attempt_n > 3:
+                if attempt_n > 2:
                     sys.exit(f"cell {cell_key} started {attempt_n} times "
-                              f"(killed at least twice); refusing per the "
-                              f"pre-registered kill condition")
+                              f"(killed at least twice); refusing this 3rd "
+                              f"start per the pre-registered kill condition")
                 t0 = time.time()
                 records, n_think, n_trunc = run_cell(
                     model, prompt_name, gold_rows, log_fh, args.dry_run)

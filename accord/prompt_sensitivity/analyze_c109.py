@@ -33,6 +33,7 @@ import sys
 
 import numpy as np
 import pandas as pd
+from scipy.stats import rankdata
 from sklearn.metrics import roc_auc_score
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -74,18 +75,34 @@ def load_cache(cache_dir, tag, prompt_name):
 
 def auroc_and_perm_p(y, s, B=PERM_DRAWS, seed=PERM_SEED):
     """One-sided label-permutation p that a permuted AUROC >= the observed
-    one, matching audit_reversed.py's convention exactly."""
+    one, matching audit_reversed.py's convention exactly (shuffle the
+    labels, recompute AUROC on the fixed scores, p = (1 + count >=
+    observed) / (1 + B)).
+
+    Vectorized over all B draws at once via the rank-sum (Mann-Whitney U)
+    identity for AUROC -- mathematically identical to calling
+    sklearn.metrics.roc_auc_score(y_permuted, s) B times (both reduce to
+    the same tie-aware rank-sum statistic for the binary, unweighted case),
+    but tens of thousands of times faster: only the label/positive-set
+    assignment changes across draws, never the scores, so the score ranks
+    are computed once and reused.
+    """
     y = np.asarray(y)
     s = np.asarray(s, float)
-    if len(set(y.tolist())) < 2:
+    n = len(y)
+    k = int(y.sum())
+    if k == 0 or k == n:
         return None, None
-    a = float(roc_auc_score(y, s))
+    ranks = rankdata(s, method="average")
+    a = float((ranks[y == 1].sum() - k * (k + 1) / 2) / (k * (n - k)))
     rng = np.random.default_rng(seed)
-    cnt = 0
-    for _ in range(B):
-        yp = rng.permutation(y)
-        if roc_auc_score(yp, s) >= a - 1e-12:
-            cnt += 1
+    # For each draw, a uniformly random size-k subset of positions is the
+    # permuted "positive" set (equivalent to shuffling y and reading off
+    # the new positive positions).
+    idx = np.argsort(rng.random((B, n)), axis=1)[:, :k]
+    ranksum_perm = ranks[idx].sum(axis=1)
+    auc_perm = (ranksum_perm - k * (k + 1) / 2) / (k * (n - k))
+    cnt = int(np.sum(auc_perm >= a - 1e-12))
     p = (cnt + 1) / (B + 1)
     return a, float(p)
 
@@ -236,7 +253,7 @@ def main():
             recs = load_cache(cache_dir, tag, prompt_name)
             diag = cell_diagnostics(recs, len(pair_ids_299))
             attempt_n = attempts.get(f"{tag}::{prompt_name}", 1)
-            killed_twice = attempt_n > 3
+            killed_twice = attempt_n > 2
             if killed_twice:
                 killed_twice_cells.append(f"{model}::{prompt_name}")
 
@@ -274,6 +291,29 @@ def main():
         determinism[model] = d
         if not d["passes"]:
             invalid_cells.append(f"{model}::determinism_check")
+            # Per C109_PREREGISTRATION.md: "a granite3.3:8b-only invalidity
+            # does not by itself force Outcome C for the primary decision
+            # ... it is still reported and still disqualifies
+            # granite3.3:8b's cells from the Secondary section." A failed
+            # determinism check for a model disqualifies ALL of that
+            # model's cells (not only P_reversed_rerun) from being read as
+            # trustworthy Secondary evidence -- e.g. a model known to drift
+            # beyond the 0.05 score tolerance at temperature 0 on this
+            # machine (C104) cannot be presumed reproducible on its OTHER
+            # three cells either. This never touches the primary decision,
+            # which is stated only over llama3:8b.
+            for prompt_name in ALL_PROMPTS:
+                per_model_prompt[model][prompt_name]["valid"] = False
+                per_model_prompt[model][prompt_name]["disqualified_reason"] = (
+                    f"{model} determinism check failed "
+                    f"(n_label_mismatch={d['n_label_mismatch']}, "
+                    f"max_score_diff={d['max_score_diff']}); all of this "
+                    f"model's cells are disqualified from Secondary "
+                    f"reporting, per the pre-registered handling of a "
+                    f"single model's invalidity")
+                cell_key = f"{model}::{prompt_name}"
+                if cell_key not in invalid_cells:
+                    invalid_cells.append(cell_key)
 
     # Registered confound test: among negatives only, AUROC of score for
     # rule 1-2 membership vs rule 3-4 membership.
