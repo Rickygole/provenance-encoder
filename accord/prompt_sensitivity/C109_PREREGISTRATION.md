@@ -230,3 +230,39 @@ Not yet run. This section is appended, and the rule above is left unchanged,
 only after `run_c109.py` and `analyze_c109.py` have produced
 `results/accord/prompt_sensitivity/c109/analysis.json` against the real 299
 gold pairs.
+
+## Outcome (recorded 2026-09-14 after the run; the rule above is unchanged)
+
+**Outcome B: the C103 reversed-prompt AUROC is not wording-robust.** The run
+completed on its first attempt for all 8 cells (llama3:8b and granite3.3:8b, 299
+pairs each): 0 parse failures, 0 call failures, 0 thinking output, 0 truncation,
+at most 1 degenerate score per cell. Network egress evidence shows loopback only.
+
+Primary decision (llama3:8b, G_253, MDE 0.7355, Bonferroni alpha 0.05/3):
+
+| New paraphrase | AUROC | permutation p | criterion |
+|---|---|---|---|
+| P_rev_agree | 0.7310 | 0.0030 | not met (AUROC below MDE) |
+| P_rev_follow | 0.6432 | 0.0446 | not met |
+| P_rev_compatible | 0.6515 | 0.0402 | not met |
+
+0 of 3 satisfy the criterion; at least 2 were required. Every paraphrase ranks above
+chance at p below 0.05, but none reaches the resolution this evaluation has, and
+the original 0.7503 depended on its specific wording.
+
+Determinism: the P_reversed rerun reproduced C103 exactly for both models (0 label
+mismatches, maximum score difference 0.0), so no cell was disqualified.
+
+Registered confound test: no cell is confounded. Among negatives, the score does not
+separate Rule 1 and 2 membership from Rule 3 and 4 membership in the registered
+direction (every AUROC at or below 0.5566, every permutation p at or above 0.0679).
+
+Registered stratum report: for llama3:8b the signal sits in the Rule 1 and 2 rows
+(AUROC 0.7218 to 0.8525 across the four prompts) and near chance on the Rule 3 and
+4 rows (0.5016 to 0.6193, none significant), as the audit of C103 found. With 6
+positives on each stratum, the pre-registered note applies: neither stratum can
+confirm a null or an effect at this size. granite3.3:8b's stratum results are
+descriptive only.
+
+Artifacts: results/accord/prompt_sensitivity/c109/analysis.json and cells/;
+register prefix promptconfirm.
