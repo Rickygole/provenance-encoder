@@ -39,11 +39,14 @@ domain-pretrained clinical encoder. Each stage's reading was checked, and Sectio
 \label{sec:conc-found}
 
 With 12 pharmacist-confirmed contradictions in 299 pairs, this evaluation
-resolves only large effects: the analytic minimum detectable AUROC is 0.7355,
-and a power analysis on real score distributions puts 80 percent power at
-0.7466 for a two-sided Mann-Whitney test and 0.8084 for the registered
-decision rule (Section~\ref{sec:res-rq4}). Within that limit, local language-model
-labellers flagged far more pairs than the pharmacist confirmed: the deployed
+resolves only large AUROC effects, stated per decision rule: a power analysis
+on real score distributions puts 80 percent power at 0.7466 for a two-sided
+Mann-Whitney test and 0.8084 for the registered decision rule, which has power
+of only 0.52075 at the analytic minimum detectable AUROC of 0.7355
+(Section~\ref{sec:res-rq4}). The floor is about AUROC; average precision did
+resolve a small top-heavy signal, reported below. Within that limit, every 8B
+labeller under the clinical-pharmacist framing flagged several times the
+confirmed count when ambiguous pairs are counted negative: the deployed
 labeller called 261 of the 299 pairs contradictions against 12 confirmed, and
 three local models under the replication prompt
 over-call the same pool by a factor of 15.8196 to 23.5959 against the
@@ -52,24 +55,35 @@ the prompt: a clinical-pharmacist framing prompt, whose differences from a
 plain yes/no prompt are confounded, gave higher positive rates for
 granite3.3:8b and qwen3:8b and lower for llama3:8b. Counting the 46 ambiguous
 pairs as confirmed is a post hoc rescaling that multiplies every ratio by
-12/58 and says nothing about agreement; the labellers did not flag ambiguous
-pairs more than clear negatives. The margin is also fragile: relabelling 5
+12/58 and says nothing about agreement; under it \texttt{qwen3:8b} and
+\texttt{granite3.3:8b} under the plain prompt fall to 1.0000 and 1.8448. The
+local Fisher tests, run under the frontier template prompts, did not show
+ambiguous pairs flagged more than clear negatives, which with 46 ambiguous pairs is absence of evidence, not evidence
+against. The margin is also fragile: relabelling 5
 flagged pairs would bring the lowest hard-label ratio, 4.8333, below the
 highest ratio measured on public text.
 
 The detector trained on those labels was not distinguishable from chance.
 On the 253 non-ambiguous pairs the decontaminated ensemble reaches an AUROC
-of 0.5145, its bootstrap interval excluding values above 0.7034. On the 108
-non-ambiguous Rules 3 and 4 pairs the exemplar-selection defect of
+of 0.5145, its bootstrap interval excluding values above 0.7034, and its
+average precision, 0.0598, is not above its permutation null ($p = 0.4629$).
+On the 108 non-ambiguous Rules 3 and 4 pairs the exemplar-selection defect of
 Section~\ref{sec:r-exemplar} cannot reach, the same ensemble reaches 0.6095
-($p = 0.1910$); with 6 positives and a minimum detectable AUROC of 0.8058 this
-fails to show the null is a defect artifact and cannot establish that it is
-not. A bag-of-words model trained on the weak labels and an inference model
-never trained on them each find a small precision signal the detector lacks:
-the bag-of-words average precision, a statistic chosen after its value was
-known, clears its no-skill line at $p = 0.0109$ on the full annotated set and
-$p = 0.0159$ on the non-ambiguous set, and the two models are statistically
-indistinguishable. That is a surface lexical signal, not evidence that the
+($p = 0.1910$, 95 percent bootstrap interval 0.3029 to 0.9010), above the
+0.4221 on Rules 1 and 2, the direction the defect-artifact reading predicts.
+The pre-registered Outcome A means only that this stratum fell within 0.10 of
+the full-set AUROC and was not significant, a margin of 0.0950 that turns on
+about one positive; with 6 positives and a minimum detectable AUROC of 0.8058
+this fails to show the null is a defect artifact and cannot establish that it
+is not. A bag-of-words model trained on the weak labels finds a small surface
+lexical signal the detector lacks: its average precision, a statistic chosen
+after its value was known, clears its no-skill line at $p = 0.0109$ on the full
+annotated set and $p = 0.0159$ on the non-ambiguous set, exceeds the
+detector's in a paired test ($p = 0.00005$), and holds in 11 of 12
+leave-one-positive-out drops. An inference model never trained on the weak
+labels is also above its own null and indistinguishable from the bag-of-words
+model, but is not shown to exceed the detector ($p = 0.10035$). That is a
+surface lexical signal a label-free model also finds, not evidence that the
 weak labels carried signal.
 
 \section{What This Establishes, and What It Does Not}
@@ -78,9 +92,9 @@ weak labels carried signal.
 The labeller's own marginal fixes an agreement ceiling before a single pair
 is scored: holding the confirmed and flagged counts fixed, the largest
 Matthews correlation any thresholded label at that marginal could express
-against the pharmacist, at 261 flagged of 299, is 0.0780. That ceiling is consistent with why the
-detector trained on those labels lands where it does; it does not prove the
-mechanism, which is named rather than assumed. The resolvable-effect floor
+against the pharmacist, at 261 flagged of 299, is 0.0780. The ceiling bounds
+thresholded labels, not a ranking: it is a precondition to check before
+training, not an explanation of the detector's null. The resolvable-effect floor
 above rests on a power analysis, not an empirical validation of the clinical
 instrument, and it does not show that this evaluation's null is free of the
 exemplar-selection defect, since the defect-free stratum has only six
@@ -105,13 +119,15 @@ evaluation could resolve at 12 positives.
 \label{sec:conc-future}
 
 \textbf{A larger annotated set.} Every interval in this thesis rests on 12
-positives, and the minimum detectable AUROC at that count, 0.7355, sets the
-size of the annotation effort a future attempt needs before a modest
+positives, and the per-rule floors at that count, 0.7466 for a two-sided
+Mann-Whitney test and 0.8084 for the registered rule, set the size of the
+annotation effort a future attempt needs before a modest
 detector could be told apart from chance.
 
 \textbf{An independent set for wording-specific signals.} A reversed-direction
 zero-shot score ranked above chance under every wording tried but reached the
-resolvable floor under none of the three new ones, and its signal sits in the
+registered 0.7355 threshold under none of the three new ones, a rule with power
+of only 0.52075 at that value, so the verdict is weak either way, and its signal sits in the
 rows carrying the exemplar defect (Section~\ref{sec:res-rq2}). Whether any
 wording carries a real signal can only be tested on pairs it was not found on.
 
@@ -136,16 +152,22 @@ locally, at a scale a hosted channel is not required to reach.
 Dangerous medication contradictions between nursing notes and discharge
 summaries are real, recurring, and worth detecting. At the size this thesis
 could annotate, twelve confirmed contradictions in 299 pairs, the pipeline
-built to detect them did not: its own detector is not distinguishable from
-chance, the stratum the pool's one identified defect cannot reach cannot
-settle whether that null is a defect artifact, and two simple models, one
-never trained on the weak labels, find a small precision signal the detector
-does not. Local labellers flagged far more pairs than the pharmacist
-confirmed, but this thesis does not put one number on how much more, because
-that number moves with the prompt.
+built to detect them did not, and the thesis leaves three results that need
+no statistical power: a stage-wise control audit in which each stage's
+reported number was unsupported by its control; an agreement ceiling,
+computed from the weak labeller's marginal alone, of 0.0780 at 261 flagged of
+299, a check to run before any training; and trigger-exemplar dissociation, a
+mining-bug class caught by a one-line assertion. In support, the detector
+shows no AUROC effect above about 0.75 to 0.81 on the 253 non-ambiguous pairs,
+the defect-free stratum cannot settle whether that null is a defect artifact,
+and a bag-of-words model finds a small surface lexical signal the detector
+does not. The planted-defect benchmark built to validate the Fisher test
+behind the Rule 1/2 versus Rule 3/4 comparison did not reach its required
+firing rate, a limitation this thesis discloses
+rather than a result it claims.
 
 None of that establishes that the task cannot be done
-(Section~\ref{sec:disc-null}). It establishes what a resolvable-effect floor
-of 0.7355 lets a 253-pair evaluation say and what it stays silent on, and it
+(Section~\ref{sec:disc-null}). It establishes what a per-rule floor of 0.7466
+to 0.8084 lets a 253-pair evaluation say and what it stays silent on, and it
 leaves the size and the design of the next attempt to the future work above
 rather than to this one.

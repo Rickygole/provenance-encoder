@@ -386,11 +386,12 @@ reading the $46$ ambiguous $G_{299}$ pairs as positive, so every Ratio B is
 Ratio A multiplied by exactly $12/58$. It rescales the denominator and is not a
 property of the labeller: the Ratio B of $1.0000$ for \texttt{qwen3:8b}/P\_neutral
 means only that the cell flagged $58$ pairs, and says nothing about agreement.
-The local Fisher tests of the ambiguity gradient (one-sided $p$ from $0.0843$ to
-$0.8577$) found no evidence that labellers flag ambiguous pairs more often than
-clear negatives, which is evidence against reading a Ratio B near $1.0$ as
-calibration. Two cells, not one, clear the registered minimum detectable AUROC of
-$0.7355$: \texttt{llama3:8b}/P\_reversed and \texttt{granite3.3:8b}/P\_reversed.
+The local Fisher tests of the ambiguity gradient, run under the frontier template
+prompts (one-sided $p$ from $0.0843$ to $0.8577$), found no evidence that labellers
+flag ambiguous pairs more often than clear negatives; with $46$ ambiguous pairs that
+is absence of evidence, not a reason to read a Ratio B near $1.0$ as calibration.
+Two cells, not one, clear the analytic minimum detectable AUROC of $0.7355$, which
+sits below both C108 per-rule floors ($0.7466$ and $0.8084$): \texttt{llama3:8b}/P\_reversed and \texttt{granite3.3:8b}/P\_reversed.
 The Mann-Whitney $p$ tests each AUROC against chance, not against the minimum
 detectable AUROC; a small $p$ here does not mean the cell clears that floor.}
 \label{sup:tab:s5-c103}
@@ -456,7 +457,9 @@ $0.7355$ minimum detectable AUROC under none of the three new ones: $0$ of $3$ a
 of at least $2$, so this run is \textbf{Outcome B}: the $0.7503$ reading is not shown to survive
 rewording. \texttt{P\_rev\_agree} did clear the pre-registered Bonferroni threshold, with
 permutation $p$ $0.0030$; it failed on AUROC, $0.7310$ against the $0.7355$ floor, not on the
-threshold.
+threshold. That floor is the analytic one; at it the registered \texttt{c98\_rule} rejects on only
+$0.52075$ of replicates, and C108 puts its $80\%$ power crossing at $0.8084$
+(Section~\ref{sup:sec:s5-c108}).
 
 \begin{table}[H]
 \caption[C109, primary decision on the new paraphrases]{\texttt{llama3:8b} on $G_{253}$: AUROC
@@ -656,3 +659,32 @@ uncorrected soft target. Because the run is invalid under its rule, this is not 
 correction: with a teacher that barely over-called, the run could not show whether correcting a
 real prior shift helps or harms distillation. This is a public-data test, with a public teacher
 and a public student, not a clinical result.
+
+\subsection{C114: Three Committee-Requested Checks}
+\label{sup:sec:s5-c114}
+% Artifact: results/accord/c114_committee_checks/c114.json.
+% Register key prefix: c114.*
+
+C114 is pre-registered, committed before its run, and requested by the committee after it had read
+results already in the thesis, so every result below is post hoc with respect to the original
+analysis plan. No model is trained or scored: all three tasks reuse existing local scores, and every
+registered validity gate passed ($253$ rows joined, ensemble AUROC on $G_{253}$ and on the Rule 3
+and Rule 4 stratum reproduced).
+
+\textbf{Task A, Outcome A2.} A paired swap-permutation test of average precision, the
+entailment model against the decontaminated detector ensemble on $G_{253}$ ($B = 20000$), gives a
+difference of $0.1088$ ($0.1685$ against $0.0598$), two-sided $p = 0.10035$. That is not significant,
+so under the registered rule the claim that two simple models find a signal the detector lacks is
+reduced to the bag-of-words model alone; the entailment model is described only as having average
+precision above its own permutation null, with no comparison to the detector.
+
+\textbf{Task B, descriptive.} Greedy relabelling from the decontaminated ensemble's AUROC of
+$0.5145$ on $G_{253}$ (search cap $80$) reaches the analytic $0.7355$ after $5$ flips, the C108
+Mann-Whitney crossing of $0.7466$ after $6$, and the \texttt{c98\_rule} crossing of $0.8084$ after
+$7$, every flip a confirmed positive relabelled negative. These replace the earlier tipping point,
+which started from the contaminated released run.
+
+\textbf{Task C, descriptive.} On the Rule 3 and Rule 4 stratum with ambiguous pairs dropped
+($n = 108$, $6$ positives), the percentile bootstrap $95\%$ interval around the ensemble AUROC of
+$0.6095$ is $0.3029$ to $0.9010$ ($10000$ valid resamples), wide enough to hold both chance and the
+per-rule floors.

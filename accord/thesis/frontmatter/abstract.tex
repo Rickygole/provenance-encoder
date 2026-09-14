@@ -29,25 +29,27 @@
   % RULES (MSU template): one paragraph, 250 words maximum, no abbreviations,
   % no citations, no keywords. Write this LAST.
   {\doublespacing\leftskip=0pt\rightskip=0pt\parindent=0pt
-  A contradiction between a nursing note and a discharge summary can carry out of the
-hospital a medication instruction the care team had already stopped.
-This thesis builds a standard four stage pipeline for detecting them in an
-intensive care database and runs, at each stage, the control that separates
-real failure from artifact. With 12 pharmacist confirmed contradictions in
-299 annotated pairs, a power analysis on real model scores shows this
-evaluation resolves only large discrimination effects, from an area under
-the curve of about 0.75. Within that limit, local language model labellers
-flagged far more pairs than the pharmacist confirmed, by an amount that
-depended heavily on the prompt used, not a single multiplier this thesis
-can report alone. The detector trained on those labels was not
-distinguishable from chance on the full evaluation set; on the stratum free
-of a separately audited selection defect, six positives can neither show
-that null is a defect artifact nor establish that it is not. Two simple
-models, one never trained on the weak labels, recovered a small precision
-signal the detector did not show. Three credited architectural components
-are audited in code: one parameter falsified as an initialisation artifact,
-one metric vacated by label leakage, one module never trained. The work
-does not show the task unsolvable, and does not establish that the
-over-calling generalises beyond the models and prompts tested here.
+  A nursing note and a discharge summary can disagree about a medication,
+and only the summary leaves the hospital.
+This thesis builds a standard four stage pipeline for such contradictions
+in an intensive care database and audits every stage with a control. It
+makes three contributions. First, the audit finds each stage's number
+unsupported by its control; of three credited architectural components, one
+parameter is an initialisation artifact, one metric vacated by label leakage, one module never trained.
+Second, a check run before training: a weak labeller flagging 261 of 299
+pairs, against 12 a pharmacist confirmed, fixes from counts alone a ceiling
+of 0.0780 on the Matthews correlation any thresholded label could reach.
+Third, a mining bug class, trigger-exemplar dissociation, where displayed
+evidence is picked by position, not from the triggering set, caught by a
+one line assertion. With 12 positives, a power analysis shows
+the evaluation resolves only large effects on area under the curve,
+about 0.75 to 0.81. Within it, the trained detector was not
+distinguishable from chance on the 253 pairs without an ambiguous label; on
+the 108 pairs free of the selection defect its area of 0.6095 (95 percent
+interval 0.3029 to 0.9010) cannot settle whether the null is a defect
+artifact. By average precision, chosen after its value was known, a
+bag-of-words model found a small surface lexical signal the detector did
+not, surviving 11 of 12 leave-one-positive-out drops. The work does not show
+the task unsolvable.
 \par}
 \end{frontmatterpage}

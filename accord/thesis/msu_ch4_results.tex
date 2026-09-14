@@ -227,7 +227,8 @@ annotated pairs; the exemplar defect means its validity is not established.
 Can an LLM weak labeller substitute for expert annotation at this base rate,
 at least well enough to narrow what a human annotator has to check? With
 twelve pharmacist-confirmed contradictions in 299 pairs, this evaluation
-resolves only large effects (minimum detectable AUROC $0.7355$); within
+resolves only large AUROC effects ($0.7466$ under a two-sided Mann-Whitney test,
+$0.8084$ under the registered rule; Section~\ref{sec:res-rq4}); within
 that limit, every local labeller tested flags far more pairs than the
 pharmacist confirmed under the replication prompt, but how much more
 depends heavily on the prompt and on how the 46 ambiguous pairs are read,
@@ -311,12 +312,11 @@ emits a positive for $0.9017$ of them against a confirmed rate of $0.0474$;
 at that marginal, perfect agreement with the pharmacist is arithmetically
 unreachable: holding the flagged count fixed and placing every confirmed case
 inside it, the largest Matthews correlation any thresholded label could
-express is $0.0768$ on these $G_{253}$ rows ($0.0780$ at $261/299$). The supervision the detector was trained on could not
-have carried more than that, whatever the labeller knew, and that ceiling
-follows from two counts on the joined rows, before any training: it is the mechanism
-behind the detector's own degeneracy, a model fit to labels emitted at a
-marginal of $0.9$ inheriting the marginal, as
-Table~\ref{tab:operating} shows.
+express is $0.0780$ at $261/299$, a marginal identity ($0.0768$ on the
+joined $G_{253}$ rows, which rest on the reconstructed join below). The
+ceiling follows from two counts before any training and bounds thresholded
+labels, not a ranking, so it is a precondition rather than an explanation of
+the detector's operating point in Table~\ref{tab:operating}.
 
 What cannot be measured is the labeller's own agreement, reported as a
 negative result rather than omitted. The weak-label file and the gold file
@@ -592,7 +592,7 @@ evidence about frontier-scale capability.
 ambiguous pairs are read}
 
 Two choices, the prompt and how the 46 ambiguous pairs are scored, both move
-the over-calling ratio, and neither removes it. The prompt ablation, a
+the over-calling ratio. The prompt ablation, a
 clinical-pharmacist framing prompt against a plain yes/no prompt against a
 reversed prompt, is pre-registered; the second ambiguity reading below is a
 post hoc sensitivity analysis on the same calls, not a second data collection. Table~\ref{tab:promptamb}
@@ -652,8 +652,8 @@ table toward one by the fixed factor $12/58$; \texttt{qwen3:8b} under the
 plain prompt lands at exactly $1.0000$, which means only that it flagged $58$
 pairs, and says nothing about agreement. The local Fisher tests of
 Section~\ref{sec:r-ambiguity} find no local labeller flagging ambiguous pairs more
-than clear negatives ($p = 0.3110$, $0.1788$, $0.8577$, $0.6220$), evidence
-against reading that $1.0000$ as calibration. The size of the excess turns on
+than clear negatives, which is absence of evidence rather than evidence either
+way about that $1.0000$. The size of the excess turns on
 the prompt, and both readings are reported without preferring either.
 
 On the C104 public workload only \texttt{llama3:8b} reproduced bit-stable
@@ -673,13 +673,14 @@ prompts each. Four hosted labellers under two prompts each were tested this
 way, eight tests in total; every one was run through the Anthropic API or AWS
 Bedrock, so every odds ratio, every $p$ value, and the gradient itself are
 withdrawn with the runs that produced them (Section~\ref{sec:r-frontier}). The
-two local labellers were put to the same test: \texttt{granite3.3:8b} returns
-an odds ratio of $1.2801$ at $p = 0.3110$ few-shot and $1.5505$ at $p = 0.1788$
-zero-shot; \texttt{llama3:8b} returns $0.6476$ at $p = 0.8577$ few-shot and
-$0.9841$ at $p = 0.6220$ zero-shot, none rejecting the null at $0.05$
-(Section~\ref{sec:r-multiplicity}). This chapter therefore does not establish
-that the ambiguous pairs are disproportionately flagged by any labeller
-tested. The one confound that would have bounded any surviving reading, that an
+four local labellers were put to the same test under the same frontier
+template prompts, zero-shot and few-shot: \texttt{llama3:8b} $p = 0.6220$ and
+$0.8577$, \texttt{granite3.3:8b} $0.1788$ and $0.3110$, \texttt{qwen3:8b}
+$0.3925$ and $0.0843$, \texttt{qwen3:14b} $0.0906$ and $0.1052$, none of the
+eight rejecting the null at $0.05$ (Section~\ref{sec:r-multiplicity}). With
+$46$ ambiguous pairs this is absence of evidence: this chapter does not
+establish whether the ambiguous pairs are disproportionately flagged by any
+labeller tested. The one confound that would have bounded any surviving reading, that an
 odds ratio compresses toward $1$ as a labeller's marginal saturates, applies
 to the local tests just reported as much as to the withdrawn ones.
 
@@ -720,7 +721,7 @@ threshold can be swept after the fact. One score-emitting model was measured,
 under a rule registered before the run (C98): \texttt{granite3.3:8b}'s
 first-token log-odds of a contradiction, graded across the $253$ non-ambiguous
 pairs, reaches an AUROC of $0.5467$ (one-sided Mann-Whitney $p = 0.2934$),
-below the $0.7355$ this evaluation can resolve. Sweeping its threshold does
+below every per-rule floor of Section~\ref{sec:res-rq4}. Sweeping its threshold does
 not rescue it: a score that is not separated from chance stays unseparated at
 every cutoff, not only the one this project happened to try first.
 
@@ -728,8 +729,10 @@ A reversed-direction zero-shot score on \texttt{llama3:8b} was also graded
 rather than thresholded, and a pre-registered confirmation (C109) tested its
 wording with three new paraphrases plus a byte-for-byte rerun, which
 reproduced exactly. The score ranked above chance under every wording tried
-but reached the $0.7355$ floor under none of the three new ones: AUROC
-$0.7310$, $0.6432$ and $0.6515$, $0$ of $3$ against a required $2$. The
+but reached the registered $0.7355$ threshold under none of the three new ones: AUROC
+$0.7310$, $0.6432$ and $0.6515$, $0$ of $3$ against a required $2$. That
+rule has power only $0.52075$ at $0.7355$ (C108), so the verdict is weak
+evidence either way. The
 first failed on AUROC, not on its Bonferroni-corrected permutation test
 ($p = 0.0030$, below the threshold). Its signal sits in the Rule 1 and 2 rows
 that carry the exemplar defect (Supplement, Section S5), and it is not
@@ -830,9 +833,9 @@ Every negative result above reduces to ``the experiment was too small'' unless
 the instrument can resolve an effect of the size at issue. The decontaminated
 ensemble's AUROC on $G_{253}$ is $0.5145$, 95 percent bootstrap interval
 $0.3210$ to $0.7034$: not distinguishable from chance, with an AUROC above
-about $0.70$ excluded. The minimum detectable AUROC there is $0.7355$, and a
-power analysis on real score distributions (C108) fixes, per test rule, where
-80 percent power is reached.
+about $0.70$ excluded. A power analysis on real score distributions (C108)
+puts 80 percent power at $0.7466$ for a two-sided Mann-Whitney test and
+$0.8084$ for the registered rule; the analytic $0.7355$ is a cross-check.
 
 \subsection{Three configurations at chance}
 
@@ -910,9 +913,9 @@ $G_{134}$ & ACCORD, contaminated released run & 0.5078 & 0.0555 & 0.5092 & 0.136
 \label{tab:control299}
 \end{table}
 
-The three configurations agree. The contaminated released run, the
-decontaminated ensemble, and the stratum free of the exemplar defect all
-return a ranking statistic within a few points of chance. Restricting to
+The contaminated released run and the decontaminated ensemble both return an
+AUROC near chance on the full sets; the defect-free stratum returns higher
+point estimates that no test here separates from chance. Restricting to
 $G_{134}$ (Table~\ref{tab:control299}) raises the control model ensemble's point estimate
 and its bootstrap spread, so halving the positive count buys a higher
 estimate and a wider spread, and resolves nothing either way.
@@ -922,11 +925,14 @@ rows the exemplar defect can reach (Section~\ref{sec:r-exemplar}). An earlier
 run (C110) scored the contaminated released detector. Re-run on the
 decontaminated ensemble (C112), on Rules 3 and 4 with the ambiguous pairs
 dropped ($n = 108$, $6$ positives), the ensemble's AUROC is $0.6095$
-(label-permutation $p = 0.1910$), $0.0950$ above its $G_{253}$ value against
-a registered band of $0.10$, narrowly Outcome A; on Rules 1 and 2 it is
-$0.4221$, neither significant; with 6 positives and a minimum detectable
-AUROC of $0.8058$ this fails to show the null is a defect artifact and cannot
-establish that it is not.
+(label-permutation $p = 0.1910$; 95 percent bootstrap interval $0.3029$ to
+$0.9010$, C114), and on Rules 1 and 2 it is $0.4221$, neither significant.
+The direction, defect-free above defect-exposed, is the one a defect-artifact
+reading predicts. Outcome A means only that the stratum AUROC was within
+$0.10$ of the $G_{253}$ value and not significant; the gap is $0.0950$, a
+margin that turns on about one positive. With 6 positives and a minimum
+detectable AUROC of $0.8058$ this fails to show the null is a defect
+artifact and cannot establish that it is not.
 
 Among the fifteen highest-scored pairs, the decontaminated seeds recover 1, 0 and
 0 true contradictions on $G_{253}$; on $G_{299}$ the three control seeds
@@ -963,23 +969,18 @@ near-constant positive like the table, so the direction is not even
 consistent across decision variables within one file. Both are degenerate,
 neither discriminates, and no claim here turns on which.
 
-\textbf{Post hoc.} A tipping-point check, run after the numbers above were
-already in hand rather than pre-registered, asks the same question of the
-detector that Section~\ref{sec:res-rq2} asks of a labeller: how many of the
-pharmacist's labels on $G_{253}$ would have to be wrong before the
-detector's own AUROC there reached the $0.7355$ floor this evaluation can
-resolve. Greedily flipping whichever single label moves the AUROC most at
-each step, starting from the detector's $0.4595$, reaches $0.7573$, above
-the floor, after $7$ flips: $1$ confirmed negative relabelled positive and
-$6$ of the $12$ confirmed positives relabelled negative. That is an upper
-bound on the true minimum, since a greedy search is not guaranteed optimal,
-and it is a count of labels an adversary or an annotation error would have
-to get wrong, not an estimate of how many are wrong: $7$ of $253$ pairs, but
-$6$ of the $12$ confirmed positives, roughly half of everything this
-evaluation currently treats as a true contradiction. That the count is small
-relative to the positives, rather than relative to the pool, is itself part
-of what a base rate this low means for how much any single conclusion here
-can lean on.
+\textbf{Post hoc.} A tipping-point check (C114, requested by the committee
+after these results and pre-registered before its run) asks of the detector
+what Section~\ref{sec:res-rq2} asks of a labeller: how many pharmacist labels
+on $G_{253}$ would have to be wrong before the decontaminated ensemble's
+AUROC, from $0.5145$, reached each floor. Greedily flipping the label that
+moves the AUROC most, it takes $5$ flips to reach $0.7355$, $6$ to reach
+$0.7466$ and $7$ to reach $0.8084$, every flip a confirmed positive relabelled
+negative. A greedy count is an upper bound on the true minimum and counts
+labels an annotation error would have to get wrong, not labels that are
+wrong; against $12$ confirmed positives it is small, which is what a base
+rate this low means for how far any conclusion here can lean. An earlier
+version of this check started from the contaminated run and is superseded.
 
 \subsection{The paired comparison}
 
@@ -1057,8 +1058,13 @@ off-the-shelf NLI model below, never trained on the weak labels, is also
 significant on average precision ($p = 0.01335$ on $G_{253}$, $0.0120$ on
 $G_{299}$) and indistinguishable from TF-IDF in a paired test
 ($p = 0.99125$). By the registered interpretation this is a surface lexical
-signal that label-free models also find and the trained detector lacks, not
-evidence that the weak labels carried signal. Nor does a gold-only retrain
+signal that a label-free model also finds, not evidence that the weak labels
+carried signal. The NLI model is not shown to exceed the detector: a paired
+average-precision test of NLI against the detector ensemble (C114, requested
+by the committee after these results, pre-registered before its run) gives a
+difference of $0.1088$ at $p = 0.10035$, Outcome A2, so the claim of a signal
+the detector lacks is restricted to TF-IDF. The detector ensemble's own
+average precision, $0.0598$, is not above its permutation null ($p = 0.4629$). Nor does a gold-only retrain
 find it: a second, also pre-registered check, a
 nested-CV variant fit only on
 the 253 gold rows, refit and re-selected inside every outer fold so no
@@ -1067,9 +1073,9 @@ $0.3434$, AP $0.0362$, one-sided Mann-Whitney $p = 0.9666$, worse than a
 constant-score floor. This is not evidence against a precision signal
 existing at this sample size; it is evidence that this particular
 gold-only estimator, retrained from scratch inside a twelve-fold
-leave-one-positive-out split, does not find it. Read together, two simple
-models, one never trained on the weak labels, find a small precision signal
-the trained detector does not.
+leave-one-positive-out split, does not find it. Read together, TF-IDF finds a
+small surface lexical precision signal the trained detector does not show,
+and a model never trained on the weak labels finds one of the same size.
 
 A pre-registered, off-the-shelf natural-language-inference model,
 \citet{liu2019roberta}'s architecture trained for entailment rather than for
@@ -1077,13 +1083,13 @@ this task, was also scored, offline and served locally, under a rule fixed
 before the run: AUROC at or above $0.7355$ on $G_{253}$ with a one-sided
 Mann-Whitney $p$ below $0.05$ would count as discriminating at a size this
 evaluation can resolve. On $G_{253}$ it reaches $0.5861$, $p = 0.1576$, not
-resolved; the design's registered outcome is Outcome B, an off-the-shelf
-model does not clear the effect size this evaluation can resolve, and
-nothing is concluded about a smaller effect. On $G_{299}$, reported
+resolved; the design's registered outcome is Outcome B, and nothing is
+concluded about a smaller effect, since this rule has power only $0.52075$ at
+$0.7355$ (C108). On $G_{299}$, reported
 regardless of that outcome, it reaches $0.5758$, average precision $0.1537$,
 95 percent bootstrap interval $0.4091$ to $0.7375$, with 2 true
-contradictions in its top 15. A paired DeLong test against the detector's
-own per-pair score, run only after the detector's recomputed AUROC matched
+contradictions in its top 15. A paired DeLong test against the contaminated released detector's
+per-pair score, run only after the detector's recomputed AUROC matched
 its registered value to four decimal places, finds no significant
 difference on either basis: $p = 0.2113$ on $G_{253}$ and $p = 0.2550$ on
 $G_{299}$. This baseline is therefore not shown to discriminate on its own
@@ -1110,7 +1116,7 @@ $G_{134}$ & 6  & 128 & 0.1210 & 0.3058 & 0.8058 \\
 \label{tab:power}
 \end{table}
 
-On $G_{253}$ nothing below an AUROC of $0.7355$ was detectable at $80\%$ power,
+On $G_{253}$ the analytic procedure gives $80\%$ power only at an AUROC of $0.7355$,
 and the measured $0.5145$ is far inside that. Figure~\ref{fig:power} draws the
 same ceiling for every evaluation in this thesis. This cuts both ways: at 12
 positives the evaluation could not have detected
@@ -1143,8 +1149,8 @@ point. Because its only inputs are the class counts, $\alpha$, and the target
 grid, with no ACCORD score, gold label, or clinical data, this is a numerical
 corroboration that $0.7355$ was computed correctly, not an empirical check on
 the instrument. The claim that survives is the one the formula already
-supported: the $253$-pair evaluation's null is informative about true AUROC
-values at or above $0.7355$ and silent below that line.
+supported, as an analytic cross-check only; what the null resolves is stated
+per rule by C108 below.
 
 A second check (C108) is a power analysis on a real score distribution, not
 an empirical validation of the clinical instrument: a natural-language-inference
@@ -1186,7 +1192,7 @@ discrimination tests, and the eight hosted ambiguity-gradient tests, because
 the runs behind every one of them are withdrawn (Section~\ref{sec:r-frontier}).
 What remains is the five Mann-Whitney tests of Table~\ref{tab:decontam}, the
 five DeLong tests of Table~\ref{tab:delong}, the one Fisher exact test on the
-Rule 1/2 versus Rule 3/4 mechanism split (Section~\ref{sec:res-rq1}), the four
+Rule 1/2 versus Rule 3/4 mechanism split (Section~\ref{sec:res-rq1}), the eight
 local Fisher exact tests on the ambiguity gradient
 (Section~\ref{sec:r-ambiguity}), the one Welch two-sample $t$ test on the
 anisotropy control (Supplement, Section S1), and four Spearman rank
@@ -1194,7 +1200,7 @@ correlations against the pharmacist's danger rating. This round adds several
 more, disclosed here rather than left for a reader to notice missing: the
 McNemar tests behind the within-family scale step and the prompt-framing
 ablation, the label-permutation tests behind the bag-of-words baseline and
-the defect-free-stratum rescore, the off-the-shelf NLI baseline's own
+the defect-free-stratum rescore, the paired average-precision test of C114, the off-the-shelf NLI baseline's own
 Mann-Whitney test, and the two DeLong tests it is compared against the
 detector by. No committed script has recomputed a family size since the
 withdrawal, so none is typed here, before or after this round's additions:
@@ -1209,8 +1215,8 @@ as the joinability check of Section~\ref{sec:r-exemplar}, is outside every
 family (C90). No surviving block is close to independent: the five
 Mann-Whitney tests are three seeds of one model, their ensemble, and one
 further run, all on the same $253$ rows; the five DeLong tests are five
-comparisons against a single reference run; and the four local ambiguity
-tests are two models under two prompts each, scored on the same $46$
+comparisons against a single reference run; and the eight local ambiguity
+tests are four models under two prompts each, scored on the same $46$
 ambiguous and $241$ clear-negative pairs. The absence of a rejection across
 any correlated block is weaker evidence than the same absence would be for a
 single pre-specified test, and any single rejection inside one would be

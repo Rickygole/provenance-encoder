@@ -95,13 +95,9 @@ Each check is old and cheap; none was run here before this work.
 
 Figure~\ref{fig:pipeline-status} is the whole project in one view: four
 stages that each reported a number no standard metric flagged, and the
-check that catches what it hid. Three of the four verdicts are properties
-of the construction itself: high recall rules over a rare event land near a
-low base rate, an over-caller flags a rare class for a reason that holds
-for any classifier at that prevalence though its size varies even among
-labellers at the same scale, and an evaluation built on a fixed number of
-confirmed positives is limited by that number regardless of who trains the
-detector.
+check that catches what it hid. One constraint under all four is
+arithmetic rather than a finding: a fixed number of confirmed positives
+limits any evaluation built on them, whoever trains the detector.
 
 \begin{figure}[!ht]
 
@@ -116,7 +112,7 @@ row is categorical because no committed result file carries a number for it.}
 \label{fig:pipeline-status}
 \end{figure}
 
-The fourth is a bug class this thesis names \textbf{trigger-exemplar
+The candidate stage carries a bug class this thesis names \textbf{trigger-exemplar
 dissociation}: a mining rule whose predicate quantifies over a set of
 candidate mentions, an exemplar selector that picks from that set by
 position rather than by membership, and no assertion tying the two
@@ -150,14 +146,14 @@ could have caught.
 \section{The Finding}
 \label{sec:intro-finding}
 
-The pipeline does not work. This thesis establishes where it fails and why,
-by running at each stage the control that separates a real result from an
+The pipeline does not work. This thesis establishes where it fails and
+what each failure can and cannot be attributed to, by running at each stage the control that separates a real result from an
 artifact of measurement. The cleanest expression of
 the failure is the decontaminated detector's behaviour on the $253$
 non-ambiguous pairs: at the configured threshold it predicts positive for
 nearly the whole pool rather than ranking within it, and its ranking is not
 distinguishable from chance, its bootstrap interval excluding an AUROC above
-$0.7034$ (Section~\ref{sec:res-rq4}, Table~\ref{tab:decontam}). Figure~\ref{fig:ceiling} carries a separate mechanism: the weak labeller's
+$0.7034$ (Section~\ref{sec:res-rq4}, Table~\ref{tab:decontam}). Figure~\ref{fig:ceiling} carries a separate result: the weak labeller's
 positive rate against the pharmacist's confirmed rate on the same pool
 fixes an agreement ceiling that RQ2 below reports as a precondition, not an
 explanation of the ranking null RQ4 asks about.
@@ -175,8 +171,10 @@ instrument, because the results that answered that form were withdrawn
 (Appendix~\ref{app:corrections}); evidence sits in Chapter~\ref{ch:results},
 and the control for each stage is specified in Chapter~\ref{ch:method}
 before any result was seen, except the post hoc analyses marked as such:
-the feasibility gate, the ambiguous-pair rescaling, both tipping points and
-the public sweep decomposition.
+the feasibility gate, the ambiguous-pair rescaling, both tipping points,
+the public sweep decomposition, and the committee-requested checks (C114),
+which are post hoc with respect to the original plan but were pre-registered
+before their run.
 
 \begin{description}
 
@@ -214,8 +212,8 @@ measured on public text.
 Third, whether a score escapes the ceiling: a score
 is not bounded by that ceiling, because its threshold can be swept; the one
 score-emitting configuration tested, under a rule fixed before the run,
-reaches an AUROC of $0.5467$ ($p = 0.2934$), below the $0.7355$ effect size
-this evaluation can resolve, so sweeping does not help. No claim is
+reaches an AUROC of $0.5467$ ($p = 0.2934$), below every per-rule floor
+given under RQ4, so sweeping does not help. No claim is
 licensed about a labeller, a prompt, or a domain not tested.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
@@ -227,25 +225,36 @@ sigmoid.}
 
 \item[RQ4. Evaluation.] Is the trained detector's ranking null real, given
 what this project's own instrument can show?
-\emph{The null holds at the configurations tested. On the $253$
-non-ambiguous pairs three configurations of the decontaminated detector are
-not distinguishable from chance, the ensemble's bootstrap interval excluding
-an AUROC above $0.7034$, a paired comparison cannot separate two of them, and two simple models, one never trained on the weak
-labels, find a small precision signal the detector does not, on a statistic
-chosen after its value was known (Section~\ref{sec:res-rq4}). On the $108$
-defect-free Rules 3 and 4 pairs the decontaminated detector's AUROC is
-$0.6095$, $p = 0.1910$; with $6$ positives and a minimum detectable AUROC of
+\emph{No AUROC effect above the resolvable floor is found on the $253$
+non-ambiguous pairs, at the configurations tested. The floor is stated per
+decision rule and on AUROC only: a power analysis on real score distributions
+puts $80\%$ power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test
+and $0.8084$ for the registered decision rule, whose power at the analytic
+minimum detectable AUROC of $0.7355$ is only $0.52075$. On those pairs three
+configurations of the decontaminated detector are not distinguishable from
+chance, the ensemble's bootstrap interval excluding an AUROC above $0.7034$,
+and the ensemble's average precision, $0.0598$, is not above its permutation
+null ($p = 0.4629$). Average precision, a statistic chosen after its value
+was known, does resolve a small, top-heavy surface lexical signal: a bag-of-words (TF-IDF)
+model trained on the weak labels exceeds the detector ensemble in a paired
+permutation test ($p = 0.00005$), and its result holds in $11$ of $12$
+leave-one-positive-out drops. An inference model never trained on the weak
+labels is also above its own permutation null ($p = 0.01335$) and does not
+differ from TF-IDF ($p = 0.99125$), so the signal is one a label-free model
+also finds; that model is not shown to exceed the detector ($p = 0.10035$),
+and the claim of a signal the detector lacks is restricted to TF-IDF
+(Section~\ref{sec:res-rq4}). On the $108$ defect-free Rules 3 and 4 pairs the
+decontaminated detector's AUROC is $0.6095$ ($95$ percent bootstrap interval
+$0.3029$ to $0.9010$, $p = 0.1910$), above the $0.4221$ on Rules 1 and 2, which
+is the direction the defect-artifact reading predicts. Its pre-registered
+Outcome A means only that the stratum AUROC fell within $0.10$ of the
+full-set value and was not significant, a margin of $0.0950$ that turns on
+about one positive; with $6$ positives and a minimum detectable AUROC of
 $0.8058$ this fails to show the null is a defect artifact and cannot
-establish that it is not. A power analysis on real score distributions puts
-$80\%$ power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test and
-$0.8084$ for the registered decision rule. Whether a smaller clinical effect exists is not determinable from this
-evidence.}
+establish that it is not. Whether a smaller clinical effect exists is not
+determinable from this evidence.}
 
 \end{description}
-
-RQ4 is the check that keeps the other nulls in this pipeline from reading as
-one underpowered study: without its minimum detectable effect, a null anywhere here would be indistinguishable from an insensitive
-instrument.
 
 \section{Contributions}
 \label{sec:intro-contributions}
@@ -254,25 +263,41 @@ The methods applied here are not novel; Chapter~\ref{ch:lit} attributes
 each control to its owner
 \citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}.
 What is new is the measurement on this pipeline and the fact that the
-controls were actually run. Two contributions follow, each stated at the
-size the evidence supports.
+controls were actually run. Three contributions follow, each chosen because
+it needs no statistical power and survives every correction in
+Appendix~\ref{app:corrections}.
 
 \begin{enumerate}
-\item \textbf{Evidence that the ranking null holds above the resolution a
-power analysis on real scores supports.} RQ4 above gives that resolution,
-the defect-free-stratum check at its limit, and the small precision signal
-two simple models find and the detector does not.
+\item \textbf{A stage-wise control audit.} Each stage's reported number was
+unsupported by the control for that stage: the candidate pool's precision
+carried no trace of its exemplar defect, the weak labeller's agreement was
+bounded by its own marginal, and the three credited architectural components
+of RQ3 are, respectively, an initialisation artifact, a metric vacated by
+label leakage and an untrained module (Figure~\ref{fig:pipeline-status}).
 
-\item \textbf{A check-validation record.} A pre-registered planted-defect
-benchmark, sized to this evaluation and built to test the Fisher exact test
-behind Chapter~\ref{ch:results}'s Rule 1/2 versus Rule 3/4 mechanism
-comparison, did not reach the required firing rate on its own planted
-defect at either rate it was tried against, so that comparison's own null
-is read as an instrument limit rather than as evidence the two mechanism
-groups are equal.
+\item \textbf{A pre-training check on the weak labeller's marginal.} The
+agreement ceiling is computed from counts alone: at $261$ flagged of $299$
+against $12$ confirmed, no thresholded label can exceed a Matthews
+correlation of $0.0780$ with the pharmacist, whatever pairs it flags. It is a
+precondition to check before training, not an explanation of the detector's
+ranking.
+
+\item \textbf{Trigger-exemplar dissociation as a mining-bug class.} A rule
+that fires on a set of mentions and an exemplar selector that picks from it
+by position, caught by a one-line assertion that the displayed exemplar
+belongs to the trigger set (Figure~\ref{fig:exemplar}).
 \end{enumerate}
 
-Two further threads are reported in the supplement rather than argued here:
+The detector's ranking null is a supporting result, bounded as RQ4 states: no
+AUROC effect above about $0.75$ to $0.81$ on the $253$ non-ambiguous pairs.
+The pre-registered planted-defect benchmark (C102), sized to this evaluation
+to validate the Fisher exact test behind Chapter~\ref{ch:results}'s Rule 1/2
+versus Rule 3/4 comparison, did not reach the required firing rate on its own
+planted defect at either rate tried; it is a disclosed limitation rather than
+a contribution, and that comparison's null is read as an instrument limit,
+not as evidence the two mechanism groups are equal.
+
+Four further threads are reported in the supplement rather than argued here:
 the degeneracy precondition and the sign-provenance correction, both run
 on a second, provenance-conditioned system rather than the clinical
 detector; the $75$-paper practice survey; and this project's own compute

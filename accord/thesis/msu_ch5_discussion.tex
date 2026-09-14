@@ -7,12 +7,12 @@
 %  Compute figures come from results/accord/control_cost_log.json, the source
 %  named for that item alone. No open markers remain in this chapter.
 %
-%  Figures: fig:forest (evaluation survived, second family; positive-control
+%  Figures: fig:forest (evaluation narrowed, second family; positive-control
 %  arms) and fig:power/tab:scaling, both bound in Chapter 4 and referenced
 %  here rather than redrawn. This chapter interprets Chapter 4 as rewritten
 %  around the evidence gathered after adversarial review (commit 66b9d47):
 %  the prompt-and-ambiguity-dependent over-calling result, the C99, C102,
-%  C103, C104, C105, C106, C107, C108, C109, C110, C111 and C112 checks. The selection-channel anomaly, the compute-cost table and the
+%  C103, C104, C105, C106, C107, C108, C109, C110, C111, C112 and C114 checks. The selection-channel anomaly, the compute-cost table and the
 %  survey's own detailed limitations moved to the supplement (Sections S2,
 %  S4 and S3 respectively); each is pointed to here in one sentence, in
 %  words, never by \ref, because their labels no longer live in this
@@ -26,15 +26,16 @@ Chapter~\ref{ch:results} reported what each stage of the pipeline measured, and
 what the control attached to that stage measured afterwards, several of them
 rewritten around evidence gathered after adversarial review. This chapter argues
 about the difference. With $12$ pharmacist-confirmed contradictions in $299$
-pairs, this evaluation resolves only large effects: a power analysis on a real
+pairs, this evaluation resolves only large AUROC effects: a power analysis on a real
 score distribution puts $80\%$ power at an AUROC of $0.7466$ under a two-sided
 Mann-Whitney rule and $0.8084$ under the registered decision rule. Within that
 limit, local language-model labellers flagged far more pairs than the
 pharmacist confirmed, but how much more depended heavily on the prompt and on
 how the $46$ ambiguous pairs were read. The detector trained on those labels
-ranked at a level not distinguishable from chance, while two simple models,
-one of them never trained on the weak labels, found a small precision signal
-the detector did not.
+ranked at a level not distinguishable from chance on $G_{253}$, while a
+bag-of-words model trained on the same labels found a small surface lexical
+precision signal the detector did not, one a model never trained on the weak
+labels also finds.
 
 \section{What Each Control Changed}
 \label{sec:disc-spine}
@@ -71,7 +72,7 @@ Weak supervision & A high-recall labeller usable in place of expert annotation &
 \addlinespace
 Architecture & Three named components credited with the reported performance & Three different failures, not one: the authority scalars are falsified, sitting at initialisation across seeds; the rule-type head is confounded, its metric vacated by a target one linear layer from an input feature that equals it; the harm head is vacuous, with no term in the objective to train it. No randomisation control was run on any of the three & Reversed \\
 \addlinespace
-Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & Not distinguishable from chance on every configuration tried; the bootstrap interval excludes AUROC above $0.7034$; a power analysis on a real score distribution bounds what this size can resolve; two simple models, one never trained on the weak labels, find a small precision signal the detector does not & Survived \\
+Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & Not distinguishable from chance on every configuration tried; no AUROC effect above $0.7466$ (Mann-Whitney) or $0.8084$ (registered rule) is resolvable on $G_{253}$; whether the null is a defect artifact is unresolved; a bag-of-words model finds a small surface lexical precision signal the detector does not & Narrowed \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -140,10 +141,10 @@ three credited components contribute what they are credited with (Section~\ref{s
 is answered component by component from code-audit findings, not by the control-task logic of
 \citet{hewitt2019control}, which never had the chance to test the component it addresses.
 
-\subsection{Evaluation: survived}
+\subsection{Evaluation: narrowed}
 
-The detector's ranking is not distinguishable from chance under every control applied to it, which is why
-this thesis has a finding rather than only a list of retractions. The decontaminated ACCORD ensemble
+The detector's ranking is not distinguishable from chance under every control applied to it; what
+narrowed is what that null licenses. The decontaminated ACCORD ensemble
 reaches AUROC $0.5145$ ($p = 0.8668$) on the $253$ non-ambiguous pairs against $0.4595$ for the
 contaminated released run; the leaked rows carried the weak labeller's labels rather than the
 pharmacist's, so the leak had no channel to inflate agreement with gold, making the contaminated
@@ -157,10 +158,11 @@ the defect-free rows, and what the baselines add, is taken up in Section~\ref{se
 \subsection{What survived}
 
 Two things survived their controls, each narrower than it first sounds, and a section in which
-nothing survives is not a finding. The chance-level ranking survived decontamination, seed
-variation, defect-free stratification and a DeLong comparison against an ensemble; whether it also
-survives as evidence that the null is not an artifact of the exemplar defect is a separate question
-six positives cannot settle either way (Section~\ref{sec:disc-null}). The over-calling survived three
+nothing survives is not a finding. The chance-level ranking survived decontamination and seed
+variation, and the defect-free control model, compared by DeLong test only against the contaminated
+released run, was null as well; what survives is no AUROC effect above the floor on $G_{253}$, and
+whether the null is an artifact of the exemplar defect is a question six positives cannot settle
+(Section~\ref{sec:disc-null}). The over-calling survived three
 changes of local model family, but its size did not, moving by a large factor with the prompt and the
 ambiguity reading (Section~\ref{sec:disc-overcalling}), and a post hoc tipping point shows the least
 over-calling row would fall below the public-text ceiling after $5$ relabelled pairs
@@ -174,7 +176,7 @@ project tested.
 \label{sec:disc-overcalling}
 
 The weak-supervision reading above is not one number. Four things were varied to find out what it
-depends on, and none of them removes it.
+depends on.
 
 \textbf{The prompt contrast (C103), and how the ambiguous pairs are read.} A clinical-pharmacist
 framing prompt and a plain yes/no prompt differ in persona, the word ``dangerous'', answer vocabulary,
@@ -185,10 +187,11 @@ $p = 5.8 \times 10^{-32}$ and $8.1 \times 10^{-29}$) but raises \texttt{llama3:8
 $0.9365$. Neither lowered plain-prompt ratio, ambiguous pairs counted negative, $8.9167$ and $4.8333$,
 reaches the public-text ceiling of $3.5000$ set in advance as the test of sufficiency. A post hoc
 sensitivity analysis counting the $46$ ambiguous pairs as confirmed only rescales the denominator,
-multiplying every ratio by exactly $12/58$; the $1.0000$ it gives \texttt{qwen3:8b} under the plain
-prompt means that model flagged $58$ pairs, not that it agrees with the pharmacist, and the local
-Fisher tests found no labeller flagging ambiguous pairs more than clear negatives, one-sided $p$ from
-$0.0843$ to $0.8577$, which is evidence against reading that ratio as calibration. A ratio quoted
+multiplying every ratio by exactly $12/58$, which puts both plain-prompt rows below the ceiling,
+$1.0000$ for \texttt{qwen3:8b} and $1.8448$ for \texttt{granite3.3:8b}; the $1.0000$ means that model
+flagged $58$ pairs, not that it agrees with the pharmacist. The local Fisher tests, run under the
+frontier template prompts, found no labeller flagging ambiguous pairs more than clear negatives, but
+with $46$ ambiguous pairs that is absence of evidence, not a reason to read that ratio as calibration. A ratio quoted
 without naming its prompt and reading is not a comparable number.
 
 \textbf{Scale (C99), public text, and what a single run means (C104).} \texttt{qwen3:8b} against
@@ -208,8 +211,9 @@ contrasts (Section~\ref{sec:disc-limits}). On the clinical rows, C109 reproduced
 \texttt{granite3.3:8b} exactly.
 
 The prompt, the ambiguity reading, model family and scale each move the measured size of the
-over-calling, and none removes it for every configuration tried: some of the excess is addressable
-and some is not, which is not the same as either step preventing the failure.
+over-calling. What holds is narrower: every 8B labeller under the clinical-pharmacist framing flags
+several times the confirmed count when ambiguous pairs are read as negative, and the least
+over-calling printed row falls below the public-text ceiling after $5$ relabels.
 
 \section{What the Power Analysis and the Baselines License}
 \label{sec:disc-null}
@@ -236,61 +240,60 @@ evaluation's exact class counts, and resolution is stated per rule. A two-sided 
 crosses $80\%$ power at an AUROC of $0.7466$, agreeing with the analytic minimum detectable AUROC of
 $0.7355$, with a false-positive rate at true chance of $0.048$; the registered C98 rule needs $0.8084$,
 and at $0.7355$ it rejects on only $0.52075$ of replicates. This work cannot establish that cross-note
-contradiction detection is unsolvable; only that this pipeline does not solve it, and that an effect
-above those floors would likely have been visible.
+contradiction detection is unsolvable; only that this pipeline does not solve it, and that an AUROC
+effect above the floor of the rule applied would likely have been visible.
 
 \subsection{What the baselines add}
 
 Whether the ranking null is itself an artifact of the exemplar-selection defect was tested by
 scoring the decontaminated ensemble on Rule 3 and Rule 4 rows alone, ambiguous pairs dropped
-($n = 108$, $6$ positives; C112): AUROC $0.6095$, permutation $p = 0.1910$, within $0.10$ of its
-$G_{253}$ value and descriptively above its $0.4221$ on Rule 1 and Rule 2, neither significant; with
-$6$ positives against a minimum detectable AUROC of $0.8058$, this fails to show that the null is a
-defect artifact and cannot establish that it is not. An earlier run of the same rule (C110) scored the
+($n = 108$, $6$ positives; C112): AUROC $0.6095$, $95\%$ bootstrap interval $0.3029$ to $0.9010$
+(C114), permutation $p = 0.1910$, against $0.4221$ on Rule 1 and Rule 2. That direction is the one
+the defect-artifact reading predicts; Outcome A means only that the stratum AUROC fell within $0.10$
+of its $G_{253}$ value without significance, and the margin, $0.0950$, turns on about one positive.
+With $6$ positives against a minimum detectable AUROC of $0.8058$, this fails to show that the null
+is a defect artifact and cannot establish that it is not. An earlier run of the same rule (C110) scored the
 contaminated released detector and is superseded.
 
 A bag-of-words model trained on the identical weak labels clears its no-skill line on average
 precision by permutation (C107), $p = 0.0109$ on $G_{299}$ and $p = 0.0159$ on $G_{253}$, though not on
 AUROC, $p = 0.1944$ and $p = 0.1970$; average precision was chosen as that test's statistic after its
 value was known. A registered follow-up (C111) found the signal survives $11$ of $12$
-leave-one-positive-out drops, beats the detector ensemble in a paired permutation test, and comes from
-a training set sharing $0$ pairs and $0$ subjects with gold; but the off-the-shelf entailment model,
-never trained on the weak labels, also clears its no-skill line on average precision on both sets and
-is statistically indistinguishable from the bag-of-words model in a paired test. By the registered
-interpretation this is a surface lexical signal that label-free models also find and that the trained
-detector lacks, not evidence that the weak labels carried signal. Retrained on gold labels alone in
+leave-one-positive-out drops, exceeds the detector ensemble's average precision in a paired
+permutation test, and comes from a training set sharing $0$ pairs and $0$ subjects with gold; the
+ensemble's own average precision, $0.0598$, is not above its permutation null, $p = 0.4629$. The
+off-the-shelf entailment model, never trained on the weak labels, also clears its no-skill line on
+average precision on both sets and does not differ from the bag-of-words model in a paired test, so
+by the registered interpretation this is a surface lexical signal a label-free model also finds, not
+evidence that the weak labels carried signal. The entailment model is not shown to exceed the
+detector: the committee-requested paired test (C114, post hoc) gives $p = 0.10035$. Retrained on gold labels alone in
 nested cross-validation the same linear model falls to an out-of-fold AUROC of $0.3434$.
 
 On AUROC the entailment model reaches $0.5861$ on $G_{253}$, $p = 0.1576$, not resolved, and does not
-differ from the detector by a paired DeLong test, $p = 0.2113$ on $G_{253}$ and $p = 0.2550$ on
+differ from the contaminated released detector by a paired DeLong test, $p = 0.2113$ on $G_{253}$ and $p = 0.2550$ on
 $G_{299}$. A prior-probability correction applied to a distillation teacher on public data (C105) is
 invalid under its own rule, because most teacher pools fell below the registered over-calling floor,
 leaving little to correct; descriptively, the prior-corrected soft target was worse than hard labels,
-mean delta average precision $-0.1532$, and no better than the uncorrected soft target. Four of the
-five estimators, the detector, its control model, TF-IDF and the NLI baseline, could in principle have
-found separation on AUROC and did not; the fifth, majority-class, was never in a position to look.
-That is the evidence a sample this size can produce, not proof that no separation exists.
+mean delta average precision $-0.1532$, and no better than the uncorrected soft target.
 
 \section{Limitations}
 \label{sec:disc-limits}
 
-\paragraph{RQ4's answer, now that the hosted channel is ruled out.} Every hosted-service transmission
-this project made has been withdrawn (Section~\ref{sec:m-ethics}), but RQ4, is the trained detector's
+\paragraph{RQ4's answer, now that the hosted channel is ruled out.} Every hosted-service number is
+withdrawn (Section~\ref{sec:m-ethics}), but RQ4, is the trained detector's
 ranking null real, given what this project's own instrument can show?, does not depend on it: the
 detector's bootstrap interval and the C108 power analysis (Section~\ref{sec:disc-null}), with the
 minimum detectable effect (Section~\ref{sec:m-mde}), answer it locally. Several analyses were run
 after the numbers they use were in hand and are post hoc: the feasibility gate on the labeller's
 marginal (Section~\ref{sec:r-feasgate}), which is silent on the AUROC null; the ambiguity reading that
-counts ambiguous pairs as confirmed; both tipping-point checks; and the decomposition of the
-public-sweep ratios.
-
-The limitations below are stated without hedging. Several are severe enough that
-a reader could reasonably decline to draw a conclusion from part of this work,
-and where that is so it is said.
+counts ambiguous pairs as confirmed; both tipping-point checks; the decomposition of the
+public-sweep ratios; and the three committee-requested C114 checks, each pre-registered before its run.
 
 \paragraph{Twelve positives.} Every ranking measurement rests on $12$ positive
-cases, and the defect-free stratum on $6$. The minimum detectable AUROC at $80\%$
-power is $0.7355$ on the primary set and $0.8058$ on the stratum. The intervals
+cases, and the defect-free stratum on $6$. At $80\%$ power the primary set resolves
+AUROC $0.7466$ under a two-sided Mann-Whitney test and $0.8084$ under the registered
+rule (C108), with $0.7355$ as the analytic cross-check; the stratum's analytic
+floor is $0.8058$. The intervals
 are wide and the ordering between the two systems this pipeline produced is
 unidentified, their Matthews correlations being $-0.0436$ and $-0.0070$, both
 within $0.05$ of chance. The limit is not that $12$ positives cannot separate
@@ -300,14 +303,15 @@ the first of those returns a one-sided hypergeometric $p$ of $0.0242$ on these
 same $253$ rows, a claim about that one thresholded labeller, not the
 detector, and bounded only because it is thresholded. A reversed-direction
 zero-shot score from \texttt{llama3:8b} ranked above chance under every wording
-tried but reached the resolvable floor under none of the three new wordings of a
+tried but reached the analytic $0.7355$ floor, where the registered rule has
+power of only $0.52075$, under none of the three new wordings of a
 confirmatory pre-registration (C109); one of them had permutation $p = 0.0030$,
 below its Bonferroni threshold, and failed on AUROC, $0.7310$, not on
 significance, and the signal sits in the rows carrying the exemplar defect. So
 $12$ positives can separate a thresholded labeller from chance when the effect
 is large enough; the null the detector and its
-control return is a statement about that architecture, which sits close to
-chance, not a statement that no instrument at this sample size could ever
+control return is a statement about these trained models under this
+supervision, which sit close to chance, not a statement that no instrument at this sample size could ever
 resolve anything. No ablation carries a significance claim.
 
 \paragraph{Deployment risk, and automation bias.} A system with recall
@@ -399,9 +403,10 @@ every clinical result in this thesis rests on that unmeasured instrument. How
 much this single annotator's labels could be wrong before it changed a
 substantive conclusion is quantified rather than left to intuition, by two
 tipping-point checks run after every number they use was already in hand
-(Chapter~\ref{ch:results}): $7$ of the $253$ gold labels, $6$ of the $12$
-confirmed positives, would have to flip before the detector's own AUROC
-crossed the resolvable floor; and over every printed hard-label row, the
+(Chapter~\ref{ch:results}) and C114: from the decontaminated ensemble's
+$0.5145$, relabelling confirmed positives as negatives lifts the detector's
+AUROC past the analytic $0.7355$ after $5$ flips, the Mann-Whitney $0.7466$
+after $6$ and the registered-rule $0.8084$ after $7$; and over every printed hard-label row, the
 least over-calling one, \texttt{qwen3:8b} under the plain yes/no prompt at
 $4.8333$, falls below the public-text ceiling once $5$ of its flagged pairs
 are relabelled as missed contradictions, which weakens the claim that the
@@ -446,13 +451,13 @@ measurement; the rest are stated rather than argued away.}
 \toprule
 \textbf{Threat} & \textbf{Severity} & \textbf{Status} \\
 \midrule
-Twelve positives; every interval wide & Severe & Stated; MDE $0.7355$ reported with every null; no significance claim on any ablation \\
+Twelve positives; every interval wide & Severe & Stated; resolution given per rule with every null, AUROC $0.7466$ (Mann-Whitney) and $0.8084$ (registered rule); no significance claim on any ablation \\
 \addlinespace
 Training contamination of the evaluation set & Severe if unaddressed & Measured and corrected; the decontaminated ensemble is $0.5145$ against $0.4595$ contaminated, so the correction does not favour the conclusion \\
 \addlinespace
-Exemplar defect on action-conflict candidates & Severe for pool precision, not decisive for the central result & Three instruments disagree ($0$, $0.4745$, $0.9315$), none a tiebreaker; the check built to test the Rule 1/2 versus Rule 3/4 split was not validated at this sample size (C102); a rescore of the decontaminated detector on the defect-free rows fails to show the null is a defect artifact and cannot establish that it is not (C112) \\
+Exemplar defect on action-conflict candidates & Severe for pool precision, not decisive for the central result & Three instruments disagree ($0$, $0.4745$, $0.9315$), none a tiebreaker; the check built to test the Rule 1/2 versus Rule 3/4 split was not validated at this sample size (C102); a rescore of the decontaminated detector on the defect-free rows fails to show the null is a defect artifact and cannot establish that it is not (C112; interval $0.3029$ to $0.9010$, C114) \\
 \addlinespace
-Single annotator, no inter-rater or intra-rater reliability & Severe; bounds every gold-label conclusion & Stated; the earlier circular coefficient is retracted, the two-pass design cannot recover an intra-rater figure, and the sensitivity of the headline conclusions to a wrong label is bounded by two post hoc tipping-point checks, one of which moves the over-calling conclusion after $5$ relabels \\
+Single annotator, no inter-rater or intra-rater reliability & Severe; bounds every gold-label conclusion & Stated; the earlier circular coefficient is retracted, the two-pass design cannot recover an intra-rater figure, and the sensitivity of the headline conclusions to a wrong label is bounded by post hoc tipping-point checks: the detector's AUROC reaches the three floors after $5$, $6$ and $7$ relabels, and the over-calling conclusion moves after $5$ \\
 \addlinespace
 Weak-label leakage into model inputs & Moderate to severe & Demonstrated on the rule-type head, whose target is one linear layer from an input feature that equals it; the affected metric is vacated, which leaves the head untested rather than falsified \\
 \addlinespace
@@ -473,11 +478,9 @@ Generalisation is bounded on four axes. One centre and one documentation culture
 One primary billing-code phenotype, with two weaker transfer cohorts that move
 across index diagnosis rather than across sites. One era, predating current
 documentation systems and any use of generative assistance in note writing. The
-fourth axis is the task, and there the bound is measured rather than assumed:
-the over-calling measured here does not generalise to public text under a
-generic prompt, where the same labellers over-called in some settings and one
-never did, and the sweep changed prompt and negatives along with domain, so it
-cannot say what transfers; the public-text maximum ratio, measured on SNLI, is
+fourth axis is the task: the over-calling measured here was not reproduced on
+public text, in a sweep that changed prompt, negatives and domain together, so
+it cannot say what transfers; the public-text maximum ratio, measured on SNLI, is
 $3.5000$, well below the $15.8196$ to $23.5959$ range measured on the clinical
 pool under the replication prompt, and under the plain yes/no prompt the
 clinical ratios fall as far as $4.8333$ (Section~\ref{sec:disc-overcalling}),
@@ -498,8 +501,9 @@ a different pool and plausibly a different base rate, and the construct is not
 independently validated. The detector's target is the weak label, not the
 clinical event, so any statement that it ``fails to detect contradictions'' is
 a statement about what it learned to predict, a reading complicated further
-by the small precision signal two simple models, one never trained on the weak
-labels, find and the detector lacks (Section~\ref{sec:disc-null}). Ranking metrics at a $4\%$ base rate also
+by the small surface lexical precision signal a bag-of-words model finds and the
+detector lacks, which a model never trained on the weak labels also finds
+(Section~\ref{sec:disc-null}). Ranking metrics at a $4\%$ base rate also
 measure less than they appear to: AUROC is insensitive to prevalence in a way
 that flatters this setting, average precision sits near the base rate
 throughout \citep{saito2015prcurve}, and agreement statistics are subject to
