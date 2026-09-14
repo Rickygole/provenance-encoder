@@ -170,4 +170,61 @@ used in a computation; a different model would need a new pre-registration.
 
 ## Outcome
 
-Recorded below after the run; the rule above is unchanged.
+Recorded 2026-09-13 after the run; the rule above is unchanged.
+
+**Outcome C, invalid.** A0 = 0.9772 (18,064 pool-excluded SNLI dev/test items,
+6,347 contradiction, 11,717 not; well above the 0.90 floor). The primary crossing
+(`mw_two_sided`, label-mix) was 0.7466, 0.0111 from the registered MDE of 0.7355 --
+inside the 0.02 band Outcome A requires -- and the rejection rate at true AUROC
+0.50 was 0.048, inside `[0.03, 0.07]`. Both of those, alone, would read as Outcome
+A. The run is invalid anyway, on the OTHER stated ground: the held-out,
+n=200,000-per-side population-AUROC check found one cell more than 0.005 off its
+target -- noise-mix, target 0.50, achieved population AUROC 0.5112 (off by
+0.0112) -- so per the pre-registration's own Outcome C clause this run cannot be
+read as A or B at all, and is reported as invalid.
+
+**Diagnosis, not a rule change.** `bisect_sigma_for_target` (in
+`accord/public_controls/evaluation.py`) has an early-return: if a single
+20,000-per-side Monte Carlo draw at the search's upper sigma bound (50 z-scored
+standard deviations of noise) already reads below the target, it accepts that
+bound without bisecting further. At target 0.50 that single draw came back 0.5113,
+just above 0.50 by ordinary Monte Carlo noise (SE of a null AUROC at n=20,000 per
+side is about 0.0035, so 0.0113 is a ~3.2 SE excursion, not impossible), tripped the
+early return, and the sigma search stopped at the cap without ever entering the
+bisection loop that checks the 0.002 tolerance. Every other one of the 22
+grid-point/construction cells calibrated within tolerance (worst of the other 21:
+noise-mix at 0.80, off by 0.0033, itself over the loop's internal 0.002 tolerance
+but under this outcome clause's 0.005 held-out bar); only this one cell's early
+return produced a population AUROC read against a target it was never actually
+searched for. This is a bug in the calibration helper, not a change to a decision
+rule or a threshold, and per the kill condition it is NOT patched and silently
+rerun on top of a result already seen: this run stands as Outcome C, invalid,
+exactly as computed. A corrected `bisect_sigma_for_target` (removing the noisy
+single-draw early return, or widening its own margin before accepting a boundary
+value) is a new run under a new pre-registration, not an edit to this one.
+
+**Always reported, per the rule above, regardless of outcome:**
+
+Interpolated crossing at 80% power, every rule, both constructions:
+
+| rule | label-mix | noise-mix |
+|---|---|---|
+| mw_one_sided | 0.7211 | 0.7074 |
+| mw_two_sided (primary) | 0.7466 | 0.7322 |
+| c98_rule | 0.8084 | 0.7934 |
+| delong_single_one_sided | 0.7533 | 0.7051 |
+| delong_paired_vs_null | 0.8121 | 0.7815 |
+| bootstrap_lower_excludes_chance | 0.7766 | 0.7278 |
+
+`c98_rule`'s empirical rejection rate at true AUROC exactly 0.7355 (label-mix):
+**0.5208** (4,000 replicates) -- close to the "about half power at the MDE" this
+project's own KEY FINDINGS describe for C98's rule, measured directly rather than
+assumed, on a real score distribution at the evaluation's own size, independent of
+the invalidity finding above (this number does not depend on the noise-mix
+target-0.50 cell).
+
+Artifacts: `results/accord/public_controls/sizectl/roberta_scores_meta.json`,
+`roberta_scores.json`, `power_curves.json`. Wall clock: 6,212 s (~104 minutes,
+including the 4,000/1,000-replicate loop over 11 grid points x 2 constructions x 6
+rules and the held-out population checks). Register script (not run):
+`accord/public_controls/sizectl/register.py`, prefix `sizectl.*`.

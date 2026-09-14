@@ -8,9 +8,16 @@ accord_phase3_v2_ablations.py`'s frozen structure, and the fact that
 pins breaks, the public-controls code built on top of that assumption needs
 re-review before it is trusted again.
 
-Also pins the compliance rules from the task: nothing under
-`accord/public_controls/` may import MIMIC-derived dictionaries, open a MIMIC
-path, or talk to Ollama.
+Also pins the compliance rules from the task: nothing in the files this work
+owns may import MIMIC-derived dictionaries, open a MIMIC path, or talk to
+Ollama.
+
+SCOPE NOTE: `accord/public_controls/` is a SHARED directory -- other agents
+building other items (C103 onward: `nlifactorial/`, `priorfix/`, etc.) commit
+their own files there too. The compliance checks below therefore scan an
+explicit, owned file list (`OWNED_PY_FILES`), not the whole directory tree;
+scanning everything under `accord/public_controls/` would make this suite's
+pass/fail depend on code this work did not write and must not touch.
 
 Run: python3 -m pytest tests/test_public_controls_pins.py -q
 """
@@ -35,6 +42,21 @@ INTERVALS_PY = ROOT / "accord" / "stats" / "intervals.py"
 ABLATIONS_PY = ROOT / "accord" / "detector" / "accord_phase3_v2_ablations.py"
 FALSIFICATIONS_PY = ROOT / "accord" / "control" / "verify_rq3_falsifications.py"
 PUBLIC_CONTROLS_DIR = ROOT / "accord" / "public_controls"
+
+# Exactly the files this work (C101/C102, items 4 and 10) created. Deliberately
+# NOT a directory scan: see the SCOPE NOTE above.
+OWNED_PY_FILES = [
+    PUBLIC_CONTROLS_DIR / "evaluation.py",
+    PUBLIC_CONTROLS_DIR / "frozen_ablations_loader.py",
+    PUBLIC_CONTROLS_DIR / "sizectl" / "score_roberta.py",
+    PUBLIC_CONTROLS_DIR / "sizectl" / "power_curves.py",
+    PUBLIC_CONTROLS_DIR / "sizectl" / "register.py",
+    PUBLIC_CONTROLS_DIR / "plantbench" / "stage1.py",
+    PUBLIC_CONTROLS_DIR / "plantbench" / "stage2.py",
+    PUBLIC_CONTROLS_DIR / "plantbench" / "stage3.py",
+    PUBLIC_CONTROLS_DIR / "plantbench" / "stage4.py",
+    PUBLIC_CONTROLS_DIR / "plantbench" / "register.py",
+]
 
 # The exact stratified-bootstrap loop this project reimplements (intervals.py,
 # currently lines 71-77: the pos/neg index split, the fresh rng, the B-loop
@@ -120,7 +142,7 @@ def test_ablations_file_never_imported_as_a_module():
         "from accord.detector import accord_phase3_v2_ablations",
         "from accord_phase3_v2_ablations import",
     )
-    for py in PUBLIC_CONTROLS_DIR.rglob("*.py"):
+    for py in OWNED_PY_FILES:
         if py.name == "frozen_ablations_loader.py":
             continue
         text = py.read_text()
@@ -185,7 +207,7 @@ def test_verify_rq3_falsifications_is_hardcoded_and_must_not_be_relied_on():
         "now computes a real, switchable result this pin (and the note in "
         "the C102 pre-registration that Stage 3 replaces it) should be "
         "revisited, but that script is read-only for this work either way.")
-    for py in PUBLIC_CONTROLS_DIR.rglob("*.py"):
+    for py in OWNED_PY_FILES:
         assert "verify_rq3_falsifications" not in py.read_text(), (
             f"{py} depends on a check that is hardcoded to always pass")
 
@@ -212,7 +234,7 @@ FORBIDDEN_SUBSTRINGS = (
 
 def test_public_controls_has_no_mimic_or_ollama_or_hosted_api_references():
     offenders = []
-    for py in PUBLIC_CONTROLS_DIR.rglob("*.py"):
+    for py in OWNED_PY_FILES:
         text = py.read_text().lower()
         for marker in FORBIDDEN_SUBSTRINGS:
             if marker.lower() in text:
@@ -224,7 +246,7 @@ def test_public_controls_model_loading_is_offline_and_cpu_only_where_present():
     """Any script under accord/public_controls/ that loads a HF model must set
     the offline/CPU env flags this task requires; scripts that don't load a
     model at all are exempt."""
-    for py in PUBLIC_CONTROLS_DIR.rglob("*.py"):
+    for py in OWNED_PY_FILES:
         text = py.read_text()
         if "from_pretrained" not in text:
             continue
