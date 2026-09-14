@@ -3,16 +3,18 @@
 % This section binds two things moved out of the thesis chapters because
 % neither is read sequentially against the clinical detector's own numbers:
 % the methodological specification of the arbitrary-substitute control and
-% the anisotropy control, both of which run on a second system rather than
-% on this thesis's clinical contradiction detector, and the results of that
-% control together with the code-audit findings on the detector's own three
-% purpose-built components. The two are moved as one unit because the
-% results subsection repeatedly points back to the method subsection's
-% condition and vice versa; splitting them across the thesis and this
-% document would force a reader to hold the condition in mind across four
-% chapters. Numbers and claims are unchanged from the thesis chapters they
-% were moved from; only cross-references have been adjusted for the move,
-% as noted at each site.
+% the anisotropy control, both of which run on a second system, a
+% provenance-conditioned encoder trained with masked language modelling,
+% rather than on this thesis's clinical contradiction detector, and the
+% results of that control, the ten-arm attention-bias ablation and the
+% anisotropy control. The clinical detector's own architecture audit (the
+% authority-conditioning, rule-type-head and harm-estimation findings, and
+% the cohort-generalisation table behind the second of those three) is a
+% different control, run on the detector itself
+% rather than on the second system, and stays in the main thesis as RQ3's
+% audit findings; it is not moved here. Numbers and claims below are
+% unchanged from the thesis chapters they were moved from; only
+% cross-references have been adjusted for the move, as noted at each site.
 
 \section{Second System: The Attention-Bias Ablation and the Anisotropy Control}
 \label{sup:s1}
@@ -61,76 +63,6 @@ conditions are statistically identical, and Chapter 4 of the thesis reports a We
 rejects exact equality.
 
 
-
-\subsection{Architecture: the Detector's Own Components, and the Second System}
-\label{sup:sec:res-rq3}
-
-Do the purpose-built components contribute what they were credited with? No
-component survives what a code audit finds. No randomisation control was run
-on any of these three clinical components; what follows are audit findings,
-not controls firing: one parameter is falsified as an initialisation artifact,
-one metric is vacated by label leakage, and one module was never trained.
-
-\subsection{One falsified, one vacated by leakage, one never trained}
-
-\paragraph{Authority conditioning is an initialisation artifact.} The parameter
-reported as converging to the clinical note hierarchy is initialised at $1.0$
-for the discharge branch and $0.5$ for the nursing branch, the exact pair
-reported as discovered by training. Across three seeds the discharge value
-ends between $1.0024$ and $1.0047$, mean $1.0038$, and the nursing value ends
-between $0.5070$ and $0.5084$, mean $0.5076$. Both parameters move a small
-fraction of their initial value across seeds. Each sits on a branch that is
-immediately normalised, which removes most of what a per-branch scalar can do
-and drives its gradient towards zero.
-
-\paragraph{The rule-type head is label leakage.} The rule identifier is written
-into the model's input feature vector and predicted from the same forward pass,
-one linear layer away, so the auxiliary task is a copy. Out-of-domain transfer is
-the diagnostic that separates a copy from learned structure, because the leaked
-feature survives transfer and the surface correlations do not. This belongs to
-the documented family of shortcut learning \citep{geirhos2020shortcut,
-zech2018generalization}; the checkable point is narrower, that an auxiliary head
-whose target is derivable from its inputs is not an auxiliary task. In domain the
-rule-type head reaches a macro $F_1$ of $0.9603$. Transferred without retraining
-it collapses by more than an order of magnitude on both secondary cohorts, as
-Table~\ref{sup:tab:transfer} records. That is
-reported as a descriptive non-portability
-result rather than further evidence of leakage: the code-level argument above
-is dispositive on its own, and a literal copy of the rule-identifier feature
-would transfer perfectly, since the feature and target stay
-identical in any domain. The collapse instead shows that the in-domain macro
-$F_1$ reflects the correlation between that feature and this cohort's label
-distribution rather than a verbatim copy of it, a correlation that does not
-hold in the transfer cohorts.
-
-\begin{table}[H]
-\centering
-\caption[Rule-type head under cohort transfer]{The rule-type head in domain and
-transferred without retraining. No interval is committed for any of these three
-values, so none is printed and none should be inferred; they are single
-measurements on the candidate counts shown.}
-\label{sup:tab:transfer}
-\begin{tabular}{lrr}
-\toprule
-\textbf{Cohort} & \textbf{Candidates} & \textbf{Macro $F_1$} \\
-\midrule
-Heart failure, training domain & 1,978 & 0.9603 \\
-Sepsis                         &   775 & 0.0654 \\
-Acute kidney injury            & 1,983 & 0.0595 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{Harm estimation was never trained.} The guideline bank is one randomly
-initialised parameter matrix, there is no corpus and no retrieval step, and the
-harm head does not appear in the training objective. Over the 299 annotated
-pairs its output ranges from $0.3977$ to $0.6096$, a narrow band
-consistent with an untrained scorer rather than a calibrated severity measure.
-Its rank correlation against the pharmacist danger rating over all 299 pairs is
-$\rho = -0.0001$, $p = 0.9991$. The
-severity-ranking question was therefore not tested, and any null reported
-against that head measures an untrained module rather than the underlying
-question.
 
 \subsection{Three controls that fired positively}
 
