@@ -1,0 +1,195 @@
+% S3: Practice Survey.
+%
+% Four things are bound here because none of them is read sequentially
+% against the chapters that summarise or depend on them: the RQ5 survey
+% instrument's specification, including its inclusion and exclusion rule
+% and its strict/permissive coding convention; the survey's results, the
+% coded-outcome table and the reliability statistics behind it; the
+% limitation the discussion chapter states about this measurement; and the
+% full 75-paper coding table itself, bound in full immediately afterwards so
+% a reader can recompute the counts rather than take them on trust. Numbers
+% and claims are unchanged from the thesis chapters and the appendix file
+% they were moved from; only cross-references have been adjusted for the
+% move, as noted at each site.
+
+\section{Practice Survey}
+\label{sup:s3}
+
+\subsection{RQ5: the survey coding instrument}
+
+\textbf{Condition.} A survey of practice is evidence about practice only if the coding rule is
+fixed, applied uniformly, and reported under both the strict and the permissive reading of every
+contestable boundary. Reporting only the reading that supports the thesis is the failure the survey
+exists to expose.
+
+The instrument distinguishes two audits a paper may perform. A model audit examines a trained model
+for disparities across groups within the analysis pool. A selection audit examines the filtering
+step itself for differential retention across groups, against a denominator existing prior to
+filtering. Inclusion requires all three of: health, clinical or biomedical data about people; at
+least one disaggregated performance or outcome metric broken out by a demographic or socioeconomic
+attribute; and enough methods detail to determine what cohort the metric was computed on. Papers
+are excluded when they are commentary, position or review articles with no empirical evaluation,
+when they report no disaggregated metric, when the data is not health data, when the methods are
+too thin to identify the cohort, or when the full text is not retrievable.
+
+Queries were issued against machine-readable interfaces (NCBI E-utilities for PubMed and PubMed
+Central, the arXiv Atom API, and ACL Anthology volume indexes), so the search is reproducible by
+re-running the recorded query strings. Screening runs in three stages: an automated title and
+abstract screen logging its exact exclusion rule for each record; a full-text retrieval quota
+ranking records passing stage one by a pre-specified keyword-density score and advancing them until
+the budget is met, with records below the quota logged as screened rather than silently dropped;
+and a full-text screen read against the three inclusion criteria. The corpus reaching coding
+contains $n = 75$ papers.
+
+The primary coding of a selection audit is strict: a paper counts only if it compares the group
+composition, or the retention rate, of the retained cohort against a denominator existing prior to
+filtering, or otherwise directly tests the filter for differential retention; a demographics table
+or a flow diagram of total counts excluded does not qualify, since neither has a denominator. A
+second, permissive column counts any comparison of retained group composition against any external
+or source figure, including census statistics or the parent database before filtering; it is a
+strict superset of the strict column, enforced in code, and both readings are reported everywhere.
+Every coded field requires a verbatim quote and a section location, checked by a verification
+script against the source text by exact string match, and a quote that fails to match is rejected
+and its field forced to unclear.
+
+Three limitations bound what the instrument can measure. Each paper was coded once by the primary
+coder under a shared written rule set; a blind second coder independently re-coded a deterministic
+subsample of nineteen papers, the basis for the agreement statistics reported in
+Chapter 4 of the thesis, and no agreement figure is claimed for the other fifty-six. Second,
+inclusion criterion two requires a disaggregated metric, so every included paper audits a model on
+its pool by construction: the count of papers coded as auditing a model on the pool equals the count
+of included papers, both $75$, so the cross-tabulation of model audit against selection audit
+degenerates to a single row, and the keyword-density ranking enriches the corpus toward
+fairness-forward work, against the direction of the finding rather than toward it. Third, the coded
+question is only whether a paper audits the selection step upstream of the model it evaluates. It is
+not the exemplar-correctness check, the weak-label marginal check, the architecture randomisation
+control, or the positive control for evaluation sensitivity, and the survey measures none of them,
+so the corpus supports only the prevalence of this one adjacent practice, not a claim about whether
+the field runs the controls that would have caught this pipeline's own failures.
+
+
+
+\subsection{Practice: RQ5 Survey Results}
+\label{sup:sec:res-rq5}
+
+Does the field run the checks that would have caught the failures above? This
+section reports a prevalence measurement on a deliberately enriched corpus, not
+a finding of the same standing as the ablation in
+S1 of this supplement or the pre-registered positive control in
+Chapter 4 of the thesis. It is reported because a prevalence measurement on
+its own terms is worth having, and because the survey coding table below makes
+the full 75-paper coding available for a reader to check rather than take on
+trust. Of the $525$ coded fields, $502$ carry a verbatim quote checked by exact string match
+against the source text, so no coded value asserting a property of a paper survives without
+verified textual support. The remaining $23$ are codings of absence, recording that a paper does
+not mention how it handles null attribute values; there is no sentence to quote for an absence,
+and those $23$ are the \emph{not mentioned} row of Table~\ref{sup:tab:survey}. A systematic coding of 75 papers says: rarely on the strict
+reading, and not much more often on the permissive one. Both are reported side by side; the
+choice between them is a judgement call for the reader.
+
+\subsection{Both readings, and the null-attribute distribution}
+
+\begin{table}[H]
+\caption[Coded outcomes across surveyed papers]{Coded outcomes across 75 included papers.}
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+\textbf{Coded outcome} & \textbf{Papers} \\
+\midrule
+Runs a model over the candidate pool  & 75 \\
+Reports the check, permissive reading & 14 \\
+Reports the check, strict reading     & 4  \\
+\midrule
+\multicolumn{2}{l}{\textit{Handling of null attribute values}} \\
+Not mentioned     & 23 \\
+Drops the rows    & 17 \\
+Separate category & 13 \\
+Unclear           & 9  \\
+Imputes           & 7  \\
+Reports only      & 6  \\
+\bottomrule
+\end{tabular}
+\apanote{Papers are coded once each; the denominator is 75 throughout. The first row is the screening condition, satisfied by every included paper by construction. The permissive reading accepts any statement that the check was performed; the strict reading requires the quantity that would make it verifiable. The six null-attribute categories are exclusive and sum to 75.}
+\label{sup:tab:survey}
+\end{table}
+
+Four of 75 papers report the check under the strict reading and 14 under the
+permissive one, so 61 report it under neither. The 10-paper gap between the two
+readings is the population that says it did the check without reporting what the
+check returned, and the strict count is the one a reader can verify. Twenty-three
+papers, the largest single category, do not mention the null-attribute question
+and nine more are coded unclear, so 32 of 75 give a reader no way to tell what
+happened to rows with a missing attribute. Dropping and imputing are not
+equivalent and neither is neutral, and the two choices move a reported disparity
+in different directions; 17 papers take the first and 7 the second. The point is
+not that one choice is wrong; it is that 32 of 75 leave it unrecoverable.
+
+\subsection{Reliability}
+
+One coder coded all 75 papers under the shared written rule set described in
+Chapter 3 of the thesis. A blind second coder independently re-coded a
+19-paper subsample, given the field definitions but not the hypothesis, and
+that subsample is the basis for every agreement figure in this section; no
+agreement is claimed for the remaining $75 - 19 = 56$ papers, which were coded
+once. On the permissive cell agreement is $0.9474$ and Cohen's kappa is
+$0.855$; on the
+null-attribute-handling coding agreement is $0.7895$ and kappa is $0.730$.
+
+The strict cell has no defined agreement coefficient, for a structural
+reason: chance-corrected agreement
+\citep{cohen1960kappa} is a ratio whose denominator is one minus expected
+agreement, and when a coder's marginal on a category is degenerate that
+denominator goes to zero and the coefficient is undefined rather than perfect. At
+4 positive codes in 75 the strict cell is degenerate on the double-coded
+subsample specifically: on the 19 overlap papers neither coder found a
+strict-positive paper, so agreement is $1.0$ but kappa is undefined rather
+than perfect. Reporting perfect agreement as a defined kappa would be exactly
+the error the statistic exists to prevent.
+
+The corpus is enriched, and the enrichment runs against the finding rather
+than for it: a corpus that over-samples work already attentive to these
+questions still yields 4 of 75 strictly, which bounds the bias without
+turning 75 papers into a population estimate for the field.
+
+
+\paragraph{The survey is a prevalence measurement on an enriched corpus, and it
+is limited on several axes at once.} It is the weakest of the empirical
+strands in this thesis, reported at that weight rather than alongside the
+ablation or the pre-registered convergence control. The $75$-paper corpus was
+assembled to over-sample fairness-forward work, coverage is open-access
+sources only, $459$ screened-in papers were never retrieved in full text, and
+one coder codes the full set; Chapter 4 of the thesis gives the full
+enrichment argument behind $4/75$ and $14/75$. A blind second coder recoded a
+subsample with field definitions only and the hypothesis withheld, and
+agreement on the permissive field is high. On the 19 double-coded papers, the
+registered permissive
+agreement is $0.9474$ with kappa $0.855$. On the strict cell, the one that decides the
+headline count, the reliability coefficient is
+\textbf{undefined}: both coders returned the same code on all 19 overlap
+papers, which drives a coder's marginal on the category toward degenerate and
+the denominator of a chance-corrected coefficient toward zero. The full
+contingency table behind the undefinedness is not registered and is not
+claimed here beyond that. It is reported as undefined rather than as the
+perfect agreement the raw agreement rate superficially permits, which is the
+same class of error as reporting a coefficient guaranteed by construction.
+The survey coding table below reproduces the full 75-paper coding, so a
+reader who wants to check the count rather than take it on trust can.
+
+
+\subsection{Survey Coding Table}
+
+The full coding behind the counts above, reproduced from the appendix that
+has carried it since it was first bound.
+
+\begingroup
+% msu_appD_survey.tex opens with \chapter{...}\label{app:survey}. This
+% document has no chapter-lettered appendices to house it in, so \chapter is
+% suppressed for the extent of this input; the subsection heading above
+% already gives the reader the heading \chapter would otherwise have
+% printed. \label{app:survey} still fires, against whatever section-level
+% \@currentlabel is active at that point, and is not relied on by any \ref
+% in this document.
+\renewcommand{\chapter}[1]{}
+\input{msu_appD_survey}
+\endgroup
