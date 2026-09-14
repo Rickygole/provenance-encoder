@@ -210,7 +210,8 @@ def make_fig_pipeline_status():
     # checked the architecture with an OOD transfer F1 the thesis does not
     # interpret. This one draws the thesis's own four stages, numbered 1 to 4
     # as Chapter 1 numbers them. Stages 1 to 3 each reported a number that its
-    # control or code audit does not support; stage 4 is a bounded null, and
+    # control or code audit does not support the reading of that number;
+    # stage 4 is a bounded null, and
     # the two states are told apart by fill (solid chip against outlined chip)
     # and by a word, so the distinction survives greyscale.
     #
@@ -244,6 +245,9 @@ def make_fig_pipeline_status():
     # scarlet (dark) for unsupported, a SCARLET_TINT fill under a dashed rim
     # (mid grey) for not established, paper under a solid rim for bounded null.
     NOTEST, UNSUP, BOUNDED = "not established", "unsupported", "bounded null"
+    # ROUND 9 (committee). The numbers largely stand; what failed is the
+    # reading of each. The per-stage label for an unsupported stage says so.
+    LABEL = {NOTEST: NOTEST, UNSUP: "reading unsupported", BOUNDED: BOUNDED}
     rows = [
         (1, "Candidate mining", NOTEST,
          f"precision {base:.4f}\non {n_gold} gold pairs",
@@ -298,7 +302,7 @@ def make_fig_pipeline_status():
                 fontsize=10.0, color=INK, zorder=5)
         ax.text(X_NAME, mid + 5.5, name, ha="left", va="center", fontsize=10.5,
                 color=INK, zorder=5)
-        ax.text(X_NAME, mid - 8.0, status, ha="left", va="center",
+        ax.text(X_NAME, mid - 8.0, LABEL[status], ha="left", va="center",
                 fontsize=T_NOTE, style="italic",
                 color=SCARLET_DEEP if status != BOUNDED else INK, zorder=5)
         ax.text(X_REP, mid, reported, ha="left", va="center",
@@ -333,7 +337,7 @@ def make_fig_pipeline_status():
             fontsize=T_FLOOR, color=MUTE, zorder=5)
 
     signature(fig, SCARLET_DEEP,
-              headline="No stage's reported number survived its check: one not "
+              headline="No stage's reported reading survived its check: one not "
               "established,\ntwo unsupported, one a bounded null.")
     fname = "fig-pipeline-status.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
@@ -347,13 +351,17 @@ def make_fig_pipeline_status():
              "the candidate pool's precision rests on an exemplar defect rate "
              "that three instruments disagree on (0 from the step2plus join, "
              "0.4745 from the recomputed correctness check, 0.9315 from the "
-             "unvalidated direct extractor). Stages 2 and 3 are marked "
-             "unsupported (solid scarlet chip): the weak labeller's 261 "
-             "of 299 flags against the marginal ceiling MCC 0.0780 and the "
-             "measured C120 MCC 0.0269; the three credited architectural "
-             "components against a code audit (initialisation artifact, "
-             "rule-type target in the input, untrained harm head), no "
-             "randomisation control run. Stage 4 is a bounded null (outlined "
+             "unvalidated direct extractor). Headline: no stage's reported "
+             "reading survived its check; the numbers themselves largely stand "
+             "(AUROC 0.5145 is itself the bounded null), what failed is the "
+             "reading of each. Stages 2 and 3 are labelled reading unsupported "
+             "(solid scarlet chip): reading the weak labeller's 261 of 299 "
+             "flags as discrimination is unsupported (agreement at chance, "
+             "measured C120 MCC 0.0269 against the marginal ceiling MCC "
+             "0.0780); the three credited architectural contributions are "
+             "unsupported by a code audit (initialisation artifact, rule-type "
+             "target in the input, untrained harm head), no randomisation "
+             "control run. Stage 4 is a bounded null (outlined "
              "chip): the detector ensemble AUROC 0.5145 with bootstrap upper "
              "bound 0.7034, under the C108 two-sided Mann-Whitney 80 percent "
              "power floor 0.7466. The scarlet carrier records that stages 2 to "

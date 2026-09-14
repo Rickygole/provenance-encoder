@@ -452,7 +452,7 @@ prompts, zero-shot and few-shot (one-sided $p$: \texttt{llama3:8b} $0.6220$ and 
 flag ambiguous pairs more often than clear negatives; with $46$ ambiguous pairs that
 is absence of evidence, not a reason to read a Ratio B near $1.0$ as calibration.
 Two cells, not one, clear the analytic minimum detectable AUROC of $0.7355$, which
-sits below both C108 per-rule floors ($0.7466$ and $0.8084$): \texttt{llama3:8b}/P\_reversed and \texttt{granite3.3:8b}/P\_reversed.
+sits below both C108 per-test floors ($0.7466$ and $0.8084$): \texttt{llama3:8b}/P\_reversed and \texttt{granite3.3:8b}/P\_reversed.
 The Mann-Whitney $p$ tests each AUROC against chance, not against the minimum
 detectable AUROC; a small $p$ here does not mean the cell clears that floor.}
 \label{sup:tab:s5-c103}
@@ -523,7 +523,7 @@ $0.7355$ minimum detectable AUROC under none of the three new ones: $0$ of $3$ a
 of at least $2$, so this run is \textbf{Outcome B}: the $0.7503$ reading is not shown to survive
 rewording. \texttt{P\_rev\_agree} did clear the pre-registered Bonferroni threshold, with
 permutation $p$ $0.0030$; it failed on AUROC, $0.7310$ against the $0.7355$ floor, not on the
-threshold. That floor is the analytic one; C108 gives the per-rule $80\%$ power crossings
+threshold. That floor is the analytic one; C108 gives the per-test $80\%$ power crossings
 (Section~\ref{sup:sec:s5-c108}).
 
 \begin{table}[H]
@@ -786,7 +786,7 @@ which started from the contaminated released run.
 \textbf{Task C, descriptive.} On the Rule 3 and Rule 4 stratum with ambiguous pairs dropped
 ($n = 108$, $6$ positives), the percentile bootstrap $95\%$ interval around the ensemble AUROC of
 $0.6095$ is $0.3029$ to $0.9010$ ($10000$ valid resamples), wide enough to hold both chance and the
-per-rule floors; the stratum's own minimum detectable AUROC is $0.8064$.
+per-test floors; the stratum's own minimum detectable AUROC is $0.8064$.
 
 \subsection{C116: Paired Tests on a Common Scale}
 \label{sup:sec:s5-c116}
@@ -810,12 +810,14 @@ against its null, not a comparison between systems.
 
 Chapter 1 names trigger-exemplar dissociation and says a one-line assertion, that the displayed
 exemplar belongs to the set of mentions that fired the rule, would catch it once the candidate
-schema records that set. The assertion was run on $1{,}000$ seeded synthetic candidates, each
-holding one to six abstract mentions with one triggering mention at a random position
-($515$ with the trigger first). A positional selector, reproducing the original first-row pick,
-fails the assertion on $485$ candidates, every one whose trigger was not first; a selector
-restricted to the trigger set fails on $0$; and the assertion raises $0$ false alarms on
-exemplars inside the trigger set. The fixture carries no clinical text and is released with a
-unit test. It shows that the check discriminates as intended; it does not measure how often the
-defect occurred in this project's mining output, which the schema did not record.
-
+schema records that set. The assertion was run on two seeded synthetic fixtures of $1{,}000$
+candidates each, holding one to six abstract mentions. In the first, each candidate has one
+triggering mention at a random position ($515$ with the trigger first); a positional selector,
+reproducing the original first-row pick, fails the assertion on $485$ candidates and a selector
+restricted to the trigger set fails on $0$. In the second, the trigger set holds one to three
+mentions ($456$, $308$ and $236$ candidates, $628$ with the first mention in the set); the positional
+selector fails on $372$ and the trigger-restricted selector on $0$. That the assertion never fires on
+any member of a trigger set is a construction check, verified over every member, not a finding. The
+fixtures carry no clinical text and are released with unit tests. They show that the check
+discriminates as intended; they do not measure how often the defect occurred in this project's
+mining output, which the schema did not record.

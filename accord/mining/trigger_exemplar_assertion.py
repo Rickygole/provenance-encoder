@@ -14,13 +14,18 @@ rule predicate.
 `assert_exemplar_in_trigger_set` is the one-line assertion the thesis says
 "would have caught" the bug had the mining code's schema recorded, alongside
 each candidate, which mention indices actually satisfied the rule (the
-"trigger set") rather than only the winning exemplar index.
+"trigger set") rather than only the winning exemplar index. A trigger set
+can contain more than one mention -- the rule fires over the SET of actions
+seen, so any number of a candidate's mentions may independently satisfy the
+predicate -- and the assertion is defined the same way regardless of how
+many members the trigger set has: the exemplar must be one of them.
 
 IMPORTANT SCOPE NOTE: everything here operates on abstract synthetic
 fixtures only -- dicts like {"drug": "D1", "action": "held"}, never real
 mention text. This module and accord/mining/run_assertion_fixture.py
 demonstrate that the assertion runs, and show it separating a buggy
-selector from a fixed one on synthetic data. They do NOT measure how often
+selector from a fixed one on synthetic data. This module is synthetic
+only; it is not a prevalence measurement. It does NOT measure how often
 the trigger-exemplar dissociation defect actually occurred in the thesis's
 real mining output -- that prevalence question is out of scope here and is
 not answered by this module.

@@ -5021,3 +5021,13 @@ Chapter 4 justified the Rules 3/4 stratum with the rebuild's selector; Appendix 
 the power figure plotted the C44 mortality control beside the evaluation; ungenerated exemplar power keys remained citable.
 Open for the author: whether to keep "Controlled" in the title, given the thesis ran checks and audits, not randomised
 controls.
+
+## C123. Committee pass after C122 (2026-09-14)
+
+Found: the central sentence said no stage's reported number survived, but the numbers largely stand (0.0401, recall 11 of
+12, AUROC 0.5145 is itself the bounded null); what failed is each number's reading, and the sentence now says so everywhere,
+including Figure 1.1. "None of which needs statistical power" contradicted the bounded-null verdict, which rests on C108.
+Chapters 3 and 4 still called checks controls ("The Controls", "anisotropy control"), and the Chapter 3 overview implied every
+check was fixed in advance. "Per-rule floors" read as mining rules; now "per-test". The synthetic assertion fixture gave each
+candidate a single trigger; a second fixture with trigger sets of one to three mentions is added (positional selector fails
+372 of 1,000, trigger selector 0), and the no-alarm result is labelled a construction check.

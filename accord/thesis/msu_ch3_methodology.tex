@@ -17,17 +17,17 @@
 \section{What This Chapter Specifies}
 \label{sec:m-overview}
 
-This chapter describes the pipeline that was built and, for each stage, the control designed to
-separate a real finding from an artifact of the measurement. A control is informative only if the
-condition under which it would fire is fixed before the number arrives, so every control below is
-written as a condition, and Chapter~\ref{ch:results} reports which conditions were met.
+This chapter describes the pipeline that was built and, for each stage, the check designed to
+separate a real finding from an artifact of the measurement. Every check below is written as a
+condition; the pre-registered checks were fixed before their runs, post hoc ones are listed
+in Section~\ref{sec:m-feasgate}, and Chapter~\ref{ch:results} reports which conditions were met.
 
 The pipeline has four stages and an evaluation layer. Stage one extracts a cohort of admissions from
 MIMIC-III and, for each, a paired nursing note and discharge summary. Stage two mines that corpus
 with four rules to produce a pool of contradiction candidates. Stage three labels the pool with a
 local language model. Stage four trains a neural detector on those labels and scores it against a
 pharmacist-annotated gold set. Each stage inherits the previous stage's defects, which is why the
-controls are given stage by stage rather than collected at the end. Two absences are deliberate: there
+checks are given stage by stage rather than collected at the end. Two absences are deliberate: there
 are no results here beyond counts registered in the project's verified-fact file with a producing
 artifact, and there is no attempt to present the design as intended rather than as it ran.
 
@@ -505,7 +505,7 @@ being forced into a binary that would have converted an evidential limitation in
 indistinguishable from a genuine negative. Forty-six of the 299 annotated pairs carry this code, the
 difference between the $287$ and $241$ negative counts of Table~\ref{tab:m-mde}. The category has a
 cost in the evaluation layer, handled the same way throughout this thesis rather than resolved once
-and reused silently: every control and every check in this chapter that touches the gold set is run
+and reused silently: every check in this chapter that touches the gold set is run
 under both readings, ambiguous pairs retained as negatives in the primary, 299-pair stratum and
 ambiguous pairs excluded from the non-ambiguous, 253-pair stratum, and neither reading is preferred
 over the other by default. Over-calling ratios are also shown with every ambiguous pair counted as a
@@ -555,12 +555,11 @@ Weak-label training pool  & 1,183 & \multicolumn{2}{l}{Positive rate 0.8521} \\
 \apanote{The Rules 3 and 4 strata are fixed by rule membership before any score is computed. The training pool's positive rate is the weak labeller's marginal on the rows surviving subject-level exclusion, and it is the reference against which any agreement figure on weak labels must be read.}
 \end{table}
 
-\section{The Controls}
+\section{The Checks}
 \label{sec:m-controls}
 
-Each subsection states one control as a condition: what would have to be true for the corresponding
-reading to survive. Every pre-registered condition was fixed before its run; the post hoc checks are
-listed in Section~\ref{sec:m-feasgate}. None of these controls is novel, and none is claimed as a contribution.
+Each subsection states one check as a condition: what would have to be true for the corresponding
+reading to survive. None of these checks is novel, and none is claimed as a contribution.
 
 \subsection{RQ1: is the pool's precision an estimate or an upper bound?}
 \label{sec:m-control-rq1}
@@ -575,7 +574,7 @@ The audit instruments both selectors and records, for every action-conflict cand
 positional exemplar's action pair matched the pair required by the branch that fired, and whether
 the corrected selector changed the chosen rows. Two quantities follow, an agreement rate and a
 change rate, and they are not the same quantity: a candidate can change exemplar on one side while
-the old exemplar happened to be correct on the other. The second half of the control is structural
+the old exemplar happened to be correct on the other. The second half of the check is structural
 rather than measured. Rules 3 and 4 are not subject to the documented positional defect, so the gold
 pairs drawn from them form a stratum fixed before any model score exists, and Chapter~\ref{ch:results} reports the detection metrics on it as well as
 on the full set. A difference between the two rule groups is confounded with rule content and base
@@ -600,7 +599,7 @@ aggregation frameworks assume noise that is conditionally independent across sou
 label and rest on having multiple sources whose errors are not aligned \citep{ratner2017snorkel}.
 One source with a systematic prior shift is outside that regime.
 
-Three controls bear on this. First, ordering: the base rate must be estimated on a small
+Three checks bear on this. First, ordering: the base rate must be estimated on a small
 human-labelled sample before any weak labels are generated; this project produced the pharmacist
 annotations after the weak labels, inverting the only ordering in which the mismatch would have
 been actionable, reported here as a methods failure rather than repaired retrospectively.
@@ -610,14 +609,14 @@ survive a change of model, but it will if it is a property of the task presentat
 replication reruns the replication prompt unchanged over the full pool with three local
 instruction-tuned models, \texttt{llama3:8b}, \texttt{granite3.3:8b} and \texttt{qwen3:8b}, served
 through Ollama at temperature zero, with unparseable generations kept in their own category. Third,
-a domain control: if the magnitude of over-calling generalises, a comparable labelling task on
+a domain check: if the magnitude of over-calling generalises, a comparable labelling task on
 public non-clinical text will show a comparable ratio, and if only the mechanism generalises the
 ratio will be materially smaller while the direction persists, which governs what may be claimed.
 
 What over-calling depends on is tested along several further axes, each pre-registered separately.
 A within-family scale step (C99) compares \texttt{qwen3:8b} against \texttt{qwen3:14b}, the largest
 model this machine can serve locally, and reads the step as real only if it exceeds the spread the
-three 8B models already show. A wording control (C103) holds the model fixed and varies only the prompt:
+three 8B models already show. A wording check (C103) holds the model fixed and varies only the prompt:
 $P_{\text{asserting}}$, the frontier zero-shot template recovered verbatim, a clinical-pharmacist
 framing asking about a dangerous contradiction that names no conflict type or rule, against
 $P_{\text{neutral}}$, a plain yes/no prompt, and a reversed yes/no prompt asking whether the sentences
@@ -672,7 +671,7 @@ that never receives a gradient cannot have been fit to anything, and an auxiliar
 fixed function of the model's own input features is not a task. This audit
 was run on the four purpose-built components of Section~\ref{sec:m-detector}: the pharmacological
 prior module, the guideline-grounded harm estimator, the auxiliary rule-type head, and the
-asymmetric conditioning module, each described there. A second, architecture-level control that this project also ran, an
+asymmetric conditioning module, each described there. A second, architecture-level check that this project also ran, an
 arbitrary-substitute and anisotropy check on a separate provenance-conditioned encoder rather than
 on this detector, is reported in the Supplement rather than here, because it does not bear on the
 code this detector executes.
