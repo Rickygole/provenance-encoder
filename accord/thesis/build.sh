@@ -85,7 +85,7 @@ build_one() {
         echo "   $(grep -o 'Output written.*' "$final_log" | tail -1)"
     fi
 
-    local undef_refs undef_cites
+    local undef_refs undef_cites over_limit=0
     undef_refs=$(grep -c 'Reference .* undefined' "$final_log" || true)
     undef_cites=$(grep -c 'Citation .* undefined' "$final_log" || true)
     echo "   undefined refs:      ${undef_refs}"
@@ -98,13 +98,20 @@ build_one() {
             echo "   pages: ${pages}"
             if [ "$doc" = "main_msu" ] && [ "$pages" -gt "$MAIN_THESIS_MAX_PAGES" ]; then
                 echo "   FAIL: main_msu.pdf is ${pages} pages, exceeds the ${MAIN_THESIS_MAX_PAGES}-page limit"
-                built=0
+                over_limit=1
             fi
         fi
     fi
 
+    # A build that compiled but is too long is a different failure from one that
+    # did not compile. They previously shared a flag, so an over-length thesis was
+    # also reported as "did not build to a PDF", which sends a reader after a LaTeX
+    # error that does not exist.
     if [ "$built" -ne 1 ]; then
         echo "   FAIL: ${doc}.tex did not build to a PDF -- see $log"
+        return 1
+    fi
+    if [ "${over_limit:-0}" -eq 1 ]; then
         return 1
     fi
     if [ "$undef_refs" -ne 0 ] || [ "$undef_cites" -ne 0 ]; then
