@@ -4969,3 +4969,10 @@ under every wording on G_253 (0.6788 to 0.7936), and the best wording, chosen af
 stratum (0.8775, 6 positives) against Rules 1/2 (0.7302); the stratum ordering changes with wording. The "signal sits in the
 defect rows" reading is now scoped to llama3:8b, a descriptive granite table is in Supplement S5, and C109's primary
 Outcome B is unchanged.
+
+## C119. Fourth final committee pass (2026-09-14)
+
+Found: granite3.3:8b meets C109's two registered criteria under two of three new wordings (0.7936, p 0.0002; 0.7362,
+p 0.0026, the latter above 0.7355 by 0.0007), which the thesis did not state, and Ch6 named no model when saying the
+reversed score reached the threshold under none. Ch6 now names llama3:8b; Ch4, Ch5, Ch6 and Supplement S5 state the
+granite result descriptively. C109 Outcome B, whose rule covers llama3:8b only, is unchanged.
