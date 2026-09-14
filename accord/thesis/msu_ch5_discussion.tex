@@ -12,7 +12,7 @@
 %  here rather than redrawn. This chapter interprets Chapter 4 as rewritten
 %  around the evidence gathered after adversarial review (commit 3f6771e):
 %  the prompt-and-ambiguity-dependent over-calling result, the C99, C102,
-%  C103, C104, C106, C107, C108, C109 and C110 checks, and the defect-free
+%  C103, C104, C105, C106, C107, C108, C109 and C110 checks, and the defect-free
 %  rescore. The selection-channel anomaly, the compute-cost table and the
 %  survey's own detailed limitations moved to the supplement (Sections S2,
 %  S4 and S3 respectively); each is pointed to here in one sentence, in
@@ -289,6 +289,13 @@ $G_{253}$, $p = 0.1576$, not resolved, and does not differ from the detector's o
 DeLong test either, $p = 0.2113$ on $G_{253}$ and $p = 0.2550$ on $G_{299}$: it does not beat the
 detector, and it is not shown to discriminate on its own terms.
 
+A fourth check asks whether a fix, not just a baseline, changes the picture: on public data, a
+prior-probability correction applied to a distillation teacher's score (C105) left a BiomedBERT
+student ranking worse than the same teacher's hard labels, mean delta average precision $-0.1532$,
+entirely below zero. What the baselines and this control together license is narrower still: no
+architecture change, label change, or correction tried in this project rescues a score below this
+evaluation's resolvable floor.
+
 The ensemble's own $95\%$ bootstrap interval on the $253$-pair set is wide enough that its upper
 bound sits only $0.0321$ below the minimum detectable AUROC, so width alone does not rule out a
 modestly useful model. Four of the five estimators here, the detector, its control model, TF-IDF and
@@ -368,9 +375,11 @@ run of \texttt{llama3:8b} and \texttt{granite3.3:8b} under a reversed-direction
 prompt is not bounded that way and reaches an AUROC above the resolvable floor
 for both, $0.7503$ and $0.7365$ on $G_{253}$, but neither is treated as a
 finding here: an independent audit found the \texttt{llama3:8b} cell fragile
-under a leave-one-positive-out check and absent on the defect-free stratum, and
-a confirmatory pre-registration for it (C109) is committed and has not yet
-reported. So $12$ positives can separate a system from chance when a
+under a leave-one-positive-out check and absent on the defect-free stratum,
+and a confirmatory pre-registration (C109) since found that none of three new
+paraphrases of the same question cleared the registered Bonferroni threshold,
+so the $0.7503$ reading is not shown to survive rewording. So $12$ positives
+can separate a system from chance when a
 thresholded effect is large enough, and a graded score can clear the resolvable
 floor without being bounded by any marginal; the null the detector and its
 control return is a statement about that architecture, which sits close to

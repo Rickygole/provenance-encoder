@@ -2,10 +2,11 @@
 %
 % Every number below is read from results/accord/VERIFIED_FACTS.json under the
 % prefix named at the start of each subsection; none is typed from a raw
-% artifact directly. Two experiments this section reports on are only
-% partially run (C102 stages 3 to 4, not run beyond a CPU smoke test; C105,
-% not yet run at all): each is marked as such in place, with a PENDING
-% comment on its own line, rather than silently completed here.
+% artifact directly. One experiment this section reports on is only
+% partially run (C102 stages 3 to 4, not run beyond a CPU smoke test): it is
+% marked as such in place, with a PENDING comment on its own line, rather
+% than silently completed here. C105 and C109 have both completed and are
+% reported in full below.
 
 \section{Validation of This Thesis's Own Checks}
 \label{sup:s5}
@@ -375,6 +376,51 @@ $p$ tests each AUROC against chance rather than against that floor: a small
 $p$ establishes only that the AUROC is above $0.5$, which Table~\ref{sup:tab:s5-c103}
 now states directly rather than repeating the original wording.
 
+\subsection{C109: Wording Robustness of the Reversed-Prompt Cell}
+\label{sup:sec:s5-c109}
+% Artifact: results/accord/prompt_sensitivity/c109/analysis.json.
+% Register key prefix: promptconfirm.*
+
+C109 is pre-registered and asks whether the \texttt{llama3:8b}/P\_reversed cell's AUROC of
+$0.7503$ (Section~\ref{sup:sec:s5-c103}) survives rewording: three new paraphrases of the same
+question, plus a byte-for-byte rerun of the original as a determinism check, on
+\texttt{llama3:8b} (the primary decision) and \texttt{granite3.3:8b} (descriptive only). All $8$
+cells ($2$ models by $4$ prompts, $299$ pairs each) are valid: $0$ parse failures, $0$ call
+failures, $0$ truncation, at most $1$ degenerate score per cell. The determinism rerun reproduced
+the original C103 cache exactly for both models, $0$ label mismatches, maximum score difference
+$0.0$.
+
+Table~\ref{sup:tab:s5-c109} gives the primary decision. None of the three new
+\texttt{llama3:8b} paraphrases reached the $0.7355$ minimum detectable AUROC at the
+pre-registered Bonferroni threshold; $0$ of $3$ against a requirement of at least $2$, so this
+run is \textbf{Outcome B}: the $0.7503$ reading is not shown to survive rewording.
+
+\begin{table}[H]
+\caption[C109, primary decision on the new paraphrases]{\texttt{llama3:8b} on $G_{253}$: AUROC
+and permutation $p$ for each new paraphrase, against the registered $0.7355$ floor and Bonferroni
+$\alpha = 0.05/3$.}
+\centering
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Paraphrase} & \textbf{AUROC} & \textbf{Permutation $p$} & \textbf{Criterion} \\
+\midrule
+\texttt{P\_rev\_agree}      & 0.7310 & 0.0030 & not met (AUROC below floor) \\
+\texttt{P\_rev\_follow}     & 0.6432 & 0.0446 & not met \\
+\texttt{P\_rev\_compatible} & 0.6515 & 0.0402 & not met \\
+\bottomrule
+\end{tabular}
+\label{sup:tab:s5-c109}
+\end{table}
+
+The registered confound test found no cell confounded with rule-type membership: among
+negatives, every AUROC for predicting Rule 1-2 versus Rule 3-4 membership sits at or below
+$0.5566$, every permutation $p$ at or above $0.0679$. The registered stratum report placed the
+\texttt{llama3:8b} signal in the Rule 1 and 2 rows, AUROC $0.7218$ to $0.8525$ across the four
+prompts, falling to $0.5016$ to $0.6193$ on the defect-free Rule 3 and 4 rows, none significant;
+with $6$ positives on each stratum, this run's own registered ceiling means neither reading
+confirms a null or an effect. \texttt{granite3.3:8b}'s cells are descriptive only and are not
+folded into the primary decision.
+
 \subsection{The Public-Sweep Identity Failures}
 \label{sup:sec:s5-identity}
 % Artifact: results/accord/stats/overcall_decomposition.json.
@@ -494,6 +540,48 @@ model, reported as exactly that and nothing stronger.
 
 \subsection{C105: Prior-Correction Fix}
 \label{sup:sec:s5-c105}
+% Artifact: results/accord/public_controls/priorfix/analysis.json.
+% Register key prefix: priorfix.*
 
-C105 is pre-registered and is reported here in full once it completes.
-%PENDING-C105
+C105 is pre-registered and asks whether a prior-probability correction applied to a distillation
+teacher's score rescues a BiomedBERT student's ranking of the positive class, at this
+evaluation's own prevalence ($12/253$), on public SNLI data with a \texttt{llama3:8b} teacher.
+All planned runs, $10$ replicates across $4$ arms, completed with no interruption and no
+restart, and every replicate's teacher passed the pre-registered training-pool marginal and
+degeneracy checks.
+
+Table~\ref{sup:tab:s5-c105} gives the primary result: hard labels (H) beat every corrected or
+pseudo-labelled arm, the prior-corrected soft target (S1), the uncorrected soft target (S0), and
+rank-based pseudo-labels (T), on every one of the $10$ replicates.
+
+\begin{table}[H]
+\caption[C105, delta versus hard labels and resampled rejection rate]{Delta average precision
+and delta AUROC, prior-corrected soft target (S1) minus hard labels (H), with $95\%$ percentile
+bootstrap intervals ($B = 10{,}000$, seed $42$, two-level: replicate then item); and the fraction
+of resamples on which each arm's predictions would have fired this evaluation's own C98 decision
+rule.}
+\centering
+\begin{tabular}{lrr}
+\toprule
+\textbf{Quantity} & \textbf{Mean} & \textbf{$95\%$ interval} \\
+\midrule
+$\Delta$ average precision (S1 $-$ H) & $-0.1532$ & $[-0.2745, -0.0206]$ \\
+$\Delta$ AUROC (S1 $-$ H)             & $-0.1989$ & $[-0.3245, 0.0345]$ \\
+\midrule
+\textbf{Arm} & \textbf{C98 rejection rate} & \\
+\midrule
+H  & $69.25\%$ & \\
+S1 & $0\%$     & \\
+T  & $0\%$     & \\
+S0 & $0\%$     & \\
+\bottomrule
+\end{tabular}
+\label{sup:tab:s5-c105}
+\end{table}
+
+\textbf{Outcome B, and the direction is the opposite of what would make the correction a viable
+substitute for hard labels.} The delta-AP interval sits entirely below zero, the opposite of
+Outcome A's requirement; hard labels are the only arm that would, with any regularity, clear this
+evaluation's own C98 rule on a resample, and the corrected soft target does not separate itself
+from the uncorrected one it was meant to fix. This is a public-data test of the fix, with a
+public teacher and a public student, not a clinical result.

@@ -750,10 +750,31 @@ Rule 2 rows this chapter has already found to carry the exemplar-selection
 defect: on the defect-free Rules 3 and 4 stratum, whose own resolvable floor
 is $0.8058$ (higher than this cell reaches even at its strongest), the same
 audit found no separation from chance.
-%C109-PENDING
-A confirmatory pre-registration for this cell (C109) is committed and not
-yet run; until it reports, this result is held to descriptive status, not
-relied on as evidence that a score rescues the marginal's ceiling.
+
+A pre-registered confirmation (C109) tested this cell's wording robustness
+directly: three new paraphrases plus a byte-for-byte rerun of the original
+as a determinism check, which reproduced it exactly. None of the three new
+paraphrases reached the $0.7355$ floor at the pre-registered Bonferroni
+threshold, AUROC $0.7310$, $0.6432$ and $0.6515$, $0$ of $3$ against a
+requirement of at least $2$, though every paraphrase still ranked above
+chance. A registered confound test and stratum report
+(Supplement, Section S5) again placed the signal in the
+Rule 1 and 2 rows and found no rule-type confound. The reversed-prompt cell
+survives a determinism check but not a wording check, and is not
+established as contradiction detection that generalises across phrasing.
+
+A related pre-registration (C105) asked whether a prior-probability
+correction rescues a distilled student trained on such a score, on public
+SNLI data with a \texttt{llama3:8b} teacher, a test of the fix rather than a
+clinical result (Supplement, Section S5). Ten replicates
+trained a BiomedBERT student at this evaluation's own prevalence
+($12/253$) on hard labels against a prior-corrected soft target, an
+uncorrected soft target and rank pseudo-labels. The correction made the
+student worse: mean
+delta average precision, corrected minus hard, is $-0.1532$, $95\%$
+interval $[-0.2745, -0.0206]$, entirely below zero. Hard labels beat every
+corrected arm on all $10$ replicates, and the same C98 rule fires on
+$69.25\%$ of hard-label resamples against $0\%$ for every corrected arm.
 
 \section{Architecture}
 \label{sec:res-rq3}
