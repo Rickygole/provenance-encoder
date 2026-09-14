@@ -46,7 +46,14 @@ def get(obj, dotted):
     return obj
 
 
+# Task A's raw-score paired test is superseded by C116 (scores on different scales).
+SUPERSEDED = "withdrawn.superseded_c116"
+for k in [k for k in facts if k.startswith(f"{SUPERSEDED}.{PREFIX}.")]:
+    del facts[k]
 for k, path in paths.items():
-    facts[f"{PREFIX}.{k}"] = {"artifact": f"{SRC}::{path}", "value": get(d, path)}
-FACTS.write_text(json.dumps(facts, indent=2) + "\n")
+    key = f"{PREFIX}.{k}"
+    if k.startswith("task_a."):
+        key = f"{SUPERSEDED}.{key}"
+    facts[key] = {"artifact": f"{SRC}::{path}", "value": get(d, path)}
+FACTS.write_text(json.dumps(facts, indent=1) + "\n")
 print(f"registered {len(paths)} c114 keys; total {len(facts)}")

@@ -12,7 +12,7 @@
 %  here rather than redrawn. This chapter interprets Chapter 4 as rewritten
 %  around the evidence gathered after adversarial review (commit 66b9d47):
 %  the prompt-and-ambiguity-dependent over-calling result, the C99, C102,
-%  C103, C104, C105, C106, C107, C108, C109, C110, C111, C112 and C114 checks. The selection-channel anomaly, the compute-cost table and the
+%  C103, C104, C105, C106, C107, C108, C109, C110, C111, C112, C114 and C116 checks. The selection-channel anomaly, the compute-cost table and the
 %  survey's own detailed limitations moved to the supplement (Sections S2,
 %  S4 and S3 respectively); each is pointed to here in one sentence, in
 %  words, never by \ref, because their labels no longer live in this
@@ -32,10 +32,10 @@ Mann-Whitney rule and $0.8084$ under the registered decision rule. Within that
 limit, local language-model labellers flagged far more pairs than the
 pharmacist confirmed, but how much more depended heavily on the prompt and on
 how the $46$ ambiguous pairs were read. The detector trained on those labels
-ranked at a level not distinguishable from chance on $G_{253}$, while a
-bag-of-words model trained on the same labels found a small surface lexical
-precision signal the detector did not, one a model never trained on the weak
-labels also finds.
+ranked at a level not distinguishable from chance on $G_{253}$. A
+bag-of-words model trained on the same labels, and an entailment model never
+trained on them, cleared their own average-precision nulls where the detector
+did not, but no paired test separates the three.
 
 \section{What Each Control Changed}
 \label{sec:disc-spine}
@@ -44,7 +44,7 @@ Table~\ref{tab:disc-spine} is the summary this section argues through.
 
 The pipeline has four stages. Each produced a number a competent paper could
 have reported, and no standard metric at that stage was sensitive to the
-defect sitting behind the number; each was then subjected to a control, cheap
+defect sitting behind the number; each was then subjected to a control or code audit, cheap
 against what it checked, that was. The controls are not new: negative controls
 from observational epidemiology \citep{lipsitch2010negative}, with the positive
 direction adapted rather than taken from that source; randomisation sanity
@@ -70,9 +70,9 @@ Candidate mining & Pool base rate $0.0401$ read as a property of the mining rule
 \addlinespace
 Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ gold pairs labelled positive against $12$ true positives by the deployed labeller; how much larger that gap looks depends on the prompt and on how the ambiguous pairs are read & Reversed \\
 \addlinespace
-Architecture & Three named components credited with the reported performance & Three different failures, not one: the authority scalars are falsified, sitting at initialisation across seeds; the rule-type head is confounded, its metric vacated by a target one linear layer from an input feature that equals it; the harm head is vacuous, with no term in the objective to train it. No randomisation control was run on any of the three & Reversed \\
+Architecture & Three named components credited with the reported performance & Three different failures, not one: the authority scalars are falsified, sitting at initialisation across seeds; the rule-type head is confounded, a metric whose target was in its input, so it is not evidence of learning; the harm head is vacuous, with no term in the objective to train it. No randomisation control was run on any of the three & Reversed \\
 \addlinespace
-Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & Not distinguishable from chance on every configuration tried; no AUROC effect above $0.7466$ (Mann-Whitney) or $0.8084$ (registered rule) is resolvable on $G_{253}$; whether the null is a defect artifact is unresolved; a bag-of-words model finds a small surface lexical precision signal the detector does not & Narrowed \\
+Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & Not distinguishable from chance on every configuration tried; no AUROC effect above $0.7466$ (Mann-Whitney) or $0.8084$ (registered rule) is resolvable on $G_{253}$; whether the null is a defect artifact is unresolved; bag-of-words and entailment models clear their own average-precision nulls and the detector does not, but no paired test separates them & Narrowed \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -257,14 +257,14 @@ A bag-of-words model trained on the identical weak labels clears its no-skill li
 precision by permutation (C107), $p = 0.0109$ on $G_{299}$ and $p = 0.0159$ on $G_{253}$, though not on
 AUROC, $p = 0.1944$ and $p = 0.1970$; average precision was chosen as that test's statistic after its
 value was known. A registered follow-up (C111) found the signal survives $11$ of $12$
-leave-one-positive-out drops, exceeds the detector ensemble's average precision in a paired
-permutation test, and comes from a training set sharing $0$ pairs and $0$ subjects with gold; the
+leave-one-positive-out drops and comes from a training set sharing $0$ pairs and $0$ subjects with gold; the
 ensemble's own average precision, $0.0598$, is not above its permutation null, $p = 0.4629$. The
 off-the-shelf entailment model, never trained on the weak labels, also clears its no-skill line on
-average precision on both sets and does not differ from the bag-of-words model in a paired test, so
-by the registered interpretation this is a surface lexical signal a label-free model also finds, not
-evidence that the weak labels carried signal. The entailment model is not shown to exceed the
-detector: the committee-requested paired test (C114, post hoc) gives $p = 0.10035$. Retrained on gold labels alone in
+average precision on both sets, so by the registered interpretation this is a surface lexical
+signal a label-free model also finds, not evidence that the weak labels carried signal. No paired
+test on within-system ranks separates any two of the three on $G_{253}$ (C116): bag-of-words minus
+ensemble $p = 0.17875$, entailment minus ensemble $p = 0.1452$, bag-of-words minus entailment
+$p = 0.96465$, so neither simple model is shown to exceed the detector. Retrained on gold labels alone in
 nested cross-validation the same linear model falls to an out-of-fold AUROC of $0.3434$.
 
 On AUROC the entailment model reaches $0.5861$ on $G_{253}$, $p = 0.1576$, not resolved, and does not
@@ -456,18 +456,16 @@ Exemplar defect on action-conflict candidates & Severe for pool precision, not d
 \addlinespace
 Single annotator, no inter-rater or intra-rater reliability & Severe; bounds every gold-label conclusion & Stated; the earlier circular coefficient is retracted, the two-pass design cannot recover an intra-rater figure, and the sensitivity of the headline conclusions to a wrong label is bounded by post hoc tipping-point checks: the detector's AUROC reaches the three floors after $5$, $6$ and $7$ relabels, and the over-calling conclusion moves after $5$ \\
 \addlinespace
-Weak-label leakage into model inputs & Moderate to severe & Demonstrated on the rule-type head, whose target is one linear layer from an input feature that equals it; the affected metric is vacated, which leaves the head untested rather than falsified \\
+Weak-label leakage into model inputs & Moderate to severe & Demonstrated on the rule-type head, a metric whose target was in its input and so is not evidence of learning, which leaves the head untested rather than falsified \\
 \addlinespace
 Extraction never validated against human annotation & Moderate to severe; no downstream error rate decomposes & Stated; first item of any continuation \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The contamination row deserves a sentence, because the direction of a correction
-matters. A correction that improves the result it corrects invites the suspicion
-that it was selected; every correction applied to a headline number here moved it
-toward the negative conclusion, which is weak evidence but evidence in the right
-direction.
+The contamination row deserves a sentence. Corrections here did not all move
+one way: decontamination raised the detector's AUROC on $G_{253}$ from $0.4595$
+to $0.5145$, so no correction is defended by its direction.
 
 \subsection{External validity}
 
@@ -498,9 +496,9 @@ a different pool and plausibly a different base rate, and the construct is not
 independently validated. The detector's target is the weak label, not the
 clinical event, so any statement that it ``fails to detect contradictions'' is
 a statement about what it learned to predict, a reading complicated further
-by the small surface lexical precision signal a bag-of-words model finds and the
-detector lacks, which a model never trained on the weak labels also finds
-(Section~\ref{sec:disc-null}). Ranking metrics at a $4\%$ base rate also
+because a bag-of-words model and a model never trained on the weak labels each
+clear their own average-precision null where the detector does not, though no
+paired test separates the three (Section~\ref{sec:disc-null}). Ranking metrics at a $4\%$ base rate also
 measure less than they appear to: AUROC is insensitive to prevalence in a way
 that flatters this setting, average precision sits near the base rate
 throughout \citep{saito2015prcurve}, and agreement statistics are subject to

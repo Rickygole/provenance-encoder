@@ -102,7 +102,7 @@ def main():
     for name, st in out["strata"].items():
         for f in FIELDS:
             facts[f"{PREFIX}.{name}.{f}"] = {"artifact": "results/accord/mde_recomputed.json", "value": st[f]}
-    FACTS.write_text(json.dumps(facts, indent=2) + "\n")
+    FACTS.write_text(json.dumps(facts, indent=1) + "\n")
 
 
 if __name__ == "__main__":

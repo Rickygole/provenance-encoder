@@ -751,9 +751,9 @@ Do the purpose-built components contribute what they were credited with? No
 component survives what a code audit finds. No randomisation control was run
 on any of these three clinical components; what follows are audit findings,
 not controls firing: one parameter is falsified as an initialisation artifact,
-one metric is vacated by label leakage, and one module was never trained.
+one metric had its target in its input, and one module was never trained.
 
-\subsection{One falsified, one vacated by leakage, one never trained}
+\subsection{One initialisation artifact, one target in the input, one never trained}
 
 \paragraph{Authority conditioning is an initialisation artifact.} The parameter
 reported as converging to the clinical note hierarchy is initialised at $1.0$
@@ -766,24 +766,16 @@ immediately normalised, which removes most of what a per-branch scalar can do
 and drives its gradient towards zero.
 
 \paragraph{The rule-type head is label leakage.} The rule identifier is written
-into the model's input feature vector and predicted from the same forward pass,
-one linear layer away, so the auxiliary task is a copy. Out-of-domain transfer is
-the diagnostic that separates a copy from learned structure, because the leaked
-feature survives transfer and the surface correlations do not. This belongs to
+as a scaled scalar into the model's prior-feature vector and predicted from the
+same forward pass, so the auxiliary target is in
+its input. This belongs to
 the documented family of shortcut learning \citep{geirhos2020shortcut,
 zech2018generalization}; the checkable point is narrower, that an auxiliary head
 whose target is derivable from its inputs is not an auxiliary task. In domain the
-rule-type head reaches a macro $F_1$ of $0.9603$. Transferred without retraining
-it collapses by more than an order of magnitude on both secondary cohorts, as
-Table~\ref{tab:transfer} records. That is
-reported as a descriptive non-portability
-result rather than further evidence of leakage: the code-level argument above
-is dispositive on its own, and a literal copy of the rule-identifier feature
-would transfer perfectly, since the feature and target stay
-identical in any domain. The collapse instead shows that the in-domain macro
-$F_1$ reflects the correlation between that feature and this cohort's label
-distribution rather than a verbatim copy of it, a correlation that does not
-hold in the transfer cohorts.
+rule-type head reaches a macro $F_1$ of $0.9603$, a metric whose target was in
+its input and so is uninterpretable as evidence of learning. Its values without
+retraining on the secondary cohorts are stated in Table~\ref{tab:transfer} and
+not interpreted.
 
 \begin{table}[H]
 \centering
@@ -909,8 +901,9 @@ $G_{134}$ & ACCORD, contaminated released run & 0.5078 & 0.0555 & 0.5092 & 0.136
 \label{tab:control299}
 \end{table}
 
-The contaminated released run and the decontaminated ensemble both return an
-AUROC near chance on the full sets; the defect-free stratum returns higher
+The contaminated released run returns an AUROC near chance on the full sets,
+and so does the decontaminated ensemble on $G_{253}$, the only full set it is
+reported on; the defect-free stratum returns higher
 point estimates that no test here separates from chance. Restricting to
 $G_{134}$ (Table~\ref{tab:control299}) raises the control model ensemble's point estimate
 and its bootstrap spread, so halving the positive count buys a higher
@@ -1047,20 +1040,20 @@ $p = 0.0159$ on $G_{253}$; the same test on AUROC is not significant on
 either set, $p = 0.1944$ on $G_{299}$ and $p = 0.1970$ on $G_{253}$. Average
 precision was chosen as this rerun's (C107) statistic after its value was
 known. A pre-registered robustness check (C111) found the average-precision
-result survives $11$ of $12$ leave-one-positive-out drops, exceeds the
-detector ensemble's in a paired permutation test ($p = 0.00005$, the smallest value its draw count can return), and comes
+result survives $11$ of $12$ leave-one-positive-out drops and comes
 from a training set sharing $0$ pairs and $0$ subjects with gold. But the
 off-the-shelf NLI model below, never trained on the weak labels, is also
 significant on average precision ($p = 0.01335$ on $G_{253}$, $0.0120$ on
-$G_{299}$) and indistinguishable from TF-IDF in a paired test
-($p = 0.99125$). By the registered interpretation this is a surface lexical
-signal that a label-free model also finds, not evidence that the weak labels
-carried signal. The NLI model is not shown to exceed the detector: a paired
-average-precision test of NLI against the detector ensemble (C114, requested
-by the committee after these results, pre-registered before its run) gives a
-difference of $0.1088$ at $p = 0.10035$, Outcome A2, so the claim of a signal
-the detector lacks is restricted to TF-IDF. The detector ensemble's own
-average precision, $0.0598$, is not above its permutation null ($p = 0.4629$). Nor does a gold-only retrain
+$G_{299}$), while the detector ensemble's average precision, $0.0598$, is not
+above its permutation null ($p = 0.4629$). No paired test separates any of the
+three. C111's and C114's paired tests swapped raw scores that sit on different
+scales, and are superseded by C116 (requested by the committee after these
+results, pre-registered before its run), which permutes within-system ranks on
+$G_{253}$: TF-IDF minus the detector ensemble $p = 0.17875$, NLI minus the
+detector ensemble $p = 0.1452$, TF-IDF minus NLI $p = 0.96465$. By the
+registered interpretation this is a surface lexical signal that a label-free
+model also finds, not evidence that the weak labels carried signal, and not
+evidence that either model exceeds the detector. Nor does a gold-only retrain
 find it: a second, also pre-registered check, a
 nested-CV variant fit only on
 the 253 gold rows, refit and re-selected inside every outer fold so no
@@ -1069,9 +1062,9 @@ $0.3434$, AP $0.0362$, one-sided Mann-Whitney $p = 0.9666$, worse than a
 constant-score floor. This is not evidence against a precision signal
 existing at this sample size; it is evidence that this particular
 gold-only estimator, retrained from scratch inside a twelve-fold
-leave-one-positive-out split, does not find it. Read together, TF-IDF finds a
-small surface lexical precision signal the trained detector does not show,
-and a model never trained on the weak labels finds one of the same size.
+leave-one-positive-out split, does not find it. Read together, TF-IDF's and
+NLI's average precision exceed their own nulls and the detector's does not, a
+surface lexical signal that a model never trained on the weak labels also finds.
 
 A pre-registered, off-the-shelf natural-language-inference model,
 \citet{liu2019roberta}'s architecture trained for entailment rather than for
@@ -1118,7 +1111,7 @@ same ceiling for every evaluation in this thesis. This cuts both ways: at 12
 positives the evaluation could not have detected
 a useful detector unless it was very good, so the null does not establish that
 the task is unsolvable. What it does establish is that this pipeline produced
-nothing near the detectable range, and it fixes the size of the annotation effort
+a point estimate far below the detectable range, and it fixes the size of the annotation effort
 a future attempt needs.
 
 \begin{figure}[!ht]
@@ -1196,7 +1189,7 @@ correlations against the pharmacist's danger rating. This round adds several
 more, disclosed here rather than left for a reader to notice missing: the
 McNemar tests behind the within-family scale step and the prompt-framing
 ablation, the label-permutation tests behind the bag-of-words baseline and
-the defect-free-stratum rescore, the paired average-precision test of C114, the off-the-shelf NLI baseline's own
+the defect-free-stratum rescore, the paired average-precision tests of C114 and C116, the off-the-shelf NLI baseline's own
 Mann-Whitney test, and the two DeLong tests it is compared against the
 detector by. No committed script has recomputed a family size since the
 withdrawal, so none is typed here, before or after this round's additions:
@@ -1313,8 +1306,9 @@ two-seed mean of $0.7703$, flipping the sign to $-0.0011$.}
 
 The bag-of-words baseline's AUROC ordering against the neural configurations
 is not tested: Table~\ref{tab:delong} cannot separate configurations four
-points apart. Its only tested ordering is C111's paired average-precision
-test against the detector ensemble, under ``Reference baselines''.
+points apart. Its only tested ordering is C116's rank-based paired
+average-precision test against the detector ensemble, under ``Reference
+baselines'', which does not separate them.
 
 \section{Metrics Near the Base Rate}
 \label{sec:res-metrics}

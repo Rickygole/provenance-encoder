@@ -407,8 +407,7 @@ tested, and any correlation between that head's output and a human danger rating
 untrained module rather than severity ranking.
 
 The auxiliary rule-type head predicts the rule identifier that the prior-feature constructor writes
-into the model's input, one linear layer apart in the same forward pass, so the task is a copy
-operation, and auxiliary-label leakage of this shape belongs to a documented family
+into the model's input, in the same forward pass, so its target is in its input, and auxiliary-label leakage of this shape belongs to a documented family
 \citep{poliak2018hypothesis,gururangan2018artifacts,mccoy2019hans,geirhos2020shortcut}: an auxiliary
 head whose target is derivable from its own input features is not an auxiliary task, and the cheapest
 test is out-of-domain transfer rather than held-out accuracy \citep{zech2018generalization}.
@@ -654,7 +653,7 @@ only; a scored labeller can sweep its threshold and rank well regardless of flag
 nothing about a ranking metric. Applied to every hard-label marginal this thesis prints, it is a post
 hoc check, added after the hosted results were withdrawn. So are the ambiguous-positive reading,
 both tipping-point checks, the public sweep decomposition and the choice of average precision as
-C107's headline statistic, and so is C114 (a paired average-precision test, a decontaminated tipping point and a defect-free stratum interval), which the committee requested after the results were in and which was pre-registered before its own run; the other controls above were specified before any result was seen. The ceiling is the prevalence-and-bias problem of \citet{feinstein1990paradoxes} and
+C107's headline statistic, and so are C114 (a paired average-precision test, a decontaminated tipping point and a defect-free stratum interval) and C116 (the paired average-precision tests on within-system ranks), which the committee requested after the results were in and which were each pre-registered before their own run; the other controls above were specified before any result was seen. The ceiling is the prevalence-and-bias problem of \citet{feinstein1990paradoxes} and
 \citet{cicchetti1990resolving}, corrected by \citet{byrt1993pabak}, and the floor is the minimum attainable significance level
 that \citet{tarone1990modified} derives from the marginal totals of a discrete test.
 
@@ -667,7 +666,7 @@ not trivially derivable from. Failing any one of those is a falsification of the
 by reading the executed code path rather than by training an arbitrary-substitute control: a
 component with zero learned parameters cannot have learned the property it is credited with, a head
 that never receives a gradient cannot have been fit to anything, and an auxiliary target that is a
-fixed function of the model's own input features is a copy operation rather than a task. This audit
+fixed function of the model's own input features is not a task. This audit
 was run on the four purpose-built components of Section~\ref{sec:m-detector}: the pharmacological
 prior module, the guideline-grounded harm estimator, the auxiliary rule-type head, and the
 asymmetric conditioning module, each described there. A second, architecture-level control that this project also ran, an

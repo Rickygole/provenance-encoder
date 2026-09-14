@@ -16,5 +16,5 @@ for k in [k for k in facts if k.split(".")[0] == PREFIX]:
     del facts[k]
 for k, v in d.items():
     facts[f"{PREFIX}.{k}"] = {"artifact": f"{SRC}::{k}", "value": v}
-FACTS.write_text(json.dumps(facts, indent=2) + "\n")
+FACTS.write_text(json.dumps(facts, indent=1) + "\n")
 print(f"registered {len(d)} {PREFIX} keys; total {len(facts)}")

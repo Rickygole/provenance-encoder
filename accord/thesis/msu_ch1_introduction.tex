@@ -67,8 +67,7 @@ hand written rules had already enriched; restricting to the $253$ pairs the
 annotator did not mark ambiguous leaves the same $12$ positives, a base rate
 of $0.0474$. These two denominators are different sets, kept apart
 everywhere in this thesis because an earlier draft conflated them and
-inverted a central claim. Rarity is what breaks every stage of the pipeline
-described next.
+inverted a central claim.
 
 \section{The Pipeline the Field Would Build}
 \label{sec:intro-pipeline}
@@ -146,7 +145,8 @@ could have caught.
 \section{The Finding}
 \label{sec:intro-finding}
 
-The pipeline does not work. This thesis establishes where it fails and
+At the size this thesis could annotate, $12$ confirmed contradictions in
+$299$ pairs, the pipeline does not work. This thesis establishes where it fails and
 what each failure can and cannot be attributed to, by running at each stage the control that separates a real result from an
 artifact of measurement. The cleanest expression of
 the failure is the decontaminated detector's behaviour on the $253$
@@ -172,7 +172,7 @@ instrument, because the results that answered that form were withdrawn
 and the control for each stage is specified in Chapter~\ref{ch:method}
 before any result was seen, except the post hoc analyses marked as such:
 the feasibility gate, the ambiguous-pair rescaling, both tipping points,
-the public sweep decomposition, and the committee-requested checks (C114),
+the public sweep decomposition, and the committee-requested checks (C114, C116),
 which are post hoc with respect to the original plan but were pre-registered
 before their run.
 
@@ -204,10 +204,12 @@ any outcome their marginal permitted; \texttt{granite3.3:8b} and
 \texttt{qwen3:8b} do not share that ceiling. Second, what the excess
 depends on: a clinical-pharmacist framing prompt, whose differences from a
 plain yes/no prompt are confounded, gives higher positive rates for
-\texttt{granite3.3:8b} and \texttt{qwen3:8b} and lower for
-\texttt{llama3:8b}, so how much a labeller over-calls turns on the prompt,
-not on one multiplier. That margin is fragile: relabelling $5$ flagged pairs
-would bring the lowest ratio measured, $4.8333$, below the highest ratio
+\texttt{granite3.3:8b} and \texttt{qwen3:8b}, so how much a labeller
+over-calls turns on the prompt, not on one multiplier; the
+\texttt{llama3:8b} shift lies within the gap between two runs of the same
+prompt text and is not interpreted. That margin is fragile: relabelling $5$
+flagged pairs would bring the lowest hard-label ratio under the
+ambiguous-negative reading, $4.8333$, below the highest ratio
 measured on public text.
 Third, whether a score escapes the ceiling: a score
 is not bounded by that ceiling, because its threshold can be swept; the one
@@ -218,32 +220,36 @@ licensed about a labeller, a prompt, or a domain not tested.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
 what they are credited with?
-\emph{No, on code-audit findings: the authority parameters reported as learned finish at $0.5076 \pm 0.0006$ and
-$1.0038 \pm 0.0010$ against initialisation at $0.5$ and $1.0$, the harm head's
-outputs span $0.3977$ to $0.6096$, which is the range of an untrained
-sigmoid.}
+\emph{No, on code-audit findings, with no randomisation control run on any
+of the three: the authority parameters reported as learned finish at
+$0.5076 \pm 0.0006$ and $1.0038 \pm 0.0010$ against initialisation at $0.5$
+and $1.0$, an initialisation artifact; the rule-type head's auxiliary metric
+has its target, the rule identifier, present in its input, so it is
+uninterpretable as evidence of learning; and the harm head, which has no term
+in the training objective, has outputs spanning $0.3977$ to $0.6096$, the
+range of an untrained sigmoid.}
 
 \item[RQ4. Evaluation.] Is the trained detector's ranking null real, given
 what this project's own instrument can show?
 \emph{No AUROC effect above the resolvable floor is found on the $253$
 non-ambiguous pairs, at the configurations tested. The floor is stated per
-decision rule and on AUROC only: a power analysis on real score distributions
+decision rule and on AUROC only: a power analysis on a real score distribution
 puts $80\%$ power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test
 and $0.8084$ for the registered decision rule, whose power at the analytic
 minimum detectable AUROC of $0.7355$ is only $0.52075$. On those pairs three
 configurations of the decontaminated detector are not distinguishable from
 chance, the ensemble's bootstrap interval excluding an AUROC above $0.7034$,
 and the ensemble's average precision, $0.0598$, is not above its permutation
-null ($p = 0.4629$). Average precision, a statistic chosen after its value
-was known, does resolve a small, top-heavy surface lexical signal: a bag-of-words (TF-IDF)
-model trained on the weak labels exceeds the detector ensemble in a paired
-permutation test ($p = 0.00005$), and its result holds in $11$ of $12$
-leave-one-positive-out drops. An inference model never trained on the weak
-labels is also above its own permutation null ($p = 0.01335$) and does not
-differ from TF-IDF ($p = 0.99125$), so the signal is one a label-free model
-also finds; that model is not shown to exceed the detector ($p = 0.10035$),
-and the claim of a signal the detector lacks is restricted to TF-IDF
-(Section~\ref{sec:res-rq4}). On the $108$ defect-free Rules 3 and 4 pairs the
+null ($p = 0.4629$). By average precision, a statistic chosen after its value
+was known, two simple models are above their own permutation nulls where the
+detector is not: a bag-of-words model trained on the weak labels
+($p = 0.01315$), whose result holds in $11$ of $12$ leave-one-positive-out
+drops, and an inference model never trained on the weak labels
+($p = 0.01335$). No paired permutation test on within-system ranks separates
+any two of the three (bag-of-words against the detector, $p = 0.17875$;
+inference model against the detector, $p = 0.1452$), so neither is shown to
+find a signal the detector lacks; what stands is a surface lexical signal
+that a label-free model also finds (Section~\ref{sec:res-rq4}). On the $108$ defect-free Rules 3 and 4 pairs the
 decontaminated detector's AUROC is $0.6095$ ($95$ percent bootstrap interval
 $0.3029$ to $0.9010$, $p = 0.1910$), above the $0.4221$ on Rules 1 and 2, which
 is the direction the defect-artifact reading predicts. Its pre-registered
@@ -264,16 +270,18 @@ each control to its owner
 \citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}.
 What is new is the measurement on this pipeline and the fact that the
 controls were actually run. Three contributions follow, each chosen because
-it needs no statistical power and survives every correction in
-Appendix~\ref{app:corrections}.
+it needs no statistical power.
 
 \begin{enumerate}
-\item \textbf{A stage-wise control audit.} Each stage's reported number was
-unsupported by the control for that stage: the candidate pool's precision
-carried no trace of its exemplar defect, the weak labeller's agreement was
-bounded by its own marginal, and the three credited architectural components
-of RQ3 are, respectively, an initialisation artifact, a metric vacated by
-label leakage and an untrained module (Figure~\ref{fig:pipeline-status}).
+\item \textbf{A stage-wise control audit.} The first three stages each
+reported a number that its control or code audit did not support: the
+candidate pool's precision was never verified against its exemplar defect,
+the weak labeller's agreement was bounded by its own marginal, and the three
+credited architectural components of RQ3, examined by code audit rather than
+a randomisation control, are respectively an initialisation artifact, a
+metric whose target was in its input and an untrained module. The
+evaluation's null is not unsupported but bounded, as RQ4 states
+(Figure~\ref{fig:pipeline-status}).
 
 \item \textbf{A pre-training check on the weak labeller's marginal.} The
 agreement ceiling is computed from counts alone: at $261$ flagged of $299$

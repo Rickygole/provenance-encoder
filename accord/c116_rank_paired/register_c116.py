@@ -31,5 +31,5 @@ def get(o, dotted):
 
 for k, p in paths.items():
     facts[f"{PREFIX}.{k}"] = {"artifact": f"{SRC}::{p}", "value": get(d, p)}
-FACTS.write_text(json.dumps(facts, indent=2) + "\n")
+FACTS.write_text(json.dumps(facts, indent=1) + "\n")
 print(f"registered {len(paths)} {PREFIX} keys; total {len(facts)}")

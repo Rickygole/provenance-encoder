@@ -691,12 +691,10 @@ analysis plan. No model is trained or scored: all three tasks reuse existing loc
 registered validity gate passed ($253$ rows joined, ensemble AUROC on $G_{253}$ and on the Rule 3
 and Rule 4 stratum reproduced).
 
-\textbf{Task A, Outcome A2.} A paired swap-permutation test of average precision, the
-entailment model against the decontaminated detector ensemble on $G_{253}$ ($B = 20000$), gives a
-difference of $0.1088$ ($0.1685$ against $0.0598$), two-sided $p = 0.10035$. That is not significant,
-so under the registered rule the claim that two simple models find a signal the detector lacks is
-reduced to the bag-of-words model alone; the entailment model is described only as having average
-precision above its own permutation null, with no comparison to the detector.
+\textbf{Task A, superseded by C116.} Task A was a paired swap-permutation test of average
+precision, the entailment model against the decontaminated detector ensemble on $G_{253}$. It
+swapped raw scores between systems whose scores sit on different scales, as did the C111 paired
+test, so both are superseded by C116 (Section~\ref{sup:sec:s5-c116}) and neither result is used.
 
 \textbf{Task B, descriptive.} Greedy relabelling from the decontaminated ensemble's AUROC of
 $0.5145$ on $G_{253}$ (search cap $80$) reaches the analytic $0.7355$ after $5$ flips, the C108
@@ -708,3 +706,20 @@ which started from the contaminated released run.
 ($n = 108$, $6$ positives), the percentile bootstrap $95\%$ interval around the ensemble AUROC of
 $0.6095$ is $0.3029$ to $0.9010$ ($10000$ valid resamples), wide enough to hold both chance and the
 per-rule floors; the stratum's own minimum detectable AUROC is $0.8064$.
+
+\subsection{C116: Paired Tests on a Common Scale}
+\label{sup:sec:s5-c116}
+% Artifact: results/accord/c116_rank_paired/c116.json.
+% Register key prefix: c116.*
+
+C116 is pre-registered and committed before its run. The C111 and C114 paired tests swapped raw
+scores between systems, but the raw scores are not on one scale: their medians on $G_{253}$ are
+$0.8858$ for the bag-of-words model, $0.2966$ for the entailment model and $0.9647$ for the detector
+ensemble, so a swap moves a row's score far from its own system's distribution. C116 repeats the
+paired swap-permutation test of average precision ($B = 20000$) on within-system ranks. Bag-of-words
+minus ensemble: $0.1651$ against $0.0598$, two-sided $p = 0.17875$. Entailment minus ensemble:
+$0.1685$ against $0.0598$, $p = 0.1452$. Bag-of-words minus entailment: $p = 0.96465$. None is
+significant, so under the registered rule the claim that either simple model finds a signal the
+detector does not is removed. What stands is that both simple models, and not the ensemble, have
+average precision above their own permutation nulls (C111), which is a statement about each system
+against its null, not a comparison between systems.

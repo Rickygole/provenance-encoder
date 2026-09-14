@@ -69,8 +69,16 @@ entries = {
     "decision.nli_g299_significant": d["decision"]["nli_g299_significant"],
     "decision.nli_interpretation": d["decision"]["nli_interpretation"],
 }
+# The raw-score paired AP tests (task b) swapped scores on different scales and are
+# superseded by C116's rank-based test. They are kept on record, not live.
+SUPERSEDED = "withdrawn.superseded_c116"
+for k in [k for k in facts if k.startswith(f"{SUPERSEDED}.{PREFIX}.")]:
+    del facts[k]
 for field, value in entries.items():
-    facts[f"{PREFIX}.{field}"] = collections.OrderedDict(
+    key = f"{PREFIX}.{field}"
+    if field.startswith("task_b."):
+        key = f"{SUPERSEDED}.{key}"
+    facts[key] = collections.OrderedDict(
         [("artifact", f"{SRC}::{field}"), ("value", value)]
     )
 
