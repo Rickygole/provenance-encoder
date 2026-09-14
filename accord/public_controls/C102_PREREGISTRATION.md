@@ -334,3 +334,33 @@ Artifacts: `results/accord/plantbench/stage3_registered.json`,
 `stage3_detector_scores_for_stage4.json`, `stage4_s4.json` (added to the list
 below). Register script (not run): `accord/public_controls/plantbench/register.py`,
 prefix `plantbench.*`.
+
+## Correction to the Outcome above (2026-09-14, coordinator review)
+
+The rule above is unchanged. The Outcome recorded above for Stages 3 and 4 is
+corrected, not replaced, so both remain visible.
+
+The pre-registration committed at 5ffeb13 specifies that the full Stage 3 run
+"substitutes the frozen file's real dimensions and the trained checkpoint's weights",
+and that Stage 4's plant is "the real, trained detector's scores". The Stage 3 and
+Stage 4 runs recorded above used the real dimensions with untrained, randomly
+initialised weights, and Stage 4 consumed those untrained scores. The runs therefore
+did not complete Stages 3 and 4 as registered.
+
+Consequences under the rule as written:
+- S3a, S3b and S3c are defined on behaviour a trained model can exhibit (sensitivity
+  to normalisation order, a learned shortcut's gradient routing, reliance on a
+  feature). Untrained weights cannot exhibit it, so their 0 of 20 firings are not
+  evidence that the checks lack sensitivity. They are recorded as NOT RUN AS
+  REGISTERED, with no verdict.
+- S4 received scores carrying no signal by construction, so its 0 of 20 is likewise
+  not evidence about the check. NOT RUN AS REGISTERED, no verdict.
+- S3d tests whether any gradient reaches the harm head when its loss is excluded
+  versus included. That property holds for untrained weights, so its result (fires on
+  the plant 20 of 20, 0 of 20 on the clean arm) stands, reported with that caveat.
+- Stages 1 and 2 are unaffected.
+
+Overall C102 outcome under the rule: **C for Stages 3 and 4** (stages incomplete as
+registered). The verdicts that stand are S1b not validated, S2c validated, S2b under
+both readings, S2a deterministic, and S3d validated. The thesis may rely on S2c and
+S3d only, and may not describe S3a, S3b, S3c or S4 as validated or as not validated.
