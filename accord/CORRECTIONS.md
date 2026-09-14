@@ -4861,3 +4861,58 @@ never measured one. A graded local score was pre-registered before the first dat
 granite3.3:8b first-token log-odds on G_253, 251 distinct values, 0 degenerate,
 AUROC 0.5467, one-sided Mann-Whitney p 0.2934, below the registered minimum
 detectable AUROC 0.7355. Outcome B. Sweeping the threshold does not rescue it.
+
+## C113. Committee round after the restructure: two outcomes reversed, one control rescoped, one undisclosed deviation
+
+Three adversarial reviewers read the restructured thesis. Every finding below was checked
+against the artifacts before being acted on; findings that did not survive the check are
+recorded as refuted.
+
+**C105 was recorded as Outcome B and is Outcome C.** Its rule declares the run invalid when
+a training pool's teacher marginal is below twice pi_hat. The recorded outcome said 0 of 10
+pools failed while quoting ratios of 1.4 to 2.4, which are below 2; on the artifacts 8 of 10
+failed. The analysis script never evaluated Outcome C and compared against a field named
+teacher_marginal_on_pool that holds the pool's true label mean. The teacher over-called the
+true rate only 1.36 to 1.59 times, so there was no prior shift to correct. The script now
+evaluates C first; the delta-AP interval is descriptive only.
+
+**C102 Stages 3 and 4 were run untrained.** The registration specifies trained weights. S3a,
+S3b, S3c and S4 carry no verdict; S3d (gradient connectivity) is valid untrained and stands.
+
+**C110 scored the contaminated detector.** Its score column is the superseded contaminated
+configuration (C16). C112 re-ran its rule on the decontaminated ensemble the thesis reports:
+Outcome A, with the stratum AUROC 0.0950 from the G_253 value against a 0.10 band.
+
+**The bag-of-words signal is not a weak-label signal.** C111: TF-IDF's average precision
+survives leave-one-positive-out and beats the detector in a paired test, and its training set
+shares no pair or subject with gold; but the off-the-shelf NLI model, never trained on weak
+labels, finds the same signal and is indistinguishable from TF-IDF. Under C111's
+pre-registered interpretation it is a surface lexical signal the detector lacks.
+
+**"Naming the conflict" did not describe the manipulation.** P_asserting names no conflict
+type or rule. It differs from P_neutral in persona, the word "dangerous", answer vocabulary,
+system prompt and field labels at once. The contrast is a clinical-pharmacist framing against
+a plain yes/no question; the effect is real and cannot be attributed to naming a conflict.
+
+**The positive control was used beyond its registration.** C44's registration licenses the
+AG News comparison only as a control for the pretraining-gap instrument and states the two
+must not be merged. The thesis used it as evidence about the 12-positive contradiction
+evaluation. That evidence is C108 alone, stated per rule: about 0.75 for the two-sided
+Mann-Whitney test, about 0.81 for the rule C98 applied.
+
+**C44 departed from its registration, undisclosed until now.** The registration specifies
+selection on a held-out validation split. accord/scaling/C44_convergence_check.ipynb reports
+the test accuracy of the final-epoch model with no checkpoint selection. Chapter 3 describes
+the executed method accurately; C62 recorded the outcome without noting the departure. It is
+recorded here.
+
+**Counts corrected at their generators.** The feasibility gate double counted one configuration
+measured under three names: 15 distinct configurations, 5 unable to reject, all llama3:8b
+(was 18 and 6). The gold tipping point was selected from a stale row set: over every printed
+hard-label row the closest to the public ceiling is qwen3:8b under the neutral prompt, which
+5 relabelled flagged pairs would bring below 3.5 (was granite3.3:8b few-shot, 39). The
+agreement ceiling at 261 of 299 is 0.0780; 0.0768 belongs to the joined G_253 rows.
+
+**Refuted:** that the qwen3:8b local Fisher tests were missing from the multiplicity family
+(they were present); that Appendix A's counts were hard-coded (they were generated; one
+hard-coded "the last correction" phrase was fixed).
