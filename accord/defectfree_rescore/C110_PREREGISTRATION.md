@@ -142,4 +142,82 @@ a separate agent to run, and is not executed as part of this task.
 
 ## Outcome
 
-(Recorded after the run; the rule above is unchanged.)
+Recorded 2026-09-14 after the run; the rule above is unchanged. Artifact:
+`results/accord/defectfree_rescore/dfrescore_strata.json`. Script:
+`accord/defectfree_rescore/dfrescore_run.py`.
+
+**Preliminary checks.** Label join: 299/299 rows joined between
+`gold_standard_accord_results.csv` and `pharmacist_labeled_clean.csv` on
+`pair_id`; 0 mismatches between the detector file's own `pharm_label` and
+`pharmacist_labeled_clean.csv`'s `label_clean`. TF-IDF reproduction check:
+recomputed AUROC 0.5760743321718931 and AP 0.1570977148911732 on all 299 gold
+pairs, exact match to `results/accord/control/baselines.json`'s
+`tfidf_logreg.gold_all` (same values to full precision) -- passed, no abort.
+Rules-3+4, ambiguous-as-negative stratum n=134, positives=6, matching
+`defect_free_strata.json` and `mde_recomputed.json`'s `defect_free_subset`
+exactly; the TF-IDF AUROC recomputed there (0.5729166666666666) matches
+`baselines.json`'s separately-registered `tfidf_logreg.gold_defect_free_rule34`
+exactly, a second independent cross-check that this recomputation reproduces
+the existing pipeline rather than a new one. Rules-3+4, ambiguous-dropped
+stratum n=108, positives=6 (46 total ambiguous pairs, 26 of them in rules 3/4,
+134-26=108). Both decision-relevant strata clear the >=5-positives floor and
+the TF-IDF check passed, so Outcome C does not apply.
+
+**Numbers (seed 42, B=20,000 permutation draws per AUROC/AP per system per
+stratum):**
+
+| stratum | system | n | pos | AUROC | AP | p_perm(AUROC) | p_perm(AP) |
+|---|---|---|---|---|---|---|---|
+| Rules 1+2, ambig. dropped | detector | 145 | 6 | 0.4269 | 0.0427 | 0.7285 | 0.7560 |
+| Rules 1+2, ambig. dropped | NLI | 145 | 6 | 0.6127 | 0.1165 | 0.1804 | 0.1159 |
+| Rules 1+2, ambig. dropped | TF-IDF | 145 | 6 | 0.5635 | 0.0546 | 0.3043 | 0.5143 |
+| Rules 1+2, ambig. as neg. | detector | 165 | 6 | 0.4256 | 0.0379 | 0.7332 | 0.7433 |
+| Rules 1+2, ambig. as neg. | NLI | 165 | 6 | 0.6080 | 0.0937 | 0.1870 | 0.1409 |
+| Rules 1+2, ambig. as neg. | TF-IDF | 165 | 6 | 0.5818 | 0.0508 | 0.2565 | 0.4723 |
+| Rules 3+4, ambig. dropped | detector | 108 | 6 | 0.5114 | 0.0688 | 0.4686 | 0.5663 |
+| Rules 3+4, ambig. dropped | NLI | 108 | 6 | 0.5114 | 0.2191 | 0.4628 | 0.0542 |
+| Rules 3+4, ambig. dropped | TF-IDF | 108 | 6 | 0.5801 | 0.2898 | 0.2698 | 0.0126 |
+| Rules 3+4, ambig. as neg. | detector | 134 | 6 | 0.5078 | 0.0555 | 0.4729 | 0.5645 |
+| Rules 3+4, ambig. as neg. | NLI | 134 | 6 | 0.5013 | 0.2082 | 0.4928 | 0.0447 |
+| Rules 3+4, ambig. as neg. | TF-IDF | 134 | 6 | 0.5729 | 0.2768 | 0.2852 | 0.0082 |
+
+G_253 reference (descriptive, not decided on): detector AUROC 0.4595 (register,
+`signal.contra_prob_vs_pharm_label__ambiguous_excluded_n253.auroc`); this run's
+own recomputation on the same G_253 mask: detector 0.4595 (matches to 4
+decimals), NLI 0.5861, TF-IDF 0.5730.
+
+**Decision.** Decision cell: Rules 3+4, ambiguous dropped (n=108, 6 positives).
+Detector AUROC there is 0.5114, within 0.10 of its G_253 AUROC of 0.4595 (gap
+0.0519). Detector's AUROC permutation p there is 0.4686, which is >= 0.05.
+Both legs of the Outcome-A condition hold.
+
+**Outcome A: the null is not concentrated in the defect rows**, subject to the
+registered interpretive ceiling below.
+
+**Ordering comparison (descriptive, not part of the decision rule).** On
+G_253, AUROC order is NLI (0.5861) > TF-IDF (0.5730) > detector (0.4595). On
+both Rules-1+2 strata (ambiguous dropped and ambiguous-as-negative), the order
+is the same: NLI > TF-IDF > detector. On both Rules-3+4 strata, the order is
+different: TF-IDF > detector > NLI in both. The reordering is driven mainly by
+NLI, whose AUROC falls from about 0.59 on G_253 to about 0.50-0.51 on Rules
+3+4, while TF-IDF and the detector both move less. With 6 positives per
+stratum this difference in ordering is not itself tested against a null and
+is reported only as a descriptive observation, not a finding.
+
+**Registered interpretation, restated.** Outcome A holds under the rule fixed
+above, but the Rules-3+4 strata carry only 6 positives against a registered
+minimum detectable AUROC of 0.8058 (ambiguous-as-negative version) /
+comparable order for the ambiguous-dropped version. Per the interpretation
+fixed before this run: Outcome A cannot establish that the null is not an
+instrument artifact of the exemplar-selection defect; it only fails to show
+that it is, at an effect size below about 0.30 AUROC-points above chance that
+this evaluation cannot resolve with 6 positives. Nothing stronger is claimed.
+
+**What could not be done / was not done.** No new model runs were made,
+per the task's constraint; all three systems' stratum numbers come from
+existing score files or a script-level reproduction of the existing TF-IDF
+pipeline. The `dfrescore`-prefixed register script
+(`accord/defectfree_rescore/register_dfrescore.py`) was written but not run,
+per instruction; the numbers above are quoted from
+`results/accord/defectfree_rescore/dfrescore_strata.json` directly, not from
+the central register.
