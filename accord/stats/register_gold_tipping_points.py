@@ -27,7 +27,7 @@ PREFIX = "goldtipping"
 
 SKIP_LEAF_NAMES = {
     "method", "note", "notes", "conclusion", "why_not", "formula",
-    "target_source", "generated_by", "precondition_checked_first",
+    "target_source", "generated_by", "precondition_checked_first", "scope",
 }
 SKIP_SUBTREES = {"provenance"}
 

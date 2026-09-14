@@ -37,7 +37,8 @@
     ],
     "method": "Greedy: at each step, flip whichever remaining label increases AUROC the most; stop once the target is reached. This is an upper-bound heuristic on the adversarial flip count, not a proof of the true minimum (greedy search is not guaranteed globally optimal), and it is a bound on how many labels an adversary would have to get wrong, not a probability that they are wrong."
   },
-  "b_flip_to_public_max_over_call": {
+  "b_flip_to_public_max_over_call_frontier_template_only": {
+    "scope": "frontier_template_and_baseline_rate_only_rows_ONLY (11 rows: 8 frontier-template + 3 baseline-prompt rate-only). Superseded as the headline row-selection by part_b_all_hard_label_rows below; kept for comparison.",
     "min_ratio_row": "granite3.3:8b::few_shot::G_253",
     "min_ratio_row_is_frontier_template": true,
     "min_ratio_value": 14.666666666666668,
@@ -61,6 +62,66 @@
       "ratio_at_m_minus_1_flips": 3.52,
       "largest_n_flips_that_keep_ratio_above_public_max": 38,
       "conclusion": "Reclassifying 39 of the 166 pairs this row flagged as negative (out of the 12 confirmed positives being fixed) as missed true contradictions brings this row's ratio to or below the public-text maximum of 3.5000x."
+    }
+  },
+  "b_flip_to_public_max_over_call_all_hard_label_rows": {
+    "scope": "EVERY hard-label over-calling row the thesis prints: 8 frontier-template + 3 baseline-prompt rate-only + 9 C103 prompt-sensitivity + 8 C109 replication-prompt = 28 rows, all under reading A (12/299).",
+    "n_rows": 28,
+    "n_flagged_negatives_is_exact_by_family": {
+      "baseline_prompt_rate_only": false,
+      "c103_prompt_sensitivity": false,
+      "c109_replication_prompt": false,
+      "frontier_template": true
+    },
+    "min_ratio_row": "qwen3:8b::P_neutral::c103_prompt_sensitivity",
+    "min_ratio_row_family": "c103_prompt_sensitivity",
+    "min_ratio_row_source": "results/accord/prompt_sensitivity/cells/_qwen3_8b_nothink__P_neutral.json",
+    "min_ratio_value": 4.833333333333333,
+    "public_max_over_call_ratio": 3.5000000000000004,
+    "public_max_over_call_ratio_cell": "llama3:8b::A_bare::p0.02",
+    "computable": true,
+    "n_flagged": 58,
+    "n_positives": 12,
+    "n_flagged_negatives_available_to_reclassify": 46,
+    "n_flagged_negatives_bound_is_exact": false,
+    "direction_2_relabel_flagged_negatives_as_missed_contradictions": {
+      "formula": "ratio(m) = n_flagged / (n_positives + m)",
+      "m_exact_real_valued": 4.571428571428569,
+      "n_flips_to_reach_public_max": 5,
+      "feasible_within_available_flagged_negatives": true,
+      "ratio_at_m_flips": 3.411764705882353,
+      "ratio_at_m_minus_1_flips": 3.625,
+      "conclusion": "Reclassifying 5 of the qwen3:8b::P_neutral::c103_prompt_sensitivity row's 58 flagged pairs (at least 46 of which are provably not among the 12 confirmed positives) as missed true contradictions brings this row's ratio to or below the public-text maximum of 3.5000x."
+    },
+    "all_rows_by_ratio_ascending": {
+      "qwen3:8b::P_neutral::c103_prompt_sensitivity": 4.833333333333333,
+      "granite3.3:8b::P_neutral::c103_prompt_sensitivity": 8.916666666666666,
+      "granite3.3:8b::P_rev_compatible::c109_replication_prompt": 10.833333333333334,
+      "qwen3:8b::P_asserting::c103_prompt_sensitivity": 14.166666666666666,
+      "granite3.3:8b::few_shot::G_253": 14.666666666666666,
+      "granite3.3:8b::P_rev_agree::c109_replication_prompt": 14.666666666666666,
+      "qwen3:8b::baseline_prompt::gold": 15.416666666666666,
+      "granite3.3:8b::zero_shot::G_253": 15.583333333333334,
+      "qwen3:8b::P_reversed::c103_prompt_sensitivity": 15.75,
+      "granite3.3:8b::P_reversed::c103_prompt_sensitivity": 17.333333333333332,
+      "granite3.3:8b::P_reversed_rerun::c109_replication_prompt": 17.333333333333332,
+      "granite3.3:8b::few_shot::G_299": 17.5,
+      "granite3.3:8b::P_rev_follow::c109_replication_prompt": 18.25,
+      "llama3:8b::zero_shot::G_253": 18.416666666666668,
+      "granite3.3:8b::baseline_prompt::gold": 18.5,
+      "llama3:8b::P_rev_compatible::c109_replication_prompt": 18.583333333333332,
+      "granite3.3:8b::zero_shot::G_299": 18.666666666666668,
+      "granite3.3:8b::P_asserting::c103_prompt_sensitivity": 18.666666666666668,
+      "llama3:8b::P_rev_agree::c109_replication_prompt": 19.0,
+      "llama3:8b::few_shot::G_253": 19.916666666666668,
+      "llama3:8b::zero_shot::G_299": 21.75,
+      "llama3:8b::P_asserting::c103_prompt_sensitivity": 21.75,
+      "llama3:8b::P_reversed::c103_prompt_sensitivity": 22.0,
+      "llama3:8b::P_reversed_rerun::c109_replication_prompt": 22.0,
+      "llama3:8b::P_neutral::c103_prompt_sensitivity": 23.333333333333332,
+      "llama3:8b::few_shot::G_299": 23.416666666666668,
+      "llama3:8b::baseline_prompt::gold": 23.75,
+      "llama3:8b::P_rev_follow::c109_replication_prompt": 24.833333333333332
     }
   }
 }

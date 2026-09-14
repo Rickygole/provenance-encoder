@@ -1,5 +1,5 @@
 {
- "bonferroni_threshold": 0.0011627906976744186,
+ "bonferroni_threshold": 0.0010869565217391304,
  "clears_bonferroni": [
   "mcnemar_promptsens_granite33_8b",
   "mcnemar_promptsens_qwen3_8b",
@@ -24,6 +24,11 @@
   ],
   "anisotropy": [
    "welch_anisotropy"
+  ],
+  "c109_llama3_8b_reversed_paraphrases": [
+   "perm_c109_llama3_8b_rev_agree",
+   "perm_c109_llama3_8b_rev_follow",
+   "perm_c109_llama3_8b_rev_compatible"
   ],
   "danger_rating": [
    "spearman_full299_harm",
@@ -82,21 +87,22 @@
    "perm_tfidf_taska_g299_ap"
   ]
  },
- "familywise_bound_is_upper_only_because": "the tests are positively dependent, in 12 dependence groups of more than one test: five Mann-Whitney tests on one set of 253 rows (decontam_253), five DeLong tests against a single reference run (delong_vs_one_ref), two Spearman correlations against one rating (danger_rating), one Mann-Whitney and two DeLong tests off a single NLI baseline run (nlibaseline), one McNemar and three Mann-Whitney tests per C103 model under three prompts on the same items (promptsens_llama3_8b, promptsens_granite33_8b, promptsens_qwen3_8b), four permutation tests off one fitted TF-IDF model on nested bases (tfidfperm_taska), and four pairs of one model under two prompts each for the local ambiguity gradient (ambiguity_gradient_*_ollama). The true familywise rate is lower and this thesis does not compute it.",
- "familywise_upper_bound": 0.8898168897649947,
+ "familywise_bound_is_upper_only_because": "the tests are positively dependent, in 13 dependence groups of more than one test: five Mann-Whitney tests on one set of 253 rows (decontam_253), five DeLong tests against a single reference run (delong_vs_one_ref), two Spearman correlations against one rating (danger_rating), one Mann-Whitney and two DeLong tests off a single NLI baseline run (nlibaseline), one McNemar and three Mann-Whitney tests per C103 model under three prompts on the same items (promptsens_llama3_8b, promptsens_granite33_8b, promptsens_qwen3_8b), four permutation tests off one fitted TF-IDF model on nested bases (tfidfperm_taska), four pairs of one model under two prompts each for the local ambiguity gradient (ambiguity_gradient_*_ollama), and three permutation tests off llama3:8b's three C109 reversed-prompt paraphrases on one basis (c109_llama3_8b_reversed_paraphrases). The true familywise rate is lower and this thesis does not compute it.",
+ "familywise_upper_bound": 0.9055317558622624,
  "holm_rejections_for_reference": [
   "mcnemar_promptsens_granite33_8b",
   "mcnemar_promptsens_qwen3_8b",
   "welch_anisotropy"
  ],
- "n_dependence_groups": 16,
- "n_tests": 43,
+ "n_dependence_groups": 17,
+ "n_tests": 46,
  "nominally_significant_uncorrected": [
   "mcnemar_promptsens_granite33_8b",
   "mcnemar_promptsens_qwen3_8b",
   "welch_anisotropy",
   "mw_promptsens_llama3_8b_reversed",
   "mw_promptsens_granite33_8b_reversed",
+  "perm_c109_llama3_8b_rev_agree",
   "mcnemar_promptsens_llama3_8b",
   "perm_tfidf_taska_g299_ap",
   "mw_promptsens_llama3_8b_neutral",
@@ -106,7 +112,9 @@
   "spearman_pos12_harm",
   "mw_promptsens_qwen3_8b_reversed",
   "mw_promptsens_granite33_8b_neutral",
-  "mw_promptsens_llama3_8b_asserting"
+  "mw_promptsens_llama3_8b_asserting",
+  "perm_c109_llama3_8b_rev_compatible",
+  "perm_c109_llama3_8b_rev_follow"
  ],
  "provenance": {
   "alpha": 0.05,
@@ -544,6 +552,36 @@
    "test": "Fisher exact, one-sided",
    "what": "ambiguous vs clear negatives, qwen3:14b nothink (local), few-shot",
    "where": "sec:r-ambiguity"
+  },
+  {
+   "group": "c109_llama3_8b_reversed_paraphrases",
+   "id": "perm_c109_llama3_8b_rev_agree",
+   "p": 0.002999850007499625,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/c109/analysis.json::per_model_prompt.llama3:8b.P_rev_agree.permutation_p_253",
+   "test": "Permutation test (label shuffle)",
+   "what": "llama3:8b, P_rev_agree AUROC vs shuffled labels, G_253",
+   "where": "C109"
+  },
+  {
+   "group": "c109_llama3_8b_reversed_paraphrases",
+   "id": "perm_c109_llama3_8b_rev_follow",
+   "p": 0.04459777011149443,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/c109/analysis.json::per_model_prompt.llama3:8b.P_rev_follow.permutation_p_253",
+   "test": "Permutation test (label shuffle)",
+   "what": "llama3:8b, P_rev_follow AUROC vs shuffled labels, G_253",
+   "where": "C109"
+  },
+  {
+   "group": "c109_llama3_8b_reversed_paraphrases",
+   "id": "perm_c109_llama3_8b_rev_compatible",
+   "p": 0.040197990100494976,
+   "p_is_derived": false,
+   "source": "results/accord/prompt_sensitivity/c109/analysis.json::per_model_prompt.llama3:8b.P_rev_compatible.permutation_p_253",
+   "test": "Permutation test (label shuffle)",
+   "what": "llama3:8b, P_rev_compatible AUROC vs shuffled labels, G_253",
+   "where": "C109"
   }
  ]
 }

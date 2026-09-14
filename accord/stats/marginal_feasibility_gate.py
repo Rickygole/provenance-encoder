@@ -339,11 +339,44 @@ def main():
     # cannot report the larger number without the smaller one beside it.
     configs = {(r["model"], r["think"], r["strategy"]) for r in rows.values()}
 
+    # zero_shot on the ollama channel loads config_id "gpt4o_zeroshot" from
+    # prompts_existing.csv (accord/differential/run_frontier_compliant.py,
+    # config_id = "gpt4o_zeroshot" if strategy == "zero_shot"). C103's
+    # P_ASSERTING is documented, in the same committed file
+    # (accord/prompt_sensitivity/prompts.py), as extracted VERBATIM from that
+    # exact row ("the same row run_frontier_compliant.py loads via
+    # load_prompts(path, 'gpt4o_zeroshot')"), and P_ASSERTING is already
+    # merged into the "::baseline" configuration above because its system and
+    # user strings are byte-identical, character for character, to
+    # run_multillm_replication.py's SYSTEM_PROMPT / USER_TEMPLATE (config_id
+    # "llama_baseline"). So "zero_shot" on this channel, "baseline", and C103
+    # "P_asserting" all read the SAME prompt text, for every local 8B model
+    # that has both a zero_shot row and a baseline row -- three rows are one
+    # configuration measured three times, not three, and the identity is
+    # provable from committed source files, not inferred from the flag
+    # counts (which in fact currently disagree: llama3:8b's live baseline
+    # artifact reads 285/299 while its zero_shot and C103 P_asserting rows
+    # read 261/299 -- a determinism gap worth its own investigation, but not
+    # evidence either way for configuration identity, which rests on the
+    # prompt text alone per the definition used throughout this file).
+    #
+    # "deployed" (gold.weaklabel_contradiction, llama3:8b only) is NOT folded
+    # in here even though run_multillm_replication.py's own docstring claims
+    # its prompt is "the exact prompt used to elicit the original Llama-3-8B
+    # weak labels": that establishes prompt-text provenance but no committed
+    # file records the ORIGINAL deployed run's decoding settings (temperature,
+    # sampling, seed), so decoding-settings identity -- part of this file's
+    # own three-part definition of a configuration -- cannot be proven from
+    # committed files. It stays a distinct configuration until that is found.
+    ZERO_SHOT_IS_BASELINE_PROMPT = {"llama3:8b", "granite3.3:8b", "qwen3:8b"}
+
     def _cfg_str(model, think, strat):
         # think is folded into the string (not just the tuple) so that a
         # config string never collides across a think setting, and the
         # leading token stays the raw model name so the
         # all_could_not_reject_are_llama3 startswith check below is unaffected.
+        if strat == "zero_shot" and model in ZERO_SHOT_IS_BASELINE_PROMPT:
+            return f"{model}::baseline"
         return f"{model}::think={think}::frontier_{strat}"
 
     # A configuration is infeasible if it could not reject on any basis it was

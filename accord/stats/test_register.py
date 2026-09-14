@@ -299,6 +299,47 @@ FAMILY = [
          where="sec:r-ambiguity", what="ambiguous vs clear negatives, qwen3:14b nothink (local), few-shot",
          group="ambiguity_gradient_qwen3_14b_ollama",
          source="results/accord/differential/frontier_ollama_metrics_qwen3_14b_nothink.json::ambiguity_gradient.few_shot.fisher_p_one_sided"),
+
+    # C109: three permutation tests, llama3:8b's three NEW reversed-prompt
+    # paraphrases (P_rev_agree, P_rev_follow, P_rev_compatible) on G_253,
+    # exactly the family C109_PREREGISTRATION.md's primary decision rule is
+    # built from ("at least 2 of the 3 NEW paraphrases" clearing both an
+    # AUROC floor and a permutation p; the AUROC floor is a threshold
+    # comparison with no p value of its own, so only the permutation test
+    # enters a p-value family). One model, one basis (G_253), three
+    # paraphrases: one dependence block, the same "one model under multiple
+    # prompts on the same items" rule every other prompt-sensitivity block in
+    # this family uses. The determinism-check cell (P_reversed_rerun, a
+    # byte-for-byte rerun of C103's own P_reversed, not a new paraphrase) is
+    # excluded, the same way this family excludes a rerun/replication cell
+    # that reproduces a test already counted elsewhere rather than posing a
+    # new one. granite3.3:8b's parallel C109 cells (per_model_prompt in the
+    # same artifact) are scored but are NOT part of C109's primary decision
+    # rule (see "primary_paraphrase_verdicts_llama3_8b" in the artifact,
+    # llama3:8b only) and are not quoted as a decision in the chapter text;
+    # disclosed, not counted, the same convention this file already applies
+    # to the two Spearman correlations that do not reach the page.
+    #
+    # C109 ran its own internal Bonferroni correction over these same three
+    # tests (alpha/3 = 0.016667, bonferroni_alpha_over_3 in the artifact) to
+    # reach its own outcome (B: 0 of 3 cleared). That correction is orthogonal
+    # to this family's Bonferroni threshold, which corrects across every test
+    # this chapter reports, not within one pre-registered sub-decision; a test
+    # can be Bonferroni-corrected within its own pre-registration and still be
+    # a single, uncorrected member of this larger family, exactly as every
+    # other pre-registered block here (C99, C100, C103, C107) already is.
+    dict(id="perm_c109_llama3_8b_rev_agree", test="Permutation test (label shuffle)",
+         where="C109", what="llama3:8b, P_rev_agree AUROC vs shuffled labels, G_253",
+         group="c109_llama3_8b_reversed_paraphrases",
+         source="results/accord/prompt_sensitivity/c109/analysis.json::per_model_prompt.llama3:8b.P_rev_agree.permutation_p_253"),
+    dict(id="perm_c109_llama3_8b_rev_follow", test="Permutation test (label shuffle)",
+         where="C109", what="llama3:8b, P_rev_follow AUROC vs shuffled labels, G_253",
+         group="c109_llama3_8b_reversed_paraphrases",
+         source="results/accord/prompt_sensitivity/c109/analysis.json::per_model_prompt.llama3:8b.P_rev_follow.permutation_p_253"),
+    dict(id="perm_c109_llama3_8b_rev_compatible", test="Permutation test (label shuffle)",
+         where="C109", what="llama3:8b, P_rev_compatible AUROC vs shuffled labels, G_253",
+         group="c109_llama3_8b_reversed_paraphrases",
+         source="results/accord/prompt_sensitivity/c109/analysis.json::per_model_prompt.llama3:8b.P_rev_compatible.permutation_p_253"),
 ]
 
 
@@ -465,10 +506,12 @@ def main():
             "three Mann-Whitney tests per C103 model under three prompts on the "
             "same items (promptsens_llama3_8b, promptsens_granite33_8b, "
             "promptsens_qwen3_8b), four permutation tests off one fitted TF-IDF "
-            "model on nested bases (tfidfperm_taska), and four pairs of one model "
+            "model on nested bases (tfidfperm_taska), four pairs of one model "
             "under two prompts each for the local ambiguity gradient "
-            "(ambiguity_gradient_*_ollama). The true familywise rate is lower and "
-            "this thesis does not compute it."),
+            "(ambiguity_gradient_*_ollama), and three permutation tests off "
+            "llama3:8b's three C109 reversed-prompt paraphrases on one basis "
+            "(c109_llama3_8b_reversed_paraphrases). The true familywise rate is "
+            "lower and this thesis does not compute it."),
         "dependence_groups": groups,
         "n_dependence_groups": len(groups),
         "clears_bonferroni": [t["id"] for t in clears],
