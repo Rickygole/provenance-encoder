@@ -7,46 +7,53 @@
 %  Compute figures come from results/accord/control_cost_log.json, the source
 %  named for that item alone. No open markers remain in this chapter.
 %
-%  Figures: fig:forest (evaluation survived, second family), fig:scaling (the null is a
-%  measurement). Sources for each are in figures/manifest.json and the
-%  generating scripts beside it. The actionability timeline and the exchange-rate
-%  figure were removed; the sentence and paragraph that carried their claims stayed
-%  in prose. The threshold-surface figure for the
-%  selection-channel anomaly moved with the rest of Section 5.3's detail to
-%  the supplementary file; see the pointer at the end of that section.
+%  Figures: fig:forest (evaluation survived, second family; positive-control
+%  arms) and fig:power/tab:scaling, both bound in Chapter 4 and referenced
+%  here rather than redrawn. This chapter interprets Chapter 4 as rewritten
+%  around the evidence gathered after adversarial review (commit 3f6771e):
+%  the prompt-and-ambiguity-dependent over-calling result, the C99, C102,
+%  C103, C104, C106, C107, C108, C109 and C110 checks, and the defect-free
+%  rescore. The selection-channel anomaly, the compute-cost table and the
+%  survey's own detailed limitations moved to the supplement (Sections S2,
+%  S4 and S3 respectively); each is pointed to here in one sentence, in
+%  words, never by \ref, because their labels no longer live in this
+%  document.
 % ============================================================================
 
 \chapter{Discussion}
 \label{ch:discussion}
 
 Chapter~\ref{ch:results} reported what each stage of the pipeline measured, and
-what the control attached to that stage measured afterwards. This chapter argues
-about the difference. Three claims are defended: the controls changed the reading
-at every stage and reversed it at several; the training and evaluation harness
-resolves real differences at the sample sizes it was given, and the
-twelve-positive contradiction evaluation's own sensitivity, fixed by its class
-counts rather than by the harness, is a separate and narrower question the
-harness result does not by itself answer; and one result here is unexplained
-and should stay unexplained
-until somebody tests a mechanism rather than proposing one.
+what the control attached to that stage measured afterwards, several of them
+rewritten around evidence gathered after adversarial review. This chapter argues
+about the difference. With $12$ pharmacist-confirmed contradictions in $299$
+pairs, this evaluation resolves only large effects, reliably from about an
+AUROC of $0.7355$, a resolving power now validated on a real score distribution
+rather than only on a synthetic one. Within that limit, local language-model
+labellers flagged far more pairs than the pharmacist confirmed, under the
+prompt this pipeline used, but how much more depended heavily on the prompt
+and on how the $46$ ambiguous pairs were read, and neither dependency is fully
+resolved. The detector trained on those labels ranked at chance, including on
+the stratum the exemplar-selection defect cannot reach, while a bag-of-words
+model trained on the identical labels recovered a small precision signal the
+detector did not, which places part of the failure in the detector rather
+than entirely in the labels it was given.
 
 \section{What Each Control Changed}
 \label{sec:disc-spine}
 
 Table~\ref{tab:disc-spine} is the summary this section argues through.
 
-The pipeline has four stages and a reporting layer. Each produced a number a
-competent paper could have reported, and no standard metric at that stage was
-sensitive to the defect sitting behind the number; each was then subjected to
-a control, cheap against what it checked, that was. The controls are not new: negative
-controls come from observational epidemiology \citep{lipsitch2010negative}, with the positive
-direction adapted here rather than taken from that source,
-randomisation sanity checks from the interpretability literature
-\citep{adebayo2018sanity}, control tasks and selectivity from probing
-\citep{hewitt2019control}, and auditing a pipeline stage by stage has been
-demonstrated for fairness in tabular preprocessing
-\citep{biswas2021fairpreprocessing}. What is new is that they were run here, and
-what they returned.
+The pipeline has four stages. Each produced a number a competent paper could
+have reported, and no standard metric at that stage was sensitive to the
+defect sitting behind the number; each was then subjected to a control, cheap
+against what it checked, that was. The controls are not new: negative controls
+from observational epidemiology \citep{lipsitch2010negative}, with the positive
+direction adapted rather than taken from that source; randomisation sanity
+checks from interpretability \citep{adebayo2018sanity}; control tasks from
+probing \citep{hewitt2019control}; and stage-by-stage pipeline auditing from
+fairness in tabular preprocessing \citep{biswas2021fairpreprocessing}. What is
+new is that they were run here, and what they returned.
 
 \begin{table}[H]
 \centering
@@ -61,15 +68,13 @@ fired and the original reading held.}
 \textbf{Stage} & \textbf{Before control} & \textbf{After control}
 & \textbf{Verdict} \\
 \midrule
-Candidate mining & Pool base rate $0.0401$ read as a property of the mining rules & $0.0401$ is an upper bound on annotation validity, not an estimate of pool quality & Narrowed \\
+Candidate mining & Pool base rate $0.0401$ read as a property of the mining rules & $0.0401$ is an upper bound on annotation validity, not an estimate of pool quality, and three separate instruments now disagree on how far off it could be & Narrowed \\
 \addlinespace
-Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ gold pairs labelled positive against $12$ true positives; a prior, not a decision & Reversed \\
+Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ gold pairs labelled positive against $12$ true positives, under the prompt this pipeline used; how much larger that gap looks depends on the prompt and on how the ambiguous pairs are read & Reversed \\
 \addlinespace
 Architecture & Three named components credited with the reported performance & Three different failures, not one: the authority scalars are falsified, sitting at initialisation across seeds; the rule-type head is confounded, its metric vacated by a target one linear layer from an input feature that equals it; the harm head is vacuous, with no term in the objective to train it. No randomisation control was run on any of the three & Reversed \\
 \addlinespace
-Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & At chance on the defect-free stratum; the training harness, not the clinical instrument, is shown to resolve $4.53$ points on a public benchmark & Survived \\
-\addlinespace
-Reporting & Drift slopes read directionally from stored gap magnitudes & Same magnitudes, reproduced to a maximum discrepancy of $0.0$; roughly half the slope signs invert & Reversed \\
+Evaluation & AUROC near chance, plausibly an artifact of a small and defective sample & At chance on every configuration tried, including the rows the exemplar defect cannot reach; the harness itself is shown to resolve real effects at this size, on a public benchmark and on a real score distribution; a bag-of-words model on the same labels finds a small signal the detector does not & Survived \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -79,21 +84,23 @@ Reporting & Drift slopes read directionally from stored gap magnitudes & Same ma
 The miner produced a pool whose base rate against pharmacist annotation is $0.0401$, $12$ true
 contradictions in the $299$-pair full annotated set; on the $253$-pair decontaminated core the same
 $12$ positives sit against $241$ negatives for a base rate of $0.0474$, and ACCORD thresholded at
-$0.5$ on that core returns $11$ true positives against $223$ false positives, a precision of
-$0.047$ that is the detector's confusion matrix rather than a further reading of pool quality.
-Neither figure is a property of the annotation exercise on its own: for action-conflict candidates
-the trigger quantified over sets of medication mentions while the exemplar selector indexed
-positionally, and the audit found the two did not reliably agree. A reconstruction of the exemplar,
-at $0.8934$ to $0.9508$ fidelity, resolves $137$ of the $165$ Rule 1 and Rule 2 candidates and finds
-$65$ wrong, a rate of $0.4745$; a true key join covers only $23$ of those rows and finds all $23$
-correct. The two cannot both describe the same rows, so they are reported as mutually exclusive
-rather than as a range \citep{jacobs2021measurement}, and the direction of the resulting bound on
-pool precision is unknown: the pharmacist judged the material shown, not corrected material, so a
-higher and a lower true precision both remain consistent with the record. One stratum escapes the
-defect entirely, Rule 3 and Rule 4, correct by construction, holding $134$ pairs and $6$ of the
-$12$ confirmed contradictions, corroborating $0.0401$ on ground the exemplar defect cannot reach.
+$0.5$ on that core returns $11$ true positives against $223$ false positives, a precision of $0.047$
+that is the detector's confusion matrix rather than a further reading of pool quality. Neither figure
+is a property of the annotation exercise on its own: for action-conflict candidates the trigger
+quantified over sets of medication mentions while the exemplar selector indexed positionally, and the
+audit found the two did not reliably agree. Three instruments now disagree on how often that failure
+fired on the pooled Rule 1 and Rule 2 candidates, and none is a tiebreaker for either of the others: a
+reconstruction puts the wrong rate at $0.4745$, an exact key join on a much smaller subset puts it at
+$0$, and a purpose-built extractor applied to the exact sentence pair the pharmacist saw puts it at
+$0.9315$, excluding both other readings from its own Wilson interval, most plausibly because it faces
+a harder condition, the single truncated sentence the pharmacist saw rather than the multi-sentence
+window the other two readings drew on. The true rate is unresolved rather than narrowed to a choice
+between readings, and the direction of the resulting bound on pool precision is unknown, since the
+pharmacist judged the material shown, not corrected material. One stratum escapes the defect
+entirely, Rule 3 and Rule 4, correct by construction, holding $134$ pairs and $6$ of the $12$
+confirmed contradictions, corroborating $0.0401$ on ground the exemplar defect cannot reach.
 
-\subsection{Weak supervision: a prior confirmed locally, a scaling claim now withdrawn}
+\subsection{Weak supervision: a marginal that depends on how it is asked}
 
 The labeller looked usable on the property it was checked against, recall. The control is the one
 Feinstein and Cicchetti described for a different instrument thirty-six years ago
@@ -101,175 +108,193 @@ Feinstein and Cicchetti described for a different instrument thirty-six years ag
 human-established base rate before believing anything about agreement. Against the $299$ annotated
 pairs the deployed local labeller assigned the positive class to $261$; the pharmacist assigned it
 to $12$. Saying yes to $87\%$ of a pool whose true positive rate is $4\%$ is not a decision, it is a
-prior with a text prompt attached, and two further local eight-billion-parameter models reproduce
-comparable miscalibration, over-calling ratios of $15.8196$ and $17.9863$ against the deployed
-labeller's own $23.5959$ (Chapter~\ref{ch:results}), so this is not one model misbehaving. Correcting a marginal this biased
-needs gold labels on the same distribution \citep{forman2008quantifying,egami2023surrogates}, which
-a workflow built to avoid annotation cannot supply, so the student inherits the marginal rather
-than the task \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}. What this
-finding cannot now say is how that prior scales with capability, vendor or serving channel: the
-comparisons built to answer that sent sentence pairs to hosted services, and every number they
-produced has been withdrawn with the comparisons themselves (Section~\ref{sec:m-ethics}); the
-question is indeterminate rather than resolved in either direction. The surviving claim is
-narrower than the one this section once made: not that language models cannot reason about
-clinical text, but that this project's weak labeller's marginal was a property nobody checked
-before training on it \citep{pangakis2023validation}.
+prior with a text prompt attached, and two further local eight-billion-parameter models, under the
+same prompt, reproduce comparable miscalibration on this pool, over-calling ratios of $15.8196$ and
+$17.9863$ against the deployed labeller's own $23.5959$ (Chapter~\ref{ch:results}), so this is not one
+model misbehaving under one prompt. What none of that establishes is a single size for the failure:
+removing the specific conflict name lowers the ratio sharply for two of three local models and
+raises it for the third, and reading the $46$ ambiguous pairs as confirmed rather than negative brings every
+ratio down, in one case to indistinguishable from the confirmed rate itself, so which prompt and which
+reading produced a quoted ratio has to travel with the number (Section~\ref{sec:disc-overcalling}).
+Correcting a marginal this biased needs gold labels on the same distribution
+\citep{forman2008quantifying,egami2023surrogates}, which a workflow built to avoid annotation cannot
+supply, so the student inherits the marginal rather than the task
+\citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}. Whether that prior scales with
+capability, vendor or serving channel is not established here either: the comparisons built to answer
+that sent sentence pairs to hosted services and every number they produced has been withdrawn
+(Section~\ref{sec:m-ethics}). The surviving claim is narrower than the one this section once made: not
+that language models cannot reason about clinical text, but that this project's weak labeller's
+marginal was a property nobody checked before training on it \citep{pangakis2023validation}, and that
+how far it over-calls is itself a function of how it is asked.
 
 \subsection{Architecture: three components, three different failures}
 
 The architectural checks did the most damage, and the word for what they did differs by component,
 because no randomisation control was run on any of the three clinical components; the
-randomised-substitute arms in this thesis belong to a second, provenance-conditioned system and do
-not transfer here. Only the authority scalars are falsified in the strict sense: the parameter is
-initialised at the value later reported as discovered, sits behind a normalisation that removes its
-gradient, and agrees across seeds, so the claim that training found it is refuted. The rule-type
-head is confounded rather than falsified, its auxiliary target readable from the input features one
-linear layer away, the textbook symptom of leakage rather than learning \citep{kaufman2012leakage},
-which vacates the metric rather than refuting the component. The harm head is neither, because no
-term in the objective trains it, so no mechanism ever asserted anything a control could refute, and
-its severity claim is withdrawn as vacuous. A fourth check, targeting the pretraining collapse
-rather than the architecture, tested whether anisotropy rather than clinical homogeneity explains a
-high similarity score: unrelated non-clinical sentences return a mean pairwise similarity of
-$0.9113$ against $0.9176$ on matched clinical pairs, a Welch test rejecting exact equality
-($t = 4.0001$, Cohen's $d = 0.2808$), which undercuts the homogeneity account without establishing
-identity. RQ3, whether the three credited components contribute what they are credited with
-(Section~\ref{sec:m-control-rq3}), is answered component by component: one parameter is falsified,
-one metric is vacated by leakage, and one module was never trained, and because no randomisation
-control ran on any of the three, the control-task logic \citet{hewitt2019control} developed and this
-thesis applies rather than invents did not settle RQ3 for the component it was never given the
-chance to test.
+randomised-substitute arms in this thesis belong to a second, provenance-conditioned system, reported
+in full in the Supplement, Section S1, and do not transfer here. Only the authority scalars are
+falsified in the strict sense: the parameter is initialised at the value later reported as discovered,
+sits behind a normalisation that removes its gradient, and agrees across seeds, so the claim that
+training found it is refuted. The rule-type head is confounded rather than falsified, its auxiliary
+target readable from the input features one linear layer away, the textbook symptom of leakage rather
+than learning \citep{kaufman2012leakage}, which vacates the metric rather than refuting the component.
+The harm head is neither, because no term in the objective trains it, so no mechanism ever asserted
+anything a control could refute, and its severity claim is withdrawn as vacuous. RQ3, whether the
+three credited components contribute what they are credited with (Section~\ref{sec:m-control-rq3}),
+is answered component by component, not settled by the control-task logic
+\citet{hewitt2019control} developed and this thesis applies rather than invents, since that logic
+never had the chance to test the component it addresses.
 
 \subsection{Evaluation: survived}
 
 The detector's ranking is at chance and stays there under every control applied to it, which is why
-this thesis has a finding rather than only a list of retractions. The decontaminated ACCORD
-ensemble reaches AUROC $0.5145$ ($p = 0.8668$) on the $253$ non-ambiguous pairs against $0.4595$
-for the contaminated released run; the leaked rows carried the weak labeller's labels rather than
-the pharmacist's, so the leak had no channel to inflate agreement with gold, making the contaminated
-figure a conservative rather than an inflated comparator, and the $0.0550$ gap carries no
-significance claim since no paired comparison exists in the released record. A separate,
-defect-free control model, a plain BioMedBERT with none of ACCORD's authority parameters, rule
-head or harm head, reaches a three-seed mean AUROC of $0.4967 \pm 0.0350$ on all $299$ pairs
-(ensemble $0.4692$) and $0.5295 \pm 0.0158$ on the $134$-pair Rule 3 and Rule 4 stratum (ensemble
-$0.5469$); ACCORD's own contaminated run, rescored there, reads $0.4602$ and $0.5078$, so the
-control ensemble sits $0.0090$ above it at $p = 0.9300$ on the full set and $0.0391$ above it at
-$p = 0.4306$ on the stratum, every interval straddling chance (Figure~\ref{fig:forest}, second
-family). The stratum check has almost no power, since $6$ positives put its minimum detectable
-AUROC at $0.8058$ and only the contaminated ACCORD score exists there, so the objection that real
-signal was attenuated by wrong-evidence labels is not answered directly. Two baselines finish the
-picture: a majority-class predictor gives AUROC $0.5$ and average precision $0.0401$, the base
-rate, and a TF-IDF logistic regression gives AUROC $0.5761$, average precision $0.1571$, placing
-$2$ true positives in its top $15$ where the neural detector places $0$; neither model is useful,
-but no reading survives in which the custom architecture contributed something a bag-of-words
-baseline could not.
+this thesis has a finding rather than only a list of retractions. The decontaminated ACCORD ensemble
+reaches AUROC $0.5145$ ($p = 0.8668$) on the $253$ non-ambiguous pairs against $0.4595$ for the
+contaminated released run; the leaked rows carried the weak labeller's labels rather than the
+pharmacist's, so the leak had no channel to inflate agreement with gold, making the contaminated
+figure a conservative rather than an inflated comparator. A separate, defect-free control model, a
+plain BioMedBERT with none of ACCORD's authority parameters, rule head or harm head, reaches a
+three-seed mean AUROC of $0.4967 \pm 0.0350$ on all $299$ pairs (ensemble $0.4692$) and
+$0.5295 \pm 0.0158$ on the $134$-pair Rule 3 and Rule 4 stratum (ensemble $0.5469$), both intervals
+straddling chance (Figure~\ref{fig:forest}, second family). A pre-registered rescore restricted to
+Rule 3 and Rule 4 with the ambiguous pairs dropped ($n = 108$, $6$ positives) puts the released
+detector's own AUROC there at $0.5114$, $p = 0.4686$ by permutation, within the band the
+pre-registration fixed as consistent with its non-stratum reading; whether that is because the null
+genuinely holds on the rows the exemplar defect cannot reach, or because six positives cannot show
+otherwise either way, is taken up in Section~\ref{sec:disc-null}, alongside what a bag-of-words
+baseline and an off-the-shelf entailment model, both scored on the same rows, add to the picture.
 
 \subsection{What survived}
 
-Two things survived their controls, and a section in which nothing survives is not a finding. The
-chance-level ranking survived decontamination, seed variation, defect-free stratification, a
-DeLong comparison against an ensemble, and two baselines. The over-calling survived three changes
-of local model family; whether it also survives a change of scale or serving vendor is now
-indeterminate rather than confirmed, because the comparisons built to test that sent sentence pairs
-to a hosted channel and every number they produced has been withdrawn (Section~\ref{sec:m-ethics}).
-The direction of both surviving conclusions held through every correction applied to them, each of
-which moved a headline number toward the negative reading rather than away from it. What did not
-survive, and what the withdrawal narrows further still, is any claim about mechanism or about
-scale: this is a measurement of a pipeline, not an account of why clinical text is hard or of how
-the failure would change at a different model size.
+Two things survived their controls, each narrower than it first sounds, and a section in which
+nothing survives is not a finding. The chance-level ranking survived decontamination, seed
+variation, defect-free stratification and a DeLong comparison against an ensemble; whether it also
+survives as evidence that the null is not an artifact of the exemplar defect is a separate question
+six positives cannot settle either way (Section~\ref{sec:disc-null}). The over-calling survived three
+changes of local model family, but its size did not, moving by a large factor with the prompt and the
+ambiguity reading (Section~\ref{sec:disc-overcalling}); whether it also survives a change of scale or
+serving vendor is indeterminate, since the comparisons built to test that were withdrawn along with
+every hosted number they produced (Section~\ref{sec:m-ethics}). What did not survive is any claim
+about mechanism or about scale: this is a measurement of a pipeline under the conditions this
+project tested.
 
-\section{What the Positive Control Licenses, and What It Does Not}
+\section{What Drives the Over-Calling, and What It Does Not Settle}
+\label{sec:disc-overcalling}
+
+The weak-supervision reading above is not one number. Four things were varied to find out what it
+depends on, and none of them removes it.
+
+\textbf{Naming the conflict (C103), and how the ambiguous pairs are read.} Whether a labeller is
+asked about the specific action the mining rule targeted or asked neutrally is a real contributor to
+the over-calling for two of three local models, though not in the same direction for all three:
+removing the named conflict lowers \texttt{granite3.3:8b}'s positive rate from $0.7492$ to $0.3579$
+and \texttt{qwen3:8b}'s from $0.5686$ to $0.1940$ (McNemar $p$ indistinguishable from zero for both),
+but raises \texttt{llama3:8b}'s, from $0.8729$ to $0.9365$. Even where removing the name helps, it
+does not fully explain the excess: neither model's neutral-prompt ratio, ambiguous pairs counted
+negative, $8.9167$ and $4.8333$, reaches the public-text ceiling of $3.5000$ this project set in
+advance as the test of sufficiency. Counting the $46$ ambiguous pairs as
+confirmed contradictions instead of negative moves every ratio toward one, to exactly $1.0000$ for
+\texttt{qwen3:8b} under the neutral prompt and $1.8448$ for \texttt{granite3.3:8b}, though
+\texttt{llama3:8b} stays above four under every prompt regardless of reading. Whether the excess is
+fifteen to twenty-four times the confirmed rate or close to one therefore turns on a prompt choice
+and a reading choice this project has no independent grounds to make for a reader; a ratio quoted
+without naming both is not a comparable number.
+
+\textbf{Scale (C99), public text, and what a single run means (C104).} \texttt{qwen3:8b} against
+\texttt{qwen3:14b}, the largest model this project's hardware serves and explicitly not frontier
+scale, gives an over-calling-ratio step of $1.0559$, inside the $1.5353$ spread three 8B models
+already show (McNemar $p = 0.2624$ on the $51$ discordant pairs); nothing is concluded about scale in
+either direction. The same three models, run on an SNLI sweep under generic prompts that never name
+a clinical conflict, do not reproduce the clinical magnitude or direction either: of $24$ cells, $7$
+over-call, $15$ under-call, $2$ sit at exactly one, and the maximum ratio measured is $3.5000$,
+against the $15.8196$ to $23.5959$ clinical range under the prompt and reading this pipeline used;
+because the sweep changes prompt, negative type and domain together, it cannot attribute the gap's
+size to the pool's base rate rather than to the model. A determinism check found that only
+\texttt{llama3:8b} reproduces stable per-item output at temperature zero on this project's local
+serving stack; every other local model tested drifted enough to fail the tolerance fixed in advance,
+so a single-run cell for any of them, here or in Chapter~\ref{ch:results}, is one draw from a spread
+of possible runs rather than a fixed number, and the larger public-text factorial built on the same
+check could not compute its own primary contrasts for the same reason (Section~\ref{sec:disc-limits}).
+
+Naming the conflict, the ambiguity reading, model family and scale each move the measured size of the
+over-calling, and none removes it for every configuration tried: some of the excess is addressable
+and some is not, which is not the same as either step preventing the failure.
+
+\section{What the Positive Control and the Baselines License}
 \label{sec:disc-null}
 
 A negative result in a small clinical sample invites one objection above all
 others: the experiment was too small to see anything, so it saw nothing. That
 objection is correct about most such results, and would be correct about this one
-if no positive control existed. One does. The device adapts the one
+if no positive control existed. One does, adapting the device
 \citet{lipsitch2010negative} formalise for observational research: run the
 analysis on a case where the answer is known in advance, and let the result
-speak about the instrument rather than about the substantive question.
+speak about the instrument rather than the question.
 
-The instrument compares a domain-pretrained encoder against encoders trained from scratch at
-several parameter scales, evaluated by a convergence sweep of $48$ runs; none is sized to match its
-pretrained counterpart, the largest public from-scratch arm carrying $99{,}234{,}820$
-parameters against the pretrained encoder's $85{,}648{,}132$, and the clinical from-scratch arm
-$10{,}638{,}720$ non-embedding parameters against a BioMedBERT-based pretrained encoder. On a public four-class news classification
-task it resolves a pretraining benefit of $4.53$ points that appears as early as $3$ epochs and
-persists once both arms have converged, across an eightfold range of training budget and well
-outside the standard deviations involved. The from-scratch curve at three parameter sizes does not
-approach the pretrained band either (Table~\ref{tab:scaling}), so the gap is a pretraining rather
-than a capacity effect, and the mortality control itself returns almost nothing (Figure~\ref{fig:forest},
-last row).
+\subsection{The instrument's own resolution, confirmed twice}
 
-The decision rule was committed before the sweep ran, at commit \texttt{b048829}
-(Table~\ref{tab:m-prereg}): a gap of at least $3.0$ accuracy points between the largest from-scratch
-arm and the pretrained arm at the longest budget, with non-overlapping one-standard-deviation bands,
-was required to certify the control, and anything short of that would have voided the mortality-task
-measurement rather than licensed it. On
-that task, in-hospital mortality predicted from a
-patient's first $48$ hours of notes on $6{,}776$ admissions holding $570$
-positives, the same instrument, harness and protocol return a null,
-$+0.0031$, with no significance test registered and a sign that is not
-robust to which runs are included. Same instrument, same protocol, two
-tasks: one shows $4.53$ points, the other shows nothing, and the general
-result behind that null is not this thesis's, since pretraining loss as a
-poor proxy for downstream performance is settled at far larger scale than
-$48$ runs \citep{lourie2025scaling,feng2026tessera}; writing it up as a
-contribution rather than a positive control would misrepresent its purpose.
+The instrument compares a domain-pretrained encoder against from-scratch encoders at several scales,
+none sized to match its pretrained counterpart, across a pre-registered convergence sweep of $48$ runs
+(commit \texttt{b048829}: a gap of at least $3.0$ points with non-overlapping standard-deviation bands
+certifies the control). On a public four-class news task it resolves a pretraining benefit of $4.53$
+points that appears by $3$ epochs and persists through $24$, across an eightfold budget range and
+outside every standard deviation involved (Table~\ref{tab:scaling}). On the clinical arm this control
+was built for, in-hospital mortality from a patient's first $48$ hours of notes on $6{,}776$ admissions
+holding $570$ positives, the same instrument, harness and protocol return a null, $+0.0031$, sign not
+robust to which runs are included. Same instrument, same protocol, two tasks: one shows $4.53$ points,
+the other shows nothing (Figure~\ref{fig:forest}, last row); the general claim that pretraining loss is
+a poor proxy for downstream performance is settled at far larger scale than this
+\citep{lourie2025scaling,feng2026tessera} and is not this thesis's to make.
 
-What this control licenses is narrower than it can sound: that the harness
-resolves a real difference at the sample sizes given, not the sensitivity of
-the twelve-positive contradiction evaluation, whose own minimum detectable
-AUROC (Section~\ref{sec:disc-limits}) is fixed by its class counts and
-corroborated by simulation in Chapter~\ref{ch:results}. This work therefore
-cannot establish that
-cross-note medication contradiction detection is unsolvable; it establishes
-only that this pipeline does not solve it, and that an effect at that
-threshold would have been visible had one been present.
+A second, independent check validates the evaluation's own resolving power rather than the training
+harness, corrupting a real, independently-known-good score distribution toward chance by construction
+at this evaluation's exact class counts and measuring where the same family of tests this chapter runs
+crosses $80\%$ power: an AUROC of $0.7466$ under the primary two-sided rule, agreeing with the
+analytic $0.7355$ within the tolerance fixed in advance, with a false-positive rate at true chance of
+$0.048$ against a nominal $0.05$; at the registered floor itself the same tests reject the null on
+$0.52075$ of replicates, the content behind calling that floor roughly half power. Together, this is
+now two independent demonstrations that this evaluation resolves a real effect at this sample size
+when one is present, reliably from about AUROC $0.7355$; what it licenses is narrower than it can
+sound, the harness's resolving power, not the sensitivity of the twelve-positive evaluation to
+anything smaller, whose own minimum detectable AUROC (Section~\ref{sec:disc-limits}) is fixed by class
+counts. This work cannot establish that cross-note contradiction detection is unsolvable; only that
+this pipeline does not solve it, and that a larger effect would have been visible.
 
-The ensemble's own $95\%$ bootstrap interval on the $253$-pair set is wide
-enough that its upper bound sits only $0.0321$ below the minimum detectable
-AUROC, so interval width alone does not rule out a modestly useful model.
-Three of the four estimators here could in principle have found separation
-and did not; the fourth, a majority-class predictor, was never in a position
-to look, by construction. What the three that could fail and did not agree
-on is the evidence a sample this size can produce, not proof that no
-separation exists.
+\subsection{What the baselines add}
 
-\section{An Anomaly, Reported as an Anomaly}
-\label{sec:disc-anomaly}
+Whether the ranking null on the defect-free rows is itself an artifact of the exemplar-selection
+defect was tested directly, scoring the detector, an off-the-shelf NLI model and a TF-IDF baseline on
+Rule 3 and Rule 4 rows alone, which cannot carry the defect. On the decisive cell fixed in advance,
+ambiguous pairs dropped ($n = 108$, $6$ positives), the detector's AUROC is $0.5114$, permutation
+$p = 0.4686$, within $0.10$ of its full-set $0.4595$, the condition the pre-registration set as
+consistent with the null holding there too, so the null is not concentrated in the defect rows under
+that rule; the interpretation fixed alongside it holds regardless: with $6$ positives against a
+minimum detectable AUROC of $0.8058$ on this stratum, the check cannot establish that the null is not
+an artifact of the defect, only fail to show that it is.
 
-One result here is not explained, and this section reports it without
-explaining it. It is not counted among Chapter~\ref{ch:intro}'s
-contributions, since a contribution earns its place by explaining something
-and this pattern explains nothing about itself. The population audited is
-simulated, not the clinical pipeline, and is retained because the same
-experiments anchor the sign-provenance rule of Chapter~\ref{ch:results},
-applied afterward to the clinical numbers, and because a pattern that does
-not fit is better reported than dropped.
+A different baseline asks whether the labels, not the architecture, are the whole story. A linear
+model trained on the identical weak labels the detector consumed clears its own no-skill line on
+average precision by a permutation test fixed in advance, $p = 0.0109$ on $G_{299}$ and $p = 0.0159$
+on $G_{253}$, though not on AUROC, $p = 0.1944$ and $p = 0.1970$: the weak labels carried some signal
+a simple bag-of-words model could use, on the one metric sensitive enough at this base rate to show
+it, and the detector did not recover it, weak evidence, one uncorrected metric, that places part of
+the failure in the detector rather than entirely in the labels. Retrained on gold labels alone in
+nested cross-validation the same linear model falls to an out-of-fold AUROC of $0.3434$, so the
+signal does not survive losing the weak labels either, and none of this licenses the stronger claim
+that the labels caused the detector's ranking null.
 
-On two simulated populations, with baseline disparity held fixed, upstream
-selection channels were swept and the pool-level demographic parity gap
-audited at each step. The gap never changes sign within a sweep, but the
-direction it drifts in does: two channels on the same population give fitted
-drift slopes of opposite sign, and extending one sweep across operating
-points as well as channel strength shows the audited gap moving with both,
-so a single audited number describes one cell of a surface rather than the
-system that produced it. A further, controlled sweep across baselines,
-channel strengths and replicates does not even reproduce that channel
-dependence, inverting the mapping between channel and drift direction: the
-direction a pool audit drifts in is not a stable function of the channel
-that produced it.
+A third baseline bounds the architecture question from the other side: an off-the-shelf entailment
+model, trained for a related task and not on any pair from this pipeline, reaches AUROC $0.5861$ on
+$G_{253}$, $p = 0.1576$, not resolved, and does not differ from the detector's own score by a paired
+DeLong test either, $p = 0.2113$ on $G_{253}$ and $p = 0.2550$ on $G_{299}$: it does not beat the
+detector, and it is not shown to discriminate on its own terms.
 
-Five mechanism claims were proposed during this project to account for this
-pattern; each was tested against a parameter sweep and each failed, and a
-sixth is not offered. No subgroup harm is demonstrated anywhere in this work,
-and no general claim is made that disaggregated fairness evaluation is
-uninterpretable under selection; that argument, and the observation that the
-design choices inside a disaggregated evaluation are consequential enough to
-need documenting, belong to others and predate this work
-\citep{pfohl2025disaggregated,fogliato2020fairness,barocas2021disaggregated}.
-The full sweep, the operating-point surface, and the failed mechanism
-accounts are released with the analysis code rather than bound here.
+The ensemble's own $95\%$ bootstrap interval on the $253$-pair set is wide enough that its upper
+bound sits only $0.0321$ below the minimum detectable AUROC, so width alone does not rule out a
+modestly useful model. Four of the five estimators here, the detector, its control model, TF-IDF and
+the NLI baseline, could in principle have found separation and did not; the fifth, majority-class,
+was never in a position to look, by construction: what the four that could fail and did not agree on
+is the evidence a sample this size can produce, not proof that no separation exists.
 
 \section{Measurement Provenance}
 \label{sec:disc-provenance}
@@ -286,7 +311,12 @@ existing fields, and recomputation reproduced every prior value exactly, so
 nothing previously reported changed. What changed was the sign of roughly
 half the drift slopes, $7$ of $14$ compared metric-slopes
 (Appendix~\ref{app:corrections}, C57), and one credibility call: a slope
-whose stored interval crossed zero has a signed interval that does not.
+whose stored interval crossed zero has a signed interval that does not. One
+further pattern turned up by the same signed re-analysis, on simulated
+populations rather than the clinical pipeline, is not explained by anything
+tested against it and is not counted among this thesis's contributions; it is
+reported in full, together with every mechanism tried and rejected, in the
+Supplement, Section S2.
 
 The rule is one sentence: a metric stored as a magnitude licenses no
 directional claim, and no downstream care recovers what the storage
@@ -297,83 +327,27 @@ true positive: applied to this project's own artifacts, the check
 invalidated four directional readings, three of them corrections of earlier
 errors, catching a correcting analysis committing the error it is
 correcting. The demonstration is on one project's artifacts, so no claim is
-made about how often the defect occurs elsewhere.
-
-\subsection{What practice does with the upstream check}
-
-The survey speaks to whether the check that would have caught the upstream
-defect is run at all. Auditing a pipeline one stage at a time is not exotic:
-\citet{biswas2021fairpreprocessing} do it for tabular preprocessing
-operators, showing that the local behaviour of each stage composes into the
-behaviour of the pipeline. Most of the enriched survey corpus
-(Section~\ref{sec:disc-limits}) runs it under neither reading, and the
-enrichment runs against the finding rather than for it: over-sampling the
-papers most likely to run the check still returns the same strict count.
-
-\section{What the Controls Cost}
-
-Table~\ref{tab:disc-cost} itemises it.
-\label{sec:disc-cost}
-
-Nobody reports this, so it is reported here, with the limit stated first.
-\textbf{These figures are compute only.} Person-hours were not logged for most
-of the project and are not reconstructed, because a reconstructed estimate
-would be an invented number in a thesis about invented numbers.
-
-\begin{table}[H]
-\centering
-\caption[Recorded compute cost of controls]{Recorded compute for the controls. Person-hours are excluded and were
-not logged. The cost log records a $12$-run, $34.9$-minute public-task episode
-but omits the $48$-run, $555$-minute convergence sweep Section~\ref{sec:disc-null}
-rests on; the two are separate run sets, not one nested in the other, so both
-are counted here.}
-\label{tab:disc-cost}
-\begin{tabular}{lrr}
-\toprule
-\textbf{Control episode} & \textbf{Runs} & \textbf{GPU-minutes} \\
-\midrule
-Public-task convergence sweep             & 48 & 555.0 \\
-Public task, single budget across scales  & 12 & 34.9 \\
-Clinical task, pretrained against scratch & 17 & 612.3 \\
-Signed re-run, selection experiment       & 1  & 0.7 \\
-Signed re-run, PUMS replication           & 1  & 13.5 \\
-\midrule
-Total, reconciled                         & 79 & 1216.4 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The control that retracted the directional core of three corrections cost
-$14.2$ GPU-minutes, and the convergence sweep that licenses the whole
-argument of Section~\ref{sec:disc-null} cost $555$ minutes on its own; the
-reconciled total across every control is $1216.4$ GPU-minutes and $79$
-runs. Controls are not always this cheap: re-annotation
-is not, a second annotator is not, and one control here cannot be
-recomputed from disk and requires re-running the experiment that produced
-it. The claim is narrower: in this project the controls that reversed
-conclusions cost less compute than the experiments whose conclusions they
-reversed, and cost is not why they went unrun.
-
-No comparison against prose checklists is offered, and no claim is made that
-executable gates outperform them. The nearest thing to evidence on that
-question comes from journal peer review rather than from here, where
-introducing an automated statistical consistency check is associated with a
-steep decline in reporting inconsistencies \citep{nuijten2023statcheck},
-measured over a corpus this project cannot approach.
+made about how often the defect occurs elsewhere, and whether the field runs
+the check that would have caught it is a question this project measured only
+as a prevalence, on a corpus assembled to over-sample the work most likely to
+run it, even though auditing a pipeline one stage at a time is not exotic on
+its own terms \citep{biswas2021fairpreprocessing}; that survey, and the
+recorded compute for every control in this project, are reported in full in
+the Supplement, Sections S3 and S4 respectively, rather than here.
 
 \section{Limitations}
 \label{sec:disc-limits}
 
-\paragraph{RQ4's answer, now that the hosted channel is ruled out.} One dependency ran through four chapters and is settled here. Every hosted-service
-transmission this project made has been withdrawn (Section~\ref{sec:m-ethics}), and nothing at that
-scale replaces it. RQ4, whether the detector's null is real, does not depend on it: local evidence
-answers it instead, the pretraining positive control, which shows the measurement apparatus resolves
-a real difference on a public benchmark, and the minimum detectable effect, which bounds the
-twelve-positive evaluation's own sensitivity (Section~\ref{sec:m-mde}). The feasibility gate on the
-labeller's marginal, a post hoc check (Section~\ref{sec:r-feasgate}), answers a narrower question: it explains the
-degenerate operating point a thresholded labeller can reach, and it is silent on the AUROC null. RQ4's
-answer rests on the null battery, the minimum detectable effect and the positive control, none of
-which touches a hosted service.
+\paragraph{RQ4's answer, now that the hosted channel is ruled out.} One dependency ran through four
+chapters and is settled here. Every hosted-service transmission this project made has been withdrawn
+(Section~\ref{sec:m-ethics}), and nothing at that scale replaces it, but RQ4, whether the detector's
+null is real, does not depend on it: local evidence answers it instead, the pretraining positive
+control and its independent confirmation on a real score distribution (Section~\ref{sec:disc-null}),
+together with the minimum detectable effect, which bounds the twelve-positive evaluation's own
+sensitivity (Section~\ref{sec:m-mde}). The feasibility gate on the labeller's marginal, a post hoc
+check (Section~\ref{sec:r-feasgate}), answers a narrower question, the degenerate operating point a
+thresholded labeller can reach, and is silent on the AUROC null; none of RQ4's answer touches a
+hosted service.
 
 The limitations below are stated without hedging. Several are severe enough that
 a reader could reasonably decline to draw a conclusion from part of this work,
@@ -385,17 +359,23 @@ power is $0.7355$ on the primary set and $0.8058$ on the stratum. The intervals
 are wide and the ordering between the two systems this pipeline produced is
 unidentified, their Matthews correlations being $-0.0436$ and $-0.0070$, both
 within $0.05$ of chance. The limit is not that $12$ positives cannot separate
-anything: one local weak-labeller replicate from Section~\ref{sec:m-control-rq2},
-\texttt{granite3.3:8b} zero-shot, returns a one-sided hypergeometric $p$ of
-$0.0242$ against these same $253$ rows, reported here as nominal and
-uncorrected rather than as an interval. That is a claim about that one labeller
-configuration on the agreement-with-gold question, not about the contradiction
-detector, and the qualification belongs in the same breath as the claim rather
-than later: $12$ positives can separate a system from chance when the effect is
-large enough, so the null the detector and its control return is a statement
-about that architecture, which sits close to chance, rather than a statement
-that no instrument at this sample size could ever resolve anything. No ablation
-carries a significance claim.
+anything: two configurations sit exactly at their own marginal-implied
+ceiling, \texttt{granite3.3:8b} zero-shot and \texttt{llama3:8b} few-shot, and
+the first of those returns a one-sided hypergeometric $p$ of $0.0242$ on these
+same $253$ rows, a claim about that one thresholded labeller, not the
+detector, and bounded only because it is thresholded. A graded
+run of \texttt{llama3:8b} and \texttt{granite3.3:8b} under a reversed-direction
+prompt is not bounded that way and reaches an AUROC above the resolvable floor
+for both, $0.7503$ and $0.7365$ on $G_{253}$, but neither is treated as a
+finding here: an independent audit found the \texttt{llama3:8b} cell fragile
+under a leave-one-positive-out check and absent on the defect-free stratum, and
+a confirmatory pre-registration for it (C109) is committed and has not yet
+reported. So $12$ positives can separate a system from chance when a
+thresholded effect is large enough, and a graded score can clear the resolvable
+floor without being bounded by any marginal; the null the detector and its
+control return is a statement about that architecture, which sits close to
+chance, not a statement that no instrument at this sample size could ever
+resolve anything. No ablation carries a significance claim.
 
 \paragraph{Deployment risk, and automation bias.} A system with recall
 $0.7778$ and precision $0.0424$ generates a large number of false alarms per
@@ -403,81 +383,70 @@ true contradiction: the decontaminated detector's first seed alone raises
 $216$ false alarms against $9$ true contradictions. Alert burdens at that
 ratio are associated with reduced acceptance
 \citep{vandersijs2006overriding,ancker2017alertfatigue}, so this system should
-not be deployed in any form; its failure mode is worse than doing nothing, since it consumes
-clinician attention while providing no information. A second, more specific
-hazard sits inside the architecture: the harm head of
-Section~\ref{sec:m-detector} received no loss term and its outputs span
-$0.3977$ to $0.6096$, an untrained sigmoid's range, yet an earlier version of
-this work presented that output as a severity score, a plausible danger
-score derived from random initialisation, the specific and most serious
+not be deployed in any form; its failure mode is worse than doing nothing,
+since it consumes clinician attention while providing no information. A
+second, more specific hazard sits inside the architecture: the untrained harm
+head's outputs span $0.3977$ to $0.6096$, yet an earlier version of this work
+presented that range as a severity score, the specific and most serious
 instance of automation bias this project produced. The diagnostic that
 catches it, printing the empirical range of every emitted score, costs one
 line.
 
-\paragraph{One institution, one corpus, one era.} MIMIC-III covers admissions to
-a single United States academic medical centre \citep{johnson2016mimic}. The
-primary cohort is a billing-code phenotype, over-including admissions where the
-condition is a comorbidity and under-including those where it was present and
-uncoded. Documentation conventions, note-type taxonomies and medication-list
-formatting are institution- and era-specific, and the drug dictionary, class
-dictionary, dose threshold and danger judgements all encode that context. The
-transfer cohorts move across index diagnosis within the same institution, so
-nothing speaks to cross-institutional generalisation
-\citep{zech2018generalization}. MIMIC-III is a credentialed PhysioNet resource;
-all analysis reports aggregates only, and no clinical note text and no
-identifiers appear in this document or in any released artifact.
+\paragraph{One institution, one corpus, one era.} MIMIC-III covers admissions
+to a single United States academic medical centre \citep{johnson2016mimic}.
+The primary cohort is a billing-code phenotype, over-including comorbid
+admissions and under-including uncoded ones. Documentation conventions,
+note-type taxonomies and medication-list formatting are institution- and
+era-specific, and the drug dictionary, class dictionary, dose threshold and
+danger judgements all encode that context. The transfer cohorts move across
+index diagnosis within the same institution, so nothing speaks to
+cross-institutional generalisation \citep{zech2018generalization}. MIMIC-III
+is a credentialed PhysioNet resource; all analysis reports aggregates only,
+and no clinical note text or identifier appears in this document or in any
+released artifact.
 
 \paragraph{The trigger fires late, and the record cannot say how late.} The
 system compares a nursing note against a discharge summary, so it produces
-nothing until the discharge summary exists, and that document closes the
-admission rather than preceding it, finalised at or after discharge rather than
-before it. The data model compounds the problem: nursing notes carry a
-charting timestamp and discharge summaries carry only a charting date, so the
-summary cannot be placed in time relative to the discharge itself. That same
-field absence is what invalidated an earlier prefilter result in this project,
-retracted in Appendix~\ref{app:corrections}. A contradiction detected at that
-point is a documentation finding rather than an intervention, and a deployment
-claim would have to move the trigger earlier, to the discharge order rather than
-to the finished summary. Nothing here measures whether the task is tractable at
-that earlier point, and nothing here should be read as a claim that it is.
+nothing until that document exists, and it closes the admission rather than
+preceding it. Nursing notes carry a charting timestamp and discharge
+summaries carry only a charting date, so the summary cannot be placed in time
+relative to the discharge itself, the same field absence that invalidated an
+earlier prefilter result in this project, retracted in
+Appendix~\ref{app:corrections}. A contradiction detected at that point is a
+documentation finding rather than an intervention, and a deployment claim
+would have to move the trigger to the discharge order rather than the
+finished summary; nothing here measures whether the task is tractable at
+that earlier point.
 
-\paragraph{The exemplar defect bounds annotation validity, and re-annotation was
-not performed.} This is the limitation most likely to be read as smaller than it
-is. The rebuild that corrects the selector exists; the re-annotation that would
-convert the bound of Section~\ref{sec:disc-spine} into an estimate was not run.
-So $0.0401$ cannot be cited as a property of the mining rules by anyone, this
+\paragraph{The exemplar defect rate is unresolved, and re-annotation was not
+performed.} This is the limitation most likely to be read as smaller than it
+is. Three instruments now disagree on how often the exemplar-selection defect
+fired on the pooled Rule 1 and Rule 2 candidates, from $0$ to $0.9315$
+(Section~\ref{sec:disc-spine}), and a pre-registered check built to test
+whether Rule 1 and Rule 2 could even be distinguished from Rule 3 and Rule 4 at
+this sample size was not validated at either exemplar-failure rate it was
+tried against (C102), so the near-equal precision measured between those two
+groups is an instrument limit, not evidence that the groups are equal. The
+rebuild that corrects the selector exists; the re-annotation that would
+convert any of the three readings into a validated estimate was not run. So
+$0.0401$ cannot be cited as a property of the mining rules by anyone, this
 thesis included, and a reader who wants that quantity should treat it as
-unmeasured rather than as measured with error. What the defect does not touch is
-the central evaluation result, which reproduces on the $134$-pair stratum. The
-defect-free stratum, correct by construction, offers a check that does not
-depend on that estimate: it holds $6$ of the $12$ confirmed contradictions in
-$134$ pairs, a rate of $0.0448$, corroborating $0.0401$ on a stratum where the
-exemplar defect cannot fire. The weak-supervision finding needs no base-rate
-estimate at all: $261$ of the $299$ gold pairs were labelled positive against
-$12$ confirmed, a marginal comparison with no denominator to estimate.
+unmeasured rather than as measured with error. What the defect does not touch
+is the central evaluation result, which reproduces on the $134$-pair stratum
+and, separately, on a permutation test restricted to that stratum with the
+ambiguous pairs dropped (Section~\ref{sec:disc-null}): $6$ of the $12$
+confirmed contradictions sit in those $134$ pairs, a rate of $0.0448$,
+corroborating $0.0401$ on ground the exemplar defect cannot reach. The
+weak-supervision finding needs no base-rate estimate at all: $261$ of the
+$299$ gold pairs were labelled positive against $12$ confirmed, a marginal
+comparison with no denominator to estimate.
 
-\paragraph{The survey is a prevalence measurement on an enriched corpus, and it
-is limited on several axes at once.} It is the weakest of the empirical
-strands in this thesis, reported at that weight rather than alongside the
-ablation or the pre-registered convergence control. The $75$-paper corpus was
-assembled to over-sample fairness-forward work, coverage is open-access
-sources only, $459$ screened-in papers were never retrieved in full text, and
-one coder codes the full set; Chapter~\ref{ch:results} gives the full
-enrichment argument behind $4/75$ and $14/75$. A blind second coder recoded a
-subsample with field definitions only and the hypothesis withheld, and
-agreement on the permissive field is high. On the 19 double-coded papers, the
-registered permissive
-agreement is $0.9474$ with kappa $0.855$. On the strict cell, the one that decides the
-headline count, the reliability coefficient is
-\textbf{undefined}: both coders returned the same code on all 19 overlap
-papers, which drives a coder's marginal on the category toward degenerate and
-the denominator of a chance-corrected coefficient toward zero. The full
-contingency table behind the undefinedness is not registered and is not
-claimed here beyond that. It is reported as undefined rather than as the
-perfect agreement the raw agreement rate superficially permits, which is the
-same class of error as reporting a coefficient guaranteed by construction.
-The survey coding table of Appendix~\ref{app:survey} reproduces the full 75-paper coding, so a
-reader who wants to check the count rather than take it on trust can.
+\paragraph{The survey is a prevalence measurement on an enriched corpus, and
+it carries its own limitations at that weight.} It is the weakest of the
+empirical strands in this thesis and is reported at that weight rather than
+alongside the ablation or the pre-registered convergence control. Its
+methods, its coding, its reliability figures and its full paper-by-paper
+table are reported in full in the Supplement, Section S3, rather than here.
 
 \paragraph{One annotator, and the reliability figure this instrument cannot
 produce.} Every gold label came from a single board-certified
@@ -487,16 +456,33 @@ there is one rater. A previously reported perfect agreement between two
 ``independent judgement instruments'' is retracted in
 Appendix~\ref{app:corrections}: the instruments were logically equivalent, so the
 coefficient was guaranteed by construction \citep{cohen1960kappa}. Nor does the
-washout supply an intra-rater figure by another route: the two passes were not
-retained as separate columns, the second overwrote the first in the annotation
-record, and no committed artifact holds pass-one and pass-two labels side by
-side. The absence is not a reporting gap that a re-run of an existing script
-would close. It is a property of what the record kept. No inter-rater or
-intra-rater agreement statistic exists for the 299-pair gold standard, one
-cannot be recovered from the two-pass design, and every clinical result in this
-thesis, the pool precision, the weak-labeller comparison, the detector's AUROC,
-the danger ratings, rests on that unmeasured instrument. Board certification is
-a credential, not a reliability coefficient, and it is not offered as one here.
+washout supply an intra-rater figure by another route: the two passes were not retained as
+separate columns, the second overwrote the first, and no committed artifact
+holds pass-one and pass-two labels side by side, a property of what the
+record kept rather than a reporting gap a re-run would close. No inter-rater
+or intra-rater agreement statistic exists for the 299-pair gold standard, and
+every clinical result in this thesis rests on that unmeasured instrument. How
+much this single annotator's labels could be wrong before it changed a
+substantive conclusion is quantified rather than left to intuition, by two
+tipping-point checks run after every number they use was already in hand
+(Chapter~\ref{ch:results}): $7$ of the $253$ gold labels, $6$ of the $12$
+confirmed positives, would have to flip before the detector's own AUROC
+crossed the resolvable floor, and $39$ of one labeller's own false-flagged
+pairs would have to be reclassified as missed contradictions before its
+over-calling ratio fell to the public-text ceiling. Both are counts an
+adversary would have to reach, not an estimate of how many labels are
+actually wrong, and both are small relative to the twelve confirmed positives
+rather than to the pool. Board certification is a credential, not a
+reliability coefficient, and it is not offered as one here.
+
+\paragraph{A factorial designed to separate hardness, prompting and scale was
+invalid for its own contrasts.} A public-text factorial was built to test
+three explanations for over-calling at once, harder negatives, a two-part
+prompt, and a scale step, at fixed model capability. The same determinism
+check described in Section~\ref{sec:disc-overcalling} left too few models
+with a valid cell for any of the three contrasts to be computed under the
+rule set before the run, so the factorial is reported as invalid for its
+primary purpose (C104), not patched or reinterpreted after the fact.
 
 \paragraph{No rate is claimed from the correction record.} The self-audit record
 is a demonstration, not a statistic; an attempt to compute an error rate from it
@@ -530,9 +516,9 @@ Twelve positives; every interval wide & Severe & Stated; MDE $0.7355$ reported w
 \addlinespace
 Training contamination of the evaluation set & Severe if unaddressed & Measured and corrected; the decontaminated ensemble is $0.5145$ against $0.4595$ contaminated, so the correction does not favour the conclusion \\
 \addlinespace
-Exemplar defect on action-conflict candidates & Severe for pool precision, not decisive for the central result & Checked on the defect-free stratum by a separate control model, not a rescoring of the decontaminated ACCORD: $n = 134$, $6$ positives, three-seed ensemble AUROC $0.5469$, $95\%$ bootstrap interval $0.2418$ to $0.8281$, MDE $0.8058$. ACCORD's contaminated released run reads $0.5078$ on the same rows; no decontaminated ACCORD score exists there \\
+Exemplar defect on action-conflict candidates & Severe for pool precision, not decisive for the central result & Three instruments disagree ($0$, $0.4745$, $0.9315$), none a tiebreaker; the check built to test the Rule 1/2 versus Rule 3/4 split was not validated at this sample size (C102); a rescore restricted to the defect-free rows does not concentrate the null there either, though six positives cannot rule out an instrument artifact (C110) \\
 \addlinespace
-Single annotator, no inter-rater or intra-rater reliability & Severe; bounds every gold-label conclusion & Stated; the earlier circular coefficient is retracted, and the two-pass design cannot recover an intra-rater figure because the passes were not retained separately \\
+Single annotator, no inter-rater or intra-rater reliability & Severe; bounds every gold-label conclusion & Stated; the earlier circular coefficient is retracted, the two-pass design cannot recover an intra-rater figure, and the sensitivity of the headline conclusions to a wrong label is bounded by two tipping-point checks \\
 \addlinespace
 Weak-label leakage into model inputs & Moderate to severe & Demonstrated on the rule-type head, whose target is one linear layer from an input feature that equals it; the affected metric is vacated, which leaves the head untested rather than falsified \\
 \addlinespace
@@ -553,16 +539,21 @@ Generalisation is bounded on four axes. One centre and one documentation culture
 One primary billing-code phenotype, with two weaker transfer cohorts that move
 across index diagnosis rather than across sites. One era, predating current
 documentation systems and any use of generative assistance in note writing. The
-fourth axis is the task, and there the bound is measured rather than assumed: the
-over-calling measured here does not generalise to public text, where the same
-labellers under generic prompts over-called only in some settings and one never
-did, and the sweep changed prompt and negatives along with domain, so it cannot
-say what transfers; the public-text maximum over-calling ratio, measured on SNLI across three
-models, two prompts and four prevalence levels, is $3.5000$, well
-below the $15.8196$ to $23.5959$ range measured on the clinical pool.
-The positive control is external evidence of a
-limited kind: it shows the instrument behaves as expected on a public benchmark,
-and says nothing about whether the clinical result would reproduce elsewhere.
+fourth axis is the task, and there the bound is measured rather than assumed:
+the over-calling measured here does not generalise to public text under a
+generic prompt, where the same labellers over-called in some settings and one
+never did, and the sweep changed prompt and negatives along with domain, so it
+cannot say what transfers; the public-text maximum ratio, measured on SNLI, is
+$3.5000$, well below the $15.8196$ to $23.5959$ range measured on the clinical
+pool under the prompt and reading this pipeline used, the only comparable
+basis, and under a neutral prompt with the ambiguous pairs read the other way
+the same clinical ratios fall to $1.0000$ and $1.8448$
+(Section~\ref{sec:disc-overcalling}), so even within this pool a magnitude this
+large is not stable across how the question is asked. The positive control is
+external evidence of a limited kind: it shows the instrument behaves as
+expected on a public benchmark and, independently, on a real score
+distribution at this evaluation's own size (Section~\ref{sec:disc-null}), and
+says nothing about whether the clinical result would reproduce elsewhere.
 
 \subsection{Construct validity}
 
@@ -570,31 +561,30 @@ Four constructs are named more confidently than they are measured, which is the
 gap between a construct and its operationalisation that
 \citet{jacobs2021measurement} argue is where invalid conclusions originate.
 ``Dangerous medication contradiction'' is operationalised by four rules and one
-pharmacist's judgement; a different reading of what counts as a conflict yields a
-different pool and plausibly a different base rate, and the construct is not
+pharmacist's judgement; a different reading of what counts as a conflict yields
+a different pool and plausibly a different base rate, and the construct is not
 independently validated. The detector's target is the weak label, not the
-clinical event, so any statement that it ``fails to detect contradictions'' is a
-statement about what it learned to predict. Ranking metrics at a $4\%$ base rate
-also measure less than they appear to: AUROC is insensitive to prevalence in a
-way that flatters this setting, while average precision, which is not, sits near
-the base rate throughout \citep{saito2015prcurve}, and agreement statistics here
-are subject to the documented paradoxes
-\citep{feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}. Matthews
-correlation is used as the better-behaved default
+clinical event, so any statement that it ``fails to detect contradictions'' is
+a statement about what it learned to predict, a reading the bag-of-words
+baseline's own small precision signal on the same labels
+(Section~\ref{sec:disc-null}) complicates further: the labels carried
+something a simpler model used. Ranking metrics at a $4\%$ base rate also
+measure less than they appear to: AUROC is insensitive to prevalence in a way
+that flatters this setting, average precision sits near the base rate
+throughout \citep{saito2015prcurve}, and agreement statistics are subject to
+the documented paradoxes \citep{feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}.
+Matthews correlation is used as the better-behaved default
 \citep{chicco2020mcc,delgado2019kappa} rather than as a solution.
 
 The part of that critique this evaluation set makes concrete is the exchange
 rate. Each summary statistic implies a rate at which a forgone true positive is
-worth some number of gained true negatives, and the rate is fixed by the class
-counts rather than by anything clinical. The prevalence-adjusted bias-adjusted kappa
-\citep{byrt1993pabak} has the shallowest exchange of the three most commonly
-reported here, which makes it the most majority-dominated of them despite the
-name, and none of the three was chosen by asking what a missed contradiction
-costs relative to a false alarm. That question is clinical and it was never
-posed. The local \texttt{granite3.3:8b} few-shot labeller of
-Section~\ref{sec:m-control-rq2} carries a confusion matrix of $10$ true
-positives and $75$ true negatives against ACCORD's $11$ true positives and
-$18$ true negatives on the same $253$ rows. It gives up one true positive
+worth some number of gained true negatives, fixed by class counts rather than
+by anything clinical; none of the three most commonly reported here was chosen
+by asking what a missed contradiction costs relative to a false alarm, and
+that question is clinical and was never posed. The local
+\texttt{granite3.3:8b} few-shot labeller carries a confusion matrix of $10$
+true positives and $75$ true negatives against ACCORD's $11$ true positives
+and $18$ true negatives on the same $253$ rows; it gives up one true positive
 for far more true negatives, and Matthews correlation prices that trade as a
 net gain, $0.0668$ against ACCORD's $-0.0070$, on class counts rather than on
 any clinical judgement of which errors matter more. A statistic with a
