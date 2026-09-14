@@ -65,3 +65,13 @@ aggregate floats only: no pair_id, identifier, row, or sentence text.
 
 ## Outcome
 (appended after the run)
+
+Run 2026-09-14, artifact `results/accord/c114_committee_checks/c114.json`, all validity
+gates passed (253 joined, 0 label mismatches, ensemble AUROC and stratum AUROC reproduced).
+
+- **Task A: A2.** AP(NLI) minus AP(ensemble) = 0.1088, two-sided paired p = 0.10035. The
+  claim that two simple models find a signal the detector lacks is reduced to TF-IDF only.
+- **Task B.** From the decontaminated ensemble (0.5145), greedy relabelling reaches 0.7355 after
+  5 flips, 0.7466 after 6, and 0.8084 after 7. These replace the contaminated-run figure.
+- **Task C.** Rules 3+4 ambiguous-dropped stratum (n 108, 6 positives): percentile bootstrap
+  95 percent interval 0.3029 to 0.9010 around AUROC 0.6095.
