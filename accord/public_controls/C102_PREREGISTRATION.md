@@ -208,18 +208,129 @@ than fabricating an input.
 
 - `results/accord/plantbench/stage1_s1b.json`
 - `results/accord/plantbench/stage2_s2abc.json`
-- `results/accord/plantbench/stage3_smoke.json` (smoke test only, explicitly labelled
-  not a verdict)
-- `results/accord/plantbench/stage4_*.json` -- not produced in this build.
+- `results/accord/plantbench/stage3_smoke.json` (calibration smoke test, explicitly
+  labelled not a verdict)
+- `results/accord/plantbench/stage3_registered.json` (the registered Stage 3 run:
+  real dims, MPS, 20 replicates per arm per check)
+- `results/accord/plantbench/stage3_detector_scores_for_stage4.json` (Stage 3's
+  bridge output, consumed by Stage 4)
+- `results/accord/plantbench/stage4_s4.json`
 - Register script: `accord/public_controls/plantbench/register.py`, prefix
   `plantbench.`. Written but NOT run by this agent; the coordinator runs it once the
   concurrent register write elsewhere is done.
 
 ## Outcome
 
-Recorded below after each stage; the rule above is unchanged.
+Recorded 2026-09-14 after all four stages; the rule above is unchanged.
 
-**Outcome letters, restated:** **A**, every stochastic check registered here is
-validated. **B**, at least one is not, named explicitly with its counts; the thesis
-may not rely on an unvalidated check. **C**, invalid: any stage's calibration fails
-after the fallback described for it above, or a stage is incomplete.
+**Overall outcome: B.** At least one registered stochastic check is not validated,
+named below with its counts; nothing in this thesis may rely on an unvalidated
+check. No stage was incomplete and no stage's calibration fell back and then
+failed, so the run does not qualify as C; every stochastic check that ran is
+named with real counts, not "N checks validated" as a single number.
+
+### Stage 1, S1b (candidate-level, no note text)
+
+`not_validated_sensitivity` at both registered plant rates. Clean (r=0) is
+deterministic in this design (no exemplar ever fails, so the table is fixed by
+the apportioned counts): 0/20 false alarms. Plant r=0.25: 0/20 fires (rate over
+1,000 resamples 0.001). Plant r=0.47: 0/20 fires (rate over 1,000 resamples
+0.028). The defect-free stratum apportions to only 5 true positives at G_253
+scale (rules 3-4, Hamilton apportionment of the registered rule counts), too few
+for the one-sided Fisher test to reliably separate rules 1-2 from rules 3-4 even
+at the higher planted rate.
+
+### Stage 2 (S2a deterministic, S2b/S2c stochastic, 20 replicates each)
+
+S2a: deterministic, reported per arm, not a fire-count verdict. Clean's flag
+rate (near base rate) gives a near-zero feasibility floor; L1 and L2 (both flag
+85%) give an identical, higher floor (0.135) regardless of accuracy, exactly the
+scope this check documents for itself.
+
+S2c (`c98_rule` on the score): `validated`. Clean 20/20 fires, L1 20/20 fires,
+L2 0/20 fires -- matches the pre-registration's own stated expected pattern
+exactly.
+
+S2b (bootstrap ratio): the committed rule states the fire condition but not
+which arms are its plant vs its clean arm. Both readings consistent with the
+committed text are reported, neither chosen after seeing the data: reading
+"plant = over-called arms (L1, L2), clean = clean" gives `validated` (L1 20/20,
+L2 20/20, clean 0/20); reading "plant = signal arms (clean, L1), clean = L2"
+gives `unvalidated_false_alarm` (L2 fires 20/20, over the 5/20 ceiling). S2b is
+therefore named as **not validated under at least one reading** and the thesis
+may not rely on it without first tightening this ambiguity in a new
+pre-registration.
+
+### Stage 3 (real frozen-file dimensions, MPS, 20 replicates per arm per check, untrained)
+
+GPU/CPU freedom verified immediately before running (`curl .../api/ps` empty,
+no training `pgrep`), per the coordinator's gate. Calibration (the original
+2-tiny-replicate CPU smoke test) re-run first, unchanged in outcome, before any
+registered-run datum.
+
+- **S3a, authority-normalisation displacement: `not_validated_sensitivity`.**
+  Plant (frozen file's actual, non-row-normalized `authority_matrix` init)
+  0/20 fires, displacement 0.00025-0.00055 across replicates, never near the
+  0.02 threshold even at real (256-dim) scale. Clean (pre-row-normalized
+  starting matrix, added when this run was built since the smoke test never
+  had a clean arm) 0/20 fires, displacement exactly 0.0 every replicate.
+- **S3b, rule-id shortcut gradient-RMS ratio: `not_validated_sensitivity`.**
+  Plant 0/20 fires, ratio 0.90-1.09; clean 0/20 fires (not applicable to a
+  false-alarm count since neither arm fires), ratio 0.91-1.15. Plant and
+  clean are statistically indistinguishable: an untrained model has not
+  learned a shortcut through a single forward/backward pass, so there is
+  nothing yet for this check to detect.
+- **S3c, rule-feature-ablation macro-F1 drop: `not_validated_sensitivity`.**
+  Plant 0/20 fires, drop -0.021 to +0.019 (noise around zero); clean 0/20
+  fires, drop -0.021 to +0.017. An untrained `rule_type_head` has not learned
+  to rely on any feature, so zeroing one feature changes nothing.
+- **S3d, harm-head weight-change ratio: `validated`.** Plant (harm loss
+  excluded from backward) 20/20 fires, ratio exactly 0.0 every replicate (no
+  gradient path exists at all when the term is omitted). Clean (harm loss
+  included) 0/20 fires, ratio 0.0031-0.0043, always far above the 1e-6
+  threshold. This check's signal is a computational-graph connectivity
+  property and does not depend on training.
+
+S3a, S3b and S3c all need trained weights to exhibit the effect they are
+designed to detect (a real normalization sensitivity, a real shortcut, a real
+learned feature-reliance); none is in this build's scope, which never trains
+anything and has no BiomedBERT feature cache. This is reported as the honest
+registered-run finding: **3 of 4 Stage 3 checks are not validated at this
+build's available scope**, not patched around by loosening a threshold or
+inventing training that was never authorized.
+
+### Stage 4 (S4, on Stage 3's bridge output)
+
+`not_validated_sensitivity`. Input: the real, frozen
+`AuthorityTemporalConflictGraph` + `GuidelineGroundedHarmEstimator` pipeline's
+raw score on 253 synthetic items (untrained, real dims, MPS), paired with an
+independent 12/253 synthetic gold (not constructed to correlate with the
+score, since there is no trained detector in this build's scope). Plant
+(case-bootstrap of the true pairing): resample 0 does not fire, fire rate
+0.002 over 1,000 bootstrap resamples, 0/20 in the first 20. Clean (permutation
+null): resample 0 does not fire, fire rate 0.001 over 1,000 resamples, 0/20 in
+the first 20. `c98_rule` essentially never fires on either arm, which is the
+expected, calibration-appropriate behavior for scores that carry no trained
+relationship to the gold, not a defect in the check.
+
+### Deterministic vs stochastic, restated
+
+Deterministic (arithmetic, one number per arm, no replicate count): S2a. Every
+other check above (S1b, S2b, S2c, S3a-d, S4) is stochastic, reported as a
+fire-count out of 20 (or out of 1,000/1,000 where the pre-registration asked
+for both) with its own binomial-probability table, never collapsed into a
+single "N checks validated" figure.
+
+### What failed and what did not
+
+Nothing crashed or ran incomplete: every stage produced the artifact its
+pre-registration named. What "failed" in the ordinary sense is a finding, not
+an error: three of Stage 3's four checks, Stage 4, Stage 1's S1b, and one
+reading of Stage 2's S2b are not validated at the scope this build actually
+has (no trained detector, no BiomedBERT cache, small defect-free strata at
+G_253 size). Validated: S2c, S3d, and S2b under one of its two readings.
+
+Artifacts: `results/accord/plantbench/stage3_registered.json`,
+`stage3_detector_scores_for_stage4.json`, `stage4_s4.json` (added to the list
+below). Register script (not run): `accord/public_controls/plantbench/register.py`,
+prefix `plantbench.*`.
