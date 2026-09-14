@@ -203,8 +203,18 @@ def run_cell(model, prompt_name, manifest, snli_df, hans_df):
     main_recs, _ = label_items(model, prompt_name, main_items, snli_df, hans_df)
     det_end, _ = label_items(model, prompt_name, det_items, snli_df, hans_df)
 
-    determinism_failures = sum(
-        0 if determinism_ok(a, b) else 1 for a, b in zip(det_start, det_end))
+    det_diag = []
+    for a, b in zip(det_start, det_end):
+        if not determinism_ok(a, b):
+            det_diag.append({
+                "item_id": a["item_id"], "label_start": a["hard_label"],
+                "label_end": b["hard_label"], "logodds_start": a["logodds"],
+                "logodds_end": b["logodds"],
+                "logodds_abs_diff": (abs(a["logodds"] - b["logodds"])
+                                      if a["logodds"] is not None and b["logodds"] is not None
+                                      else None),
+            })
+    determinism_failures = len(det_diag)
 
     n = len(main_recs)
     n_deg = sum(1 for r in main_recs if r["degenerate"])
@@ -222,6 +232,7 @@ def run_cell(model, prompt_name, manifest, snli_df, hans_df):
         "n_thinking_nonempty": n_thinking,
         "n_determinism_items": len(det_items),
         "n_determinism_failures": determinism_failures,
+        "determinism_failure_detail": det_diag,
         "valid": bool(valid),
     }
     return main_recs, meta

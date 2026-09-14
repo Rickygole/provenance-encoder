@@ -172,9 +172,13 @@ def contrast_h(cells):
         out[model] = {"point": float(hard_flags.mean() - easy_flags.mean()),
                        "ci95": [lo, hi], "interval_above_zero": bool(lo > 0)}
     n_above = sum(1 for v in out.values() if v["interval_above_zero"])
+    if len(out) < 5:
+        outcome = "C_not_computable"
+    else:
+        outcome = "A" if n_above >= 5 else "B"
     return {"per_model": out, "n_models_valid": len(out),
             "n_models_interval_above_zero": n_above,
-            "outcome": "A" if n_above >= 5 else "B"}
+            "outcome": outcome}
 
 
 def contrast_p(cells):
@@ -196,9 +200,13 @@ def contrast_p(cells):
         out[model] = {"point": float(med1.mean() - med0.mean()),
                        "ci95": [lo, hi], "interval_above_zero": bool(lo > 0)}
     n_above = sum(1 for v in out.values() if v["interval_above_zero"])
+    if len(out) < 5:
+        outcome = "C_not_computable"
+    else:
+        outcome = "A" if n_above >= 5 else "B"
     return {"per_model": out, "n_models_valid": len(out),
             "n_models_interval_above_zero": n_above,
-            "outcome": "A" if n_above >= 5 else "B"}
+            "outcome": outcome}
 
 
 def contrast_s(cells):
