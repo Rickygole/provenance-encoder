@@ -143,4 +143,54 @@ resumed tail.
 
 ## Outcome
 
-_Recorded below after the run completes; not yet run as of this commit._
+Recorded 2026-09-13 after the run; the rule above is unchanged.
+
+**Outcome B, naming the conflict is not shown to be a sufficient explanation
+on its own.** All 9 cells (3 models x 3 prompts, 299 pairs each) are valid:
+0 parse failures, 0 call failures, 0 thinking leakage, 0 truncation in every
+cell (degenerate log-odds rate at most 2.0%, from `llama3:8b/P_asserting`,
+well under any threshold this pre-registration set).
+
+Per-model McNemar (P_asserting vs P_neutral, exact two-sided):
+- `llama3:8b`: positive rate rose from 0.8729 (asserting) to 0.9365
+  (neutral), the WRONG direction for Outcome A (p=0.0054, but margin
+  direction fails, so this model does not satisfy the criteria regardless
+  of the ratio).
+- `granite3.3:8b`: positive rate fell from 0.7492 to 0.3579 (p=5.8e-32,
+  right direction), but the neutral over-calling ratio is 8.92, above the
+  registered public-text ceiling of 3.5000000000000004.
+- `qwen3:8b`: positive rate fell from 0.5686 to 0.1940 (p=8.1e-29, right
+  direction), but the neutral over-calling ratio is 4.83, still above the
+  3.5 ceiling.
+
+0 of 3 models satisfy the full Outcome A criteria (margin direction AND
+McNemar p<0.05 AND ratio at or below the public-text ceiling); the
+pre-registered threshold is at least 2 of 3. Removing the conflict-naming
+does significantly reduce over-calling for 2 of the 3 models (large McNemar
+effects, right direction), but even the reduced, neutral-prompt over-calling
+remains well above the ceiling this project has already registered for
+prompts that never mention a clinical conflict at all -- so naming the
+conflict is a real contributor for at least those two models, but it is not
+shown to be the whole story: something else is still driving over-calling
+once the conflict-naming is removed. For `llama3:8b` specifically, removing
+the conflict-naming did not reduce over-calling at all; it INCREASED it, a
+finding at least as important as the intended contrast.
+
+Secondary (G_253, one-sided Mann-Whitney vs MDE 0.7355): only one of the
+nine cells clears the registered minimum detectable AUROC --
+`llama3:8b/P_reversed`, AUROC 0.7503, p=0.0017. Every other cell's AUROC is
+below the MDE (range 0.578-0.737), so no other prompt/model cell is read as
+discriminating at this evaluation's resolution; nothing is concluded about a
+smaller effect for those cells. `P_reversed` is descriptive only, per the
+pre-registration, and is not part of the primary decision rule.
+
+Marginal feasibility floors (`accord/stats/marginal_feasibility_gate.py`,
+G_299 hard label) range from 2.9e-6 (`granite3.3:8b/P_neutral`) to 0.448
+(`llama3:8b/P_neutral`); every cell's floor is reported in
+`analysis.json::per_model_prompt.*.marginal_feasibility_floor_p`.
+
+Artifacts: `results/accord/prompt_sensitivity/cells/*.json` (9 files),
+`results/accord/prompt_sensitivity/analysis.json`,
+`results/accord/prompt_sensitivity/egress_evidence_c103_20260913T192835.txt`
+(loopback only, confirmed). Register prefix `promptsens.*`, script written at
+`accord/prompt_sensitivity/register_promptsens.py`, not run by this agent.

@@ -64,7 +64,7 @@ def main():
     y_253 = {pid: int(label_by_pair[pid] == "contradiction") for pid in pair_ids_253}
 
     overcall = json.loads(OVERCALL_PATH.read_text())
-    ceiling_ratio = overcall["max_over_call_ratio"]
+    ceiling_ratio = overcall["public"]["max_over_call_ratio"]
     mde = json.loads(MDE_PATH.read_text())
     mde_auc = mde["strata"]["gold_ambiguous_excluded"]["minimum_detectable_auc"]
 
@@ -197,4 +197,26 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # Never let a traceback go past this point: it can quote a data
+        # value back (e.g. a KeyError showing a pair_id or a malformed
+        # cache line). Write only the exception type and the last frame's
+        # function/line number -- enough to debug, nothing that can carry
+        # sentence text -- to a small debug file under results/, which is
+        # not restricted the way anything under mimic_local_only is.
+        import pathlib
+        import traceback
+        tb = traceback.extract_tb(exc.__traceback__)
+        last = tb[-1] if tb else None
+        debug = {
+            "exception_type": type(exc).__name__,
+            "last_frame_function": last.name if last else None,
+            "last_frame_lineno": last.lineno if last else None,
+            "last_frame_file": last.filename if last else None,
+        }
+        debug_path = (pathlib.Path(__file__).resolve().parents[2] / "results"
+                      / "accord" / "prompt_sensitivity" / "analyze_debug.json")
+        debug_path.write_text(json.dumps(debug, indent=2) + "\n")
+        raise SystemExit(f"failed: {type(exc).__name__} (see {debug_path})")
