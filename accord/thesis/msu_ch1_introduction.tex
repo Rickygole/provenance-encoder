@@ -124,10 +124,9 @@ together. The check is one line: assert the selected exemplar belongs to
 the trigger set. Here the selector indexed candidates positionally instead
 (Figure~\ref{fig:exemplar}), and the pool's reported precision carried no
 trace of it, because no metric compares displayed evidence against
-triggering evidence. How often it fired is unresolved rather than
-established: Chapter~\ref{ch:results} reports three measurements on the
-same rules that disagree with one another, spanning $0$ to $0.9416$
-depending on the instrument used.
+triggering evidence. Chapter~\ref{ch:results} reports three instruments
+on the same rules that give $0$, $0.4745$ and $0.9315$; the direct
+measurement, $0.9315$, is the primary estimate.
 
 \begin{figure}[!ht]
 
@@ -153,18 +152,15 @@ could have caught.
 
 The pipeline does not work. This thesis establishes where it fails and why,
 by running at each stage the control that separates a real result from an
-artifact of measurement; each stage's reading was tested against its control. The cleanest expression of
+artifact of measurement. The cleanest expression of
 the failure is the decontaminated detector's behaviour on the $253$
 non-ambiguous pairs: at the configured threshold it predicts positive for
-nearly the whole pool rather than ranking within it, and its ranking is at
-chance rather than merely inaccurate (Chapter~\ref{ch:results},
-Section~\ref{sec:res-rq4}, Table~\ref{tab:decontam}). That null holds on
-the defect-free stratum too, at a resolution RQ4 below validates against
-real scores. Figure~\ref{fig:ceiling} carries a separate mechanism: the weak labeller's
+nearly the whole pool rather than ranking within it, and its ranking is not
+distinguishable from chance, its bootstrap interval excluding an AUROC above
+$0.7034$ (Section~\ref{sec:res-rq4}, Table~\ref{tab:decontam}). Figure~\ref{fig:ceiling} carries a separate mechanism: the weak labeller's
 positive rate against the pharmacist's confirmed rate on the same pool
 fixes an agreement ceiling that RQ2 below reports as a precondition, not an
-explanation of the ranking null RQ4 asks about. A positive control on the
-same harness resolves a real effect on a public benchmark.
+explanation of the ranking null RQ4 asks about.
 
 \section{Research Questions}
 \label{sec:intro-rqs}
@@ -178,9 +174,9 @@ original form, whether the failure was a property of the task or of the
 instrument, because the results that answered that form were withdrawn
 (Appendix~\ref{app:corrections}); evidence sits in Chapter~\ref{ch:results},
 and the control for each stage is specified in Chapter~\ref{ch:method}
-before any result was seen, with one post hoc exception: the feasibility
-check reported under RQ2 was added only after the hosted results it stood
-in for were withdrawn.
+before any result was seen, except the post hoc analyses marked as such:
+the feasibility gate, the ambiguous-pair rescaling, both tipping points and
+the public sweep decomposition.
 
 \begin{description}
 
@@ -191,8 +187,8 @@ annotated pairs, a base rate of $0.0401$, and the evidence shown for each
 candidate was selected independently of the evidence that triggered it, an
 instance of the trigger-exemplar dissociation named in
 Section~\ref{sec:intro-pipeline}. How often that defect fired is not
-resolved: three separate measurements on the Rule 1 and Rule 2 pool span
-from $0$ to $0.9416$ depending on the instrument used, and
+settled: three instruments on the Rule 1 and Rule 2 pool give $0$,
+$0.4745$ and $0.9315$, the last the primary estimate, and
 Section~\ref{sec:intro-notclaim} states what that leaves of the $0.0401$
 figure.}
 
@@ -202,61 +198,53 @@ for expert annotation at this base rate?
 marginal and its ceiling: the deployed weak labeller assigned the
 contradiction class to $261$ of the $299$ annotated pairs against $12$
 confirmed, and at that marginal the largest Matthews correlation any
-thresholded label could express with the pharmacist is $0.0768$, before a
+thresholded label could express with the pharmacist is $0.0780$, before a
 single pair is scored. A post hoc check extends this to every hard-label
-marginal measured: of $18$ labeller-and-prompt configurations, $6$, all
+marginal measured: of $15$ labeller-and-prompt configurations, $5$, all
 \texttt{llama3:8b}, could not have rejected the null at $\alpha = 0.05$ at
 any outcome their marginal permitted; \texttt{granite3.3:8b} and
 \texttt{qwen3:8b} do not share that ceiling. Second, what the excess
-depends on: naming the specific conflict type raises over-calling for two
-of the three local models tested and lowers it for the third, and reading
-the $46$ ambiguous pairs as confirmed rather than as negative moves every
-ratio toward one, reaching exactly the confirmed rate for one model under
-one prompt while staying above four for another under every prompt tried;
-how much a labeller over-calls therefore turns on the prompt and the
-reading, not on one multiplier. Third, whether a score rescues it: a score
+depends on: a clinical-pharmacist framing prompt, whose differences from a
+plain yes/no prompt are confounded, gives higher positive rates for
+\texttt{granite3.3:8b} and \texttt{qwen3:8b} and lower for
+\texttt{llama3:8b}, so how much a labeller over-calls turns on the prompt,
+not on one multiplier. That margin is fragile: relabelling $5$ flagged pairs
+would bring the lowest ratio measured, $4.8333$, below the highest ratio
+measured on public text.
+Third, whether a score escapes the ceiling: a score
 is not bounded by that ceiling, because its threshold can be swept; the one
 score-emitting configuration tested, under a rule fixed before the run,
 reaches an AUROC of $0.5467$ ($p = 0.2934$), below the $0.7355$ effect size
-this evaluation can resolve, so sweeping does not rescue it. No claim is
+this evaluation can resolve, so sweeping does not help. No claim is
 licensed about a labeller, a prompt, or a domain not tested.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
 what they are credited with?
-\emph{No, and the controls fire positively rather than by absence of evidence:
-the authority parameters reported as learned finish at $0.5076 \pm 0.0006$ and
+\emph{No, on code-audit findings: the authority parameters reported as learned finish at $0.5076 \pm 0.0006$ and
 $1.0038 \pm 0.0010$ against initialisation at $0.5$ and $1.0$, the harm head's
-outputs span $0.3977$ to $0.6096$, which is the range of an untrained sigmoid,
-and on a second system built for this analysis, a single-seed randomised
-control over the same role-label alphabet directionally loses to true role
-labels by $0.3277$ nats with no significance claim attached, while an
-arbitrary positional ordinal, a different feature rather than a randomised
-version of the same one, beats both.}
+outputs span $0.3977$ to $0.6096$, which is the range of an untrained
+sigmoid.}
 
 \item[RQ4. Evaluation.] Is the trained detector's ranking null real, given
 what this project's own instrument can show?
-\emph{The null holds at the configurations tested, including on the rows
-free of the exemplar-selection defect. On the $253$ non-ambiguous pairs
-three configurations of the decontaminated detector sit at chance, a paired
-comparison cannot separate two of them, and a bag-of-words baseline
-trained on the same weak labels recovers a small precision-only signal the
-detector itself does not show (Section~\ref{sec:res-rq4}). Restricted to
-the $108$ defect-free Rules 3 and 4 pairs, the released detector's AUROC is
-$0.5114$, $p = 0.4686$, not significant; at $6$ positives this can fail to
-show the null is an artifact of the exemplar defect but cannot establish
-that it is not. This evaluation is informative only above an AUROC of
-$0.7355$ at $80\%$ power, corroborated at $0.7466$ by an independent check
-on a real natural-language-inference score distribution rather than a
-synthetic one, and a pre-registered positive control on a public benchmark
-resolves a real difference, $4.53$ accuracy points, where one exists.
-Whether a smaller clinical effect exists is not determinable from this
+\emph{The null holds at the configurations tested. On the $253$
+non-ambiguous pairs three configurations of the decontaminated detector are
+not distinguishable from chance, the ensemble's bootstrap interval excluding
+an AUROC above $0.7034$, a paired comparison cannot separate two of them, and two simple models, one never trained on the weak
+labels, find a small precision signal the detector does not, on a statistic
+chosen after its value was known (Section~\ref{sec:res-rq4}). On the $108$
+defect-free Rules 3 and 4 pairs the decontaminated detector's AUROC is
+$0.6095$, $p = 0.1910$; with $6$ positives and a minimum detectable AUROC of
+$0.8058$ this fails to show the null is a defect artifact and cannot
+establish that it is not. A power analysis on real score distributions puts
+$80\%$ power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test and
+$0.8084$ for the registered decision rule. Whether a smaller clinical effect exists is not determinable from this
 evidence.}
 
 \end{description}
 
 RQ4 is the check that keeps the other nulls in this pipeline from reading as
-one underpowered study: without its positive control and minimum detectable
-effect, a null anywhere here would be indistinguishable from an insensitive
+one underpowered study: without its minimum detectable effect, a null anywhere here would be indistinguishable from an insensitive
 instrument.
 
 \section{Contributions}
@@ -266,24 +254,14 @@ The methods applied here are not novel; Chapter~\ref{ch:lit} attributes
 each control to its owner
 \citep{lipsitch2010negative,adebayo2018sanity,hewitt2019control,feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak}.
 What is new is the measurement on this pipeline and the fact that the
-controls were actually run. Three contributions follow, each stated at the
+controls were actually run. Two contributions follow, each stated at the
 size the evidence supports.
 
 \begin{enumerate}
-\item \textbf{What a weak labeller's over-calling depends on, bounded by
-where the pharmacist's own labels would have to be wrong.} RQ2 above gives
-the prompt and ambiguous-pair dependence; sized against the
-labeller-and-prompt configuration closest to the highest ratio measured,
-$39$ of the $166$ pairs it flags without pharmacist confirmation would have
-to be relabelled as missed contradictions, more than three times the
-number this evaluation currently confirms, before its ratio falls to the
-ceiling already measured on public text.
-
-\item \textbf{Evidence that the ranking null is real above a resolution
-validated against real scores, including on the rows free of the
-exemplar-selection defect.} RQ4 above gives the resolution, the
-defect-free-stratum check, and the bag-of-words model's precision-only
-signal that the detector itself does not show.
+\item \textbf{Evidence that the ranking null holds above the resolution a
+power analysis on real scores supports.} RQ4 above gives that resolution,
+the defect-free-stratum check at its limit, and the small precision signal
+two simple models find and the detector does not.
 
 \item \textbf{A check-validation record.} A pre-registered planted-defect
 benchmark, sized to this evaluation and built to test the Fisher exact test
@@ -291,9 +269,7 @@ behind Chapter~\ref{ch:results}'s Rule 1/2 versus Rule 3/4 mechanism
 comparison, did not reach the required firing rate on its own planted
 defect at either rate it was tried against, so that comparison's own null
 is read as an instrument limit rather than as evidence the two mechanism
-groups are equal. The positive control described under RQ4 above is the
-same record's other half: the same harness resolving a real effect where
-one exists.
+groups are equal.
 \end{enumerate}
 
 Two further threads are reported in the supplement rather than argued here:
@@ -308,5 +284,6 @@ cost.
 Chapter~\ref{ch:discussion}, Section~\ref{sec:disc-limits} is where each
 boundary of this negative result is argued; one line belongs here because
 RQ1 above points to it directly. Trigger-exemplar dissociation is not
-evidence that the measured base rate is wrong: $0.0401$ is an upper bound on
-annotation validity, not a figure to be revised in either direction.
+evidence that the measured base rate is wrong: $0.0401$ is the confirmed
+rate on the annotated pairs, and the exemplar defect means its validity is
+not established.

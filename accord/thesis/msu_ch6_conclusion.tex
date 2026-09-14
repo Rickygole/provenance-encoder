@@ -8,16 +8,10 @@
 %  Every number restated here is derived in Chapters 3 to 5 and keyed to
 %  results/accord/VERIFIED_FACTS.json. No new claim and no new number.
 %
-%  Rewritten to match the rewritten Chapter 4: the central claim is the
-%  resolvable-effect floor, the prompt- and reading-dependent over-calling
-%  margin, the chance-level detector on both evaluation sets including the
-%  defect-free stratum, and the bag-of-words baseline's small precision
-%  signal. Compute cost and sign provenance are side-strand material now
+%  Rewritten to match the committee fix list (F1 to F10). Compute cost and sign provenance are side-strand material now
 %  bound in the supplement and are not restated here; the selection-channel
 %  anomaly is dropped from future work for the same reason it carries no
-%  claim this chapter depends on (Section~\ref{sec:disc-anomaly}). The
-%  reversed-prompt AUROC cell did not survive C109's rewording test and is not
-%  treated as a finding here.
+%  claim this chapter depends on (Section~\ref{sec:disc-anomaly}).
 %
 %  Figure: fig:exemplar, referenced from Chapter~\ref{ch:intro} in the
 %  practical-lesson section, illustrating the check rather than a result.
@@ -39,42 +33,44 @@ This thesis asked whether that disagreement can be detected automatically
 from paired clinical notes in MIMIC-III \citep{johnson2016mimic}, and built a
 standard-shaped pipeline to answer it: rule-based candidate mining, language
 model weak supervision, and a purpose-built neural detector over a
-domain-pretrained clinical encoder. Each stage's reading was tested against a
-control, and Section~\ref{sec:conc-found} states what survived that testing.
+domain-pretrained clinical encoder. Each stage's reading was checked, and Section~\ref{sec:conc-found} states what survived that testing.
 
 \section{What Was Found}
 \label{sec:conc-found}
 
 With 12 pharmacist-confirmed contradictions in 299 pairs, this evaluation
-resolves only large effects, reliably from about an AUROC of 0.75, exactly
-0.7355 at 80 percent power (Section~\ref{sec:res-rq4}), a floor checked
-against a real score distribution rather than only a synthetic one and not
-merely computed by formula. Within that limit, local language-model
+resolves only large effects: the analytic minimum detectable AUROC is 0.7355,
+and a power analysis on real score distributions puts 80 percent power at
+0.7466 for a two-sided Mann-Whitney test and 0.8084 for the registered
+decision rule (Section~\ref{sec:res-rq4}). Within that limit, local language-model
 labellers flagged far more pairs than the pharmacist confirmed: the deployed
 labeller called 261 of the 299 pairs contradictions against 12 confirmed, and
-three local eight-billion-parameter models measured on the same pool over-call
-by a factor of 15.8196 to 23.5959 against the confirmed rate
-(Section~\ref{sec:res-rq2}). How much more depended heavily on the prompt and
-on how the 46 ambiguous pairs are read: removing the named conflict from the prompt
-moved two of the three models' positive rates down sharply and the third up;
-reading the ambiguous pairs as confirmed rather than as negative brings one
-model's neutral-prompt ratio to exactly the confirmed
-rate, while the least-affected model still over-calls above a factor of four
-under every prompt tried. Neither reading is preferred over the other in this
-thesis.
+three local models under the replication prompt
+over-call the same pool by a factor of 15.8196 to 23.5959 against the
+confirmed rate (Section~\ref{sec:res-rq2}). How much more depended heavily on
+the prompt: a clinical-pharmacist framing prompt, whose differences from a
+plain yes/no prompt are confounded, gave higher positive rates for
+granite3.3:8b and qwen3:8b and lower for llama3:8b. Counting the 46 ambiguous
+pairs as confirmed is a post hoc rescaling that multiplies every ratio by
+12/58 and says nothing about agreement; the labellers did not flag ambiguous
+pairs more than clear negatives. The margin is also fragile: relabelling 5
+flagged pairs would bring the lowest hard-label ratio, 4.8333, below the
+highest ratio measured on public text.
 
-The detector trained on those labels ranked at chance, including on the
-defect-free rows. On the 253 non-ambiguous pairs the decontaminated ensemble
-reaches an AUROC of 0.5145, its bootstrap interval straddling chance; on the
-134-pair stratum that the exemplar-selection defect of
-Section~\ref{sec:r-exemplar} cannot reach, a defect-free control model still
-returns an ensemble AUROC of 0.5469, also straddling chance. A bag-of-words
-model trained on the same labels the detector consumed, by contrast,
-recovered a small precision signal: its average precision clears its own
-no-skill line at $p = 0.0109$ on the full annotated set and $p = 0.0159$ on
-the non-ambiguous set, a result its ranking statistic alone does not show and
-that does not survive being retrained on the gold labels alone at this sample
-size.
+The detector trained on those labels was not distinguishable from chance.
+On the 253 non-ambiguous pairs the decontaminated ensemble reaches an AUROC
+of 0.5145, its bootstrap interval excluding values above 0.7034. On the 108
+non-ambiguous Rules 3 and 4 pairs the exemplar-selection defect of
+Section~\ref{sec:r-exemplar} cannot reach, the same ensemble reaches 0.6095
+($p = 0.1910$); with 6 positives and a minimum detectable AUROC of 0.8058 this
+fails to show the null is a defect artifact and cannot establish that it is
+not. A bag-of-words model trained on the weak labels and an inference model
+never trained on them each find a small precision signal the detector lacks:
+the bag-of-words average precision, a statistic chosen after its value was
+known, clears its no-skill line at $p = 0.0109$ on the full annotated set and
+$p = 0.0159$ on the non-ambiguous set, and the two models are statistically
+indistinguishable. That is a surface lexical signal, not evidence that the
+weak labels carried signal.
 
 \section{What This Establishes, and What It Does Not}
 \label{sec:conc-establishes}
@@ -82,15 +78,13 @@ size.
 The labeller's own marginal fixes an agreement ceiling before a single pair
 is scored: holding the confirmed and flagged counts fixed, the largest
 Matthews correlation any thresholded label at that marginal could express
-against the pharmacist is 0.0768. That ceiling is consistent with why the
+against the pharmacist, at 261 flagged of 299, is 0.0780. That ceiling is consistent with why the
 detector trained on those labels lands where it does; it does not prove the
 mechanism, which is named rather than assumed. The resolvable-effect floor
-above was validated against a real score distribution, which certifies that
-the class of test this thesis runs resolves an effect where the analytic
-calculation says it should; it does not certify that this evaluation's null
-is free of the exemplar-selection defect, since a check restricted to the
-defect-free stratum has only six positives to work with and can fail to show
-the defect is present without showing it is absent.
+above rests on a power analysis, not an empirical validation of the clinical
+instrument, and it does not show that this evaluation's null is free of the
+exemplar-selection defect, since the defect-free stratum has only six
+positives.
 
 \section{Practical Lesson}
 \label{sec:conc-practice}
@@ -115,18 +109,18 @@ positives, and the minimum detectable AUROC at that count, 0.7355, sets the
 size of the annotation effort a future attempt needs before a modest
 detector could be told apart from chance.
 
-\textbf{An independent set for wording-specific signals.} The one prompt
-cell that briefly ranked above the evaluation's resolution did not survive a
-pre-registered test across rewordings (Section~\ref{sec:res-rq2}). Whether any
+\textbf{An independent set for wording-specific signals.} A reversed-direction
+zero-shot score ranked above chance under every wording tried but reached the
+resolvable floor under none of the three new ones, and its signal sits in the
+rows carrying the exemplar defect (Section~\ref{sec:res-rq2}). Whether any
 wording carries a real signal can only be tested on pairs it was not found on.
 
-\textbf{A validated exemplar instrument.} Three measurements of how often the
-candidate pool's exemplar selector showed the annotator a pair that did not
-carry the conflict it asserted disagree with one another
-(Section~\ref{sec:r-exemplar}), and none is a direct measurement of the exact
-pair the pharmacist saw at scale. Building and validating an instrument that
-is, then re-annotating against it, would convert the pool's base rate from an
-upper bound into an estimate.
+\textbf{A validated exemplar instrument.} Three instruments give $0$,
+$0.4745$ and $0.9315$ for how often the exemplar selector showed a pair that
+did not carry the conflict it asserted (Section~\ref{sec:r-exemplar}); the
+primary estimate, $0.9315$, comes from an extractor never validated against
+human annotation. Validating it would establish whether the pool's confirmed
+base rate is valid.
 
 \textbf{Frontier-scale local labellers, when feasible.} The comparison this
 project needed, a frontier-scale model against the same local labellers on
@@ -142,14 +136,13 @@ locally, at a scale a hosted channel is not required to reach.
 Dangerous medication contradictions between nursing notes and discharge
 summaries are real, recurring, and worth detecting. At the size this thesis
 could annotate, twelve confirmed contradictions in 299 pairs, the pipeline
-built to detect them did not: its own detector ranks at chance on both the
-full evaluation and the stratum the pool's one identified defect cannot
-reach, while a plain bag-of-words model trained on the identical weak labels
-finds a small precision signal the neural ranking statistic does not. Local
-labellers flagged far more pairs than the pharmacist confirmed, but this
-thesis does not put one number on how much more, because that number moves
-with the prompt and with how the ambiguous pairs are read, and reports both
-rather than choosing one for the reader.
+built to detect them did not: its own detector is not distinguishable from
+chance, the stratum the pool's one identified defect cannot reach cannot
+settle whether that null is a defect artifact, and two simple models, one
+never trained on the weak labels, find a small precision signal the detector
+does not. Local labellers flagged far more pairs than the pharmacist
+confirmed, but this thesis does not put one number on how much more, because
+that number moves with the prompt.
 
 None of that establishes that the task cannot be done
 (Section~\ref{sec:disc-null}). It establishes what a resolvable-effect floor

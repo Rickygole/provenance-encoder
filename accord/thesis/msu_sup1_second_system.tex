@@ -19,7 +19,7 @@
 \section{Second System: The Attention-Bias Ablation and the Anisotropy Control}
 \label{sup:s1}
 
-\subsection{RQ3: do the architectural components contribute what they are credited with?}
+\subsection{Second system: do its attention-bias components contribute what they are credited with?}
 \label{sup:sec:m-control-rq3}
 
 \textbf{Condition.} A component credited with exploiting a semantic property must beat an arbitrary
@@ -46,7 +46,7 @@ matrix would do.
 
 One control, a single global derangement applying one fixed permutation to every bundle, is
 deliberately not used and must not be confused with the randomised relabelling reported in
-Chapter 4 of the thesis: since the bias table is a free matrix over role pairs, the model would
+Table~\ref{sup:tab:ablation}: since the bias table is a free matrix over role pairs, the model would
 simply learn the permuted table and the loss surface is isomorphic, fixing the result at the
 uncorrupted value by construction. It was implemented, recognised as powerless, and guarded against
 in code, because a control that cannot fail is worse than no control.
@@ -59,16 +59,15 @@ whether the collapse follows from representational geometry in the encoder, pass
 unrelated non-clinical sentences through the identical frozen extraction path and comparing mean
 pairwise cosine similarity against matched and mismatched clinical pairs; text this similar to
 itself under the same extraction weakens the homogeneity explanation without asserting the two
-conditions are statistically identical, and Chapter 4 of the thesis reports a Welch test that
-rejects exact equality.
+conditions are statistically identical, and the anisotropy-control paragraph below reports a Welch
+test that rejects exact equality.
 
 
 
 \subsection{Three controls that fired positively}
 
 These controls run on a second system: a provenance-conditioned encoder trained with masked
-language modelling, not the clinical contradiction detector whose numbers appear elsewhere in this
-chapter.
+language modelling, not the clinical contradiction detector whose numbers appear in the thesis.
 
 \paragraph{A control task, a thesis-original alignment control, and locality alone.} Ten arms of a
 shared additive attention bias were trained on masked language modelling over packed multi-document
@@ -110,7 +109,7 @@ parameters, fixed rather than learned, beats every learned attention-bias arm
 in the table, including the segment-index bias it was built to bound. And an
 arbitrary positional ordinal carrying no provenance meaning beats true
 role labels. Neither result bears on the clinical contradiction detector or
-its precision reported elsewhere in this chapter.
+its precision reported in the thesis.
 
 The control task in the
 sense \citet{hewitt2019control} define it is the random-roles arm, which holds
@@ -174,7 +173,8 @@ either. What survives is the effect size, the pooled-standard-deviation
 Cohen's $d$ of $0.2808$, a small effect by conventional benchmarks that does
 not depend on the degrees of freedom; nothing rests on the $p$ value,
 which the multiplicity discussion in Chapter 4 of the thesis reads at the single uncorrected
-threshold this chapter applies throughout, not as a result that has cleared
+threshold the thesis applies throughout, C109's pre-registered Bonferroni threshold being the
+exception, not as a result that has cleared
 anything. Equality is therefore not claimed.
 What is claimed is that the difference is small against the spread the same
 extraction path produces on unrelated text, which ranges from $0.8528$ to

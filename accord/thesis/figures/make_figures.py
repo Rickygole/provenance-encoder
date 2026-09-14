@@ -232,18 +232,17 @@ def mcc_from_counts(tp, tn, fp, fn):
 #       ran unfiltered -- "counts reconcile" is what the section supports,
 #       and the check column is reworded to name the reconciliation check
 #       rather than restate that same conclusion); and the rule-generation
-#       finding is now printed as the decimal, "0 to 0.4745", in the same
+#       finding is now printed as a decimal (since v8, C106 primary), in the same
 #       plain digits as the pharmacist base rate two lines above it in the
 #       same row, rather than as a percentage that truncates instead of
 #       rounds.
 # Every number below is read from the same four files the v3 figure read;
 # nothing new is loaded and nothing is typed in.
 def make_fig_pipeline_status():
-    exemplar, p_exemplar = load("exemplar", "exemplar_correctness_recomputed.json")
-    # The former reference rate was supplied by a task description, never measured
-    # (REVISION_LOG R8). Use the measured wrong rate on the resolved candidates.
-    _ex = exemplar["rule_1_2_pooled"]
-    defect_rate = _ex["n_wrong"] / _ex["n_resolved"]
+    # C106's primary estimate (register exemplardirect.defect_rate), replacing
+    # the earlier range read from the recomputed instrument.
+    exemplar, p_exemplar = load("exemplar_direct", "exemplar_direct.json")
+    defect_rate = exemplar["defect_rate"]
 
     # v7 (fourth-round review, external reviewer). step0_1_join_and_calibration.json
     # used to be loaded here for weak_pos_rate, and step2_signal_check.json's
@@ -318,14 +317,7 @@ def make_fig_pipeline_status():
         (3, "Rule-based candidate\ngeneration",
          f"{pharm_rate_all:.4f} reported\nprecision",
          "Action-set match vs position index",
-         # An upper bound, not a point estimate: only 137 of 165 Rule 1/2
-         # candidates were resolved. Four chapters read it this way; the
-         # figure must not contradict them. Printed as the decimal (0.4745),
-         # not the percentage: 0.4744525... is 47.45% truncated to two
-         # places, which rounds to 47.5%, not the 47.4% a direct percentage
-         # format would print. The decimal removes the rounding question and
-         # matches the base rate two lines above it in this same row.
-         f"0 to {defect_rate:.4f} wrong"),
+         f"{defect_rate:.4f} wrong"),
         (4, "LLM weak supervision",
          # Rewrapped (v7): the old "0.8729 positive on\ngold set" put 76.5pt
          # of "0.8729 positive on" against an 80pt column, one of the
@@ -454,8 +446,8 @@ def make_fig_pipeline_status():
              "rate on the same 299 gold pairs (0.8729, "
              "exp1a_gold_error_rates_by_group.json), and the decontaminated AUROC "
              "point estimate alone (0.5145, corrected_gold_metrics.json). The "
-             "check-finding column reads the wrong-rate upper bound (0 to 0.4745 of "
-             "resolved candidates, exemplar_correctness_recomputed.json), the "
+             "check-finding column reads C106's primary exemplar defect rate (0.9315 "
+             "of decidable Rule 1/2 candidates, exemplar_direct.json), the "
              "prevalence multiplier (~22x, same gold-set ratio fig:intro-headline "
              "brackets), and the bootstrap 95% CI on AUROC ([0.32, 0.70], "
              "corrected_gold_metrics.json). The spine asserts shared corrupted "

@@ -2,19 +2,18 @@
 %
 % Every number below is read from results/accord/VERIFIED_FACTS.json under the
 % prefix named at the start of each subsection; none is typed from a raw
-% artifact directly. One experiment this section reports on is only
-% partially run (C102 stages 3 to 4, not run beyond a CPU smoke test): it is
-% marked as such in place, with a PENDING comment on its own line, rather
-% than silently completed here. C105 and C109 have both completed and are
-% reported in full below.
+% artifact directly. Every experiment reported here has completed. Where a
+% registered stage was executed differently from its registration (C102
+% Stages 3 and 4), or a recorded outcome was later corrected under the
+% unchanged rule (C102 Stages 3 and 4, C105), that is stated in place.
 
 \section{Validation of This Thesis's Own Checks}
 \label{sup:s5}
 
 This section reports whether the checks this thesis relies on elsewhere
 actually work: whether they fire on a known defect and stay quiet on a clean
-run, whether a positive control at this project's own evaluation size
-behaves the way the instrument's power curve says it should, and whether a
+run, what a power analysis on a real score distribution at this project's
+own evaluation size says each decision rule can resolve, and whether a
 sweep run in public replicates the identity it is supposed to satisfy at
 every cell rather than only in aggregate. Every subsection states whether its
 own experiment was pre-registered, the outcome letter its pre-registration's
@@ -23,13 +22,15 @@ license.
 
 \subsection{C102: The Planted-Defect Benchmark}
 \label{sup:sec:s5-c102}
-% Artifact: results/accord/plantbench/{stage1_s1b,stage2_s2abc,stage3_smoke}.json.
+% Artifact: results/accord/plantbench/{stage1_s1b,stage2_s2abc,stage3_registered,stage4_s4}.json.
 % Register key prefix: plantbench.*
 
 C102 is pre-registered and tests whether four of this project's own checks fire on a planted defect
 and stay quiet on a clean run, at this project's own gold size ($n=253$).
-Only Stage 1 (reduced) and Stage 2 were run to a verdict; Stage 3 is a
-2-replicate CPU smoke test only, and Stage 4 was not run at all.
+Stage 1 (reduced) and Stage 2 ran as registered. Stages 3 and 4 ran with
+untrained weights rather than the trained detector the registration
+specifies, and are Outcome C for those stages (below). The two checks whose
+verdicts this thesis relies on are S2c and S3d.
 
 \textbf{Stage 1, S1b (defect-free-stratum disagreement).} A $253$-candidate
 population is split into group A (Rules 1 to 2, $139$ candidates, $7$ of the
@@ -61,8 +62,8 @@ $0.47$ & & & not\_validated\_sensitivity \\
 
 S1b does not clear the general verdict rule's sensitivity bar at either
 planted severity at this sample size, so it is not validated at this sample
-size, consistent with the same finding already stated in
-Chapter 5 of the thesis.
+size, consistent with the same finding stated in the results and discussion
+chapters of the thesis.
 
 \textbf{Stage 2 (latent score, marginal, bootstrap and \texttt{c98\_rule}
 checks).} $n=253$, base rate $0.0474$, population AUROC $0.90$ by
@@ -101,10 +102,11 @@ plant-side arms, clean is the clean arm), S2b is validated: clean fires 0 of
 plant-side arms, matching the design note under S2c, L2 is the clean arm),
 S2b is unvalidated\_false\_alarm: L2 (the clean arm under this reading) fires
 20 of 20, far above the false-alarm bar, even though clean itself (a
-plant-side arm under this reading) also misses the 18-of-20 sensitivity bar
-at 0 of 20.
+plant-side arm under this reading) also misses the sensitivity bar at 0 of
+20. Because the two readings disagree, S2b carries no verdict this thesis
+relies on.
 
-\textbf{Stages 3 and 4 were not run as registered.} The registration specifies
+\textbf{Stages 3 and 4 departed from their registration.} The registration specifies
 the frozen detector with its trained weights for Stage 3 and that trained
 detector's scores for Stage 4. Both stages were run with untrained, randomly
 initialised weights instead. Three of the four Stage 3 checks, the normalisation
@@ -114,8 +116,9 @@ scores that carry no signal by construction, so their failures to fire are not
 evidence about the checks: they carry no verdict, and nothing in the thesis
 relies on them. The fourth Stage 3 check asks only whether any gradient reaches
 the harm head when its loss is excluded, a property of the computation graph
-that holds without training; it fired on every plant replicate and on no clean
-replicate, and is the one detector check this benchmark validates. Under the
+that holds without training; it fired on $20$ of $20$ plant replicates and
+$0$ of $20$ clean replicates, and is the one detector check this benchmark
+validates, with that caveat. Under the
 registered rule these two stages are Outcome C, incomplete as registered.
 
 \subsection{C101: Outcome C}
@@ -198,15 +201,20 @@ $[0.03, 0.07]$ band.}
 The primary crossing, $0.7466$, sits inside the pre-registration's $0.02$
 band around the registered minimum detectable AUROC of $0.7355$, and
 the rejection rate at true chance is inside the required band on both
-constructions, so this run is Outcome A: this instrument's own power curve,
-measured on a real score distribution at its own size, agrees with the
-analytic and synthetic-binormal minimum detectable AUROC. The held-out,
+constructions, so this run is Outcome A under its registration: the primary
+rule's power curve, simulated on a real score distribution at this
+evaluation's size, agrees with the analytic and synthetic-binormal minimum
+detectable AUROC. C108 is a power analysis, not an empirical validation of
+the clinical instrument, and what it resolves depends on the decision rule:
+the two-sided Mann-Whitney test crosses $80\%$ power at AUROC $0.7466$, while
+the \texttt{c98\_rule} needs $0.8084$ (Table~\ref{sup:tab:s5-c108-crossings}).
+The held-out,
 independently-sampled population-AUROC check's largest deviation from target
 across every grid point and construction is $0.00301$, under the
 pre-registration's $0.005$ invalidity bar. At the registered minimum
 detectable AUROC itself, $0.7355$, \texttt{c98\_rule} rejects the null on
 $0.52075$ of replicates, the number this project's key findings describe as
-roughly half power at that floor, now measured directly on a real score
+roughly half power at that floor, estimated by simulation on a real score
 distribution rather than assumed.
 
 \subsection{C106: The Direct Exemplar Check}
@@ -249,60 +257,88 @@ attempted, because no committed artifact retains which of the $165$
 
 This gate is not itself a pre-registered experiment; it is a deterministic,
 committed check applied post hoc to every hard-label marginal this thesis
-prints, added after the hosted results were withdrawn. Table~\ref{sup:tab:s5-feasgate}
-reproduces it in full: one row per configuration, all 18, rather than the
-8-configuration excerpt Chapter 4 of the thesis prints. A configuration
-could reject the null at $0.05$ if it could on at least one basis it was
-measured on ($G_{253}$, $G_{299}$, or both); observed rejection is given only
-where a confusion count (a scored row, or a marginal row cross-referenced
-against one) exists, and marked n/a where only the marginal survives.
+prints, added after the hosted results were withdrawn.
+Table~\ref{sup:tab:s5-feasgate} reproduces it in full, including the rows,
+among them the C103 prompt-sensitivity cells, that the chapter excerpt omits: one row per measurement,
+grouped by configuration. A configuration is a model, a thinking setting and a
+prompt text; runs that used byte-identical prompt text on the same model are
+one configuration measured more than once, not several, so the
+\texttt{llama3:8b} replication run, the frontier zero-shot template run, the
+evaluation baseline and the C103 P\_asserting cell are one configuration, and
+likewise for \texttt{granite3.3:8b} and \texttt{qwen3:8b}. The deployed weak
+labeller stays a separate configuration, because no committed file records
+its decoding settings. After this deduplication there are $15$
+configurations. A configuration could reject the null at $0.05$ if it could on
+at least one measurement; observed rejection is given only where a confusion
+count exists, and marked n/a where only the marginal survives.
 
 \begin{table}[H]
-\caption[The marginal feasibility gate, all 18 configurations]{Every
+\caption[The marginal feasibility gate, all 15 configurations]{Every
 hard-label configuration this thesis reads a marginal from, gated for
-feasibility. Ceil. MCC is the largest Cohen-correlated agreement that flag
-rate permits against the pharmacist; Floor $p$ is the smallest one-sided
-hypergeometric $p$ that marginal allows.}
+feasibility, one row per measurement. Ceil.\ MCC is the largest agreement that
+flag rate permits against the pharmacist; Floor $p$ is the smallest one-sided
+hypergeometric $p$ that marginal allows; Could reject? is given once per
+configuration.}
 \centering
-\small
-\begin{tabular}{llrrrll}
+\scriptsize
+\begin{tabular}{lllrrrll}
 \toprule
-\textbf{Model} & \textbf{Prompt} & \textbf{Flag rate} & \textbf{Ceil.\ MCC} & \textbf{Floor $p$} & \textbf{Reject?} & \textbf{Obs.} \\
+\textbf{Configuration} & \textbf{Run} & \textbf{Basis} & \textbf{Flag rate} & \textbf{Ceil.\ MCC} & \textbf{Floor $p$} & \textbf{Obs.} & \textbf{Could reject?} \\
 \midrule
-\texttt{granite3.3:8b} & baseline   & 0.7492 & 0.1183 & 0.0290 & yes & yes \\
-\texttt{granite3.3:8b} & P\_neutral  & 0.3579 & 0.2739 & 0.000003 & yes & n/a \\
-\texttt{granite3.3:8b} & P\_reversed & 0.6957 & 0.1353 & 0.0116 & yes & n/a \\
-\texttt{granite3.3:8b} & few-shot    & 0.7023 & 0.1331 & 0.0131 & yes & no \\
-\texttt{granite3.3:8b} & zero-shot   & 0.7492 & 0.1183 & 0.0290 & yes & yes \\
-\texttt{llama3:8b} & baseline   & 0.8729 & 0.0780 & 0.1894 & no & no \\
-\texttt{llama3:8b} & P\_neutral  & 0.9365 & 0.0533 & 0.4479 & no & n/a \\
-\texttt{llama3:8b} & P\_reversed & 0.8829 & 0.0745 & 0.2178 & no & n/a \\
-\texttt{llama3:8b} & deployed    & 0.8729 & 0.0780 & 0.1894 & no & n/a \\
-\texttt{llama3:8b} & few-shot    & 0.9398 & 0.0518 & 0.4679 & no & no \\
-\texttt{llama3:8b} & zero-shot   & 0.8729 & 0.0780 & 0.1894 & no & no \\
-\texttt{qwen3:14b} & few-shot    & 0.5585 & 0.1818 & 0.0008 & yes & no \\
-\texttt{qwen3:14b} & zero-shot   & 0.5385 & 0.1893 & 0.0005 & yes & no \\
-\texttt{qwen3:8b}  & baseline   & 0.5686 & 0.1781 & 0.0010 & yes & no \\
-\texttt{qwen3:8b}  & P\_neutral  & 0.1940 & 0.4168 & $1.0\times10^{-9}$ & yes & n/a \\
-\texttt{qwen3:8b}  & P\_reversed & 0.6321 & 0.1560 & 0.0036 & yes & n/a \\
-\texttt{qwen3:8b}  & few-shot    & 0.6187 & 0.1605 & 0.0027 & yes & no \\
-\texttt{qwen3:8b}  & zero-shot   & 0.5686 & 0.1781 & 0.0010 & yes & no \\
+\multicolumn{8}{l}{\texttt{granite3.3:8b}} \\
+P\_asserting text & frontier zero-shot, C103 & $G_{299}$ & 0.7492 & 0.1183 & 0.0290 & yes & yes \\
+                  & frontier zero-shot      & $G_{253}$ & 0.7391 & 0.1326 & 0.0242 & yes & \\
+                  & replication             & $G_{299}$ & 0.7425 & 0.1204 & 0.0259 & n/a & \\
+few-shot template & frontier few-shot       & $G_{299}$ & 0.7023 & 0.1331 & 0.0131 & no  & yes \\
+                  & frontier few-shot       & $G_{253}$ & 0.6957 & 0.1476 & 0.0114 & no  & \\
+P\_neutral        & C103                    & $G_{299}$ & 0.3579 & 0.2739 & 0.000003 & n/a & yes \\
+P\_reversed       & C103                    & $G_{299}$ & 0.6957 & 0.1353 & 0.0116 & n/a & yes \\
+\midrule
+\multicolumn{8}{l}{\texttt{llama3:8b}} \\
+P\_asserting text & frontier zero-shot, C103 & $G_{299}$ & 0.8729 & 0.0780 & 0.1894 & no  & no \\
+                  & frontier zero-shot      & $G_{253}$ & 0.8735 & 0.0849 & 0.1898 & no  & \\
+                  & replication             & $G_{299}$ & 0.9532 & 0.0453 & 0.5562 & n/a & \\
+                  & evaluation baseline     & $G_{253}$ & 0.9565 & 0.0476 & 0.5795 & n/a & \\
+few-shot template & frontier few-shot       & $G_{299}$ & 0.9398 & 0.0518 & 0.4679 & no  & no \\
+                  & frontier few-shot       & $G_{253}$ & 0.9447 & 0.0540 & 0.4971 & no  & \\
+P\_neutral        & C103                    & $G_{299}$ & 0.9365 & 0.0533 & 0.4479 & n/a & no \\
+P\_reversed       & C103                    & $G_{299}$ & 0.8829 & 0.0745 & 0.2178 & n/a & no \\
+deployed          & weak labeller           & $G_{299}$ & 0.8729 & 0.0780 & 0.1894 & n/a & no \\
+\midrule
+\multicolumn{8}{l}{\texttt{qwen3:8b}} \\
+P\_asserting text & frontier zero-shot, C103 & $G_{299}$ & 0.5686 & 0.1781 & 0.0010 & no  & yes \\
+                  & frontier zero-shot      & $G_{253}$ & 0.5652 & 0.1957 & 0.0009 & yes & \\
+                  & replication             & $G_{299}$ & 0.6187 & 0.1605 & 0.0027 & n/a & \\
+few-shot template & frontier few-shot       & $G_{299}$ & 0.6187 & 0.1605 & 0.0027 & no  & yes \\
+                  & frontier few-shot       & $G_{253}$ & 0.6008 & 0.1819 & 0.0018 & no  & \\
+P\_neutral        & C103                    & $G_{299}$ & 0.1940 & 0.4168 & $1.0\times10^{-9}$ & n/a & yes \\
+P\_reversed       & C103                    & $G_{299}$ & 0.6321 & 0.1560 & 0.0036 & n/a & yes \\
+\midrule
+\multicolumn{8}{l}{\texttt{qwen3:14b}, thinking off} \\
+zero-shot template & frontier zero-shot     & $G_{299}$ & 0.5385 & 0.1893 & 0.0005 & no  & yes \\
+                   & frontier zero-shot     & $G_{253}$ & 0.5217 & 0.2136 & 0.0003 & no  & \\
+few-shot template  & frontier few-shot      & $G_{299}$ & 0.5585 & 0.1818 & 0.0008 & no  & yes \\
+                   & frontier few-shot      & $G_{253}$ & 0.5415 & 0.2053 & 0.0005 & no  & \\
 \bottomrule
 \end{tabular}
-\apanote{Baseline is byte-identical to C103's P\_asserting; both are one
-configuration measured twice, not two. Floor $p$ under $0.001$ is given to
-enough decimal places, or in scientific form, to show a non-zero digit
-rather than rounding to $0.0000$. Reject? is whether that configuration could
-have rejected the null at $0.05$ on at least one basis it was measured on;
-Obs.\ is whether it actually did, where a confusion count exists (n/a
-otherwise). Every \texttt{llama3:8b} configuration could not have rejected
-the null on any basis; every other configuration could, on at least one.}
+\apanote{P\_asserting text is the prompt text shared, byte for byte, by the
+replication prompt, the frontier zero-shot template and C103's P\_asserting;
+the frontier zero-shot run on $G_{299}$ and the C103 P\_asserting cell report
+the same flagged count and are printed as one row. For
+\texttt{qwen3:14b} the zero-shot template is not established as identical to
+that text, so it is its own configuration. The runs of one configuration do not
+always agree: \texttt{llama3:8b}'s P\_asserting text flags at $0.8729$ in one
+$G_{299}$ run and $0.9532$ in another. Floor $p$ under $0.001$ is given to
+enough decimal places, or in scientific form, to show a non-zero digit rather
+than rounding to $0.0000$. Obs.\ is whether that measurement actually rejected
+the null at $0.05$, where a confusion count exists (n/a otherwise).}
 \label{sup:tab:s5-feasgate}
 \end{table}
 
-Six of the 18 configurations could not have rejected the null at $0.05$ on
-any basis, and all six are \texttt{llama3:8b}: no configuration of any other
-model in this table shares that property.
+Of the $15$ configurations, $5$ could not have rejected the null at $0.05$ on
+any measurement, and all $5$ are \texttt{llama3:8b}: every \texttt{llama3:8b}
+configuration shares that property, and no configuration of any other model
+does.
 
 \subsection{C103: The Full Nine-Cell Table}
 \label{sup:sec:s5-c103}
@@ -310,8 +346,12 @@ model in this table shares that property.
 % results/accord/stats/overcall_ambiguity.json. Register key prefixes:
 % promptsens.* and overcallamb.*
 
-C103 is pre-registered and asks whether naming a conflict before asking drives the over-calling this
-project measures elsewhere. All nine cells (three models by three prompts,
+C103 is pre-registered and asks whether the prompt drives the over-calling this project measures
+elsewhere, contrasting a clinical-pharmacist framing prompt (P\_asserting) with a plain yes/no
+prompt (P\_neutral). P\_asserting names no conflict type and no rule. The two prompts differ at
+once in persona, the word ``dangerous'', answer vocabulary (contradiction or not\_contradiction
+against Yes or No), system prompt and field labels, so these differences are confounded and the
+contrast isolates none of them. All nine cells (three models by three prompts,
 $299$ pairs each) are valid: $0.0$ parse-failure rate in every cell.
 Table~\ref{sup:tab:s5-c103} reproduces the full table; the over-call ratio is
 read under both ambiguity readings from \texttt{overcallamb}'s exact-count
@@ -320,7 +360,7 @@ computation, not from \texttt{promptsens}'s own ratio field.
 \begin{table}[H]
 \caption[C103, the full nine-cell table]{Positive rate on $G_{299}$, the
 over-call ratio under both ambiguity readings (A: ambiguous pairs read as
-negative; B: read as positive), AUROC on $G_{253}$, and a one-sided
+negative; B, a post hoc sensitivity rescaling: read as positive), AUROC on $G_{253}$, and a one-sided
 Mann-Whitney $p$ against chance (AUROC $0.5$, not against the minimum
 detectable AUROC).}
 \centering
@@ -340,9 +380,16 @@ detectable AUROC).}
 \texttt{qwen3:8b}       & P\_reversed  & 0.6321 & 15.7500 & 3.2586 & 0.6722 & 0.0222 \\
 \bottomrule
 \end{tabular}
-\apanote{Ratio A and Ratio B both divide by the gold base rate under the two
-readings of the 46 ambiguous $G_{299}$ pairs; neither is a correction of the
-other. Two cells, not one, clear the registered minimum detectable AUROC of
+\apanote{Ratio A divides the positive rate by the confirmed rate, $12$ of $299$.
+Ratio B, a post hoc sensitivity analysis, divides by $58$ of $299$ instead,
+reading the $46$ ambiguous $G_{299}$ pairs as positive, so every Ratio B is
+Ratio A multiplied by exactly $12/58$. It rescales the denominator and is not a
+property of the labeller: the Ratio B of $1.0000$ for \texttt{qwen3:8b}/P\_neutral
+means only that the cell flagged $58$ pairs, and says nothing about agreement.
+The local Fisher tests of the ambiguity gradient (one-sided $p$ from $0.0843$ to
+$0.8577$) found no evidence that labellers flag ambiguous pairs more often than
+clear negatives, which is evidence against reading a Ratio B near $1.0$ as
+calibration. Two cells, not one, clear the registered minimum detectable AUROC of
 $0.7355$: \texttt{llama3:8b}/P\_reversed and \texttt{granite3.3:8b}/P\_reversed.
 The Mann-Whitney $p$ tests each AUROC against chance, not against the minimum
 detectable AUROC; a small $p$ here does not mean the cell clears that floor.}
@@ -351,12 +398,13 @@ detectable AUROC; a small $p$ here does not mean the cell clears that floor.}
 
 \begin{table}[H]
 \caption[C103, McNemar test of P\_asserting against P\_neutral]{Exact
-two-sided McNemar test, per model, of the positive-rate shift between naming
-the conflict (P\_asserting) and not naming it (P\_neutral).}
+two-sided McNemar test, per model, of the positive-rate shift between the
+clinical-pharmacist framing prompt (P\_asserting) and the plain yes/no prompt
+(P\_neutral), which differ in several confounded ways at once.}
 \centering
 \begin{tabular}{lrrr}
 \toprule
-\textbf{Model} & \textbf{Pos.\ rate, asserting} & \textbf{Pos.\ rate, neutral} & \textbf{McNemar $p$} \\
+\textbf{Model} & \textbf{Pos.\ rate, framing} & \textbf{Pos.\ rate, plain} & \textbf{McNemar $p$} \\
 \midrule
 \texttt{llama3:8b}     & 0.8729 & 0.9365 & 0.0054 \\
 \texttt{granite3.3:8b} & 0.7492 & 0.3579 & $5.8\times10^{-32}$ \\
@@ -366,16 +414,20 @@ the conflict (P\_asserting) and not naming it (P\_neutral).}
 \label{sup:tab:s5-c103-mcnemar}
 \end{table}
 
-For \texttt{llama3:8b} the shift runs the wrong direction for the
-pre-registration's Outcome A criterion (positive rate rises, not falls, when
-the conflict name is removed). For \texttt{granite3.3:8b} and
-\texttt{qwen3:8b} the shift is in the right direction and the McNemar $p$ is
-indistinguishable from $0$ at double precision, but under reading A the
-neutral-prompt ratio ($8.9167$ and $4.8333$) still exceeds the registered
+The clinical-pharmacist framing gives a higher positive rate than the plain
+yes/no prompt for \texttt{granite3.3:8b} ($0.7492$ against $0.3579$) and
+\texttt{qwen3:8b} ($0.5686$ against $0.1940$), and a lower one for
+\texttt{llama3:8b} ($0.8729$ against $0.9365$), the opposite of the direction
+the pre-registration's Outcome A criterion requires. For
+\texttt{granite3.3:8b} and \texttt{qwen3:8b} the exact McNemar $p$ is
+$5.8\times10^{-32}$ and $8.1\times10^{-29}$, but under reading A the
+plain-prompt ratio ($8.9167$ and $4.8333$) still exceeds the registered
 public-text ceiling of $3.5000$. Zero of the three models satisfies the full
-Outcome A criterion, so this run is \textbf{Outcome B}: naming the conflict
-is a real contributor for two of the three models, but is not shown to be a
-sufficient explanation for the over-calling on its own.
+Outcome A criterion, so this run is \textbf{Outcome B}: the prompt contrast
+moves the positive rate for two of the three models, but because the two
+prompts differ in several confounded ways it does not identify which
+difference does so, and it is not shown to be a sufficient explanation for the
+over-calling on its own.
 
 \textbf{Correction, recorded in the pre-registration after an independent
 audit.} Two cells, not one as first
@@ -398,10 +450,13 @@ failures, $0$ truncation, at most $1$ degenerate score per cell. The determinism
 the original C103 cache exactly for both models, $0$ label mismatches, maximum score difference
 $0.0$.
 
-Table~\ref{sup:tab:s5-c109} gives the primary decision. None of the three new
-\texttt{llama3:8b} paraphrases reached the $0.7355$ minimum detectable AUROC at the
-pre-registered Bonferroni threshold; $0$ of $3$ against a requirement of at least $2$, so this
-run is \textbf{Outcome B}: the $0.7503$ reading is not shown to survive rewording.
+Table~\ref{sup:tab:s5-c109} gives the primary decision. The reversed-direction zero-shot score
+ranked above chance at the uncorrected $0.05$ level under every wording tried, but reached the
+$0.7355$ minimum detectable AUROC under none of the three new ones: $0$ of $3$ against a requirement
+of at least $2$, so this run is \textbf{Outcome B}: the $0.7503$ reading is not shown to survive
+rewording. \texttt{P\_rev\_agree} did clear the pre-registered Bonferroni threshold, with
+permutation $p$ $0.0030$; it failed on AUROC, $0.7310$ against the $0.7355$ floor, not on the
+threshold.
 
 \begin{table}[H]
 \caption[C109, primary decision on the new paraphrases]{\texttt{llama3:8b} on $G_{253}$: AUROC
@@ -423,7 +478,7 @@ $\alpha = 0.05/3$.}
 The registered confound test found no cell confounded with rule-type membership: among
 negatives, every AUROC for predicting Rule 1-2 versus Rule 3-4 membership sits at or below
 $0.5566$, every permutation $p$ at or above $0.0679$. The registered stratum report placed the
-\texttt{llama3:8b} signal in the Rule 1 and 2 rows, AUROC $0.7218$ to $0.8525$ across the four
+\texttt{llama3:8b} signal in the Rule 1 and 2 rows, the rows carrying the exemplar defect, AUROC $0.7218$ to $0.8525$ across the four
 prompts, falling to $0.5016$ to $0.6193$ on the defect-free Rule 3 and 4 rows, none significant;
 with $6$ positives on each stratum, this run's own registered ceiling means neither reading
 confirms a null or an effect. \texttt{granite3.3:8b}'s cells are descriptive only and are not
@@ -471,7 +526,10 @@ every log-odds within $0.05$, element for element, before a cell is valid.
 Of the seven pre-registered models, only \texttt{llama3:8b} is bit-stable
 under this criterion on this project's local Ollama and Metal serving stack;
 every other model tested drifted beyond the pre-registered tolerance on at
-least one determinism item in at least one of its cells. \texttt{qwen3:4b}
+least one determinism item in at least one of its cells. This drift finding is scoped to the C104
+public workload: on the clinical rows, C109's byte-for-byte rerun reproduced
+\texttt{granite3.3:8b}'s C103 labels and scores exactly
+(Section~\ref{sup:sec:s5-c109}). \texttt{qwen3:4b}
 ran zero cells: it does not honor \texttt{think: false} on the Ollama release
 this project used, emitting its reasoning as ordinary reply content rather
 than in a separate field, so with a one-token reply budget it never reached
@@ -519,8 +577,8 @@ Contrast $S$ needs valid P1 cells for both \texttt{qwen3:14b} and
 \begin{table}[H]
 \caption[C104, descriptive-only result from the one valid model]{Log-odds
 AUROC and false-positive rate by hardness level, \texttt{llama3:8b} only, the
-sole valid model. Not a certified contrast; reported descriptively, per the
-pre-registration.}
+sole valid model. Not one of the registered contrasts; reported
+descriptively, per the pre-registration.}
 \centering
 \begin{tabular}{llrrr}
 \toprule
@@ -546,7 +604,7 @@ from $0.0000$ to $0.2420$ while the easy-negative false-positive rate rises
 only to $0.0440$: the pattern both $H$ and $P$ hypothesize, in a single
 model, reported as exactly that and nothing stronger.
 
-\subsection{C105: Prior-Correction Fix}
+\subsection{C105: Prior-Correction Fix, Outcome C}
 \label{sup:sec:s5-c105}
 % Artifact: results/accord/public_controls/priorfix/analysis.json.
 % Register key prefix: priorfix.*
@@ -555,12 +613,18 @@ C105 is pre-registered and asks whether a prior-probability correction applied t
 teacher's score rescues a BiomedBERT student's ranking of the positive class, at this
 evaluation's own prevalence ($12/253$), on public SNLI data with a \texttt{llama3:8b} teacher.
 All planned runs, $10$ replicates across $4$ arms, completed with no interruption and no
-restart, and every replicate's teacher passed the pre-registered training-pool marginal and
-degeneracy checks.
+restart.
 
-Table~\ref{sup:tab:s5-c105} gives the primary result: hard labels (H) beat every corrected or
-pseudo-labelled arm, the prior-corrected soft target (S1), the uncorrected soft target (S0), and
-rank-based pseudo-labels (T), on every one of the $10$ replicates.
+\textbf{Outcome C, invalid under the registered rule.} The rule declares the run invalid when the
+teacher's hard-positive rate on a training pool falls below twice the pool's true rate. In most of
+the $10$ replicates it did: the teacher over-called the true pool rate by well under a factor of
+two, so there was little prior shift for the correction to remove. The analysis as first run never
+evaluated Outcome C and recorded Outcome B; the correction, under the unchanged rule, is recorded in
+the pre-registration.
+
+Table~\ref{sup:tab:s5-c105} is therefore descriptive only. It compares hard labels (H), the
+prior-corrected soft target (S1), the uncorrected soft target (S0), and rank-based pseudo-labels
+(T).
 
 \begin{table}[H]
 \caption[C105, delta versus hard labels and resampled rejection rate]{Delta average precision
@@ -587,9 +651,8 @@ S0 & $0\%$     & \\
 \label{sup:tab:s5-c105}
 \end{table}
 
-\textbf{Outcome B, and the direction is the opposite of what would make the correction a viable
-substitute for hard labels.} The delta-AP interval sits entirely below zero, the opposite of
-Outcome A's requirement; hard labels are the only arm that would, with any regularity, clear this
-evaluation's own C98 rule on a resample, and the corrected soft target does not separate itself
-from the uncorrected one it was meant to fix. This is a public-data test of the fix, with a
-public teacher and a public student, not a clinical result.
+Descriptively, the prior-corrected soft target was worse than hard labels and no better than the
+uncorrected soft target. Because the run is invalid under its rule, this is not a verdict on prior
+correction: with a teacher that barely over-called, the run could not show whether correcting a
+real prior shift helps or harms distillation. This is a public-data test, with a public teacher
+and a public student, not a clinical result.

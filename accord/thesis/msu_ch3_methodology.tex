@@ -332,28 +332,25 @@ results showing such models matching or exceeding crowd annotators on several cl
 The production labeller is Llama 3 8B \citep{grattafiori2024llama3}, run locally and presented with
 each candidate's exemplar sentence pair and the identifier of the rule that generated it, asked for
 a binary judgement plus a confidence value. The prompt is a fixed template with no demonstrations
-and no chain-of-thought elicitation, and it names a conflict type before asking whether a conflict
-is present. The labelled pool is the candidate pool minus the pairs put to the pharmacist, disjoint
+and no chain-of-thought elicitation. The labelled pool is the candidate pool minus the pairs put to the pharmacist, disjoint
 at the row level by construction; Section~\ref{sec:m-data} explains why that was insufficient. The
 weak-labelled candidate pool from this calibration join holds 1,679 rows before subject-disjoint
 exclusion; removing the 291 rows whose subject also appears in an evaluation split leaves 1,388,
 split into the 1,183-row training pool reported in Table~\ref{tab:m-strata} and used to fit the
 detector, and a 205-row validation pool used only to monitor the training loss.
 
-For the replication in Section~\ref{sec:m-control-rq2} the evaluation baseline's prompt was
-recovered verbatim from the committed prompt table rather than rewritten, and reused unchanged
-across models. It is not the deployed weak labeller's prompt, which the table does not contain, so
-the replication reproduces the baseline configuration rather than the configuration that produced
-the training labels; the deployed run and the same model's baseline-prompt replication differ by
+For the replication in Section~\ref{sec:m-control-rq2} a replication prompt, a clinical-pharmacist
+framing that names no conflict type or rule, was recovered verbatim and reused unchanged across
+models. Its text is byte-identical to the frontier zero-shot template and to $P_{\text{asserting}}$
+below; those runs differ from it in decoding and run settings, not in wording. It is not the deployed weak labeller's prompt, which the table
+does not contain, so the deployed run and the same model's replication-prompt run differ by
 $165$ positive labels across the full pool, a lower bound on the rows they disagree on (Section~\ref{sec:res-rq2}). Decoding is greedy at temperature zero
 for the local models, so a model's label for a row is deterministic within a model, in principle.
-A pre-registered determinism check against this machine's own local Ollama serving stack (C104)
-found that only \texttt{llama3:8b} reproduces bit-stable first-token log-odds at temperature zero on
-repeated calls; every other local model checked, including \texttt{qwen3:8b} and \texttt{granite3.3:8b},
-drifted above the check's own tolerance on a minority of items, floating-point nondeterminism in this
-serving stack rather than a code defect. Every model comparison in this chapter that depends on exact
-repeatability of a single model's own labels, rather than on a comparison across models, treats that
-guarantee as holding only for \texttt{llama3:8b}. Generations that
+A pre-registered determinism check (C104) found, on its public-text workload, that only
+\texttt{llama3:8b} reproduced bit-stable first-token log-odds on repeated calls, while
+\texttt{qwen3:8b} and \texttt{granite3.3:8b} drifted above tolerance on a minority of items,
+floating-point nondeterminism in this serving stack rather than a code defect; on the clinical rows,
+C109's rerun reproduced \texttt{granite3.3:8b} exactly. Generations that
 do not parse are recorded in their own category and never defaulted to a class, which would otherwise
 inflate a positive rate mechanically and silently.
 
@@ -392,8 +389,8 @@ which is where Section~\ref{sec:m-data}'s observation about the de-identificatio
 system was specified as that backbone plus four purpose-built components, a cross-note difference
 encoder, an asymmetric conditioning module, a pharmacological prior conditioning module, and a
 guideline-grounded harm estimator, with three claimed contributions attached to them. What follows
-describes the code that produced the results rather than the specification, per the correction
-recorded as C4, one of the entries named but not reproduced in Appendix~\ref{app:corrections}: the
+describes the code that produced the results rather than the specification, per correction
+C4 in the correction record released with the code: the
 pharmacological prior module was deleted in the second version and replaced by a function returning a
 fixed-length vector of zeros with two positions overwritten, a danger multiplier and a normalised
 rule identifier, zero learned parameters and no drug class table, interaction table or
@@ -432,11 +429,11 @@ rather than architecture was the constraint, was never trained. The Stage 0 trai
 the backbone unconditionally with no code path that unfreezes any encoder layer, and the parameter
 total attributed to the wider configuration is reconstructible only by counting a pooler module
 that a forward and backward pass confirmed carries gradient flags and no gradient
-(Appendix~\ref{app:corrections}, C54).
+(correction record released with the code, C54).
 
 No claim of the form ``X was never trained'' may rest on the absence of a checkpoint, since a
 checkpoint for the wider configuration does exist on a drive mount an earlier search did not reach
-(Appendix~\ref{app:corrections}, R6); the claim here rests on the code path and the gradient check
+(correction record, R6); the claim here rests on the code path and the gradient check
 alone.
 
 \subsection{The defect-free control model}
@@ -512,7 +509,9 @@ cost in the evaluation layer, handled the same way throughout this thesis rather
 and reused silently: every control and every check in this chapter that touches the gold set is run
 under both readings, ambiguous pairs retained as negatives in the primary, 299-pair stratum and
 ambiguous pairs excluded from the decontaminated, 253-pair stratum, and neither reading is preferred
-over the other by default. Section~\ref{sec:m-stats} reports the minimum detectable effect under
+over the other by default. Over-calling ratios are also shown with every ambiguous pair counted as a
+contradiction; that post hoc sensitivity reading rescales every ratio's denominator by one constant
+and says nothing about the labeller. Section~\ref{sec:m-stats} reports the minimum detectable effect under
 both denominators for the same reason, and no result in this thesis is reported under only one
 treatment of the ambiguous rows.
 
@@ -583,7 +582,8 @@ form a defect-free stratum fixed before any model score exists, and every detect
 Chapter~\ref{ch:results} is reported on that stratum as well as on the full set. If the two strata
 disagree, the exemplar defect is doing work; if they agree, it is not.
 
-A pre-registered re-scoring (C110) sharpens this comparison directly: it scores the detector, the
+A pre-registered re-scoring sharpens this comparison: C110 scored the contaminated released detector,
+and C112 re-ran its rule on the decontaminated ensemble this thesis reports, scoring it, the
 off-the-shelf NLI baseline and the TF-IDF baseline on the Rules-1-and-2 stratum and the Rules-3-and-4
 defect-free stratum alike, under both readings of the ambiguous pairs, with a label-permutation null
 on every AUROC and average-precision figure, so a difference between strata is tested rather than
@@ -609,7 +609,7 @@ been actionable, reported here as a methods failure rather than repaired retrosp
 
 Second, replication across labellers: if over-calling is a property of one model it will not
 survive a change of model, but it will if it is a property of the task presentation. The
-replication reruns the recovered baseline prompt unchanged over the full pool with three local
+replication reruns the replication prompt unchanged over the full pool with three local
 instruction-tuned models, \texttt{llama3:8b}, \texttt{granite3.3:8b} and \texttt{qwen3:8b}, served
 through Ollama at temperature zero, with unparseable generations kept in their own category. Third,
 a domain control: if the magnitude of over-calling generalises, a comparable labelling task on
@@ -621,9 +621,11 @@ A within-family scale step (C99) compares \texttt{qwen3:8b} against \texttt{qwen
 model this machine can serve locally, against the spread the three 8B models already show at fixed
 capability, so a step from 8B to 14B is read as separable from ordinary between-model noise only if
 it exceeds that spread. A wording control (C103) holds the model fixed and varies only the prompt:
-the recovered baseline prompt, which names a conflict type before asking, against a neutral prompt
-that asks only whether the two notes give conflicting instructions and a reversed prompt that asks
-whether they are consistent, with the flag orientation fixed at the point of use so higher log-odds
+$P_{\text{asserting}}$, the frontier zero-shot template recovered verbatim, a clinical-pharmacist
+framing asking about a dangerous contradiction that names no conflict type or rule, against
+$P_{\text{neutral}}$, a plain yes/no prompt, and a reversed yes/no prompt asking whether the sentences
+are consistent. The first two differ at once in persona, the word dangerous, answer vocabulary,
+system prompt and field labels, so their contrast is confounded. Flag orientation is fixed at the point of use so higher log-odds
 mean more conflict under every wording. A confirmation of the reversed-prompt cell (C109) added
 three further paraphrases of the same question, plus a byte-for-byte rerun of the original reversed
 prompt as its own determinism check, and a registered test of whether any wording's ranking is really
@@ -651,8 +653,9 @@ the best table that marginal could produce. A labeller whose floor sits above th
 could not have rejected the null however it behaved. The bound covers a hard, thresholded decision
 only; a scored labeller can sweep its threshold and rank well regardless of flag rate, so this says
 nothing about a ranking metric. Applied to every hard-label marginal this thesis prints, it is a post
-hoc check: it was added after the hosted results were withdrawn, unlike the controls above, which
-were specified before any result was seen. The ceiling is the prevalence-and-bias problem of \citet{feinstein1990paradoxes} and
+hoc check, added after the hosted results were withdrawn. So are the ambiguous-positive reading,
+both tipping-point checks, the public sweep decomposition and the choice of average precision as
+C107's headline statistic; the controls above were specified before any result was seen. The ceiling is the prevalence-and-bias problem of \citet{feinstein1990paradoxes} and
 \citet{cicchetti1990resolving}, corrected by \citet{byrt1993pabak}, and the floor is the minimum attainable significance level
 that \citet{tarone1990modified} derives from the marginal totals of a discrete test.
 
@@ -668,9 +671,7 @@ that never receives a gradient cannot have been fit to anything, and an auxiliar
 fixed function of the model's own input features is a copy operation rather than a task. This audit
 was run on the four purpose-built components of Section~\ref{sec:m-detector}: the pharmacological
 prior module, the guideline-grounded harm estimator, the auxiliary rule-type head, and the
-asymmetric conditioning module. What was read in each case, and what would have counted as
-falsification, is stated in that section at the point each component is described; this subsection
-does not repeat it. A second, architecture-level control that this project also ran, an
+asymmetric conditioning module, each described there. A second, architecture-level control that this project also ran, an
 arbitrary-substitute and anisotropy check on a separate provenance-conditioned encoder rather than
 on this detector, is reported in the Supplement rather than here, because it does not bear on the
 code this detector executes.
@@ -682,11 +683,11 @@ rather than here, since it bears on a fairness audit rather than on the contradi
 \subsection{RQ4: is the detector's null real?}
 
 \textbf{Condition.} A null result is evidence only if the instrument that produced it can be shown
-to resolve an effect of comparable size where one is known to exist, and only if the evaluation had
-enough power to see an effect at all. Two local checks answer this together: the minimum detectable
-effect for the evaluation's own sample size (Section~\ref{sec:m-mde}), and a positive control that
-runs the same pretraining-effect instrument on a task where the effect is known to be present, its
-outcome bound in advance to a written decision rule.
+to resolve an effect of comparable size, and only if the evaluation had enough power to see one.
+For the contradiction evaluation that is the minimum detectable effect and the C108 power analysis
+(Section~\ref{sec:m-mde}). A separate positive control (C44) runs the pretraining-effect instrument
+on a task where the effect is known to be present; its registration makes it a control for that
+instrument only and forbids merging it with the contradiction evaluation.
 
 The proxy under test is whether a difference in self-supervised pretraining, measured as a loss gap,
 predicts a difference in downstream discrimination. On the clinical side the comparison runs on a
@@ -704,8 +705,8 @@ scales.
 One threat has to be answered before the public comparison can serve as a control: an initial sweep
 trained every arm for the same short budget with no per-arm tuning, so a gap between pretrained and
 from-scratch arms could measure training budget rather than pretraining. A convergence sweep instead
-gives every arm four full budgets, reported at the final epoch rather than by validation-based
-checkpoint selection, at three seeds per cell, for $48$ runs and $555$ minutes of compute. The
+gives every arm four full budgets, reported at the final epoch; this departs from the registration, which specified
+selection on a held-out validation split (C113). At three seeds per cell, for $48$ runs and $555$ minutes of compute. The
 decision rule in Table~\ref{tab:m-prereg} was committed to the project repository at commit
 \texttt{b048829}, before the sweep started, and applied without edit after the first result landed.
 
@@ -721,7 +722,7 @@ sweep was run.}
 \midrule
 A & Gap of at least $3.0$ accuracy points between the largest from-scratch arm and the pretrained
     arm, and the two arms' one-standard-deviation bands do not overlap
-  & The instrument has a verified positive control. The clinical null may be read as a measured
+  & The instrument has a verified positive control. The mortality null may be read as a measured
     null. \\
 \addlinespace
 B & Gap below $3.0$ accuracy points, or the ordering is not resolved across seeds
@@ -755,9 +756,8 @@ Precision-recall summaries are preferred to ROC summaries where the positive cla
 supports no directional claim, whatever the magnitude, because the storage discards the sign the
 claim would need.
 
-The practice survey that was RQ5 in an earlier version of this thesis, a coding instrument over the
-published literature rather than a control on this project's own pipeline, moved to the Supplement
-along with its results, since it speaks to field practice rather than to this thesis's own detector.
+The practice survey, a coding instrument over the published literature rather than a control on
+this project's own pipeline, is reported with its results in the Supplement, since it speaks to field practice rather than to this thesis's own detector.
 
 \section{Statistical Procedures}
 \label{sec:m-stats}
@@ -767,7 +767,7 @@ along with its results, since it speaks to field practice rather than to this th
 Interval estimates on AUROC and average precision are nonparametric percentile bootstraps over the
 evaluation rows \citep{efron1994bootstrap}. The main control uses $10{,}000$ resamples at a fixed
 generator seed of $20260806$; the decontamination analysis uses $10{,}000$ resamples at seed $42$.
-Seeds are recorded so that every interval computed here is reproducible to the digit. Degenerate
+Degenerate
 resamples are handled explicitly rather than by imputation: with few positives a resample can contain
 none, in which case AUROC is undefined, so such resamples are discarded and do not count toward the
 requested total. The count of valid resamples is reported beside an interval only where that
@@ -781,9 +781,8 @@ Two systems scored on the same rows produce correlated ROC curves, so an unpaire
 overstates the variance of their difference. Comparisons between the control model and the
 detector, and between individual seeds and the detector, use the DeLong test for correlated areas
 \citep{delong1988comparing}, which estimates the covariance of the two areas from the same subjects
-and returns a $z$ statistic and a two-sided $p$ value. The implementation is committed with the
-analysis code released alongside this thesis, and the per-comparison outputs, including the standard
-error of the difference, are written to the control report rather than recomputed in prose.
+and returns a $z$ statistic and a two-sided $p$ value. Per-comparison outputs, including the standard
+error of the difference, are written to the released control report rather than recomputed in prose.
 
 \subsection{Minimum detectable effect}
 \label{sec:m-mde}
@@ -801,7 +800,7 @@ what the table's minimum detectable AUROC column uses. That column follows the f
 candidate value $a$ itself rather than at the null, and finds the smallest $a$ such that
 $(a - 0.5) / \sqrt{\mathrm{Var}(a)} \geq z_{1-\alpha/2} + z_{1-\beta}$ by search, since
 $\mathrm{Var}(a)$ depends on $a$. The full procedure was reimplemented and rerun for this thesis,
-and the values below are that recomputation's output (Appendix~\ref{app:corrections}, R9).
+and the values below are that recomputation's output (correction record, R9).
 Table~\ref{tab:m-mde} evaluates this under
 each treatment of the ambiguous rows and on the defect-free stratum
 (Figure~\ref{fig:power}, Chapter~\ref{ch:results}).
@@ -823,13 +822,13 @@ Defect-free subset       &  6 & 128 & 0.1210 & 0.8058 \\
 \apanote{$\mathrm{AUROC}_{\min}$ is computed by the same procedure that also drives the marker positions in Figure~\ref{fig:power}. Values are rounded to four decimal places. These figures bound what the evaluation could have seen and are not results about any model. They also state the limit of the thesis's negative claim: nothing here can establish that the task is unsolvable, only that this pipeline does not solve it at a sensitivity this coarse.}
 \end{table}
 
-The table above is an analytic approximation. A pre-registered check (C108) validates it empirically,
+The table above is an analytic approximation. A pre-registered power analysis (C108) checks it
 on a real score distribution at this evaluation's own size rather than on the binormal assumption the
 analytic procedure makes: replicate evaluation sets of the same shape as the decontaminated stratum
 are drawn from the scores of the off-the-shelf NLI baseline against a large held-out pool, at a grid
 of true AUROC values constructed two independent ways, and the power of several rejection rules,
-including the one this thesis applies to a hard AUROC comparison, is measured directly rather than
-assumed. This is a corrected rerun of an earlier attempt (C101), which is not superseded quietly: C101
+including the one this thesis applies to a hard AUROC comparison, is measured, so the resolvable
+AUROC is stated per rule rather than once. This is a corrected rerun of an earlier attempt (C101), which is not superseded quietly: C101
 is reported as invalid in its own outcome record, because a calibration helper accepted an unchecked
 boundary value at one grid point, and C108 fixes exactly that calibration step and nothing else,
 reusing every other part of C101's design without re-deriving it.
