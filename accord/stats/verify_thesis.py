@@ -26,12 +26,53 @@ FACTS = json.loads((ROOT / "results" / "accord" / "VERIFIED_FACTS.json").read_te
 # by scanning nothing. Appendices are still excluded because they are generated and
 # print register keys and artifact paths by design.
 CHAPTERS = sorted(THESIS.glob("msu_ch*.tex"))
+# The side-strand material that used to be bound in the thesis body is moving to
+# a companion document, main_supplement.tex, built from files named msu_sup*.tex.
+# The harness historically read main_msu.pdf only, so a second document going
+# stale was a recorded failure (CLAUDE.md); the equivalent failure here is a
+# supplement whose prose nothing scans. msu_sup*.tex files are scanned in passes
+# 1 to 4 and, where applicable, pass 5, alongside msu_ch*.tex.
+SUPPLEMENT = sorted(THESIS.glob("msu_sup*.tex"))
+
+# The supplement is being assembled concurrently with this change, so msu_sup*.tex
+# matching nothing is currently the honest state, not a bug: main_supplement.tex
+# does not yet \input any file by that name. The moment it does, this glob has to
+# find it, or this is the exact ch*.tex / msu_ch*.tex defect CLAUDE.md records
+# ("a gate that cannot fail"), just against the supplement instead of the thesis.
+# Asserted here, at import time, rather than left to be discovered by a pass
+# quietly scanning zero files and reporting a clean 0.
+_SUP_MAIN = THESIS / "main_supplement.tex"
+if _SUP_MAIN.exists():
+    _sup_declared = re.findall(r"\\input\{(msu_sup[^}]*)\}",
+                                re.sub(r"(?<!\\)%.*", "", _SUP_MAIN.read_text()))
+    _sup_found = {p.stem for p in SUPPLEMENT}
+    _sup_missing = [name for name in _sup_declared if name not in _sup_found]
+    if _sup_declared and not SUPPLEMENT:
+        raise AssertionError(
+            f"main_supplement.tex \\input{{}}s {_sup_declared} but the glob "
+            "'accord/thesis/msu_sup*.tex' matched no files at all. Fix the "
+            "pattern or write the missing file; do not let this scan zero files "
+            "and call it clean.")
+    if _sup_missing:
+        raise AssertionError(
+            f"main_supplement.tex \\input{{}}s {_sup_missing}, which the "
+            "'msu_sup*.tex' glob did not find on disk. A bound file that a glob "
+            "cannot see is the same defect, just for one file instead of all of "
+            "them.")
+
 # Passes that check prose rather than document structure scan the front matter too.
 # It was outside every glob, so the abstract, title page and declaration were never
 # scanned by anything, which is how a conflated denominator survived in the
-# highest-visibility 250 words of the document. Pass 5 keeps to CHAPTERS because it
-# looks for a \chapter and a label, which front matter correctly does not have.
+# highest-visibility 250 words of the document. Pass 5 keeps to CHAPTERS (not
+# SUPPLEMENT) for the \chapter/\label{ch:} requirement, because front matter and
+# the supplement's own side strands correctly need neither.
 PROSE = CHAPTERS + sorted((THESIS / "frontmatter").glob("*.tex"))
+# The set every prose pass (1, 2, 3, 4) scans: chapters plus whatever side-strand
+# material is currently bound in the supplement by name. When SUPPLEMENT is
+# empty (the current, transitional state) this is exactly CHAPTERS, so today's
+# run is unchanged; the moment a msu_sup*.tex file exists, its dashes, numbers,
+# citations and style are gated the same way a chapter's are.
+ALL_CHAPTERS = CHAPTERS + SUPPLEMENT
 
 # Values that are allowed to appear without being a research finding: structural
 # numbers, years, and the small integers that show up in ordinary prose.
@@ -165,12 +206,17 @@ def main():
     values = fact_values()
     failures = 0
 
-    print(f"verifying {len(CHAPTERS)} chapters against {len(FACTS)} verified facts\n")
+    print(f"verifying {len(CHAPTERS)} chapters + {len(SUPPLEMENT)} supplement files "
+          f"against {len(FACTS)} verified facts\n")
+    if not SUPPLEMENT:
+        print("supplement: 0 msu_sup*.tex files present yet "
+              "(main_supplement.tex does not \\input any by that name); "
+              "passes 1-4 below are scanning only the thesis chapters\n")
 
     # ---------------- pass 1: dashes ----------------
     print("PASS 1  dashes")
     bad = 0
-    for f in CHAPTERS:
+    for f in ALL_CHAPTERS:
         for i, line in enumerate(f.read_text().splitlines(), 1):
             for ch, name in (("\u2014", "em dash"), ("\u2013", "en dash"), ("\u2212", "minus sign")):
                 if ch in line:
@@ -211,7 +257,7 @@ def main():
         n_held = sum(1 for k in FACTS if k.startswith("withdrawn.hosted."))
         print(f"   hosted channels: none live, {n_held} held for the record")
     unverified = []
-    for f in CHAPTERS:
+    for f in ALL_CHAPTERS:
         # The literature review reports figures from cited works, which by
         # definition are not in our fact sheet. It is checked separately:
         # every number there must sit in a sentence carrying a citation.
@@ -252,7 +298,7 @@ def main():
     bib = (THESIS / "refs.bib").read_text() if (THESIS / "refs.bib").exists() else ""
     keys = set(re.findall(r"@\w+\{([^,]+),", bib))
     missing = set()
-    for f in CHAPTERS:
+    for f in ALL_CHAPTERS:
         for m in re.finditer(r"\\cite[tp]?\*?(?:\[[^\]]*\])*\{([^}]*)\}", f.read_text()):
             for k in m.group(1).split(","):
                 k = k.strip()
@@ -267,7 +313,7 @@ def main():
     # ---------------- pass 4: style ----------------
     print("PASS 4  machine-written tells")
     hits = 0
-    for f in CHAPTERS:
+    for f in ALL_CHAPTERS:
         text = f.read_text()
         low = text.lower()
         for phrase in BANNED_PHRASES:
@@ -284,14 +330,22 @@ def main():
     # ---------------- pass 5: structure ----------------
     print("PASS 5  structure")
     problems = 0
-    for f in CHAPTERS:
+    chapter_set = set(CHAPTERS)
+    for f in ALL_CHAPTERS:
         text = f.read_text()
-        if not re.search(r"\\chapter\{", text):
-            print(f"   {f.name}: no \\chapter")
-            problems += 1
-        if not re.search(r"\\label\{ch:", text):
-            print(f"   {f.name}: no chapter label")
-            problems += 1
+        # The \chapter/\label{ch:} requirement is chapter-specific: it does not
+        # apply to a msu_sup*.tex file, which is bound into the supplement's own
+        # \appendix block (lettered labels, not "ch:"), same as front matter
+        # correctly carries neither. The leftover-TODO scan and the
+        # caption-above-tabular check below are not chapter-specific, so they
+        # run over every file in ALL_CHAPTERS, supplement included.
+        if f in chapter_set:
+            if not re.search(r"\\chapter\{", text):
+                print(f"   {f.name}: no \\chapter")
+                problems += 1
+            if not re.search(r"\\label\{ch:", text):
+                print(f"   {f.name}: no chapter label")
+                problems += 1
         for todo in re.findall(r"(?i)\[?TODO[^\]\n]*", text):
             print(f"   {f.name}: leftover {todo[:60]}")
             problems += 1
@@ -305,7 +359,9 @@ def main():
     failures += problems > 0
 
     total_lines = sum(len(f.read_text().splitlines()) for f in CHAPTERS)
-    print(f"total chapter lines: {total_lines}")
+    total_sup_lines = sum(len(f.read_text().splitlines()) for f in SUPPLEMENT)
+    print(f"total chapter lines: {total_lines}"
+          + (f" (+ {total_sup_lines} supplement lines)" if SUPPLEMENT else ""))
     print("RESULT:", "FAIL" if failures else "all gating passes clear")
     return 1 if failures else 0
 

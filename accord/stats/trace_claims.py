@@ -26,6 +26,14 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 THESIS = ROOT / "accord" / "thesis"
 FACTS = json.loads((ROOT / "results" / "accord" / "VERIFIED_FACTS.json").read_text())
 CHAPTERS = sorted(THESIS.glob("msu_ch*.tex"))
+# The side-strand appendices are moving to a companion document built from files
+# named msu_sup*.tex (see verify_thesis.py for the fuller account of why: a
+# second document nothing checks is a recorded project failure). A numeric
+# claim printed there needs the same trace to a register key and a source file
+# as one printed in a chapter, or Appendix C's promise -- every number answered
+# with a file it came from -- is false for half the thesis.
+SUPPLEMENT = sorted(THESIS.glob("msu_sup*.tex"))
+ALL_CHAPTERS = CHAPTERS + SUPPLEMENT
 
 # esc() and esc_breakable() are defined once, in make_appendices.py, and imported
 # from there rather than redefined here: two independent escaping paths is how a
@@ -72,7 +80,17 @@ def index_by_value():
     idx, idx_pct = {}, {}
     for key, rec in FACTS.items():
         v = rec["value"]
-        if isinstance(v, bool) or v is None or isinstance(v, str):
+        # A register entry can hold a Wilson interval or another pair as a
+        # two-element list, which is a legitimate value shape this function
+        # never rendered a string for. The old guard excluded bool, None and
+        # str and then assumed everything left was a single int or float, so
+        # a list reached abs(v) below and crashed the whole trace on the first
+        # such key, one \\input away from every occurrence in the chapters
+        # going untraced instead of just that one register entry. Excluding by
+        # what the rest of this function can actually render, rather than by
+        # what it happens to have seen before, does not crash on the next
+        # shape either.
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
             continue
         if isinstance(v, int):
             for f in {str(v), f"{v:,}"}:
@@ -128,7 +146,7 @@ def main():
     idx, idx_pct = index_by_value()
     records, untraced = [], []
 
-    for f in CHAPTERS:
+    for f in ALL_CHAPTERS:
         raw = f.read_text()
         text = clean(raw)
         for m in re.finditer(r"(?<![\w.])\d+(?:,\d{3})*(?:\.\d+)?(?![\w])", text):
@@ -228,7 +246,7 @@ def main():
 
     # ---- overclaim scan ----
     flags = []
-    for f in CHAPTERS:
+    for f in ALL_CHAPTERS:
         text = clean(f.read_text())
         for pat, name in OVERCLAIM:
             for m in re.finditer(pat, text, re.I):

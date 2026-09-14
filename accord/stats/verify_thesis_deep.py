@@ -34,39 +34,90 @@ CHAPTERS = sorted(THESIS.glob("msu_ch*.tex"))
 APPENDICES = sorted(THESIS.glob("msu_app*.tex"))
 FRONT = sorted((THESIS / "frontmatter").glob("*.tex"))
 
-# Every deep pass iterated CHAPTERS only, so the bound appendices were outside
-# all of them. A caption sitting below its figure survived there for exactly
-# that reason: pass 8 could not see the file. Only the appendices main_msu.tex
-# actually inputs are checked, because msu_app*.tex also matches files left in
-# the tree that nothing binds, and a gate that reports on dead files teaches
-# people to ignore it.
-def _bound_appendices():
-    main = (THESIS / "main_msu.tex").read_text()
-    out = []
-    for p in APPENDICES:
-        if "\\input{%s}" % p.stem in main:
-            out.append(p)
-    return out
+# The thesis body and the supplement are two separate LaTeX documents now
+# (main_msu.tex and main_supplement.tex), each with its own \label/\ref
+# namespace and its own set of bound figures. A pass that walked CHAPTERS only
+# put the bound appendices outside all of them (a caption sitting below its
+# figure survived there for exactly that reason, pass 8 could not see the
+# file), and reading both documents through one merged file list would let a
+# \ref in one resolve against a \label defined only in the other, which is not
+# how two separate LaTeX documents behave. Both defects are avoided the same
+# way: every check below reads a document's inputs by walking its own \input
+# tree, not by globbing msu_ch*.tex/msu_app*.tex and guessing which of those
+# files anything actually binds.
+def strip_comments(text):
+    return re.sub(r"(?<!\\)%.*", "", text)
 
 
-BOUND_APPENDICES = _bound_appendices()
+def bound_files(main_name, _visited=None):
+    """The tex files a document actually inputs, followed transitively, plus
+    the main file itself. \\input is read after comments are stripped, so a
+    commented-out \\input does not pull in a file nothing binds; a file that
+    is unreachable from main_name (in the tree but bound by nothing) is
+    likewise absent, on the same reasoning _bound_appendices used before this
+    function replaced it. _visited guards a cycle, which no legitimate \\input
+    graph has, but an accidental self-\\input should stop, not recurse
+    forever.
+    """
+    if _visited is None:
+        _visited = set()
+    main = THESIS / main_name
+    if not main.exists() or main in _visited:
+        return []
+    _visited.add(main)
+    files = [main]
+    for m in re.finditer(r"\\input\{([^}]+)\}", strip_comments(main.read_text())):
+        p = THESIS / m.group(1)
+        if p.suffix != ".tex":
+            p = p.with_suffix(".tex")
+        if not p.exists() or p in _visited:
+            continue
+        files.extend(bound_files(str(p.relative_to(THESIS)), _visited))
+    return files
 
-# The twelve figures bound into the thesis, and the scripts that draw them.
-# Three drawing functions survive in make_figures.py unreferenced and unbound,
-# and are not checked here: fig-rule-precision left the set at the committee
-# review, fig-survey-audit was cut by the author (its content is one sentence of
-# body text), and fig-disc-strata redrew fig-forest's second family identically
-# sixty pages apart.
-THESIS_FIGS = [
-    "fig-pipeline-status", "fig-intro-headline", "fig-cohort-flow",
-    "fig-prevalence-response", "fig-falsification", "fig-power", "fig-forest",
-    "fig-scaling", "fig-threshold-surface",
-    "fig-disc-actionability", "fig-met-exchange", "fig-exemplar",
-    "fig-capability", "fig-missing-cell", "fig-labelnoise",
-]
+
+# Each document's own bound file list, main_msu.tex and main_supplement.tex
+# read separately. main_supplement.tex may not exist yet in every checkout
+# (it is being assembled concurrently with this change), so BOUND_SUP is
+# empty rather than an error until it does.
+BOUND_MAIN = bound_files("main_msu.tex")
+BOUND_SUP = bound_files("main_supplement.tex") if (THESIS / "main_supplement.tex").exists() else []
+ALL_BOUND = sorted(set(BOUND_MAIN) | set(BOUND_SUP), key=lambda p: str(p))
+
+
+def _live_figs():
+    """The figures actually reachable from either bound document, read from
+    their own \\includegraphics calls rather than a hard-coded list. The old
+    hard-coded THESIS_FIGS drifted from the document it was supposed to
+    describe in both directions at once: fig-ceiling was bound into Chapter 4
+    and missing from the list, and seven other names in the list (
+    fig-intro-headline, fig-falsification, fig-scaling, fig-disc-actionability,
+    fig-met-exchange, fig-capability, fig-missing-cell, fig-labelnoise) are not
+    \\includegraphics'd anywhere either document actually binds, so pass 10
+    was gating figures nothing in the thesis draws on the page and silent
+    about one that is.
+    """
+    names = set()
+    for f in ALL_BOUND:
+        if f.suffix != ".tex":
+            continue
+        text = strip_comments(f.read_text())
+        for m in re.finditer(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}", text):
+            names.add(pathlib.Path(m.group(1)).stem)
+    return sorted(names)
+
+
+THESIS_FIGS = _live_figs()
 FIG_SCRIPTS = ["make_figures.py", "fig_batch2.py",
                "fig_threshold_surface.py", "make_figures_extra.py",
-               "fig_frontier.py"]
+               "fig_frontier.py", "fig_ceiling.py"]
+
+# FORMAT.md records no explicit page limit; this is the ceiling this project's
+# own review process has set and reported (150 pages, currently exact). Named
+# so a future revision changes one constant, not a literal buried in a
+# print statement, and so build.sh (which reports the same number) and this
+# gate cannot silently disagree.
+MAIN_THESIS_MAX_PAGES = 150
 
 # Pass 6. Hard verbs gate; soft verbs are reported for review. A match whose
 # preceding thirty characters contain a negation is legitimate hedging, not an
@@ -86,10 +137,6 @@ SOFT_OVERCLAIM = [
 ]
 NEGATION = re.compile(r"(not|no|never|cannot|fails? to|nothing|neither|nor)\s+\S*$",
                       re.I)
-
-
-def strip_comments(text):
-    return re.sub(r"(?<!\\)%.*", "", text)
 
 
 def run_original_five():
@@ -126,25 +173,8 @@ def pass6_overclaim():
     return not hard
 
 
-def bound_files(main_name):
-    """The tex files a main document actually inputs, plus the main file."""
-    main = THESIS / main_name
-    files = [main]
-    for m in re.finditer(r"\\input\{([^}]+)\}", strip_comments(main.read_text())):
-        p = THESIS / m.group(1)
-        if p.suffix != ".tex":
-            p = p.with_suffix(".tex")
-        if p.exists() and p.suffix == ".tex":
-            files.append(p)
-    return files
-
-
-def pass7_refs():
-    print("PASS 7  cross-reference integrity")
-    # Labels are scoped per bound document: the thesis and the supplement are
-    # separate documents, and a label living only in the supplement neither
-    # collides with nor satisfies a reference in the thesis.
-    files = bound_files("main_msu.tex")
+def _refs_for_document(doc_label, files):
+    """Labels, refs and duplicates within one document's own bound files."""
     labels, refs, dups = {}, [], []
     for f in files:
         if not f.exists():
@@ -159,19 +189,43 @@ def pass7_refs():
             refs.append((m.group(1), f.name))
     missing = [(k, f) for k, f in refs if k not in labels]
     for k, a, b in dups:
-        print(f"   duplicate label '{k}' in {a} and {b}")
+        print(f"   [{doc_label}] duplicate label '{k}' in {a} and {b}")
     for k, f in missing:
-        print(f"   {f}: \\ref{{{k}}} has no label in the bound document")
+        print(f"   [{doc_label}] {f}: \\ref{{{k}}} has no label in this document's bound files")
     bad = len(dups) + len(missing)
-    print(f"   {'FAIL' if bad else 'pass'}: {len(labels)} labels, "
-          f"{len(refs)} refs, {len(missing)} unresolved, {len(dups)} duplicated\n")
+    print(f"   [{doc_label}] {'FAIL' if bad else 'pass'}: {len(labels)} labels, "
+          f"{len(refs)} refs, {len(missing)} unresolved, {len(dups)} duplicated")
     return bad == 0
+
+
+def pass7_refs():
+    print("PASS 7  cross-reference integrity")
+    # Labels are scoped per bound document: the thesis and the supplement are
+    # separate LaTeX documents, so a label living only in the supplement
+    # neither collides with nor satisfies a reference in the thesis, and vice
+    # versa. Each document is walked from its own \input tree (BOUND_MAIN,
+    # BOUND_SUP), not from a merged file list, so that boundary is structural
+    # rather than a rule this check has to remember to enforce.
+    ok_main = _refs_for_document("main_msu.tex", BOUND_MAIN)
+    ok_sup = True
+    if BOUND_SUP:
+        ok_sup = _refs_for_document("main_supplement.tex", BOUND_SUP)
+    else:
+        print("   [main_supplement.tex] skipped: main_supplement.tex does not "
+              "exist or has no bound \\input files yet")
+    print()
+    return ok_main and ok_sup
 
 
 def pass8_captions():
     print("PASS 8  figure captions")
     problems = 0
-    for f in CHAPTERS + BOUND_APPENDICES:
+    # Every file bound into either document, thesis or supplement: a figure
+    # and its caption are checked wherever they are actually printed, not only
+    # where they used to be printed (CHAPTERS + the thesis's own appendices).
+    for f in ALL_BOUND:
+        if f.suffix != ".tex":
+            continue
         text = f.read_text()
         for env in re.findall(r"\\begin\{figure\}.*?\\end\{figure\}", text, re.S):
             g = re.search(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}", env)
@@ -311,28 +365,60 @@ def pass9_template():
     # of them was a .py, which this pass would have caught had it looked. It
     # now looks for .py, .csv and .json as well, so the eleven rewrites cannot
     # regress one sentence at a time.
-    pdf = THESIS / "main_msu.pdf"
-    if pdf.exists() and shutil.which("pdftotext"):
-        r = subprocess.run(["pdftotext", str(pdf), "-"],
-                           capture_output=True, text=True)
-        for m in re.finditer(r"\S*\.(?:md|ipynb|py|csv|json)\b", r.stdout):
-            print(f"   internal filename on the page: {m.group(0)}")
-            problems += 1
+    #
+    # Run once per bound document, main_msu.tex and main_supplement.tex, rather
+    # than on main_msu.pdf alone: the supplement is a document a reader opens
+    # on its own, so an internal path or a missing template invariant in it is
+    # not caught by only ever reading the thesis's own PDF and tex source. This
+    # is the check CLAUDE.md's "second document going stale" note is about.
+    DOCS = [("main_msu.tex", "main_msu.pdf")]
+    if (THESIS / "main_supplement.tex").exists():
+        DOCS.append(("main_supplement.tex", "main_supplement.pdf"))
+    for tex_name, pdf_name in DOCS:
+        pdf = THESIS / pdf_name
+        if pdf.exists() and shutil.which("pdftotext"):
+            r = subprocess.run(["pdftotext", str(pdf), "-"],
+                               capture_output=True, text=True)
+            for m in re.finditer(r"\S*\.(?:md|ipynb|py|csv|json)\b", r.stdout):
+                print(f"   [{pdf_name}] internal filename on the page: {m.group(0)}")
+                problems += 1
 
-    main = (THESIS / "main_msu.tex").read_text()
-    for pat, what in [
-        (r"\\documentclass\[12pt\]\{report\}", "12pt report class"),
-        (r"left=1\.5in", "1.5in left margin"),
-        (r"\\doublespacing", "double spacing"),
-        # chngcntr is absent locally; the documented substitute is equivalent.
-        (r"\\counterwithout\{figure\}\{chapter\}|\\renewcommand\{\\thefigure\}\{\\arabic\{figure\}\}",
-         "consecutive figure numbering"),
-        (r"\\counterwithout\{table\}\{chapter\}|\\renewcommand\{\\thetable\}\{\\arabic\{table\}\}",
-         "consecutive table numbering"),
-    ]:
-        if not re.search(pat, main):
-            print(f"   main_msu.tex: missing {what}")
-            problems += 1
+        main = (THESIS / tex_name).read_text()
+        for pat, what in [
+            (r"\\documentclass\[12pt\]\{report\}", "12pt report class"),
+            (r"left=1\.5in", "1.5in left margin"),
+            (r"\\doublespacing", "double spacing"),
+            # chngcntr is absent locally; the documented substitute is equivalent.
+            (r"\\counterwithout\{figure\}\{chapter\}|\\renewcommand\{\\thefigure\}\{\\arabic\{figure\}\}",
+             "consecutive figure numbering"),
+            (r"\\counterwithout\{table\}\{chapter\}|\\renewcommand\{\\thetable\}\{\\arabic\{table\}\}",
+             "consecutive table numbering"),
+        ]:
+            if not re.search(pat, main):
+                print(f"   {tex_name}: missing {what}")
+                problems += 1
+
+    # Page gate. FORMAT.md sets no limit; this project's own review process
+    # has, and reads it with pdfinfo against the actual rendered artifact
+    # rather than trusting a line count, because a page count is a property of
+    # the typeset PDF (margins, float placement, widow control), not of the
+    # source.
+    main_pdf = THESIS / "main_msu.pdf"
+    if main_pdf.exists() and shutil.which("pdfinfo"):
+        r = subprocess.run(["pdfinfo", str(main_pdf)], capture_output=True, text=True)
+        m = re.search(r"^Pages:\s+(\d+)", r.stdout, re.M)
+        if m:
+            n_pages = int(m.group(1))
+            over = n_pages > MAIN_THESIS_MAX_PAGES
+            print(f"   main_msu.pdf: {n_pages} pages (limit {MAIN_THESIS_MAX_PAGES})")
+            if over:
+                print(f"   FAIL: main_msu.pdf is {n_pages} pages, exceeds the "
+                      f"{MAIN_THESIS_MAX_PAGES}-page limit")
+                problems += 1
+        else:
+            print("   WARNING: pdfinfo produced no 'Pages:' line; page gate not evaluated")
+    elif main_pdf.exists():
+        print("   WARNING: pdfinfo not on PATH; page gate skipped")
 
     # Advisory only: the template asks for three-sentence paragraphs.
     short = 0
