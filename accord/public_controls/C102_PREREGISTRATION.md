@@ -340,7 +340,7 @@ prefix `plantbench.*`.
 The rule above is unchanged. The Outcome recorded above for Stages 3 and 4 is
 corrected, not replaced, so both remain visible.
 
-The pre-registration committed at 5ffeb13 specifies that the full Stage 3 run
+The pre-registration committed at 22bd7ec specifies that the full Stage 3 run
 "substitutes the frozen file's real dimensions and the trained checkpoint's weights",
 and that Stage 4's plant is "the real, trained detector's scores". The Stage 3 and
 Stage 4 runs recorded above used the real dimensions with untrained, randomly

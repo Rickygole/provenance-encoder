@@ -33,7 +33,7 @@ own outcome diagnosed, and nothing else.
 ## What is reused verbatim from C101 (quoted, not paraphrased)
 
 Everything below is copied character-for-character from
-`accord/public_controls/C101_PREREGISTRATION.md` as committed at `8ff9767`
+`accord/public_controls/C101_PREREGISTRATION.md` as committed at `d83c67b`
 ("C101 Outcome C: noise-mix sigma search under-calibrated at target 0.50").
 None of it is re-derived or re-justified here; it is reused as-is.
 

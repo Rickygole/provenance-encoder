@@ -72,7 +72,7 @@ Recorded 2026-09-13 after the run; the rule above is unchanged.
 **Outcome B, not separable from between-model noise.** Both runs valid: `qwen3:8b`
 and `qwen3:14b` each scored all 300 pairs, 0 failed parses, 0 non-empty thinking
 blocks, 0 truncated prompts, digests matched the values recorded above
-(`500a1f06...b41` and `bdbd181c...be8`). D was frozen at commit `922dda9`, before
+(`500a1f06...b41` and `bdbd181c...be8`). D was frozen at commit `7e24cca`, before
 any `qwen3:14b` datum existed. S = 1.0559 (`qwen3:8b` ratio 14.1667 / `qwen3:14b`
 ratio 13.4167 on G_299, frontier zero-shot), D = 1.5353. S is inside the (1/D, D)
 band `(0.6513, 1.5353)`, so the ceiling condition fails outright; the exact
