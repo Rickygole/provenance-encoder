@@ -33,3 +33,10 @@ Local only; stdout/stderr to ~/mimic_local_only/logs; output JSON holds aggregat
 
 ## Outcome
 (appended after the run)
+
+**Outcome A** (run 2026-09-14, artifact `results/accord/c126_teacher_student/c126.json`; all gates passed).
+G_253: teacher (weak label as score) AUROC 0.5185 [0.4194, 0.5758]; student (decontaminated ensemble) 0.5145
+[0.3210, 0.7034]; student minus teacher -0.0040, paired 95 percent interval -0.1760 to 0.1660. G_299 teacher 0.5228.
+Descriptive strata: Rules 1 and 2 teacher 0.5216, student 0.4221; Rules 3 and 4 teacher 0.5294, student 0.6095 (6 positives
+each). The detector's ranking of the gold pairs is not distinguishable from its weak labeller's; the interval is wide, so
+this is not a demonstration that they are equal.
