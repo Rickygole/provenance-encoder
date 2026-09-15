@@ -117,8 +117,8 @@ FLOORS = {
 # meet it. Coverage still does real work and is unchanged or nearly so
 # everywhere it was clearing before.
 LOWERED = {
-    "fig-pipeline-status": ((0.105, 0.038),
-        "coverage clears. chroma: four of six bands are SCARLET_TINT at S=0.233, "
+    "fig-pipeline-status": ((0.105, 0.036),
+        "Lowered 0.038 to 0.036 on 2026-09-14: the stage 4 label now names the simulated 80 percent power floor, and the longer grey text dilutes chroma by 0.001. coverage clears. chroma: four of six bands are SCARLET_TINT at S=0.233, "
         "under this metric's own 0.25 gate, so 84% ink measures 0.18 chroma. "
         "Lowered again when the bands and chips went borderless by the author's "
         "directive: the 1.5pt DEEP band strokes and the 1.4pt CORE chip rims "

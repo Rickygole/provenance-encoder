@@ -263,8 +263,8 @@ def make_fig_pipeline_status():
          "artifact, target in input, untrained"),
         (4, "Evaluation", BOUNDED,
          f"AUROC {auroc:.2f}",
-         "Interval upper end against the power floor",
-         f"upper {ci_hi:.2f}, floor {floor:.2f}"),
+         "Interval upper end against the simulated 80 percent power floor",
+         f"upper {ci_hi:.2f}, power floor {floor:.2f}"),
     ]
 
     W, H = FIGW, 3.10
