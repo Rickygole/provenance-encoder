@@ -118,4 +118,28 @@ no `SUBJECT_ID`, no `pair_id`.
 
 ## Outcome
 
-(appended after the run)
+**Outcome A** (run 2026-09-14, artifact `results/accord/c129_exemplar_prevalence/c129.json`). Both
+gates held: the regenerated pool (`rule1_candidates` 1061, `rule2_candidates` 246, `rule3_candidates`
+659, `rule4_candidates` 330, `total_candidates` 2296) matched `accord/local_only/phase3_mining_summary.json`
+exactly, and this script's mirror of `mine_rule1`/`mine_rule2` produced the same candidate counts as
+calling those functions directly (1061/1061, 246/246).
+
+On the rebuilt pool, if the original's positional design (`.iloc[0]`) were applied instead of the fix:
+
+- **Rule 1** (n = 1061): outside the trigger set 11.8 percent nursing side (125/1061, 95 percent Wilson
+  0.100-0.139), 32.6 percent discharge side (346/1061, 0.299-0.355), 39.5 percent either side (419/1061,
+  0.366-0.425).
+- **Rule 2** (n = 246): 15.4 percent nursing side (38/246, 0.115-0.205), 40.2 percent discharge side
+  (99/246, 0.343-0.465), 49.6 percent either side (122/246, 0.434-0.558).
+- **Pooled** (n = 1307): 12.5 percent nursing side (163/1307, 0.108-0.144), 34.0 percent discharge side
+  (445/1307, 0.315-0.367), 41.4 percent either side (541/1307, 0.388-0.441).
+- Construction check: the rebuild's own selector (`pick_exemplar`) landed outside the trigger set 0/1307
+  times on every side, as required.
+- Single-mention-per-side share (position cannot matter there): pooled 68.7 percent nursing side, 26.3
+  percent discharge side, 19.3 percent both sides at once -- i.e., on the discharge side, in nearly 74
+  percent of candidates a drug is mentioned more than once, which is exactly where the original design
+  had more than one row to get wrong.
+
+This is descriptive, about a selector design applied to the rebuild's own pool, not the gold set's
+defect rate (see "Row order" above for what the code does and does not let us conclude about the
+relationship between the two).
