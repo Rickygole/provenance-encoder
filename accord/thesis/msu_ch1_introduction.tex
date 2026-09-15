@@ -109,7 +109,11 @@ position rather than by membership, and no assertion tying the two
 together. Here the Rule 1 and Rule 2 selector indexed candidates positionally
 (Figure~\ref{fig:exemplar}), and the pool's reported precision carried no
 trace of it, because no metric compares displayed evidence against
-triggering evidence. The pattern is reachable, but its rate cannot be
+triggering evidence. The pattern is more than reachable: on the rebuilt
+candidate pool the original positional design would show an exemplar outside
+the trigger set for $41.4$ percent of Rule 1 and Rule 2 candidates, a rate for
+the design on a differently segmented pool, not for the annotated exemplars.
+Their defect rate cannot be
 recovered because the candidate schema does not record which mention fired,
 so three instruments on the same rules give $0$, $0.4745$ and $0.9315$
 (Section~``\nameref{sec:r-exemplar}''). Three further defects are argued in
@@ -187,7 +191,11 @@ measured MCC is $0.0269$, at chance (Section~``\nameref{sec:res-rq2}''). The scr
 prompt that produced those labels were never saved, so the run cannot be repeated,
 but its labels were retained and are measured directly; the reproducible
 replication of the same prompt text flags an even larger share, $0.9532$, so the
-over-calling finding does not rest on the lost run. Of
+over-calling finding does not rest on the lost run. Nor does the ranking null:
+retrained on labels regenerated with the committed replication prompt and
+script, the control detector reaches an ensemble AUROC of $0.5360$ on $G_{253}$
+(95 percent interval $0.3454$ to $0.7196$), which includes chance and ends
+below the $0.7466$ power floor. Of
 $15$ local labeller-and-prompt configurations run in this project, $5$, all
 \texttt{llama3:8b}, could not have rejected the null at $\alpha = 0.05$ at
 any outcome their marginal permitted. A graded score is not bound by the
@@ -269,7 +277,12 @@ treats the pilot's positive count as known.
 
 \item \textbf{Trigger-exemplar dissociation as a mining bug pattern.} A rule
 that fires on a set of mentions and an exemplar selector that picks from it
-by position (Figure~\ref{fig:exemplar}). Its rate here cannot be recovered
+by position (Figure~\ref{fig:exemplar}). On the rebuilt candidate pool the
+original selector design would show an exemplar outside the trigger set for
+$41.4$ percent of Rule 1 and Rule 2 candidates (95 percent interval $38.8$ to
+$44.1$), and the rebuild's selector for $0$ by construction; that measures the
+design on a pool with a different sentence segmenter and unrecoverable original
+row order, not the defect rate of the annotated gold exemplars. That defect rate cannot be recovered
 because the schema does not record the trigger, which is why three
 instruments disagree by up to $0.9315$. It would be caught by a one-line
 assertion that the displayed exemplar belongs to the trigger set, once the

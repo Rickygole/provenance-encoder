@@ -202,6 +202,16 @@ trigger set. This shows the check discriminates as intended on synthetic input, 
 how often the defect fired on the clinical candidates and not that positional
 selection defects form a general class.
 
+The pre-registered exemplar-prevalence check applies the same assertion to real candidates. On
+the $1{,}307$ Rule 1 and Rule 2 candidates of the rebuilt pool, the original positional selector
+would show an exemplar outside the trigger set on at least one note side for $541$, or $41.4$
+percent (Wilson 95 percent interval $38.8$ to $44.1$): $39.5$ percent of the $1{,}061$ Rule 1
+candidates and $49.6$ percent of the $246$ Rule 2 candidates, and by side $12.5$ percent on the
+nursing side and $34.0$ percent on the discharge side. The rebuild's selector gives $0$ on every
+side, as it must by construction. This is the rate of the original selector design on the rebuilt
+pool, which uses a different sentence segmenter and cannot recover the original run's row order;
+it is not the defect rate of the annotated gold exemplars, which remains not established.
+
 The stratum comparison does not depend on that rate. Rules 3 and 4 are not
 subject to the documented positional defect, which is in the Rules 1 and 2 code,
 but their exemplar correctness remains an assumption (Table~\ref{tab:denoms}).
@@ -806,6 +816,16 @@ they are equal. Two unrelated rankings at chance would also fit this interval, s
 positives per stratum, the labeller gives $0.5216$ on Rules 1 and 2 and
 $0.5294$ on Rules 3 and 4, against the ensemble's $0.4221$ and $0.6095$, so the
 labeller shows no comparable rise on Rules 3 and 4.
+
+The deployed labelling run's script and prompt were lost, so the pre-registered
+reproducible-labeller retrain replaced its labels with labels regenerated from the committed
+replication prompt and script. The relabelled pool's positive rate, $0.9470$, matched the
+registered replication rate exactly, and the control detector retrained on the same
+$1{,}183$-row subject-disjoint pool over three seeds reaches an ensemble AUROC of $0.5360$ on
+$G_{253}$, 95 percent interval $0.3454$ to $0.7196$. By its pre-registered rule the ranking null
+reproduces without the lost run, since the interval includes chance and its upper end lies below
+the $0.7466$ power floor. Against this reproducible teacher, whose AUROC on $G_{253}$ is $0.5270$,
+student minus teacher is $0.0090$, 95 percent interval $-0.1768$ to $0.1949$, which spans zero.
 
 \begin{table}[H]
 \caption{Control model and contaminated run on the same pairs}

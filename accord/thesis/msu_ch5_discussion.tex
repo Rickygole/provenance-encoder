@@ -64,7 +64,11 @@ Evaluation & AUROC near chance, plausibly an artifact of a small, defective samp
 The miner's pool has a base rate against pharmacist annotation of $0.0401$. For
 action-conflict candidates the trigger quantified over sets of medication
 mentions while the surviving selector excerpt picks by position; that it
-selected the annotated exemplars is not established. Three instruments disagree on how often that
+selected the annotated exemplars is not established. The design itself can be measured: on the
+rebuilt candidate pool the original positional selector would show an exemplar outside the trigger
+set for $41.4$ percent of Rule 1 and Rule 2 candidates, so under that design the failure is common
+rather than merely reachable, but a different sentence segmenter and an unrecoverable original row
+order keep that figure from being the annotated exemplars' defect rate. Three instruments disagree on how often that
 failure fired on the pooled Rules 1 and 2 candidates
 (Section~``\nameref{sec:r-exemplar}''): a reconstruction, an exact key join on a
 much smaller subset, and a purpose-built extractor written for this check,
@@ -239,6 +243,14 @@ cells, uncorrected, met both criteria under two new wordings
 (Section~``\nameref{sec:res-rq2}''). So the null is a statement about these
 trained models under this supervision, whether a graded score escapes the
 agreement ceiling is not settled, and no ablation carries a significance claim.
+
+\paragraph{The deployed labelling run is lost, but the ranking null does not rest on it.} The
+script and prompt behind the deployed weak labels were never committed, so those labels cannot be
+regenerated. Retrained on labels regenerated with the committed replication prompt and script, the
+control detector's ensemble AUROC on $G_{253}$ is $0.5360$ (95 percent interval $0.3454$ to
+$0.7196$), so the ranking null reproduces on reproducible labels
+(Section~``\nameref{sec:res-rq4}''). The limitation is therefore narrowed to the deployed run's own
+numbers, such as its $261$ of $299$ marginal, which remain measured but not repeatable.
 
 \paragraph{Deployment risk, and automation bias.} A system with recall
 $0.7778$ and precision $0.0424$ generates many false alarms per true
@@ -419,8 +431,9 @@ Dangerous medication contradictions between nursing notes and discharge
 summaries are real, recurring and worth detecting, and at the size this thesis
 could annotate the pipeline built to detect them did not. The thesis leaves a
 stage-wise audit (Table~\ref{tab:disc-spine}), a feasibility check on a weak
-labeller's marginal, and trigger-exemplar dissociation, a reachable mining bug
-that a one-line assertion catches once the candidate schema records which
+labeller's marginal, and trigger-exemplar dissociation, a mining bug the
+original selector design would show on $41.4$ percent of the rebuilt pool's
+Rule 1 and Rule 2 candidates and that a one-line assertion catches once the candidate schema records which
 mention fired; the surviving selector excerpt picks by position, but that it
 selected the annotated exemplars is not established. The planted-defect benchmark did not reach its required firing
 rate, a limitation disclosed rather than a result claimed. None of that
