@@ -223,6 +223,48 @@ non-zero, so the pipeline chain (`persist_replication_labels.py && c130_run.py -
 
 ## Outcome
 
-(appended after the full run; not yet run. The dry-run gate results from 2026-09-14, run before any training
-started, are reported in this task's final summary rather than here, since `--dry-run` intentionally writes nothing
-to this repository beyond this file and the code below.)
+Run 2026-09-15. `persist_replication_labels.py` regenerated the per-row `llama3:8b` labels
+(`~/mimic_local_only/accord_multillm/pool_replication_labels_llama3_8b.csv`, 1,679 rows, and
+`gold_replication_labels_llama3_8b.csv`, 299 rows; wall time 1487s pool + 277s gold). The relabelled pool's positive
+rate matched the already-registered `overcall.llama3_8b.pool.positive_rate` exactly (0.9469922572960096 both sides,
+identical to 16 significant figures, not merely to 4 decimals): the same run this pre-registration cites, not a
+drift. `results/accord/c130_reproducible_student/replication_relabel_aggregates.json` records the check.
+
+`c130_run.py --dry-run` then passed all five gates (split-size: `n_train=1183`; label-file-exists; uniqueness: 0
+duplicate join-key rows; join-completeness: 1,183/1,183 training rows matched, 0 missing; marginal-match: exact, as
+above) and reported `READY_TO_TRAIN`. The full run trained all three seeds (42, 123, 2024) without error and wrote
+`results/accord/c130_reproducible_student/c130.json`; `register_c130.py` and `accord/stats/withdraw_hosted.py
+--check` both ran clean afterward.
+
+**G_253 (decision stratum), ensemble**: AUROC 0.5360, AP 0.0830, 95% percentile-bootstrap CI [0.3454, 0.7196]
+(B=10,000, seed 42). Per seed: seed 42 AUROC 0.5781 [0.4062, 0.7444]; seed 123 AUROC 0.4869 [0.3409, 0.6381]; seed
+2024 AUROC 0.5463 [0.3527, 0.7288].
+
+**G_299 (descriptive), ensemble**: AUROC 0.5377, AP 0.0696, 95% CI [0.3561, 0.7242]. Per seed: seed 42 AUROC 0.5807
+[0.4102, 0.7493]; seed 123 AUROC 0.4846 [0.3410, 0.6355]; seed 2024 AUROC 0.5514 [0.3653, 0.7372].
+
+**Teacher.** G_299 (registered confusion, TP=12 FP=273 FN=0 TN=14): recall 1.0, specificity 0.04878, binary-score
+AUROC 0.52439. G_253 (derivable this run, since the gold replication label file now exists): teacher AUROC 0.52697
+(n=253, n_pos=12). Student-minus-teacher on G_253: +0.00899, 95% paired-bootstrap CI [-0.17679, 0.19487] (B=10,000,
+seed 43) -- the interval spans zero, so the student and the reproducible-labeller teacher are not distinguishable on
+this gold set either.
+
+**Decision (the rule fixed above, applied without modification): REPRODUCES.** G_253 ensemble AUROC 95% CI [0.3454,
+0.7196] includes 0.5 and its upper bound (0.7196) is below the power floor (0.7466,
+`sizectl108.power_curves.primary_crossing_power_0_80`). The thesis's headline chance-level ranking null on this gold
+set survives the one substitution this task asked for: replacing the lost, unreproducible deployed weak-labeller
+with `llama3:8b`'s reproducible replication, whose script and prompt are both on disk and whose per-row output is
+now persisted alongside it. All register values are under `c130.*` in `results/accord/VERIFIED_FACTS.json`.
+
+**A known, disclosed instrumentation defect, not a data-agreement finding.** The Ollama-egress check
+`persist_replication_labels.py` ran alongside the relabelling (`lsof`-based, sampled every 25 rows) recorded
+`egress_local_only: false` in `replication_relabel_aggregates.json`, with an empty observed-remote-IP list. This is a
+false negative from two bugs in the sampler, not evidence of non-loopback traffic: `lsof -p PID -i` without `-a` ORs
+the two selectors (returning every process's sockets, not just this one), and without `-n` it prints the resolved
+name `localhost` for `127.0.0.1`, which the sampler's IP-shaped regex never matched -- so no sample from the real run
+registered a hit despite hundreds of live `127.0.0.1:11434` connections. `OLLAMA_URL` was pinned to the literal
+loopback IP for every call this run made, so the connections could not have left `127.0.0.1` regardless of what the
+sampler observed; a post hoc test against a throwaway Ollama call, with the sampler fixed (`lsof -a -p PID -i -n
+-P`), correctly captured `127.0.0.1` as the only remote endpoint. The historical aggregates file is left as measured
+(fix committed separately, `91a4537`, for any future run of this script) rather than hand-edited, per this project's
+"every number is generated, never typed" convention.

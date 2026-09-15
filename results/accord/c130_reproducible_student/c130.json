@@ -1,0 +1,188 @@
+{
+  "seeds": [
+    42,
+    123,
+    2024
+  ],
+  "g299": {
+    "ensemble": {
+      "n": 299,
+      "n_pos": 12,
+      "auroc": 0.537746806039489,
+      "ap": 0.06957879363694502,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "ci95": [
+          0.3560907886858274,
+          0.7242214532871973
+        ],
+        "boot_mean": 0.5382377572741711,
+        "boot_std": 0.09451014943619579
+      }
+    },
+    "seed42": {
+      "n": 299,
+      "n_pos": 12,
+      "auroc": 0.5807200929152149,
+      "ap": 0.0642301666702927,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "ci95": [
+          0.41016620120698516,
+          0.7493287414340046
+        ],
+        "boot_mean": 0.5814818216299744,
+        "boot_std": 0.08667546577657105
+      }
+    },
+    "seed123": {
+      "n": 299,
+      "n_pos": 12,
+      "auroc": 0.4846109175377468,
+      "ap": 0.0417188578631209,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "ci95": [
+          0.340997996191076,
+          0.6354684146019407
+        ],
+        "boot_mean": 0.4846011222785756,
+        "boot_std": 0.0743460791015327
+      }
+    },
+    "seed2024": {
+      "n": 299,
+      "n_pos": 12,
+      "auroc": 0.5513937282229966,
+      "ap": 0.09863375618332432,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "ci95": [
+          0.36525511305380176,
+          0.737205674492364
+        ],
+        "boot_mean": 0.5517992285200894,
+        "boot_std": 0.0945446570729021
+      }
+    }
+  },
+  "g253": {
+    "ensemble": {
+      "n": 253,
+      "n_pos": 12,
+      "auroc": 0.5359612724757953,
+      "ap": 0.08298569987933005,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "ci95": [
+          0.345434996612753,
+          0.7195712309820194
+        ],
+        "boot_mean": 0.5356801620882201,
+        "boot_std": 0.09432850731305154
+      }
+    },
+    "seed42": {
+      "n": 253,
+      "n_pos": 12,
+      "auroc": 0.5781466113416321,
+      "ap": 0.07551184309082344,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "ci95": [
+          0.40616126833068983,
+          0.744391506602641
+        ],
+        "boot_mean": 0.578146739767362,
+        "boot_std": 0.0858281260706786
+      }
+    },
+    "seed123": {
+      "n": 253,
+      "n_pos": 12,
+      "auroc": 0.48686030428769017,
+      "ap": 0.049797721872635384,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "ci95": [
+          0.3409350440033544,
+          0.6381050051599586
+        ],
+        "boot_mean": 0.48532998477295586,
+        "boot_std": 0.07499726746711981
+      }
+    },
+    "seed2024": {
+      "n": 253,
+      "n_pos": 12,
+      "auroc": 0.5463347164591977,
+      "ap": 0.1080989263782233,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "ci95": [
+          0.3526934435599966,
+          0.7288164719827368
+        ],
+        "boot_mean": 0.5457659427183839,
+        "boot_std": 0.09493402709436789
+      }
+    }
+  },
+  "teacher_g299": {
+    "n": 299,
+    "n_pos": 12,
+    "confusion": {
+      "TP": 12,
+      "FP": 273,
+      "FN": 0,
+      "TN": 14
+    },
+    "recall": 1.0,
+    "specificity": 0.04878048780487805,
+    "auroc_binary_score": 0.524390243902439,
+    "source": "results/accord/multillm/per_model_results.json::per_model.llama3:8b.gold.confusion"
+  },
+  "teacher_g253": {
+    "n": 253,
+    "n_pos": 12,
+    "teacher_auroc": 0.5269709543568465,
+    "student_minus_teacher": {
+      "diff": 0.008990318118948792,
+      "ci95_lo": -0.17678915275994866,
+      "ci95_hi": 0.19487179487179485
+    }
+  },
+  "decision": {
+    "stratum": "g253",
+    "power_floor": 0.7466,
+    "outcome": "REPRODUCES",
+    "reason": "CI includes 0.5 and upper bound is below the power floor",
+    "ci95_used": [
+      0.345434996612753,
+      0.7195712309820194
+    ]
+  },
+  "gates_passed": {
+    "label_file_uniqueness": {
+      "n_rows": 1679,
+      "n_duplicate_join_key_rows": 0,
+      "passed": true
+    },
+    "marginal_match": {
+      "n_pool_rows": 1679,
+      "n_pool_rows_matched_in_label_file": 1679,
+      "n_pool_rows_parseable": 1679,
+      "computed_pool_positive_rate": 0.9469922572960096,
+      "registered_pool_positive_rate": 0.9469922572960096,
+      "registered_key": "overcall.llama3_8b.pool.positive_rate",
+      "passed": true
+    },
+    "join_completeness": {
+      "n_train_rows": 1183,
+      "n_train_duplicate_join_key_rows": 0,
+      "n_matched_rows_after_join": 1183,
+      "n_pool_rows_missing_a_replication_label": 0,
+      "passed": true
+    }
+  }
+}
