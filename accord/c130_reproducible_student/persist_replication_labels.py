@@ -207,8 +207,19 @@ _EGRESS_REMOTE_IPS: set[str] = set()
 
 def _sample_egress_once(pid):
     try:
+        # -a: AND the -p/-i selectors (lsof ORs across selector types by
+        #     default, so `-p PID -i` without -a returns every process's
+        #     sockets, not just this one -- caught only by testing this
+        #     against a live call, not by reading the flag list).
+        # -n -P: numeric addresses/ports. Without -n, lsof prints the
+        #     resolved name ("localhost") for 127.0.0.1, which this
+        #     function's own regex (deliberately IP-shaped, not
+        #     hostname-shaped) then never matches -- the bug an earlier
+        #     version of this script shipped with, which silently produced
+        #     an empty capture set (and therefore a false-negative
+        #     egress_local_only=False) for the entire real relabelling run.
         out = subprocess.run(
-            ["lsof", "-p", str(pid), "-i"], capture_output=True, text=True, timeout=5
+            ["lsof", "-a", "-p", str(pid), "-i", "-n", "-P"], capture_output=True, text=True, timeout=5
         ).stdout
     except Exception:
         return
