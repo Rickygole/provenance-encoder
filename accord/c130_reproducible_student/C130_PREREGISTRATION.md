@@ -186,6 +186,41 @@ writes nothing to `results/` at all; its gate summary goes only to the local log
 opening the log. `register_c130.py` (prefix `c130`) is written but not run, per instruction; it is for a separate
 agent to execute once the full run has produced `results/accord/c130_reproducible_student/c130.json`.
 
+## Addendum: input generation
+
+Committed before `persist_replication_labels.py` is run, per instruction: this section describes the
+label-generation step, not its results, so it does not touch the decision rule above.
+
+The gap the dry run found (gate 2, "A gap found while preparing this run" above) is closed by
+`accord/c130_reproducible_student/persist_replication_labels.py`, which re-runs the identical `llama3:8b` inference
+`run_multillm_replication.py` already ran once and persists the per-row output that run discarded. It does not
+re-derive the prompt or the parsing logic by hand: `SYSTEM_PROMPT`, `USER_TEMPLATE`, `TEMPERATURE`, `SEED`, and
+`MAX_TOKENS` are statically parsed out of `run_multillm_replication.py` (via `ast`, the module is never imported --
+importing it would fire its own top-level Ollama run for all three models) and asserted equal to local copies before
+anything else runs; `parse_prediction` and `call_ollama`'s function bodies are lifted by the same static parse and
+executed verbatim in a private namespace, so the request construction and response parsing are the original code,
+not a re-implementation of it. The one deliberate deviation is `OLLAMA_URL`, pinned to the literal loopback IP
+`127.0.0.1` (the original used `localhost`) per this task's data-agreement requirement that Ollama is called only at
+`127.0.0.1:11434`; this changes nothing the model receives.
+
+Row source and order: the pool is `ws`, read directly from `accord_weak_supervision_labels_decontam.csv` in file
+order, not `run_multillm_replication.py`'s own `reg_df` (that file's `ws` left-joined with regression covariates it
+does not need here). This is a deliberate simplification, not a deviation, because that run's own archived output
+(`run_log.txt`, `per_model_results.json`) already shows a 1.0000 covariate match rate and
+`per_model["llama3:8b"]["pool"]["n"] == 1679`: no row was dropped, and a left join preserves row order, so `reg_df`
+and `ws` are the same 1,679 (nursing, discharge) pairs in the same order. The gold set is
+`accord.control.data.load_gold()`, the same `pair_id <-> HADM_ID` join `run_multillm_replication.py` performs inline,
+asserted to the same 299 rows.
+
+Outputs: `~/mimic_local_only/accord_multillm/pool_replication_labels_llama3_8b.csv` (1,679 rows) and
+`.../gold_replication_labels_llama3_8b.csv` (299 rows), both `HADM_ID, drug, rule, nursing_sentence,
+discharge_sentence, replication_label`, plus `results/accord/c130_reproducible_student/replication_relabel_aggregates.json`
+(pool/gold positive and parse-failure counts, the marginal-match check against the already-registered
+`overcall.llama3_8b.pool.positive_rate`, an Ollama-egress boolean, wall time). If the relabelled pool's positive rate
+does not round to the registered value at 4 decimals, the aggregates file records `outcome: "C"` and the script exits
+non-zero, so the pipeline chain (`persist_replication_labels.py && c130_run.py --dry-run && ...`) stops before
+`c130_run.py`'s own gate 5 would independently reach the same conclusion, and before any training.
+
 ## Outcome
 
 (appended after the full run; not yet run. The dry-run gate results from 2026-09-14, run before any training
