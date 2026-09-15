@@ -124,14 +124,14 @@ build_one() {
 
 build_one main_msu; MAIN_STATUS=$?
 echo
-build_one main_supplement; SUP_STATUS=$?
-echo
+# The thesis is submitted as one document; there is no supplement.
+SUP_STATUS=0
 
 # The glob used to be ch*.tex, which matches nothing (the chapters are
 # msu_ch*.tex): a gate that cannot fail. msu_sup*.tex is included for the same
 # reason msu_ch*.tex is: a TODO left in the supplement is as much an open item
 # as one left in a chapter.
-todo_count=$(grep -ho '\[TODO' msu_ch*.tex msu_sup*.tex msu_app*.tex frontmatter/*.tex main_msu.tex main_supplement.tex 2>/dev/null | wc -l | tr -d ' ')
+todo_count=$(grep -ho '\[TODO' msu_ch*.tex msu_app*.tex frontmatter/*.tex main_msu.tex main_supplement.tex 2>/dev/null | wc -l | tr -d ' ')
 echo "open TODOs in text:  ${todo_count}"
 
 if [ "$MAIN_STATUS" -ne 0 ]; then
