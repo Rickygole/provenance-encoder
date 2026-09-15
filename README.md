@@ -116,30 +116,26 @@ python3 scripts/analyze_sweep.py          # paired comparison
 
 ## Data handling
 
-MIMIC-III is PhysioNet credentialed data. Everything touching it runs locally
-and emits aggregates only — no note text is printed, logged, or sent anywhere.
-For the provenance-encoder experiments in this repository, LLM baselines run
-through Ollama on localhost rather than a hosted API, consistent with
-PhysioNet's published guidance, which treats unconditioned transmission of
-restricted data to a general-purpose hosted API as inconsistent with the data
-use agreement. One earlier comparison is an exception and is disclosed rather
-than hidden: ACCORD's GPT-4o baseline did transmit note excerpts to a hosted
-commercial API, and that departure, including why the rows were kept, is
-documented in the thesis methodology chapter's data-use section
-(`accord/thesis/msu_ch3_methodology.tex`). `local_only/` is gitignored, as are
-the MIMIC table names, and `/Users/rickygole` is itself a git repository,
-which is why those rules are aggressive.
+MIMIC-III is PhysioNet credentialed data. Everything touching it runs locally and emits aggregates only; no
+note text or admission or subject identifier is printed, logged or committed. Credentialed and note-derived
+files live outside this tree (`local_only/` is a symlink to credentialed local storage and is gitignored, as
+are the MIMIC table names), and `/Users/rickygole` is itself a git repository, which is why those rules are
+aggressive.
+
+Earlier in the project, sentence pairs were sent to hosted model APIs in several runs. Every result obtained
+that way is withdrawn: the values are held under `withdrawn.hosted.*` in the register, which the numeric
+provenance gate excludes from anything the thesis may report, and the per-pair outputs are held in
+credentialed local storage, not in this tree. The thesis methodology chapter's data-use section
+(`accord/thesis/msu_ch3_methodology.tex`) states this. Every model comparison the thesis reports was run on
+models served locally, the route PhysioNet's guidance of 24 September 2025 recommends; the hosted runners now
+refuse to start without an explicit opt-in.
 
 Pretraining corpora, if used, are open (PubMed / PMC OA, CC0 and CC BY only).
 
-One correction to an earlier version of this file, which claimed that no MIMIC
-data and no note-derived row-level artifact is cloud-synced. That was false.
-`accord/differential/run_multillm_replication.py` reads
-`annotation_sample_300.csv` from a Google Drive mount, and that file carries
-verbatim note sentences joined to `HADM_ID`. Raw MIMIC tables were also read
-from `~/Downloads`. Those paths are being moved under `mimic_local_only/` and
-the claim is withdrawn rather than restated, because the file that falsified it
-was committed in this repository while the claim stood.
+One correction to an earlier version of this file, which claimed that no MIMIC data and no note-derived
+row-level artifact was cloud-synced. That was false: a replication script read a note-derived annotation file
+from a Google Drive mount, and raw MIMIC tables were read from a downloads folder. Both now resolve to
+credentialed local storage. The script that read the annotation file is committed; the file itself never was.
 
 `scripts/sync_results.sh` is the intended path from `local_only/` (credentialed
 data) to this repository or to Drive: it admits only `.json`, `.txt`, and
