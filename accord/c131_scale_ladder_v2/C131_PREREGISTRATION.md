@@ -201,6 +201,9 @@ call.
 (appended here, from `results/accord/c131_scale_ladder_v2/synthetic_probe_validation.json`, before
 `run_c131.py` is ever pointed at the gold CSV -- the rule above is not edited)
 
+**Validated** (probe run c131_validate_20260915T005611; artifact `results/accord/c131_scale_ladder_v2/synthetic_probe_validation.json`). 25/25 calls succeeded; 25 probes generated more than one token; per_token_logprobs_available=True; parse_and_score_remedy raised on 0 probe(s). Method confirmed on 5 synthetic non-clinical probes per size, across all five qwen3 sizes. run_c131.py proceeds with the primary (per-position) graded-score method for the clinical run.
+
+
 ## Outcome
 
 (appended after the run; the rule above is not edited)
