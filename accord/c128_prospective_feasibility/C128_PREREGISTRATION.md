@@ -102,3 +102,13 @@ command.
 ## Outcome
 
 (appended after the run; the rule above is not edited)
+
+**Outcome C** (run analyzed 2026-09-15; artifact `results/accord/c128_prospective_feasibility/c128.json`).
+C127's registered gate (5 percent parse-failure ceiling, no truncation) failed for qwen3:4b: under
+identical settings to the other four sizes, qwen3:4b's `/api/chat` content channel emitted a
+chain-of-thought preamble token (e.g. "First", "Okay") instead of the one-word answer on all 299
+pairs (0/299 parsed; independently reproduced with a synthetic, non-clinical probe prompt outside
+the credentialed cache, confirming this is the model's own behaviour under `think=false` and
+`num_predict=1`, not a parsing defect in `run_c127.py`). Per this file's invalidity rule, the
+prospective feasibility check is not evaluated for any size while any size's C127 cell is invalid;
+no per-size prediction, held-out outcome, or agreement is computed or registered.

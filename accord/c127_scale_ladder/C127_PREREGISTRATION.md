@@ -95,3 +95,6 @@ non-loopback line, exactly as `run_c103.py::write_egress_evidence` does.
 ## Outcome
 
 (appended after the run; the rule above is not edited)
+
+**Outcome C** (run analyzed 2026-09-15; artifact `results/accord/c127_scale_ladder/c127.json`). gate failed for size(s) ['4b']: parse-failure rate above 0.05 or a truncated call; the Spearman rule is not evaluated. Per-size over-calling ratios: 0.6b=24.833, 1.7b=23.000, 4b=0.000, 8b=14.167, 14b=13.417. Per-size graded AUROC (G_253): 0.6b=0.4879, 1.7b=0.5719, 4b=0.5000, 8b=0.5776, 14b=0.6563.
+
