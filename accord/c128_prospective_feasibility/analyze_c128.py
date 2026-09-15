@@ -94,7 +94,19 @@ def main():
         ])
         OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
         OUT_PATH.write_text(json.dumps(out, indent=2) + "\n")
-        print(f"wrote {OUT_PATH}; outcome=C ({out['outcome_reason']})")
+        # Outcome C computes nothing, so there is nothing to register; still
+        # delete any stale c128.* keys from an earlier successful run, per
+        # the registrar contract (delete the prefix wholesale, then re-add --
+        # here, re-add nothing), so a rerun after a prior Outcome A/B never
+        # leaves a stale live key behind.
+        facts = json.loads(FACTS.read_text(), object_pairs_hook=collections.OrderedDict)
+        stale = [k for k in facts if k.split(".")[0] == PREFIX]
+        if stale:
+            for k in stale:
+                del facts[k]
+            FACTS.write_text(json.dumps(facts, indent=1) + "\n")
+        print(f"wrote {OUT_PATH}; outcome=C ({out['outcome_reason']}); "
+              f"removed {len(stale)} stale c128.* keys")
         return out
 
     pilot_n_pos = sum(y_by_pair[pid] for pid in pilot_pairs)
