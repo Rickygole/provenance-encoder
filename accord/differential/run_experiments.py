@@ -30,10 +30,10 @@ def log(*a):
 # ---------------------------------------------------------------------------
 # 1. DEMOGRAPHICS TABLE (per HADM_ID)
 # ---------------------------------------------------------------------------
-adm = pd.read_csv("/Users/rickygole/Downloads/ADMISSIONS.csv",
+adm = pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/ADMISSIONS.csv",
                    parse_dates=["ADMITTIME", "DISCHTIME"])
 adm["HADM_ID"] = adm["HADM_ID"].astype(float)
-pts = pd.read_csv("/Users/rickygole/Downloads/PATIENTS.csv", parse_dates=["DOB"])
+pts = pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/PATIENTS.csv", parse_dates=["DOB"])
 
 demo = adm.merge(pts[["SUBJECT_ID", "GENDER", "DOB"]], on="SUBJECT_ID", how="left")
 

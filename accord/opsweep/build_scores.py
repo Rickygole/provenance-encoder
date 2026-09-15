@@ -46,7 +46,7 @@ def lang_group(x):
 
 
 def build_demo():
-    adm = pd.read_csv("/Users/rickygole/Downloads/ADMISSIONS.csv")
+    adm = pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/ADMISSIONS.csv")
     adm["HADM_ID"] = adm["HADM_ID"].astype(float)
     demo = adm[["HADM_ID", "LANGUAGE"]].drop_duplicates("HADM_ID")
     demo["language_group3"] = demo["LANGUAGE"].apply(lang_group)

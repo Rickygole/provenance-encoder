@@ -56,7 +56,7 @@ def log(*a):
 # ---------------------------------------------------------------------------
 import subprocess
 icustays_hits = []
-for root in ["/Users/rickygole/Downloads", "/Users/rickygole/mimic_local_only"]:
+for root in ["/Users/rickygole/mimic_local_only/raw_mimiciii", "/Users/rickygole/mimic_local_only"]:
     try:
         out = subprocess.run(["find", root, "-iname", "*ICUSTAYS*"],
                               capture_output=True, text=True, timeout=300).stdout.strip()
@@ -71,9 +71,9 @@ log(f"DBSOURCE_AVAILABLE = {DBSOURCE_AVAILABLE}")
 # ---------------------------------------------------------------------------
 # Demographics table -- identical construction to experiment_A.py
 # ---------------------------------------------------------------------------
-adm = pd.read_csv("/Users/rickygole/Downloads/ADMISSIONS.csv", parse_dates=["ADMITTIME", "DISCHTIME"])
+adm = pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/ADMISSIONS.csv", parse_dates=["ADMITTIME", "DISCHTIME"])
 adm["HADM_ID"] = adm["HADM_ID"].astype(float)
-pts = pd.read_csv("/Users/rickygole/Downloads/PATIENTS.csv", parse_dates=["DOB"])
+pts = pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/PATIENTS.csv", parse_dates=["DOB"])
 demo = adm.merge(pts[["SUBJECT_ID", "GENDER", "DOB"]], on="SUBJECT_ID", how="left")
 
 def lang_group(x):

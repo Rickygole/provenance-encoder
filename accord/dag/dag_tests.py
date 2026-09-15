@@ -37,7 +37,7 @@ d["los"] = (pd.to_datetime(d.dischtime)-pd.to_datetime(d.admittime)).dt.total_se
 # era proxy from NOTEEVENTS category (C25)
 era = {}
 hs = set(d.hadm_id)
-for ch in pd.read_csv("/Users/rickygole/Downloads/NOTEEVENTS.csv.gz",
+for ch in pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/NOTEEVENTS.csv.gz",
                       usecols=["HADM_ID","CATEGORY"], chunksize=500_000, low_memory=False):
     ch = ch[ch.CATEGORY.isin(["Nursing","Nursing/other"]) & ch.HADM_ID.isin(hs)]
     for h, c in zip(ch.HADM_ID, ch.CATEGORY): era.setdefault(h, set()).add(c)

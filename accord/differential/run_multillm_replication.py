@@ -197,7 +197,7 @@ log(f"\nLoaded gold set: {n_gold} pairs, {n_gold_pos} pharmacist positives "
 #    (identical construction to run_experiments.py, needed to replicate
 #    Experiment 1c: weak_pos ~ language + log_note_chars + n_mentions + rule)
 # ---------------------------------------------------------------------------
-adm = pd.read_csv("/Users/rickygole/Downloads/ADMISSIONS.csv",
+adm = pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/ADMISSIONS.csv",
                    parse_dates=["ADMITTIME", "DISCHTIME"])
 adm["HADM_ID"] = adm["HADM_ID"].astype(float)
 

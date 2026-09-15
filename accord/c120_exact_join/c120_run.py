@@ -48,7 +48,7 @@ def block(y, w, rng):
 
 def run():
     from reconcile_c28 import build_join
-    gold = pd.read_csv("/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv")
+    gold = pd.read_csv(str(pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"))
     j, _ = build_join()  # asserts 299 rows and 1:1 internally
     n_rows = int(len(j)); one_to_one = bool(j["weak_label"].notna().sum() == 299)
     m = gold[["pair_id", "pharm_label"]].merge(j[["pair_id", "pharm_label"]], on="pair_id", suffixes=("_g", "_j"))

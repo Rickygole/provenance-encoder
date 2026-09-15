@@ -150,6 +150,8 @@ def make_fig_ceiling():
         assert abs(kappa_max(r["n"], r["n_positives"], r["n_flagged"])
                    - r["ceiling_kappa"]) < 5e-5, key
         bases.setdefault(r["basis"], r["n"])
+        # Every row on a basis must share its n, not only the first one seen.
+        assert r["n"] == bases[r["basis"]], f"{key}: n {r['n']} disagrees with basis {r['basis']}"
     assert bases == {"G_299": N, "G_253": fact("c120.g253.n")}, bases
 
     # Rows drawn: the ones that attain their ceiling. Each must be mirrored in
