@@ -32,7 +32,7 @@ from style import (FIGW, INK, PAPER, GRAPHITE, MUTE, SLATE, MIST, HAIR,
 style.setup()
 import matplotlib.pyplot as plt
 
-ROOT = pathlib.Path("/Users/rickygole/provenance-encoder")
+ROOT = pathlib.Path(__file__).resolve().parents[3]
 d_thresh = json.loads((ROOT / "results/accord/selection/"
                        "threshold_robustness_results.json").read_text())
 df = pd.DataFrame(d_thresh["cells"])

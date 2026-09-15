@@ -24,7 +24,9 @@
 
 \documentclass[12pt]{report}
 
-\usepackage[left=1.5in,right=1in,top=1in,bottom=1in,includefoot]{geometry}
+% Text block 1in from the bottom edge; page number centred 0.5in from the bottom
+% edge (footskip measured from the text block's last baseline to the folio).
+\usepackage[left=1.5in,right=1in,top=1in,bottom=1in,footskip=0.5in]{geometry}
 \usepackage{mathptmx}                 % SUBSTITUTE for newtxtext/newtxmath
 % tocloft is installed in the user tree now, so the TOC prefix FORMAT.md section 3
 % requires is applied rather than substituted. The body headings already printed
@@ -36,6 +38,15 @@
 \renewcommand{\cftchappresnum}{Chapter }
 \renewcommand{\cftchapaftersnum}{:}
 \setlength{\cftchapnumwidth}{6.4em}
+% List of Tables / List of Figures entries read "Table 1 Title" / "Figure 1 Title"
+% as in the template; the number box is widened to hold the word and a two-digit
+% number, and the entries sit flush left.
+\renewcommand{\cfttabpresnum}{Table }
+\renewcommand{\cftfigpresnum}{Figure }
+\setlength{\cfttabnumwidth}{5em}
+\setlength{\cftfignumwidth}{5.6em}
+\setlength{\cfttabindent}{0pt}
+\setlength{\cftfigindent}{0pt}
 \usepackage{courier}                  % T1-covered Times-companion typewriter face;
                                        % the monospace family the MSU template names
 \usepackage[T1]{fontenc}
@@ -109,6 +120,7 @@
 \usepackage{enumitem}
 \usepackage{indentfirst}
 \usepackage{microtype}
+\usepackage{ragged2e}
 \usepackage[htt]{hyphenat}  % permit breaks inside \texttt so long register keys do not overrun the margin
 \sloppy
 % APA 7 author-date citations, which FORMAT.md section 8 requires: CS at MSU
@@ -133,8 +145,13 @@
 % linktoc=all makes the whole entry clickable in the Table of Contents, the List
 % of Tables and the List of Figures, not just the page number.
 
-% Paragraph formatting -- MSU: 0.5in first-line indent, no paragraph skip.
+% Paragraph formatting -- MSU: 0.5in first-line indent, no paragraph skip, left
+% aligned with a ragged right edge (the template's Normal style is left aligned,
+% never justified). ragged2e's \RaggedRight keeps hyphenation available and uses
+% \RaggedRightParindent in place of \parindent; it is switched on after
+% \begin{document}.
 \setlength{\parindent}{0.5in}
+\setlength{\RaggedRightParindent}{0.5in}
 \setlength{\parskip}{0pt}
 \frenchspacing
 
@@ -176,8 +193,11 @@
 \setcounter{totalnumber}{2}
 \renewcommand{\theequation}{\arabic{equation}}
 
-\setcounter{secnumdepth}{2}
-\setcounter{tocdepth}{2}
+% Chapters number ("Chapter N:"), sections and below do not; the TOC lists
+% chapter-level entries only, as the template's TOC does. Cross-references to
+% sections use \nameref (hyperref's nameref is loaded with hyperref).
+\setcounter{secnumdepth}{0}
+\setcounter{tocdepth}{0}
 
 % Headings: chapter centred, bold, normal size, "Chapter N:" on the same line.
 \titleformat{\chapter}[block]
@@ -191,28 +211,26 @@
 \titleformat{\subsection}{\normalfont\bfseries\itshape\normalsize}{}{0pt}{}
 \titlespacing*{\subsection}{0pt}{0.75\baselineskip}{0.35\baselineskip}
 
-% Caption conventions. An earlier decision of 2026-08-13 followed the accepted
-% departmental example instead of the template: captions below figures, as a
-% single-spaced "Figure N: text" block, with numeric citations. That decision
-% bundled two choices into one justification, and the citation half has since been
-% overturned on the authority of FORMAT.md section 8. Sections 5 and 8 are the
-% same authority, so obeying one and not the other is not defensible, and section 5
-% is now followed too: the label is bold on its own line, the caption text is
-% italic beneath it, and captions sit above both figures and tables.
-%
-% Reverting is a one-line change: restore labelsep=colon, drop labelfont/textfont,
-% and set position=bottom for figures. It is recorded here because the convention
-% is visible on every float and a reader of the departmental example will notice
-% the difference.
-\captionsetup[figure]{labelsep=newline,labelfont=bf,textfont=it,
-  font={normalsize,stretch=1},justification=justified,singlelinecheck=false,
+% Run-in \paragraph headings, APA level 4: bold, indented 0.5in, text follows on
+% the same line.
+\titleformat{\paragraph}[runin]{\normalfont\bfseries\normalsize}{}{0pt}{}
+\titlespacing*{\paragraph}{0.5in}{0pt}{0.5em}
+
+% Caption conventions, per the MSU template (October 2024): one line reading
+% "Table 1 Title" / "Figure 1 Title", label and title both italic, not bold,
+% 12pt, single-spaced, flush left, above the float. The short optional caption
+% argument, where given, is what the List of Tables / Figures shows.
+\captionsetup[figure]{labelsep=space,labelfont=it,textfont=it,
+  font={normalsize,stretch=1},justification=raggedright,singlelinecheck=false,
   position=top,skip=0.6\baselineskip}
-\captionsetup[table]{labelsep=newline,labelfont=bf,textfont=it,
-  font={normalsize,stretch=1},justification=justified,singlelinecheck=false,
+\captionsetup[table]{labelsep=space,labelfont=it,textfont=it,
+  font={normalsize,stretch=1},justification=raggedright,singlelinecheck=false,
   position=top,skip=0.6\baselineskip}
+% Notes below a table or figure: the template sets "*Note: ..." upright and
+% double-spaced, flush left.
 \newcommand{\apanote}[1]{%
   \par\vspace{0.25\baselineskip}%
-  \begingroup\raggedright\noindent\textit{Note.} #1\par\endgroup}
+  \begingroup\normalsize\doublespacing\RaggedRight\noindent *Note: #1\par\endgroup}
 
 \setlist[itemize]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip}
 \setlist[enumerate]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip,label=\arabic*.}
@@ -233,6 +251,7 @@
   pdftitle={Where a Cross-Note Medication Contradiction Detection Pipeline Fails: A Controlled Failure Analysis}}
 
 \begin{document}
+\RaggedRight
 
 % Declaration and Abstract: unnumbered, excluded from the page count.
 \hypersetup{pageanchor=false}
@@ -255,20 +274,20 @@
 
 \clearpage
 \begingroup\doublespacing
-{\centering\normalsize\contentsname\par}\vspace{\baselineskip}
+{\centering\normalsize\bfseries\contentsname\par}\vspace{\baselineskip}
 \makeatletter\@starttoc{toc}\makeatother
 \endgroup\clearpage
 
 \begingroup\doublespacing
 \phantomsection\addcontentsline{toc}{chapter}{List of Tables}
 {\centering\normalsize\bfseries\listtablename\par}\vspace{\baselineskip}
-\makeatletter\@starttoc{lot}\makeatother
+\makeatletter\let\addvspace\@gobble\@starttoc{lot}\makeatother
 \endgroup\clearpage
 
 \begingroup\doublespacing
 \phantomsection\addcontentsline{toc}{chapter}{List of Figures}
 {\centering\normalsize\bfseries\listfigurename\par}\vspace{\baselineskip}
-\makeatletter\@starttoc{lof}\makeatother
+\makeatletter\let\addvspace\@gobble\@starttoc{lof}\makeatother
 \endgroup\clearpage
 
 \input{frontmatter/abbreviations}
@@ -286,7 +305,8 @@
 \doublespacing
 
 % ---------------------------------------------------------------------------
-% Six chapters, per the Morgan State template. See accord/FRAMING.md for the
+% Five chapters, per the Morgan State template; the conclusion is merged into
+% Chapter 5, Summary & Conclusion. See accord/FRAMING.md for the
 % mapping from the ten legacy chapter files these were assembled from.
 % ---------------------------------------------------------------------------
 \input{msu_ch1_introduction}
@@ -294,24 +314,19 @@
 \input{msu_ch3_methodology}
 \input{msu_ch4_results}
 \input{msu_ch5_discussion}
-\input{msu_ch6_conclusion}
 
 \clearpage
 \phantomsection
 \addcontentsline{toc}{chapter}{References}
-% The template's own XML single-spaces reference entries (FORMAT.md section 2,
-% w:line="240" on reference paragraphs) with a 0.5in hanging indent (section 8).
-% The body's \doublespacing does not extend here; doing so was a deviation.
-%
-% biblatex prints the list itself, so \bibliographystyle and \bibliography are
-% gone and its own registers replace natbib's: \bibhang for the hanging indent,
-% \bibitemsep for the gap between entries. heading=bibliography emits the
-% chapter-level References heading that \bibliography used to emit; the TOC line
-% is added by hand above and so is not requested again here.
+% References: double-spaced, 0.5in hanging indent, no extra gap between
+% entries. biblatex prints the list itself; \bibhang is the hanging indent and
+% \bibitemsep/\bibparsep the gaps. heading=bibliography emits the chapter-level
+% References heading; the TOC line is added by hand above.
 \begingroup
-\singlespacing
+\doublespacing
 \setlength{\bibhang}{0.5in}
-\setlength{\bibitemsep}{0.4\baselineskip}
+\setlength{\bibitemsep}{0pt}
+\setlength{\bibparsep}{0pt}
 \printbibliography[heading=bibliography]
 \endgroup
 

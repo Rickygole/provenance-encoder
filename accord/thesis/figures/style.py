@@ -12,7 +12,7 @@ reflex. It is deleted. The rules it stated that are now DEAD:
     left and bottom spines only        -> all four spines, boxed
     a spine only on a measuring axis   -> closure replaces extent
     no bold anywhere                   -> bold in SOLID chips and claim numerals
-    nothing above 9pt                  -> 13pt headline, 22pt claim numeral
+    nothing above 9pt                  -> 11pt headline, 22pt claim numeral
     bars carry no outline              -> bars take a 1.0pt DEEP outline
     colour reserved for marks          -> colour is a carrying channel
     no figure carries a title          -> every figure carries a finding headline
@@ -42,10 +42,26 @@ WHAT SURVIVED, unchanged and absolute:
     No alpha. Anywhere. Every translucent effect is a precomputed tint hex;
       transparency is unpredictable across the PDF backend, the notebook's
       inline PNG and the printer.
-    No leader lines. Labels sit adjacent to their marks; where adjacency
-      collides the axis range expands or the mark moves.
+    Leader lines are allowed, thin and short, where a label cannot sit
+      adjacent to its mark without covering data (the power figure's three
+      points). A reference or chance line is always labelled on the canvas.
+    No plate. The rounded PLATE_EDGE enclosure is no longer drawn on any
+      schematic; plate() is kept only so a retired generator still imports.
     No en dash, em dash or U+2212 on any canvas. No file name, register key or
       repository path on any canvas.
+
+THE ROLE MAP (critique round, supersedes the per-entity hues below wherever
+they disagree). One mapping, used by every bound figure:
+
+    SCARLET        a failed check or an unsupported reading, and nothing else
+    PLUM_DEEP      the deployed weak labeller (#971D6B)
+    AMBER DEEP/CORE the detector ensemble (#714B00 / #F5A300)
+    INK/MUTE/SLATE the three public models, told apart by marker and line
+                   style (PUBLIC_MODEL_MARK), never by hue
+    COBALT         extraction (schematic stages only)
+    EMERALD        the pharmacist's annotation
+    FOG            a light neutral region (#F2F2F2), e.g. the undetectable
+                   region of the power figure
 
 THE COLOUR MODEL. Every hue is a four-stop ramp and the stop determines the
 job. Identity lives in DEEP and CORE only; TINT and WASH are structural ground
@@ -122,23 +138,9 @@ AMBER = Ramp("AMBER",    "#714B00", "#F5A300", "#F9C765", "#FCE4B6", "#F6AC1A")
 PLUM = Ramp("PLUM",      "#971D6B", "#C3268A", "#EEC2DE", "#F7E1EF", "#E296C6")
 SCARLET = Ramp("SCARLET", "#A41704", "#D81E05", "#F5C2BC", "#FAE2DF", "#EE9A8F")
 
-# The three sweep labellers on Figure 5, at higher chroma. The author asked that
-# figure for vibrant colour and got weight instead on the first pass, on the
-# reasoning that brightening a hue inside its own family costs the greyscale
-# separation the palette is verified on. That reasoning was wrong in one
-# direction and it is worth recording why: it assumed each hue had to stay at
-# its own place on the luminance ladder. Moving qwen off deep blue entirely, to
-# cyan, moves it UP the ladder and AWAY from the scarlet it used to sit 8.9
-# apart from. Measured on the four marks that share that canvas, scarlet,
-# magenta, cyan and orange, the minimum adjacent greyscale gap goes from 8.9 to
-# 19.3. The brighter set is the safer set in black and white, not the riskier
-# one.
-#
-# Magenta and orange stay inside the PLUM and AMBER families, so the weak
-# labeller and its sweep counterpart still read as the same colour idea across
-# figures. Cyan frees qwen from COBALT, which is GPT-4o zero-shot's hue
-# everywhere else; the two never co-occurred, but a labeller borrowing another
-# system's colour was a coincidence waiting to be read as a claim.
+# MAGENTA, TANGERINE and CYAN were the three public models' hues on the
+# prevalence grid. The role map below replaced them with neutral tones plus
+# marker and line style; the ramps stay only for retired generators.
 MAGENTA = Ramp("MAGENTA", "#8E1257", "#E0218A", "#F6C4DF", "#FBE6F1", "#EE8CC0")
 TANGERINE = Ramp("TANGERINE", "#7A4200", "#FF8A00", "#FFCC8F", "#FFE9D2", "#FFAE52")
 CYAN = Ramp("CYAN",      "#0A5570", "#00A6D6", "#A8DEEF", "#D6F0F8", "#63C6E4")
@@ -171,11 +173,12 @@ MUTE = "#5A6072"       # 0.1175   6.27:1   secondary annotation text
 SLATE = "#7C8AA5"      # 0.2518   3.48:1   reference lines, seed dots, stubs
 MIST = "#DCE3EE"       # 0.7633            neutral structural ground
 HAIR = "#EAEDF3"       # 0.8453            the one optional value grid
-PLATE_EDGE = "#C4CCDA" # schematic enclosure stroke only
+PLATE_EDGE = "#C4CCDA" # hairline separators; no longer a plate stroke
+FOG = "#F2F2F2"        # 0.8879            light neutral region fill
 
 STRUCTURE = {"PAPER": PAPER, "INK": INK, "GRAPHITE": GRAPHITE, "MUTE": MUTE,
              "SLATE": SLATE, "MIST": MIST, "HAIR": HAIR,
-             "PLATE_EDGE": PLATE_EDGE}
+             "PLATE_EDGE": PLATE_EDGE, "FOG": FOG}
 
 # The single machine-readable source of every hex in the document.
 PALETTE = {name: r.asdict() for name, r in RAMPS.items()}
@@ -188,50 +191,43 @@ PALETTE["STRUCTURE"] = dict(STRUCTURE)
 ENTITY_HUE = {
     "gpt4o_zeroshot":       COBALT,
     "gpt4o_fewshot":        AZURE,    # same model, other prompt -> same family
-    "accord":               AMBER,
-    # llama3_8b, qwen3_8b and granite33_8b are MAGENTA, CYAN and TANGERINE, not
-    # PLUM, COBALT and AMBER. fig_batch2.py's prevalence-response grid (its
-    # MODEL_HUE) is the canvas that actually draws these three and it is the
-    # correct side: moving qwen off COBALT to CYAN, measured on that canvas's
-    # four marks (scarlet, magenta, cyan, orange), takes the minimum adjacent
-    # greyscale gap from 8.9 to 19.3. This map is what check_figure_invariants.py
-    # enforces stays in sync with MODEL_HUE; if you touch either side, run it.
-    "llama3_8b":            MAGENTA,
-    "weak_labeller":        PLUM,     # the production weak labeller IS Llama 3 8B
+    "accord":               AMBER,    # the detector ensemble
+    # The three public models are neutral tones told apart by marker and line
+    # style (PUBLIC_MODEL_MARK below), so no public model can be read as the
+    # deployed labeller (PLUM) or the ensemble (AMBER). fig_batch2.py's
+    # MODEL_HUE must name the same tone; check_figure_invariants.py enforces it.
+    "llama3_8b":            INK,
+    "weak_labeller":        PLUM,     # drawn in PLUM_DEEP
     "pharmacist_truth":     EMERALD,
     "pretrained_reference": EMERALD,
-    "qwen3_8b":             CYAN,     # no GPT-4o series on that canvas
-    "granite33_8b":         TANGERINE,  # no ACCORD series on that canvas
+    "qwen3_8b":             SLATE,
+    "granite33_8b":         MUTE,
     "control_model":        EMERALD,
 }
 # Alpha parameters, the MDE curve, coded-corpus counts: measured, but not an
 # entity, so they take the structural measurement tone rather than a hue.
 NON_ENTITY_MEASUREMENT = GRAPHITE
 
-# NO HUE WAS RE-BASED FOR THE PREVALENCE GRID, and the arithmetic is why.
-# The author asked figure 5 for "more vibrant colours". Its three series are
-# llama3:8b PLUM, granite3.3:8b AMBER, qwen3:8b COBALT, and PLUM and COBALT are
-# also figures 2, 8 and 12, so any change there is a change to the whole set.
-# The greyscale ladder of the CORE stops is the binding constraint:
-#
-#   COBALT 73.9 · SCARLET 82.8 · PLUM 96.3 · EMERALD 113.1 · SLATE 136.9
-#   · AZURE 146.0 · AMBER 168.9
-#
-# COBALT_CORE already sits at the ladder's minimum adjacent gap of 8.9, against
-# SCARLET; brightening it closes that gap and costs the black-and-white
-# guarantee on figure 7, which draws both. AMBER_CORE is already the lightest
-# stop on the ladder at 2.07:1 on white, so brightening it makes the granite
-# series LESS legible, not more. PLUM has the only real headroom and moving one
-# of three would unbalance the row. Figure 5's vibrancy therefore comes from
-# mark weight and from a y-axis that lets the marks fill the panel, not from
-# new hexes: see fig_batch2.py. The ramps are colour-blind verified and they
-# stay.
+# The role map, by name, so a drawing script never chooses a hue for a role.
+FAIL = SCARLET                     # failed check or unsupported reading only
+WEAK_LABELLER = PLUM.DEEP          # the deployed weak labeller
+ENSEMBLE_DEEP, ENSEMBLE_CORE = AMBER.DEEP, AMBER.CORE   # the detector ensemble
+# marker, line style, colour for each public model
+PUBLIC_MODEL_MARK = {
+    "llama3:8b":     ("o", "-", INK),
+    "granite3.3:8b": ("s", (0, (4, 2)), MUTE),
+    "qwen3:8b":      ("^", (0, (1, 1.5)), SLATE),
+}
+
+# The prevalence grid no longer carries hue at all. Its three public models
+# are INK, MUTE and SLATE, separated by marker and dash pattern, which survives
+# greyscale by construction and keeps hue free for the roles above.
 
 # ---------------------------------------------------------------------------
 # 4. TYPE SCALE. Every figure is drawn at its printed size (scale 1.0), so a
 # drawn point is a page point.
 # ---------------------------------------------------------------------------
-T_HEADLINE = 13.0      # INK, regular. A finding, never a title.
+T_HEADLINE = 11.0      # INK, regular. A finding, never a title.
 T_CLAIM = 22.0         # claim DEEP, bold. Only where a directive says so.
 T_DECK = 9.5           # MUTE, regular
 T_AXIS = 9.5           # INK
@@ -406,7 +402,7 @@ def plate(fig):
 
 def signature(fig, hue_deep, headline=None, deck=None, headline_x=None):
     """The headline block: one line stating what the figure FOUND, never what
-    it plots, at 13pt against a 12pt body, so the figure stops reading as an
+    it plots, at T_HEADLINE, so the figure stops reading as an
     inclusion, plus an optional 9.5pt MUTE deck under it.
 
     It used to draw a 3.0pt bar in hue_deep flush to the top edge as well. That

@@ -166,15 +166,15 @@ LOWERED = {
         "terminal box lost its CORE rim with the rest, which is the consistency "
         "the change was for. Lowered again by directive 1: the bar was 1.07% of "
         "this canvas and 0.137 became 0.124."),
-    "fig-exemplar": ((0.40, 0.055),
-        "ten slots on a five-row grid is the whole content. COBALT_TINT is "
+    "fig-exemplar": ((0.40, 0.020),
+        "Lowered to 0.020 by the senior figure review of 2026-09-14: the nursing-note boxes lost cobalt (cobalt means extraction elsewhere in the set) and the selected row is marked by a black outline, so the one cessation chip is the only saturated ink left. ten slots on a five-row grid is the whole content. COBALT_TINT is "
         "S=0.206 and MIST S=0.076, so only the one solid chip counts. Lowered "
         "again by directives 1 and 2 together: this is the smallest canvas in "
         "the set, so its bar was the second largest share of any (1.52%), and "
         "its plate grew 21% in area while the CESS chip and the five slot "
         "strokes kept their printed size."),
-    "fig-prevalence-response": ((0.32, 0.026),
-        "Coverage clears by a wide margin and rose again in the rebuild, 0.339 "
+    "fig-prevalence-response": ((0.32, 0.0),
+        "Chroma floor removed by the senior figure review of 2026-09-14: the three public models are now told apart by marker and dash in black and greys so they survive greyscale print, and colour is reserved for the deployed labeller and failed checks, neither of which this figure draws. Coverage clears by a wide margin and rose again in the rebuild, 0.339 "
         "to 0.507, because the y axis now reaches the deployed operating point "
         "and the over-prediction wedge is most of each panel. Chroma falls "
         "0.031 to 0.027 for an arithmetic reason: six small multiples became "
@@ -185,8 +185,8 @@ LOWERED = {
         "cannot see at all: the clinical operating point used to be an arrow "
         "leaving the top of a panel with its coordinates written beside it, and "
         "it is now a mark on the canvas."),
-    "fig-power": ((0.53, 0.010),
-        "the field is already the full plot rectangle; 0.62 would need margins "
+    "fig-power": ((0.18, 0.010),
+        "Coverage lowered to 0.18 by the senior figure review of 2026-09-14: the red and mint region fills failed colour-blind reading, so the region below the curve is a light grey and the region above it is paper, which removes most of the filled area by design. the field is already the full plot rectangle; 0.62 would need margins "
         "too small for the axis labels. Lowered by directive 1 and nothing "
         "else: 0.028 minus a bar worth 0.0144, diluted by 13% more canvas, "
         "predicts 0.012 and it measures 0.012. NOT lowered when the "
@@ -252,7 +252,8 @@ SET_CHROMA_FLOOR = 0.10
 # of which members remain is not a palette decision. The eight that remain
 # measure 0.013, 0.125, 0.058, 0.015, 0.041, 0.010, 0.027 and 0.115, which is
 # 0.050, and the floor is set just under it.
-SET_MEAN_CHROMA_FLOOR = 0.048
+# Lowered to 0.045 on 2026-09-14 for the three per-figure changes recorded above.
+SET_MEAN_CHROMA_FLOOR = 0.045
 
 
 def render(pdf, dpi=300):

@@ -5,8 +5,8 @@ from their sources.
 Appendix A  one line per correction and per post-freeze revision
 Appendix B  provenance of every reported quantity, grouped by experiment
 Appendix B pointer  the short section (msu_appB_pointer.tex) that tells the
-    reader the register, the claim trace and the survey table are bound in
-    the supplement, and states how big each one is
+    reader the register and the claim trace are released with the analysis
+    code, and states how big each one is
 
 msu_appB_pointer.tex used to be typed by hand. Its counts (how many values the
 register holds, how many numeric occurrences the trace resolves, how many are
@@ -168,11 +168,11 @@ NUMBER_CHANGING = [
     ("C44", "The AG News pretraining benefit at one training budget generalises without a check.",
      "A pre-registered 48-run, four-budget sweep shows the 4.53-point gap persists at 24 epochs "
      "and both arms are converged, closing the under-training objection.",
-     "Supplement S6, pretraining positive control."),
+     "Ch. 4, pretraining positive control."),
     ("C49", "The survey's strict and permissive audit counts rest on a per-paper coding table.",
      "No per-paper coding table existed on disk when the counts were first reported; it and the "
      "coding behind it were rebuilt from the written instrument.",
-     "Ch. 4, Practice; coding table in the supplement."),
+     "Coding table released with the analysis code."),
     ("C54", "A wider, roughly 22.4-million-parameter configuration tested whether capacity, not "
             "architecture, was the constraint.",
      "The Stage 0 script freezes the backbone unconditionally with no unfreeze path, and part of "
@@ -252,11 +252,9 @@ def main():
         a += [f"{rid} & {d} & {esc(t.strip())}\\\\" for rid, d, t in revs]
         a += [r"\end{longtable}", r"\normalsize", r"\doublespacing", ""]
 
-    # The full record goes to the supplement, which is where the other four
-    # reference appendices already live, and the bound thesis carries a pointer
-    # to it. The tables are 21 rows of paragraph-length prose and ran to twenty
-    # pages of a document nobody reads sequentially; the supplement is the right
-    # home for that, and the generator owns both files so they cannot drift.
+    # The full record is released with the analysis code, and the bound thesis
+    # carries a pointer to it. The tables ran to twenty pages of a document
+    # nobody reads sequentially; the generator owns both files so they cannot drift.
     (THESIS / "msu_appA_full.tex").write_text("\n".join(a) + "\n")
 
     changed = [e for e in entries if e[0] in HEADLINE] if "HEADLINE" in dir() else []
@@ -267,11 +265,9 @@ def main():
            "because the complete record runs to twenty pages of table that no "
            "reader reads in sequence, and the full text of every one of them is "
            "released with the analysis code rather than bound, which is the "
-           "same treatment given to the register, the claim trace and the "
-           "survey coding table. The earlier wording promised the complete "
-           "record in a supplementary file that accompanied this document. That "
-           "file is no longer bound, so the promise described a deposit that "
-           "did not exist, which is the defect class this record is full of.", "",
+           "same treatment given to the register and the claim trace. The full "
+           "correction record is released with the analysis code, so every "
+           "entry summarised below can be read in its original form.", "",
            "Ten of them changed a number this thesis prints, and those ten are "
            "the ones a reader is most likely to want to follow: they are named "
            "by identifier in the released record and cross-referenced from the "
@@ -352,9 +348,9 @@ def main():
         r"\section{Reference Tables Released with the Code}",
         r"\label{app:provenance}",
         "",
-        "Three reference tables belong to the record behind this thesis, machine-generated "
+        "Two reference tables belong to the record behind this thesis, machine-generated "
         "by the appendix builder and the claim tracer in the analysis code released with "
-        "this thesis. The first two are released with that code rather than bound, "
+        "this thesis. Both are released with that code rather than bound, "
         "because together they run to more than thirty pages of table, none of which is "
         "read sequentially. The first is the "
         "register of "
@@ -367,10 +363,7 @@ def main():
         f"uniquely and {trace['n_ambiguous_rows']} are matched among more than one "
         "candidate and marked as indicative rather than definitive. The remaining "
         f"{trace['n_untraced']} literals are not resolved to any registered value and are "
-        "listed as untraced rather than omitted. The third, the survey coding table "
-        "behind the prevalence measurement in Chapter~\\ref{ch:results}, is bound in "
-        f"the Supplement, Section S3: all {survey_n} coded papers, reproduced in "
-        "full so the counts can be recomputed rather than taken on trust.", "",
+        "listed as untraced rather than omitted.", "",
     ]
     (THESIS / "msu_appB_pointer.tex").write_text("\n".join(pointer) + "\n")
 

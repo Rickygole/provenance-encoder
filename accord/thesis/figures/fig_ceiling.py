@@ -66,7 +66,7 @@ import numpy as np
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import style
 from style import (
-    PLUM_CORE, PLUM_DEEP,
+    WEAK_LABELLER,
     PAPER, INK, GRAPHITE, MUTE, SLATE,
     T_AXIS, T_SERIES, T_NOTE,
     LW_DATA, LW_REF, MS_DOT, MS_MARK, REF_DASH, FIGW,
@@ -83,6 +83,7 @@ GATE = json.loads((ROOT / "results/accord/stats"
 
 
 def fact(key):
+    assert not key.startswith("withdrawn."), f"{key} is withdrawn, not citable"
     return FACTS[key]["value"]
 
 
@@ -178,29 +179,40 @@ def make_fig_ceiling():
     q253, c253 = curve(bases["G_253"])
     DASH_253 = (0, (4.0, 2.2))
 
-    fig = plt.figure(figsize=(FIGW, 3.62))
+    fig = plt.figure(figsize=(FIGW, 3.30))
     canvas(fig)
-    axL = fig.add_axes([0.098, 0.140, 0.335, 0.625])
-    axR = fig.add_axes([0.560, 0.140, 0.414, 0.625])
+    axL = fig.add_axes([0.098, 0.150, 0.335, 0.690])
+    axR = fig.add_axes([0.580, 0.150, 0.394, 0.690])
 
-    # Left: the whole cliff. Right: the region where every row lives.
-    ZX0, ZX1, ZY1 = 0.66, 1.0, 0.16
+    # Left: the whole cliff. Right: the enlarged region under the zoom box.
+    ZX0, ZX1, ZY1 = 0.66, 1.0, 0.18
+    # Above both ceilings no table with these marginals exists, so that region
+    # is shaded: it is what the identity says, not a band added for ink.
+    qq = np.linspace(0, 1, 2001)
+    upper = np.maximum(np.interp(qq, q299, c299), np.interp(qq, q253, c253))
+    for ax, top in ((axL, 1.0), (axR, ZY1)):
+        ax.fill_between(qq, upper, top, facecolor=style.FOG, edgecolor="none",
+                        linewidth=0, zorder=0)
     for ax in (axL, axR):
         ax.plot(q299, c299, color=GRAPHITE, lw=LW_DATA, zorder=4,
                 solid_joinstyle="round")
         ax.plot(q253, c253, color=GRAPHITE, lw=LW_REF + 0.2, zorder=3,
                 linestyle=DASH_253)
-    axL.set_xlim(0, 1); axL.set_ylim(0, 1)
+    # A small margin on every side, so the zoom box's bottom and right edges
+    # do not sit on the spines.
+    axL.set_xlim(-0.02, 1.02); axL.set_ylim(-0.02, 1.0)
     axL.set_xticks([0, 0.25, 0.5, 0.75, 1.0])
     axL.set_xticklabels(["0", "0.25", "0.5", "0.75", "1"])
     axL.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
     frame(axL, grid=True)
     axL.add_patch(plt.Rectangle((ZX0, 0), ZX1 - ZX0, ZY1, facecolor="none",
-                                edgecolor=INK, lw=0.9, zorder=6))
-    axL.text(0.83, ZY1 + 0.03, "enlarged at right", ha="center", va="bottom",
-             fontsize=T_NOTE, color=MUTE, style="italic")
+                                edgecolor=SLATE, lw=0.6, zorder=6))
+    axL.text((ZX0 + ZX1) / 2, ZY1 + 0.03, "enlarged at right", ha="center",
+             va="bottom", fontsize=T_NOTE, color=MUTE, style="italic")
     axL.text(BASE + 0.05, 0.93, f"peak at the pharmacist's\nrate, {N_POS} of {N}",
              ha="left", va="top", fontsize=T_NOTE, color=MUTE, linespacing=1.3)
+    axL.text(0.60, 0.62, "not attainable\non either basis", ha="center",
+             va="center", fontsize=T_NOTE, color=MUTE, linespacing=1.2)
     axL.set_ylabel("Largest attainable MCC\nagainst the pharmacist",
                    fontsize=T_AXIS, linespacing=1.3)
 
@@ -208,54 +220,51 @@ def make_fig_ceiling():
     axR.set_xticks([0.7, 0.8, 0.9, 1.0])
     axR.set_yticks([0, 0.04, 0.08, 0.12, 0.16])
     frame(axR, grid=True)
+    axR.set_ylabel("Largest attainable MCC (enlarged)", fontsize=9.5)
 
-    # The four rows that attain their ceiling, each on its own basis curve.
-    for r in ATTAIN:
-        filled = r["basis"] == "G_299"
-        axR.plot([r["flag_rate"]], [r["ceiling_mcc"]], marker="s",
-                 linestyle="none", ms=MS_MARK - 0.6,
-                 markerfacecolor=GRAPHITE if filled else PAPER,
-                 markeredgecolor=GRAPHITE, markeredgewidth=1.2, zorder=6)
+    # The two curves are named at their left ends in the enlarged panel, where
+    # they are furthest apart; each name is built from its basis's counts.
+    N_253 = bases["G_253"]
+    x_lab = ZX0 + 0.010
+    # Above the dashed curve at the label's left end; below the solid curve at
+    # its right end (the curves fall to the right).
+    y253 = float(np.interp(x_lab, q253, c253))
+    y299 = float(np.interp(x_lab + 0.075, q299, c299))
+    axR.text(x_lab, y253 + 0.005, f"{N_POS} of {N_253}",
+             ha="left", va="bottom", fontsize=T_SERIES, color=INK, zorder=8)
+    axR.text(x_lab, y299 - 0.008, f"{N_POS} of {N}",
+             ha="left", va="top", fontsize=T_SERIES, color=INK, zorder=8)
 
-    # The deployed labeller: its ceiling on G_299, and what C120 measured.
+    # The deployed labeller: its ceiling on the 299 pairs, and what it measured.
     q_dep = N_FLAG / N
-    axR.plot([q_dep, q_dep], [MCC_OBS, MCC_CEIL], color=PLUM_CORE, lw=1.4,
+    axR.plot([q_dep, q_dep], [MCC_OBS, MCC_CEIL], color=WEAK_LABELLER, lw=1.4,
              zorder=5, solid_capstyle="butt")
     axR.plot([q_dep], [MCC_CEIL], marker="o", ms=MS_DOT, markerfacecolor=PAPER,
-             markeredgecolor=PLUM_DEEP, markeredgewidth=1.4, zorder=7,
+             markeredgecolor=WEAK_LABELLER, markeredgewidth=1.4, zorder=7,
              linestyle="none")
-    axR.plot([q_dep], [MCC_OBS], marker="o", ms=MS_DOT + 0.6, color=PLUM_CORE,
-             markeredgecolor=PLUM_DEEP, markeredgewidth=1.0, zorder=7,
-             linestyle="none")
-    axR.text(q_dep - 0.012, MCC_CEIL + 0.004, f"ceiling {MCC_CEIL:.4f}",
-             ha="right", va="bottom", color=PLUM_DEEP, zorder=8,
+    axR.plot([q_dep], [MCC_OBS], marker="o", ms=MS_DOT + 0.6,
+             color=WEAK_LABELLER, markeredgecolor=WEAK_LABELLER,
+             markeredgewidth=1.0, zorder=7, linestyle="none")
+    axR.text(q_dep - 0.012, MCC_CEIL - 0.008, f"ceiling {MCC_CEIL:.2f}",
+             ha="right", va="top", color=WEAK_LABELLER, zorder=8,
              **cased(T_SERIES))
     axR.text(q_dep - 0.012, MCC_OBS - 0.002,
-             f"deployed labeller,\nmeasured {MCC_OBS:.4f}",
-             ha="right", va="top", color=PLUM_DEEP, zorder=8,
+             f"deployed labeller,\nmeasured {MCC_OBS:.2f}",
+             ha="right", va="top", color=WEAK_LABELLER, zorder=8,
              linespacing=1.2, **cased(T_SERIES))
-    # The key sits in the empty upper right of the whole-cliff panel, where no
-    # curve or mark runs; in the enlarged panel every corner holds data.
-    axL.text(0.30, 0.70, "solid: 12 of 299 pairs\ndashed: 12 of 253 pairs\n"
-             "squares: runs at their\nown ceiling, filled on 299,\nopen on 253",
-             ha="left", va="top", fontsize=T_NOTE, color=INK, linespacing=1.3,
-             zorder=8)
 
     fig.supxlabel("Labeller positive rate on the gold pairs", fontsize=T_AXIS,
                   y=0.020)
 
     signature(
         fig, GRAPHITE,
-        headline=(f"Flagging {N_FLAG} of {N} pairs caps MCC at {MCC_CEIL:.4f}, "
-                  f"however good the labeller.\nThe deployed labeller measured "
-                  f"{MCC_OBS:.4f}."),
-        deck=("The ceiling follows from two marginals alone, so it carries no "
-              "interval. Each row is drawn\nagainst the curve of its own basis. "
-              "It bounds a thresholded decision, not a swept score."))
+        headline=(f"Flagging {N_FLAG} of {N} pairs caps MCC at {MCC_CEIL:.2f}; "
+                  f"the deployed labeller measured {MCC_OBS:.2f}."),
+        deck="The ceiling follows from the two counts alone, so it carries no interval.")
     fig.savefig(HERE / "fig-ceiling.pdf")
     plt.close(fig)
     print(f"wrote fig-ceiling.pdf: {N_FLAG} of {N}, ceiling MCC {MCC_CEIL:.4f}, "
-          f"measured {MCC_OBS:.4f}; {len(ATTAIN)} attaining rows on own basis")
+          f"measured {MCC_OBS:.4f}; {len(ATTAIN)} attaining rows checked, not drawn")
 
 
 if __name__ == "__main__":

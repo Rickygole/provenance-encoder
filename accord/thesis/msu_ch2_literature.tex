@@ -17,12 +17,10 @@ followed by a purpose-built neural detector, and runs at each stage a check that
 finding from an artifact of the measurement. The checks are borrowed, each credited again wherever
 it appears later, so what this chapter has to establish is narrower than a conventional review: not
 that a gap exists in the space of methods, but that a gap exists in the space of things that have
-been checked.
-
-The review runs along six threads: the clinical task itself, attempted far less often than its
+been checked. The review runs along six threads: the clinical task itself, attempted far less often than its
 importance suggests; weak supervision and label noise, where a single language model annotating a
 rare class falls outside the theory the field's tooling rests on; evaluation under low prevalence, a
-literature now thirty-six years old that this thesis applies rather than extends; controls and
+literature more than half a century old that this thesis applies rather than extends; controls and
 construct validity, the methodological backbone; pretraining loss as a predictor of downstream
 utility, studied recently at a scale this thesis cannot approach; and selection and stage-by-stage
 auditing of pipelines. Each thread supplies a constraint the next has to respect, and the final section states what the
@@ -41,9 +39,7 @@ discharge \citep{wong2008reconciliation}, discontinuity between inpatient and ou
 a meaningful share of discharged patients \citep{moore2003discontinuity}, adverse events after
 discharge are frequently drug-related and preventable \citep{forster2003adverse}, the document meant
 to prevent them is itself unreliable in content and timing \citep{kripalani2007deficits}, and its
-timeliness is associated with patient outcomes \citep{li2013timeliness}.
-
-Two features of that literature shape the computational formulation: the most common discrepancy
+timeliness is associated with patient outcomes \citep{li2013timeliness}. Two features of that literature shape the computational formulation: the most common discrepancy
 category is omission, a relation between a statement and the absence of one rather than a
 disagreement between two statements, an asymmetry that does not survive translation into a
 sentence-pair classification task; and the two sides of a cross-note comparison are not
@@ -72,7 +68,7 @@ pairs within a Wikipedia article, and \citet{li2024contradoc} annotate self-cont
 documents and show that even strong large language models are unreliable on cases requiring context.
 
 A separate body of work shows how inference models reach high benchmark accuracy without doing the
-intended inference: hypothesis-only baselines recover much of the label signal
+intended inference. Hypothesis-only baselines recover much of the label signal
 \citep{poliak2018hypothesis,gururangan2018artifacts}, lexical-overlap heuristics survive until probed
 adversarially \citep{mccoy2019hans}, the pattern is characterised as shortcut learning
 \citep{geirhos2020shortcut}, and the clinical analogue appears in imaging, where models key on
@@ -86,9 +82,7 @@ algorithm for medication discrepancy detection at Cincinnati Children's Hospital
 structured discharge prescription lists against free-text notes for 271 patients in a Complex Care
 Medical Home Program. Component performance on entity detection and attribute linkage is strong, but
 combining stages drops precision, recall and $F$-measure to 71.5\%, 65.2\% and 68.2\% on discrepant
-medications, well below the matched-medication figures.
-
-Three properties of that setting explain why the numbers do not transfer, and they define the problem
+medications, well below the matched-medication figures. Three properties of that setting explain why the numbers do not transfer, and they define the problem
 this thesis takes on: one side of the comparison is structured rather than extracted from prose, the
 cohort is a care-management program followed deliberately and so has a raised base rate, and the
 comparison is anchored, since every prescription in the list is a candidate and no retrieval step can
@@ -155,9 +149,7 @@ workflow in which a language model annotates a document set that feeds a downstr
 analysis, and show that direct use of surrogate labels causes substantial bias and invalid confidence
 intervals even at 80\% to 90\% surrogate accuracy. Their remedy, design-based supervised learning, is
 a doubly-robust estimator combining surrogate labels with a smaller set of gold-standard labels,
-giving valid inference without assuming the surrogate is good.
-
-Two things follow, and only one is usually noticed. The headline is that high annotator accuracy is
+giving valid inference without assuming the surrogate is good. Two things follow, and only one is usually noticed. The headline is that high annotator accuracy is
 not sufficient for a valid downstream conclusion, so reporting it is not a validation step. The
 second is that the correction itself requires gold labels on a subsample, which the workflow that
 used a language model to avoid annotation entirely cannot supply. Their estimand is a population
@@ -175,7 +167,7 @@ is biased whenever true and false positive rates differ, which is always; his ad
 correction inverts the relation using estimates of those rates. \citet{gonzalez2017quantification}
 review the resulting family of estimators.
 
-The relevance to weak supervision is direct and, in clinical natural language processing, largely
+The relevance to weak supervision is direct and, in clinical NLP, largely
 unremarked. When a weak labeller's positive rate differs from the base rate, the quantification
 literature says both what the discrepancy means and what correcting it requires: estimates of the
 labeller's true and false positive rates on the same distribution, which require gold labels. This
@@ -209,7 +201,7 @@ The Matthews correlation coefficient (MCC), introduced for assessing secondary s
 label, computed from all four confusion matrix cells. \citet{chicco2020mcc} argue it should be
 preferred to accuracy and $F_1$ under imbalance because it is high only when all four cells are
 favourable, and \citet{chicco2021mccbalanced} extend the argument against balanced accuracy,
-bookmaker informedness and markedness; \citet{powers2011evaluation} situates it among informedness
+bookmaker informedness and markedness. \citet{powers2011evaluation} situates it among informedness
 and markedness measures, and \citet{delgado2019kappa} conclude from kappa's behaviour under skew that
 it should be avoided in favour of MCC.
 
@@ -236,9 +228,7 @@ result: \citet{vandengoorbergh2022harm} show, in clinical risk prediction, that 
 including undersampling, oversampling and SMOTE (synthetic minority oversampling) produce severe miscalibration without improving
 discrimination as measured by AUROC, and that whatever sensitivity gain they deliver is available by
 shifting the threshold instead. Such corrections move the operating point along a ranking; they do
-not create ranking information.
-
-The tools that address the measurement side sit outside that literature: decision curve analysis
+not create ranking information. The tools that address the measurement side sit outside that literature: decision curve analysis
 \citep{vickers2006dca} evaluates a model across the threshold probabilities a decision maker might
 hold, and cost-sensitive learning \citep{elkan2001cost} makes the exchange rate an explicit
 parameter. Reporting guidance for clinical prediction models now covers machine learning explicitly
@@ -249,8 +239,8 @@ before a results table exists.
 \section{Controls and Construct Validity in Machine Learning Evaluation}
 \label{sec:lit-controls}
 
-This section describes the methodological backbone of the thesis, and everything in it is
-borrowed; laying it out at length makes the attribution unambiguous. Each subsection names
+This section describes the methodological backbone of the thesis. Everything in it is
+borrowed, and laying it out at length makes the attribution unambiguous. Each subsection names
 the owner, states the design, and says whether this project ran it.
 
 \subsection{Negative and positive controls in observational research}
@@ -300,9 +290,7 @@ the introduction of information about the target that should not legitimately be
 detection advice is behavioural, since a model performing implausibly well relative to the task's
 difficulty is the primary symptom; an auxiliary objective derivable from the model's own inputs is a
 textbook instance, and the diagnosis is that the target is not independent of what the model already
-has.
-
-\citet{jacobs2021measurement} bring measurement modelling from the quantitative social sciences to
+has. \citet{jacobs2021measurement} bring measurement modelling from the quantitative social sciences to
 computational systems, and their framing covers the whole chapter: systems operationalise
 unobservable constructs through observable proxies, and the gap between construct and
 operationalisation is where harms and invalid conclusions originate. They give fairness-oriented
@@ -313,7 +301,7 @@ annotator against heuristic-selected evidence, is a measurement of clinical cont
 
 \paragraph{What this thesis takes, and what it does not claim.}
 Table~\ref{tab:lit-controls} lists the checks this thesis actually ran and the work each borrows
-from; the negative, randomisation and control-task designs above were not run. No row is itself a
+from. The negative, randomisation and control-task designs above were not run. No row is itself a
 contribution.
 
 \begin{table}[H]
@@ -340,10 +328,8 @@ Construct validity framing & \citet{jacobs2021measurement} & Task definition \\
 \label{sec:lit-loss}
 
 A failed pipeline can always be defended as too small, so the relationship between a training
-objective and downstream performance is directly relevant. Two recent results carry most of the
-weight.
-
-\citet{lourie2025scaling} conduct a meta-analysis of published scaling results and find that
+objective and downstream performance is directly relevant, and two recent results carry most of the
+weight. \citet{lourie2025scaling} conduct a meta-analysis of published scaling results and find that
 predictable scaling, small-scale results extrapolating to larger scales, occurs in a minority of
 cases, 39\% of the time by their count, because small setup variations change scaling behaviour,
 so an extrapolation is a hypothesis rather than a prediction.
@@ -351,22 +337,16 @@ so an extrapolation is a hypothesis rather than a prediction.
 downstream utility, at a scale no thesis can match: within a Barlow Twins framework for Earth
 observation foundation models, across 395 controlled training experiments and 15 downstream tasks,
 the correlation between pretraining loss and downstream performance has an absolute Pearson
-coefficient below 0.2, a result obtained far from clinical text but stronger than anything this
-thesis could produce.
-
-The consequence is a limitation on what may be claimed, adopted rather than resisted; the supplement
-reports a convergence experiment for this reason, not as a contribution to the scaling literature.
+coefficient below 0.2, a result far from clinical text but stronger than anything this
+thesis could produce. The consequence is a limitation on what may be claimed, adopted rather than resisted; the pretraining
+positive control of Chapter~\ref{ch:results} is reported for this reason, not as a contribution to the scaling literature.
 
 \section{Selection, Pipelines, and Disaggregated Evaluation}
 \label{sec:lit-selection}
 
-The literature on disaggregated evaluation, and what it assumes about the selection mechanism behind
-a dataset, bears on one unexplained anomaly this project reports; that literature and the anomaly it
-governs are both treated at length in the Supplement rather than here, since neither is a claim about
-this thesis's own contradiction detector.
-
-\subsection{Stage-by-stage auditing of pipelines}
-
+The literature on disaggregated evaluation bears on this thesis only through the idea of auditing a
+pipeline stage by stage, since its fairness quantities are not claims about this thesis's own
+contradiction detector. On stage-by-stage auditing of pipelines,
 \citet{biswas2021fairpreprocessing} already do stage-level auditing: they study fairness introduced
 by data preprocessing rather than by the classifier, evaluate 37 pipelines drawn from three sources
 using causal fairness measures, and show how the local fairness of individual preprocessing stages
@@ -399,8 +379,6 @@ errors \citep{northcutt2021labelerrors} are wrong labels on correctly displayed 
 defects \citep{sculley2015debt} are named without a check. In trigger-exemplar dissociation the label
 may be right while the evidence displayed with it is not what triggered the candidate, its rate cannot be
 recovered after the fact when the schema does not record the trigger, and none of those framings
-supplies the one-line assertion that would catch it once the schema does.
-
-The question this thesis asks is therefore narrower than the pipeline that motivates it: what each
+supplies the one-line assertion that would catch it once the schema does. The question this thesis asks is therefore narrower than the pipeline that motivates it: what each
 stage's reported number is worth once its check is run, at a sample size that resolves only large
 effects. Nothing that follows claims a method this chapter has attributed to someone else.

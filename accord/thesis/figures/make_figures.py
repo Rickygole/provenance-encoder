@@ -252,48 +252,63 @@ def make_fig_pipeline_status():
         (1, "Candidate mining", NOTEST,
          f"precision {base:.4f}\non {n_gold} gold pairs",
          "Is the exemplar in the trigger set?",
-         f"{ex_lo:.0f}, {ex_mid:.4f}, {ex_hi:.4f} by instrument"),
+         f"miss rate {ex_lo:.0f}, {ex_mid:.4f} or {ex_hi:.4f} by instrument"),
         (2, "Weak supervision", UNSUP,
          f"{n_flag} of {n_c120} pairs\nflagged",
          "Marginal ceiling, then measured agreement",
-         f"MCC {mcc:.4f}, ceiling {mcc_ceil:.4f}"),
+         f"MCC {mcc:.2f}, ceiling {mcc_ceil:.2f}"),
         (3, "Architecture", UNSUP,
          f"rule-type F1 {f1_rule:.4f},\ntwo more components",
          "Code audit of the three credited components",
          "artifact, target in input, untrained"),
         (4, "Evaluation", BOUNDED,
-         f"AUROC {auroc:.4f}",
-         "Interval upper end against the C108 floor",
-         f"upper {ci_hi:.4f}, floor {floor:.4f}"),
+         f"AUROC {auroc:.2f}",
+         "Interval upper end against the power floor",
+         f"upper {ci_hi:.2f}, floor {floor:.2f}"),
     ]
 
-    W, H = FIGW, 3.39
+    W, H = FIGW, 3.10
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
-    plate(fig)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     ax.set_xlim(0, W * 72)
     ax.set_ylim(0, H * 72)
     ax.axis("off")
     fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
 
-    row_mid = {1: 158.0, 2: 115.0, 3: 72.0, 4: 29.0}
-    X_SPINE, X_NUM, X_NAME, X_REP, X_CHK = 20.0, 46.0, 58.0, 160.0, 262.0
+    def width_pt(text, **kw):
+        probe = ax.text(0, 0, text, **kw)
+        w = probe.get_window_extent(renderer).width * 72.0 / fig.dpi
+        probe.remove()
+        return w
 
-    # The carrier. It starts at stage 1, where the exemplar is chosen, and
-    # delivers into stages 2 to 4, each of which consumed that same exemplar.
-    # It records shared input, not cause, and not a defect rate.
-    ax.add_patch(mpatches.Circle((X_SPINE, row_mid[1]), 4.0,
-                                 facecolor=SCARLET_DEEP, edgecolor="none",
+    row_mid = {1: 150.0, 2: 108.0, 3: 66.0, 4: 24.0}
+    # A narrow spine: the rail, the stage numbers and the stage names take the
+    # left fifth of the canvas, and the columns are placed from measured text
+    # widths rather than fixed offsets.
+    X_SPINE, X_NUM, X_NAME = 15.0, 32.0, 42.0
+    name_w = max(max(width_pt(r[1], fontsize=10.5) for r in rows),
+                 max(width_pt(LABEL[r[2]], fontsize=T_NOTE, style="italic")
+                     for r in rows))
+    X_REP = X_NAME + name_w + 14.0
+    rep_w = max(width_pt(r[3], fontsize=T_SERIES, linespacing=1.22) for r in rows)
+    X_CHK = X_REP + rep_w + 16.0
+
+    # The carrier: stages 2 to 4 consumed the exemplar stage 1 selected. It
+    # records shared input, not cause and not a defect rate, so it is a neutral
+    # rule and not scarlet (scarlet marks a failed check only).
+    ax.add_patch(mpatches.Circle((X_SPINE, row_mid[1] + 5.5), 3.0,
+                                 facecolor=GRAPHITE, edgecolor="none",
                                  zorder=6))
-    ax.plot([X_SPINE, X_SPINE], [row_mid[1], row_mid[4]], color=SCARLET_CORE,
-            lw=2.6, zorder=4)
+    ax.plot([X_SPINE, X_SPINE], [row_mid[1] + 5.5, row_mid[4] + 5.5],
+            color=GRAPHITE, lw=1.4, zorder=4, solid_capstyle="butt")
     for n in (2, 3, 4):
-        arrow(ax, (X_SPINE, row_mid[n]), (X_NUM - 10.0, row_mid[n]),
-              color=SCARLET_CORE, lw=2.0, mutation_scale=11)
-    ax.text(X_SPINE - 10.0, (row_mid[2] + row_mid[4]) / 2,
+        arrow(ax, (X_SPINE, row_mid[n] + 5.5), (X_NUM - 7.0, row_mid[n] + 5.5),
+              color=GRAPHITE, lw=1.2, mutation_scale=9)
+    ax.text(X_SPINE - 6.5, (row_mid[2] + row_mid[4]) / 2 + 5.5,
             "the same selected exemplar", rotation=90, ha="center",
-            va="center", fontsize=T_NOTE, style="italic", color=SCARLET_DEEP,
+            va="center", fontsize=T_NOTE, style="italic", color=MUTE,
             zorder=5)
 
     for n, name, status, reported, check, finding in rows:
@@ -304,36 +319,34 @@ def make_fig_pipeline_status():
                 color=INK, zorder=5)
         ax.text(X_NAME, mid - 8.0, LABEL[status], ha="left", va="center",
                 fontsize=T_NOTE, style="italic",
-                color=SCARLET_DEEP if status != BOUNDED else INK, zorder=5)
+                color=SCARLET_DEEP if status == UNSUP else MUTE, zorder=5)
         ax.text(X_REP, mid, reported, ha="left", va="center",
                 fontsize=T_SERIES, color=INK, linespacing=1.22, zorder=5)
         ax.text(X_CHK, mid + 9.5, check, ha="left", va="center",
                 fontsize=T_NOTE, style="italic", color=MUTE, zorder=5)
-        probe = ax.text(0, 0, finding, fontsize=T_CHIP, fontweight="bold")
-        bbox = probe.get_window_extent(fig.canvas.get_renderer())
-        w_i = bbox.width * 72.0 / fig.dpi + 12.0
-        probe.remove()
+        w_i = width_pt(finding, fontsize=T_CHIP, fontweight="bold") + 12.0
+        # Three chip encodings that stay distinct in greyscale: a solid dark
+        # scarlet fill for unsupported, a light MIST fill under a dashed rim
+        # for not established, bare paper under a solid rim for bounded null.
         if status == UNSUP:
             chip(ax, X_CHK, mid - 14.5, w_i, 13.0, SCARLET, finding,
                  fontsize=T_CHIP, radius=3.0, ha="left")
         elif status == NOTEST:
-            p = node(ax, X_CHK, mid - 14.5, w_i, 13.0, SCARLET_TINT,
-                     SCARLET_DEEP, radius=3.0, zorder=6, lw=1.4)
+            p = node(ax, X_CHK, mid - 14.5, w_i, 13.0, MIST, GRAPHITE,
+                     radius=3.0, zorder=6, lw=1.2)
             p.set_linestyle((0, (3.0, 1.8)))
             ax.text(X_CHK + 6.0, mid - 8.0, finding, ha="left", va="center",
                     fontsize=T_CHIP, fontweight="bold", color=INK, zorder=7)
         else:
-            # Outlined, not filled: a bounded null is not a fault, and a
-            # greyscale reader tells an outline from a solid at a glance.
             node(ax, X_CHK, mid - 14.5, w_i, 13.0, PAPER, GRAPHITE,
                  radius=3.0, zorder=6, lw=1.4)
             ax.text(X_CHK + 6.0, mid - 8.0, finding, ha="left", va="center",
                     fontsize=T_CHIP, fontweight="bold", color=INK, zorder=7)
-        assert X_CHK + w_i < W * 72 - 4.0, f"chip overflows the plate: {finding}"
+        assert X_CHK + w_i < W * 72 - 4.0, f"chip overflows the canvas: {finding}"
 
-    ax.text(X_REP, 186.0, "REPORTED", ha="left", va="center",
+    ax.text(X_REP, 178.0, "REPORTED", ha="left", va="center",
             fontsize=T_FLOOR, color=MUTE, zorder=5)
-    ax.text(X_CHK, 186.0, "CHECK AND FINDING", ha="left", va="center",
+    ax.text(X_CHK, 178.0, "CHECK AND FINDING", ha="left", va="center",
             fontsize=T_FLOOR, color=MUTE, zorder=5)
 
     signature(fig, SCARLET_DEEP,
@@ -346,27 +359,20 @@ def make_fig_pipeline_status():
     register(fname, "fig:pipeline-status", srcs,
              "Four stages numbered 1 to 4 as Chapter 1 numbers them. Every number "
              "is read by key from results/accord/VERIFIED_FACTS.json (keys: "
-             + ", ".join(PIPELINE_KEYS) + "); no withdrawn key is readable. "
-             "Stage 1 is marked not established (scarlet tint chip, dashed rim): "
-             "the candidate pool's precision rests on an exemplar defect rate "
-             "that three instruments disagree on (0 from the step2plus join, "
-             "0.4745 from the recomputed correctness check, 0.9315 from the "
-             "unvalidated direct extractor). Headline: no stage's reported "
-             "reading survived its check; the numbers themselves largely stand "
-             "(AUROC 0.5145 is itself the bounded null), what failed is the "
-             "reading of each. Stages 2 and 3 are labelled reading unsupported "
-             "(solid scarlet chip): reading the weak labeller's 261 of 299 "
-             "flags as discrimination is unsupported (agreement at chance, "
-             "measured C120 MCC 0.0269 against the marginal ceiling MCC "
-             "0.0780); the three credited architectural contributions are "
-             "unsupported by a code audit (initialisation artifact, rule-type "
-             "target in the input, untrained harm head), no randomisation "
-             "control run. Stage 4 is a bounded null (outlined "
-             "chip): the detector ensemble AUROC 0.5145 with bootstrap upper "
-             "bound 0.7034, under the C108 two-sided Mann-Whitney 80 percent "
-             "power floor 0.7466. The scarlet carrier records that stages 2 to "
-             "4 consumed the exemplar stage 1 selected; it asserts shared "
-             "input, not cause and not a defect rate.")
+             + ", ".join(PIPELINE_KEYS) + "); no withdrawn key is readable. AUROC "
+             "and MCC print to two decimals on the canvas; rates keep four. Three "
+             "chip encodings, distinct in greyscale: stage 1 not established (MIST "
+             "fill, dashed GRAPHITE rim; miss rate 0, 0.4745 or 0.9315 by "
+             "instrument); stages 2 and 3 reading unsupported (solid scarlet, the "
+             "only scarlet on the canvas: MCC 0.03 against a ceiling of 0.08; the "
+             "three credited architectural components fail a code audit); stage 4 "
+             "bounded null (paper fill, solid rim: interval upper end 0.70 under the "
+             "80 percent power floor 0.75). The carrier rail is GRAPHITE, not "
+             "scarlet: it records that stages 2 to 4 consumed the exemplar stage 1 "
+             "selected, which is shared input, not a failed check. No plate; the "
+             "stage column is sized from measured text widths so the spine takes "
+             "about the left fifth of the canvas. No internal identifiers on the "
+             "canvas.")
 
 
 # ============================================================================
@@ -575,125 +581,102 @@ def make_fig_funnel():
 def make_fig_exemplar():
     exemplar, p_exemplar = load("exemplar", "exemplar_correctness_recomputed.json")
 
-    # Abstract slots, coloured loudly. No synthetic clinical sentences: a thesis
-    # about instruments that mislead, built on a MIMIC-III data agreement, does
-    # not put invented clinical text on a canvas where a reader could take it
-    # for a record. One data unit is one typographic point.
-    W, H = W88, 2.70
+    # Abstract slots. No synthetic clinical sentences: a thesis about
+    # instruments that mislead, built on a MIMIC-III data agreement, does not
+    # put invented clinical text on a canvas where a reader could take it for a
+    # record. One data unit is one typographic point. No plate.
+    W, H = W88, 2.76
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
-    plate(fig)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     ax.set_xlim(0, W * 72)
     ax.set_ylim(0, H * 72)
     ax.axis("off")
 
-    # Every constant below is a typographic point on the plate, and the plate
-    # is 10 percent wider and taller than it was. The slot grid grows with it
-    # rather than sitting at its old size in a bigger frame: the type inside a
-    # slot is still 9pt, so a bigger slot is a slot with more air in it, which
-    # is what "make it bigger" has to mean when the type cannot move.
-    x_nurse, x_disch, box_w = 64.0, 174.0, 92.0
-    x_note = 244.0
-    box_h, pitch = 21.0, 24.0
-    y_row0 = 116.0
+    x_brace, box_w = 72.0, 84.0
+    x_nurse = x_brace + 9.0 + box_w / 2
+    x_disch = x_nurse + box_w + 7.0
+    x_note = x_disch + box_w / 2 + 15.0
+    box_h, pitch = 22.0, 28.5
+    y_row0 = 133.0
     rows_y = [y_row0 - i * pitch for i in range(5)]
-    x_right = W * 72 - 1.5
+    x_right = W * 72
 
-    # The mismatch is a ROW, so it is drawn as one: a wash ground across the
-    # whole canvas at the CESS row, under both columns and the annotation.
+    # Row 5 is where the rule fired: a wash ground across the whole row.
     ax.add_patch(mpatches.Rectangle(
-        (1.5, rows_y[4] - box_h / 2 - 4.0), x_right - 1.5, box_h + 8.0,
+        (0, rows_y[4] - box_h / 2 - 4.5), x_right, box_h + 9.0,
         facecolor=SCARLET_WASH, edgecolor="none", linewidth=0, zorder=0))
 
-    # The trigger bracket over the two column heads: the rule quantifies over
-    # the whole set, which is the fact the positional selector ignores.
-    y_br = 148.0
-    ax.plot([x_nurse, x_disch], [y_br, y_br], color=COBALT_CORE, lw=LW_DATA,
-            solid_capstyle="butt", zorder=4)
-    for x in (x_nurse, x_disch):
-        ax.plot([x, x], [y_br - 5.5, y_br], color=COBALT_CORE, lw=LW_DATA,
-                solid_capstyle="butt", zorder=4)
-    ax.text(x_disch + 14.0, y_br, "the rule quantifies over the whole set",
-            ha="left", va="center", fontsize=T_SERIES, color=COBALT_DEEP,
-            zorder=5)
+    # A vertical brace left of M1 to M5: the rule quantifies over the whole set,
+    # which is the fact the positional selector ignores.
+    y_top, y_bot = rows_y[0] + box_h / 2, rows_y[4] - box_h / 2
+    y_mid = (y_top + y_bot) / 2
+    bx = x_brace
+    ax.plot([bx + 4.0, bx, bx, bx - 4.0, bx, bx, bx + 4.0],
+            [y_top, y_top - 4.0, y_mid + 4.0, y_mid, y_mid - 4.0, y_bot + 4.0,
+             y_bot], color=INK, lw=1.2, solid_joinstyle="round", zorder=4)
+    ax.text(bx - 8.0, y_mid, "the rule\nquantifies\nover the\nwhole set",
+            ha="right", va="center", fontsize=T_SERIES, color=INK,
+            linespacing=1.2, zorder=5)
 
     for x, head in ((x_nurse, "Nursing note"), (x_disch, "Discharge summary")):
-        ax.text(x, 133.0, head, ha="center", va="center", fontsize=10.0,
+        ax.text(x, y_top + 10.0, head, ha="center", va="bottom", fontsize=10.0,
                 color=INK, zorder=5)
 
-    # M1..M5 are mention identifiers (which slot); CONT/CESS are action
-    # classes (what the rule reads off that slot) -- a different kind of
-    # thing, and the two used to be set in identical plain weight, so a
-    # reader's eye read the two columns as one series rather than two kinds
-    # of label. No new colour: the fix is weight. The action-class column now
-    # carries the same bold that its one CESS cell already got for free from
-    # chip()'s F2 SOLID CHIP text, so all five rows of that column read as one
-    # typographic family (bold, the finding's own weight) and the identifier
-    # column stays plain, which also keeps M1..M5 from reading louder than
-    # the action classes that carry the finding.
     nurse_tags = ["M1", "M2", "M3", "M4", "M5"]
-    disch_tags = ["CONT", "CONT", "CONT", "CONT", "CESS"]
+    disch_tags = ["continuation"] * 4 + ["cessation"]
     for i, y in enumerate(rows_y):
+        # Nursing-note slots are neutral MIST: cobalt means extraction elsewhere.
         node(ax, x_nurse - box_w / 2, y - box_h / 2, box_w, box_h,
-             COBALT_TINT, COBALT_DEEP, radius=2.5, zorder=3)
+             MIST, SLATE, radius=2.5, zorder=3, lw=1.0)
         ax.text(x_nurse, y, nurse_tags[i], ha="center", va="center",
                 fontsize=T_SERIES, color=INK, zorder=5)
         if i < 4:
             node(ax, x_disch - box_w / 2, y - box_h / 2, box_w, box_h,
-                 MIST, SLATE, radius=2.5, zorder=3)
+                 MIST, SLATE, radius=2.5, zorder=3, lw=1.0)
             ax.text(x_disch, y, disch_tags[i], ha="center", va="center",
                     fontsize=T_SERIES, color=INK, fontweight="bold", zorder=5)
         else:
-            # The one loud element on the canvas.
             chip(ax, x_disch - box_w / 2, y - box_h / 2, box_w, box_h,
                  SCARLET, disch_tags[i], fontsize=T_SERIES, radius=2.5,
                  zorder=3)
 
-    # Annotations align to their own row and are joined to it by a rule on the
-    # row's own baseline. No diagonals, no leaders.
-    #
-    # Row 4's note used to be set in SCARLET_DEEP. Its ground is NOT
-    # SCARLET_TINT (the row band drawn above is SCARLET_WASH, a paler stop):
-    # measured under WCAG, SCARLET_DEEP on SCARLET_WASH is 6.29:1, not the
-    # 4.93:1 that pairing measures on SCARLET_TINT. But the note still sits on
-    # a saturated ground rather than on paper, it is the same category of
-    # defect the pipeline figure already carried and fixed (coloured text
-    # directly on a coloured fill, at a margin a reviewer's tooling read as
-    # thinner than it is), and the row's one loud element -- the CESS chip
-    # this note explains -- already carries SCARLET at F2's >=7.7:1. The note
-    # itself does not need to repeat the hue to make the point, so it is
-    # retoned to GRAPHITE, this system's structural measurement tone rather
-    # than a new colour, matching the pipeline figure's own precedent for
-    # exactly this pairing (GRAPHITE on a SCARLET ground, not MUTE, because
-    # MUTE-on-SCARLET_TINT measures 3.98:1 and fails 4.5:1 outright).
-    # Measured: GRAPHITE on SCARLET_WASH = 10.12:1 (up from 6.29:1).
-    notes = [
-        (0, "selected by position (row 1):\nwhat the annotator, the weak\n"
-            "labeller and the model saw", MUTE),
-        (4, "the mention the rule\nactually fired on:\naction matched, dose adjacent",
-         GRAPHITE),
-    ]
-    for i, text, tone in notes:
-        y = rows_y[i]
-        ax.plot([x_disch + box_w / 2 + 4.0, x_note - 5.0], [y, y], color=SLATE,
-                lw=1.1, solid_capstyle="butt", zorder=4)
-        ax.text(x_note, y, text, ha="left", va="center", fontsize=T_NOTE,
-                color=tone, linespacing=1.24, zorder=5)
+    # Row 1 is the exemplar everyone was shown: outlined as a row.
+    pad = 3.0
+    ax.add_patch(mpatches.Rectangle(
+        (x_nurse - box_w / 2 - pad, rows_y[0] - box_h / 2 - pad),
+        (x_disch + box_w / 2) - (x_nurse - box_w / 2) + 2 * pad, box_h + 2 * pad,
+        facecolor="none", edgecolor=INK, linewidth=2.0, zorder=6))
 
-    # ROUND 7 (fixes_r7 N9). The old headline, "The exemplar shown to everyone
-    # is row 1", read as a population claim: that every candidate showed the
-    # wrong mention. The thesis claims only that the bug class is reachable,
-    # and that its rate is not established. The headline now names the
-    # mechanism, and the deck says in so many words that this is one schematic
-    # candidate and that three instruments disagree on how often it happens.
+    notes = [
+        (0, "shown", "selected by position; what\nthe annotator, the weak\n"
+                     "labeller and the model saw", MUTE),
+        (4, "fired", "the mention the rule\nmatched, dose adjacent", MUTE),
+    ]
+    for i, tag, text, tone in notes:
+        y = rows_y[i]
+        x0 = x_disch + box_w / 2 + (pad + 2.0 if i == 0 else 3.0)
+        ax.plot([x0, x_note - 4.0], [y, y], color=SLATE, lw=1.0,
+                solid_capstyle="butt", zorder=4)
+        ax.text(x_note, y, tag, ha="left", va="center", fontsize=T_SERIES,
+                color=INK, fontweight="bold", zorder=5)
+        # Row 1's note sits under its tag; row 5's sits above its tag, on
+        # paper beside row 4, so it stays inside the canvas and off the wash.
+        if i == 0:
+            ax.text(x_note, y - 7.0, text, ha="left", va="top",
+                    fontsize=T_NOTE, color=tone, linespacing=1.2, zorder=5)
+        else:
+            ax.text(x_note, y + 18.0, text, ha="left", va="bottom",
+                    fontsize=T_NOTE, color=tone, linespacing=1.2, zorder=5)
+        assert x_note + 104.0 < x_right, "note leaves the canvas"
+
     ex_lo = 1.0 - fact("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate")
     ex_mid = fact("exemplar_recomputed.rule_1_2_pooled.wrong_rate")
     ex_hi = fact("exemplardirect.defect_rate")
     signature(fig, SCARLET_DEEP,
               "The rule fires on a set; the exemplar is picked by position.",
-              deck=(f"One schematic candidate. Its miss rate is not established: "
-                    f"{ex_lo:.0f}, {ex_mid:.4f} or {ex_hi:.4f} by instrument."))
+              deck=(f"One schematic candidate; miss rate {ex_lo:.0f}, "
+                    f"{ex_mid:.4f} or {ex_hi:.4f} by instrument."))
     fname = "fig-exemplar.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -701,13 +684,20 @@ def make_fig_exemplar():
              [_FACTS_PATH, p_exemplar,
               fact_source("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate"),
               fact_source("exemplardirect.defect_rate")],
-             "Schematic; slots are abstract labels (M1..M5, CONT/CESS action-tag codes) and "
-             "carry no clinical text. The drawing is one candidate, so it carries no rate; "
-             "the deck states that the rate is not established and prints the three "
-             "instruments' values, read from the register by key: "
-             "exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate (one minus it, 0), "
-             "exemplar_recomputed.rule_1_2_pooled.wrong_rate (0.4745), "
-             "exemplardirect.defect_rate (0.9315).")
+             "Schematic; slots are abstract labels (M1 to M5, action classes written out as "
+             "continuation and cessation) and carry no clinical text. Row 1, the exemplar "
+             "selected by position, carries a 2.0 pt INK outline and a 'shown' tag; row 5, "
+             "where the rule matched, keeps its SCARLET_WASH ground and a 'fired' tag. A "
+             "vertical brace left of M1 to M5 states that the rule quantifies over the whole "
+             "set. Nursing-note slots are neutral MIST (cobalt means extraction elsewhere). "
+             "No plate. The one-line deck prints the three instruments' miss rates, read "
+             "from the register by key: exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate "
+             "(one minus it, 0), exemplar_recomputed.rule_1_2_pooled.wrong_rate (0.4745), "
+             "exemplardirect.defect_rate (0.9315). Gate note: tools/measure_ink.py holds this "
+             "canvas to chroma 0.055; it measures 0.023, because the cobalt slot fills and "
+             "strokes the floor was set against are removed by the critique and the only "
+             "saturated element left is the cessation chip. The floor was not met by adding "
+             "colour; it needs lowering by the gate owner.")
 
 
 # ============================================================================
@@ -1388,117 +1378,102 @@ def make_fig_disc_actionability():
 #   thing this set exists to avoid.
 # ============================================================================
 def make_fig_cohort_flow():
-    icd, p_icd = load("stats", "cohort_icd_counts.json")
-    hf = icd["heart_failure"]
-
-    transfer, p_transfer = load("generality", "transfer_results_correct.json")
-    n_candidates = transfer["hf_reference"]["n_candidates"]
-
-    step2, p_step2 = load("diag", "step2_signal_check.json")
-    d299 = step2["contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]
-    d253 = step2["contra_prob_vs_pharm_label__ambiguous_excluded_n253"]
-    d_amb = step2["contra_prob_vs_pharm_label__ambiguous_as_positive_n299"]
-    # The ambiguous count is not stored on its own line. It is the difference
-    # between the two positive counts recorded in the same file on the same 299
-    # rows, ambiguous counted positive against ambiguous counted negative, which
-    # is the same subtraction make_fig_prevalence already performs.
-    n_ambiguous = d_amb["n_pos"] - d299["n_pos"]
-
-    facts, p_facts = load("VERIFIED_FACTS.json")
-    def fact(key):
-        return facts[key]["value"]
-
+    # Every count is read from the thesis register by key. The register is
+    # imported above as _FACTS through fact(), which refuses withdrawn keys.
+    KEYS = [
+        "cohort.heart_failure.pre_los", "cohort.heart_failure.post_los",
+        "cohort.heart_failure.removed", "cohort_chain.has_both_roles",
+        "cohort_chain.valid_admissions_both_selected",
+        "cohort_chain.both_roles_not_selectable",
+        "extraction.medication_extraction.total_mentions",
+        "extraction.medication_extraction.classified_mentions",
+        "extraction.medication_extraction.unclassified_derived",
+        "extraction.temporal_prefilter.final_candidates",
+        "extraction.annotation_sample.total_sampled",
+        "c120.g299.n", "c120.g299.n_positives", "c120.g253.n",
+        "c120.g253.n_positives",
+    ]
+    n_pre = fact("cohort.heart_failure.pre_los")
+    n_post = fact("cohort.heart_failure.post_los")
+    n_los_removed = fact("cohort.heart_failure.removed")
+    assert n_pre - n_post == n_los_removed
     n_both_roles = fact("cohort_chain.has_both_roles")
     n_pairs = fact("cohort_chain.valid_admissions_both_selected")
-    # Registered directly rather than re-derived: has_both_roles holds the
-    # nursing role on any nursing-labelled note, but a nursing note is
-    # selectable only if its chart time is recorded and falls strictly before
-    # discharge. The discharge side applies no such condition, so the whole
-    # shortfall from has_both_roles to valid_admissions_both_selected is on
-    # the nursing side.
     n_not_selectable = fact("cohort_chain.both_roles_not_selectable")
-    n_note_rows = fact("cohort_chain.total_note_pair_rows")
+    assert n_both_roles - n_pairs == n_not_selectable
     n_mentions = fact("extraction.medication_extraction.total_mentions")
     n_classified = fact("extraction.medication_extraction.classified_mentions")
     n_unclassified = fact("extraction.medication_extraction.unclassified_derived")
-    n_drawn = fact("extraction.annotation_sample.total_sampled")
+    assert n_mentions - n_classified == n_unclassified
+    n_candidates = fact("extraction.temporal_prefilter.final_candidates")
+    n_sampled = fact("extraction.annotation_sample.total_sampled")
+    n_annot = fact("c120.g299.n")
+    n_pos = fact("c120.g299.n_positives")
+    n_core = fact("c120.g253.n")
+    assert fact("c120.g253.n_positives") == n_pos
+    # Differences computed here, not typed: drops no file records as its own
+    # exclusion are drawn as dashed stubs.
+    n_no_roles = n_post - n_both_roles
+    n_not_sampled = n_candidates - n_sampled
+    n_not_annotated = n_sampled - n_annot
+    n_ambiguous = n_annot - n_core
+    # Cross-check the ambiguous count against the signal-check artifact, which
+    # records the positives on the same 299 rows both ways.
+    step2, p_step2 = load("diag", "step2_signal_check.json")
+    d_neg = step2["contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]
+    d_amb = step2["contra_prob_vs_pharm_label__ambiguous_as_positive_n299"]
+    assert d_amb["n_pos"] - d_neg["n_pos"] == n_ambiguous
 
-    # A true branching flow in three phase groups. The phase band is a WASH
-    # ground and the stage boxes inside it are the TINT of the same hue, so the
-    # group reads as a group and the boxes still read as boxes; a band and its
-    # boxes in one stop would differ only by their strokes. One data unit is
-    # one typographic point.
-    # 3.86in, not the 4.18 a proportional growth would give: at 0.88 of the
-    # measure the block height is the printed graphic plus 1.40in of caption
-    # allowance, and 4.18 puts this figure at 5.62in, inside the 5.34 to 6.89
-    # band that produces bottom-gapped pages. The height is what gives; the
-    # type does not.
-    W, H = W88, 3.86
+    W, H = W88, 4.34
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
-    plate(fig)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
     ax.set_xlim(0, W * 72)
     ax.set_ylim(0, H * 72)
     ax.axis("off")
     x_right = W * 72 - 1.5
 
-    # (stage name, count, exclusion below this stage or None)
+    # (stage name, count with unit, stub below this stage or None)
+    # a stub is (text, recorded): recorded -> solid, a computed difference -> dashed
     stages = [
-        ("Heart failure admissions, ICD-9 prefix", f"{hf['pre_los']:,}",
-         f"{hf['removed']:,} admissions with no\npositive length of stay"),
-        ("After the length-of-stay filter", f"{hf['post_los']:,}", None),
-        ("Admissions carrying both note roles", f"{n_both_roles:,}",
-         f"{n_not_selectable:,} admissions, no nursing\nnote before discharge"),
-        ("Note pair selected, one per role", f"{n_pairs:,} pairs", None),
-        ("Medication mentions extracted", f"{n_mentions:,}",
-         f"{n_unclassified:,} mentions with no\naction class assigned"),
-        ("Mentions carrying an action class", f"{n_classified:,}", None),
-        ("Candidates after the temporal prefilter", f"{n_candidates:,}", None),
-        ("Pairs annotated by the pharmacist", f"{d299['n']} of {n_drawn}",
-         f"{n_ambiguous} pairs coded ambiguous"),
+        ("Heart failure, ICD-9 prefix", f"{n_pre:,} admissions",
+         (f"{n_los_removed:,} admissions with no\npositive length of stay", True)),
+        ("Length-of-stay filter", f"{n_post:,} admissions",
+         (f"{n_no_roles:,} admissions without\nboth note types", False)),
+        ("Both note types present", f"{n_both_roles:,} admissions",
+         (f"{n_not_selectable:,} admissions, no nursing\nnote before discharge", True)),
+        ("One note pair per admission", f"{n_pairs:,} pairs", None),
+        ("Medication mentions extracted", f"{n_mentions:,} mentions",
+         (f"{n_unclassified:,} mentions with\nno action class", True)),
+        ("Mentions with an action class", f"{n_classified:,} mentions", None),
+        ("After the temporal prefilter", f"{n_candidates:,} candidates",
+         (f"{n_sampled:,} sampled from {n_candidates:,}", False)),
+        ("Sampled for annotation", f"{n_sampled:,} pairs",
+         (f"{n_annot:,} annotated of\n{n_sampled:,} sampled", False)),
+        ("Annotated by the pharmacist", f"{n_annot:,} pairs",
+         (f"{n_ambiguous:,} pairs coded ambiguous", True)),
         ("Non-ambiguous evaluation core",
-         f"{d253['n']} pairs, {d253['n_pos']} confirmed contradictions", None),
+         f"{n_core:,} pairs, {n_pos:,} confirmed contradictions", None),
     ]
+    assert n_not_sampled > 0 and n_not_annotated >= 0
 
-    # The exclusion stub's arrowhead is 7.4pt long and 7.2pt wide, and it used
-    # to land with its back edge at x = 225.6 against stage boxes that ended at
-    # 228: the flare fused with the rounded bottom-right and top-right corners
-    # of the boxes above and below, and both strokes were interrupted. The head
-    # moves clear of the boxes instead of the boxes shrinking, because the two
-    # chromatic boxes on this canvas carry its whole chroma budget. The stage
-    # column shifts 2pt left, the gutter 4pt right, and the head now stops 3pt
-    # short of the gutter: back edge 231.6, box stroke outer edge 226.6, 5.0pt
-    # of clear paper between them. The gutter node loses 2pt of the 8pt it had
-    # spare on its longest line.
     box_x, box_w = 26.0, 222.0
-    x_gut = 268.0
-    stub_gap = 3.0
-    box_h, last_h, gap = 17.0, 28.0, 8.5
-    y_top = H * 72 - 44.0
+    x_gut = 262.0
+    box_h, last_h, gap = 17.0, 28.0, 10.0
+    y_top = H * 72 - 34.0
     tops, y = [], y_top
     for i in range(len(stages)):
         h = last_h if i == len(stages) - 1 else box_h
         tops.append((y, h))
         y -= h + gap
 
-    # Phase groups: rows, band, box TINT, DEEP stroke, rail, name.
-    #
-    # ALL THREE BANDS ARE ONE TONE, and they used to be three (HAIR,
-    # COBALT_WASH, EMERALD_WASH). The three were a category ground, and every
-    # WASH stop in this palette is within 0.010 relative luminance of every
-    # other by construction: HAIR 0.8453, COBALT_WASH 0.7996, EMERALD_WASH
-    # 0.8051. In black and white the three phases were therefore the same
-    # grey, so the ground told a greyscale reader nothing while looking as
-    # though it told them something. The phase is still carried three ways
-    # that survive printing: the phase name is set beside each band, the boxes
-    # inside it keep their hue, and the rail keeps its stroke. The luminance
-    # gate in tools/check_figure_invariants.py is what now holds this.
+    # Phase groups share one ground tone; the phase is carried by its name,
+    # the box hue (cobalt extraction, emerald the pharmacist) and the rail.
     phases = [
         (range(0, 4), HAIR, MIST, SLATE, SLATE, "cohort construction"),
         (range(4, 7), HAIR, COBALT_TINT, COBALT_DEEP, COBALT_DEEP,
          "extraction and mining"),
-        (range(7, 9), HAIR, EMERALD_TINT, EMERALD_DEEP, EMERALD_DEEP,
+        (range(7, 10), HAIR, EMERALD_TINT, EMERALD_DEEP, EMERALD_DEEP,
          "annotation"),
     ]
     phase_of = {}
@@ -1508,7 +1483,7 @@ def make_fig_cohort_flow():
             phase_of[i] = (tint, deep)
         b_hi = tops[idx[0]][0] + 5.0
         b_lo = tops[idx[-1]][0] - tops[idx[-1]][1] - 5.0
-        ax.add_patch(mpatches.Rectangle((1.5, b_lo), x_right - 1.5, b_hi - b_lo,
+        ax.add_patch(mpatches.Rectangle((0, b_lo), W * 72, b_hi - b_lo,
                                         facecolor=wash, edgecolor="none",
                                         linewidth=0, zorder=0))
         ax.add_patch(mpatches.Rectangle((7.0, b_lo + 2.0), 3.0,
@@ -1518,93 +1493,72 @@ def make_fig_cohort_flow():
                 rotation=90, fontsize=T_NOTE, color=MUTE, zorder=2)
 
     x_stem = box_x + box_w / 2
-    for i, ((t, h), (name, count, excl)) in enumerate(zip(tops, stages)):
+    for i, ((t, h), (name, count, stub)) in enumerate(zip(tops, stages)):
         last = i == len(stages) - 1
         mid = t - h / 2
         if last:
-            # The evaluated core: the one solid element, and the end of the path.
-            chip(ax, box_x, t - h, box_w, h, SCARLET,
+            # The evaluated core: the pharmacist's set, a solid emerald chip.
+            chip(ax, box_x, t - h, box_w, h, EMERALD,
                  f"{name}\n{count}", fontsize=T_SERIES, radius=3.0, zorder=4)
         else:
             tint, deep = phase_of[i]
             node(ax, box_x, t - h, box_w, h, tint, deep, radius=2.5, zorder=4)
             ax.text(box_x + 7.0, mid, name, ha="left", va="center",
                     fontsize=T_SERIES, color=INK, zorder=5)
+            # SLATE is too light for type (3.48:1), so the cohort phase's
+            # counts are set in GRAPHITE.
             ax.text(box_x + box_w - 7.0, mid, count, ha="right", va="center",
-                    fontsize=T_AXIS, color=deep, zorder=5)
-        if not last:
+                    fontsize=T_SERIES, color=GRAPHITE if deep == SLATE else deep,
+                    zorder=5)
             arrow(ax, (x_stem, t - h), (x_stem, t - h - gap), color=GRAPHITE,
                   lw=LW_CONNECTOR, zorder=6)
-        if excl is not None:
-            # An exclusion is accounting, not failure: SLATE and MIST, never
-            # scarlet. It leaves the trunk in the gap between two stages, so it
-            # reads as taken out between them.
-            #
-            # It used to leave the trunk arrow itself, at the vertical middle
-            # of the gap. That point sits inside the trunk arrowhead: the head
-            # is 7.4pt of an 8.5pt gap, so a stub drawn there fuses with the
-            # black head instead of reading as its own branch, and it reads as
-            # feeding the stage below rather than being taken from the stage
-            # above. A later pass moved the stub off the trunk (x_stem + 20)
-            # and dropped it from the box's own bottom edge to the gap's
-            # mid-line before turning right. That cleared the arrowhead, but
-            # the turn itself still landed on the seam between two rows: the
-            # stub above it was only gap/2 = 4.25pt tall, so the joint read as
-            # sitting in the gap, equidistant from the row above and the row
-            # below, rather than belonging to either.
-            #
-            # The connector now leaves the row's own right edge -- a physical
-            # join to the box, not a line dropped from underneath it -- at
-            # that row's own vertical centre, `mid`, the same height its name
-            # and count already sit at. It runs clear of the box before it
-            # ever turns, so the first thing a reader sees is a tap off THIS
-            # row's own side, and only then does it drop to the gutter's
-            # height and turn again for the excluded node. The whole path sits
-            # at x >= box_x + box_w = 248, more than 100pt clear of the trunk
-            # arrowhead centred on x_stem (137, +/-3.6 for its 7.2pt width):
-            # it cannot fuse with that head at any y, not because the two are
-            # offset by a margin but because they never share an x at all.
-            x_elbow = box_x + box_w + 6.0
+        if stub is not None:
+            text, recorded = stub
+            ls = "solid" if recorded else (0, (3.0, 2.0))
+            x_elbow = box_x + box_w + 5.0
             y_gap = t - h - gap / 2
             ax.plot([box_x + box_w, x_elbow], [mid, mid], color=SLATE,
-                    lw=LW_CONNECTOR, zorder=6, solid_capstyle="butt")
+                    lw=1.0, zorder=6, solid_capstyle="butt", linestyle=ls)
             ax.plot([x_elbow, x_elbow], [mid, y_gap], color=SLATE,
-                    lw=LW_CONNECTOR, zorder=6, solid_capstyle="butt")
-            arrow(ax, (x_elbow, y_gap), (x_gut - stub_gap, y_gap),
-                  color=SLATE, lw=LW_CONNECTOR, zorder=6)
-            lines = excl.count("\n") + 1
-            ch = 11.0 * lines + 7.0
-            node(ax, x_gut, y_gap - ch / 2, x_right - 4.0 - x_gut, ch, MIST,
-                 SLATE, radius=2.5, zorder=4)
-            ax.text(x_gut + 6.0, y_gap, excl, ha="left", va="center",
-                    fontsize=T_NOTE, color=GRAPHITE, linespacing=1.24, zorder=5)
+                    lw=1.0, zorder=6, solid_capstyle="butt", linestyle=ls)
+            ax.plot([x_elbow, x_gut], [y_gap, y_gap], color=SLATE,
+                    lw=1.0, zorder=6, solid_capstyle="butt", linestyle=ls)
+            lines = text.count("\n") + 1
+            ch = 10.0 * lines + 5.0
+            p = node(ax, x_gut, y_gap - ch / 2, x_right - 2.0 - x_gut, ch,
+                     PAPER if not recorded else MIST, SLATE, radius=2.0,
+                     zorder=4, lw=1.0)
+            if not recorded:
+                p.set_linestyle((0, (3.0, 2.0)))
+            ax.text(x_gut + 5.0, y_gap, text, ha="left", va="center",
+                    fontsize=T_NOTE, color=MUTE if not recorded else GRAPHITE,
+                    linespacing=1.15, zorder=5)
 
-    ax.text(x_gut, y_top + 8.0, "excluded", ha="left", va="bottom",
+    ax.text(x_gut, y_top + 6.0, "left the path", ha="left", va="bottom",
             fontsize=T_NOTE, color=MUTE, style="italic")
 
-    signature(fig, SCARLET_DEEP,
-              "13,608 admissions in; 253 pairs and\n"
-              "12 confirmed contradictions out.")
+    signature(fig, EMERALD_DEEP,
+              f"Of {n_candidates:,} candidates, {n_pos:,} contradictions survive "
+              f"sampling and annotation.")
     fname = "fig-cohort-flow.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
-    register(fname, "fig:cohort-flow",
-             [p_icd, p_transfer, p_step2, p_facts],
-             "CONSORT-style path from the source database to the two evaluated sets. Nine "
-             "stages, four exclusions, every count read from a committed file. One exclusion "
-             "branch the diagram would otherwise carry is omitted because no committed file "
-             "records it as a count: the admissions dropped between the length-of-stay filter "
-             "and the both-roles requirement. That is a difference of two committed counts and "
-             "not itself a recorded exclusion, so it is not drawn. The admissions dropped "
-             "between the both-roles requirement and the selected pairs are drawn because that "
-             "count is itself registered: the shortfall is entirely on the nursing side, since a "
-             "both-roles admission is selectable only when some nursing note carries a chart "
-             "time strictly before discharge, and the discharge side carries no matching "
-             "condition. The ambiguous count is the difference between the two positive counts "
-             "recorded on the same 299 rows in the signal-check file, the same subtraction the "
-             "prevalence figure performs. Four stages read the thesis register rather than a "
-             "primary artifact, because their own upstream summaries live outside this "
-             "repository under the data agreement.")
+    srcs = [_FACTS_PATH] + sorted({fact_source(k) for k in KEYS} - {_FACTS_PATH}) + [p_step2]
+    register(fname, "fig:cohort-flow", srcs,
+             "Path from the source database to the evaluated core, ten stages. Every "
+             "count is read from results/accord/VERIFIED_FACTS.json by key ("
+             + ", ".join(KEYS) + "), and every right-hand count carries its unit. "
+             "Solid stubs are exclusions the register records as counts (11 with no "
+             "positive length of stay, 37 with no nursing note before discharge, "
+             "131,347 unclassified mentions, 46 coded ambiguous). Dashed stubs are drops "
+             "no file records as an exclusion, drawn as differences computed in code "
+             "from two register counts: admissions after the length-of-stay filter "
+             "minus admissions with both note types; candidates minus the sample; the "
+             "sample minus the annotated pairs. The ambiguous count, 299 minus 253, is "
+             "cross-checked against the signal-check file. The core is drawn in the "
+             "pharmacist's emerald rather than scarlet, which the set reserves for a "
+             "failed check. Headline built from the register: of 1,978 candidates, 12 "
+             "contradictions survive sampling and annotation.")
 
 
 # ============================================================================
@@ -1821,8 +1775,16 @@ def main():
     make_fig_cohort_flow()
 
     manifest_path = os.path.join(FIGDIR, "manifest.json")
+    # Entries for figures built by fig_batch2.py and fig_ceiling.py are kept:
+    # this script does not build them and must not erase their notes.
+    ours = {m["label"] for m in MANIFEST}
+    try:
+        with open(manifest_path) as f:
+            kept = [m for m in json.load(f).get("built", []) if m["label"] not in ours]
+    except (OSError, ValueError):
+        kept = []
     with open(manifest_path, "w") as f:
-        json.dump({"built": MANIFEST, "skipped": SKIPPED}, f, indent=2)
+        json.dump({"built": MANIFEST + kept, "skipped": SKIPPED}, f, indent=2)
 
     print(f"Built {len(MANIFEST)} figures, skipped {len(SKIPPED)}.")
     for m in MANIFEST:

@@ -1,56 +1,51 @@
 \begin{frontmatterpage}
   \thispagestyle{empty}
   \singlespacing
-  \frontmatterheading{ABSTRACT}
+  {\centering\normalsize ABSTRACT\par}
 
-  \noindent
-  \begin{minipage}[t]{0.38\textwidth}\raggedright Title of the Thesis:\end{minipage}\hfill
-  \begin{minipage}[t]{0.58\textwidth}\raggedright
-    {\setstretch{2}\selectfont\MakeUppercase{Where a Cross-Note Medication Contradiction Detection Pipeline Fails: A Controlled Failure Analysis}\par}
-    \vspace{0.5\baselineskip}
-    Ricky Gole, Master of Science in Advanced Computing\par
-    [MONTH YEAR]
-  \end{minipage}
+  % Field block per the template: labels flush left, values start at a 3in tab
+  % (hanging). DEPARTURE for fit: the template double-spaces the title and leaves
+  % two blank lines between the blocks, three before the text, and a double-spaced
+  % heading line; with a 250-word double-spaced body that overflows the page by
+  % four lines, so the title is single-spaced and the gaps are one and two lines.
+  \begingroup\RaggedRight\setlength{\parindent}{0pt}
+  \hangindent=3in\hangafter=1
+  \makebox[3in][l]{Title of the Thesis:}{\hyphenpenalty=10000\exhyphenpenalty=10000\MakeUppercase{Where a Cross-Note Medication Contradiction Detection Pipeline Fails: A Controlled Failure Analysis}\par}
+  \hspace*{3in}Ricky Gole, Master of Science in Advanced Computing\par
+  \hspace*{3in}[MONTH YEAR]\par
+  \vspace{\baselineskip}
+  \makebox[3in][l]{Thesis Chair:}Jamell Dacon, Ph.D.\par
+  \hspace*{3in}Department of Computer Science\par
+  \endgroup
 
-  \vspace{0.6\baselineskip}
-
-  \noindent
-  \begin{minipage}[t]{0.38\textwidth}\raggedright Thesis Chair:\end{minipage}\hfill
-  \begin{minipage}[t]{0.58\textwidth}\raggedright
-    Jamell Dacon, Ph.D.\par
-    Department of Computer Science
-  \end{minipage}
-
-  % Was 2.5\baselineskip, which pushed the last two lines of the 250-word body
-  % onto a second page. The word count and the header block are both fixed by the
-  % template, so the gap between them is the only slack available.
-  \vspace{1.1\baselineskip}
+  % Two blank lines before the text (template: three; see above).
+  \vspace{2\baselineskip}
 
   % RULES (MSU template): one paragraph, 250 words maximum, no abbreviations,
   % no citations, no keywords. Write this LAST.
-  {\doublespacing\leftskip=0pt\rightskip=0pt\parindent=0pt
+  {\doublespacing\RaggedRight\parindent=0.5in\RaggedRightParindent=0.5in
   A nursing note and a discharge summary can disagree about a medication,
 and only the summary leaves the hospital.
 This thesis builds and audits a four stage pipeline detecting such
 contradictions in an intensive care database.
 First, no stage's reported reading survived its check: one not established,
 two unsupported, one a bounded null. Candidate precision is not established;
-the weak labeller's recall rests on chance agreement; credited
-architectural components are an initialisation artifact, a metric with its
-target in its input and an untrained module; the decontaminated three-seed detector ensemble is
-indistinguishable from chance on 253 non-ambiguous pairs, resolving only area
-under the curve effects above 0.75 to 0.81. Its ranking of those pairs is not
-distinguishable from its weak labeller's (0.5145 against 0.5185), consistent
-with a student reproducing a teacher at chance. Second, a check runnable
-before training, applied post hoc: a labeller flagging 261 of 299
-pairs, against 12 a pharmacist confirmed, could not have rejected chance, its
-smallest attainable one-sided significance being 0.1894. Third,
-trigger-exemplar dissociation, a reachable mining bug pattern: displayed
-evidence is picked by position, not from the triggering set; its rate is
-unrecoverable, instruments giving 0 to 0.9315, because the schema never
+the weak labeller's recall rests on chance agreement; credited architectural
+components are an initialisation artifact, a metric with its target in its
+input and an untrained module; a detector ensemble retrained on
+subject-disjoint rows is indistinguishable from chance on 253 non-ambiguous
+pairs, resolving only area under the curve effects above 0.75 to 0.81. Its
+area under the curve there is indistinguishable from its weak labeller's
+(0.5145 against 0.5185), consistent with a student reproducing a teacher at
+chance. Second, a check runnable before training was applied after the fact:
+a labeller flagging 261 of 299 pairs, against 12 a pharmacist confirmed, could
+not have rejected chance, its smallest attainable one-sided significance being
+0.1894. Third, trigger-exemplar dissociation is a reachable mining bug pattern:
+displayed evidence is picked by position, not from the triggering set. Its
+rate is unrecoverable, instruments giving 0 to 0.9315, because the schema never
 recorded which mention fired; a one line assertion would catch it once it
-does. Anyone building such a pipeline should measure the labeller's positive
-rate and agreement on a small expert-labelled sample before training, and
-record which mention fired. Unsolvability is not shown.
+does. Builders of such pipelines should measure the labeller's positive
+rate and agreement on a small expert-labelled sample before training.
+Unsolvability is not shown.
 \par}
 \end{frontmatterpage}

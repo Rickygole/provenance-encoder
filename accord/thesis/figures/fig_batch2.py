@@ -30,6 +30,7 @@ artifact the key names, and a withdrawn.* key is refused.
 """
 import json, pathlib, glob, math, statistics as st
 import numpy as np
+import matplotlib.ticker
 import style
 from style import (
     COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET, MAGENTA, TANGERINE, CYAN,
@@ -38,7 +39,8 @@ from style import (
     EMERALD_WASH, AMBER_DEEP, AMBER_CORE, AMBER_TINT, AMBER_WASH,
     PLUM_DEEP, PLUM_CORE, SCARLET_DEEP, SCARLET_CORE, SCARLET_TINT,
     SCARLET_WASH,
-    PAPER, INK, GRAPHITE, MUTE, SLATE, MIST, HAIR, PLATE_EDGE,
+    PAPER, INK, GRAPHITE, MUTE, SLATE, MIST, HAIR, PLATE_EDGE, FOG,
+    WEAK_LABELLER, ENSEMBLE_DEEP, ENSEMBLE_CORE, PUBLIC_MODEL_MARK,
     T_HEADLINE, T_CLAIM, T_DECK, T_AXIS, T_TICK, T_SERIES, T_NOTE, T_PANEL,
     LW_SPINE, LW_DATA, LW_REF, LW_INTERVAL, MS_DOT, MS_MARK, MS_SEED,
     REF_DASH, ERRBAR, DOT, FIGW, canvas, frame, signature, panel_label, arrow,
@@ -47,7 +49,7 @@ style.setup()
 import matplotlib.pyplot as plt
 
 HERE = pathlib.Path(__file__).parent
-ROOT = pathlib.Path("/Users/rickygole/provenance-encoder")
+ROOT = pathlib.Path(__file__).resolve().parents[3]
 
 
 _FACTS = json.loads((ROOT / "results/accord/VERIFIED_FACTS.json").read_text())
@@ -108,44 +110,31 @@ def make_fig_prevalence_response():
 
     PL = {"A_bare": "bare prompt",
           "B_baserate_abstain": "base rate stated, abstention allowed"}
-    # One hue per labeller, held across both panels. granite3.3:8b takes TANGERINE:
-    # it used to draw in the green this set reserves for pharmacist truth, and a
-    # weak labeller wearing the truth colour is the kind of thing this thesis is
-    # about.
-    MODEL_HUE = {"llama3:8b": MAGENTA, "granite3.3:8b": TANGERINE,
-                 "qwen3:8b": CYAN}
-    # Where each series is named, as (x of the swept point, vertical side). Chosen
-    # per panel so that three labels in a band a quarter of a panel tall never
-    # collide: the check that holds this is the text-collision gate in
-    # tools/check_figure_invariants.py, not an eye.
-    # The series are named in the LEFT panel only, and the right panel carries no
-    # label at all. That is not a legend by another route: both panels draw the
-    # same three labellers in the same hues under two prompts, which is what a
-    # small multiple is, and the deck says so. The alternative was measured and
-    # rejected. On a y axis that reaches the deployed operating point every swept
-    # series lives in the bottom quarter of the panel, and six labels in that band
-    # either print over one another or print over somebody else's interval; the
-    # only way to seat all six was a white casing laid over a data line, which
-    # erases the line and is a thing this set allows over a fill and not over a
-    # mark.
+    # The three public models carry no hue: INK, MUTE and SLATE, told apart by
+    # marker and dash pattern (style.PUBLIC_MODEL_MARK), so hue stays reserved
+    # for the deployed labeller, the ensemble and failed checks. MODEL_HUE is
+    # the name check_figure_invariants.py compares against style.ENTITY_HUE.
+    MODEL_HUE = {"llama3:8b": INK, "granite3.3:8b": MUTE,
+                 "qwen3:8b": SLATE}
+    # Series named once, in the left panel, at their own mark.
     LABEL_AT = {
-        "A_bare": {"llama3:8b": ("0.05", +1), "granite3.3:8b": ("0.25", +1),
+        "A_bare": {"llama3:8b": ("0.05", +1), "granite3.3:8b": ("0.1", +1),
                    "qwen3:8b": ("0.25", -1)},
         "B_baserate_abstain": {},
     }
-    Y_HI, X_HI = 0.32, 0.32
+    # Models are dodged on x so their intervals do not print on one another.
+    DODGE = {"llama3:8b": -0.004, "granite3.3:8b": 0.0, "qwen3:8b": +0.004}
+    Y_LO, Y_HI, X_HI = -0.012, 0.32, 0.27
     SWEEP_P = ["0.02", "0.05", "0.1", "0.25"]
 
-    fig, axes = plt.subplots(1, 2, figsize=(FIGW, 3.46), sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=(FIGW, 3.30), sharey=True)
     canvas(fig)
-    fig.subplots_adjust(left=0.0930, right=0.9830, top=0.7450, bottom=0.1200,
+    fig.subplots_adjust(left=0.0930, right=0.9830, top=0.8050, bottom=0.1260,
                         wspace=0.075)
     for c, pr in enumerate(prompts):
         ax = axes[c]
-        # The wedge above the diagonal is over-prediction, and it is the whole
-        # story of this figure, so it is drawn rather than left as white space.
         gx = np.linspace(0, X_HI, 2)
-        ax.fill_between(gx, gx, Y_HI, facecolor=MIST, edgecolor="none",
+        ax.fill_between(gx, gx, Y_HI, facecolor=FOG, edgecolor="none",
                         linewidth=0, zorder=0)
         ax.plot([0, X_HI], [0, X_HI], color=SLATE, linestyle=REF_DASH,
                 linewidth=LW_REF, zorder=2)
@@ -155,53 +144,50 @@ def make_fig_prevalence_response():
                 e = d["results"][m][pr].get(p)
                 if not e:
                     continue
-                xs.append(float(p)); ys.append(e["positive_rate_of_decided"])
-                # The sweep commits both counts behind every rate, so the interval
-                # is a closed-form Wilson score interval on those counts.
+                xs.append(float(p) + DODGE[m]); ys.append(e["positive_rate_of_decided"])
                 a, b = wilson_ci(e["n_contradiction"], e["n_decided"])
                 lo.append(a); hi.append(b)
-            hue = MODEL_HUE[m]
+            marker, ls, tone = PUBLIC_MODEL_MARK[m]
+            assert tone == MODEL_HUE[m]
             ax.errorbar(xs, ys, yerr=[[y - a for y, a in zip(ys, lo)],
                                       [b - y for y, b in zip(ys, hi)]],
-                        fmt="-o", color=hue.CORE, ms=6.4, lw=2.1, zorder=4,
-                        markerfacecolor=hue.CORE, markeredgecolor=hue.DEEP,
-                        markeredgewidth=1.0, ecolor=hue.CORE,
-                        elinewidth=1.4, capthick=1.4, capsize=3.0)
-            # Named at its own mark, in its own DEEP tone. No legend anywhere.
+                        fmt="none", ecolor=tone, elinewidth=1.1,
+                        capthick=1.1, capsize=2.6, zorder=3)
+            ax.plot(xs, ys, color=tone, linestyle=ls, lw=1.8, zorder=4,
+                    marker=marker, ms=6.0, markerfacecolor=tone,
+                    markeredgecolor=PAPER, markeredgewidth=0.8)
             if m in LABEL_AT[pr]:
                 at, side = LABEL_AT[pr][m]
                 i = SWEEP_P.index(at)
-                y_anchor = (hi[i] + 0.022) if side > 0 else (lo[i] - 0.008)
-                case(ax.text(xs[i], y_anchor, m, ha="center",
+                y_anchor = (hi[i] + 0.008) if side > 0 else (lo[i] - 0.006)
+                x_anchor = xs[i] if side > 0 else X_HI - 0.006
+                case(ax.text(x_anchor, y_anchor, m,
+                             ha="center" if side > 0 else "right",
                              va="bottom" if side > 0 else "top",
-                             fontsize=T_SERIES, color=hue.DEEP, zorder=6))
+                             fontsize=T_SERIES, color=INK, zorder=6))
         if c == 0:
-            case(ax.text(0.100, Y_HI - 0.010, "over-prediction",
+            case(ax.text(0.012, Y_HI - 0.010, "over-prediction",
                          ha="left", va="top", fontsize=T_NOTE, color=MUTE,
                          zorder=5))
-        if c == 1:
-            # The diagonal's angle on the page, not 45 degrees: the panel is not
-            # square and the two axes do not share a range.
-            bb = ax.get_window_extent()
-            ang = math.degrees(math.atan2(X_HI / Y_HI * bb.height, bb.width))
-            # MUTE, not the SLATE of the line it names: SLATE is 3.48:1 on white
-            # and this set does not set type in it.
-            case(ax.text(0.205, 0.212, "perfect calibration", fontsize=T_NOTE,
-                         color=MUTE, ha="center", va="bottom", rotation=ang,
-                         rotation_mode="anchor", zorder=5))
-        ax.set_xlim(0, X_HI); ax.set_ylim(0, Y_HI)
-        ax.set_xticks([0, 0.1, 0.2, 0.3])
+        ax.set_xlim(0, X_HI); ax.set_ylim(Y_LO, Y_HI)
+        # The diagonal is labelled in both panels, at its angle on the page.
+        fig.canvas.draw()
+        bb = ax.get_window_extent()
+        ang = math.degrees(math.atan2(bb.height / (Y_HI - Y_LO),
+                                      bb.width / X_HI))
+        case(ax.text(0.185, 0.197, "perfect calibration", fontsize=T_NOTE,
+                     color=MUTE, ha="center", va="bottom", rotation=ang,
+                     rotation_mode="anchor", zorder=5))
+        ax.set_xticks([0, 0.1, 0.2])
         ax.set_yticks([0, 0.1, 0.2, 0.3])
         ax.set_title(PL[pr], fontsize=T_SERIES, pad=5, color=INK)
         ax.tick_params(labelsize=T_TICK)
         frame(ax, grid="y")
     fig.supxlabel("True prevalence", fontsize=T_AXIS, y=0.016)
     axes[0].set_ylabel("Labeller predicted-positive rate", fontsize=T_AXIS)
-    signature(fig, SCARLET_DEEP,
+    signature(fig, INK,
               f"On public text, {n_under} of {n_cells} labeller settings under-call,\n"
-              f"and the largest over-call is {top[3]:.1f} times.",
-              deck=f"Not drawn: the clinical pool's {clin_lo:.4f} to {clin_hi:.4f} "
-                   "times, from a different pool, prompt and negative.")
+              f"and the largest over-call is {top[3]:.1f} times.")
     fig.savefig(HERE / "fig-prevalence-response.pdf"); plt.close(fig)
     print("wrote fig-prevalence-response.pdf")
 
@@ -320,98 +306,109 @@ def make_fig_scaling():
 # of the three is distinguishable from chance.
 # =============================================================================
 def make_fig_forest():
+    n_253 = fact("decontam.n")
+    n_108 = fact("c114.task_c.n")
+    n_299 = fact("c120.g299.n")
+    assert n_253 == fact("c120.g253.n")
     au = [
-        ("Ensemble, 253 non-ambiguous pairs",
+        (f"Ensemble, {n_253} non-ambiguous pairs",
          fact("decontam.aggregate.ensemble_auroc"),
          fact("decontam.aggregate.ensemble_ci95_lo"),
          fact("decontam.aggregate.ensemble_ci95_hi")),
-        ("Ensemble, Rules 3 and 4, 108 pairs",
+        (f"Ensemble, Rules 3 and 4, {n_108} pairs",
          fact("c114.task_c.stratum_auroc"),
          fact("c114.task_c.ci95_lo"), fact("c114.task_c.ci95_hi")),
     ]
-    assert fact("c114.task_c.n") == 108 and fact("c114.task_c.n_pos") == 6
     assert all(lo <= 0.5 <= hi for _, _, lo, hi in au), \
         "an AUROC interval now excludes chance; the headline would be false"
     mcc_obs = fact("c120.g299.mcc")
     mcc_ceil = fact("c120.g299.ceiling_mcc")
     mcc_p = fact("c120.g299.p_hypergeom_one_sided")
     assert mcc_p > 0.05
+    floor = fact("sizectl108.power_curves.primary_crossing_power_0_80")
+    power = fact("power.power")
+    n_pos_floor = fact("sizectl108.power_curves.n_pos_slots")
+    assert n_pos_floor == fact("decontam.n_positives")
 
     H = 2.80
     fig = plt.figure(figsize=(FIGW, H))
     canvas(fig)
-    X_LEFT, X_RIGHT, X_VALUE = 0.3350, 0.7050, 0.9950
-    A0 = 1.22
-    ax_a = fig.add_axes([X_LEFT, A0 / H, X_RIGHT - X_LEFT, 0.62 / H])
-    ax_m = fig.add_axes([X_LEFT, 0.36 / H, X_RIGHT - X_LEFT, 0.36 / H])
+    X_LEFT, X_RIGHT, X_VALUE = 0.3250, 0.7700, 0.9950
+    A0, AH = 1.24, 0.84
+    M0, MH = 0.36, 0.40
+    ax_a = fig.add_axes([X_LEFT, A0 / H, X_RIGHT - X_LEFT, AH / H])
+    ax_m = fig.add_axes([X_LEFT, M0 / H, X_RIGHT - X_LEFT, MH / H])
 
-    # AUROC panel: chance at 0.5 is the zero rule.
-    ax_a.set_xlim(0.25, 1.0)
-    ax_a.set_ylim(-0.8, 1.6)
+    # AUROC panel: chance at 0.5 is the zero rule; the part of the axis above
+    # the 80 percent power floor at this study's class counts is shaded.
+    YA_LO, YA_HI = -0.8, 2.5
+    ax_a.set_xlim(0.28, 1.0)
+    ax_a.set_ylim(YA_LO, YA_HI)
     ax_a.set_xticks([0.3, 0.5, 0.7, 0.9])
     frame(ax_a, grid="x")
+    ax_a.axvspan(floor, 1.0, facecolor=FOG, edgecolor="none", lw=0, zorder=0)
+    ax_a.text((floor + 1.0) / 2, YA_HI - 0.18,
+              f"detectable at\n{power * 100:.0f} percent power\nwith {n_pos_floor} positives",
+              ha="center",
+              va="top", fontsize=T_NOTE, color=MUTE, linespacing=1.15,
+              zorder=3)
     ax_a.axvline(0.5, color=GRAPHITE, lw=1.2, zorder=2)
-    ax_a.text(0.492, -0.74, "chance", ha="right", va="bottom", fontsize=T_NOTE,
-              color=MUTE, style="italic")
+    ax_a.text(0.492, YA_LO + 0.08, "chance", ha="right", va="bottom",
+              fontsize=T_NOTE, color=MUTE, style="italic")
     for i, (lab, e, lo, hi) in enumerate(au):
         y = len(au) - 1 - i
-        # AMBER is the entity hue style.py gives ACCORD, and this detector is
-        # ACCORD retrained subject-disjoint; the MCC row below takes PLUM, the
-        # production weak labeller's hue. The hues repeat the set's entity map
-        # and carry nothing a greyscale reader needs: each row is named.
         ax_a.errorbar([e], [y], xerr=[[e - lo], [hi - e]], fmt="o",
-                      color=AMBER_DEEP, markerfacecolor=AMBER_CORE,
-                      markeredgecolor=AMBER_DEEP, zorder=5,
-                      **ERRBAR, **DOT)
-        fig.text(X_VALUE, (A0 + 0.62 * (y + 0.8) / 2.4) / H,
-                 f"{e:.4f}  [{lo:.4f}, {hi:.4f}]", ha="right", va="center",
-                 fontsize=T_SERIES, color=AMBER_DEEP)
+                      color=ENSEMBLE_DEEP, markerfacecolor=ENSEMBLE_CORE,
+                      markeredgecolor=ENSEMBLE_DEEP, zorder=5,
+                      **dict(ERRBAR, elinewidth=1.8, capthick=1.8), **DOT)
+        fig.text(X_VALUE, (A0 + AH * (y - YA_LO) / (YA_HI - YA_LO)) / H,
+                 f"{e:.2f}  [{lo:.2f}, {hi:.2f}]", ha="right", va="center",
+                 fontsize=T_SERIES, color=ENSEMBLE_DEEP)
     ax_a.set_yticks([len(au) - 1 - i for i in range(len(au))])
     ax_a.set_yticklabels([r[0] for r in au], fontsize=T_SERIES)
     ax_a.tick_params(axis="y", length=0)
     ax_a.tick_params(axis="x", labelsize=T_TICK)
-    fig.text(0.012, (A0 + 0.62 + 0.10) / H,
+    fig.text(0.012, (A0 + AH + 0.08) / H,
              "AUROC, decontaminated detector, 95% bootstrap interval",
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
 
-    # MCC panel: zero is chance; the ceiling is a bound, drawn as a tick.
+    # MCC panel: zero is no association; the ceiling is a bound, drawn as a tick.
     ax_m.set_xlim(-0.02, 0.10)
     ax_m.set_ylim(-0.6, 0.6)
     ax_m.set_xticks([0.0, 0.03, 0.06, 0.09])
     frame(ax_m, grid="x")
     ax_m.axvline(0.0, color=GRAPHITE, lw=1.2, zorder=2)
-    ax_m.plot([mcc_ceil, mcc_ceil], [-0.38, 0.38], color=PLUM_DEEP, lw=2.0,
+    ax_m.text(0.0015, -0.56, "no association", ha="left", va="bottom",
+              fontsize=T_NOTE, color=MUTE, style="italic")
+    ax_m.plot([mcc_ceil, mcc_ceil], [-0.38, 0.38], color=WEAK_LABELLER, lw=2.0,
               solid_capstyle="butt", zorder=4)
     ax_m.plot([0.0, mcc_ceil], [0, 0], color=HAIR, lw=3.0, zorder=3,
               solid_capstyle="butt")
-    ax_m.plot([mcc_obs], [0], "o", color=PLUM_CORE, markeredgecolor=PLUM_DEEP,
-              zorder=5, **DOT)
+    ax_m.plot([mcc_obs], [0], "o", color=WEAK_LABELLER,
+              markeredgecolor=WEAK_LABELLER, zorder=5, **DOT)
     ax_m.text(mcc_ceil + 0.002, 0.30, "ceiling", ha="left", va="top",
               fontsize=T_NOTE, color=MUTE, style="italic")
     ax_m.set_yticks([0])
-    ax_m.set_yticklabels(["Deployed labeller, 299 pairs"], fontsize=T_SERIES)
+    ax_m.set_yticklabels([f"Deployed labeller, {n_299} pairs"], fontsize=T_SERIES)
     ax_m.tick_params(axis="y", length=0)
     ax_m.tick_params(axis="x", labelsize=T_TICK)
-    fig.text(X_VALUE, (0.36 + 0.18) / H,
-             f"{mcc_obs:.4f}  ceiling {mcc_ceil:.4f}\nexact p {mcc_p:.4f}",
-             ha="right", va="center", fontsize=T_SERIES, color=PLUM_DEEP,
+    fig.text(X_VALUE, (M0 + MH / 2) / H,
+             f"{mcc_obs:.2f}  ceiling {mcc_ceil:.2f}\nexact p {mcc_p:.2f}",
+             ha="right", va="center", fontsize=T_SERIES, color=WEAK_LABELLER,
              linespacing=1.25)
-    fig.text(0.012, (0.36 + 0.36 + 0.10) / H,
+    fig.text(0.012, (M0 + MH + 0.08) / H,
              "MCC against the pharmacist, exact count, no resampling interval",
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
-    # ROUND 8: was 1.06 / H, which ran through the AUROC tick labels.
-    fig.add_artist(plt.Line2D([0.012, X_VALUE], [1.00 / H] * 2,
+    fig.add_artist(plt.Line2D([0.012, X_VALUE], [1.02 / H] * 2,
                               color=PLATE_EDGE, lw=0.6))
 
-    # ROUND 8 (committee). "At 12 positives" was false for the Rules 3 and 4
-    # row, which rests on 6. Both counts are read and named.
     n_pos_253 = fact("decontam.n_positives")
     assert n_pos_253 == fact("c120.g299.n_positives")
     signature(fig, GRAPHITE,
               f"At {n_pos_253} positives, or {fact('c114.task_c.n_pos')} for Rules 3 "
-              "and 4, no headline estimate\nis distinguishable from chance.",
+              "and 4, no headline estimate is distinguishable from chance.",
               deck="Two units, two rulers: nothing is comparable across the "
                    "panel boundary.")
     fig.savefig(HERE / "fig-forest.pdf"); plt.close(fig)
@@ -445,96 +442,87 @@ def hanley_mde(n_pos, n_neg, alpha_level=0.05, power=0.80):
 
 
 def make_fig_power():
-    pw = json.loads((ROOT / "results/accord/section6_auroc_power.json").read_text())
-    n_pos_study, n_neg_study = pw["n_positives"], pw["n_negatives"]
-    alpha_study, power_study = pw["alpha"], pw["power"]
-
-
-    # The C108 floors, read by key, and the analytic point checked against the
-    # register rather than trusted from this file's own bisection.
+    # Every quantity is read from the register by key: the study's class counts,
+    # alpha and power (power.*, whose artifact is section6_auroc_power.json), and
+    # the simulated 80 percent power floors (sizectl108.power_curves.*).
+    n_pos_study, n_neg_study = fact("power.n_positives"), fact("power.n_negatives")
+    alpha_study, power_study = fact("power.alpha"), fact("power.power")
     assert fact("sizectl108.power_curves.n_pos_slots") == n_pos_study
     assert fact("sizectl108.power_curves.n_neg_slots") == n_neg_study
     floor_mw = fact("sizectl108.power_curves.label_mix.crossings_at_power_0_80.mw_two_sided")
     floor_rule = fact("sizectl108.power_curves.label_mix.crossings_at_power_0_80.c98_rule")
     assert floor_mw == fact("sizectl108.power_curves.primary_crossing_power_0_80")
-    n_pos = np.logspace(np.log10(5), np.log10(3000), 60)
+    n_pos = np.logspace(np.log10(5), np.log10(3000), 120)
     n_neg = n_pos * (n_neg_study / n_pos_study)
     mde = hanley_mde(n_pos, n_neg, alpha_level=alpha_study, power=power_study)
     mde_study = hanley_mde([n_pos_study], [n_neg_study], alpha_level=alpha_study,
                            power=power_study)[0]
     assert abs(mde_study - fact("sizectl108.power_curves.mde_analytic")) < 5e-5
+    pct = f"{power_study * 100:.0f} percent"
+    chance = 0.5
 
-    fig, ax = plt.subplots(figsize=(FIGW, 2.98))
+    fig, ax = plt.subplots(figsize=(FIGW, 3.30))
     canvas(fig)
-    fig.subplots_adjust(left=0.1172, right=0.9890, top=0.7760, bottom=0.1560)
-    curve = np.clip(mde, 0.5, 1.0)
-    # Two grounds, hard boundary at the curve. The region above the curve is what
-    # this evaluation could have resolved; the region under it is what it could
-    # not, which is where this thesis's own evaluation sits.
-    #
-    # THE LOWER GROUND IS A TINT AND NOT A WASH, and the luminance gate in
-    # tools/check_figure_invariants.py is why. Every WASH stop in the palette sits
-    # within 0.010 relative luminance of every other (EMERALD_WASH 0.8051,
-    # SCARLET_WASH 0.8004), so a figure that separates two categories by two washes
-    # separates them by nothing at all in black and white: the detectable and the
-    # undetectable halves of this canvas printed as the same grey. SCARLET_TINT is
-    # 0.6163, which is 0.189 clear of EMERALD_WASH, and the fill is the same area,
-    # so the greyscale reader gets the partition back at no cost in coverage. This
-    # is the same defect, and the same remedy, that the pipeline figure's row
-    # grounds were reduced for.
-    ax.fill_between(n_pos, curve, 1.0, facecolor=EMERALD_WASH, edgecolor="none",
+    fig.subplots_adjust(left=0.1172, right=0.9890, top=0.8150, bottom=0.1420)
+    Y_LO, Y_HI = 0.47, 0.92
+    curve = np.clip(mde, chance, 1.0)
+    # Below the curve, between chance and the analytic minimum detectable
+    # AUROC, is what this design could not resolve at the stated power: FOG.
+    # Above the curve is bare paper. tools/measure_ink.py holds this canvas to
+    # a 0.53 coverage floor set when both regions were filled; this canvas
+    # measures under it, and that is recorded in manifest.json rather than
+    # met by tinting the upper region, which would be a band drawn for the tool.
+    ax.fill_between(n_pos, chance, curve, facecolor=FOG, edgecolor="none",
                     linewidth=0, zorder=1)
-    ax.fill_between(n_pos, 0.5, curve, facecolor=SCARLET_TINT, edgecolor="none",
-                    linewidth=0, zorder=1)
-    # The MDE curve is measured, but it is not an entity, so it takes the
-    # structural measurement tone.
-    ax.plot(n_pos, curve, color=GRAPHITE, lw=LW_DATA, zorder=4)
+    ax.plot(n_pos, curve, color=GRAPHITE, lw=2.2, zorder=4)
+    ref_tone = SLATE    # reference and guide lines only; never type
+    ax.axhline(chance, color=ref_tone, lw=LW_REF, linestyle=REF_DASH, zorder=3)
+    ax.text(2800, chance - 0.006, f"chance, AUROC {chance:.2f}", ha="right",
+            va="top", fontsize=T_NOTE, color=MUTE, style="italic", zorder=5)
+    ax.axvline(n_pos_study, color=ref_tone, lw=0.6, zorder=2)
+    ax.text(n_pos_study * 1.04, Y_HI - 0.010, f"{n_pos_study} positives",
+            ha="left", va="top", fontsize=T_NOTE, color=MUTE, zorder=5)
     ax.set_xscale("log")
     ax.set_xlim(5, 3000)
-    ax.set_ylim(0.5, 1.0)
-    ax.set_yticks([0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-    ax.set_xlabel("Positive examples in the evaluation set (log scale)")
-    ax.set_ylabel(f"Minimum detectable AUROC\n({power_study * 100:.0f}% power)",
+    ax.set_ylim(Y_LO, Y_HI)
+    ax.set_yticks([0.5, 0.6, 0.7, 0.8, 0.9])
+    ax.xaxis.set_major_formatter(
+        matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:,.0f}"))
+    ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+    ax.tick_params(axis="both", labelsize=T_TICK)
+    ax.set_xlabel("Positive examples in the evaluation set (log scale)",
+                  fontsize=T_AXIS)
+    ax.set_ylabel(f"Minimum detectable AUROC\n({pct} power)", fontsize=T_AXIS,
                   linespacing=1.3)
-    case(ax.text(2700, 0.965, "80% power or more (analytic)", fontsize=T_SERIES,
-                 color=EMERALD_DEEP, ha="right", va="top", zorder=5))
-    # INK, not SCARLET_DEEP: on the new SCARLET_TINT ground scarlet type measures
-    # 4.93:1, which the set's own advisory calls thin, and INK measures 11.3:1.
-    case(ax.text(6.0, 0.515, "under 80% power (analytic)",
-                 fontsize=T_SERIES, color=INK, ha="left", va="bottom",
-                 zorder=5))
-    # ROUND 8 (committee). The C44 mortality control point and its label are
-    # gone. C44 moved to the supplement because its registration forbids
-    # reading it against this evaluation, and a square on the same curve beside
-    # the evaluation marker was exactly that reading. results/task_runs.json is
-    # no longer read by this figure.
-    # ROUND 7 (fixes_r7 N9). The old headline, "nothing below AUROC 0.7355 was ever
-    # detectable", read an 80 percent power point as a detection threshold. The
-    # claim the thesis makes is the C108 per-rule floor: on a real score
-    # distribution at these class counts, 80 percent power arrives at 0.7466 for a
-    # two-sided Mann-Whitney test and at 0.8084 for the registered decision rule.
-    # Both are drawn at this study's positive count, on the analytic curve's own
-    # axes, and the analytic value is asserted to be the register's.
-    ax.plot([n_pos_study], [mde_study], "o", color=GRAPHITE, ms=MS_SEED + 1.4,
-            markeredgewidth=0, zorder=6)
-    ax.plot([n_pos_study], [floor_mw], "o", color=SCARLET_CORE, ms=MS_DOT + 0.6,
-            markeredgecolor=SCARLET_DEEP, markeredgewidth=1.0, zorder=7)
-    ax.plot([n_pos_study], [floor_rule], "D", color=SCARLET_DEEP, ms=MS_MARK,
-            markeredgewidth=0, zorder=7)
-    case(ax.text(n_pos_study * 1.35, floor_rule, f"registered rule, {floor_rule:.4f}",
-                 fontsize=T_SERIES, color=SCARLET_DEEP, ha="left", va="center",
-                 zorder=7))
-    case(ax.text(n_pos_study * 1.35, floor_mw + 0.004,
-                 f"Mann-Whitney, {floor_mw:.4f}", fontsize=T_SERIES,
-                 color=SCARLET_DEEP, ha="left", va="bottom", zorder=7))
-    case(ax.text(n_pos_study * 0.86, mde_study - 0.022,
-                 f"analytic\n{mde_study:.4f}", fontsize=T_NOTE, color=INK,
-                 ha="right", va="top", zorder=7, linespacing=1.15))
+    ax.text(2800, 0.60, f"detectable at {pct} power", ha="right",
+            va="bottom", fontsize=T_SERIES, color=MUTE, zorder=5)
+    ax.text(14, 0.508, f"not detectable at {pct} power", ha="left",
+            va="bottom", fontsize=T_SERIES, color=MUTE, zorder=5)
+
+    # The three points at this study's positive count, on the guide.
+    ax.plot([n_pos_study], [mde_study], "o", ms=6, markerfacecolor=PAPER,
+            markeredgecolor=INK, markeredgewidth=1.1, zorder=7)
+    ax.plot([n_pos_study], [floor_mw], "o", ms=5.2, color=INK,
+            markeredgewidth=0, zorder=8)
+    ax.plot([n_pos_study], [floor_rule], "D", ms=5.6, color=INK,
+            markeredgewidth=0, zorder=8)
+    # Labels to the right, each joined to its point by a thin leader.
+    x_lab = 30.0
+    for y_pt, y_lab, text in (
+            (floor_rule, floor_rule + 0.025,
+             f"registered decision rule, power simulation: {floor_rule:.2f}"),
+            (floor_mw, floor_mw + 0.035,
+             f"Mann-Whitney test, power simulation: {floor_mw:.2f}"),
+            (mde_study, 0.552, f"analytic curve: {mde_study:.2f}")):
+        ax.plot([n_pos_study * 1.10, x_lab * 0.95], [y_pt, y_lab],
+                color=GRAPHITE, lw=0.6, zorder=6, solid_capstyle="butt")
+        ax.text(x_lab, y_lab, text, ha="left", va="center", fontsize=T_SERIES,
+                color=GRAPHITE, zorder=7)
     frame(ax)
-    signature(fig, SCARLET_DEEP,
-              f"At {n_pos_study} positives, 80 percent power needs AUROC "
-              f"{floor_mw:.4f} under Mann-Whitney\nand {floor_rule:.4f} under the "
-              f"registered rule.")
+    signature(fig, INK,
+              f"At {n_pos_study} positives, {pct} power needs AUROC "
+              f"{floor_mw:.2f} under the Mann-Whitney test\nand {floor_rule:.2f} "
+              f"under the registered decision rule.")
     fig.savefig(HERE / "fig-power.pdf"); plt.close(fig)
     print("wrote fig-power.pdf")
 
