@@ -110,7 +110,6 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{longtable}
-\usepackage{multirow}
 \usepackage{xcolor}
 \usepackage{caption}
 \usepackage{titlesec}
@@ -123,23 +122,10 @@
 \usepackage{ragged2e}
 \usepackage[htt]{hyphenat}  % permit breaks inside \texttt so long register keys do not overrun the margin
 \sloppy
-% APA 7 author-date citations, which FORMAT.md section 8 requires: CS at MSU
-% uses APA 7 in both of the template's examples.
-%
-% apacite was tried first and is APA SIXTH edition. Its own style file announces
-% "v6.03 APA bibliography style", and three sixth-edition behaviours reached the
-% built PDF: three to five authors spelled out on first citation, where the
-% seventh edition wants first-author et al. from the first citation onward; bare
-% "doi:" prefixes where the seventh wants the full https://doi.org/ URL; and
-% "Retrieved from" before URLs carrying no retrieval date. None is switchable,
-% because apacite has no seventh-edition mode.
-%
-% biblatex-apa implements the seventh edition, and it requires the biber backend;
-% backend=bibtex is refused by the style outright. natbib=true keeps \citep and
-% \citet working, which is the entire citation vocabulary of this document, 139
-% and 73 uses, so the switch changes no call site.
+% Numbered citations, alphabetical reference list (author's choice). natbib=true
+% keeps \citep as [n] and \citet as Author [n], so no call site changes.
 \usepackage{csquotes}
-\usepackage[style=apa,backend=biber,natbib=true]{biblatex}
+\usepackage[style=numeric-comp,backend=biber,sorting=nyt,natbib=true,giveninits=true,maxbibnames=99,doi=false,url=false,isbn=false]{biblatex}
 \addbibresource{refs.bib}
 \usepackage[hidelinks,linktoc=all,bookmarks=true,bookmarksnumbered=true]{hyperref}
 % linktoc=all makes the whole entry clickable in the Table of Contents, the List
@@ -239,12 +225,6 @@
 \newenvironment{frontmatterpage}{\clearpage\begingroup}{\endgroup\clearpage}
 \newcommand{\frontmatterheading}[2][\bfseries]{%
   {\centering\normalsize #1 #2\par}\vspace{\baselineskip}}
-
-% Placeholder for figures that exist as written specs rather than assets.
-\newcommand{\figspec}[1]{%
-  \begin{center}\fcolorbox{black!40}{black!5}{%
-    \parbox{0.9\linewidth}{\vspace{0.5em}\small\textbf{[FIGURE SPEC --- asset not yet rendered]}\\[0.3em]#1\vspace{0.5em}}}%
-  \end{center}}
 
 \hypersetup{
   pdfauthor={Ricky Gole},
