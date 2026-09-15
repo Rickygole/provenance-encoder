@@ -141,9 +141,10 @@ NUMBER_CHANGING = [
      "seeds they move to 1.0038 and 0.5076, behind a normalisation layer removing most gradient.",
      "Ch. 4, Architecture: authority conditioning is an initialisation artifact."),
     ("C2", "Rule-type head macro F1 of 0.9603 shows the auxiliary head learned rule structure.",
-     "The rule identifier is written into the input feature vector one layer from the head "
-     "predicting it; out-of-domain transfer collapses to 0.0654 (sepsis) and 0.0595 (AKI).",
-     "Ch. 4, Architecture: the rule-type head is label leakage."),
+     "The rule identifier is written into the input feature vector the head predicts from, so the "
+     "metric's target is in its input; no out-of-domain transfer value is reported, because the code "
+     "that produced the recorded values does not survive.",
+     "Ch. 4, Architecture: the rule-type head is confounded (target in its input)."),
     ("C3", "Kappa of 1.000 between two independent pharmacist instruments established reliability.",
      "The two instruments were the binary label and the ordinal danger rating; a non-contradiction "
      "has no danger by definition, so agreement was guaranteed by construction, not measured.",
