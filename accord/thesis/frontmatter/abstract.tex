@@ -28,24 +28,24 @@
 and only the summary leaves the hospital.
 This thesis builds and audits a four stage pipeline detecting such
 contradictions in an intensive care database.
-First, no stage's reported reading survived its check: one not established,
-two unsupported, one a bounded null. Candidate precision is not established;
-the weak labeller's recall rests on chance agreement; credited architectural
-components are an initialisation artifact, a metric with its target in its
-input and an untrained module; a detector ensemble retrained on
-subject-disjoint rows is indistinguishable from chance on 253 non-ambiguous
-pairs, resolving only area under the curve effects above 0.75 to 0.81. Its
-area under the curve there is indistinguishable from its weak labeller's
-(0.5145 against 0.5185), consistent with a student reproducing a teacher at
-chance. Second, a check runnable before training was applied after the fact:
-a labeller flagging 261 of 299 pairs, against 12 a pharmacist confirmed, could
-not have rejected chance, its smallest attainable one-sided significance being
-0.1894. Third, trigger-exemplar dissociation is a reachable mining bug pattern:
-displayed evidence is picked by position, not from the triggering set. Its
-rate is unrecoverable, instruments giving 0 to 0.9315, because the schema never
-recorded which mention fired; a one line assertion would catch it once it
-does. Builders of such pipelines should measure the labeller's positive
-rate and agreement on a small expert-labelled sample before training.
-Unsolvability is not shown.
+First, three of the four stage readings did not survive their checks (one not
+established, two unsupported); the fourth, the evaluation's near-chance
+reading, survived as a bounded null. Candidate precision is not established;
+the labeller's agreement could not be distinguished from chance, and its point
+estimate sits at chance; credited architectural components are an
+initialisation artifact, a metric with its target in its input and an
+untrained module; a detector ensemble retrained on subject-disjoint rows is
+indistinguishable from chance on 253 non-ambiguous pairs, resolving only area
+under the curve effects above 0.75 to 0.81. Second, a check runnable before
+training was applied after the fact: a labeller flagging 261 of 299 pairs,
+against 12 a pharmacist confirmed, could not have rejected chance, its smallest
+attainable one-sided significance being 0.1894; the check can rule a labeller
+out, never in. Third, trigger-exemplar dissociation is a reachable mining bug
+pattern: the surviving selector excerpt picks by position; that it selected the
+annotated exemplars is not established. Its rate is unrecoverable, instruments
+giving 0 to 0.9315, because the schema never recorded which mention fired; a
+one line assertion would catch it once it does. Builders of such pipelines
+should measure the labeller's positive rate and agreement on a small
+expert-labelled sample before training. Unsolvability is not shown.
 \par}
 \end{frontmatterpage}

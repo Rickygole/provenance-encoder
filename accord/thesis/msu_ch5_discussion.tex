@@ -6,7 +6,7 @@
 %  Numeric provenance: every quantity is from results/accord/VERIFIED_FACTS.json.
 %
 %  This chapter interprets Chapter 4 and does not restate numbers it already
-%  gives. The post hoc list lives in Chapter 3 (sec:m-feasgate); the
+%  gives. The post hoc list lives in Chapter 3 (sec:m-prereg); the
 %  hosted-withdrawal statement in Chapter 3 (sec:m-ethics).
 % ============================================================================
 
@@ -40,8 +40,7 @@ those designs were not run here.
 
 \begin{table}[H]
 \centering
-\caption[Each pipeline stage before and after its check]{Each pipeline stage,
-the reading available before its check, and the reading after.}
+\caption{Each pipeline stage before and after its check}
 \label{tab:disc-spine}
 \footnotesize
 \begin{tabular}{p{0.12\linewidth}p{0.22\linewidth}p{0.36\linewidth}p{0.14\linewidth}}
@@ -57,14 +56,15 @@ Architecture & Three named components credited with the reported performance & A
 Evaluation & AUROC near chance, plausibly an artifact of a small, defective sample & Not distinguishable from chance in any configuration; only AUROC above $0.7466$ (Mann-Whitney) or $0.8084$ (registered decision rule) resolvable; defect-artifact reading unresolved & Bounded null \\
 \bottomrule
 \end{tabular}
+\apanote{Each pipeline stage, the reading available before its check, and the reading after.}
 \end{table}
 
 \subsection{Candidate mining: not established}
 
 The miner's pool has a base rate against pharmacist annotation of $0.0401$. For
 action-conflict candidates the trigger quantified over sets of medication
-mentions while the exemplar selector indexed positionally, and the audit found
-the two did not reliably agree. Three instruments disagree on how often that
+mentions while the surviving selector excerpt picks by position; that it
+selected the annotated exemplars is not established. Three instruments disagree on how often that
 failure fired on the pooled Rules 1 and 2 candidates
 (Section~``\nameref{sec:r-exemplar}''): a reconstruction, an exact key join on a
 much smaller subset, and a purpose-built extractor written for this check,
@@ -107,12 +107,11 @@ and how far it over-calls is a function of how it is asked.
 \subsection{Architecture: unsupported by code audit}
 
 The architectural checks did the most damage, and the word for what they did
-differs by component. No randomisation control was run on any of the three;
-the only randomised-substitute arms in this project belong to a second,
-provenance-conditioned system and do not transfer. Only the authority scalars
-are falsified in the strict sense: the parameter is initialised at the value
-later reported as discovered, sits behind a normalisation that removes its
-gradient, and agrees across seeds. The rule-type head is confounded, its
+differs by component. No randomisation control was run on any of the three.
+The authority scalars are unsupported by code audit (at their initial values):
+the parameter is initialised at the value later reported as discovered, sits
+behind a normalisation that drives its gradient towards zero, and agrees across
+seeds. The rule-type head is confounded, its
 auxiliary target readable from the input features one linear layer away, the
 textbook symptom of leakage rather than learning \citep{kaufman2012leakage},
 which vacates the metric rather than refuting the component. The harm head is
@@ -132,8 +131,9 @@ credited components is null as well, on $G_{299}$ and on $G_{134}$.
 
 \subsection{What survived}
 
-No stage's reported reading survived its check: one not established, two
-unsupported, one a bounded null (Table~\ref{tab:disc-spine}). The chance-level
+Three of the four stage readings did not survive their checks (one not
+established, two unsupported); the fourth, the evaluation's near-chance reading,
+survived as a bounded null (Table~\ref{tab:disc-spine}). The chance-level
 ranking held under the subject-disjoint retrain, seed variation and a control
 model without the credited components, and the over-calling held across three
 local model families, though its size did not. What did not survive is any
@@ -149,7 +149,7 @@ persona, the word ``dangerous'', answer vocabulary, system prompt and field
 labels at once, so no single difference is identified. The contrast lowers
 \texttt{granite3.3:8b}'s and \texttt{qwen3:8b}'s positive rates sharply and
 leaves \texttt{llama3:8b} within the spread between two runs of its own prompt
-text (Section~``\nameref{sec:r-frontier}''). Neither lowered ratio, with
+text (Section~``\nameref{sec:m-weak}''). Neither lowered ratio, with
 ambiguous pairs read as negative, reaches the public-text ceiling of $3.5000$
 set in advance as the test of sufficiency. Reading the $46$ ambiguous pairs as
 confirmed multiplies every ratio by exactly $12/58$, which puts both
@@ -162,10 +162,11 @@ the eight local Fisher tests is absence of evidence, not calibration.
 frontier scale, sits inside the spread three 8B models already show, so nothing
 is concluded about scale. On an SNLI sweep under generic prompts the same models
 do not reproduce the clinical magnitude or direction, but that sweep changes
-prompt, negative type and domain together. In the public factorial experiment
-only \texttt{llama3:8b} reproduced stable per-item output at temperature zero,
+prompt, negative type and domain together. In the public factorial experiment, which
+crossed harder negatives, prompt wording and model scale on public text, only \texttt{llama3:8b} reproduced stable per-item output at temperature zero,
 so a single-run public cell for any other model is one draw from a spread; on
-the clinical rows, the prompt-wording confirmation reproduced
+the clinical rows, the prompt-wording confirmation, a rerun of the reversed
+prompt beside three new wordings, reproduced
 \texttt{granite3.3:8b} exactly. What holds is narrower than any single ratio:
 every 8B labeller under the clinical-pharmacist framing flags several times the
 confirmed count when ambiguous pairs are read as negative, and the least
@@ -190,9 +191,7 @@ $80\%$ power and the registered decision rule $0.8084$, and at the analytic
 $0.7355$ the registered decision rule rejects on only $0.52075$ of replicates.
 This work cannot establish that cross-note contradiction detection is
 unsolvable, only that this pipeline does not solve it and that an AUROC effect
-above the floor of the rule applied would likely have been visible. The
-pretraining positive control resolves a pretraining gap on a public task, but its
-registration forbids reading it as evidence about this evaluation.
+above the floor of the rule applied would likely have been visible.
 
 Whether the ranking null is an artifact of the exemplar-selection defect was put
 to the pre-registered Rules 3 and 4 rescore on $G_{108}$. Its AUROC lies above
@@ -210,7 +209,8 @@ the identical weak labels and an entailment model never trained on them each
 clear their own average-precision null where the detector does not, the
 statistic having been chosen for the first after its value was known. Because a
 label-free model finds the same kind of signal, which the bag-of-words
-robustness checks' registered interpretation calls a surface lexical or
+robustness checks (a permutation null, leave-one-out and a shared-subject test)
+in their registered interpretation call a surface lexical or
 semantic-similarity signal, it is not evidence that the weak labels carried
 signal. The rank-based paired test separates no two of the three, so neither
 simple model is shown to exceed the detector, and the prior-correction
@@ -224,7 +224,8 @@ on any withdrawn hosted number: the detector's bootstrap interval, the power
 simulation and the minimum detectable effect
 (Section~``\nameref{sec:m-mde}'') answer it locally, and the analyses run after
 their numbers were in hand are listed once, in
-Section~``\nameref{sec:m-feasgate}''. Every ranking measurement on $G_{299}$ or
+Section~``\nameref{sec:m-prereg}''. No threshold sweep was run on the retrained
+ensemble, so the threshold objection is not answered for it. Every ranking measurement on $G_{299}$ or
 $G_{253}$ rests on $12$ positives and every measurement on $G_{108}$ on $6$;
 each null carries its floor, and the two systems this pipeline produced are not
 ordered, both Matthews correlations within $0.05$ of chance. The limit is not
@@ -274,7 +275,8 @@ discharge order.
 
 \paragraph{The exemplar defect rate is unresolved.} This is the limitation most
 likely to be read as smaller than it is: the three readings span $0$ to $0.9315$.
-The planted-defect benchmark built to ask whether the two rule groups could be
+The planted-defect benchmark, a synthetic mirror of the real comparison with its
+defect planted in the Rules 3 and 4 group as its pre-registration specifies, built to ask whether the two rule groups could be
 distinguished at this sample size did not meet its rule, and the rule-group
 comparison has exact power $0.0495$ at the observed rates, with $0.094$ the
 smallest excess Rules 1 and 2 rate detectable at $80\%$ power, so near-equal
@@ -290,21 +292,18 @@ establish inter-rater reliability. A previously reported perfect agreement
 between two ``independent judgement instruments'' is retracted in the
 correction record, because the instruments were logically equivalent, and the
 second pass overwrote the first, so no intra-rater figure exists either. How far
-a wrong label could move a conclusion is bounded instead by two post hoc
-tipping-point checks (Chapter~\ref{ch:results}): $5$ to $7$ relabelled positives
-lift the subject-disjoint retrain's AUROC past the three floors, and $5$
-relabelled flags move the least over-calling row below the public-text ceiling.
-Both are counts an adversary would have to reach, not an estimate of how many
-labels are actually wrong.
+a wrong label could move a conclusion is bounded instead by counts, not estimates
+of how many labels are wrong: in the tipping-point and stratum-interval checks,
+$5$, $6$ and $7$ relabelled positives lift the decontaminated ensemble's AUROC
+past the three floors, and in a post hoc relabelling check $5$ relabelled flags
+move the least over-calling row below the public-text ceiling. With one
+annotator, the bounded null is therefore fragile.
 
-\paragraph{Side strands, invalid designs and the correction record.} A metric
-stored as a magnitude licenses no directional claim, the rule the signed
-re-analysis of the simulated disparity gap established. The public factorial experiment, built to
-separate harder negatives, a two-part prompt and a scale step, left too few
+\paragraph{Invalid designs.} The public factorial experiment left too few
 models with a valid cell after the determinism check, so it is reported as
 invalid under its rule rather than reinterpreted after the fact. The
-self-audit record is a demonstration, not a statistic: an error rate computed
-from it was retracted because it could not be reproduced.
+prior-correction experiment was invalid under its own rule as well. Neither
+contributes a finding, and neither absence is read as a null.
 
 \section{Threats to Validity}
 \label{sec:disc-threats}
@@ -317,8 +316,7 @@ threats and what this thesis does with each.
 
 \begin{table}[H]
 \centering
-\caption[Internal threats and their status]{Internal threats and what this
-thesis does with each.}
+\caption{Internal threats and what this thesis does with each}
 \label{tab:disc-internal}
 \footnotesize
 \begin{tabular}{p{0.26\linewidth}p{0.18\linewidth}p{0.42\linewidth}}
@@ -331,7 +329,7 @@ Training rows sharing subjects with the evaluation set & Severe if unaddressed &
 \addlinespace
 Exemplar defect on action-conflict candidates & Severe for pool precision & Three readings disagree, none a tiebreaker; planted-defect benchmark did not meet its rule; Rules 3 and 4 rescore inconclusive \\
 \addlinespace
-Single annotator, no reliability figure & Severe; bounds every gold-label conclusion & Stated; circular coefficient retracted; post hoc tipping points bound sensitivity to wrong labels \\
+Single annotator, no reliability figure & Severe; bounds every gold-label conclusion & Stated; circular coefficient retracted; tipping-point and relabelling checks bound sensitivity to wrong labels \\
 \addlinespace
 Rule identifier in model inputs & Moderate to severe & Shown on the rule-type head, confounded (target in its input) \\
 \addlinespace
@@ -382,7 +380,9 @@ training anything on its output. That feasibility check applies the classical
 maximum of agreement under fixed marginals and the minimum attainable
 significance of a discrete test \citep{cohen1960kappa,tarone1990modified}: at
 $261$ flagged of $299$ the smallest attainable one-sided $p$ is $0.1894$, and it
-needs no statistical power. A simple baseline's own significance test belongs
+needs no statistical power. It can only rule a labeller out, never in:
+\texttt{granite3.3:8b} passes it, yet its graded score has AUROC $0.5467$, and
+the check treats the pilot's confirmed positive count as known. A simple baseline's own significance test belongs
 alongside any neural ranking result, and the exemplar check
 (Figure~\ref{fig:exemplar}) is cheap relative to the training budget, a reason to
 run it earlier next time rather than a claim that it would have changed what
@@ -418,7 +418,8 @@ could annotate the pipeline built to detect them did not. The thesis leaves a
 stage-wise audit (Table~\ref{tab:disc-spine}), a feasibility check on a weak
 labeller's marginal, and trigger-exemplar dissociation, a reachable mining bug
 that a one-line assertion catches once the candidate schema records which
-mention fired. The planted-defect benchmark did not reach its required firing
+mention fired; the surviving selector excerpt picks by position, but that it
+selected the annotated exemplars is not established. The planted-defect benchmark did not reach its required firing
 rate, a limitation disclosed rather than a result claimed. None of that
 establishes that the task cannot be done; it establishes what a per-test floor of
 $0.7466$ to $0.8084$ lets a $253$-pair evaluation say, and it leaves the size and

@@ -119,12 +119,10 @@ non-ambiguous evaluation core and the confirmed contradictions inside it.
 \begin{figure}[!t]
 
 \centering
-\caption[Cohort flow from the source database to the evaluated sets]{The path
-from the source database to the evaluated sets, with the unit at each count.
-Solid side boxes are recorded exclusions; dashed side boxes are differences
-between two recorded counts.}
+\caption{Cohort flow from the source database to the evaluated sets}
 \includegraphics[width=0.88\linewidth]{figures/fig-cohort-flow.pdf}
 \label{fig:cohort-flow}
+\apanote{The path from the source database to the evaluated sets, with the unit at each count. Solid side boxes are recorded exclusions; dashed side boxes are differences between two recorded counts.}
 \end{figure}
 
 \subsection{Medication mention extraction and splitting}
@@ -346,15 +344,16 @@ reads only the first word; the replication run sends Ollama seed 42 and the clin
 none; and the run dates differ. Both report zero parse failures, yet
 \texttt{llama3:8b} flags $0.9532$ of $299$ gold pairs in one and $0.8729$ in the other. Neither is
 the deployed weak labeller's prompt: the deployed run and the same model's replication-prompt run
-differ by $165$ positive labels across the full pool, a lower bound on the rows they disagree on
-(Section~``\nameref{sec:res-rq2}''), and the deployed and clinical-framing runs each flag $261$ of
+differ by $165$ positive labels across the full pool, a lower bound on the rows they disagree on, and the deployed and clinical-framing runs each flag $261$ of
 $299$ with $11$ true positives yet disagree on $12 + 12 = 24$ pairs.
 
 Greedy temperature-zero decoding makes a label repeatable within one setting at most. The public
-factorial experiment (pre-registered) found, on its public-text workload and one setting, that only
+factorial experiment (pre-registered), which crossed harder negatives, prompt wording and model scale
+on public text, found, on its public-text workload and one setting, that only
 \texttt{llama3:8b} reproduced bit-stable first-token log-odds on repeated calls, while
 \texttt{qwen3:8b} and \texttt{granite3.3:8b} drifted above tolerance on a minority of items; on the
-clinical rows, the prompt-wording confirmation's rerun reproduced \texttt{granite3.3:8b} exactly.
+clinical rows, the prompt-wording confirmation, which reran the reversed prompt beside three new wordings of it,
+reproduced \texttt{granite3.3:8b} exactly.
 Unparseable generations are kept in their own category, never defaulted to a class.
 
 \subsection{How \texttt{weak\_confidence} was derived}
@@ -527,7 +526,7 @@ for them. Each stratum is fixed by annotation label and rule membership before a
 $G_{134}$ and $G_{108}$ are subsets of $G_{299}$, and each holds half of the confirmed contradictions.
 
 \begin{table}[H]
-\caption[Evaluation strata and their sizes]{Evaluation strata, their symbols, sizes and positive counts.}
+\caption{Evaluation strata, their symbols, sizes and positive counts}
 \label{tab:m-strata}
 \centering
 \small
@@ -642,9 +641,10 @@ discrete test, and the gate is post hoc, added after the hosted results were wit
 
 A pre-registered check was committed as a file fixing its rule before its first datum, with its
 outcome appended below the rule and the rule never edited. Table~\ref{tab:m-prereg} maps each
-identifier, which appears only here, to the plain name the thesis uses and to
-its rule in one line; the full rule, including what makes a run invalid, is in the file. The
-tipping-point and stratum-interval checks, the rank-based paired test, the exact-join agreement and
+identifier, which no chapter uses outside this table, to the plain name the thesis uses and to
+its rule in one line (the correction record of Appendix~\ref{app:corrections} uses its own numbering); the full rule, including what makes a run invalid, is in the file. The
+tipping-point and stratum-interval checks, which count the gold labels that must flip before the
+decontaminated ensemble reaches each floor and give its interval on $G_{108}$, the rank-based paired test, the exact-join agreement and
 the teacher-student comparison were requested after the main results were in, so each is fixed
 relative to its own run but post hoc relative to the original plan.
 
@@ -659,7 +659,7 @@ threshold sweep and the Spearman tests. None of these had a threshold fixed in a
 \small
 \singlespacing
 \begin{longtable}{@{}p{0.75in}p{1.55in}p{3.3in}@{}}
-\caption[Pre-registered checks]{Pre-registered checks: identifier, plain name, and rule.}
+\caption{Pre-registered checks: identifier, plain name, and rule}
 \label{tab:m-prereg}\\
 \toprule
 \textbf{Identifier} & \textbf{Plain name} & \textbf{Rule, in one line} \\
@@ -671,7 +671,6 @@ threshold sweep and the Spearman tests. None of these had a threshold fixed in a
 \endhead
 \bottomrule
 \endlastfoot
-C44 & Pretraining positive control & Pretrained beats from-scratch encoder on a public task by a registered margin, seed bands disjoint. \\
 C98 & Graded-score check & A graded local labeller score meets the registered decision rule. \\
 C99 & Scale replication & The 8B to 14B ratio exceeds the 8B spread and McNemar $p$ on $G_{299}$ is below 0.05. \\
 C100 & Inference-model baseline & \texttt{roberta-large-mnli} meets the registered decision rule. \\
@@ -704,23 +703,18 @@ by reading the executed code path rather than by training an arbitrary-substitut
 component with zero learned parameters cannot have learned the property it is credited with, a head
 that never receives a gradient cannot have been fit to anything, and an auxiliary target that is a
 fixed function of the model's own input features is not a task.
-
 This audit was run on the three credited components of Section~``\nameref{sec:m-detector}'': the
 authority parameters of the asymmetric conditioning module, the auxiliary rule-type head and the
 guideline-grounded harm estimator. The deleted pharmacological prior module, with no learned
-parameters, is not among them. The anisotropy check on a separate provenance-conditioned encoder, reported with the
-audit findings, is not part of this audit, because it does not bear on the code this detector executes.
+parameters, is not among them.
 
 \subsection{RQ4: is the detector's null real?}
 
 \textbf{Condition.} A null result is evidence only if the instrument that produced it can be shown
 to resolve an effect of comparable size, and only if the evaluation had enough power to see one.
 For the contradiction evaluation that is the minimum detectable effect and the power simulation
-(Section~``\nameref{sec:m-mde}''). The pretraining positive control runs the pretraining-effect
-instrument on a public task where the effect is known to be present; its registration makes it a
-control for that instrument only and forbids merging it with the contradiction evaluation, so it is
-reported beside the power simulation (Section~``\nameref{sec:res-rq4}'') rather than inside that
-evaluation.
+(Section~``\nameref{sec:m-mde}''). The null survives this check only in bounded form: it can exclude
+effects above the resolvable floor and cannot speak to effects below it.
 
 \subsection{Base-rate comparison for the low-prevalence metrics}
 
@@ -786,7 +780,7 @@ fixed before any of those checks ran. A system that fails the rule is not shown 
 smaller than that threshold.
 
 \begin{table}[H]
-\caption[Sensitivity of the evaluation by stratum]{Sensitivity of the evaluation under each treatment of the ambiguous rows.}
+\caption{Evaluation sensitivity under each treatment of ambiguous rows}
 \label{tab:m-mde}
 \centering
 \small
@@ -854,11 +848,9 @@ script in the repository reads or writes note-level data in that account.
 
 \paragraph{The annotator.} The gold standard was produced by one board-certified pharmacist, who
 read each pair on the author's screen, in the author's presence, and gave a judgment the author
-recorded; no file was transferred, printed or photographed, and nothing was retained.
-
-\paragraph{Re-identification and small cells.} No re-identification was attempted and nothing was
-joined against MIMIC-III at the patient level. Subgroup results are one-way marginals only. Small
-cells, some below ten observations, are reported without suppression and marked unpowered.
+recorded. No file was transferred, printed or photographed, and nothing was retained.
+No re-identification was attempted and nothing was
+joined against MIMIC-III at the patient level.
 
 \paragraph{Clinical status, and code contribution.} Nothing in this thesis has been validated for
 clinical use or supports deployment in any care setting. The analysis code is released, with one

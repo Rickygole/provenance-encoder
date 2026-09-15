@@ -266,9 +266,23 @@ def pass8_captions():
                 depth -= env[j] == "}"
                 j += 1
             cap = re.sub(r"\s+", " ", env[i:j - 1]).strip()
-            if len(cap) < 100:
-                print(f"   {f.name}: caption is a title, not a caption "
-                      f"({len(cap)} chars): {name}")
+            # The MSU template (October 2024) sets captions as one-line titles and
+            # puts explanation in the note under the float. A short caption is
+            # therefore correct when the figure carries a note that explains it;
+            # a short caption with no explanation anywhere is still a failure.
+            note = re.search(r"\\apanote\{", env)
+            note_len = 0
+            if note:
+                k, depth = note.end(), 1
+                start = k
+                while k < len(env) and depth:
+                    depth += env[k] == "{"
+                    depth -= env[k] == "}"
+                    k += 1
+                note_len = len(re.sub(r"\s+", " ", env[start:k - 1]).strip())
+            if len(cap) < 100 and note_len < 100:
+                print(f"   {f.name}: caption is a title with no explanatory note "
+                      f"({len(cap)} chars, note {note_len}): {name}")
                 problems += 1
     print(f"   {'FAIL' if problems else 'pass'}: {problems} caption problems\n")
     return problems == 0

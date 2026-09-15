@@ -17,14 +17,13 @@ followed by a purpose-built neural detector, and runs at each stage a check that
 finding from an artifact of the measurement. The checks are borrowed, each credited again wherever
 it appears later, so what this chapter has to establish is narrower than a conventional review: not
 that a gap exists in the space of methods, but that a gap exists in the space of things that have
-been checked. The review runs along six threads: the clinical task itself, attempted far less often than its
+been checked. The review runs along five threads: the clinical task itself, attempted far less often than its
 importance suggests; weak supervision and label noise, where a single language model annotating a
 rare class falls outside the theory the field's tooling rests on; evaluation under low prevalence, a
 literature more than half a century old that this thesis applies rather than extends; controls and
-construct validity, the methodological backbone; pretraining loss as a predictor of downstream
-utility, studied recently at a scale this thesis cannot approach; and selection and stage-by-stage
+construct validity, the methodological backbone; and selection and stage-by-stage
 auditing of pipelines. Each thread supplies a constraint the next has to respect, and the final section states what the
-six leave.
+five leave.
 
 \section{Contradiction and Inconsistency Detection in Clinical Text}
 \label{sec:lit-contradiction}
@@ -120,8 +119,8 @@ The guarantees require multiple sources whose errors are conditionally independe
 label, so that disagreement is informative and aggregation recovers a better label than any single
 source. With one source, aggregation is the identity function and the generative model has no signal
 to fit; this is the stated premise, not a subtlety buried in the proofs. What the literature does not
-say is what to do when only one source is available and hand annotation is the resource being
-economised on, which is what a single instruction-tuned model creates.
+give is a check that can be run before annotation when only one source is available, which is
+what a single instruction-tuned model creates.
 
 \subsection{The language model as annotator}
 
@@ -305,7 +304,7 @@ from. The negative, randomisation and control-task designs above were not run. N
 contribution.
 
 \begin{table}[H]
-\caption[Checks and their literature sources]{Checks run in this thesis and the work each borrows from.}
+\caption{Checks run in this thesis and the work each borrows from}
 \label{tab:lit-controls}
 \centering
 \small
@@ -323,23 +322,6 @@ Construct validity framing & \citet{jacobs2021measurement} & Task definition \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\section{Pretraining Loss as a Proxy for Downstream Utility}
-\label{sec:lit-loss}
-
-A failed pipeline can always be defended as too small, so the relationship between a training
-objective and downstream performance is directly relevant, and two recent results carry most of the
-weight. \citet{lourie2025scaling} conduct a meta-analysis of published scaling results and find that
-predictable scaling, small-scale results extrapolating to larger scales, occurs in a minority of
-cases, 39\% of the time by their count, because small setup variations change scaling behaviour,
-so an extrapolation is a hypothesis rather than a prediction.
-\citet{feng2026tessera} address the narrower question of whether pretraining loss predicts
-downstream utility, at a scale no thesis can match: within a Barlow Twins framework for Earth
-observation foundation models, across 395 controlled training experiments and 15 downstream tasks,
-the correlation between pretraining loss and downstream performance has an absolute Pearson
-coefficient below 0.2, a result far from clinical text but stronger than anything this
-thesis could produce. The consequence is a limitation on what may be claimed, adopted rather than resisted; the pretraining
-positive control of Chapter~\ref{ch:results} is reported for this reason, not as a contribution to the scaling literature.
 
 \section{Selection, Pipelines, and Disaggregated Evaluation}
 \label{sec:lit-selection}
@@ -364,7 +346,7 @@ boundaries rather than inside any one of them, without proposing per-stage check
 \label{sec:lit-gap}
 
 No cross-note, free-text-to-free-text medication contradiction system or benchmark was found, and the
-six threads leave three further openings, one for each contribution of this thesis. First, no work
+five threads leave three further openings, one for each contribution of this thesis. First, no work
 was found that runs a stage-appropriate check at every stage of a clinical text pipeline and reports
 each outcome whichever way it falls: \citet{biswas2021fairpreprocessing} audit by stage for a metric
 defined at every stage, and \citet{sculley2015debt} name the hazard at component boundaries without
