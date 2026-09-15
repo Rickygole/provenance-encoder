@@ -821,3 +821,27 @@ any member of a trigger set is a construction check, verified over every member,
 fixtures carry no clinical text and are released with unit tests. They show that the check
 discriminates as intended; they do not measure how often the defect occurred in this project's
 mining output, which the schema did not record.
+
+\subsection{C126: The Detector Against Its Weak Labeller}
+\label{sup:sec:s5-c126}
+% Artifact: results/accord/c126_teacher_student/c126.json.
+% Register key prefix: c126.*
+
+C126 is pre-registered, committed before its run, and requested after the results were in, so it
+is post hoc with respect to the original analysis plan. It asks whether the decontaminated detector
+ensemble ranks the gold pairs differently from the weak labeller it was trained on. No model is
+trained or scored: the weak label, joined exactly as in C120, is used as a 0/1 score, and the
+ensemble score is the mean of the three existing seeds. Intervals are percentile bootstraps
+($B = 10000$); the difference is a paired bootstrap on the same resampled pairs. Outcome A required
+the paired interval to contain 0 and the absolute point difference to be below $0.05$; every
+registered gate passed.
+
+\textbf{Outcome A.} On $G_{253}$ ($12$ positives) the labeller's AUROC is $0.5185$
+($[0.4194, 0.5758]$) and the ensemble's $0.5145$ ($[0.3210, 0.7034]$); detector minus labeller is
+$-0.0040$, paired $95\%$ interval $-0.1760$ to $0.1660$. The detector's ranking is not
+distinguishable from its labeller's; the interval is wide, so this does not show they are equal.
+On $G_{299}$ the labeller's AUROC is $0.5228$.
+
+\textbf{Strata, descriptive.} With $6$ positives each, the labeller gives $0.5216$ on Rules 1 and 2
+($n = 145$) and $0.5294$ on Rules 3 and 4 ($n = 108$), against the ensemble's $0.4221$ and $0.6095$.
+The labeller does not show the ensemble's higher Rules 3 and 4 value.

@@ -5007,3 +5007,20 @@ Pipeline Fails: A Failure Analysis", because the thesis ran checks and audits ra
 
 Restored on 2026-09-14 at the author's request: the title is again "Where a Cross-Note Medication Contradiction Detection
 Pipeline Fails: A Controlled Failure Analysis".
+
+## C126. Dream-team review after C125 (2026-09-14)
+
+Red team: the detector's ranking of the gold pairs was never compared with its weak labeller's. C126 (pre-registered,
+Outcome A) finds them not distinguishable on G_253 (0.5145 against 0.5185, paired interval -0.1760 to 0.1660); the thesis
+now reads the null as consistent with a student reproducing a teacher at chance, not only as bounded by the ceiling.
+The rule-type head's transfer values (0.0654, 0.0595) had no surviving generator and accuracy below any constant predictor,
+which leakage cannot explain; the table is removed, the keys retired, and the finding rests on the code. The Rules 1/2
+positional defect is attributed to a surviving excerpt of the reference notebook; that it selected the gold exemplars is
+stated as not established.
+Skeptic: one sentence reconciles "Controlled" in the title with checks and audits; correction identifiers removed from
+Chapters 1, 5 headings and 6; abstract rebuilt around the teacher-student result and practical advice; two overstatements
+scoped. Data-agreement review: Chapter 3 no longer says note-derived files never left the machine, egress wording scoped,
+README data-handling section matches the thesis, NOTICE credits public datasets. Security: control training refuses
+cloud-synced output directories; hosted runners require an explicit opt-in; raw MIMIC tables moved out of a downloads
+folder into credentialed local storage and scripts repointed. Code check: a figure assertion restored, a hard-coded path
+fixed.

@@ -159,7 +159,10 @@ chance, its bootstrap interval excluding an AUROC above $0.7034$
 (Section~\ref{sec:res-rq4}, Table~\ref{tab:decontam}).
 Figure~\ref{fig:ceiling} carries a separate result: the weak labeller's
 positive rate against the pharmacist's confirmed rate fixes an agreement
-ceiling, a precondition rather than an explanation of the ranking null.
+ceiling that bounds only thresholded labels. The detector's ranking of the
+gold pairs is not distinguishable from its weak labeller's ($0.5145$ against
+$0.5185$), so the null is consistent with a student reproducing a teacher at
+chance.
 
 \section{Research Questions}
 \label{sec:intro-rqs}
@@ -169,7 +172,13 @@ about each stage; a fifth, on whether published work audits the selection
 step, is reported as a practice survey in the supplement. RQ4 is reworded
 from its original form, whether the failure was a property of the task or of
 the instrument, because the results that answered that form were withdrawn
-(Appendix~\ref{app:corrections}). Evidence sits in Chapter~\ref{ch:results};
+(Appendix~\ref{app:corrections}). The stage readings checked are this
+project's own earlier readings of its pipeline, reported in an earlier version
+of this work; this thesis checks them. ``Controlled'' in the title means each
+reading is checked against a fixed condition, a ceiling computed from counts,
+or a rule written down before its run; it does not mean the randomisation,
+control-task or negative controls Chapter~\ref{ch:lit} describes, which were
+not run here. Evidence sits in Chapter~\ref{ch:results};
 each check is specified in Chapter~\ref{ch:method}; only the numbered
 pre-registrations were fixed before their runs (Section~\ref{sec:m-feasgate}).
 
@@ -187,7 +196,7 @@ what that leaves of the $0.0401$ figure.}
 
 \item[RQ2. Weak supervision.] Can a language model weak labeller substitute
 for expert annotation at this base rate?
-\emph{No; reading its recall as discrimination is unsupported, since
+\emph{Not as the deployed thresholded labeller; reading its recall as discrimination is unsupported, since
 flagging most pairs recovers most positives by chance. The deployed labeller flagged
 $261$ of the $299$ annotated pairs against $12$ confirmed, a marginal at which
 no outcome could have rejected the null (smallest attainable one-sided
@@ -199,8 +208,8 @@ permitted. A graded score is not bound by the
 ceiling, but the registered \texttt{granite3.3:8b} score reaches an AUROC of
 only $0.5467$ ($p = 0.2934$), and the strongest pre-registered prompt cell,
 \texttt{llama3:8b} under a reversed-direction prompt ($0.7503$,
-$p = 0.0017$), did not confirm under three new wordings (C109, Outcome B).
-\texttt{granite3.3:8b}'s descriptive C109 cells rank above chance under every
+$p = 0.0017$), did not confirm under three new wordings in a pre-registered
+confirmation. \texttt{granite3.3:8b}'s descriptive cells there rank above chance under every
 wording, so whether a graded score escapes the ceiling is not settled, the
 strongest reason not to read the detector's null as evidence the task is
 unsolvable.}
@@ -224,14 +233,15 @@ $0.8084$ for the registered decision rule, and three configurations of the
 decontaminated detector are not distinguishable from chance. By average
 precision, chosen after its value was known, a bag-of-words model trained on
 the weak labels ($p = 0.01315$) and an inference model never trained on
-them ($p = 0.01335$) clear their C111 permutation nulls where the detector
+them ($p = 0.01335$) clear their permutation nulls where the detector
 ($p = 0.4629$) does not, but no paired test separates any two of the three. The Rules 3 and
 4 stratum is not subject to the documented Rule 1 and Rule 2 positional
 defect, though its exemplar correctness in the gold set is assumed, not
 verified; on its $108$ non-ambiguous pairs the decontaminated three-seed detector ensemble's AUROC is $0.6095$
 ($95$ percent bootstrap interval $0.3029$ to $0.9010$) against $0.4221$ on
 Rules 1 and 2, a comparison between rule groups confounded with rule content
-and base rate. With $6$ positives and a minimum detectable AUROC of $0.8064$
+and base rate; the weak labeller shows no such rise ($0.5294$ against
+$0.5216$). With $6$ positives and a minimum detectable AUROC of $0.8064$
 it can neither show nor exclude that the null is a defect artifact
 (Section~\ref{sec:res-rq4}).}
 
@@ -262,8 +272,9 @@ At $261$ flagged of $299$ against $12$ confirmed, no outcome could have
 rejected the null: the smallest attainable one-sided $p$ is $0.1894$, and $5$
 of $15$ local configurations could not have rejected before a pair was
 scored. The measured MCC, $0.0269$, sits below the $0.0780$ ceiling, as it
-must, and is at chance ($p = 0.5347$). It is a precondition, not an
-explanation of the detector's ranking.
+must, and is at chance ($p = 0.5347$). It bounds thresholded labels only;
+the detector's ranking of the gold pairs is not distinguishable from the
+labeller's.
 
 \item \textbf{Trigger-exemplar dissociation as a mining bug pattern.} A rule
 that fires on a set of mentions and an exemplar selector that picks from it
@@ -279,10 +290,13 @@ occurred here.
 \end{enumerate}
 
 The detector's ranking null is a supporting result: no AUROC effect above
-about $0.75$ to $0.81$ on the $253$ non-ambiguous pairs. The pre-registered
-planted-defect benchmark (C102) did not reach its required firing rate at
+about $0.75$ to $0.81$ on the $253$ non-ambiguous pairs, what the evaluation
+could detect at $80\%$ power, beside the $0.7034$ upper end of the bootstrap
+interval on the observed ensemble. The pre-registered
+planted-defect benchmark did not reach its required firing rate at
 either rate tried. The two-sided Fisher test of Rules 1 and 2 against Rules 3 and 4 has a null
-read as an instrument limit, with exact power $0.0495$ at the observed rates.
+read as an instrument limit: the smallest rise of the Rules 1 and 2 rate
+detectable at $80\%$ power is $0.094$ (exact power $0.0495$ at the observed rates).
 
 Four further threads are reported in the supplement: the degeneracy
 precondition and the sign-provenance correction, both run on a second,

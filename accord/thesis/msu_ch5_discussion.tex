@@ -56,7 +56,7 @@ Candidate mining & Pool base rate $0.0401$ read as a property of the mining rule
 \addlinespace
 Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ flagged; agreement at chance, MCC $0.0269$ (C120); the size of the over-calling depends on prompt and ambiguity reading & Unsupported \\
 \addlinespace
-Architecture & Three named components credited with the reported performance & Code audit: authority scalars falsified (audit; at initialisation across seeds); rule-type head confounded (target in its input); harm head vacuous (untrained) & Unsupported (code audit) \\
+Architecture & Three named components credited with the reported performance & Code audit: authority scalars at their initial values (code audit); rule-type head confounded (target in its input); harm head vacuous (untrained) & Unsupported (code audit) \\
 \addlinespace
 Evaluation & AUROC near chance, plausibly an artifact of a small, defective sample & Not distinguishable from chance in any configuration; only AUROC above $0.7466$ (Mann-Whitney) or $0.8084$ (registered rule) resolvable; defect-artifact reading unresolved & Bounded null \\
 \bottomrule
@@ -104,7 +104,9 @@ ratio have to travel with it. Correcting a marginal this biased needs gold
 labels on the same distribution \citep{forman2008quantifying,egami2023surrogates},
 which a workflow built to avoid annotation cannot supply, so the student
 inherits the marginal rather than the task
-\citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}. Whether
+\citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}; the
+detector's ranking of the gold pairs is not distinguishable from its
+labeller's (C126, Section~\ref{sec:res-rq4}). Whether
 that prior scales with capability or vendor is not established, since the
 hosted comparisons are withdrawn. The surviving claim is narrow: this project's
 weak labeller's marginal was a property nobody checked before training on it
@@ -158,7 +160,7 @@ measurement of a pipeline under the conditions this project tested.
 The weak-supervision reading is not one number. Four things were varied to see
 what drives it.
 
-\textbf{The prompt contrast (C103), and how the ambiguous pairs are read.} The
+\textbf{The prompt contrast, and how the ambiguous pairs are read.} The
 clinical-pharmacist framing prompt and the plain yes/no prompt differ in
 persona, the word ``dangerous'', answer vocabulary, system prompt and field
 labels at once, so no single difference is identified. The contrast lowers
@@ -172,7 +174,7 @@ ceiling says the denominator moved, not that the models agree with the
 pharmacist. The absence of an ambiguity gradient in the eight local Fisher
 tests, with $46$ ambiguous pairs, is absence of evidence, not calibration.
 
-\textbf{Scale (C99), public text, and what a single run means (C104).} The step
+\textbf{Scale, public text, and what a single run means.} The step
 to \texttt{qwen3:14b}, the largest model this project's hardware serves and not
 frontier scale, sits inside the spread three 8B models already show, so nothing
 is concluded about scale in either direction. On an SNLI sweep under generic
@@ -223,7 +225,8 @@ Whether the ranking null is an artifact of the exemplar-selection defect was put
 to a pre-registered rescore on the Rules 3 and 4 stratum with ambiguous pairs
 dropped (C112, Section~\ref{sec:res-rq4}). Its AUROC lies above the Rules 1 and
 2 value, the direction a defect-artifact reading predicts, but its interval
-holds both chance and the per-test floors. With $6$ positives this fails to show
+holds both chance and the per-test floors, and the weak labeller does not show
+the same rise ($0.5294$ against $0.6095$, descriptive; C126). With $6$ positives this fails to show
 that the null is a defect artifact and cannot establish that it is not; and
 because the two rule groups also differ in rule content and base rate, even a
 separation would not have isolated the defect.
@@ -262,8 +265,7 @@ labeller, not the detector. The graded reversed-prompt scores point the same way
 (C109, Section~\ref{sec:res-rq2}): the registered \texttt{llama3:8b}
 confirmation failed on AUROC under all three new wordings and the Bonferroni
 threshold under two, and
-\texttt{granite3.3:8b}'s descriptive cells, uncorrected and with the best
-wording picked after the fact, met both criteria under two new wordings. So the
+\texttt{granite3.3:8b}'s descriptive cells, uncorrected, met both criteria under two new wordings. So the
 null the detector and its control return is a statement about these trained
 models under this supervision, not that no instrument at this
 sample size could resolve anything; whether a graded score escapes the
@@ -391,7 +393,7 @@ Exemplar defect on action-conflict candidates & Severe for pool precision & Thre
 \addlinespace
 Single annotator, no reliability figure & Severe; bounds every gold-label conclusion & Stated; circular coefficient retracted; post hoc tipping points bound sensitivity to wrong labels \\
 \addlinespace
-Weak-label leakage into model inputs & Moderate to severe & Shown on the rule-type head, confounded (target in its input) \\
+Rule identifier in model inputs & Moderate to severe & Shown on the rule-type head, confounded (target in its input) \\
 \addlinespace
 Extraction never validated against human annotation & Moderate to severe & Stated; first item of any continuation \\
 \bottomrule

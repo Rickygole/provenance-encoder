@@ -48,16 +48,11 @@ marginal fixes (Section~\ref{sec:res-rq2}).
 
 The detector trained on those labels was not distinguishable from chance on
 the 253 non-ambiguous pairs, its ensemble's bootstrap interval excluding an
-AUROC above 0.7034 (Section~\ref{sec:res-rq4}). The Rules 3 and 4 stratum is
-not subject to the documented Rule 1 and Rule 2 positional defect, though its
-exemplar correctness in the gold set is assumed, not verified; on its 108
-non-ambiguous pairs the ensemble reaches 0.6095 (95 percent bootstrap
-interval 0.3029 to 0.9010), a comparison between rule groups that with 6
-positives can neither show nor exclude a defect artifact. By average
-precision, chosen after its value was known, a bag-of-words model and an
-inference model never trained on the weak labels clear their permutation
-nulls where the detector does not, with no paired test separating the three
-(Section~\ref{sec:res-rq4}).
+AUROC above 0.7034 (Section~\ref{sec:res-rq4}). That is the bootstrap interval
+on the observed ensemble; the floors above are what the evaluation could detect
+at 80 percent power. The detector's ranking of the gold pairs is not
+distinguishable from its weak labeller's (0.5145 against 0.5185), so the null is
+consistent with a student reproducing a teacher at chance.
 
 \section{What This Establishes, and What It Does Not}
 \label{sec:conc-establishes}
@@ -68,11 +63,12 @@ marginals and the minimum attainable significance of a discrete test
 labeller before training and was applied here after the fact: at 261 flagged
 of 299 no outcome could have rejected the null, the smallest attainable
 one-sided $p$ being 0.1894. The measured MCC, 0.0269, sits below the
-0.0780 ceiling, as it must, and is at chance. It bounds thresholded labels, not a ranking, so it is a
-precondition rather than an explanation of the detector's null. The
+0.0780 ceiling, as it must, and is at chance. That ceiling still bounds only thresholded labels; the
+ranking result above, not the ceiling, is what bears on the detector's null. The
 resolvable-effect floor rests on a power analysis, not an empirical
 validation of the clinical instrument, and the Rules 3 and 4 stratum, with
-six positives, cannot show that the null is free of the exemplar defect.
+six positives and confounded with rule content and base rate, cannot show that
+the null is free of the exemplar defect.
 
 \section{Practical Lesson}
 \label{sec:conc-practice}
@@ -95,8 +91,8 @@ detector could be told apart from chance.
 
 \textbf{An independent set for wording-specific signals.} The strongest
 pre-registered prompt cell, a reversed-direction llama3:8b score, did not
-confirm under three new wordings (C109, Outcome B), and its signal sits in
-the rows carrying the exemplar defect; granite3.3:8b's descriptive C109 cells
+confirm under three new wordings in a pre-registered confirmation, and its
+signal sits in the rows carrying the exemplar defect; granite3.3:8b's descriptive cells
 rank above chance under every wording, so whether a graded score escapes the
 agreement ceiling is not settled (Section~\ref{sec:res-rq2}). A
 wording-specific signal can only be tested on pairs it was not found on.
@@ -128,7 +124,8 @@ check on the weak labeller's marginal, applied here after the fact. Third, also 
 no power, trigger-exemplar dissociation, a reachable mining bug pattern that
 would be caught by a one-line assertion once the candidate schema records
 which mention fired. In support, the detector shows no AUROC effect above
-about 0.75 to 0.81. The planted-defect
+about 0.75 to 0.81, what the evaluation could detect at 80 percent power
+(the bootstrap interval on the observed ensemble ends at 0.7034). The planted-defect
 benchmark did not reach its required firing rate, a limitation this thesis
 discloses rather than a result it claims.
 

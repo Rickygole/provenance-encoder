@@ -21,6 +21,9 @@ This chapter describes the pipeline that was built and, for each stage, the chec
 separate a real finding from an artifact of the measurement. Every check below is written as a
 condition; only the numbered pre-registrations were fixed before their runs
 (Section~\ref{sec:m-feasgate}), and Chapter~\ref{ch:results} reports which conditions were met.
+``Controlled'' in the title means each stage's reading is checked against a fixed condition, a ceiling
+computed from counts, or a rule written down before its run; it does not mean the randomisation,
+control-task or negative controls that Chapter~\ref{ch:lit} describes, which were not run here.
 
 The pipeline has four stages and an evaluation layer. Stage one extracts a cohort of admissions from
 MIMIC-III and, for each, a paired nursing note and discharge summary. Stage two mines that corpus
@@ -45,8 +48,8 @@ ICD-9 codes defining the cohort, and \texttt{NOTEEVENTS} for the notes with thei
 and chart date.
 
 No clinical note text appears in this thesis, in any table, figure, appendix or released artifact,
-and no admission or subject identifier is printed anywhere. Note-derived intermediate files live
-outside the version-controlled tree and never leave the analysis machine, and the export script
+and no admission or subject identifier is printed anywhere. Note-derived intermediate files are kept
+outside the version-controlled tree; the exceptions are disclosed in Section~\ref{sec:m-ethics}. The export script
 scans candidate files for note-text markers and aborts rather than filtering on a hit. Sentence
 pairs were, in several runs, also sent to hosted model APIs; Section~\ref{sec:m-ethics} states why
 every result obtained that way has been withdrawn from this thesis rather than reported.
@@ -271,13 +274,16 @@ otherwise; the gold sample was drawn from this pool, not from the rebuilt one.
 \subsection{Exemplar selection, and the defect in it}
 \label{sec:m-exemplar}
 
-The reference mining code for Rules 1 and 2 selects the exemplar by positional index into the
+A surviving excerpt of the reference mining notebook for Rules 1 and 2, quoted in the rebuild's
+source (the notebook itself is not in the repository), selects the exemplar by positional index into the
 drug's mention group, taking the first row on each side, with nothing constraining those rows to
 carry the actions that made the trigger true. If a discharge summary mentions a drug several times,
 mostly continuation with one later cessation, while the nursing note has a single continuation
 mention, the trigger fires on the continuation-cessation branch and the candidate is real by the
 rule's own definition, but the positional selector returns a continuation row on the discharge side,
 so the exemplar presented as a contradiction consists of two sentences in which the notes agree.
+That this code selected the annotated gold exemplars is not established: no artifact links it to the
+annotation sheet, and the three measurements of the defect rate in Chapter~\ref{ch:results} disagree.
 
 This is a methods matter rather than an incidental bug: the pharmacist annotated the exemplar pair,
 the weak labeller read it, and the detector was trained on it, so wherever the selector failed, all
@@ -408,8 +414,8 @@ untrained module rather than severity ranking.
 The auxiliary rule-type head predicts the rule identifier that the prior-feature constructor writes
 into the model's input, in the same forward pass, so its target is in its input, and auxiliary-label leakage of this shape belongs to a documented family
 \citep{poliak2018hypothesis,gururangan2018artifacts,mccoy2019hans,geirhos2020shortcut}: an auxiliary
-head whose target is derivable from its own input features is not an auxiliary task, and the cheapest
-test is out-of-domain transfer rather than held-out accuracy \citep{zech2018generalization}.
+head whose target is derivable from its own input features is not an auxiliary task \citep{zech2018generalization}. The audit rests on the
+code that writes the identifier into the input, not on transfer scores.
 
 The asymmetric conditioning module carries a two-element authority parameter initialised at the pair
 of values later reported as discovered, applied to a cross-attention branch that is immediately
@@ -651,7 +657,7 @@ only; a scored labeller can sweep its threshold and rank well regardless of flag
 nothing about a ranking metric. Applied to every hard-label marginal this thesis prints, it is a post
 hoc check, added after the hosted results were withdrawn. So are the ambiguous-positive reading,
 both tipping-point checks, the public sweep decomposition and the choice of average precision as
-C107's headline statistic. C114, C116 and C120 were requested by the committee after the results were in, each pre-registered before its own run. Only the numbered pre-registrations (C44, C98 to C112, C114, C116, C120) were fixed before their runs; every other check was specified after results were seen, including the RQ3 code audits, the rule-group Fisher test and its exact power, the synthetic assertion fixtures, the Monte Carlo cross-check of the minimum detectable AUROC, the contaminated-run threshold sweep and the Spearman tests. The ceiling is the classical maximum of a chance-corrected agreement statistic given its marginals
+C107's headline statistic. C114, C116, C120 and C126 were requested by the committee after the results were in, each pre-registered before its own run, so post hoc to the original plan. Only the numbered pre-registrations (C44, C98 to C112, C114, C116, C120, C126) were fixed before their runs; every other check was specified after results were seen, including the RQ3 code audits, the rule-group Fisher test and its exact power, the synthetic assertion fixtures, the Monte Carlo cross-check of the minimum detectable AUROC, the contaminated-run threshold sweep and the Spearman tests. The ceiling is the classical maximum of a chance-corrected agreement statistic given its marginals
 \citep{cohen1960kappa}, the prevalence-and-bias problem of \citet{feinstein1990paradoxes} and
 \citet{cicchetti1990resolving}, which PABAK \citep{byrt1993pabak} sidesteps rather than removes; what
 is used here is that bound as a check on an LLM weak labeller's marginal, which needs a gold base rate
@@ -829,15 +835,14 @@ were produced by models served locally on the analysis machine, which is the rou
 recommends. Whether the withdrawn transmissions were consistent with the agreement is a
 determination for PhysioNet and for the institution rather than one this thesis makes, and no
 conclusion on it is asserted here. The full record of what was sent, through which route, and when,
-is retained in the project's correction record and in the committed run artifacts, and is available
-to either on request. Every experiment added to this thesis since that withdrawal, including every
-pre-registered check described in this chapter, ran on models served locally on the analysis machine,
-with a network-egress check captured and retained for the run rather than assumed.
+is retained in the project's correction record and in run artifacts retained in credentialed local storage, and is available
+to either on request. Every experiment added since that withdrawal that ran a language model used
+models served locally on the analysis machine; the later checks ran no model and read only local files.
 
 \paragraph{Storage and compute outside the repository.} Credentialed files, including a file joining
 note sentences to weak labels, were at one point held in the author's institutional cloud account
 and have since been consolidated under credentialed-only local storage; no script in the repository
-reads that account.
+reads or writes note-level data in that account.
 
 \paragraph{The annotator.} The gold standard was produced by one board-certified pharmacist, who
 read each pair on the author's screen, in the author's presence, and gave a judgment the author

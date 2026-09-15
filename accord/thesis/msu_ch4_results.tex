@@ -307,9 +307,9 @@ marginal, perfect agreement with the pharmacist is arithmetically unreachable:
 holding the flagged count fixed and placing every confirmed case inside it, the
 largest Matthews correlation any thresholded label could express is $0.0780$
 at $261/299$ and $0.0818$ at $223/253$, a marginal identity fixed by two counts
-before any training. It bounds thresholded labels, not a ranking, so it is a
-precondition rather than an explanation of the detector's operating point in
-Table~\ref{tab:operating}.
+before any training. It bounds thresholded labels, not a ranking; the
+detector's ranking of the gold pairs is not distinguishable from the
+labeller's (C126, Section~\ref{sec:res-rq4}).
 
 The labeller's own agreement is measured on an exact five-key join of the
 weak-label and gold files, one to one on all $299$ rows with identical
@@ -764,7 +764,7 @@ fraction of their initial value across seeds. Each sits on a branch that is
 immediately normalised, which removes most of what a per-branch scalar can do
 and drives its gradient towards zero.
 
-\paragraph{The rule-type head is label leakage.} The rule identifier is written
+\paragraph{The rule-type head is confounded (target in its input).} The rule identifier is written
 as a scaled scalar into the model's prior-feature vector and predicted from the
 same forward pass, so the auxiliary target is in
 its input. This belongs to
@@ -772,27 +772,12 @@ the documented family of shortcut learning \citep{geirhos2020shortcut,
 zech2018generalization}; the checkable point is narrower, that an auxiliary head
 whose target is derivable from its inputs is not an auxiliary task. In domain the
 rule-type head reaches a macro $F_1$ of $0.9603$, a metric whose target was in
-its input and so is uninterpretable as evidence of learning. Its values without
-retraining on the secondary cohorts are stated in Table~\ref{tab:transfer} and
-not interpreted.
-
-\begin{table}[H]
-\centering
-\caption[Rule-type head under cohort transfer]{The rule-type head in domain and
-transferred without retraining. No interval is committed for any of these three
-values, so none is printed and none should be inferred; they are single
-measurements on the candidate counts shown.}
-\label{tab:transfer}
-\begin{tabular}{lrr}
-\toprule
-\textbf{Cohort} & \textbf{Candidates} & \textbf{Macro $F_1$} \\
-\midrule
-Heart failure, training domain & 1,978 & 0.9603 \\
-Sepsis                         &   775 & 0.0654 \\
-Acute kidney injury            & 1,983 & 0.0595 \\
-\bottomrule
-\end{tabular}
-\end{table}
+its input and so is uninterpretable as evidence of learning. Values on two
+secondary cohorts were also recorded, but the code that produced them does not
+survive and their accuracy sits below what any constant predictor would score,
+which a copied input feature cannot explain, since the rule feature does not
+depend on the cohort; they are not established to be valid and are not
+reported. The finding rests on the code alone.
 
 \paragraph{Harm estimation was never trained.} The guideline bank is one randomly
 initialised parameter matrix, there is no corpus and no retrieval step, and the
@@ -843,6 +828,7 @@ Per-seed mean (SD)  & 0.5211 (0.0201) & & & \\
 Three-seed ensemble & 0.5145 & & 0.8668 & \\
 \midrule
 Contaminated run, same 253 pairs & 0.4595 & & 0.6418 & \\
+Weak labeller as a 0/1 score (reference) & 0.5185 & & & \\
 \bottomrule
 \end{tabular}
 \apanote{$G_{253}$, 12 positives and 241 negatives; bootstrap resampling uses $B = 10{,}000$ at seed 42. Average precision is the appropriate summary at this imbalance \citep{saito2015prcurve} and its no-skill line is $12/253$. The percentile bootstrap interval for the ensemble AUROC on $G_{253}$ is $0.3210$ to $0.7034$. The per-seed standard deviation is computed at $\mathrm{ddof} = 0$, the population convention (Section~\ref{sec:m-stats}), and is not compared against a spread computed under the sample convention.}
@@ -877,6 +863,19 @@ enough at 12 positives to sit on both sides of chance, so the positive and
 negative score distributions are not separated. The contaminated run, trained
 on the pairs it scores, lands below chance on the same 253 pairs: leakage did
 not manufacture signal.
+
+A pre-registered comparison (C126, requested after these results, Outcome A)
+asks whether the detector ranks the gold pairs differently from its weak
+labeller, scoring the weak label as a 0/1 score. On $G_{253}$ the labeller's
+AUROC is $0.5185$ (95 percent interval $0.4194$ to $0.5758$) against the
+ensemble's $0.5145$; the paired difference, detector minus labeller, is
+$-0.0040$, 95 percent interval $-0.1760$ to $0.1660$. The interval is wide, so
+the two rankings are not distinguishable, which is not a demonstration that
+they are equal; the null is consistent with a student reproducing a teacher at
+chance. On $G_{299}$ the labeller's AUROC is $0.5228$. Descriptively, with $6$
+positives per stratum, the labeller gives $0.5216$ on Rules 1 and 2 and
+$0.5294$ on Rules 3 and 4, against the ensemble's $0.4221$ and $0.6095$: the
+labeller does not show the detector's higher Rules 3 and 4 value.
 
 \begin{table}[H]
 \caption[Control model and contaminated run, full set and stratum]{The control model
@@ -958,8 +957,10 @@ near-constant positive like the table, so the direction is not even
 consistent across decision variables within one file. Both are degenerate,
 neither discriminates, and no claim here turns on which.
 
-\textbf{Post hoc.} A tipping-point check (C114, requested by the committee
-after these results and pre-registered before its run) asks of the detector
+\textbf{Post hoc.} C114, requested by the committee after these results and
+pre-registered before its run, holds three tasks: this tipping point, the Rules
+3 and 4 interval above, and a paired average-precision test superseded by C116.
+The tipping point asks of the detector
 what Section~\ref{sec:res-rq2} asks of a labeller: how many pharmacist labels
 on $G_{253}$ would have to be wrong before the decontaminated ensemble's
 AUROC, from $0.5145$, reached each floor. Greedily flipping the label that
@@ -1189,8 +1190,9 @@ C100 (the off-the-shelf NLI baseline and its DeLong tests), C103 (the nine
 prompt cells and the framing McNemar tests), C107 (the bag-of-words
 label-permutation tests), C109 (the \texttt{llama3:8b} paraphrase cells,
 Bonferroni-corrected within the registration), C110 and C112 (the stratum
-rescores), C111, C114 and C116 (the average-precision tests), and C120 (the
-exact-join agreement). The \texttt{granite3.3:8b} C109 criteria result is
+rescores), C111 and C116 (the average-precision tests), C114 (the tipping
+point and stratum interval), C120 (the
+exact-join agreement) and C126 (the labeller against the detector). The \texttt{granite3.3:8b} C109 criteria result is
 descriptive and uncorrected across models. No committed script has recomputed
 a family size since the withdrawal, so none is typed here; the current count is
 in the register.
