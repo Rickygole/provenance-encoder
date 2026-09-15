@@ -331,7 +331,9 @@ def pass9_template():
         # "Thesis Chair" marker) swept in the department line and the
         # vspace/comment lines between the header block and the abstract
         # text, inflating both the word and paragraph counts.
-        m = re.search(r"\\parindent=0pt\s*(.*?)\\par\}\s*\\end\{frontmatterpage\}",
+        # The template restyle (2026-09-14) opens the body group with
+        # \RaggedRightParindent=0.5in instead of \parindent=0pt; accept either.
+        m = re.search(r"(?:\\RaggedRightParindent=0\.5in|\\parindent=0pt)\s*(.*?)\\par\}\s*\\end\{frontmatterpage\}",
                        text, re.S)
         body = m.group(1) if m else text
         body_words = re.findall(r"[A-Za-z][A-Za-z'-]*", re.sub(r"\\[a-zA-Z]+", " ", body))
