@@ -43,7 +43,7 @@ those designs were not run here.
 \caption{Each pipeline stage before and after its check}
 \label{tab:disc-spine}
 \footnotesize
-\begin{tabular}{p{0.12\linewidth}p{0.22\linewidth}p{0.36\linewidth}p{0.14\linewidth}}
+\begin{tabular}{p{0.12\linewidth}p{0.22\linewidth}p{0.33\linewidth}p{0.17\linewidth}}
 \toprule
 \textbf{Stage} & \textbf{Before check} & \textbf{After check} & \textbf{Verdict} \\
 \midrule
@@ -51,9 +51,9 @@ Candidate mining & Pool base rate $0.0401$ read as a property of the mining rule
 \addlinespace
 Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ flagged; agreement at chance on the exact gold join, MCC $0.0269$; the size of the over-calling depends on prompt and ambiguity reading & Unsupported \\
 \addlinespace
-Architecture & Three named components credited with the reported performance & Authority scalars at their initial values; rule-type head confounded (target in its input); harm head vacuous (untrained) & Unsupported (code audit) \\
+Architecture & Three named components credited with the reported performance & Authority parameters at their initial values; rule-type head confounded (target in its input); harm head untrained (no term in the objective) & Unsupported (code audit) \\
 \addlinespace
-Evaluation & AUROC near chance, plausibly an artifact of a small, defective sample & Not distinguishable from chance in any configuration; only AUROC above $0.7466$ (Mann-Whitney) or $0.8084$ (registered decision rule) resolvable; defect-artifact reading unresolved & Bounded null \\
+Evaluation & AUROC near chance, plausibly an artifact of a small, defective sample & Not distinguishable from chance in any configuration; only AUROC above $0.7466$ (Mann-Whitney) or $0.8084$ (registered decision rule) resolvable; defect-artifact reading unresolved & Bounded null (fragile, one annotator) \\
 \bottomrule
 \end{tabular}
 \apanote{Verdict names the status this thesis gives each stage's check: not established, no metric
@@ -69,7 +69,7 @@ action-conflict candidates the trigger quantified over sets of medication
 mentions while the surviving selector excerpt picks by position; that it
 selected the annotated exemplars is not established. The design itself can be measured: on the
 rebuilt candidate pool the original positional selector would show an exemplar outside the trigger
-set for $41.4$ percent of Rules 1 and 2 candidates, so under that design the failure is common
+set for $41.4$ percent of Rules 1 and 2 candidates, the rebuilt-pool design rate, so under that design the failure is common
 rather than merely reachable, but a different sentence segmenter and an unrecoverable original row
 order keep that figure from being the annotated exemplars' defect rate. Three instruments disagree on how often that
 failure fired on the pooled Rules 1 and 2 candidates
@@ -77,7 +77,9 @@ failure fired on the pooled Rules 1 and 2 candidates
 much smaller subset, and a purpose-built extractor written for this check,
 applied to the single truncated sentence the pharmacist saw. None is a
 tiebreaker, so the rate is unresolved rather than settled by a choice between
-readings. The gold sample was drawn by the original pipeline from its own pool,
+readings.
+
+The gold sample was drawn by the original pipeline from its own pool,
 so $0.0401$ is the confirmed rate on the annotated pairs; its validity as a
 property of the mining rules is not established. The stratum $G_{134}$, holding
 $6$ of the $12$ confirmed contradictions, is not subject to the documented
@@ -93,10 +95,13 @@ check that would have caught it is the one Feinstein and Cicchetti described for
 a different instrument \citep{feinstein1990paradoxes,cicchetti1990resolving}:
 compare the marginal against a human-established base rate before believing
 anything about agreement. Saying yes to $87$ percent of a pool whose confirmed rate is
-$4$ percent is not a decision but a prior with a text prompt attached; at this
+$4$ percent does not reflect judgement on individual pairs; it reflects a fixed
+prior that the prompt elicits in text form. At this
 marginal no outcome could have rejected the null, and on the exact gold join
 the deployed labeller's agreement is at chance
-(Section~``\nameref{sec:res-rq2}''). Three local 8B models reproduce comparable
+(Section~``\nameref{sec:res-rq2}'', Chapter~\ref{ch:results}).
+
+Three local 8B models reproduce comparable
 over-calling under a shared prompt, but its size moves with the prompt and the
 ambiguity reading (Section~``\nameref{sec:disc-overcalling}''), so the prompt
 and reading behind a quoted ratio have to travel with it. Correcting a marginal
@@ -115,7 +120,7 @@ and how far it over-calls is a function of how it is asked.
 
 The architectural checks did the most damage, and the word for what they did
 differs by component. No randomisation control was run on any of the three.
-The authority scalars are unsupported by code audit (at their initial values):
+The authority parameters are unsupported by code audit (at their initial values):
 the parameter is initialised at the value later reported as discovered, sits
 behind a normalisation that drives its gradient towards zero, and agrees across
 seeds. The rule-type head is confounded, its
@@ -123,7 +128,7 @@ auxiliary target readable from the input features one linear layer away, the
 textbook symptom of leakage rather than learning \citep{kaufman2012leakage},
 which vacates the metric rather than refuting the component. The harm head is
 neither, because no term in the objective trains it, so its severity claim is
-withdrawn as vacuous and RQ3 (Section~``\nameref{sec:m-control-rq3}'') is
+withdrawn as untrained and RQ3 (Section~``\nameref{sec:m-control-rq3}'') is
 answered component by component.
 
 \subsection{Evaluation: a bounded null}
@@ -134,12 +139,13 @@ null licenses. The subject-disjoint retrain did not rescue it, and because the
 rows sharing subjects with the gold pairs carried the weak labeller's labels
 rather than the pharmacist's, the overlap had little channel to inflate
 agreement with gold. A plain BioMedBERT control model with none of ACCORD's
-credited components is not distinguishable from chance on $G_{299}$ as well; on $G_{134}$ its point
-estimate is $0.5469$ with a bootstrap standard deviation but no interval and no test against
-chance, so no null is claimed for that stratum. The DeLong $p = 0.4306$ reported for this
-configuration (Table~\ref{tab:delong}) is a paired comparison of the control ensemble against
-ACCORD's contaminated released run on the same pairs, not a test of the control against chance,
-and does not substitute for one.
+credited components has a point estimate of $0.4692$ on $G_{299}$ with a bootstrap mean and
+standard deviation but no interval and no test against chance, and on $G_{134}$ its point
+estimate is $0.5469$, likewise with a bootstrap mean and standard deviation but no interval and no
+test against chance; no null is claimed for either stratum. The DeLong tests reported for these
+configurations (Table~\ref{tab:delong}), $p = 0.9300$ on $G_{299}$ and $p = 0.4306$ on $G_{134}$,
+are paired comparisons of the control ensemble against ACCORD's contaminated released run on the
+same pairs, not tests of the control against chance, and neither substitutes for one.
 
 \subsection{What survived}
 
@@ -159,9 +165,9 @@ the conditions this project tested.
 clinical-pharmacist framing prompt and the plain yes/no prompt differ in
 persona, the word ``dangerous'', answer vocabulary, system prompt and field
 labels at once, so no single difference is identified. The contrast lowers
-\texttt{granite3.3:8b}'s and \texttt{qwen3:8b}'s positive rates sharply and
-leaves \texttt{llama3:8b} within the spread between two runs of its own prompt
-text (Section~``\nameref{sec:m-weak}''). Neither lowered ratio, with
+Granite 3.3 8B's (\texttt{granite3.3:8b}) and Qwen 3 8B's (\texttt{qwen3:8b}) positive rates sharply and
+leaves Llama 3 8B (\texttt{llama3:8b}) within the spread between two runs of its own prompt
+text (Section~``\nameref{sec:m-weak}'', Chapter~\ref{ch:method}). Neither lowered ratio, with
 ambiguous pairs read as negative, reaches the public-text ceiling of $3.5000$
 set in advance as the test of sufficiency. Reading the $46$ ambiguous pairs as
 confirmed multiplies every ratio by exactly $12/58$, which puts both
@@ -170,16 +176,16 @@ the models agree with the pharmacist. The absence of an ambiguity gradient in
 the eight local Fisher tests is absence of evidence, not calibration.
 
 \textbf{Scale, public text, and what a single run means.} The step to
-\texttt{qwen3:14b}, the largest model this project's hardware serves and not
+Qwen 3 14B (\texttt{qwen3:14b}), the largest model this project's hardware serves and not
 frontier scale, sits inside the spread three 8B models already show, so nothing
 is concluded about scale. On an SNLI sweep under generic prompts the same models
 do not reproduce the clinical magnitude or direction, but that sweep changes
 prompt, negative type and domain together. In the public factorial experiment, which
-crossed harder negatives, prompt wording and model scale on public text, only \texttt{llama3:8b} reproduced stable per-item output at temperature zero,
+crossed harder negatives, prompt wording and model scale on public text, only Llama 3 8B reproduced stable per-item output at temperature zero,
 so a single-run public cell for any other model is one draw from a spread; on
 the clinical rows, the prompt-wording confirmation, a rerun of the reversed
 prompt beside three new wordings, reproduced
-\texttt{granite3.3:8b} exactly. What holds is narrower than any single ratio:
+Granite 3.3 8B exactly. What holds is narrower than any single ratio:
 every 8B labeller under the clinical-pharmacist framing flags several times the
 confirmed count when ambiguous pairs are read as negative, and the least
 over-calling printed row falls below the public-text ceiling after $5$
@@ -200,7 +206,11 @@ an empirical validation of the clinical instrument, and what it resolves depends
 on the decision rule (Section~``\nameref{sec:res-rq4}''). With $12$ positives
 and $241$ negatives, the two-sided Mann-Whitney test needs AUROC $0.7466$ for
 $80$ percent power and the registered decision rule $0.8084$, and at the analytic
-$0.7355$ the registered decision rule rejects on only $0.52075$ of replicates.
+$0.7355$ the registered decision rule rejects on only $0.52075$ of replicates. The
+two floors are not measured at a common size: at a true AUROC of $0.50$ the Mann-Whitney
+rule alone rejects $0.048$ of replicates against the registered decision rule's $0.00075$
+(Section~``\nameref{sec:res-rq4}''), so the pair should be read as two rules with two different
+false-positive rates rather than one calibrated to the other.
 This work cannot establish that cross-note contradiction detection is
 unsolvable, only that this pipeline does not solve it and that an AUROC effect
 above the floor of the rule applied would likely have been visible.
@@ -241,14 +251,14 @@ ensemble, so the threshold objection is not answered for it. Every ranking measu
 $G_{253}$ rests on $12$ positives and every measurement on $G_{108}$ on $6$;
 each null carries its floor, and the two systems this pipeline produced are not
 ordered, both Matthews correlations within $0.05$ of chance. The limit is not
-that $12$ positives cannot separate anything: \texttt{granite3.3:8b} zero-shot
+that $12$ positives cannot separate anything: Granite 3.3 8B zero-shot
 sits at its own marginal-implied ceiling with a one-sided hypergeometric $p$ of
 $0.0242$ on $G_{253}$, a claim about that thresholded labeller, not the
-detector. In the prompt-wording confirmation the registered \texttt{llama3:8b}
+detector. In the prompt-wording confirmation the registered Llama 3 8B
 reversed-prompt score failed on AUROC under all three new wordings and the
-Bonferroni threshold under two, while \texttt{granite3.3:8b}'s descriptive
+Bonferroni threshold under two, while Granite 3.3 8B's descriptive
 cells, uncorrected, met both criteria under two new wordings
-(Section~``\nameref{sec:res-rq2}''). So the null is a statement about these
+(Section~``\nameref{sec:res-rq2}'', Chapter~\ref{ch:results}). So the null is a statement about these
 trained models under this supervision, whether a graded score escapes the
 agreement ceiling is not settled, and no ablation carries a significance claim.
 
@@ -263,10 +273,10 @@ numbers, such as its $261$ of $299$ marginal, which remain measured but not repe
 \paragraph{Deployment risk, and automation bias.} The subject-disjoint retrain's three seeds average
 recall $0.7778$ and precision $0.0424$; no single seed attains that recall with $12$ positives, and each
 seed alone still generates many false alarms per true contradiction, the first seed raising $216$
-false alarms against $9$ true contradictions at a recall of $0.75$ on that seed alone. Alert burdens at that ratio are
-associated with reduced acceptance
-\citep{vandersijs2006overriding,ancker2017alertfatigue}, so this system should
-not be deployed in any form. A more specific hazard sits inside the
+false alarms against $9$ true contradictions at a recall of $0.75$ on that seed alone. That alarm
+ratio, on a ranking already returned as a bounded null (Table~\ref{tab:disc-spine}), is why this
+system should not be deployed in any form; alert burdens at that ratio are separately associated
+with reduced acceptance \citep{vandersijs2006overriding,ancker2017alertfatigue}. A more specific hazard sits inside the
 architecture: the untrained harm head's outputs span $0.3977$ to $0.6096$, yet
 an earlier version of this work presented that range as a severity score, the
 most serious instance of automation bias this project produced. A one-line
@@ -297,7 +307,7 @@ discharge order.
 likely to be read as smaller than it is: the three readings span $0$ to $0.9315$.
 The planted-defect benchmark, a synthetic mirror of the real comparison with its
 defect planted in the Rules 3 and 4 group as its pre-registration specifies, built to ask whether the two rule groups could be
-distinguished at this sample size did not meet its rule, and the rule-group
+distinguished at this sample size, did not meet its rule, and the rule-group
 comparison has exact power $0.0495$ at the observed rates, with $0.094$ the
 smallest excess Rules 1 and 2 rate detectable at $80$ percent power, so near-equal
 precision between the groups is an instrument limit. The rebuild fixes the
@@ -324,6 +334,17 @@ models with a valid cell after the determinism check, so it is reported as
 invalid under its rule rather than reinterpreted after the fact. The
 prior-correction experiment was invalid under its own rule as well. Neither
 contributes a finding, and neither absence is read as a null.
+
+\paragraph{No clustering adjustment.} Every interval and test in this thesis treats each
+pair as an independent row. The candidate pool selects at most one note pair per admission,
+but a single subject can contribute several admissions, which is exactly why the
+subject-disjoint exclusion (Section~``\nameref{sec:m-weak}'', Chapter~\ref{ch:method}) was
+required before training the detector on the weak-labelled pool. Pairs sharing a subject are
+therefore not guaranteed independent of one another, and where they are not, every interval and
+test reported here would be narrower than a subject-clustered resampling would return. No
+cluster-level resampling, such as a subject-block bootstrap, was run for any result in this
+thesis, and no design effect or subject count is offered as a correction, because neither was
+computed for this work.
 
 \section{Threats to Validity}
 \label{sec:disc-threats}
@@ -371,7 +392,7 @@ magnitude is not stable across how the question is asked. The power simulation
 describes an instrument on a real score distribution and says nothing about
 whether the clinical result would reproduce elsewhere.
 
-Four constructs are named more confidently than they are measured, the gap
+Three constructs are named more confidently than they are measured, the gap
 between construct and operationalisation that \citet{jacobs2021measurement}
 argue is where invalid conclusions originate. ``Dangerous medication
 contradiction'' is operationalised by four rules and one pharmacist's judgement,
@@ -388,7 +409,7 @@ Matthews correlation is used as the better-behaved default
 The part of that critique this evaluation set makes concrete is the exchange
 rate. Each summary statistic implies a rate at which a forgone true positive is
 worth some number of gained true negatives, fixed by class counts rather than by
-anything clinical. The local \texttt{granite3.3:8b} few-shot labeller carries
+anything clinical. The local Granite 3.3 8B few-shot labeller carries
 $10$ true positives and $75$ true negatives against the released detector's
 $11$ and $18$ on $G_{253}$, and Matthews correlation prices that trade as a net
 gain, $0.0668$ against $-0.0070$. A statistic with a different exchange rate
@@ -405,7 +426,7 @@ maximum of agreement under fixed marginals and the minimum attainable
 significance of a discrete test \citep{cohen1960kappa,tarone1990modified}: at
 $261$ flagged of $299$ the smallest attainable one-sided $p$ is $0.1894$, and it
 needs no statistical power. It can only rule a labeller out, never in:
-\texttt{granite3.3:8b} passes it, yet its graded score has AUROC $0.5467$, and
+Granite 3.3 8B passes it, yet its graded score has AUROC $0.5467$, and
 the check treats the pilot's confirmed positive count as known. A simple baseline's own significance test belongs
 alongside any neural ranking result, and the exemplar check
 (Figure~\ref{fig:exemplar}) is cheap relative to the training budget, a reason to
@@ -441,7 +462,8 @@ memory than the machine used here provides.
 
 Dangerous medication contradictions between nursing notes and discharge
 summaries are real, recurring and worth detecting, and at the size this thesis
-could annotate the pipeline built to detect them did not. The thesis leaves a
+could annotate, the detector's ranking of the gold pairs was not distinguishable
+from chance under every check applied to it. The thesis leaves a
 stage-wise audit (Table~\ref{tab:disc-spine}), a feasibility check on a weak
 labeller's marginal, and trigger-exemplar dissociation, a mining bug the
 original selector design would show on $41.4$ percent of the rebuilt pool's

@@ -235,12 +235,12 @@ events. The rebuild's Rule 3 exemplar is the pair achieving the largest proporti
 
 Rule 4 fires when a drug receives a cessation action in the nursing note and is absent from every
 extracted mention in the discharge summary, classified or not:
-\[
+\begin{multline*}
 T_4(a,d) =
-\bigl(\exists\, m \in M(N_a):\ \mathrm{drug}(m) = d \wedge \mathrm{act}(m) = \textsc{cess}\bigr)
+\bigl(\exists\, m \in M(N_a):\ \mathrm{drug}(m) = d \wedge \mathrm{act}(m) = \textsc{cess}\bigr) \\
 \;\wedge\;
 d \notin \{\mathrm{drug}(m) : m \in M(D_a)\}.
-\]
+\end{multline*}
 This is the clinically most interesting rule and the weakest in evidence, since absence is not a
 decision: a drug held at the bedside and never mentioned again may have been deliberately
 discontinued and correctly omitted, or dropped by oversight, and the rule cannot tell them apart. It
@@ -302,7 +302,12 @@ the original positional rule and the rebuild's selector to every Rules 1 and 2 c
 rebuilt pool and asks, on each note side, whether the chosen mention belongs to the trigger set. It
 measures the original selector design on the rebuilt pool, whose sentence segmenter differs from the
 original run's and whose original row order cannot be recovered, not the defect rate of the annotated
-gold exemplars.
+gold exemplars. The rebuilt pool's Rules 1 and 2 candidates number $1{,}307$, $1{,}061$ from Rule 1
+and $246$ from Rule 2, against $886$ from Rule 1 and $202$ from Rule 2 in the original pool. The
+rebuild's different sentence segmenter draws candidate sentence boundaries differently from the
+original run, and that is the documented reason the two counts differ, not a change in the
+underlying notes or rules. Every rate the exemplar-prevalence check reports is measured on the
+rebuilt pool and carries its own denominator.
 
 The direct exemplar check (pre-registered) reads the defect rate a third way. Rather than
 reconstructing or joining against a mentions-table snapshot, it runs a purpose-built extractor
@@ -362,7 +367,7 @@ clinical rows, the prompt-wording confirmation, which reran the reversed prompt 
 reproduced \texttt{granite3.3:8b} exactly.
 Unparseable generations are kept in their own category, never defaulted to a class.
 
-\subsection{How \texttt{weak\_confidence} was derived}
+\subsection{How the labeller's confidence field was derived}
 
 The labelling stage emits a \texttt{weak\_confidence} field alongside each label. Across the
 training pool and the audited rows it takes exactly two distinct values, one for each label class,
@@ -377,7 +382,7 @@ field's minimum value, so the filter removes nothing while reading as a quality-
 multiplied into the per-example loss, making it a label-conditioned reweighting rather than a
 confidence weighting, in the direction that further downweights the already-dominant class.
 
-\section{The Detector}
+\section{Architecture}
 \label{sec:m-detector}
 
 \subsection{Backbone, and what the running code contained}
@@ -465,7 +470,7 @@ $G_{253}$ (Table~\ref{tab:m-strata}), and separately fits a gold-only version of
 in nested cross-validation, one held-out fold per confirmed positive, with no weak-label pool in its
 training data, so any signal it carries cannot come from the training-pool marginal.
 
-A third baseline is an off-the-shelf natural-language-inference model, \texttt{roberta-large-mnli}
+A third baseline is an off-the-shelf natural-language-inference model, RoBERTa-large-MNLI
 \citep{liu2019roberta}, run offline with no fine-tuning of any kind: the mean contradiction
 probability across both premise-hypothesis orderings of the nursing and discharge sentences is its
 score (the inference-model baseline, pre-registered). Unlike the two floor baselines, it was never
@@ -484,8 +489,9 @@ proportion to each rule's share of the pool (886, 202, 520 and 370 candidates fo
 1, 31 from Rule 2, 79 from Rule 3 and 56 from Rule 4, for 300 pairs total, the same sampling
 fraction in every stratum to within rounding, and was fixed before annotation began. Proportional
 allocation has a consequence Chapter~\ref{ch:results} relies on: under it, the gold sample's base
-rate is an unbiased estimate of that pool's base rate, not of the rebuilt pool's, the denominator the over-calling ratios in
-that chapter divide against. The returned annotation set has $n = 299$ pairs, one fewer than the
+rate is an unbiased estimate of that original pool's base rate, not of the rebuilt pool's. The
+over-calling ratios in that chapter divide against the gold sample's own unrounded $12/299$ base
+rate, not against either candidate pool's. The returned annotation set has $n = 299$ pairs, one fewer than the
 frame; the per-rule breakdown, 134, 31, 79 and 55, shows the missing row belongs to Rule 4, since
 Rules 1 through 3 returned every sampled pair and Rule 4 returned one fewer than it was sent.
 
@@ -529,7 +535,8 @@ single-rater instrument with no inter-rater or intra-rater agreement statistic a
 
 Table~\ref{tab:m-strata} introduces the evaluation strata and the symbols the rest of the thesis uses
 for them. Each stratum is fixed by annotation label and rule membership before any score is computed.
-$G_{134}$ and $G_{108}$ are subsets of $G_{299}$, and each holds half of the confirmed contradictions.
+$G_{134}$ and $G_{108}$ are subsets of $G_{299}$, and each holds half of the confirmed contradictions;
+$G_{145}$ holds the other half and, together with $G_{108}$, partitions $G_{253}$.
 
 \begin{table}[H]
 \caption{Evaluation strata, their symbols, sizes and positive counts}
@@ -542,12 +549,12 @@ $G_{134}$ and $G_{108}$ are subsets of $G_{299}$, and each holds half of the con
 \midrule
 $G_{299}$ & Gold, all annotated pairs & 299 & 12 & Ambiguous retained as negatives \\
 $G_{253}$ & Non-ambiguous evaluation  & 253 & 12 & Ambiguous pairs excluded \\
+$G_{145}$ & Rules 1 and 2, non-ambiguous & 145 & 6 & Rules 1 and 2, ambiguous excluded \\
 $G_{134}$ & Rules 3 and 4             & 134 & 6  & Rules 3 and 4 only \\
 $G_{108}$ & Rules 3 and 4, non-ambiguous & 108 & 6 & Rules 3 and 4, ambiguous excluded \\
- & Weak-label training pool & 1,183 & & Positive rate 0.8521 \\
 \bottomrule
 \end{tabular}
-\apanote{The training pool's positive rate is the weak labeller's marginal on the rows surviving subject-level exclusion, and it is the reference against which any agreement figure on weak labels must be read.}
+\apanote{$G_{145}$ is the complement of $G_{108}$ within $G_{253}$: $145 + 108 = 253$ and $6 + 6 = 12$. Unlike $G_{134}$ and $G_{108}$, $G_{145}$ is the exact stratum the Rules 1 and 2 positional selection defect (Section~``\nameref{sec:m-exemplar}'') could reach. The $1{,}183$-row weak-label training pool used to fit the detector is not an evaluation stratum and so is not a row above; its positive rate, the weak labeller's marginal on the rows surviving subject-level exclusion, is $0.8521$, and it is the reference against which any agreement figure on weak labels must be read.}
 \end{table}
 
 \section{The Checks}
@@ -670,13 +677,13 @@ threshold sweep and the Spearman tests. None of these had a threshold fixed in a
 \small
 \singlespacing
 \begin{longtable}{@{}p{0.75in}p{1.55in}p{3.3in}@{}}
-\caption{Pre-registered checks: identifier, plain name, and rule}
+\caption{Identifier, plain name, and rule for each check}
 \label{tab:m-prereg}\\
 \toprule
 \textbf{Identifier} & \textbf{Plain name} & \textbf{Rule, in one line} \\
 \midrule
 \endfirsthead
-\caption[]{Pre-registered checks: identifier, plain name, and rule (continued)}\\
+\caption[]{Identifier, plain name, and rule for each check (continued)}\\
 \toprule
 \textbf{Identifier} & \textbf{Plain name} & \textbf{Rule, in one line} \\
 \midrule
@@ -685,7 +692,7 @@ threshold sweep and the Spearman tests. None of these had a threshold fixed in a
 \endlastfoot
 C98 & Graded-score check & A graded local labeller score meets the registered decision rule. \\
 C99 & Scale replication & The 8B to 14B ratio exceeds the 8B spread and McNemar $p$ on $G_{299}$ is below 0.05. \\
-C100 & Inference-model baseline & \texttt{roberta-large-mnli} meets the registered decision rule. \\
+C100 & Inference-model baseline & RoBERTa-large-MNLI meets the registered decision rule. \\
 C101 & Planted positive control & Empirical power crossing on real public scores lies within a registered band of 0.7355. \\
 C102 & Planted-defect benchmark & A check is validated only if it fires on its planted defect and stays quiet on clean arms. \\
 C103 & Prompt-framing contrast & In two of three models the plain prompt flags fewer pairs (McNemar) and meets the public-text ceiling. \\
@@ -722,7 +729,7 @@ authority parameters of the asymmetric conditioning module, the auxiliary rule-t
 guideline-grounded harm estimator. The deleted pharmacological prior module, with no learned
 parameters, is not among them.
 
-\subsection{RQ4: is the detector's null real?}
+\subsection{RQ4, Evaluation: is the detector's null real?}
 
 \textbf{Condition.} A null result is evidence only if the instrument that produced it can be shown
 to resolve an effect of comparable size, and only if the evaluation had enough power to see one.
@@ -790,7 +797,10 @@ Chapter~\ref{ch:results}).
 The registered decision rule, used by several pre-registered checks and named that way throughout
 this thesis, is an AUROC at or above 0.7355 with a one-sided Mann-Whitney $p$ below 0.05 on
 $G_{253}$. The AUROC threshold is the minimum detectable AUROC of $G_{253}$ in Table~\ref{tab:m-mde},
-fixed before any of those checks ran. A system that fails the rule is not shown to lack an effect
+fixed before any of those checks ran. That threshold was computed with $z_{1-\alpha/2}$ at a
+two-sided $\alpha$ of 0.05, while the rule's own Mann-Whitney arm is one-sided; conjoining the two
+does not match a common $\alpha$, and the mismatch runs conservative, since the AUROC arm demands a
+larger effect than a one-sided threshold at the same $\alpha$ would set. A system that fails the rule is not shown to lack an effect
 smaller than that threshold.
 
 \begin{table}[H]
@@ -847,6 +857,19 @@ reference row in any comparison table must be produced by the same script and pr
 is compared against, or the comparison is reported as directional with no significance claim
 attached. Every quantity in Chapter~\ref{ch:results} maps to the committed artifact that produced it
 (Appendix~\ref{app:provenance}).
+
+\subsection{Clustering is not modelled}
+
+Every interval and test in this thesis treats each annotated pair as an independent row. One note
+pair per admission was selected for candidate mining and evaluation, but a subject can contribute
+more than one admission, so pairs drawn from the same subject are not guaranteed independent of one
+another; this is exactly why the subject-disjoint exclusion (Section~``\nameref{sec:m-weak}'') was
+needed before training a detector on the weak-labelled pool. No cluster-level resampling, such as a
+subject-block bootstrap, was run for any interval or test reported in this thesis. Where a stratum's
+pairs share subjects, the intervals and $p$ values reported here would be narrower than a
+subject-clustered analysis would return, a direction of bias rather than a magnitude; no design
+effect and no subject count are estimated for any stratum, because neither was computed for this
+work.
 
 \section{Data Use, Ethics, and Compliance}
 \label{sec:m-ethics}

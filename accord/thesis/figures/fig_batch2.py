@@ -413,9 +413,10 @@ def make_fig_forest():
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
     fig.text(0.012, (A0 + AH + 0.233) / H,
-             f"Shaded: detectable at {power * 100:.0f} percent power "
-             f"({n_pos_floor} positives, AUROC {floor:.2f}; {n_pos_108} "
-             f"positives, analytic, {floor_108:.2f}).",
+             f"Shaded: {power * 100:.0f}% power floor "
+             f"({n_pos_floor} positives, simulated Mann-Whitney floor "
+             f"{floor:.4f}; {n_pos_108} positives, analytic floor "
+             f"{floor_108:.4f}).",
              ha="left", va="bottom", fontsize=T_NOTE, color=MUTE,
              style="italic")
 

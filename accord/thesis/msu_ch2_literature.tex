@@ -80,7 +80,7 @@ Very little, and the exception is instructive. \citet{li2015discrepancy} report 
 algorithm for medication discrepancy detection at Cincinnati Children's Hospital, comparing
 structured discharge prescription lists against free-text notes for 271 patients in a Complex Care
 Medical Home Program. Component performance on entity detection and attribute linkage is strong, but
-combining stages drops precision, recall and $F$-measure to 71.5\%, 65.2\% and 68.2\% on discrepant
+combining stages drops precision, recall and $F$-measure to 71.5 percent, 65.2 percent and 68.2 percent on discrepant
 medications, well below the matched-medication figures. Three properties of that setting explain why the numbers do not transfer, and they define the problem
 this thesis takes on: one side of the comparison is structured rather than extracted from prose, the
 cohort is a care-management program followed deliberately and so has a raised base rate, and the
@@ -95,7 +95,7 @@ attribute layer \citep{uzuner2010medication,henry2020n2c2}, negation handling ha
 The layer above it is not: \citet{weiskopf2013quality} find completeness, correctness and
 plausibility handled unevenly, and consistency across documents about one episode is a dimension the
 reuse literature flags and the extraction literature does not target. The deployment literature is
-clear about the consequence: \citet{vandersijs2006overriding} report override rates of 49\% to 96\%
+clear about the consequence: \citet{vandersijs2006overriding} report override rates of 49 percent to 96 percent
 for low-precision drug safety alerts, and \citet{ancker2017alertfatigue} find acceptance associated
 with alert-stream complexity rather than workload, so a recall figure without the corresponding
 precision says nothing about clinical usefulness.
@@ -146,7 +146,7 @@ published rankings, making the reference standard itself an object needing audit
 The most directly relevant result is \citet{egami2023surrogates}, who consider the now-common
 workflow in which a language model annotates a document set that feeds a downstream statistical
 analysis, and show that direct use of surrogate labels causes substantial bias and invalid confidence
-intervals even at 80\% to 90\% surrogate accuracy. Their remedy, design-based supervised learning, is
+intervals even at 80 percent to 90 percent surrogate accuracy. Their remedy, design-based supervised learning, is
 a doubly-robust estimator combining surrogate labels with a smaller set of gold-standard labels,
 giving valid inference without assuming the surrogate is good. Two things follow, and only one is usually noticed. The headline is that high annotator accuracy is
 not sufficient for a valid downstream conclusion, so reporting it is not a validation step. The
@@ -310,7 +310,7 @@ contribution.
 \small
 \begin{tabular}{@{}p{2.1in}p{1.8in}p{1.7in}@{}}
 \toprule
-Check run & Borrowed from & Stage \\
+\textbf{Check run} & \textbf{Borrowed from} & \textbf{Stage} \\
 \midrule
 Code audit of the exemplar selector & \citet{sculley2015debt} & Candidate mining \\
 Marginal ceiling and attainable floor & \citet{cohen1960kappa}, \citet{tarone1990modified} & Weak supervision \\
@@ -359,7 +359,9 @@ per-stage checks. Second, the maximum agreement attainable under fixed marginals
 \citep{pangakis2023validation,egami2023surrogates}; no work was found that uses the bound, with the minimum attainable significance of a discrete test
 \citep{tarone1990modified}, as a check on a single language-model labeller's marginal, a check
 needing only a base rate from a small expert-labelled sample, which this thesis recommends before
-training but applied here after the fact. Third, the nearest descriptions of the mining bug pattern are neighbours, not
+training but applied here after the fact.
+
+Third, the nearest descriptions of the mining bug pattern are neighbours, not
 instances: leakage \citep{kaufman2012leakage} is target information a model should not see, label
 errors \citep{northcutt2021labelerrors} are wrong labels on correctly displayed items, and boundary
 defects \citep{sculley2015debt} are named without a check. In trigger-exemplar dissociation the label

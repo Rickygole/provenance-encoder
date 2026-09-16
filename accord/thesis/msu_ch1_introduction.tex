@@ -30,14 +30,14 @@ dose. Both documents are in the chart and they disagree.
 
 The disagreement matters because the two documents do not carry equal
 weight: the discharge summary is what the outpatient physician reads and
-the pharmacy fills against, while the nursing note holding the reason the
+the pharmacy fills against, while the nursing note that holds the reason the
 instruction is wrong rarely travels with the patient. This is not a
 documentation defect cleaned up later; it is an instruction that leaves the
 building. The scenario is a constructed composite, but the pattern is real.
 Of the $12$ contradictions a board-certified pharmacist confirmed in this
 project's annotated sample, $3$ involve a loop diuretic and $3$ an
 anticoagulant, $7$ are omissions rather than dose or class disagreements, and
-on a five point danger scale $1$ was rated $4$ and $3$ were rated $5$: a small
+on a five-point danger scale $1$ was rated $4$ and $3$ were rated $5$: a small
 category of drugs where a wrong instruction does damage quickly.
 
 Unintended medication discrepancies are common at both admission and
@@ -45,7 +45,7 @@ discharge \citep{cornish2005discrepancies,wong2008reconciliation}; post-discharg
 adverse drug events are frequent, often preventable, and traceable to
 unreliable information transfer across that transition
 \citep{forster2003adverse,moore2003discontinuity,kripalani2007deficits}, a
-first order safety problem named three decades ago \citep{bates1995ade} and
+first-order safety problem named three decades ago \citep{bates1995ade} and
 not solved since. This thesis takes one narrow, checkable instance as its
 object: a \emph{cross-note medication contradiction}, a disagreement about a
 specific drug between a nursing progress note and the discharge summary of
@@ -56,7 +56,7 @@ sequential indices.
 
 The phenomenon is real and it is rare. The pharmacist annotated $299$
 candidate pairs and confirmed $12$, a base rate of $0.0401$ in a pool four
-hand written rules had already enriched; restricting to the $253$ pairs the
+hand-written rules had already enriched; restricting to the $253$ pairs the
 annotator did not mark ambiguous leaves the same $12$ positives, a base rate
 of $0.0474$. These two denominators are different sets, kept apart
 everywhere in this thesis.
@@ -99,7 +99,7 @@ average precision.
 \caption{The four pipeline stages and what survived each check}
 \includegraphics[width=0.98\linewidth]{figures/fig-pipeline-status.pdf}
 \label{fig:pipeline-status}
-\apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture and (4) evaluation. Stage $1$'s precision is not established; reading stage $2$'s recall as discrimination is unsupported; stage $3$'s credited components are unsupported by code audit (an initialisation artifact, a rule-type head whose target is in its input, an untrained harm head); stage $4$, evaluation, is a bounded null whose interval lies below the power floor. Three of the four stage readings did not survive their checks (one not established, two unsupported); the fourth, the evaluation's near-chance reading, survived as a bounded null.}
+\apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture and (4) evaluation. Stage $1$'s precision is not established; reading stage $2$'s recall as discrimination is unsupported; stage $3$'s credited components are unsupported by code audit (an initialisation artifact, a rule-type head whose target is in its input, an untrained harm head); stage $4$, evaluation, is a bounded null whose interval lies below the power floor.}
 \end{figure}
 
 The candidate stage carries a bug pattern this thesis names \textbf{trigger-exemplar
@@ -111,11 +111,12 @@ together. Here the Rules 1 and 2 selector indexed candidates positionally
 trace of it, because no metric compares displayed evidence against
 triggering evidence. The pattern is more than reachable: on the rebuilt
 candidate pool the original positional design would show an exemplar outside
-the trigger set for $41.4$ percent of Rules 1 and 2 candidates, a rate for
-the design on a differently segmented pool, not for the annotated exemplars.
+the trigger set for $41.4$ percent of Rules 1 and 2 candidates, the rebuilt-pool
+design rate, not the annotated exemplars' defect rate.
 Their defect rate cannot be
 recovered because the candidate schema does not record which mention fired,
-so three instruments on the same rules give $0$, $0.4745$ and $0.9315$
+so three instruments on the same rules give $0$ (the key join), $0.4745$ (the
+reconstruction) and $0.9315$ (the direct extractor)
 (Section~``\nameref{sec:r-exemplar}''). Three further defects are argued in
 Chapter~\ref{ch:method}: the harm head received no term in the training
 objective, so its outputs are an untrained module's; the row-level candidate
@@ -187,7 +188,7 @@ discrimination is unsupported, since flagging most pairs recovers most
 positives by chance. The deployed labeller flagged $261$ of the $299$
 annotated pairs against $12$ confirmed, a marginal at which no outcome could
 have rejected the null (smallest attainable one-sided $p = 0.1894$); its
-measured MCC is $0.0269$, at chance (Section~``\nameref{sec:res-rq2}''). The script and
+measured MCC is $0.0269$, at chance (Section~``\nameref{sec:res-rq2}'', Chapter~\ref{ch:results}). The script and
 prompt that produced those labels were never saved, so the run cannot be repeated,
 but its labels were retained and are measured directly; the reproducible
 replication of the same prompt text flags an even larger share, $0.9532$, so the
@@ -197,14 +198,14 @@ script, the control detector reaches an ensemble AUROC of $0.5360$ on the 253 no
 (95 percent interval $0.3454$ to $0.7196$), which includes chance and ends
 below the $0.7466$ power floor. Of
 $15$ local labeller-and-prompt configurations run in this project, $5$, all
-\texttt{llama3:8b}, could not have rejected the null at $\alpha = 0.05$ at
+Llama 3 8B (\texttt{llama3:8b}), could not have rejected the null at $\alpha = 0.05$ at
 any outcome their marginal permitted. A graded score is not bound by the
-ceiling, but the pre-registered \texttt{granite3.3:8b} score reaches an AUROC
+ceiling, but the pre-registered Granite 3.3 8B (\texttt{granite3.3:8b}) score reaches an AUROC
 of only $0.5467$ ($p = 0.2934$), and the strongest cell of the pre-registered
-prompt-framing contrast, \texttt{llama3:8b} under a reversed-direction prompt
+prompt-framing contrast, Llama 3 8B under a reversed-direction prompt
 ($0.7503$, $p = 0.0017$), did not confirm under three new wordings in the
 prompt-wording confirmation, a pre-registered rerun of those cells under
-reworded prompts. \texttt{granite3.3:8b}'s descriptive cells there
+reworded prompts. Granite 3.3 8B's descriptive cells there
 rank above chance under every wording, so whether a graded score escapes the
 ceiling is not settled, the strongest reason not to read the detector's null
 as evidence the task is unsolvable.}
@@ -218,11 +219,14 @@ $0.5076 \pm 0.0006$ and $1.0038 \pm 0.0010$ against initialisation at $0.5$
 and $1.0$, an initialisation artifact; the rule-type head's auxiliary metric
 has its target, the rule identifier, present in its input; and the harm head,
 which has no term in the training objective, has outputs spanning $0.3977$
-to $0.6096$, the range of an untrained sigmoid (Section~``\nameref{sec:res-rq3}'').}
+to $0.6096$, the range of an untrained sigmoid (Section~``\nameref{sec:res-rq3}'', Chapter~\ref{ch:results}).}
 
 \item[RQ4. Evaluation.] Is the trained detector's ranking null real, given
 what this project's own instrument can show?
-\emph{A bounded null. No AUROC effect above the resolvable floor is found on
+\emph{A bounded null. With one annotator this reading is fragile: $5$, $6$ and
+$7$ relabelled positives of the $12$ confirmed would lift the retrained
+ensemble past each of the three power floors used below
+(Section~``\nameref{sec:disc-limits}''). No AUROC effect above the resolvable floor is found on
 the $253$ non-ambiguous pairs at the configurations tested: a power analysis
 puts 80 percent power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test
 and $0.8084$ for the registered decision rule, and three configurations of
@@ -236,7 +240,7 @@ The Rules 3 and 4 stratum is not subject to the documented Rules 1 and 2
 positional defect, though its exemplar correctness in the gold set is
 assumed, not verified; on its $108$ non-ambiguous pairs the retrained
 ensemble's AUROC is $0.6095$ ($95$ percent bootstrap interval $0.3029$ to
-$0.9010$) against $0.4221$ on Rules 1 and 2, a comparison between rule groups
+$0.9010$) against $0.4221$ on the $145$ Rules 1 and 2 non-ambiguous pairs, a comparison between rule groups
 confounded with rule content and base rate; the weak labeller shows no
 comparable rise ($0.5294$ against $0.5216$). With $6$ positives and a minimum
 detectable AUROC of $0.8064$ it can neither show nor exclude that the null is
@@ -271,7 +275,7 @@ rejected the null: the smallest attainable one-sided $p$ is $0.1894$, and $5$
 of $15$ local configurations could not have rejected before a pair was
 scored. The measured MCC, $0.0269$, sits below the $0.0780$ ceiling, as it
 must, and is at chance ($p = 0.5347$); the ceiling bounds thresholded labels
-only. The check can rule a labeller out, never in: \texttt{granite3.3:8b}
+only. The check can rule a labeller out, never in: Granite 3.3 8B
 passes it, yet its graded score reaches an AUROC of only $0.5467$; and it
 treats the pilot's positive count as known.
 

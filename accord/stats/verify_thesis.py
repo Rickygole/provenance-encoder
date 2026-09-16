@@ -307,6 +307,56 @@ def main():
     print(f"   {'FAIL' if unverified else 'pass'}: {len(unverified)} numbers not traced to VERIFIED_FACTS.json\n")
     failures += len(unverified) > 0
 
+    # A register entry has two columns: a value, checked above by digit match
+    # against prose, and an "artifact" naming where that value came from. The
+    # artifact column was never opened by anything -- a key could cite a path
+    # that does not exist, or never did, and still clear every check above,
+    # because nothing had ever read that field for anything but its own
+    # printed text. That is the same "gate that cannot fail" defect this
+    # project has already shipped more than once (CLAUDE.md): a column that
+    # looks like verification but nothing checks. This closes it for every
+    # register key the claim trace (results/accord/CLAIM_TRACE.json,
+    # produced by accord/stats/trace_claims.py) actually resolved a printed
+    # number to: the leading, path-shaped part of that key's artifact field
+    # must exist on disk. Many artifact fields are not a path at all -- a
+    # "derived: ..." computation, or prose describing one -- and some carry a
+    # "path::json.pointer" form or a trailing comma-separated note; only the
+    # part before the first "," or "::" is ever treated as a path, and only
+    # when it is shaped like one (bare relative-path characters, an optional
+    # trailing "(...)" annotation stripped). A derivation is not a missing
+    # file, so it is never reported as one, and nothing here re-derives or
+    # re-runs trace_claims.py -- it only reads the trace already committed,
+    # so this stays a fast file-existence check, not a second copy of the
+    # matching logic in trace_claims.py.
+    print("PASS 2 (cont.)  cited-artifact existence")
+    trace_path = ROOT / "results" / "accord" / "CLAIM_TRACE.json"
+    if not trace_path.exists():
+        print("   skipped: results/accord/CLAIM_TRACE.json not present "
+              "(run accord/stats/trace_claims.py)\n")
+    else:
+        trace = json.loads(trace_path.read_text())
+        cited_keys = sorted({r["register_key"] for r in trace.get("records", [])
+                              if r.get("register_key") in FACTS})
+        missing_artifacts = []
+        checked = 0
+        for key in cited_keys:
+            artifact = FACTS[key].get("artifact", "")
+            lead = artifact.split(",", 1)[0].split("::", 1)[0].strip()
+            lead = re.sub(r"\s*\([^()]*\)\s*$", "", lead).strip()
+            if not lead or lead.startswith("derived:"):
+                continue                 # a computation, not a file to open
+            if not re.fullmatch(r"[A-Za-z0-9_./-]+", lead):
+                continue                 # does not look like a path; do not guess
+            checked += 1
+            if not (ROOT / lead).exists():
+                missing_artifacts.append((key, lead))
+        for key, lead in missing_artifacts:
+            print(f"   {key}: artifact '{lead}' does not exist")
+        print(f"   {'FAIL' if missing_artifacts else 'pass'}: {checked} of "
+              f"{len(cited_keys)} cited register keys named a path checked; "
+              f"{len(missing_artifacts)} artifact(s) not found\n")
+        failures += len(missing_artifacts) > 0
+
     # ---------------- pass 3: citations ----------------
     print("PASS 3  citation keys")
     bib = (THESIS / "refs.bib").read_text() if (THESIS / "refs.bib").exists() else ""

@@ -177,9 +177,12 @@ def main():
                 # a confidently wrong attribution is worse than a declared uncertain
                 # one in an appendix whose whole purpose is provenance.
                 ctx = rec["sentence"].lower()
+                # The key name breaks ties: two candidates scoring alike used to come
+                # out in set order, so a rerun could reorder other_candidates and
+                # produce a diff with no change of meaning.
                 scored = sorted(keys, key=lambda k: (
                     -sum(1 for tok in re.split(r"[._]", k.lower()) if len(tok) > 3 and tok in ctx),
-                    len(k)))
+                    len(k), k))
                 k = scored[0]
                 rec["register_key"] = k
                 rec["artifact"] = FACTS[k]["artifact"]
