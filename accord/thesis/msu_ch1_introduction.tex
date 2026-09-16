@@ -106,12 +106,12 @@ The candidate stage carries a bug pattern this thesis names \textbf{trigger-exem
 dissociation}: a mining rule whose predicate quantifies over a set of
 candidate mentions, an exemplar selector that picks from that set by
 position rather than by membership, and no assertion tying the two
-together. Here the Rule 1 and Rule 2 selector indexed candidates positionally
+together. Here the Rules 1 and 2 selector indexed candidates positionally
 (Figure~\ref{fig:exemplar}), and the pool's reported precision carried no
 trace of it, because no metric compares displayed evidence against
 triggering evidence. The pattern is more than reachable: on the rebuilt
 candidate pool the original positional design would show an exemplar outside
-the trigger set for $41.4$ percent of Rule 1 and Rule 2 candidates, a rate for
+the trigger set for $41.4$ percent of Rules 1 and 2 candidates, a rate for
 the design on a differently segmented pool, not for the annotated exemplars.
 Their defect rate cannot be
 recovered because the candidate schema does not record which mention fired,
@@ -130,7 +130,7 @@ caught.
 \caption{Schematic of the exemplar defect}
 \includegraphics[width=0.88\linewidth]{figures/fig-exemplar.pdf}
 \label{fig:exemplar}
-\apanote{The check that was not run. The rule fires on a conflict between two sets of medication mentions; the exemplar shown to annotator, weak labeller and model is chosen by position instead. Slots are abstract and carry no clinical text; how often the pick misses is not established.}
+\apanote{The check that was not run. The rule fires on a conflict between two sets of medication mentions; the exemplar shown to annotator, weak labeller and model is chosen by position instead. Slots are abstract and carry no clinical text. The figure prints the three instrument readings, $0$, $0.4745$ and $0.9315$, and they do not agree, so how often the pick misses is not established.}
 \end{figure}
 
 \section{The Finding}
@@ -170,10 +170,10 @@ their runs (Section~``\nameref{sec:m-prereg}'').
 
 \begin{description}
 
-\item[RQ1. Candidate generation.] Can rule-based mining over paired clinical
+\item[RQ1. Candidate mining.] Can rule-based mining over paired clinical
 notes yield a candidate pool with usable precision?
 \emph{Not established. Four rules enrich the pool to $12$ true contradictions
-in $299$ annotated pairs, a base rate of $0.0401$. For Rule 1 and Rule 2 the
+in $299$ annotated pairs, a base rate of $0.0401$. For Rules 1 and 2 the
 surviving selector excerpt picks by position; that it selected the annotated
 exemplars is not established, an instance of trigger-exemplar dissociation. How often that defect fired is not
 established: three instruments give $0$, $0.4745$ and $0.9315$
@@ -193,7 +193,7 @@ but its labels were retained and are measured directly; the reproducible
 replication of the same prompt text flags an even larger share, $0.9532$, so the
 over-calling finding does not rest on the lost run. Nor does the ranking null:
 retrained on labels regenerated with the committed replication prompt and
-script, the control detector reaches an ensemble AUROC of $0.5360$ on $G_{253}$
+script, the control detector reaches an ensemble AUROC of $0.5360$ on the 253 non-ambiguous pairs ($G_{253}$)
 (95 percent interval $0.3454$ to $0.7196$), which includes chance and ends
 below the $0.7466$ power floor. Of
 $15$ local labeller-and-prompt configurations run in this project, $5$, all
@@ -224,7 +224,7 @@ to $0.6096$, the range of an untrained sigmoid (Section~``\nameref{sec:res-rq3}'
 what this project's own instrument can show?
 \emph{A bounded null. No AUROC effect above the resolvable floor is found on
 the $253$ non-ambiguous pairs at the configurations tested: a power analysis
-puts $80\%$ power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test
+puts 80 percent power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test
 and $0.8084$ for the registered decision rule, and three configurations of
 the retrained detector are not distinguishable from chance. By average
 precision, chosen after its value was known, the bag-of-words permutation
@@ -232,7 +232,7 @@ test, which permutes the gold labels against fixed scores, finds that a
 bag-of-words model trained on the weak labels ($p = 0.0159$) and an inference
 model never trained on them ($p = 0.01335$) clear their nulls where the detector
 ($p = 0.4629$) does not, but no paired test separates any two of the three.
-The Rules 3 and 4 stratum is not subject to the documented Rule 1 and Rule 2
+The Rules 3 and 4 stratum is not subject to the documented Rules 1 and 2
 positional defect, though its exemplar correctness in the gold set is
 assumed, not verified; on its $108$ non-ambiguous pairs the retrained
 ensemble's AUROC is $0.6095$ ($95$ percent bootstrap interval $0.3029$ to
@@ -279,7 +279,7 @@ treats the pilot's positive count as known.
 that fires on a set of mentions and an exemplar selector that picks from it
 by position (Figure~\ref{fig:exemplar}). On the rebuilt candidate pool the
 original selector design would show an exemplar outside the trigger set for
-$41.4$ percent of Rule 1 and Rule 2 candidates (95 percent interval $38.8$ to
+$41.4$ percent of Rules 1 and 2 candidates (95 percent interval $38.8$ to
 $44.1$), and the rebuild's selector for $0$ by construction; that measures the
 design on a pool with a different sentence segmenter and unrecoverable original
 row order, not the defect rate of the annotated gold exemplars. That defect rate cannot be recovered
@@ -295,13 +295,13 @@ occurred here.
 
 The detector's ranking null is a supporting result: no AUROC effect above
 about $0.75$ to $0.81$ on the $253$ non-ambiguous pairs, what the evaluation
-could detect at $80\%$ power, beside the $0.7034$ upper end of the bootstrap
+could detect at 80 percent power, beside the $0.7034$ upper end of the bootstrap
 interval on the observed ensemble. The pre-registered planted-defect benchmark, a synthetic mirror of the rule
 group comparison with a defect planted only in the Rules 3 and 4 group, did
 not reach its required firing rate at either rate tried. The two-sided
 Fisher test of Rules 1 and 2 against Rules 3 and 4 has a null read as an
 instrument limit: the smallest rise of the Rules 1 and 2 rate detectable at
-$80\%$ power is $0.094$ (exact power $0.0495$ at the observed rates).
+80 percent power is $0.094$ (exact power $0.0495$ at the observed rates).
 
 \section{What This Thesis Does Not Claim}
 \label{sec:intro-notclaim}

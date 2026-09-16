@@ -494,14 +494,20 @@ def chip(ax, x, y, w, h, hue, text, fontsize=T_CHIP, radius=3.0, zorder=6,
     return t
 
 
-def node(ax, x, y, w, h, hue_tint, hue_deep, radius=3.0, zorder=4, lw=LW_NODE):
+def node(ax, x, y, w, h, hue_tint, hue_deep, radius=3.0, zorder=4, lw=LW_NODE,
+         hatch=None):
     """F1 TINT PANEL: X_TINT fill, X_DEEP stroke 1.5pt. Text is drawn by the
-    caller in INK, because a node's text is sometimes two lines at two sizes."""
+    caller in INK, because a node's text is sometimes two lines at two sizes.
+
+    hatch is None by default (every existing call site). Pass a matplotlib
+    hatch string (e.g. '///') when two nodes on the same canvas would
+    otherwise sit at nearly the same fill luminance and need a structural,
+    not chromatic, way to stay apart in greyscale."""
     p = FancyBboxPatch(
         (x, y), w, h,
         boxstyle=f"round,pad=0,rounding_size={radius}", mutation_aspect=1.0,
         linewidth=lw, edgecolor=hue_deep, facecolor=hue_tint, zorder=zorder,
-        clip_on=False)
+        hatch=hatch, clip_on=False)
     ax.add_patch(p)
     return p
 

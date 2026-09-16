@@ -50,7 +50,10 @@ STRATA = [
 
 FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"
 PREFIX = "mde_recomputed"
-FIELDS = ("gap_above_chance", "minimum_detectable_auc", "se0_null_approx")
+# n_pos and n_neg are registered too: the strata tables print the class counts,
+# and a printed number the register does not hold fails the numeric gate.
+FIELDS = ("gap_above_chance", "minimum_detectable_auc", "se0_null_approx",
+          "n_pos", "n_neg")
 
 
 def se0(n_pos, n_neg):

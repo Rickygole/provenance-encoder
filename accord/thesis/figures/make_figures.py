@@ -248,26 +248,36 @@ def make_fig_pipeline_status():
     # ROUND 9 (committee). The numbers largely stand; what failed is the
     # reading of each. The per-stage label for an unsupported stage says so.
     LABEL = {NOTEST: NOTEST, UNSUP: "reading unsupported", BOUNDED: BOUNDED}
+    # ROUND 10 (audit item 9). One rounding rule for the whole canvas: two
+    # decimals, full precision stays in the tables and in the manifest note
+    # below. Two decimals still keeps the three-instrument disagreement in
+    # row 1 distinguishable (0, 0.47, 0.93).
     rows = [
         (1, "Candidate mining", NOTEST,
-         f"precision {base:.4f}\non {n_gold} gold pairs",
+         f"precision {base:.2f}\non {n_gold} gold pairs",
          "Is the exemplar in the trigger set?",
-         f"miss rate {ex_lo:.0f}, {ex_mid:.4f} or {ex_hi:.4f} by instrument"),
+         f"miss rate {ex_lo:.0f}, {ex_mid:.2f} or {ex_hi:.2f} by instrument"),
         (2, "Weak supervision", UNSUP,
          f"{n_flag} of {n_c120} pairs\nflagged",
          "Marginal ceiling, then measured agreement",
          f"MCC {mcc:.2f}, ceiling {mcc_ceil:.2f}"),
         (3, "Architecture", UNSUP,
-         f"rule-type F1 {f1_rule:.4f},\ntwo more components",
+         # ROUND 10 (audit item 10): name the metric and the split, not just
+         # "F1", so a reader does not have to guess which head or which set.
+         f"rule-type test macro-F1 {f1_rule:.2f},\ntwo more components",
          "Code audit of the three credited components",
          "artifact, target in input, untrained"),
         (4, "Evaluation", BOUNDED,
          f"AUROC {auroc:.2f}",
-         "Interval upper end against the simulated 80 percent power floor",
+         "Interval upper end against the\nsimulated 80 percent power floor",
          f"upper {ci_hi:.2f}, power floor {floor:.2f}"),
     ]
 
-    W, H = FIGW, 3.10
+    # ROUND 10 (audit item 3). H grows by 0.24in (about 8 percent) over the
+    # round-9 canvas, the only size change in this figure, so a three-item key
+    # fits between the headline block and the header row without crowding the
+    # four rows, which keep their original bottom-anchored positions below.
+    W, H = FIGW, 3.34
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
@@ -323,7 +333,18 @@ def make_fig_pipeline_status():
         ax.text(X_REP, mid, reported, ha="left", va="center",
                 fontsize=T_SERIES, color=INK, linespacing=1.22, zorder=5)
         ax.text(X_CHK, mid + 9.5, check, ha="left", va="center",
-                fontsize=T_NOTE, style="italic", color=MUTE, zorder=5)
+                fontsize=T_NOTE, style="italic", color=MUTE, linespacing=1.15,
+                zorder=5)
+        # ROUND 10. This check text had no width assertion, unlike the finding
+        # chip below it, and silently ran the canvas 49pt past its own right
+        # edge once the row 3 relabel (audit item 10) pushed X_CHK rightward.
+        # tools/check_figure_invariants.py's printed-measure gate is the only
+        # thing that would have caught it; asserted here too so it fails loud
+        # the moment any upstream column width changes again.
+        check_w = max(width_pt(line, fontsize=T_NOTE, style="italic")
+                      for line in check.split("\n"))
+        assert X_CHK + check_w < W * 72 - 4.0, \
+            f"check text overflows the canvas: {check!r}"
         w_i = width_pt(finding, fontsize=T_CHIP, fontweight="bold") + 12.0
         # Three chip encodings that stay distinct in greyscale: a solid dark
         # scarlet fill for unsupported, a light MIST fill under a dashed rim
@@ -332,9 +353,20 @@ def make_fig_pipeline_status():
             chip(ax, X_CHK, mid - 14.5, w_i, 13.0, SCARLET, finding,
                  fontsize=T_CHIP, radius=3.0, ha="left")
         elif status == NOTEST:
+            # ROUND 11 (coordinator regression). A full-fill hatch ran behind
+            # this chip's own text and made it the least legible chip on the
+            # canvas. Replaced with a solid GRAPHITE bar down the chip's left
+            # edge, clear of the text (which starts 6pt further right): a
+            # structural cue that needs no chroma and does not touch a
+            # glyph. The dashed rim stays as the second cue.
             p = node(ax, X_CHK, mid - 14.5, w_i, 13.0, MIST, GRAPHITE,
                      radius=3.0, zorder=6, lw=1.2)
             p.set_linestyle((0, (3.0, 1.8)))
+            ax.add_patch(FancyBboxPatch(
+                (X_CHK, mid - 14.5), 3.0, 13.0,
+                boxstyle="round,pad=0,rounding_size=1.0", mutation_aspect=1.0,
+                linewidth=0, edgecolor="none", facecolor=GRAPHITE, zorder=7,
+                clip_on=False))
             ax.text(X_CHK + 6.0, mid - 8.0, finding, ha="left", va="center",
                     fontsize=T_CHIP, fontweight="bold", color=INK, zorder=7)
         else:
@@ -344,10 +376,53 @@ def make_fig_pipeline_status():
                     fontsize=T_CHIP, fontweight="bold", color=INK, zorder=7)
         assert X_CHK + w_i < W * 72 - 4.0, f"chip overflows the canvas: {finding}"
 
-    ax.text(X_REP, 178.0, "REPORTED", ha="left", va="center",
+    # ROUND 10 (audit item 3). The header keeps its old 45.2pt distance from
+    # the top of the canvas (unchanged since the headline block above it did
+    # not change); H grew instead, so the extra room lands between the header
+    # and the rows, which is exactly where the new key goes.
+    HEADER_Y = H * 72 - 45.2
+    LEGEND_Y = HEADER_Y - 16.0
+    ax.text(X_REP, HEADER_Y, "REPORTED", ha="left", va="center",
             fontsize=T_FLOOR, color=MUTE, zorder=5)
-    ax.text(X_CHK, 178.0, "CHECK AND FINDING", ha="left", va="center",
+    ax.text(X_CHK, HEADER_Y, "CHECK AND FINDING", ha="left", va="center",
             fontsize=T_FLOOR, color=MUTE, zorder=5)
+
+    # ROUND 10 (audit item 3). A three-item key, one swatch per chip encoding,
+    # naming the same words each row already carries in LABEL: a reader no
+    # longer has to infer fill-and-rim from the rows alone.
+    ax.text(X_REP, LEGEND_Y, "KEY", ha="left", va="center", fontsize=T_FLOOR,
+            color=MUTE, zorder=5)
+    sw_w, sw_h = 12.0, 8.5
+    x_leg = X_REP + width_pt("KEY", fontsize=T_FLOOR) + 8.0
+    for status, word in ((NOTEST, LABEL[NOTEST]), (UNSUP, LABEL[UNSUP]),
+                         (BOUNDED, LABEL[BOUNDED])):
+        y0 = LEGEND_Y - sw_h / 2
+        if status == UNSUP:
+            ax.add_patch(FancyBboxPatch(
+                (x_leg, y0), sw_w, sw_h, boxstyle="round,pad=0,rounding_size=1.5",
+                facecolor=SCARLET_DEEP, edgecolor="none", zorder=6,
+                clip_on=False))
+        elif status == NOTEST:
+            p = FancyBboxPatch(
+                (x_leg, y0), sw_w, sw_h, boxstyle="round,pad=0,rounding_size=1.5",
+                facecolor=MIST, edgecolor=GRAPHITE, linewidth=1.2, zorder=6,
+                clip_on=False)
+            p.set_linestyle((0, (3.0, 1.8)))
+            ax.add_patch(p)
+            ax.add_patch(FancyBboxPatch(
+                (x_leg, y0), sw_w * 0.28, sw_h,
+                boxstyle="round,pad=0,rounding_size=1.0", mutation_aspect=1.0,
+                linewidth=0, edgecolor="none", facecolor=GRAPHITE, zorder=7,
+                clip_on=False))
+        else:
+            ax.add_patch(FancyBboxPatch(
+                (x_leg, y0), sw_w, sw_h, boxstyle="round,pad=0,rounding_size=1.5",
+                facecolor=PAPER, edgecolor=GRAPHITE, linewidth=1.4, zorder=6,
+                clip_on=False))
+        ax.text(x_leg + sw_w + 4.0, LEGEND_Y, word, ha="left", va="center",
+                fontsize=T_NOTE, color=INK, zorder=7)
+        x_leg += sw_w + 4.0 + width_pt(word, fontsize=T_NOTE) + 9.0
+        assert x_leg < W * 72 - 4.0, f"legend overflows the canvas at {word!r}"
 
     signature(fig, SCARLET_DEEP,
               headline="Three of the four stage readings did not survive their checks\n"
@@ -360,20 +435,22 @@ def make_fig_pipeline_status():
     register(fname, "fig:pipeline-status", srcs,
              "Four stages numbered 1 to 4 as Chapter 1 numbers them. Every number "
              "is read by key from results/accord/VERIFIED_FACTS.json (keys: "
-             + ", ".join(PIPELINE_KEYS) + "); no withdrawn key is readable. AUROC "
-             "and MCC print to two decimals on the canvas; rates keep four. Three "
-             "chip encodings, distinct in greyscale: stage 1 not established (MIST "
-             "fill, dashed GRAPHITE rim; miss rate 0, 0.4745 or 0.9315 by "
-             "instrument); stages 2 and 3 reading unsupported (solid scarlet, the "
-             "only scarlet on the canvas: MCC 0.03 against a ceiling of 0.08; the "
-             "three credited architectural components fail a code audit); stage 4 "
-             "bounded null (paper fill, solid rim: interval upper end 0.70 under the "
-             "80 percent power floor 0.75). The carrier rail is GRAPHITE, not "
-             "scarlet: it records that stages 2 to 4 consumed the exemplar stage 1 "
-             "selected, which is shared input, not a failed check. No plate; the "
-             "stage column is sized from measured text widths so the spine takes "
-             "about the left fifth of the canvas. No internal identifiers on the "
-             "canvas.")
+             + ", ".join(PIPELINE_KEYS) + "); no withdrawn key is readable. Every "
+             "number on the canvas prints to two decimals, one rule for the whole "
+             "figure; full precision stays in this note and in the tables. Three "
+             "chip encodings, distinct in greyscale and named in an on-canvas key: "
+             f"stage 1 not established (MIST fill, dashed GRAPHITE rim, hatched; "
+             f"miss rate {ex_lo:.0f}, {ex_mid:.4f} or {ex_hi:.4f} by instrument); "
+             f"stages 2 and 3 reading unsupported (solid scarlet, the only scarlet "
+             f"on the canvas: MCC {mcc:.4f} against a ceiling of {mcc_ceil:.4f}; "
+             "the three credited architectural components fail a code audit); "
+             f"stage 4 bounded null (paper fill, solid rim: interval upper end "
+             f"{ci_hi:.4f} under the 80 percent power floor {floor:.4f}). The "
+             "carrier rail is GRAPHITE, not scarlet: it records that stages 2 to 4 "
+             "consumed the exemplar stage 1 selected, which is shared input, not a "
+             "failed check. No plate; the stage column is sized from measured text "
+             "widths so the spine takes about the left fifth of the canvas. No "
+             "internal identifiers on the canvas.")
 
 
 # ============================================================================
@@ -624,6 +701,12 @@ def make_fig_exemplar():
         ax.text(x, y_top + 10.0, head, ha="center", va="bottom", fontsize=10.0,
                 color=INK, zorder=5)
 
+    # AUDIT ITEM 13. Five slots and a four-continuation/one-cessation split are
+    # schematic scene-setting, not a measurement: no register key names "five
+    # mentions" or "four of five continuation", and none should be invented to
+    # give this canvas one. Checked at this round: nothing else on the canvas
+    # is a bare digit either (the deck's miss rates are the only numbers here,
+    # and they are the ones fact() actually reads above).
     nurse_tags = ["M1", "M2", "M3", "M4", "M5"]
     disch_tags = ["continuation"] * 4 + ["cessation"]
     for i, y in enumerate(rows_y):
@@ -693,8 +776,9 @@ def make_fig_exemplar():
              "set. Nursing-note slots are neutral MIST (cobalt means extraction elsewhere). "
              "No plate. The one-line deck prints the three instruments' miss rates, read "
              "from the register by key: exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate "
-             "(one minus it, 0), exemplar_recomputed.rule_1_2_pooled.wrong_rate (0.4745), "
-             "exemplardirect.defect_rate (0.9315). Gate note: tools/measure_ink.py holds this "
+             f"(one minus it, {ex_lo:.0f}), exemplar_recomputed.rule_1_2_pooled.wrong_rate "
+             f"({ex_mid:.4f}), exemplardirect.defect_rate ({ex_hi:.4f}). Gate note: "
+             "tools/measure_ink.py holds this "
              "canvas to chroma 0.055; it measures 0.023, because the cobalt slot fills and "
              "strokes the floor was set against are removed by the critique and the only "
              "saturated element left is the cessation chip. The floor was not met by adding "
@@ -1415,6 +1499,10 @@ def make_fig_cohort_flow():
     # Differences computed here, not typed: drops no file records as its own
     # exclusion are drawn as dashed stubs.
     n_no_roles = n_post - n_both_roles
+    # AUDIT ITEM 5. The step from classified mentions to prefilter candidates
+    # had no exclusion box at all; this is the drop, a computed difference of
+    # two registered counts, drawn dashed like the other computed drops below.
+    n_prefilter_dropped = n_classified - n_candidates
     n_not_sampled = n_candidates - n_sampled
     n_not_annotated = n_sampled - n_annot
     n_ambiguous = n_annot - n_core
@@ -1446,11 +1534,16 @@ def make_fig_cohort_flow():
         ("One note pair per admission", f"{n_pairs:,} pairs", None),
         ("Medication mentions extracted", f"{n_mentions:,} mentions",
          (f"{n_unclassified:,} mentions with\nno action class", True)),
-        ("Mentions with an action class", f"{n_classified:,} mentions", None),
+        # AUDIT ITEM 5. All three stubs below now state what left the path at
+        # that step (an exclusion), matching the "left the path" heading; the
+        # previous two stated what was kept instead, which contradicted it.
+        ("Mentions with an action class", f"{n_classified:,} mentions",
+         (f"{n_prefilter_dropped:,} mentions dropped by\nthe temporal prefilter",
+          False)),
         ("After the temporal prefilter", f"{n_candidates:,} candidates",
-         (f"{n_sampled:,} sampled from {n_candidates:,}", False)),
+         (f"{n_not_sampled:,} candidates not\nsampled for annotation", False)),
         ("Sampled for annotation", f"{n_sampled:,} pairs",
-         (f"{n_annot:,} annotated of\n{n_sampled:,} sampled", False)),
+         (f"{n_not_annotated:,} sampled pair\nnot annotated", False)),
         ("Annotated by the pharmacist", f"{n_annot:,} pairs",
          (f"{n_ambiguous:,} pairs coded ambiguous", True)),
         ("Non-ambiguous evaluation core",
@@ -1549,17 +1642,23 @@ def make_fig_cohort_flow():
              "Path from the source database to the evaluated core, ten stages. Every "
              "count is read from results/accord/VERIFIED_FACTS.json by key ("
              + ", ".join(KEYS) + "), and every right-hand count carries its unit. "
-             "Solid stubs are exclusions the register records as counts (11 with no "
-             "positive length of stay, 37 with no nursing note before discharge, "
-             "131,347 unclassified mentions, 46 coded ambiguous). Dashed stubs are drops "
-             "no file records as an exclusion, drawn as differences computed in code "
-             "from two register counts: admissions after the length-of-stay filter "
-             "minus admissions with both note types; candidates minus the sample; the "
-             "sample minus the annotated pairs. The ambiguous count, 299 minus 253, is "
+             "Every stub under the 'left the path' heading now states an exclusion, "
+             "never a kept count (audit item 5): solid stubs are exclusions the "
+             f"register records as counts ({n_los_removed} with no positive length "
+             f"of stay, {n_not_selectable} with no nursing note before discharge, "
+             f"{n_unclassified:,} unclassified mentions, {n_ambiguous} coded "
+             "ambiguous). Dashed stubs are drops no file records as an exclusion, "
+             "drawn as differences computed in code from two register counts: "
+             f"admissions after the length-of-stay filter minus admissions with both "
+             f"note types ({n_no_roles}); mentions with an action class minus "
+             f"candidates surviving the temporal prefilter ({n_prefilter_dropped:,}, "
+             "previously missing a box entirely); candidates minus the sample "
+             f"({n_not_sampled:,}); the sample minus the annotated pairs "
+             f"({n_not_annotated}). The ambiguous count, {n_annot} minus {n_core}, is "
              "cross-checked against the signal-check file. The core is drawn in the "
              "pharmacist's emerald rather than scarlet, which the set reserves for a "
-             "failed check. Headline built from the register: of 1,978 candidates, 12 "
-             "contradictions survive sampling and annotation.")
+             f"failed check. Headline built from the register: of {n_candidates:,} "
+             f"candidates, {n_pos} contradictions survive sampling and annotation.")
 
 
 # ============================================================================

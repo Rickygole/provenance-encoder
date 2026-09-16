@@ -116,20 +116,23 @@ def make_fig_prevalence_response():
     # the name check_figure_invariants.py compares against style.ENTITY_HUE.
     MODEL_HUE = {"llama3:8b": INK, "granite3.3:8b": MUTE,
                  "qwen3:8b": SLATE}
-    # Series named once, in the left panel, at their own mark.
-    LABEL_AT = {
-        "A_bare": {"llama3:8b": ("0.05", +1), "granite3.3:8b": ("0.1", +1),
-                   "qwen3:8b": ("0.25", -1)},
-        "B_baserate_abstain": {},
-    }
+    # ROUND 10 (audit item 4). Per-point inline labels used to name series in
+    # the left panel only, leaving the right panel unlabelled, and the
+    # llama3:8b label sat close enough above its own wide error bar that a
+    # reader could read it as floating free of any curve. Both panels now
+    # share one legend below the headline instead, so no inline label is
+    # anchored to a single, sometimes-crowded point.
     # Models are dodged on x so their intervals do not print on one another.
     DODGE = {"llama3:8b": -0.004, "granite3.3:8b": 0.0, "qwen3:8b": +0.004}
     Y_LO, Y_HI, X_HI = -0.012, 0.32, 0.27
     SWEEP_P = ["0.02", "0.05", "0.1", "0.25"]
 
-    fig, axes = plt.subplots(1, 2, figsize=(FIGW, 3.30), sharey=True)
+    # H grows by 0.30in (about 9 percent) over the round-9 canvas to make room
+    # for the shared legend between the deck and the panel titles; the axes
+    # keep their original absolute size.
+    fig, axes = plt.subplots(1, 2, figsize=(FIGW, 3.60), sharey=True)
     canvas(fig)
-    fig.subplots_adjust(left=0.0930, right=0.9830, top=0.8050, bottom=0.1260,
+    fig.subplots_adjust(left=0.0930, right=0.9830, top=0.7379, bottom=0.1155,
                         wspace=0.075)
     for c, pr in enumerate(prompts):
         ax = axes[c]
@@ -156,15 +159,6 @@ def make_fig_prevalence_response():
             ax.plot(xs, ys, color=tone, linestyle=ls, lw=1.8, zorder=4,
                     marker=marker, ms=6.0, markerfacecolor=tone,
                     markeredgecolor=PAPER, markeredgewidth=0.8)
-            if m in LABEL_AT[pr]:
-                at, side = LABEL_AT[pr][m]
-                i = SWEEP_P.index(at)
-                y_anchor = (hi[i] + 0.008) if side > 0 else (lo[i] - 0.006)
-                x_anchor = xs[i] if side > 0 else X_HI - 0.006
-                case(ax.text(x_anchor, y_anchor, m,
-                             ha="center" if side > 0 else "right",
-                             va="bottom" if side > 0 else "top",
-                             fontsize=T_SERIES, color=INK, zorder=6))
         if c == 0:
             case(ax.text(0.012, Y_HI - 0.010, "over-prediction",
                          ha="left", va="top", fontsize=T_NOTE, color=MUTE,
@@ -185,9 +179,29 @@ def make_fig_prevalence_response():
         frame(ax, grid="y")
     fig.supxlabel("True prevalence", fontsize=T_AXIS, y=0.016)
     axes[0].set_ylabel("Labeller predicted-positive rate", fontsize=T_AXIS)
+
+    # ROUND 10 (audit item 4). One legend, shared by both panels, in the room
+    # H's growth opened up between the deck and the panel titles.
+    import matplotlib.lines as mlines
+    handles = [mlines.Line2D([], [], color=MODEL_HUE[m], linestyle=PUBLIC_MODEL_MARK[m][1],
+                             marker=PUBLIC_MODEL_MARK[m][0], ms=6.0,
+                             markerfacecolor=MODEL_HUE[m], markeredgecolor=PAPER,
+                             markeredgewidth=0.8, lw=1.8, label=m)
+               for m in models]
+    fig.legend(handles=handles, loc="upper center", ncol=3, frameon=False,
+              bbox_to_anchor=(0.5, 0.855), fontsize=T_SERIES,
+              handlelength=2.3, columnspacing=1.6, handletextpad=0.6)
+
     signature(fig, INK,
               f"On public text, {n_under} of {n_cells} labeller settings under-call,\n"
-              f"and the largest over-call is {top[3]:.1f} times.")
+              f"and the largest over-call is {top[3]:.1f} times.",
+              # AUDIT ITEM 11. "3.5 times" here and the "23.3 times" a
+              # same-named column reaches in Table 11 are not the same
+              # quantity: this figure is public text only, never the
+              # clinical pairs, and the deck now says so with the register's
+              # own clinical figure for scale.
+              deck=(f"These panels are on public text only; on the clinical pairs the "
+                    f"same over-call ratio reaches {clin_hi:.1f} times."))
     fig.savefig(HERE / "fig-prevalence-response.pdf"); plt.close(fig)
     print("wrote fig-prevalence-response.pdf")
 
@@ -329,8 +343,24 @@ def make_fig_forest():
     power = fact("power.power")
     n_pos_floor = fact("sizectl108.power_curves.n_pos_slots")
     assert n_pos_floor == fact("decontam.n_positives")
+    # AUDIT ITEM 2. The 108-pair row has 6 positives, not 12, so its own
+    # detectability floor differs from the top row's; there is no simulated
+    # power curve registered for this stratum, but its analytic MDE is
+    # (results/accord/mde_recomputed.json, strata.rules34_ambiguous_dropped),
+    # which the canvas labels "analytic" so the two rows are never read as the
+    # same computation.
+    n_pos_108 = fact("c114.task_c.n_pos")
+    floor_108 = fact("mde_recomputed.rules34_ambiguous_dropped.minimum_detectable_auc")
 
-    H = 2.80
+    # ROUND 11 (coordinator regression). H grows by 0.09in over the round-10
+    # canvas so the shared power-floor note has a line of its own, clear of
+    # the axes below it; A0, AH, M0 and MH stay in inches, so both panels
+    # keep their exact size and position and the new room lands only above
+    # them, between the deck and the AUROC panel's own header line. Kept to
+    # the minimum that clears (tools/measure_ink.py's chroma floor is a
+    # ratio to total canvas area, and blank canvas above the panels dilutes
+    # it) rather than the first, more generous guess.
+    H = 2.89
     fig = plt.figure(figsize=(FIGW, H))
     canvas(fig)
     X_LEFT, X_RIGHT, X_VALUE = 0.3250, 0.7700, 0.9950
@@ -346,12 +376,22 @@ def make_fig_forest():
     ax_a.set_ylim(YA_LO, YA_HI)
     ax_a.set_xticks([0.3, 0.5, 0.7, 0.9])
     frame(ax_a, grid="x")
-    ax_a.axvspan(floor, 1.0, facecolor=FOG, edgecolor="none", lw=0, zorder=0)
-    ax_a.text((floor + 1.0) / 2, YA_HI - 0.18,
-              f"detectable at\n{power * 100:.0f} percent power\nwith {n_pos_floor} positives",
-              ha="center",
-              va="top", fontsize=T_NOTE, color=MUTE, linespacing=1.15,
-              zorder=3)
+    # AUDIT ITEM 2. Shaded per row, at each row's own floor, instead of one
+    # band spanning both rows at the top row's floor: the two strata have
+    # different positive counts (12 against 6) and the shaded band used to
+    # imply one shared floor for both.
+    Y_SPLIT = 0.5
+    ax_a.fill_betweenx([Y_SPLIT, YA_HI], floor, 1.0, facecolor=FOG,
+                       edgecolor="none", lw=0, zorder=0)
+    ax_a.fill_betweenx([YA_LO, Y_SPLIT], floor_108, 1.0, facecolor=FOG,
+                       edgecolor="none", lw=0, zorder=0)
+    # ROUND 11 (coordinator regression). Per-row in-plot labels for the two
+    # bands crossed the data they sat beside (the top one over the right end
+    # of that row's interval, the bottom one across its whisker): there is no
+    # blank space inside either row's half of this axes tall enough for a
+    # multi-line label to clear both the row above and the row below it. One
+    # shared note above the axes, naming both floors, replaces both; the two
+    # bands themselves are unchanged and still visibly start at different x.
     ax_a.axvline(0.5, color=GRAPHITE, lw=1.2, zorder=2)
     ax_a.text(0.492, YA_LO + 0.08, "chance", ha="right", va="bottom",
               fontsize=T_NOTE, color=MUTE, style="italic")
@@ -372,6 +412,12 @@ def make_fig_forest():
              "AUROC, decontaminated detector, 95% bootstrap interval",
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
+    fig.text(0.012, (A0 + AH + 0.233) / H,
+             f"Shaded: detectable at {power * 100:.0f} percent power "
+             f"({n_pos_floor} positives, AUROC {floor:.2f}; {n_pos_108} "
+             f"positives, analytic, {floor_108:.2f}).",
+             ha="left", va="bottom", fontsize=T_NOTE, color=MUTE,
+             style="italic")
 
     # MCC panel: zero is no association; the ceiling is a bound, drawn as a tick.
     ax_m.set_xlim(-0.02, 0.10)
@@ -383,8 +429,12 @@ def make_fig_forest():
               fontsize=T_NOTE, color=MUTE, style="italic")
     ax_m.plot([mcc_ceil, mcc_ceil], [-0.38, 0.38], color=WEAK_LABELLER, lw=2.0,
               solid_capstyle="butt", zorder=4)
-    ax_m.plot([0.0, mcc_ceil], [0, 0], color=HAIR, lw=3.0, zorder=3,
-              solid_capstyle="butt")
+    # AUDIT ITEM 1 (must-fix). This used to draw a 0-to-ceiling bar in the
+    # same idiom (a capped horizontal span) as the 95 percent bootstrap
+    # intervals in the AUROC panel above, although the caption says this
+    # panel carries no resampling interval. Dropped outright rather than
+    # redrawn: the ceiling tick and the observed point below are the whole
+    # claim, and neither one reads as an interval on its own.
     ax_m.plot([mcc_obs], [0], "o", color=WEAK_LABELLER,
               markeredgecolor=WEAK_LABELLER, zorder=5, **DOT)
     ax_m.text(mcc_ceil + 0.002, 0.30, "ceiling", ha="left", va="top",
@@ -500,20 +550,29 @@ def make_fig_power():
             va="bottom", fontsize=T_SERIES, color=MUTE, zorder=5)
 
     # The three points at this study's positive count, on the guide.
-    ax.plot([n_pos_study], [mde_study], "o", ms=6, markerfacecolor=PAPER,
+    # AUDIT ITEM 7. mde_study (0.7355) and floor_mw (0.7466) are close enough
+    # that both markers, plotted at the same x, merged into one glyph at
+    # print size. Dodged symmetrically off n_pos_study on the log axis; the
+    # vertical guide line above still marks the true study size.
+    X_DODGE = 1.045
+    ax.plot([n_pos_study / X_DODGE], [mde_study], "o", ms=6, markerfacecolor=PAPER,
             markeredgecolor=INK, markeredgewidth=1.1, zorder=7)
-    ax.plot([n_pos_study], [floor_mw], "o", ms=5.2, color=INK,
+    ax.plot([n_pos_study * X_DODGE], [floor_mw], "o", ms=5.2, color=INK,
             markeredgewidth=0, zorder=8)
     ax.plot([n_pos_study], [floor_rule], "D", ms=5.6, color=INK,
             markeredgewidth=0, zorder=8)
     # Labels to the right, each joined to its point by a thin leader.
+    # AUDIT ITEM 6. Two decimals collapsed 0.7466 to 0.75 and 0.8084 to 0.81
+    # on this canvas, matching neither the caption (which prints four
+    # decimals) nor each other; the labels already name which quantity is
+    # which, so the fix is precision, not a new label.
     x_lab = 30.0
     for y_pt, y_lab, text in (
             (floor_rule, floor_rule + 0.025,
-             f"registered decision rule, power simulation: {floor_rule:.2f}"),
+             f"registered decision rule, power simulation: {floor_rule:.4f}"),
             (floor_mw, floor_mw + 0.035,
-             f"Mann-Whitney test, power simulation: {floor_mw:.2f}"),
-            (mde_study, 0.552, f"analytic curve: {mde_study:.2f}")):
+             f"Mann-Whitney test, power simulation: {floor_mw:.4f}"),
+            (mde_study, 0.552, f"analytic curve: {mde_study:.4f}")):
         ax.plot([n_pos_study * 1.10, x_lab * 0.95], [y_pt, y_lab],
                 color=GRAPHITE, lw=0.6, zorder=6, solid_capstyle="butt")
         ax.text(x_lab, y_lab, text, ha="left", va="center", fontsize=T_SERIES,
@@ -521,7 +580,7 @@ def make_fig_power():
     frame(ax)
     signature(fig, INK,
               f"At {n_pos_study} positives, {pct} power needs AUROC "
-              f"{floor_mw:.2f} under the Mann-Whitney test\nand {floor_rule:.2f} "
+              f"{floor_mw:.4f} under the Mann-Whitney test\nand {floor_rule:.4f} "
               f"under the registered decision rule.")
     fig.savefig(HERE / "fig-power.pdf"); plt.close(fig)
     print("wrote fig-power.pdf")

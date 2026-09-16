@@ -216,6 +216,25 @@ def make_fig_ceiling():
     axL.set_ylabel("Largest attainable MCC\nagainst the pharmacist",
                    fontsize=T_AXIS, linespacing=1.3)
 
+    # AUDIT ITEM 8. The two curves were named only in the enlarged right
+    # panel; a reader looking at the left panel alone had no way to tell the
+    # solid curve from the dashed one. The cliff is too steep for a label
+    # sitting directly beside a curve point to clear the line over the
+    # label's own width, and the ground above the cliff is already busy with
+    # the peak and "not attainable" annotations, so each name drops straight
+    # down instead, on a short leader, into the empty paper below the tail
+    # of its own curve, each at its own x so the two leaders do not cross.
+    N_253_L = bases["G_253"]
+    for x_pt, y_lab, txt in ((0.20, 0.16, f"{N_POS} of {N_253_L}"),
+                             (0.32, 0.06, f"{N_POS} of {N}")):
+        c_arr = c253 if txt.endswith(str(N_253_L)) else c299
+        q_arr = q253 if txt.endswith(str(N_253_L)) else q299
+        y_pt = float(np.interp(x_pt, q_arr, c_arr))
+        axL.plot([x_pt, x_pt], [y_pt - 0.012, y_lab + 0.014], color=GRAPHITE,
+                 lw=0.6, zorder=6, solid_capstyle="butt")
+        axL.text(x_pt + 0.012, y_lab, txt, ha="left", va="center",
+                 fontsize=T_NOTE, color=INK, zorder=8)
+
     axR.set_xlim(ZX0, ZX1); axR.set_ylim(0, ZY1)
     axR.set_xticks([0.7, 0.8, 0.9, 1.0])
     axR.set_yticks([0, 0.04, 0.08, 0.12, 0.16])

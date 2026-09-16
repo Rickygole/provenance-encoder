@@ -6,16 +6,13 @@
 %  package is missing from this BasicTeX install; each is marked SUBSTITUTE and
 %  listed at the end of this comment block.
 %
-%  For exact compliance, install the three missing packages:
-%      sudo tlmgr install tocloft apacite newtx chngcntr needspace placeins xurl
-%  then swap the SUBSTITUTE lines for the ones commented beside them.
-%
 %  SUBSTITUTES currently in force. This block described a state the document had
-%  already left: it claimed tocloft was substituted and APA 7 was not reached, when
-%  tocloft is installed and the bibliography moved to biblatex-apa below. A comment
-%  asserting a compliance state the file contradicts is the same defect class this
-%  thesis audits, so it is corrected rather than left as a stale note.
-%    newtx      -> mathptmx   (both are Times; metrics differ very slightly)
+%  already left: it claimed tocloft was substituted and APA 7 was not reached, and
+%  that newtx was substituted by mathptmx, when tocloft is installed, the
+%  bibliography moved to biblatex-apa below, and newtxtext/newtxmath are now
+%  loaded directly (both installed in ~/Library/texmf). A comment asserting a
+%  compliance state the file contradicts is the same defect class this thesis
+%  audits, so it is corrected rather than left as a stale note.
 %    tocloft    -> INSTALLED and in use; "Chapter N:" TOC prefixes are applied
 %    apacite    -> superseded by biblatex-apa, which is APA 7
 %    chngcntr   -> \makeatletter counter surgery, same effect
@@ -27,7 +24,8 @@
 % Text block 1in from the bottom edge; page number centred 0.5in from the bottom
 % edge (footskip measured from the text block's last baseline to the folio).
 \usepackage[left=1.5in,right=1in,top=1in,bottom=1in,footskip=0.5in]{geometry}
-\usepackage{mathptmx}                 % SUBSTITUTE for newtxtext/newtxmath
+\usepackage{newtxtext}
+\usepackage{newtxmath}                % Times New Roman body and math, per FORMAT.md section 2
 % tocloft is installed in the user tree now, so the TOC prefix FORMAT.md section 3
 % requires is applied rather than substituted. The body headings already printed
 % "Chapter N:" via titlesec (below); only the TOC entries did not, and Pass 9 did
@@ -35,6 +33,14 @@
 % entries such as "List of Tables" are added with no \numberline, so they take no
 % prefix; the appendix switches the prefix word where it switches the heading word.
 \usepackage{tocloft}
+% tocloft's report-class chapter preset ships with \cftchapdotsep set to
+% \cftnodots (no leader), which is why the Table of Contents alone, of the
+% three tocloft-driven lists, printed with no dot leader between the entry
+% title and the page number; the List of Tables and List of Figures already
+% use \cftdotsep by default and already print leaders. Setting the chapter
+% separator to the same value gives the Table of Contents chapter entries a
+% dot leader too, matching the template.
+\renewcommand{\cftchapdotsep}{\cftdotsep}
 \renewcommand{\cftchappresnum}{Chapter }
 \renewcommand{\cftchapaftersnum}{:}
 \setlength{\cftchapnumwidth}{6.4em}
@@ -105,15 +111,14 @@
 \makeatother
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+% newtxmath already defines \Bbbk; let amssymb redefine it without an error.
+\let\Bbbk\relax
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{array}
 \usepackage{longtable}
-\usepackage{xcolor}
 \usepackage{caption}
 \usepackage{titlesec}
-\usepackage{etoolbox}
 \usepackage{float}
 \usepackage{setspace}
 \usepackage{enumitem}
@@ -125,7 +130,7 @@
 % Numbered citations, alphabetical reference list (author's choice). natbib=true
 % keeps \citep as [n] and \citet as Author [n], so no call site changes.
 \usepackage{csquotes}
-\usepackage[style=numeric-comp,backend=biber,sorting=nyt,natbib=true,giveninits=true,maxbibnames=99,doi=false,url=false,isbn=false]{biblatex}
+\usepackage[style=numeric-comp,backend=biber,sorting=nyt,natbib=true,giveninits=true,maxbibnames=99,doi=false,url=false,isbn=false,eprint=true]{biblatex}
 \addbibresource{refs.bib}
 \usepackage[hidelinks,linktoc=all,bookmarks=true,bookmarksnumbered=true]{hyperref}
 % linktoc=all makes the whole entry clickable in the Table of Contents, the List
@@ -189,7 +194,12 @@
 \titleformat{\chapter}[block]
   {\normalfont\centering\bfseries\normalsize}
   {Chapter \thechapter:}{0.5em}{}
-\titlespacing*{\chapter}{0pt}{0pt}{0pt}
+% titlesec's [block] shape still opens with a full-height strut before the
+% title line even when the "before" length below is 0pt, which measured as
+% ~0.33in (23.9pt) of extra space above the chapter title that body pages do
+% not carry. The negative before-length here cancels that strut so a chapter
+% page's text block starts level with a body page's.
+\titlespacing*{\chapter}{0pt}{-23.9pt}{0pt}
 
 \titleformat{\section}{\normalfont\bfseries\normalsize}{}{0pt}{}
 \titlespacing*{\section}{0pt}{\baselineskip}{0.4\baselineskip}
@@ -223,8 +233,6 @@
 
 % Front-matter page environment that does not reset the page counter.
 \newenvironment{frontmatterpage}{\clearpage\begingroup}{\endgroup\clearpage}
-\newcommand{\frontmatterheading}[2][\bfseries]{%
-  {\centering\normalsize #1 #2\par}\vspace{\baselineskip}}
 
 \hypersetup{
   pdfauthor={Ricky Gole},
@@ -299,14 +307,40 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{References}
 % References: double-spaced, 0.5in hanging indent, no extra gap between
-% entries. biblatex prints the list itself; \bibhang is the hanging indent and
-% \bibitemsep/\bibparsep the gaps. heading=bibliography emits the chapter-level
-% References heading; the TOC line is added by hand above.
+% entries. \bibhang is the authortitle/authoryear hanging-indent length; the
+% numeric-comp style used here computes the indent instead from
+% \labelnumberwidth+\biblabelsep (numeric.bbx's bibliography list), so
+% \bibhang has no effect and measured 0.356in before this fix. The
+% environment below is numeric.bbx's own "bibliography" list, copied and
+% re-pointed so the continuation-line margin (\leftmargin) is fixed at
+% exactly 0.5in regardless of how wide the auto-sized label box is, while the
+% label itself is kept flush with the page margin (\labelwidth+\labelsep still
+% sums to \leftmargin, so the label's outdent is unchanged at 0).
+% \bibitemsep/\bibparsep still control the gaps between entries.
+\defbibenvironment{bibliography}
+  {\list
+     {\printtext[labelnumberwidth]{%
+        \printfield{labelprefix}%
+        \printfield{labelnumber}}}
+     {\setlength{\labelsep}{\biblabelsep}%
+      \setlength{\leftmargin}{0.5in}%
+      \setlength{\labelwidth}{\leftmargin}%
+      \addtolength{\labelwidth}{-\labelsep}%
+      \setlength{\itemsep}{\bibitemsep}%
+      \setlength{\parsep}{\bibparsep}}%
+      \renewcommand*{\makelabel}[1]{\hss##1}}
+  {\endlist}
+  {\item}
 \begingroup
 \doublespacing
-\setlength{\bibhang}{0.5in}
 \setlength{\bibitemsep}{0pt}
 \setlength{\bibparsep}{0pt}
+% english.lbx's \DeclareBibliographyExtras re-defines \bibrangedash to
+% \textendash at begin-document, after any preamble-level \renewcommand runs
+% (the same load-order trap the \bibname fix above already documents), so the
+% override has to sit here, after that hook has already fired, to reach the
+% printed page ranges. The project forbids en/em dashes anywhere in the build.
+\renewcommand*{\bibrangedash}{-}
 \printbibliography[heading=bibliography]
 \endgroup
 
