@@ -350,8 +350,9 @@ def make_fig_pipeline_status():
             fontsize=T_FLOOR, color=MUTE, zorder=5)
 
     signature(fig, SCARLET_DEEP,
-              headline="No stage's reported reading survived its check: one not "
-              "established,\ntwo unsupported, one a bounded null.")
+              headline="Three of the four stage readings did not survive their checks\n"
+              "(one not established, two unsupported); the fourth, the evaluation's\n"
+              "near-chance reading, survived as a bounded null.")
     fname = "fig-pipeline-status.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
