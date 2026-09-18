@@ -31,9 +31,10 @@ import pandas as pd
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_PATH = os.path.join(REPO, "results/accord/reconciliation_c28.json")
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
 
 # The released per-pair ACCORD decision file (the "raw file" of C28 item 2).
-GOLD_PATH = "/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv"
+GOLD_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "derived/gold_standard_accord_results.csv")
 
 # pair_id -> HADM_ID/drug/rule/sentences bridge, and the weak-label carrier.
 # run_experiments.py referenced the Google Drive copy; the Drive mount is gone
@@ -41,9 +42,9 @@ GOLD_PATH = "/Users/rickygole/mimic_local_only/derived/gold_standard_accord_resu
 # candidates are probed in order. The Google Drive candidate was removed:
 # it joins note sentences to HADM_ID and must not be read from cloud storage.
 SAMP_CANDIDATES = [
-    "/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv",
+    os.path.join(MIMIC_LOCAL_ONLY_DIR, "from_drive_2026-08-08/outputs/annotation_sample_300.csv"),
 ]
-AUDIT_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_decontamination_audit.csv"
+AUDIT_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_supp/accord_decontamination_audit.csv")
 
 # The artifact C28 says "implies 261".
 EXP1A_PATH = os.path.join(REPO, "results/accord/differential/exp1a_gold_error_rates_by_group.json")

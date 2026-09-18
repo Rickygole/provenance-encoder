@@ -2,14 +2,14 @@
 ACCORD differential-error / confound-adjustment experiments.
 Reads local MIMIC-III + ACCORD pipeline outputs. Writes ONLY aggregate
 results (counts, rates, coefficients, CIs, test stats) to
-/Users/rickygole/mimic_local_only/accord_differential/.
+~/mimic_local_only/accord_differential/.
 No note text or per-patient rows are written anywhere.
 
 Seed: 42 (used for bootstrap CIs).
 """
 import warnings
 warnings.filterwarnings("ignore")
-import gzip, csv, json
+import gzip, csv, json, os
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
@@ -17,8 +17,8 @@ import statsmodels.formula.api as smf
 from scipy import stats
 
 RNG = np.random.default_rng(42)
-OUTDIR = "/Users/rickygole/mimic_local_only/accord_differential"
-import os
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUTDIR = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_differential")
 os.makedirs(OUTDIR, exist_ok=True)
 
 log_lines = []
@@ -30,10 +30,10 @@ def log(*a):
 # ---------------------------------------------------------------------------
 # 1. DEMOGRAPHICS TABLE (per HADM_ID)
 # ---------------------------------------------------------------------------
-adm = pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/ADMISSIONS.csv",
+adm = pd.read_csv(os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/ADMISSIONS.csv"),
                    parse_dates=["ADMITTIME", "DISCHTIME"])
 adm["HADM_ID"] = adm["HADM_ID"].astype(float)
-pts = pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/PATIENTS.csv", parse_dates=["DOB"])
+pts = pd.read_csv(os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/PATIENTS.csv"), parse_dates=["DOB"])
 
 demo = adm.merge(pts[["SUBJECT_ID", "GENDER", "DOB"]], on="SUBJECT_ID", how="left")
 
@@ -115,7 +115,7 @@ log(demo["language_group3"].value_counts(normalize=True).round(4).to_dict())
 # 2. NOTE-PAIR COHORT (9,783 admissions) -- text length, no text retained
 # ---------------------------------------------------------------------------
 rows = []
-with gzip.open("/Users/rickygole/mimic_local_only/accord/hf_note_pairs.csv.gz", "rt") as f:
+with gzip.open(os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord/hf_note_pairs.csv.gz"), "rt") as f:
     r = csv.reader(f)
     header = next(r)
     idx = {c: i for i, c in enumerate(header)}
@@ -143,7 +143,7 @@ log("Note-pair cohort:", note_agg["HADM_ID"].nunique(), "admissions;",
 # 3. MEDICATION MENTIONS per admission (documentation volume covariate)
 # ---------------------------------------------------------------------------
 mm_counts = []
-with gzip.open("/Users/rickygole/mimic_local_only/accord/hf_medication_mentions.csv.gz", "rt") as f:
+with gzip.open(os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord/hf_medication_mentions.csv.gz"), "rt") as f:
     r = csv.reader(f)
     header = next(r)
     idx = {c: i for i, c in enumerate(header)}
@@ -156,7 +156,7 @@ n_mentions_df = pd.DataFrame(list(c.items()), columns=["HADM_ID", "n_mentions"])
 # ---------------------------------------------------------------------------
 # 4. CANDIDATE POOL
 # ---------------------------------------------------------------------------
-cc = pd.read_csv("/Users/rickygole/mimic_local_only/accord/contradiction_candidates.csv.gz")
+cc = pd.read_csv(os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord/contradiction_candidates.csv.gz"))
 cc["HADM_ID"] = cc["HADM_ID"].astype(float)
 cand_counts = cc.groupby("HADM_ID").size().rename("n_candidates").reset_index()
 
@@ -188,14 +188,14 @@ log("(admission-level covariate table kept in-memory only; not written to disk p
 #    gold set -- so the audit file carries the correct pre-decontam weak label
 #    for the gold-evaluated pairs).
 # ---------------------------------------------------------------------------
-GOLD_PATH = "/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv"
+GOLD_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "derived/gold_standard_accord_results.csv")
 # Repointed off the Google Drive mount. This file carries verbatim note
 # sentences joined to HADM_ID, so a cloud-synced path was the one thing
 # the .gitignore rules and sync gate exist to prevent, and README.md
 # asserted it was not happening while these two lines said otherwise.
-SAMP_PATH = "/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv"
-AUDIT_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_decontamination_audit.csv"
-WS_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_weak_supervision_labels_decontam.csv"
+SAMP_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "from_drive_2026-08-08/outputs/annotation_sample_300.csv")
+AUDIT_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_supp/accord_decontamination_audit.csv")
+WS_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_supp/accord_weak_supervision_labels_decontam.csv")
 
 gold = pd.read_csv(GOLD_PATH)
 samp = pd.read_csv(SAMP_PATH)

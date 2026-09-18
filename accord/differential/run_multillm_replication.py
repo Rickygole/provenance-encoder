@@ -9,7 +9,7 @@ retracted C10 finding replicate on other models:
        field receive a positive weak label at OR ~1.69 [1.11, 2.57], adjusted
        for note length, mention count and rule.
 
-PROMPT: reused VERBATIM from /Users/rickygole/mimic_local_only/accord_supp/
+PROMPT: reused VERBATIM from ~/mimic_local_only/accord_supp/
 prompts_existing.csv, config_id == "llama_baseline" -- the system_prompt and
 user_prompt template that were archived as the exact prompt used to elicit
 the original Llama-3-8B weak labels. temperature=0, max_tokens=50.
@@ -21,7 +21,7 @@ category -- NEVER silently scored as positive (this is the exact bug in C10:
 
 DATA RULES: reads local, credentialed MIMIC-III-derived files. Writes ONLY
 aggregate results (counts, rates, coefficients, CIs) to
-/Users/rickygole/mimic_local_only/accord_multillm/. No note text, and no
+~/mimic_local_only/accord_multillm/. No note text, and no
 per-row raw model output text, is ever written to disk or printed.
 
 Seed: 42 (regression / bootstrap; also passed to Ollama's `seed` option best-effort).
@@ -47,7 +47,8 @@ ap.add_argument("--models", nargs="+", default=None,
 ARGS = ap.parse_args()
 
 RNG = np.random.default_rng(42)
-OUTDIR = "/Users/rickygole/mimic_local_only/accord_multillm"
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUTDIR = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_multillm")
 os.makedirs(OUTDIR, exist_ok=True)
 
 log_lines = []
@@ -146,7 +147,7 @@ def run_model_on_rows(model, nursing_list, discharge_list, label):
 # ---------------------------------------------------------------------------
 # 1. LOAD THE 1,679-ROW CANDIDATE POOL (weak-supervision training pool)
 # ---------------------------------------------------------------------------
-WS_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_weak_supervision_labels_decontam.csv"
+WS_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_supp/accord_weak_supervision_labels_decontam.csv")
 ws = pd.read_csv(WS_PATH)
 ws["HADM_ID"] = ws["HADM_ID"].astype(float)
 ws["nursing_sentence"] = ws["nursing_sentence"].fillna("").astype(str)
@@ -159,13 +160,13 @@ log(f"Original (v1) Llama-3-8B weak_label positive rate on this pool: "
 # 2. LOAD THE 299-ROW PHARMACIST GOLD SET, join pair_id <-> HADM_ID
 #    (identical join logic to accord/differential/run_experiments.py)
 # ---------------------------------------------------------------------------
-GOLD_PATH = "/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv"
+GOLD_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "derived/gold_standard_accord_results.csv")
 # Repointed off the Google Drive mount. This file carries verbatim note
 # sentences joined to HADM_ID, so a cloud-synced path was the one thing
 # the .gitignore rules and sync gate exist to prevent, and README.md
 # asserted it was not happening while these two lines said otherwise.
-SAMP_PATH = "/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv"
-AUDIT_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_decontamination_audit.csv"
+SAMP_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "from_drive_2026-08-08/outputs/annotation_sample_300.csv")
+AUDIT_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_supp/accord_decontamination_audit.csv")
 
 gold = pd.read_csv(GOLD_PATH)
 samp = pd.read_csv(SAMP_PATH)
@@ -197,7 +198,7 @@ log(f"\nLoaded gold set: {n_gold} pairs, {n_gold_pos} pharmacist positives "
 #    (identical construction to run_experiments.py, needed to replicate
 #    Experiment 1c: weak_pos ~ language + log_note_chars + n_mentions + rule)
 # ---------------------------------------------------------------------------
-adm = pd.read_csv("/Users/rickygole/mimic_local_only/raw_mimiciii/ADMISSIONS.csv",
+adm = pd.read_csv(os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/ADMISSIONS.csv"),
                    parse_dates=["ADMITTIME", "DISCHTIME"])
 adm["HADM_ID"] = adm["HADM_ID"].astype(float)
 
@@ -211,7 +212,7 @@ adm["language_group3"] = adm["LANGUAGE"].apply(lang_group)
 demo = adm[["HADM_ID", "language_group3"]].drop_duplicates("HADM_ID")
 
 rows = []
-with gzip.open("/Users/rickygole/mimic_local_only/accord/hf_note_pairs.csv.gz", "rt") as f:
+with gzip.open(os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord/hf_note_pairs.csv.gz"), "rt") as f:
     r = csv.reader(f)
     header = next(r)
     idx = {c: i for i, c in enumerate(header)}
@@ -222,7 +223,7 @@ del rows
 note_agg = note_len_df.groupby("HADM_ID").agg(total_note_chars=("n_chars", "sum")).reset_index()
 
 mm_counts = []
-with gzip.open("/Users/rickygole/mimic_local_only/accord/hf_medication_mentions.csv.gz", "rt") as f:
+with gzip.open(os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord/hf_medication_mentions.csv.gz"), "rt") as f:
     r = csv.reader(f)
     header = next(r)
     idx = {c: i for i, c in enumerate(header)}
@@ -388,7 +389,7 @@ for model in MODELS:
 # ---------------------------------------------------------------------------
 orig_pos_rate = float((ws["weak_label"] == "contradiction").mean())
 orig_calib = orig_pos_rate / gold_base_rate
-EXP1C_PATH = "/Users/rickygole/mimic_local_only/accord_differential/exp1c_logistic_regression.json"
+EXP1C_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_differential/exp1c_logistic_regression.json")
 orig_or = None
 if os.path.isfile(EXP1C_PATH):
     with open(EXP1C_PATH) as f:

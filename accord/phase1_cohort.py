@@ -43,10 +43,11 @@ import pandas as pd
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "local_only"
 
-NOTEEVENTS = os.environ.get("MIMIC_NOTEEVENTS_PATH", "/Users/rickygole/mimic_local_only/raw_mimiciii/NOTEEVENTS.csv.gz")
-ADMISSIONS = os.environ.get("MIMIC_ADMISSIONS_PATH", "/Users/rickygole/mimic_local_only/raw_mimiciii/ADMISSIONS.csv")
-PATIENTS = os.environ.get("MIMIC_PATIENTS_PATH", "/Users/rickygole/mimic_local_only/raw_mimiciii/PATIENTS.csv")
-DIAGNOSES = os.environ.get("MIMIC_DIAGNOSES_PATH", "/Users/rickygole/mimic_local_only/raw_mimiciii/DIAGNOSES_ICD.csv.gz")
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+NOTEEVENTS = os.environ.get("MIMIC_NOTEEVENTS_PATH", os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/NOTEEVENTS.csv.gz"))
+ADMISSIONS = os.environ.get("MIMIC_ADMISSIONS_PATH", os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/ADMISSIONS.csv"))
+PATIENTS = os.environ.get("MIMIC_PATIENTS_PATH", os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/PATIENTS.csv"))
+DIAGNOSES = os.environ.get("MIMIC_DIAGNOSES_PATH", os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/DIAGNOSES_ICD.csv.gz"))
 
 KEEP_CATEGORIES = {"discharge summary", "nursing", "nursing/other"}
 

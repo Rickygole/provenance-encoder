@@ -19,10 +19,10 @@ what the check attached to that stage measured afterwards. This chapter argues
 about the difference, then states the practical lesson, the future work and
 what the thesis leaves. With $12$ pharmacist-confirmed contradictions against
 $241$ negatives in $G_{253}$, this evaluation resolves only large AUROC effects
-(Section~``\nameref{sec:res-rq4}''); within that limit, local language-model
+(Section~``\nameref{sec:res-rq4}''). Within that limit, local language-model
 labellers flagged far more pairs than the pharmacist confirmed, by an amount
 that depended heavily on the prompt and on how the $46$ ambiguous pairs were
-read, and the detector trained on those labels ranked at a level not
+read. The detector trained on those labels ranked at a level not
 distinguishable from chance.
 
 \section{What Each Check Changed}
@@ -35,8 +35,7 @@ audit of the miner's exemplar selector and of each credited architectural
 component, a marginal ceiling on the weak labeller followed by its agreement on
 the exact gold join, a comparison between rule strata, and power analyses. None
 of them is a randomisation control \citep{adebayo2018sanity}, a control task
-\citep{hewitt2019control} or a negative control \citep{lipsitch2010negative};
-those designs were not run here.
+\citep{hewitt2019control} or a negative control \citep{lipsitch2010negative}.
 
 \begin{table}[H]
 \centering
@@ -67,10 +66,10 @@ evaluation whose resolvable floor is stated.}
 The miner's pool has a base rate against pharmacist annotation of $0.0401$. For
 action-conflict candidates the trigger quantified over sets of medication
 mentions while the surviving selector excerpt picks by position; that it
-selected the annotated exemplars is not established. The design itself can be measured: on the
+selected the annotated exemplars is not established. The design itself can be measured. On the
 rebuilt candidate pool the original positional selector would show an exemplar outside the trigger
-set for $41.4$ percent of Rules 1 and 2 candidates, the rebuilt-pool design rate, so under that design the failure is common
-rather than merely reachable, but a different sentence segmenter and an unrecoverable original row
+set for $41.4$ percent of Rules 1 and 2 candidates, so under that design the failure is common
+rather than merely reachable. A different sentence segmenter and an unrecoverable original row
 order keep that figure from being the annotated exemplars' defect rate. Three instruments disagree on how often that
 failure fired on the pooled Rules 1 and 2 candidates
 (Section~``\nameref{sec:r-exemplar}''): a reconstruction, an exact key join on a
@@ -108,8 +107,8 @@ and reading behind a quoted ratio have to travel with it. Correcting a marginal
 this biased needs gold labels on the same distribution
 \citep{forman2008quantifying,egami2023surrogates}, which a workflow built to
 avoid annotation cannot supply, so the student inherits the marginal rather than
-the task \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey};
-the teacher-student comparison finds the detector's ranking of the gold pairs
+the task \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey}.
+The teacher-student comparison finds the detector's ranking of the gold pairs
 not distinguishable from its labeller's. Whether that prior scales with
 capability or vendor is not established, since the hosted comparisons are
 withdrawn. The surviving claim is narrow: the weak labeller's marginal was a
@@ -139,13 +138,12 @@ null licenses. The subject-disjoint retrain did not rescue it, and because the
 rows sharing subjects with the gold pairs carried the weak labeller's labels
 rather than the pharmacist's, the overlap had little channel to inflate
 agreement with gold. A plain BioMedBERT control model with none of ACCORD's
-credited components has a point estimate of $0.4692$ on $G_{299}$ with a bootstrap mean and
-standard deviation but no interval and no test against chance, and on $G_{134}$ its point
-estimate is $0.5469$, likewise with a bootstrap mean and standard deviation but no interval and no
-test against chance; no null is claimed for either stratum. The DeLong tests reported for these
+credited components has a point estimate of $0.4692$ on $G_{299}$ and $0.5469$ on $G_{134}$. Each
+carries a bootstrap mean and standard deviation but no interval and no test against chance, so no
+null is claimed for either stratum. The DeLong tests reported for these
 configurations (Table~\ref{tab:delong}), $p = 0.9300$ on $G_{299}$ and $p = 0.4306$ on $G_{134}$,
-are paired comparisons of the control ensemble against ACCORD's contaminated released run on the
-same pairs, not tests of the control against chance, and neither substitutes for one.
+pair the control ensemble against ACCORD's contaminated released run on the
+same pairs; neither substitutes for a test of the control against chance.
 
 \subsection{What survived}
 
@@ -182,7 +180,7 @@ is concluded about scale. On an SNLI sweep under generic prompts the same models
 do not reproduce the clinical magnitude or direction, but that sweep changes
 prompt, negative type and domain together. In the public factorial experiment, which
 crossed harder negatives, prompt wording and model scale on public text, only Llama 3 8B reproduced stable per-item output at temperature zero,
-so a single-run public cell for any other model is one draw from a spread; on
+so a single-run public cell for any other model is one draw from a spread. On
 the clinical rows, the prompt-wording confirmation, a rerun of the reversed
 prompt beside three new wordings, reproduced
 Granite 3.3 8B exactly. What holds is narrower than any single ratio:
@@ -201,8 +199,8 @@ could have seen, not a demonstration that it sees. The detector's own bootstrap
 interval on $G_{253}$ excludes an AUROC above $0.7034$ but not a modestly useful
 model below it.
 
-The evidence about what the evaluation can resolve is a power simulation, not
-an empirical validation of the clinical instrument, and what it resolves depends
+What the evaluation can resolve comes from a power simulation rather than from
+an empirical validation of the clinical instrument, and it depends
 on the decision rule (Section~``\nameref{sec:res-rq4}''). With $12$ positives
 and $241$ negatives, the two-sided Mann-Whitney test needs AUROC $0.7466$ for
 $80$ percent power and the registered decision rule $0.8084$, and at the analytic
@@ -259,7 +257,7 @@ reversed-prompt score failed on AUROC under all three new wordings and the
 Bonferroni threshold under two, while Granite 3.3 8B's descriptive
 cells, uncorrected, met both criteria under two new wordings
 (Section~``\nameref{sec:res-rq2}'', Chapter~\ref{ch:results}). So the null is a statement about these
-trained models under this supervision, whether a graded score escapes the
+trained models under this supervision. Whether a graded score escapes the
 agreement ceiling is not settled, and no ablation carries a significance claim.
 
 \paragraph{The deployed labelling run is lost, but the ranking null does not rest on it.} The
@@ -273,7 +271,7 @@ numbers, such as its $261$ of $299$ marginal, which remain measured but not repe
 \paragraph{Deployment risk, and automation bias.} The subject-disjoint retrain's three seeds average
 recall $0.7778$ and precision $0.0424$; no single seed attains that recall with $12$ positives, and each
 seed alone still generates many false alarms per true contradiction, the first seed raising $216$
-false alarms against $9$ true contradictions at a recall of $0.75$ on that seed alone. That alarm
+false alarms against $9$ true contradictions at a recall of $0.75$. That alarm
 ratio, on a ranking already returned as a bounded null (Table~\ref{tab:disc-spine}), is why this
 system should not be deployed in any form; alert burdens at that ratio are separately associated
 with reduced acceptance \citep{vandersijs2006overriding,ancker2017alertfatigue}. A more specific hazard sits inside the
@@ -306,8 +304,8 @@ discharge order.
 \paragraph{The exemplar defect rate is unresolved.} This is the limitation most
 likely to be read as smaller than it is: the three readings span $0$ to $0.9315$.
 The planted-defect benchmark, a synthetic mirror of the real comparison with its
-defect planted in the Rules 3 and 4 group as its pre-registration specifies, built to ask whether the two rule groups could be
-distinguished at this sample size, did not meet its rule, and the rule-group
+defect planted in the Rules 3 and 4 group as its pre-registration specifies, asked whether the two rule groups could be
+distinguished at this sample size, and did not meet its rule. The rule-group
 comparison has exact power $0.0495$ at the observed rates, with $0.094$ the
 smallest excess Rules 1 and 2 rate detectable at $80$ percent power, so near-equal
 precision between the groups is an instrument limit. The rebuild fixes the
@@ -343,8 +341,8 @@ required before training the detector on the weak-labelled pool. Pairs sharing a
 therefore not guaranteed independent of one another, and where they are not, every interval and
 test reported here would be narrower than a subject-clustered resampling would return. No
 cluster-level resampling, such as a subject-block bootstrap, was run for any result in this
-thesis, and no design effect or subject count is offered as a correction, because neither was
-computed for this work.
+thesis, and neither a design effect nor a subject count was computed for this work, so no
+correction is offered.
 
 \section{Threats to Validity}
 \label{sec:disc-threats}
@@ -429,8 +427,8 @@ needs no statistical power. It can only rule a labeller out, never in:
 Granite 3.3 8B passes it, yet its graded score has AUROC $0.5467$, and
 the check treats the pilot's confirmed positive count as known. A simple baseline's own significance test belongs
 alongside any neural ranking result, and the exemplar check
-(Figure~\ref{fig:exemplar}) is cheap relative to the training budget, a reason to
-run it earlier next time rather than a claim that it would have changed what
+(Figure~\ref{fig:exemplar}) is cheap relative to the training budget. That is a
+reason to run it earlier next time, not a claim that it would have changed what
 this evaluation could resolve.
 
 \section{Future Work}
@@ -449,7 +447,7 @@ labellers.} A wording-specific prompt signal can only be tested on pairs it was
 not found on, and the strongest one did not confirm under new wordings. The
 highest of the three exemplar readings comes from an extractor never validated
 against human annotation, and validating one would bound the defect rate and
-whether the pool's confirmed base rate is valid. Whether over-calling attenuates
+settle whether the pool's confirmed base rate is valid. Whether over-calling attenuates
 with scale, attempted through a hosted service and withdrawn
 (Section~``\nameref{sec:m-ethics}''), is answerable only by a larger labeller
 served locally. The smallest experiment that would close it is the same
@@ -468,7 +466,7 @@ stage-wise audit (Table~\ref{tab:disc-spine}), a feasibility check on a weak
 labeller's marginal, and trigger-exemplar dissociation, a mining bug the
 original selector design would show on $41.4$ percent of the rebuilt pool's
 Rules 1 and 2 candidates and that a one-line assertion catches once the candidate schema records which
-mention fired; the surviving selector excerpt picks by position, but that it
+mention fired. The surviving selector excerpt picks by position, and whether it
 selected the annotated exemplars is not established. The planted-defect benchmark did not reach its required firing
 rate, a limitation disclosed rather than a result claimed. None of that
 establishes that the task cannot be done; it establishes what a per-test floor of

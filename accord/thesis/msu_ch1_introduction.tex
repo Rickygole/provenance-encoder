@@ -29,9 +29,9 @@ that same diuretic among the medications to continue at the admission
 dose. Both documents are in the chart and they disagree.
 
 The disagreement matters because the two documents do not carry equal
-weight: the discharge summary is what the outpatient physician reads and
-the pharmacy fills against, while the nursing note that holds the reason the
-instruction is wrong rarely travels with the patient. This is not a
+weight. The outpatient physician reads the discharge summary and the pharmacy
+fills against it; the nursing note, which holds the reason the instruction is
+wrong, rarely travels with the patient. This is not a
 documentation defect cleaned up later; it is an instruction that leaves the
 building. The scenario is a constructed composite, but the pattern is real.
 Of the $12$ contradictions a board-certified pharmacist confirmed in this
@@ -41,7 +41,7 @@ on a five-point danger scale $1$ was rated $4$ and $3$ were rated $5$: a small
 category of drugs where a wrong instruction does damage quickly.
 
 Unintended medication discrepancies are common at both admission and
-discharge \citep{cornish2005discrepancies,wong2008reconciliation}; post-discharge
+discharge \citep{cornish2005discrepancies,wong2008reconciliation}. Post-discharge
 adverse drug events are frequent, often preventable, and traceable to
 unreliable information transfer across that transition
 \citep{forster2003adverse,moore2003discontinuity,kripalani2007deficits}, a
@@ -78,8 +78,8 @@ constraint under all four stages is arithmetic rather than a finding: a
 fixed number of confirmed positives limits any evaluation built on them,
 whoever trains the detector.
 
-What the pipeline did not come with, as this project inherited it, is a check
-at each stage: the candidate miner did not assert that its displayed evidence
+As this project inherited the pipeline, no stage came with a check on the
+number it reported: the candidate miner did not assert that its displayed evidence
 triggered the candidate; the weak labeller's marginal was not set against a
 measured base rate; no credited architectural component was audited in the
 code that runs; and no null was set against the effect the evaluation could
@@ -87,8 +87,9 @@ have resolved
 \citep{jacobs2021measurement,egami2023surrogates,kaufman2012leakage}. This
 thesis runs checks of that kind, listed with their sources in
 Chapter~\ref{ch:lit}: code audits, the marginal agreement ceiling with the
-measured agreement, a comparison between rule strata, and a power analysis,
-not the negative or randomisation controls the literature also offers.
+measured agreement, a comparison between rule strata, and a power analysis.
+The negative and randomisation controls the literature also offers were not
+run here.
 Headline results are reported as the area under the receiver operating
 characteristic curve (AUROC), the Matthews correlation coefficient (MCC) and
 average precision.
@@ -111,8 +112,8 @@ together. Here the Rules 1 and 2 selector indexed candidates positionally
 trace of it, because no metric compares displayed evidence against
 triggering evidence. The pattern is more than reachable: on the rebuilt
 candidate pool the original positional design would show an exemplar outside
-the trigger set for $41.4$ percent of Rules 1 and 2 candidates, the rebuilt-pool
-design rate, not the annotated exemplars' defect rate.
+the trigger set for $41.4$ percent of Rules 1 and 2 candidates, a rate of the
+rebuilt pool's design rather than of the annotated exemplars.
 Their defect rate cannot be
 recovered because the candidate schema does not record which mention fired,
 so three instruments on the same rules give $0$ (the key join), $0.4745$ (the
@@ -146,9 +147,9 @@ predicts positive for nearly the whole pool, and its ranking is not
 distinguishable from chance, its bootstrap interval excluding an AUROC above
 $0.7034$ (Section~``\nameref{sec:res-rq4}''). Its ranking of the gold pairs is
 also not distinguishable from its weak labeller's ($0.5145$ against
-$0.5185$). That comparison, requested after the main results, is consistent
-with, not evidence for, a student reproducing its teacher, since two unrelated
-chance-level rankings would fit its interval too. Chapter~\ref{ch:results} also reports a separate result: the weak
+$0.5185$). That comparison, requested after the main results, does not
+establish that the student reproduced its teacher: two unrelated chance-level
+rankings would fit its interval too. Chapter~\ref{ch:results} also reports a separate result: the weak
 labeller's positive rate against the pharmacist's confirmed rate fixes an
 agreement ceiling that bounds only thresholded labels.
 
@@ -163,8 +164,8 @@ the instrument, because the results that answered that form were withdrawn
 project's own earlier readings of its pipeline, reported in an earlier version
 of this work. ``Controlled'' in the title means each reading is checked
 against a fixed condition, a ceiling computed from counts, or a rule written
-down before its run; it does not mean the randomisation, control-task or
-negative controls Chapter~\ref{ch:lit} describes, which were not run here.
+down before its run. It does not mean the randomisation, control-task or
+negative controls Chapter~\ref{ch:lit} describes.
 Each check is specified in Chapter~\ref{ch:method} and its evidence sits in
 Chapter~\ref{ch:results}; only the pre-registered checks were fixed before
 their runs (Section~``\nameref{sec:m-prereg}'').
@@ -175,9 +176,10 @@ their runs (Section~``\nameref{sec:m-prereg}'').
 notes yield a candidate pool with usable precision?
 \emph{Not established. Four rules enrich the pool to $12$ true contradictions
 in $299$ annotated pairs, a base rate of $0.0401$. For Rules 1 and 2 the
-surviving selector excerpt picks by position; that it selected the annotated
-exemplars is not established, an instance of trigger-exemplar dissociation. How often that defect fired is not
-established: three instruments give $0$, $0.4745$ and $0.9315$
+surviving selector excerpt picks by position, so whether it selected the
+annotated exemplars is not established, an instance of trigger-exemplar
+dissociation. How often that defect fired stays unresolved:
+three instruments give $0$, $0.4745$ and $0.9315$
 (Section~``\nameref{sec:r-exemplar}''), and Section~``\nameref{sec:intro-notclaim}''
 states what that leaves of the $0.0401$ figure.}
 
@@ -207,14 +209,13 @@ prompt-framing contrast, Llama 3 8B under a reversed-direction prompt
 prompt-wording confirmation, a pre-registered rerun of those cells under
 reworded prompts. Granite 3.3 8B's descriptive cells there
 rank above chance under every wording, so whether a graded score escapes the
-ceiling is not settled, the strongest reason not to read the detector's null
-as evidence the task is unsolvable.}
+ceiling is not settled. That is the strongest reason not to read the detector's
+null as evidence the task is unsolvable.}
 
 \item[RQ3. Architecture.] Do the proposed architectural components contribute
 what they are credited with?
-\emph{Unsupported by code audit (at their initial values, for the authority
-parameters), with no randomisation control run on any
-of the three: the authority parameters reported as learned finish at
+\emph{Unsupported by code audit, with no randomisation control run on any
+of the three. The authority parameters reported as learned finish at
 $0.5076 \pm 0.0006$ and $1.0038 \pm 0.0010$ against initialisation at $0.5$
 and $1.0$, an initialisation artifact; the rule-type head's auxiliary metric
 has its target, the rule identifier, present in its input; and the harm head,
@@ -238,11 +239,11 @@ model never trained on them ($p = 0.01335$) clear their nulls where the detector
 ($p = 0.4629$) does not, but no paired test separates any two of the three.
 The Rules 3 and 4 stratum is not subject to the documented Rules 1 and 2
 positional defect, though its exemplar correctness in the gold set is
-assumed, not verified; on its $108$ non-ambiguous pairs the retrained
+assumed rather than verified. On its $108$ non-ambiguous pairs the retrained
 ensemble's AUROC is $0.6095$ ($95$ percent bootstrap interval $0.3029$ to
-$0.9010$) against $0.4221$ on the $145$ Rules 1 and 2 non-ambiguous pairs, a comparison between rule groups
-confounded with rule content and base rate; the weak labeller shows no
-comparable rise ($0.5294$ against $0.5216$). With $6$ positives and a minimum
+$0.9010$), against $0.4221$ on the $145$ Rules 1 and 2 non-ambiguous pairs; that
+comparison between rule groups is confounded with rule content and base rate,
+and the weak labeller shows no comparable rise ($0.5294$ against $0.5216$). With $6$ positives and a minimum
 detectable AUROC of $0.8064$ it can neither show nor exclude that the null is
 a defect artifact (Section~``\nameref{sec:res-rq4}'').}
 
@@ -276,7 +277,7 @@ of $15$ local configurations could not have rejected before a pair was
 scored. The measured MCC, $0.0269$, sits below the $0.0780$ ceiling, as it
 must, and is at chance ($p = 0.5347$); the ceiling bounds thresholded labels
 only. The check can rule a labeller out, never in: Granite 3.3 8B
-passes it, yet its graded score reaches an AUROC of only $0.5467$; and it
+passes it, yet its graded score reaches an AUROC of only $0.5467$. It also
 treats the pilot's positive count as known.
 
 \item \textbf{Trigger-exemplar dissociation as a mining bug pattern.} A rule
@@ -284,9 +285,9 @@ that fires on a set of mentions and an exemplar selector that picks from it
 by position (Figure~\ref{fig:exemplar}). On the rebuilt candidate pool the
 original selector design would show an exemplar outside the trigger set for
 $41.4$ percent of Rules 1 and 2 candidates (95 percent interval $38.8$ to
-$44.1$), and the rebuild's selector for $0$ by construction; that measures the
-design on a pool with a different sentence segmenter and unrecoverable original
-row order, not the defect rate of the annotated gold exemplars. That defect rate cannot be recovered
+$44.1$), and the rebuild's selector for $0$ by construction. That pool has a
+different sentence segmenter and an unrecoverable original row order, so the
+figure measures the design and not the annotated gold exemplars. Their defect rate cannot be recovered
 because the schema does not record the trigger, which is why three
 instruments disagree by up to $0.9315$. It would be caught by a one-line
 assertion that the displayed exemplar belongs to the trigger set, once the
@@ -297,10 +298,10 @@ picks; that shows the check works, not how often the defect
 occurred here.
 \end{enumerate}
 
-The detector's ranking null is a supporting result: no AUROC effect above
-about $0.75$ to $0.81$ on the $253$ non-ambiguous pairs, what the evaluation
-could detect at 80 percent power, beside the $0.7034$ upper end of the bootstrap
-interval on the observed ensemble. The pre-registered planted-defect benchmark, a synthetic mirror of the rule
+The detector's ranking null is a supporting result. No AUROC effect above
+about $0.75$ to $0.81$ is found on the $253$ non-ambiguous pairs, which is what
+the evaluation could detect at 80 percent power; the bootstrap interval on the
+observed ensemble reaches $0.7034$ at its upper end. The pre-registered planted-defect benchmark, a synthetic mirror of the rule
 group comparison with a defect planted only in the Rules 3 and 4 group, did
 not reach its required firing rate at either rate tried. The two-sided
 Fisher test of Rules 1 and 2 against Rules 3 and 4 has a null read as an

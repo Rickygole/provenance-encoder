@@ -16,7 +16,7 @@ This chapter reports the measurements taken at each stage of the pipeline, one
 section per research question, in the order the stages run: the reading a
 competent evaluation would produce, the check designed to separate that
 reading from an artifact of measurement, and what the check returned. Five
-evaluation sets appear throughout, they are not interchangeable, and
+evaluation sets appear throughout. They are not interchangeable, and
 Table~\ref{tab:denoms} fixes them. Every metric below carries its denominator,
 and a ratio of two counts is written as that ratio, for example $12/253$.
 
@@ -41,8 +41,8 @@ $G_{108}$ & 108 & 6  & 102 & Rules 3 and 4, ambiguous dropped \\
 \end{table}
 
 A spread reported as $\pm$ or as SD in this chapter is a standard deviation
-across three seeds, not a standard error and not a confidence interval
-(Section~``\nameref{sec:m-stats}''), which defines both conventions in words. That standard deviation follows two conventions, because the underlying
+across three seeds, not a standard error and not a confidence interval;
+Section~``\nameref{sec:m-stats}'' defines both conventions in words. That standard deviation follows two conventions, because the underlying
 artifacts use two: the decontamination
 sources compute it under the population convention, and the
 control, convergence and ablation sources compute it under
@@ -99,7 +99,7 @@ opposite directions: Rule 2 has the highest pharmacist precision despite the
 smallest gold stratum and pool share, and Rule 1 the lowest despite the
 largest, so no single rule accounts for the pool's overall base rate.
 ACCORD's predicted-positive rate is insensitive to that more-than-fourfold
-spread in true precision across Rules 1 through 3, and drops only for Rule 4,
+spread in true precision across Rules 1 through 3. It drops only for Rule 4,
 the rule with no discharge-side mention to score, consistent with the
 calibration failure reported under weak supervision rather than with
 rule-sensitive discrimination. Combined, Rules 3 and 4 account for 134 of the
@@ -111,9 +111,9 @@ account for $165$ pairs with $6$ positives, a rate of $0.0364$; Rules 3 and 4 to
 $134$ pairs with $6$ positives, a rate of $0.0448$. A Fisher exact test on that $2 \times 2$ table
 gives an odds ratio of $0.805$ at $p = 0.7725$; its exact power at the observed rates is $0.0495$,
 and the smallest rise of the Rules 1 and 2 rate above the base rate detectable at 80 percent power is
-$0.094$, more than twice the base rate. This is a comparison between rule groups, confounded with
-rule content and base rate, not a test of the selection defect, and at this power it cannot show
-the groups equal. The pre-registered planted-defect benchmark is a synthetic mirror of it,
+$0.094$, more than twice the base rate. That compares two rule groups, and it is confounded with
+rule content and base rate; it is not a test of the selection defect. At this power it cannot show
+the groups equal either. The pre-registered planted-defect benchmark is a synthetic mirror of it,
 not a validation: $253$ simulated pairs, $139$ with $7$ positives against $114$ with $5$, a
 one-sided test, and a defect planted only in the Rules 3 and 4 group, the arm its pre-registration specifies so the simulation mirrors the real group comparison. It did not reach its required
 firing rate at either planted rate, which agrees with the low power above.
@@ -125,20 +125,20 @@ so none is reported for a rule on its own.
 \label{sec:r-exemplar}
 
 Each candidate reached the annotator as one nursing sentence paired with one
-discharge sentence. For the two action-conflict rules the discharge sentence was
-taken from the first row of the matched-mention frame rather than the row
-carrying the conflict that triggered the candidate. For some share of
+discharge sentence. For the two action-conflict rules the pipeline took that
+discharge sentence from the first row of the matched-mention frame rather than
+from the row carrying the conflict that triggered the candidate. For some share of
 action-conflict candidates, which the measurements below do not agree on, the
 annotator therefore judged a sentence pair that did not exhibit the conflict
 the prompt asserted was present.
 
 Two measurements of how often the defect fired exist on the $165$ pooled Rule 1
 and Rule 2 candidates, and they disagree, so both are reported. The first
-reconstructs the exemplar from a mentions-table snapshot, calibrated against
-what the pharmacist actually saw at $0.8934$ nursing-side and $0.9508$
-discharge-side fidelity, not perfectly, because the exact original row order
-is not recoverable from the retained artifacts: 137 of the
-165 candidates resolve, 28 do not, and among the 137, 65
+reconstructs the exemplar from a mentions-table snapshot. That reconstruction
+is calibrated against what the pharmacist actually saw at $0.8934$ nursing-side
+and $0.9508$ discharge-side fidelity, and no better, because the retained
+artifacts do not recover the exact original row order. Of the 165 candidates,
+137 resolve and 28 do not; among the 137, 65
 carried a discharge sentence that did not exhibit the conflict, a wrong rate
 of $0.4745$ (the reconstruction rate). The second uses
 a true key join instead of a reconstruction, exact where it applies but
@@ -162,19 +162,19 @@ fidelity. The rival reading generates the same table and points the other way:
 rows that reconstruct badly may be called wrong by the reconstruction rather
 than by the defect, making joinability a proxy for reconstructability and
 $0.4745$ the artifact. The $23$ key-joined rows are not a random subsample of
-the $165$, which is the whole of what the table supports; the table carries no $p$
+the $165$, and that is the whole of what the table supports. It carries no $p$
 value and belongs to no hypothesis family. The confound cannot be tested from
 the retained artifacts, and neither reading should be quoted alone.
 
-A third, pre-registered, direct measurement exists and settles the disagreement in neither
-direction. A purpose-built extractor written for this check, applied to the exact one-sentence pair
-the pharmacist saw, rather than to a reconstruction or a key join, finds a
+A third, pre-registered, direct measurement exists, and it settles the disagreement in neither
+direction. A purpose-built extractor written for this check reads the exact one-sentence pair
+the pharmacist saw rather than a reconstruction or a key join. It finds a
 defect rate of $0.9315$ on the $146$ Rules 1 and 2 rows it can decide
 ($136$ wrong), with a Wilson interval that lies above both $0$ and the
 reconstruction reading's point estimate of $0.4745$;
 excluding the $9$ decidable rows among the $15$
-discharge cells truncated at the sheet's own $200$-character cap the rate is
-$0.9416$ on $137$ decidable rows, still above both. So this instrument
+discharge cells truncated at the sheet's own $200$-character cap, the rate is
+$0.9416$ on $137$ decidable rows. This instrument
 lands above both existing readings rather than
 between them.
 
@@ -187,8 +187,7 @@ $136$ rows this extractor calls wrong, $69$ carry no classified action on at
 least one side, consistent with a missing cue rather than a genuine absence
 of conflict, and the remaining $67$ carry a classified, non-opposite pair of
 actions on both sides. The true rate, under any instrument tried so far,
-is unresolved rather than narrowed to a choice between the existing two, and
-no single number from this exercise establishes a rate. A
+is unresolved rather than narrowed to a choice between the existing two. A
 separate join across all four rules matches the $299$-row annotated sample to
 the rebuilt candidates table on only $35$ rows, because the gold sample was
 drawn by the original pipeline run; that is a different operation, not a fourth
@@ -270,10 +269,10 @@ ACCORD, released per-pair decision & 278 & 299 \\
 
 \citet{pangakis2023validation} argue that an automated annotation procedure must
 be validated against human labels on the same items; those items existed
-before the labelling run, and the comparison was not made. Three local 8B
-labellers were each run over the pool and the gold set, and the over-calling
-ratio, the positive rate divided by the gold base rate of $0.0401$, was measured
-for all three with zero unparseable responses. Table~\ref{tab:overcalling}
+before the labelling run, and the comparison was not made. This project ran
+three local 8B labellers over the pool and the gold set and measured the
+over-calling ratio, the positive rate divided by the gold base rate of
+$0.0401$, for all three, with zero unparseable responses. Table~\ref{tab:overcalling}
 carries every over-calling ratio this chapter reports with the count each rate
 is measured on; every ratio is well above 1, so no local 8B labeller tested is
 close to calibrated at this base rate.
@@ -336,10 +335,10 @@ the confirmed count and the flagged count fixed and placing every confirmed
 case inside the flagged set gives the best table those two marginals permit: a
 Matthews correlation ceiling, a kappa ceiling, and the smallest one-sided
 hypergeometric $p$ the labeller's own margins could return against the
-pharmacist's labels. That floor $p$ is a precondition rather than a result: it
-needs the labeller's realized flag count, so it is computable before any
-comparison with the gold labels, not before the labeller runs, and it says
-whether the test that follows could have rejected the null at all.
+pharmacist's labels. That floor $p$ needs the labeller's realized flag count,
+so it is computable before any comparison with the gold labels, though not
+before the labeller runs. It says whether the test that follows could have
+rejected the null at all.
 
 This bounds a thresholded decision only. A labeller that emits a
 continuous score is not bounded this way, because the threshold that turns a
@@ -471,9 +470,9 @@ is the least informative statistic, because a constant-positive
 predictor attains recall $1.0$ by construction at precision exactly equal to
 the base rate of whichever set it is scored on, and that predictor, the
 mining rules treated as the whole system, is the floor the two rows
-have to clear: both sit below $12/253$. Neither gap is tested, because no
-significance test for a margin this size is computed anywhere in this thesis;
-what the two rows support without a test is that this thesis's own detector
+have to clear: both sit below $12/253$. Neither gap is tested; no
+significance test for a margin this size is computed anywhere in this thesis.
+Without a test, the two rows support this much: this thesis's own detector
 and its evaluation baseline sit at or fractionally under the precision the
 rules alone would reach for free.
 
@@ -486,11 +485,11 @@ one direction. A post hoc decomposition of every cell's over-calling ratio
 into a true- and a
 false-positive-rate term (so a labeller with a genuinely high hit rate at a low
 base rate is not confused with one that simply flags almost everything) shows the
-same thing at the level of individual cells: of the $24$ public-text cells, three
+same thing cell by cell. Of the $24$ public-text cells, three
 models, two generic prompts, four prevalence levels, $7$ over-call, $15$ under-call
-and $2$ sit at a ratio of exactly one; none of the $24$ cells used the recovered
-clinical prompt, so the sweep's own generic prompts, not the clinical one, are
-what those $24$ cells speak to.
+and $2$ sit at a ratio of exactly one. None of the $24$ cells used the recovered
+clinical prompt, so those cells speak to the sweep's own generic prompts and not
+to the clinical one.
 
 Figure~\ref{fig:prevalence-response} shows the sweep. The maximum over-calling ratio measured across it, three models, two prompts and four
 prevalence levels on SNLI, is $3.5000$, reached by Llama 3 8B under the bare prompt at 2
@@ -607,12 +606,12 @@ replication run against $0.8729$ here, which differ in parser, seed and date;
 Section~``\nameref{sec:m-weak}'', Chapter~\ref{ch:method}), so its direction is not interpreted. The
 Granite 3.3 8B and Qwen 3 8B shifts are many times their own
 between-run gaps ($0.7425$ against $0.7492$; $0.6187$ against $0.5686$), so the
-framing is read as a contributor for those two models only, though which of its confounded
-differences acts is not identified, and the pre-registered criterion this
-project set for calling the reduction sufficient, that the plain-prompt
+framing is read as a contributor for those two models only, and which of its confounded
+differences acts is not identified. The criterion this
+project pre-registered for calling the reduction sufficient was that the plain-prompt
 ratio come down to the $3.5000$ ceiling already measured on public text under
-a prompt that never names a clinical conflict at all, is not met by any of
-the three: even after the largest reductions, Granite 3.3 8B's
+a prompt that never names a clinical conflict at all. None of the three meets
+it: even after the largest reductions, Granite 3.3 8B's
 plain-prompt ratio is $8.9167$ and Qwen 3 8B's is $4.8333$ under the
 ambiguous-negative reading, both still above that ceiling. Reading the
 ambiguous pairs as confirmed contradictions instead moves every ratio in this
@@ -634,8 +633,7 @@ Qwen 3 8B result here is not established as a reproducible draw.
 Whether a labeller concentrates its false positives on the pairs the
 pharmacist declined to call, rather than spreading them evenly across the
 $287$ non-confirmed pairs, was tested by a one-sided Fisher exact test on flag
-rate, ambiguous against clear-negative, replicated across labellers under two
-prompts each. Four hosted labellers under two prompts each were tested this
+rate, ambiguous against clear-negative. Four hosted labellers under two prompts each were tested this
 way, eight tests in total; every one was run through the Anthropic API or AWS
 Bedrock, so every odds ratio, every $p$ value, and the gradient itself are
 withdrawn with the runs that produced them. The
@@ -671,9 +669,8 @@ the over-calling is robust to annotation error.
 \subsection{Whether a score rescues it}
 \label{sec:r-score}
 
-Everything in the feasibility gate bounds a labeller that emits a hard flag; a labeller
-that emits a continuous score is not bounded by that ceiling, because its
-threshold can be swept after the fact. The first graded score, the pre-registered
+The feasibility gate bounds only a labeller that emits a hard flag, since the
+threshold on a continuous score can be swept after the fact. The first graded score, the pre-registered
 graded-score check of Granite 3.3 8B's first-token log-odds of a contradiction across the $253$ non-ambiguous
 pairs, reaches an AUROC of $0.5467$ (one-sided Mann-Whitney $p = 0.2934$),
 below every per-test floor of the power simulation. It is not the only graded score: the
@@ -683,9 +680,8 @@ both under the reversed prompt, so whether a graded score escapes the ceiling
 is not settled by this project.
 
 The strongest of these, Llama 3 8B under the reversed prompt, was put to
-the pre-registered prompt-wording confirmation, which tested its
-wording with three new paraphrases plus a byte-for-byte rerun, which
-reproduced exactly. The score ranked above chance under every wording tried at the uncorrected $0.05$ level,
+the pre-registered prompt-wording confirmation: three new paraphrases plus a
+byte-for-byte rerun, which reproduced exactly. The score ranked above chance under every wording tried at the uncorrected $0.05$ level,
 cleared the Bonferroni threshold under the first new wording only ($p = 0.0030$), and reached the $0.7355$ threshold of the registered decision rule under none of the three new ones: AUROC
 $0.7310$, $0.6432$ and $0.6515$, $0$ of $3$ against a required $2$, so it did not meet its rule. The Llama 3 8B signal sits in the Rules 1 and 2 rows
 that carry the exemplar defect, and it is not
@@ -738,9 +734,9 @@ whose target is derivable from its inputs is not an auxiliary task. In-domain, t
 rule-type head reaches a macro $F_1$ of $0.9603$, a metric whose target was in
 its input and so is uninterpretable as evidence of learning. Values on two
 secondary cohorts were also recorded, but the code that produced them does not
-survive and their accuracy sits below what any constant predictor would score,
+survive. Their accuracy sits below what any constant predictor would score,
 which a copied input feature cannot explain, since the rule feature does not
-depend on the cohort; they are not established to be valid and are not
+depend on the cohort. They are not established to be valid and are not
 reported. The finding rests on the code alone.
 
 \paragraph{Harm estimation was never trained.} The guideline bank is one randomly
@@ -833,8 +829,7 @@ labeller, scoring the weak label as a 0/1 score. On $G_{253}$ the labeller's
 AUROC is $0.5185$ (95 percent interval $0.4194$ to $0.5758$) against the
 ensemble's $0.5145$; the paired difference, detector minus labeller, is
 $-0.0040$, 95 percent interval $-0.1760$ to $0.1660$. The interval is wide, so
-the two rankings are not distinguishable, which is not a demonstration that
-they are equal. Two unrelated rankings at chance would also fit this interval, so the comparison is consistent with, not evidence for, a student reproducing its teacher. On $G_{299}$ the labeller's AUROC is $0.5228$. Descriptively, with $6$
+the two rankings are not distinguishable. Two unrelated rankings at chance would also fit it, so the comparison is consistent with, not evidence for, a student reproducing its teacher. On $G_{299}$ the labeller's AUROC is $0.5228$. Descriptively, with $6$
 positives per stratum, the labeller gives $0.5216$ on the $145$ Rules 1 and 2
 non-ambiguous pairs and $0.5294$ on the $108$ Rules 3 and 4 non-ambiguous
 pairs, against the ensemble's $0.4221$ and $0.6095$ on the same two strata, so
@@ -957,10 +952,9 @@ $G_{134}$ & Control ensemble  & 0.5469 & 0.5078 & $0.0391$  & 0.0496 & $0.7881$ 
 \label{tab:delong}
 \end{table}
 
-The seeds and the ensemble are correlated predictors scored on the same pairs,
-so the comparison has to be paired. In the first row the standard error on the
-difference is eleven times the difference itself. Most
-rows have that shape; seed 2024 and $G_{134}$ have standard errors only somewhat
+In the first row the standard error on the
+difference is eleven times the difference itself. Most rows have that shape.
+Seed 2024 and $G_{134}$ have standard errors only somewhat
 above their differences, and none of the five approaches significance.
 
 \subsection{Reference baselines: bag-of-words and off-the-shelf NLI}
@@ -1024,9 +1018,9 @@ average-precision signal that a label-free model also finds; the robustness
 checks' registered interpretation calls it a surface lexical or
 semantic-similarity signal. It is not evidence that the weak labels carried
 signal, and not evidence that either model exceeds the detector. Nor does a gold-only retrain
-find it: a second, also pre-registered check, a
+find it. A second pre-registered check, a
 nested-CV variant fit only on
-the 253 gold rows, refit and re-selected inside every outer fold so no
+the 253 gold rows and refit and re-selected inside every outer fold so no
 weak-label information reaches it, pools to an out-of-fold AUROC of
 $0.3434$, AP $0.0362$, one-sided Mann-Whitney $p = 0.9666$, worse than a
 constant-score floor. This is not evidence against a precision signal
@@ -1045,8 +1039,7 @@ per-pair score, run only after the detector's recomputed AUROC matched
 its registered value to four decimal places, finds no significant
 difference on either basis: $p = 0.2113$ on $G_{253}$ and $p = 0.2550$ on
 $G_{299}$. This baseline is therefore not shown to discriminate on its own
-terms, and it is not shown to differ from the detector either; both readings
-survive.
+terms, and it is not shown to differ from the detector either.
 
 \subsection{What the instrument could have seen}
 
@@ -1159,7 +1152,7 @@ defect this subsection exists to prevent.
 \label{sec:res-metrics}
 
 At 12 positives against 241 negatives the standard summary statistics do
-something mechanical, and it is worth reporting apart from the system because it
+something mechanical. That behaviour belongs apart from the system, because it
 is arithmetic and survives any change of system. Balanced accuracy \citep{brodersen2010balanced} is the unweighted mean of
 sensitivity and specificity, so a classifier that forgoes one true positive is
 preferred whenever it avoids more than the ratio of negatives to positives,

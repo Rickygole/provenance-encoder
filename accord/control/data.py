@@ -29,19 +29,21 @@ this module's callers.
 """
 from __future__ import annotations
 
+import os
 import random
 from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
 
-MENTIONS_PATH = "/Users/rickygole/mimic_local_only/accord/hf_medication_mentions.csv.gz"
-WS_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_weak_supervision_labels_decontam.csv"
-GOLD_PATH = "/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv"
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+MENTIONS_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord/hf_medication_mentions.csv.gz")
+WS_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_supp/accord_weak_supervision_labels_decontam.csv")
+GOLD_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "derived/gold_standard_accord_results.csv")
 # Repointed off the Google Drive mount: this file joins verbatim note
 # sentences to HADM_ID, which must not sit in cloud storage.
-SAMP_PATH = "/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv"
-AUDIT_PATH = "/Users/rickygole/mimic_local_only/accord_supp/accord_decontamination_audit.csv"
+SAMP_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "from_drive_2026-08-08/outputs/annotation_sample_300.csv")
+AUDIT_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_supp/accord_decontamination_audit.csv")
 
 SPLIT_SEED = 1337   # fixed train/val subject split, independent of model seed
 TRAIN_FRAC = 0.85

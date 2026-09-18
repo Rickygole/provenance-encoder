@@ -15,9 +15,9 @@ This thesis applies no new method. It takes a pipeline whose shape is standard i
 language processing (NLP), rule-based candidate mining followed by language model weak supervision
 followed by a purpose-built neural detector, and runs at each stage a check that separates a real
 finding from an artifact of the measurement. The checks are borrowed, each credited again wherever
-it appears later, so what this chapter has to establish is narrower than a conventional review: not
-that a gap exists in the space of methods, but that a gap exists in the space of things that have
-been checked. The review runs along five threads: the clinical task itself, attempted far less often than its
+it appears later. What this chapter has to establish is therefore narrower than a conventional
+review: the gap lies in the space of things that have been checked rather than in the space of
+methods. The review runs along five threads: the clinical task itself, attempted far less often than its
 importance suggests; weak supervision and label noise, where a single language model annotating a
 rare class falls outside the theory the field's tooling rests on; evaluation under low prevalence, a
 literature more than half a century old that this thesis applies rather than extends; controls and
@@ -38,13 +38,13 @@ discharge \citep{wong2008reconciliation}, discontinuity between inpatient and ou
 a meaningful share of discharged patients \citep{moore2003discontinuity}, adverse events after
 discharge are frequently drug-related and preventable \citep{forster2003adverse}, the document meant
 to prevent them is itself unreliable in content and timing \citep{kripalani2007deficits}, and its
-timeliness is associated with patient outcomes \citep{li2013timeliness}. Two features of that literature shape the computational formulation: the most common discrepancy
-category is omission, a relation between a statement and the absence of one rather than a
-disagreement between two statements, an asymmetry that does not survive translation into a
-sentence-pair classification task; and the two sides of a cross-note comparison are not
-interchangeable, since a discharge medication list is an instruction that will be acted on while a
-nursing note records what was observed, and that relation has a direction that carries the
-consequence.
+timeliness is associated with patient outcomes \citep{li2013timeliness}. Two features of that
+literature shape the computational formulation. The most common discrepancy category is omission, a
+relation between a statement and the absence of one rather than a disagreement between two
+statements, and that asymmetry does not survive translation into a sentence-pair classification
+task. The two sides of a cross-note comparison are also not interchangeable: a discharge medication
+list is an instruction that will be acted on while a nursing note records what was observed, and
+that relation has a direction that carries the consequence.
 
 \subsection{Formulations inherited from natural language inference}
 
@@ -81,21 +81,22 @@ algorithm for medication discrepancy detection at Cincinnati Children's Hospital
 structured discharge prescription lists against free-text notes for 271 patients in a Complex Care
 Medical Home Program. Component performance on entity detection and attribute linkage is strong, but
 combining stages drops precision, recall and $F$-measure to 71.5 percent, 65.2 percent and 68.2 percent on discrepant
-medications, well below the matched-medication figures. Three properties of that setting explain why the numbers do not transfer, and they define the problem
-this thesis takes on: one side of the comparison is structured rather than extracted from prose, the
-cohort is a care-management program followed deliberately and so has a raised base rate, and the
-comparison is anchored, since every prescription in the list is a candidate and no retrieval step can
-silently bound recall. Remove all three, as a free-text-to-free-text comparison over an unselected
-critical care cohort does, and detection becomes inseparable from retrieval: a candidate generator
-sits in front of the model and caps its recall absolutely.
+medications, well below the matched-medication figures. Three properties of that setting explain why
+the numbers do not transfer, and between them they define the problem this thesis takes on. One side
+of the comparison is structured rather than extracted from prose; the cohort is a care-management
+program followed deliberately and so has a raised base rate; and the comparison is anchored, since
+every prescription in the list is a candidate and no retrieval step can silently bound recall.
+Remove all three, as a free-text-to-free-text comparison over an unselected critical care cohort
+does, and detection becomes inseparable from retrieval: a candidate generator sits in front of the
+model and caps its recall absolutely.
 
 The extraction machinery for the medication half is mature: shared tasks established the entity and
 attribute layer \citep{uzuner2010medication,henry2020n2c2}, negation handling has a standard solution
 \citep{chapman2001negex}, and open tooling is available \citep{neumann2019scispacy,eyre2021medspacy}.
-The layer above it is not: \citet{weiskopf2013quality} find completeness, correctness and
+The layer above it is not. \citet{weiskopf2013quality} find completeness, correctness and
 plausibility handled unevenly, and consistency across documents about one episode is a dimension the
-reuse literature flags and the extraction literature does not target. The deployment literature is
-clear about the consequence: \citet{vandersijs2006overriding} report override rates of 49 percent to 96 percent
+reuse literature flags and the extraction literature does not target. The deployment literature says
+what that costs. \citet{vandersijs2006overriding} report override rates of 49 percent to 96 percent
 for low-precision drug safety alerts, and \citet{ancker2017alertfatigue} find acceptance associated
 with alert-stream complexity rather than workload, so a recall figure without the corresponding
 precision says nothing about clinical usefulness.
@@ -118,9 +119,9 @@ by writing rules over an auxiliary text modality \citep{dunnmon2020crossmodal};
 The guarantees require multiple sources whose errors are conditionally independent given the true
 label, so that disagreement is informative and aggregation recovers a better label than any single
 source. With one source, aggregation is the identity function and the generative model has no signal
-to fit; this is the stated premise, not a subtlety buried in the proofs. What the literature does not
-give is a check that can be run before annotation when only one source is available, which is
-what a single instruction-tuned model creates.
+to fit; this is the stated premise, not a subtlety buried in the proofs. A single instruction-tuned
+model puts a project in exactly that one-source position, and the literature supplies no check that
+can be run before annotation when only one source is available.
 
 \subsection{The language model as annotator}
 
@@ -170,8 +171,8 @@ The relevance to weak supervision is direct and, in clinical NLP, largely
 unremarked. When a weak labeller's positive rate differs from the base rate, the quantification
 literature says both what the discrepancy means and what correcting it requires: estimates of the
 labeller's true and false positive rates on the same distribution, which require gold labels. This
-correction and the Egami correction therefore fail for the same reason in the same setting, worth
-noticing before running the annotator rather than after.
+correction and the Egami correction therefore fail for the same reason in the same setting. That is
+worth knowing before the annotator runs rather than after.
 
 \section{Evaluation Under Class Imbalance and Low Prevalence}
 \label{sec:lit-metrics}
@@ -179,19 +180,19 @@ noticing before running the annotator rather than after.
 \subsection{Agreement statistics depend on prevalence}
 
 Cohen's kappa \citep{cohen1960kappa} corrects observed agreement for the agreement expected by
-chance under the observed marginals, a function of those marginals in ways that surprise readers who
-take it for a corrected accuracy, and bounded above by a maximum the marginals themselves fix.
-\citet{feinstein1990paradoxes} set out the two paradoxes: high
-observed agreement can coexist with a low kappa when the marginals are badly unbalanced, and
-unbalanced marginals can raise rather than lower kappa; the companion paper
+chance under the observed marginals. It therefore depends on those marginals in ways that surprise
+readers who take it for a corrected accuracy, and it is bounded above by a maximum the marginals
+themselves fix. \citet{feinstein1990paradoxes} set out the two paradoxes: high observed agreement can
+coexist with a low kappa when the marginals are badly unbalanced, and unbalanced
+marginals can raise rather than lower kappa; the companion paper
 \citep{cicchetti1990resolving} works through the resolution and recommends reporting the marginals
 alongside the statistic. \citet{byrt1993pabak} respond with the prevalence-adjusted bias-adjusted
 kappa, an affine function of observed agreement, $\mathrm{PABAK} = 2p_o - 1$, which removes the
-marginal sensitivity by removing the marginal information: it reports a rescaled observed agreement
+marginal sensitivity by removing the marginal information. It reports a rescaled observed agreement
 under the name of a chance-corrected coefficient, so a system evaluated by PABAK on a set with twelve
-positives is scored almost entirely on its behaviour on the negatives, and whether that is right
-depends on the exchange rate between a missed contradiction and a false alarm, a clinical question
-the papers in this thread do not address.
+positives is scored almost entirely on its behaviour on the negatives. Whether that is right depends
+on the exchange rate between a missed contradiction and a false alarm, a clinical question the papers
+in this thread do not address.
 
 \subsection{The Matthews line and its limits}
 
@@ -286,10 +287,10 @@ that assignment recovers the gain, the credited feature was not the source.
 
 \citet{kaufman2012leakage} give the formulation, detection and avoidance of leakage in data mining:
 the introduction of information about the target that should not legitimately be available. Their
-detection advice is behavioural, since a model performing implausibly well relative to the task's
-difficulty is the primary symptom; an auxiliary objective derivable from the model's own inputs is a
-textbook instance, and the diagnosis is that the target is not independent of what the model already
-has. \citet{jacobs2021measurement} bring measurement modelling from the quantitative social sciences to
+detection advice is behavioural: the primary symptom is a model performing implausibly well relative
+to the task's difficulty. An auxiliary objective derivable from the model's own inputs is a textbook
+instance, and the diagnosis is that the target is not independent of what the model already has.
+\citet{jacobs2021measurement} bring measurement modelling from the quantitative social sciences to
 computational systems, and their framing covers the whole chapter: systems operationalise
 unobservable constructs through observable proxies, and the gap between construct and
 operationalisation is where harms and invalid conclusions originate. They give fairness-oriented
@@ -332,17 +333,16 @@ them.}
 
 The literature on disaggregated evaluation bears on this thesis only through the idea of auditing a
 pipeline stage by stage, since its fairness quantities are not claims about this thesis's own
-contradiction detector. On stage-by-stage auditing of pipelines,
-\citet{biswas2021fairpreprocessing} already do stage-level auditing: they study fairness introduced
-by data preprocessing rather than by the classifier, evaluate 37 pipelines drawn from three sources
-using causal fairness measures, and show how the local fairness of individual preprocessing stages
-composes into the fairness of the pipeline as a whole. The difference from the present work is the
-object audited, not the idea of auditing by stage: their metric, fairness against protected
-attributes, is defined at every stage, whereas the quantity here is the validity of each stage's
-evidential claim, whether a candidate pool contains the pairs it should, whether a weak labeller's
-marginal is usable, whether an architectural component contributes what it is credited with, and
-whether the evaluation could resolve an effect. These are stage-specific and not comparable to one
-another, so they cannot be composed the way a fairness metric composes.
+contradiction detector. \citet{biswas2021fairpreprocessing} already audit at stage level: they study
+fairness introduced by data preprocessing rather than by the classifier, evaluate 37 pipelines drawn
+from three sources using causal fairness measures, and show how the local fairness of individual
+preprocessing stages composes into the fairness of the pipeline as a whole. What differs here is the
+object audited. Their metric, fairness against protected attributes, is defined at every stage,
+whereas the quantity here is the validity of each stage's evidential claim, whether a candidate pool
+contains the pairs it should, whether a weak labeller's marginal is usable, whether an architectural
+component contributes what it is credited with, and whether the evaluation could resolve an effect.
+These are stage-specific and not comparable to one another, so they cannot be composed the way a
+fairness metric composes.
 \citet{sculley2015debt} anticipate the general hazard, that system-level defects arise at component
 boundaries rather than inside any one of them, without proposing per-stage checks.
 
@@ -356,17 +356,19 @@ each outcome whichever way it falls: \citet{biswas2021fairpreprocessing} audit b
 defined at every stage, and \citet{sculley2015debt} name the hazard at component boundaries without
 per-stage checks. Second, the maximum agreement attainable under fixed marginals is classical
 \citep{cohen1960kappa}, and automated annotation must be validated against human labels
-\citep{pangakis2023validation,egami2023surrogates}; no work was found that uses the bound, with the minimum attainable significance of a discrete test
-\citep{tarone1990modified}, as a check on a single language-model labeller's marginal, a check
-needing only a base rate from a small expert-labelled sample, which this thesis recommends before
-training but applied here after the fact.
+\citep{pangakis2023validation,egami2023surrogates}. No work was found that uses the bound, together
+with the minimum attainable significance of a discrete test \citep{tarone1990modified}, as a check on
+a single language-model labeller's marginal. Such a check needs only a base rate from a small
+expert-labelled sample; this thesis recommends running it before training and applied it here after
+the fact.
 
 Third, the nearest descriptions of the mining bug pattern are neighbours, not
 instances: leakage \citep{kaufman2012leakage} is target information a model should not see, label
 errors \citep{northcutt2021labelerrors} are wrong labels on correctly displayed items, and boundary
 defects \citep{sculley2015debt} are named without a check. In trigger-exemplar dissociation the label
-may be right while the evidence displayed with it is not what triggered the candidate, its rate cannot be
-recovered after the fact when the schema does not record the trigger, and none of those framings
-supplies the one-line assertion that would catch it once the schema does. The question this thesis asks is therefore narrower than the pipeline that motivates it: what each
+may be right while the evidence displayed with it is not what triggered the candidate. Its rate
+cannot be recovered after the fact when the schema does not record the trigger, and none of those
+framings supplies the one-line assertion that would catch it once the schema does.
+The question this thesis asks is therefore narrower than the pipeline that motivates it: what each
 stage's reported number is worth once its check is run, at a sample size that resolves only large
 effects. Nothing that follows claims a method this chapter has attributed to someone else.
