@@ -33,6 +33,7 @@ import argparse
 import collections
 import contextlib
 import json
+import os
 import pathlib
 import sys
 import time
@@ -53,17 +54,18 @@ EPOCHS = 3
 EXPECTED_N_TRAIN = 1183
 EXPECTED_N_LEAKED = 291
 
-REPL_POOL_LABELS_PATH = pathlib.Path.home() / "mimic_local_only" / "accord_multillm" / "pool_replication_labels_llama3_8b.csv"
-REPL_GOLD_LABELS_PATH = pathlib.Path.home() / "mimic_local_only" / "accord_multillm" / "gold_replication_labels_llama3_8b.csv"
-WS_PATH = pathlib.Path.home() / "mimic_local_only" / "accord_supp" / "accord_weak_supervision_labels_decontam.csv"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+REPL_POOL_LABELS_PATH = MIMIC_LOCAL_ONLY_DIR / "accord_multillm" / "pool_replication_labels_llama3_8b.csv"
+REPL_GOLD_LABELS_PATH = MIMIC_LOCAL_ONLY_DIR / "accord_multillm" / "gold_replication_labels_llama3_8b.csv"
+WS_PATH = MIMIC_LOCAL_ONLY_DIR / "accord_supp" / "accord_weak_supervision_labels_decontam.csv"
 PER_MODEL_RESULTS = ROOT / "results" / "accord" / "multillm" / "per_model_results.json"
 FACTS_PATH = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"
 REGISTERED_MARGINAL_KEY = "overcall.llama3_8b.pool.positive_rate"
 
-C130_OUT_DIR = pathlib.Path.home() / "mimic_local_only" / "accord_c130_reproducible_student"
+C130_OUT_DIR = MIMIC_LOCAL_ONLY_DIR / "accord_c130_reproducible_student"
 RESULTS_OUT = ROOT / "results" / "accord" / "c130_reproducible_student" / "c130.json"
 
-LOG_DIR = pathlib.Path.home() / "mimic_local_only" / "logs"
+LOG_DIR = MIMIC_LOCAL_ONLY_DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_PATH = assert_local_only(LOG_DIR / f"c130_run_{time.strftime('%Y%m%dT%H%M%S')}.log")
 

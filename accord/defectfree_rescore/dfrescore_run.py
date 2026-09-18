@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import pathlib
 import sys
 import time
@@ -37,16 +38,17 @@ sys.path.insert(0, str(ROOT / "accord" / "control"))
 
 from accord.cloud_paths import assert_local_only  # noqa: E402
 
-LOG_DIR = pathlib.Path.home() / "mimic_local_only" / "logs"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+LOG_DIR = MIMIC_LOCAL_ONLY_DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_PATH = assert_local_only(LOG_DIR / f"dfrescore_{time.strftime('%Y%m%dT%H%M%S')}.log")
 
 OUT = ROOT / "results" / "accord" / "defectfree_rescore" / "dfrescore_strata.json"
 
-DETECTOR_PATH = pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"
-NLI_PATH = pathlib.Path.home() / "mimic_local_only" / "derived" / "nli_scores_roberta_large_mnli.csv"
+DETECTOR_PATH = MIMIC_LOCAL_ONLY_DIR / "derived" / "gold_standard_accord_results.csv"
+NLI_PATH = MIMIC_LOCAL_ONLY_DIR / "derived" / "nli_scores_roberta_large_mnli.csv"
 PHARM_PATH = (
-    pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-08-08" / "outputs" / "pharmacist_labeled_clean.csv"
+    MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08" / "outputs" / "pharmacist_labeled_clean.csv"
 )
 BASELINES_PATH = ROOT / "results" / "accord" / "control" / "baselines.json"
 FACTS_PATH = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"

@@ -3,7 +3,7 @@
 Render the ACCORD thesis figures from committed result files.
 
 Every number drawn on every axis in this script is read out of a JSON file
-under /Users/rickygole/provenance-encoder/results/accord/ (or computed
+under results/accord/ at the repository root (or computed
 analytically from numbers read out of those files -- e.g. the MCC
 indifference curve in make_fig_met_exchange is a closed-form function of a
 confusion matrix that IS in a result file). Nothing here is a literal typed
@@ -14,7 +14,7 @@ the manifest), or it is skipped entirely -- see SKIPPED at the bottom and
 the printed report.
 
 Run:
-    python3 /Users/rickygole/provenance-encoder/accord/thesis/figures/make_figures.py
+    python3 accord/thesis/figures/make_figures.py      (from the repository root)
 
 Output:
     accord/thesis/figures/fig-*.pdf   (one per buildable spec)
@@ -250,13 +250,16 @@ def make_fig_pipeline_status():
     LABEL = {NOTEST: NOTEST, UNSUP: "reading unsupported", BOUNDED: BOUNDED}
     # ROUND 10 (audit item 9). One rounding rule for the whole canvas: two
     # decimals, full precision stays in the tables and in the manifest note
-    # below. Two decimals still keeps the three-instrument disagreement in
-    # row 1 distinguishable (0, 0.47, 0.93).
+    # below.
+    # FIGURE POLISH. One exception, row 1's three miss rates, which print at
+    # the precision every caption and Figure 2's deck print them (0, 0.4745,
+    # 0.9315): the same three numbers at two precisions on facing figures read
+    # as two different sets of numbers.
     rows = [
         (1, "Candidate mining", NOTEST,
          f"precision {base:.2f}\non {n_gold} gold pairs",
          "Is the exemplar in the trigger set?",
-         f"miss rate {ex_lo:.0f}, {ex_mid:.2f} or {ex_hi:.2f} by instrument"),
+         f"miss rate {ex_lo:.0f}, {ex_mid:.4f} or {ex_hi:.4f} by instrument"),
         (2, "Weak supervision", UNSUP,
          f"{n_flag} of {n_c120} pairs\nflagged",
          "Marginal ceiling, then measured agreement",
@@ -264,7 +267,10 @@ def make_fig_pipeline_status():
         (3, "Architecture", UNSUP,
          # ROUND 10 (audit item 10): name the metric and the split, not just
          # "F1", so a reader does not have to guess which head or which set.
-         f"rule-type test macro-F1 {f1_rule:.2f},\ntwo more components",
+         # FIGURE POLISH. Broken after the metric name, not after the value:
+         # the four-decimal chip in row 1 is 18pt wider than the two-decimal
+         # one and this line set the width of the whole REPORTED column.
+         f"rule-type test macro-F1\n{f1_rule:.2f}, two more components",
          "Code audit of the three credited components",
          "artifact, target in input, untrained"),
         (4, "Evaluation", BOUNDED,
@@ -277,7 +283,11 @@ def make_fig_pipeline_status():
     # round-9 canvas, the only size change in this figure, so a three-item key
     # fits between the headline block and the header row without crowding the
     # four rows, which keep their original bottom-anchored positions below.
-    W, H = FIGW, 3.34
+    # FIGURE POLISH. H grows again, by 0.15in, and all of it goes between the
+    # headline block and the header row: the headline's third line ended 44pt
+    # below the top edge and the header row was centred at 45.2pt, so the two
+    # shared a band.
+    W, H = FIGW, 3.49
     fig, ax = plt.subplots(figsize=(W, H))
     canvas(fig)
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
@@ -301,9 +311,9 @@ def make_fig_pipeline_status():
     name_w = max(max(width_pt(r[1], fontsize=10.5) for r in rows),
                  max(width_pt(LABEL[r[2]], fontsize=T_NOTE, style="italic")
                      for r in rows))
-    X_REP = X_NAME + name_w + 14.0
+    X_REP = X_NAME + name_w + 10.0
     rep_w = max(width_pt(r[3], fontsize=T_SERIES, linespacing=1.22) for r in rows)
-    X_CHK = X_REP + rep_w + 16.0
+    X_CHK = X_REP + rep_w + 11.0
 
     # The carrier: stages 2 to 4 consumed the exemplar stage 1 selected. It
     # records shared input, not cause and not a defect rate, so it is a neutral
@@ -330,7 +340,12 @@ def make_fig_pipeline_status():
         ax.text(X_NAME, mid - 8.0, LABEL[status], ha="left", va="center",
                 fontsize=T_NOTE, style="italic",
                 color=SCARLET_DEEP if status == UNSUP else MUTE, zorder=5)
-        ax.text(X_REP, mid, reported, ha="left", va="center",
+        # FIGURE POLISH. The first line of every reported block sits on the
+        # stage name's line. Centring the block on mid did that for the
+        # two-line rows only and left row 4's single line half a line low.
+        n_rep = reported.count("\n") + 1
+        ax.text(X_REP, mid + 5.5 - (n_rep - 1) * 0.5 * T_SERIES * 1.22,
+                reported, ha="left", va="center",
                 fontsize=T_SERIES, color=INK, linespacing=1.22, zorder=5)
         ax.text(X_CHK, mid + 9.5, check, ha="left", va="center",
                 fontsize=T_NOTE, style="italic", color=MUTE, linespacing=1.15,
@@ -376,11 +391,10 @@ def make_fig_pipeline_status():
                     fontsize=T_CHIP, fontweight="bold", color=INK, zorder=7)
         assert X_CHK + w_i < W * 72 - 4.0, f"chip overflows the canvas: {finding}"
 
-    # ROUND 10 (audit item 3). The header keeps its old 45.2pt distance from
-    # the top of the canvas (unchanged since the headline block above it did
-    # not change); H grew instead, so the extra room lands between the header
-    # and the rows, which is exactly where the new key goes.
-    HEADER_Y = H * 72 - 45.2
+    # ROUND 10 (audit item 3). H grew so a key fits between the header and
+    # the rows. FIGURE POLISH: the header is now 56.0pt below the top edge, not
+    # 45.2pt, which clears the three-line headline by a full line of lead.
+    HEADER_Y = H * 72 - 56.0
     LEGEND_Y = HEADER_Y - 16.0
     ax.text(X_REP, HEADER_Y, "REPORTED", ha="left", va="center",
             fontsize=T_FLOOR, color=MUTE, zorder=5)
@@ -426,7 +440,7 @@ def make_fig_pipeline_status():
 
     signature(fig, SCARLET_DEEP,
               headline="Three of the four stage readings did not survive their checks\n"
-              "(one not established, two unsupported); the fourth, the evaluation's\n"
+              "(one not established, two unsupported); the fourth, the evaluation\u2019s\n"
               "near-chance reading, survived as a bounded null.")
     fname = "fig-pipeline-status.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
@@ -436,8 +450,9 @@ def make_fig_pipeline_status():
              "Four stages numbered 1 to 4 as Chapter 1 numbers them. Every number "
              "is read by key from results/accord/VERIFIED_FACTS.json (keys: "
              + ", ".join(PIPELINE_KEYS) + "); no withdrawn key is readable. Every "
-             "number on the canvas prints to two decimals, one rule for the whole "
-             "figure; full precision stays in this note and in the tables. Three "
+             "number on the canvas prints to two decimals, except stage 1's three "
+             "miss rates, which print to four as the captions do; full precision "
+             "stays in this note and in the tables. Three "
              "chip encodings, distinct in greyscale and named in an on-canvas key: "
              f"stage 1 not established (MIST fill, dashed GRAPHITE rim, hatched; "
              f"miss rate {ex_lo:.0f}, {ex_mid:.4f} or {ex_hi:.4f} by instrument); "
@@ -593,9 +608,9 @@ def make_fig_intro_headline():
     signature(fig, PLUM_DEEP,
               f"The weak labeller calls {pred_pos} of {pred_n} gold-set "
               f"pairs contradictions.\n"
-              f"The pharmacist's base rate is {pharm_pos/pharm_n:.4f}.",
-              deck=f"{gold_ratio:.0f}x: the weak labeller's marginal over the "
-                   f"pharmacist's, on the same {pharm_n} pairs.")
+              f"The pharmacist\u2019s base rate is {pharm_pos/pharm_n:.4f}.",
+              deck=f"{gold_ratio:.0f}x: the weak labeller\u2019s marginal over the "
+                   f"pharmacist\u2019s, on the same {pharm_n} pairs.")
     fname = "fig-intro-headline.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -752,6 +767,15 @@ def make_fig_exemplar():
         else:
             ax.text(x_note, y + 18.0, text, ha="left", va="bottom",
                     fontsize=T_NOTE, color=tone, linespacing=1.2, zorder=5)
+            # FIGURE POLISH. That position is level with row 4, and with no
+            # leader the note read as describing M4. An elbow in the leader's
+            # own tone and weight now runs from the note down onto the "fired"
+            # leader, so the note and the tag reach row 5 by one line.
+            x_elb = (x0 + x_note - 4.0) / 2
+            y_txt = y + 18.0 + T_NOTE * 1.2
+            ax.plot([x_note - 4.0, x_elb, x_elb], [y_txt, y_txt, y],
+                    color=SLATE, lw=1.0, solid_capstyle="butt",
+                    solid_joinstyle="miter", zorder=4)
         assert x_note + 104.0 < x_right, "note leaves the canvas"
 
     ex_lo = 1.0 - fact("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate")
@@ -856,7 +880,7 @@ def make_fig_rule_precision():
     frame(ax)
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0)
-    if SHOW_INFIGURE_TITLES: ax.set_title("ACCORD's own ranking performance does not exceed chance\nwithin any single rule", fontsize=8.3)
+    if SHOW_INFIGURE_TITLES: ax.set_title("ACCORD\u2019s own ranking performance does not exceed chance\nwithin any single rule", fontsize=8.3)
     if SHOW_INFIGURE_NOTES: fig.text(0.02, 0.02,
              "Deviation from spec: per-rule ACCORD *precision* (as in the written spec) is not in any\n"
              "committed result file; per-rule AUROC is (defect_free_strata.json) and is shown instead.\n"
@@ -986,7 +1010,7 @@ def make_fig_tracking():
     ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
     ax.set_xlim(-0.35, 3.05)
     frame(ax)
-    if SHOW_INFIGURE_TITLES: ax.set_title("The student tracks the teacher's marginal, not the truth's",
+    if SHOW_INFIGURE_TITLES: ax.set_title("The student tracks the teacher\u2019s marginal, not the truth\u2019s",
                  fontsize=8.5)
     fname = "fig-tracking.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
@@ -1154,7 +1178,7 @@ def make_fig_met_exchange():
     ax.set_yticks([0, 50, 100, 150, Y_HI])
     frame(ax)
     signature(fig, SCARLET_DEEP,
-              "Two of three systems clear every exchange rate ACCORD's "
+              "Two of three systems clear every exchange rate ACCORD\u2019s "
               "counts define.")
     fname = "fig-met-exchange.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
@@ -1476,7 +1500,7 @@ def make_fig_cohort_flow():
         "extraction.temporal_prefilter.final_candidates",
         "extraction.annotation_sample.total_sampled",
         "c120.g299.n", "c120.g299.n_positives", "c120.g253.n",
-        "c120.g253.n_positives",
+        "c120.g253.n_positives", "overcallamb.n_ambiguous",
     ]
     n_pre = fact("cohort.heart_failure.pre_los")
     n_post = fact("cohort.heart_failure.post_los")
@@ -1505,7 +1529,14 @@ def make_fig_cohort_flow():
     n_prefilter_dropped = n_classified - n_candidates
     n_not_sampled = n_candidates - n_sampled
     n_not_annotated = n_sampled - n_annot
-    n_ambiguous = n_annot - n_core
+    # FIGURE POLISH. This stub is drawn solid, which the caption defines as a
+    # recorded exclusion, and it used to be computed here as n_annot - n_core,
+    # which the same caption defines as dashed. The count IS recorded (the
+    # pharmacist coded these pairs ambiguous, and the register carries it), so
+    # the stub stays solid and the number is now read, not subtracted; the
+    # subtraction is kept as the check.
+    n_ambiguous = fact("overcallamb.n_ambiguous")
+    assert n_ambiguous == n_annot - n_core
     # Cross-check the ambiguous count against the signal-check artifact, which
     # records the positives on the same 299 rows both ways.
     step2, p_step2 = load("diag", "step2_signal_check.json")
@@ -1654,7 +1685,8 @@ def make_fig_cohort_flow():
              f"candidates surviving the temporal prefilter ({n_prefilter_dropped:,}, "
              "previously missing a box entirely); candidates minus the sample "
              f"({n_not_sampled:,}); the sample minus the annotated pairs "
-             f"({n_not_annotated}). The ambiguous count, {n_annot} minus {n_core}, is "
+             f"({n_not_annotated}). The ambiguous count is read from "
+             f"overcallamb.n_ambiguous, asserted equal to {n_annot} minus {n_core} and "
              "cross-checked against the signal-check file. The core is drawn in the "
              "pharmacist's emerald rather than scarlet, which the set reserves for a "
              f"failed check. Headline built from the register: of {n_candidates:,} "

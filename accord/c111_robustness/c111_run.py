@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import pathlib
 import sys
 import time
@@ -33,7 +34,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "accord" / "control"))
 
-LOG_DIR = pathlib.Path.home() / "mimic_local_only" / "logs"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+LOG_DIR = MIMIC_LOCAL_ONLY_DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_PATH = LOG_DIR / f"c111_run_{time.strftime('%Y%m%dT%H%M%S')}.log"
 
@@ -41,10 +43,10 @@ OUT = ROOT / "results" / "accord" / "c111_robustness" / "c111_robustness.json"
 FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"
 DECONTAM_METRICS = ROOT / "results" / "accord" / "decontam" / "corrected_gold_metrics.json"
 
-NLI_PATH = pathlib.Path.home() / "mimic_local_only" / "derived" / "nli_scores_roberta_large_mnli.csv"
-DECONTAM_PRED_PATH = (pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-09-13"
+NLI_PATH = MIMIC_LOCAL_ONLY_DIR / "derived" / "nli_scores_roberta_large_mnli.csv"
+DECONTAM_PRED_PATH = (MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-09-13"
                        / "outputs" / "gold_eval_decontam_predictions.csv")
-CONTAMINATED_DETECTOR_PATH = pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"
+CONTAMINATED_DETECTOR_PATH = MIMIC_LOCAL_ONLY_DIR / "derived" / "gold_standard_accord_results.csv"
 
 B_PERM = 20000
 SEED = 42

@@ -9,7 +9,7 @@ seeds plus a hardcoded row (the seed wasn't really controlling 3 independent
 runs). Here every seed argument controls model init, dropout, and
 DataLoader shuffle order, freshly, per process.
 
-Writes, per seed, to /Users/rickygole/mimic_local_only/accord_control/:
+Writes, per seed, to ~/mimic_local_only/accord_control/:
   scores_seed{N}.csv   -- pair_id, rule, pharm_pos, score (299 gold rows;
                            NO note text)
   metrics_seed{N}.json -- AUROC, AP, top-15 TP count, defect-free-subset
@@ -33,7 +33,8 @@ from torch.utils.data import DataLoader, Dataset
 from data import build_splits, tokenize_pairs
 from model import PairClassifier, MODEL_NAME
 
-OUT_DIR = "/Users/rickygole/mimic_local_only/accord_control"
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUT_DIR = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_control")
 MAX_LENGTH = 160
 
 

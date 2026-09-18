@@ -49,7 +49,8 @@ from accord.prompt_sensitivity.prompts_c109 import (  # noqa: E402
     ALL_PROMPT_NAMES, PROMPTS_C109,
 )
 
-GOLD = pathlib.Path.home() / "mimic_local_only/from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+GOLD = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
 MODELS = ["llama3:8b", "granite3.3:8b"]
 NUM_CTX = 4096  # committed once; a truncation heuristic compares against this
 HOST = os.environ.get("OLLAMA_HOST_URL", "http://127.0.0.1:11434")
@@ -57,8 +58,8 @@ HOST = os.environ.get("OLLAMA_HOST_URL", "http://127.0.0.1:11434")
 _LOOPBACK_HOSTNAMES = {"127.0.0.1", "localhost", "::1"}
 
 # Real-run paths (mimic_local_only / results); never used in --dry-run.
-REAL_CACHE_DIR = pathlib.Path.home() / "mimic_local_only/accord_prompt_sensitivity_cache"
-REAL_LOG_DIR = pathlib.Path.home() / "mimic_local_only/logs"
+REAL_CACHE_DIR = MIMIC_LOCAL_ONLY_DIR / "accord_prompt_sensitivity_cache"
+REAL_LOG_DIR = MIMIC_LOCAL_ONLY_DIR / "logs"
 REAL_CELLS_DIR = ROOT / "results" / "accord" / "prompt_sensitivity" / "c109" / "cells"
 REAL_EGRESS_DIR = ROOT / "results" / "accord" / "prompt_sensitivity" / "c109"
 REAL_ATTEMPTS_PATH = REAL_EGRESS_DIR / "attempts.json"

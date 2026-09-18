@@ -6,6 +6,7 @@ See C126_PREREGISTRATION.md. Local only; aggregates only.
 import collections
 import contextlib
 import json
+import os
 import pathlib
 import sys
 import time
@@ -20,8 +21,9 @@ sys.path.insert(0, str(ROOT / "accord" / "stats"))
 sys.path.insert(0, str(ROOT / "accord" / "control"))
 from accord.cloud_paths import assert_local_only  # noqa: E402
 
-LOG = assert_local_only(pathlib.Path.home() / "mimic_local_only" / "logs" / f"c126_run_{time.strftime('%Y%m%dT%H%M%S')}.log")
-DEC = pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-09-13" / "outputs" / "gold_eval_decontam_predictions.csv"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+LOG = assert_local_only(MIMIC_LOCAL_ONLY_DIR / "logs" / f"c126_run_{time.strftime('%Y%m%dT%H%M%S')}.log")
+DEC = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-09-13" / "outputs" / "gold_eval_decontam_predictions.csv"
 OUT = ROOT / "results" / "accord" / "c126_teacher_student" / "c126.json"
 FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"
 PREFIX = "c126"

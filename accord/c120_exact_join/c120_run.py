@@ -5,6 +5,7 @@ See C120_PREREGISTRATION.md. Local only; aggregates only.
 """
 import contextlib
 import json
+import os
 import pathlib
 import sys
 import time
@@ -17,7 +18,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "accord" / "stats"))
 from marginal_feasibility_gate import mcc, best_table  # noqa: E402
 
-LOG = pathlib.Path.home() / "mimic_local_only" / "logs" / f"c120_run_{time.strftime('%Y%m%dT%H%M%S')}.log"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+LOG = MIMIC_LOCAL_ONLY_DIR / "logs" / f"c120_run_{time.strftime('%Y%m%dT%H%M%S')}.log"
 OUT = ROOT / "results" / "accord" / "c120_exact_join" / "c120.json"
 B, SEED = 10000, 42
 
@@ -48,7 +50,7 @@ def block(y, w, rng):
 
 def run():
     from reconcile_c28 import build_join
-    gold = pd.read_csv(str(pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"))
+    gold = pd.read_csv(str(MIMIC_LOCAL_ONLY_DIR / "derived" / "gold_standard_accord_results.csv"))
     j, _ = build_join()  # asserts 299 rows and 1:1 internally
     n_rows = int(len(j)); one_to_one = bool(j["weak_label"].notna().sum() == 299)
     m = gold[["pair_id", "pharm_label"]].merge(j[["pair_id", "pharm_label"]], on="pair_id", suffixes=("_g", "_j"))

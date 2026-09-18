@@ -92,16 +92,17 @@ from accord.cloud_paths import assert_local_only  # noqa: E402
 # ---------------------------------------------------------------------------
 # Paths (all under the credentialed-only tree; every write path is checked).
 # ---------------------------------------------------------------------------
-OUT_DIR = assert_local_only(pathlib.Path.home() / "mimic_local_only" / "accord_multillm")
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+OUT_DIR = assert_local_only(MIMIC_LOCAL_ONLY_DIR / "accord_multillm")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 POOL_LABELS_PATH = assert_local_only(OUT_DIR / "pool_replication_labels_llama3_8b.csv")
 GOLD_LABELS_PATH = assert_local_only(OUT_DIR / "gold_replication_labels_llama3_8b.csv")
 
-LOG_DIR = pathlib.Path.home() / "mimic_local_only" / "logs"
+LOG_DIR = MIMIC_LOCAL_ONLY_DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_PATH = assert_local_only(LOG_DIR / f"persist_replication_labels_{time.strftime('%Y%m%dT%H%M%S')}.log")
 
-WS_PATH = pathlib.Path.home() / "mimic_local_only" / "accord_supp" / "accord_weak_supervision_labels_decontam.csv"
+WS_PATH = MIMIC_LOCAL_ONLY_DIR / "accord_supp" / "accord_weak_supervision_labels_decontam.csv"
 
 SRC_MODULE_PATH = ROOT / "accord" / "differential" / "run_multillm_replication.py"
 FACTS_PATH = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"

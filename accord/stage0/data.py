@@ -21,6 +21,7 @@ but fixes the two data-hygiene bugs present in the original notebook:
 NEVER print or persist clinical note text from this module. Only lengths,
 counts, ids and numeric aggregates may leave this process.
 """
+import os
 import random
 import re
 import warnings
@@ -30,7 +31,8 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
-DATA_CSV = "/Users/rickygole/mimic_local_only/accord/hf_note_pairs.csv.gz"
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+DATA_CSV = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord/hf_note_pairs.csv.gz")
 MAX_LENGTH = 256
 SAMPLE_FRAC = 0.2
 DEV_FRAC = 0.1

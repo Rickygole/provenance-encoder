@@ -28,6 +28,7 @@ itself, not read from a CSV.
 """
 import argparse
 import json
+import os
 import pathlib
 import sys
 
@@ -42,9 +43,10 @@ sys.path.insert(0, str(ROOT))
 from accord.prompt_sensitivity.dry_run_fixtures import INVENTED_GOLD  # noqa: E402
 from accord.prompt_sensitivity.prompts_c109 import NEW_PARAPHRASE_NAMES  # noqa: E402
 
-GOLD = pathlib.Path.home() / "mimic_local_only/from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
-DERIVED = pathlib.Path.home() / "mimic_local_only/derived/gold_standard_accord_results.csv"
-REAL_CACHE_DIR = pathlib.Path.home() / "mimic_local_only/accord_prompt_sensitivity_cache"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+GOLD = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
+DERIVED = MIMIC_LOCAL_ONLY_DIR / "derived/gold_standard_accord_results.csv"
+REAL_CACHE_DIR = MIMIC_LOCAL_ONLY_DIR / "accord_prompt_sensitivity_cache"
 REAL_ATTEMPTS_PATH = ROOT / "results/accord/prompt_sensitivity/c109/attempts.json"
 OUT_PATH = ROOT / "results/accord/prompt_sensitivity/c109/analysis.json"
 

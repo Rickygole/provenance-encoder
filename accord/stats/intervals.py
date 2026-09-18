@@ -11,11 +11,13 @@ dropped, and without the stratified alternative.
 
 Aggregates only. No note text. Fixed seed.
 """
-import json, pathlib, numpy as np, pandas as pd
+import json, os, pathlib, numpy as np, pandas as pd
 from sklearn.metrics import roc_auc_score
 
 SEED, B = 42, 10_000
-OUT = pathlib.Path("results/accord/stats"); OUT.mkdir(parents=True, exist_ok=True)
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+ROOT = pathlib.Path(__file__).resolve().parents[2]  # repo root
+OUT = ROOT / "results/accord/stats"; OUT.mkdir(parents=True, exist_ok=True)
 
 
 def mcc(tp, fn, fp, tn):
@@ -40,7 +42,7 @@ def mcc_ci(tp, fn, fp, tn, rng):
 res = {"bootstrap_B": B, "seed": SEED}
 
 # ---- E2 -------------------------------------------------------------------
-base = json.loads(pathlib.Path("results/accord/step3_baselines.json").read_text())
+base = json.loads((ROOT / "results/accord/step3_baselines.json").read_text())
 rng = np.random.default_rng(SEED)
 e2 = {}
 for k, v in base.items():
@@ -53,7 +55,7 @@ for k, v in base.items():
 res["E2_mcc_intervals"] = e2
 
 # ---- E3 -------------------------------------------------------------------
-g = pd.read_csv("/Users/rickygole/mimic_local_only/derived/gold_standard_accord_results.csv")
+g = pd.read_csv(os.path.join(MIMIC_LOCAL_ONLY_DIR, "derived/gold_standard_accord_results.csv"))
 sub = g[g.rule.isin([3, 4])]
 y = (sub.pharm_label == 1).astype(int).values if sub.pharm_label.dtype != object else \
     sub.pharm_label.astype(str).str.lower().isin(["1", "true", "contradiction", "yes"]).astype(int).values

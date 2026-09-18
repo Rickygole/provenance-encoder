@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import pathlib
 import sys
 import time
@@ -34,12 +35,13 @@ sys.path.insert(0, str(ROOT / "accord"))
 from accord.cloud_paths import assert_local_only  # noqa: E402
 from accord.stats._overcall_common import wilson_ci  # noqa: E402
 
-LOG_DIR = pathlib.Path.home() / "mimic_local_only" / "logs"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+LOG_DIR = MIMIC_LOCAL_ONLY_DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_PATH = assert_local_only(LOG_DIR / f"exemplardirect_{time.strftime('%Y%m%dT%H%M%S')}.log")
 
 GOLD = assert_local_only(
-    pathlib.Path.home() / "mimic_local_only/from_drive_2026-08-08/outputs/annotation_sheet_for_pharmacist_clean.csv"
+    MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08/outputs/annotation_sheet_for_pharmacist_clean.csv"
 )
 OUT = ROOT / "results" / "accord" / "exemplar_direct" / "exemplar_direct.json"
 FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"

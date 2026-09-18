@@ -1,5 +1,8 @@
 \begin{frontmatterpage}
   \thispagestyle{empty}
+  % This page prints no page number, so the strip the geometry reserves for one
+  % is free: the text may run down to the one-inch bottom margin and no further.
+  \enlargethispage{30pt}
   \singlespacing
   {\centering\normalsize ABSTRACT\par}
 
@@ -24,25 +27,22 @@
   % RULES (MSU template): one paragraph, 250 words maximum, no abbreviations,
   % no citations, no keywords. Write this LAST.
   {\doublespacing\RaggedRight\parindent=0.5in\RaggedRightParindent=0.5in
-  A nursing note and a discharge summary can disagree about a medication,
-and only the summary leaves the hospital.
-This thesis audits a four-stage pipeline detecting such
-contradictions in an intensive care database.
-Three of the four stage readings did not survive their checks (one
-not established, two unsupported); the fourth, the evaluation's near-chance
-reading, survived as a bounded null; one annotator leaves it fragile.
-Candidate precision is not established, the labeller's agreement was
-indistinguishable from chance, and credited architectural components are an
-initialisation artifact, a metric with its target in its input and an
-untrained module. A detector ensemble retrained on subject-disjoint rows is
-indistinguishable from chance on 253 non-ambiguous pairs, as is a retrain
-on reproducible labels. The evaluation resolves only area under the curve
-effects above 0.75 to 0.81. A check runnable before
-training was applied afterwards: a labeller flagging 261 of 299 pairs,
-against 12 a pharmacist confirmed, could not have rejected chance, its smallest
-attainable one-sided significance being 0.1894. Such a check rules a labeller
-out, never in. Trigger-exemplar dissociation is a mining bug pattern. On the rebuilt candidate pool, the original positional selector shows an exemplar outside the trigger set for 41.4 percent of Rules 1 and 2 candidates, a design rate, not the annotated exemplars' unrecoverable defect rate; an assertion catches it once the schema records which mention fired. Pipeline builders
-should measure a labeller's positive rate and agreement on a small
-expert-labelled sample first. Unsolvability is not shown.
+  A nursing note and a discharge summary can disagree about a medication, and only the summary leaves
+the hospital. This thesis audits a four-stage pipeline detecting such contradictions in an intensive
+care database. Three of the four stage readings did not survive their checks (one not established,
+two unsupported); the fourth, the evaluation's near-chance reading, survived as a bounded null; one
+annotator leaves it fragile. Candidate precision is not established, and credited architectural
+components are unsupported by code audit. A detector ensemble retrained on subject-disjoint rows is
+indistinguishable from chance on 253 non-ambiguous pairs, as is the plain control detector retrained
+on reproducible labels. Those pairs resolve only area under the curve effects above 0.7466 under
+one test and 0.8084 under another. A feasibility gate, applied after training, shows that a labeller flagging 261 of 299 pairs,
+against 12 a pharmacist confirmed, had agreement not distinguishable from chance, and at this
+marginal it could not have been (smallest attainable one-sided significance 0.1894). A failed gate
+says this pilot could not have tested the labeller; passing it is no evidence the labeller works.
+Trigger-exemplar dissociation is a bug pattern observed once here: the original positional selector
+shows an exemplar outside the trigger set for 41.4 percent of the rebuilt pool's Rules 1 and 2
+candidates, a design rate, not the annotated exemplars' defect rate. Before training, builders
+should measure a labeller's positive rate and agreement on a small expert-labelled pilot.
+Unsolvability is not shown.
 \par}
 \end{frontmatterpage}

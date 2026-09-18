@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import time
 from pathlib import Path
 
@@ -41,7 +42,8 @@ import audit as audit_mod
 import run_experiment as e9  # reuse det_seed / solve_intercept / BETA_GRID / sigmoid --
                               # importing does NOT execute e9.main() (guarded by __main__).
 
-OUT_DIR = Path("/Users/rickygole/mimic_local_only/accord_selection")
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUT_DIR = Path(MIMIC_LOCAL_ONLY_DIR) / "accord_selection"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 SEED = e9.SEED

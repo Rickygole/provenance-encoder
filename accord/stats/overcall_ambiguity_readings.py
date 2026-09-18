@@ -52,6 +52,7 @@ Run (MUST redirect, this script touches MIMIC-derived data):
 
 import collections
 import json
+import os
 import pathlib
 
 import pandas as pd
@@ -60,7 +61,8 @@ from _overcall_common import ROOT, load_facts, reg, wilson_ci
 
 PUBLIC_ARTIFACT = ROOT / "results" / "accord" / "stats" / "overcall_decomposition.json"
 OUT = ROOT / "results" / "accord" / "stats" / "overcall_ambiguity_readings.json"
-PHARM_CSV = (pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-08-08"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+PHARM_CSV = (MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08"
              / "outputs" / "pharmacist_labeled_clean.csv")
 
 # Every local labeller positive rate registered on G_299, frontier template

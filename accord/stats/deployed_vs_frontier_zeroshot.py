@@ -10,13 +10,15 @@ No pair_id, identifier or text is printed or written.
 """
 import contextlib
 import json
+import os
 import pathlib
 import sys
 import time
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "accord" / "stats"))
-LOG = pathlib.Path.home() / "mimic_local_only" / "logs" / f"deployed_vs_fzs_{time.strftime('%Y%m%dT%H%M%S')}.log"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+LOG = MIMIC_LOCAL_ONLY_DIR / "logs" / f"deployed_vs_fzs_{time.strftime('%Y%m%dT%H%M%S')}.log"
 OUT = ROOT / "results" / "accord" / "stats" / "deployed_vs_frontier_zeroshot.json"
 PRED = ROOT / "results" / "accord" / "differential" / "frontier_ollama_llama3_zero_shot.json"
 

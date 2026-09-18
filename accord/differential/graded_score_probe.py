@@ -5,6 +5,7 @@ credentialed gold data from mimic_local_only and prints and writes aggregates on
 No note text, pair text or identifier is printed or written.
 """
 import json
+import os
 import pathlib
 import sys
 import urllib.request
@@ -17,7 +18,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
 from accord.cloud_paths import assert_local_only  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-GOLD = pathlib.Path.home() / "mimic_local_only/from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+GOLD = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
 OUT = ROOT / "results/accord/differential/graded_score_granite33_g253.json"
 HOST = "http://127.0.0.1:11434/api/chat"
 MODEL = "granite3.3:8b"

@@ -16,13 +16,15 @@ clinical-language property.
 """
 import itertools
 import json
+import os
 
 import numpy as np
 import torch
 from transformers import AutoModel, AutoTokenizer
 
 MODEL_NAME = "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext"
-OUT_PATH = "/Users/rickygole/mimic_local_only/accord_stage0/anisotropy_control.json"
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUT_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_stage0/anisotropy_control.json")
 
 # Deliberately unrelated, non-clinical, non-MIMIC sentences.
 SENTENCES = [

@@ -36,11 +36,12 @@ from accord.control.delong import delong_roc_test  # noqa: E402
 
 MODEL_DIR = pathlib.Path.home() / "models_public" / "roberta-large-mnli"
 MANIFEST = ROOT / "results" / "accord" / "differential" / "nli_model_manifest.json"
-GOLD = (pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-08-08"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+GOLD = (MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08"
         / "outputs" / "pharmacist_labeled_clean.csv")
-DETECTOR = (pathlib.Path.home() / "mimic_local_only" / "derived"
+DETECTOR = (MIMIC_LOCAL_ONLY_DIR / "derived"
            / "gold_standard_accord_results.csv")
-PER_PAIR_OUT = (pathlib.Path.home() / "mimic_local_only" / "derived"
+PER_PAIR_OUT = (MIMIC_LOCAL_ONLY_DIR / "derived"
                / "nli_scores_roberta_large_mnli.csv")
 OUT = ROOT / "results" / "accord" / "differential" / "nli_roberta_large_mnli.json"
 FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"

@@ -4,7 +4,7 @@ logistic regression) on the SAME subject-disjoint split as the vanilla
 BioMedBERT control, trained on the identical weak-label training pool (no
 rebalancing, no weak_confidence use -- like-for-like with the main model).
 
-Writes /Users/rickygole/mimic_local_only/accord_control/baselines.json.
+Writes ~/mimic_local_only/accord_control/baselines.json.
 NEVER persists note text; TF-IDF vectorizer is fit in-process and discarded.
 """
 import json
@@ -17,7 +17,8 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 
 from data import build_splits
 
-OUT_DIR = "/Users/rickygole/mimic_local_only/accord_control"
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUT_DIR = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_control")
 BASELINE_SEED = 42  # LogisticRegression solver seed; deterministic given fixed data, one run suffices
 
 

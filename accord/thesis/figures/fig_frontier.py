@@ -42,7 +42,8 @@ style.setup()
 import matplotlib.pyplot as plt
 
 HERE = pathlib.Path(__file__).parent
-ROOT = pathlib.Path("/Users/rickygole/provenance-encoder")
+# figures -> thesis -> accord -> repository root. Was the author's absolute path.
+ROOT = pathlib.Path(__file__).resolve().parents[3]
 
 # ---------------------------------------------------------------------------
 # ALL THREE FIGURES IN THIS MODULE ARE RETIRED, and the module stops here
@@ -197,7 +198,7 @@ axd.set_xlabel("Factor by which the ratio moves when one thing changes",
 signature(fig, EMERALD_DEEP,
           headline="Capability orders the over-calling; the channel does not",
           deck=("One denominator, one prompt. Upper: seven labellers against the "
-                "pharmacist's rate, bars are Wilson\nintervals. Lower: the same "
+                "pharmacist\u2019s rate, bars are Wilson\nintervals. Lower: the same "
                 "rows read in pairs. Serving a model remotely costs a tenth of "
                 "what scaling it does."))
 fig.subplots_adjust(left=0.395, right=0.955, top=0.755, bottom=0.105, hspace=0.62)

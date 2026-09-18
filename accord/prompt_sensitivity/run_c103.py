@@ -31,10 +31,11 @@ from accord.cloud_paths import assert_local_only  # noqa: E402
 from accord.differential.model_tags import ollama_model_tag  # noqa: E402
 from accord.prompt_sensitivity.prompts import PROMPTS  # noqa: E402
 
-GOLD = pathlib.Path.home() / "mimic_local_only/from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+GOLD = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
 CACHE_DIR = assert_local_only(
-    pathlib.Path.home() / "mimic_local_only/accord_prompt_sensitivity_cache")
-LOG_DIR = pathlib.Path.home() / "mimic_local_only/logs"
+    MIMIC_LOCAL_ONLY_DIR / "accord_prompt_sensitivity_cache")
+LOG_DIR = MIMIC_LOCAL_ONLY_DIR / "logs"
 CELLS_DIR = ROOT / "results" / "accord" / "prompt_sensitivity" / "cells"
 EGRESS_DIR = ROOT / "results" / "accord" / "prompt_sensitivity"
 

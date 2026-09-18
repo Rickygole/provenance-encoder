@@ -23,7 +23,12 @@ on them::
 
 from __future__ import annotations
 
+import os
 import pathlib
+
+# The one environment variable every clinical script reads the credentialed
+# directory from; see assert_local_only for how this check honours it.
+LOCAL_ONLY_ENV = "MIMIC_LOCAL_ONLY_DIR"
 
 # Case-insensitive substrings that name a cloud-sync client's local mirror.
 # "content/drive" and "mydrive" catch the Colab `drive.mount('/content/drive')`
@@ -51,22 +56,44 @@ class CloudStoragePathError(RuntimeError):
     inside what looks like a cloud-synced directory."""
 
 
+def _cloud_marker(resolved: pathlib.Path):
+    """The first CLOUD_MARKERS entry found in `resolved`, or None."""
+    haystack = str(resolved).lower()
+    for marker in CLOUD_MARKERS:
+        if marker in haystack:
+            return marker
+    return None
+
+
 def assert_local_only(path) -> pathlib.Path:
     """Raise CloudStoragePathError if `path` resolves inside cloud-synced
     storage. Returns the resolved path otherwise, so a caller can chain it:
 
         OUT = assert_local_only(OUT)
+
+    The credentialed directory is relocatable through MIMIC_LOCAL_ONLY_DIR
+    (default ~/mimic_local_only). Relocating it must not become a way around
+    this check, so when that variable is set the directory it names is held
+    to the same rule as `path`: a run whose credentialed root sits in a sync
+    folder is refused even if the particular path passed in happens not to.
+    With the variable unset the behaviour is exactly the path check alone.
     """
     resolved = pathlib.Path(path).expanduser().resolve()
-    haystack = str(resolved).lower()
-    for marker in CLOUD_MARKERS:
-        if marker in haystack:
+    local_root = os.environ.get(LOCAL_ONLY_ENV)
+    checks = [(resolved, str(resolved))]
+    if local_root:
+        root_resolved = pathlib.Path(local_root).expanduser().resolve()
+        checks.append((root_resolved, f"{LOCAL_ONLY_ENV}={root_resolved}"))
+    for candidate, shown in checks:
+        marker = _cloud_marker(candidate)
+        if marker is not None:
             raise CloudStoragePathError(
-                f"refusing to run: {resolved} resolves inside what looks like "
+                f"refusing to run: {shown} resolves inside what looks like "
                 f"a cloud-synced directory (matched {marker!r}). MIMIC-derived "
                 f"files and checkpoints trained on them must stay on "
                 f"credentialed-only local storage -- never Google Drive, "
                 f"Dropbox, OneDrive, iCloud, or a Colab Drive mount. Point this "
-                f"at a local path instead, e.g. under ~/mimic_local_only/."
+                f"at a local path instead, e.g. under ${LOCAL_ONLY_ENV} "
+                f"(default ~/mimic_local_only/)."
             )
     return resolved

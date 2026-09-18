@@ -185,13 +185,18 @@ def make_fig_ceiling():
     axR = fig.add_axes([0.580, 0.150, 0.394, 0.690])
 
     # Left: the whole cliff. Right: the enlarged region under the zoom box.
-    ZX0, ZX1, ZY1 = 0.66, 1.0, 0.18
+    # FIGURE POLISH. ZY1 was 0.18 under a top tick of 0.16, so the right panel
+    # ended between two ticks and the zoom box on the left ended between two
+    # gridlines: the two did match, and no reader could check it. At 0.20 the
+    # panel's limit is its own top tick and the box's top edge is the left
+    # panel's 0.2 gridline.
+    ZX0, ZX1, ZY1 = 0.66, 1.0, 0.20
     # Above both ceilings no table with these marginals exists, so that region
     # is shaded: it is what the identity says, not a band added for ink.
     qq = np.linspace(0, 1, 2001)
     upper = np.maximum(np.interp(qq, q299, c299), np.interp(qq, q253, c253))
     for ax, top in ((axL, 1.0), (axR, ZY1)):
-        ax.fill_between(qq, upper, top, facecolor=style.FOG, edgecolor="none",
+        ax.fill_between(qq, upper, top, facecolor=style.MIST, edgecolor="none",
                         linewidth=0, zorder=0)
     for ax in (axL, axR):
         ax.plot(q299, c299, color=GRAPHITE, lw=LW_DATA, zorder=4,
@@ -207,9 +212,20 @@ def make_fig_ceiling():
     frame(axL, grid=True)
     axL.add_patch(plt.Rectangle((ZX0, 0), ZX1 - ZX0, ZY1, facecolor="none",
                                 edgecolor=SLATE, lw=0.6, zorder=6))
-    axL.text((ZX0 + ZX1) / 2, ZY1 + 0.03, "enlarged at right", ha="center",
-             va="bottom", fontsize=T_NOTE, color=MUTE, style="italic")
-    axL.text(BASE + 0.05, 0.93, f"peak at the pharmacist's\nrate, {N_POS} of {N}",
+    # FIGURE POLISH. The box's name was centred over the box on one line, 60pt
+    # wide over a 46pt box, so it ran onto the dashed curve at its left end and
+    # past the frame at its right. Inside the box was tried and does not fit:
+    # the box is 46 by 32pt, the curves cross it corner to corner, and at the
+    # 8.5pt type floor even a two-line setting puts "at right" on the dashed
+    # curve. It stays above the box, flush to the box's right edge so it ends
+    # inside the frame, and lifted until its left end clears the dashed curve
+    # by the assertion below.
+    Y_BOXNAME = ZY1 + 0.040
+    axL.text(ZX1, Y_BOXNAME, "enlarged at right", ha="right",
+             va="bottom", fontsize=T_NOTE, color=MUTE, style="italic", zorder=8)
+    assert Y_BOXNAME - float(np.interp(0.55, q253, c253)) > 0.035, \
+        "the zoom box's name is back on the dashed curve"
+    axL.text(BASE + 0.05, 0.93, f"peak at the pharmacist\u2019s\nrate, {N_POS} of {N}",
              ha="left", va="top", fontsize=T_NOTE, color=MUTE, linespacing=1.3)
     axL.text(0.60, 0.62, "not attainable\non either basis", ha="center",
              va="center", fontsize=T_NOTE, color=MUTE, linespacing=1.2)
@@ -224,20 +240,28 @@ def make_fig_ceiling():
     # the peak and "not attainable" annotations, so each name drops straight
     # down instead, on a short leader, into the empty paper below the tail
     # of its own curve, each at its own x so the two leaders do not cross.
+    #
+    # FIGURE POLISH. Both leaders used to drop, so the dashed (upper) curve's
+    # leader cut through the solid curve on its way down, and the lower label
+    # ended in the x axis's tick region. The upper curve's leader now rises
+    # and the lower curve's drops, neither crosses the other curve, and each
+    # is about 12pt long instead of 40.
     N_253_L = bases["G_253"]
-    for x_pt, y_lab, txt in ((0.20, 0.16, f"{N_POS} of {N_253_L}"),
-                             (0.32, 0.06, f"{N_POS} of {N}")):
-        c_arr = c253 if txt.endswith(str(N_253_L)) else c299
-        q_arr = q253 if txt.endswith(str(N_253_L)) else q299
+    LEAD = 0.085
+    for x_pt, sign, txt, q_arr, c_arr in (
+            (0.28, +1, f"{N_POS} of {N_253_L}", q253, c253),
+            (0.40, -1, f"{N_POS} of {N}", q299, c299)):
         y_pt = float(np.interp(x_pt, q_arr, c_arr))
-        axL.plot([x_pt, x_pt], [y_pt - 0.012, y_lab + 0.014], color=GRAPHITE,
-                 lw=0.6, zorder=6, solid_capstyle="butt")
-        axL.text(x_pt + 0.012, y_lab, txt, ha="left", va="center",
+        y_lab = y_pt + sign * LEAD
+        axL.plot([x_pt, x_pt], [y_pt + sign * 0.012, y_lab - sign * 0.010],
+                 color=GRAPHITE, lw=0.6, zorder=6, solid_capstyle="butt")
+        axL.text(x_pt + sign * 0.012, y_lab, txt,
+                 ha="left" if sign > 0 else "right", va="center",
                  fontsize=T_NOTE, color=INK, zorder=8)
 
     axR.set_xlim(ZX0, ZX1); axR.set_ylim(0, ZY1)
     axR.set_xticks([0.7, 0.8, 0.9, 1.0])
-    axR.set_yticks([0, 0.04, 0.08, 0.12, 0.16])
+    axR.set_yticks([0, 0.05, 0.10, 0.15, 0.20])
     frame(axR, grid=True)
     axR.set_ylabel("Largest attainable MCC (enlarged)", fontsize=9.5)
 
@@ -267,9 +291,11 @@ def make_fig_ceiling():
     axR.text(q_dep - 0.012, MCC_CEIL - 0.008, f"ceiling {MCC_CEIL:.2f}",
              ha="right", va="top", color=WEAK_LABELLER, zorder=8,
              **cased(T_SERIES))
-    axR.text(q_dep - 0.012, MCC_OBS - 0.002,
+    # FIGURE POLISH. Centred on its mark, not hung under it: with the panel
+    # now ending at 0.20 a label hung under the mark reached the bottom spine.
+    axR.text(q_dep - 0.012, MCC_OBS,
              f"deployed labeller,\nmeasured {MCC_OBS:.2f}",
-             ha="right", va="top", color=WEAK_LABELLER, zorder=8,
+             ha="right", va="center", color=WEAK_LABELLER, zorder=8,
              linespacing=1.2, **cased(T_SERIES))
 
     fig.supxlabel("Labeller positive rate on the gold pairs", fontsize=T_AXIS,

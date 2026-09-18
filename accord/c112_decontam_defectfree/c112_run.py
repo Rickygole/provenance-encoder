@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 import pathlib
 import sys
 import time
@@ -36,18 +37,19 @@ sys.path.insert(0, str(ROOT))
 
 from accord.cloud_paths import assert_local_only  # noqa: E402
 
-LOG_DIR = pathlib.Path.home() / "mimic_local_only" / "logs"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+LOG_DIR = MIMIC_LOCAL_ONLY_DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_PATH = assert_local_only(LOG_DIR / f"c112_run_{time.strftime('%Y%m%dT%H%M%S')}.log")
 
 OUT = ROOT / "results" / "accord" / "c112_decontam_defectfree" / "c112_defectfree.json"
 
-DETECTOR_RULE_PATH = pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"
+DETECTOR_RULE_PATH = MIMIC_LOCAL_ONLY_DIR / "derived" / "gold_standard_accord_results.csv"
 PHARM_PATH = (
-    pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-08-08" / "outputs" / "pharmacist_labeled_clean.csv"
+    MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08" / "outputs" / "pharmacist_labeled_clean.csv"
 )
 DECONTAM_PRED_PATH = (
-    pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-09-13" / "outputs" / "gold_eval_decontam_predictions.csv"
+    MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-09-13" / "outputs" / "gold_eval_decontam_predictions.csv"
 )
 DECONTAM_METRICS_PATH = ROOT / "results" / "accord" / "decontam" / "corrected_gold_metrics.json"
 

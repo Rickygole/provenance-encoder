@@ -18,6 +18,7 @@ holds aggregates only.
 import collections
 import contextlib
 import json
+import os
 import pathlib
 import time
 
@@ -27,11 +28,12 @@ from scipy.stats import mannwhitneyu
 from sklearn.metrics import average_precision_score, roc_auc_score
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-PRED = pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-09-13" / "outputs" / "gold_eval_decontam_predictions.csv"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+PRED = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-09-13" / "outputs" / "gold_eval_decontam_predictions.csv"
 REC = ROOT / "results" / "accord" / "decontam" / "corrected_gold_metrics.json"
 OUT = ROOT / "results" / "accord" / "decontam" / "decontam_aggregate_recomputed.json"
 FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"
-LOG = pathlib.Path.home() / "mimic_local_only" / "logs" / f"decontam_recompute_{time.strftime('%Y%m%dT%H%M%S')}.log"
+LOG = MIMIC_LOCAL_ONLY_DIR / "logs" / f"decontam_recompute_{time.strftime('%Y%m%dT%H%M%S')}.log"
 PREFIX = "decontamrepro"
 
 

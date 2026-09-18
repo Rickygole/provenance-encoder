@@ -18,6 +18,7 @@ Writes an aggregate-only JSON (means/stds/percentiles/AUROC). NEVER writes
 note text or per-note embeddings that could be inverted to text.
 """
 import json
+import os
 
 import numpy as np
 import torch
@@ -27,7 +28,8 @@ from transformers import AutoModel, AutoTokenizer
 from data import build_subject_split, build_fixed_pairs, tokenize_split
 
 MODEL_NAME = "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext"
-OUT_PATH = "/Users/rickygole/mimic_local_only/accord_stage0/homogeneity.json"
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUT_PATH = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_stage0/homogeneity.json")
 PAIR_SEED = 3033
 
 

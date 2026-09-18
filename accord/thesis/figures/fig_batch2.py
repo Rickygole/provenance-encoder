@@ -124,7 +124,9 @@ def make_fig_prevalence_response():
     # anchored to a single, sometimes-crowded point.
     # Models are dodged on x so their intervals do not print on one another.
     DODGE = {"llama3:8b": -0.004, "granite3.3:8b": 0.0, "qwen3:8b": +0.004}
-    Y_LO, Y_HI, X_HI = -0.012, 0.32, 0.27
+    # FIGURE POLISH. X_HI was 0.27 under a last tick of 0.2, so the 0.25 sweep
+    # level sat past the end of the labelled axis. The axis now runs to a tick.
+    Y_LO, Y_HI, X_HI = -0.012, 0.32, 0.30
     SWEEP_P = ["0.02", "0.05", "0.1", "0.25"]
 
     # H grows by 0.30in (about 9 percent) over the round-9 canvas to make room
@@ -137,8 +139,13 @@ def make_fig_prevalence_response():
     for c, pr in enumerate(prompts):
         ax = axes[c]
         gx = np.linspace(0, X_HI, 2)
-        ax.fill_between(gx, gx, Y_HI, facecolor=FOG, edgecolor="none",
-                        linewidth=0, zorder=0)
+        # FIGURE POLISH. The wedge was always drawn above the identity line
+        # only, but in FOG, 0.89 against paper's 1.00, under a dashed boundary:
+        # on the page the edge did not read and the panel looked filled. MIST
+        # (0.76) is the set's neutral structural ground and makes the wedge a
+        # wedge, in greyscale as well.
+        ax.fill_between(gx, np.minimum(gx, Y_HI), Y_HI, facecolor=MIST,
+                        edgecolor="none", linewidth=0, zorder=0)
         ax.plot([0, X_HI], [0, X_HI], color=SLATE, linestyle=REF_DASH,
                 linewidth=LW_REF, zorder=2)
         for m in models:
@@ -169,16 +176,24 @@ def make_fig_prevalence_response():
         bb = ax.get_window_extent()
         ang = math.degrees(math.atan2(bb.height / (Y_HI - Y_LO),
                                       bb.width / X_HI))
-        case(ax.text(0.185, 0.197, "perfect calibration", fontsize=T_NOTE,
-                     color=MUTE, ha="center", va="bottom", rotation=ang,
-                     rotation_mode="anchor", zorder=5))
-        ax.set_xticks([0, 0.1, 0.2])
+        # FIGURE POLISH. The label sat with its baseline on the line, so its
+        # casing erased the dashes under it, and its upper end ran into the
+        # 0.25 level's intervals. It is now lifted 5pt off the line along the
+        # line's normal and centred in the gap between the 0.1 and 0.25 levels.
+        rad = math.radians(ang)
+        ax.annotate("perfect calibration", xy=(0.172, 0.172),
+                    xytext=(-5.0 * math.sin(rad), 5.0 * math.cos(rad)),
+                    textcoords="offset points", fontsize=T_NOTE, color=MUTE,
+                    ha="center", va="bottom", rotation=ang,
+                    rotation_mode="anchor", zorder=5)
+        ax.set_xticks([0, 0.1, 0.2, 0.3])
+        ax.set_xticklabels(["0", "0.1", "0.2", "0.3"])
         ax.set_yticks([0, 0.1, 0.2, 0.3])
         ax.set_title(PL[pr], fontsize=T_SERIES, pad=5, color=INK)
         ax.tick_params(labelsize=T_TICK)
         frame(ax, grid="y")
     fig.supxlabel("True prevalence", fontsize=T_AXIS, y=0.016)
-    axes[0].set_ylabel("Labeller predicted-positive rate", fontsize=T_AXIS)
+    axes[0].set_ylabel("Labeller positive rate", fontsize=T_AXIS)
 
     # ROUND 10 (audit item 4). One legend, shared by both panels, in the room
     # H's growth opened up between the deck and the panel titles.
@@ -364,14 +379,21 @@ def make_fig_forest():
     fig = plt.figure(figsize=(FIGW, H))
     canvas(fig)
     X_LEFT, X_RIGHT, X_VALUE = 0.3250, 0.7700, 0.9950
-    A0, AH = 1.24, 0.84
-    M0, MH = 0.36, 0.40
+    # FIGURE POLISH. H is unchanged (the chroma floor is a ratio to canvas
+    # area and this canvas sits on it). 0.13in moves from the AUROC panel's
+    # empty headroom to the MCC panel, at the same points-per-row scale in
+    # both, so each panel has one clear line at its top for the names of its
+    # reference marks. Those names used to sit at the bottom of each panel,
+    # where "chance" touched the 108-pair interval and "no association"
+    # crossed the frame.
+    A0, AH = 1.37, 0.71
+    M0, MH = 0.36, 0.53
     ax_a = fig.add_axes([X_LEFT, A0 / H, X_RIGHT - X_LEFT, AH / H])
     ax_m = fig.add_axes([X_LEFT, M0 / H, X_RIGHT - X_LEFT, MH / H])
 
     # AUROC panel: chance at 0.5 is the zero rule; the part of the axis above
     # the 80 percent power floor at this study's class counts is shaded.
-    YA_LO, YA_HI = -0.8, 2.5
+    YA_LO, YA_HI = -0.8, 2.0
     ax_a.set_xlim(0.28, 1.0)
     ax_a.set_ylim(YA_LO, YA_HI)
     ax_a.set_xticks([0.3, 0.5, 0.7, 0.9])
@@ -381,9 +403,9 @@ def make_fig_forest():
     # different positive counts (12 against 6) and the shaded band used to
     # imply one shared floor for both.
     Y_SPLIT = 0.5
-    ax_a.fill_betweenx([Y_SPLIT, YA_HI], floor, 1.0, facecolor=FOG,
+    ax_a.fill_betweenx([Y_SPLIT, YA_HI], floor, 1.0, facecolor=MIST,
                        edgecolor="none", lw=0, zorder=0)
-    ax_a.fill_betweenx([YA_LO, Y_SPLIT], floor_108, 1.0, facecolor=FOG,
+    ax_a.fill_betweenx([YA_LO, Y_SPLIT], floor_108, 1.0, facecolor=MIST,
                        edgecolor="none", lw=0, zorder=0)
     # ROUND 11 (coordinator regression). Per-row in-plot labels for the two
     # bands crossed the data they sat beside (the top one over the right end
@@ -393,16 +415,34 @@ def make_fig_forest():
     # shared note above the axes, naming both floors, replaces both; the two
     # bands themselves are unchanged and still visibly start at different x.
     ax_a.axvline(0.5, color=GRAPHITE, lw=1.2, zorder=2)
-    ax_a.text(0.492, YA_LO + 0.08, "chance", ha="right", va="bottom",
+    ax_a.text(0.492, YA_HI - 0.10, "chance", ha="right", va="top",
               fontsize=T_NOTE, color=MUTE, style="italic")
+    # FIGURE POLISH. The value column is two sub-columns, the same in both
+    # panels: the estimate right-aligned at X_EST, its qualifier (an interval
+    # here, the ceiling below) right-aligned at X_VALUE, one line per row.
+    fig.canvas.draw()
+    _r = fig.canvas.get_renderer()
+
+    def _w(text):
+        t = fig.text(0, 0, text, fontsize=T_SERIES)
+        w = t.get_window_extent(_r).width / fig.bbox.width
+        t.remove()
+        return w
+    quals = [f"[{lo:.2f}, {hi:.2f}]" for _, _, lo, hi in au] \
+        + [f"ceiling {mcc_ceil:.2f}"]
+    X_EST = X_VALUE - max(_w(q) for q in quals) - 8.0 / (72 * FIGW)
+    assert X_EST - _w("0.00") > X_RIGHT + 6.0 / (72 * FIGW), \
+        "value column reaches the axes"
     for i, (lab, e, lo, hi) in enumerate(au):
         y = len(au) - 1 - i
         ax_a.errorbar([e], [y], xerr=[[e - lo], [hi - e]], fmt="o",
                       color=ENSEMBLE_DEEP, markerfacecolor=ENSEMBLE_CORE,
                       markeredgecolor=ENSEMBLE_DEEP, zorder=5,
                       **dict(ERRBAR, elinewidth=1.8, capthick=1.8), **DOT)
-        fig.text(X_VALUE, (A0 + AH * (y - YA_LO) / (YA_HI - YA_LO)) / H,
-                 f"{e:.2f}  [{lo:.2f}, {hi:.2f}]", ha="right", va="center",
+        y_fig = (A0 + AH * (y - YA_LO) / (YA_HI - YA_LO)) / H
+        fig.text(X_EST, y_fig, f"{e:.2f}", ha="right", va="center",
+                 fontsize=T_SERIES, color=ENSEMBLE_DEEP)
+        fig.text(X_VALUE, y_fig, quals[i], ha="right", va="center",
                  fontsize=T_SERIES, color=ENSEMBLE_DEEP)
     ax_a.set_yticks([len(au) - 1 - i for i in range(len(au))])
     ax_a.set_yticklabels([r[0] for r in au], fontsize=T_SERIES)
@@ -422,11 +462,12 @@ def make_fig_forest():
 
     # MCC panel: zero is no association; the ceiling is a bound, drawn as a tick.
     ax_m.set_xlim(-0.02, 0.10)
-    ax_m.set_ylim(-0.6, 0.6)
+    YM_LO, YM_HI = -0.6, 1.0
+    ax_m.set_ylim(YM_LO, YM_HI)
     ax_m.set_xticks([0.0, 0.03, 0.06, 0.09])
     frame(ax_m, grid="x")
     ax_m.axvline(0.0, color=GRAPHITE, lw=1.2, zorder=2)
-    ax_m.text(0.0015, -0.56, "no association", ha="left", va="bottom",
+    ax_m.text(0.0015, YM_HI - 0.06, "no association", ha="left", va="top",
               fontsize=T_NOTE, color=MUTE, style="italic")
     ax_m.plot([mcc_ceil, mcc_ceil], [-0.38, 0.38], color=WEAK_LABELLER, lw=2.0,
               solid_capstyle="butt", zorder=4)
@@ -438,21 +479,31 @@ def make_fig_forest():
     # claim, and neither one reads as an interval on its own.
     ax_m.plot([mcc_obs], [0], "o", color=WEAK_LABELLER,
               markeredgecolor=WEAK_LABELLER, zorder=5, **DOT)
-    ax_m.text(mcc_ceil + 0.002, 0.30, "ceiling", ha="left", va="top",
-              fontsize=T_NOTE, color=MUTE, style="italic")
+    # The ceiling tick is the labeller's own mark, so its name takes the
+    # labeller's tone, as the same label does in fig-ceiling; "chance" and
+    # "no association" name reference lines and stay MUTE.
+    ax_m.text(mcc_ceil + 0.002, YM_HI - 0.06, "ceiling", ha="left", va="top",
+              fontsize=T_NOTE, color=WEAK_LABELLER, style="italic")
+    # FIGURE POLISH. The exact p was the value column's second line, which no
+    # other row had. It is a statement about this estimate, so it sits at the
+    # estimate, in its tone, and the value column keeps one shape.
+    ax_m.text(mcc_obs + 0.0045, 0, f"exact p {mcc_p:.2f}", ha="left",
+              va="center", fontsize=T_NOTE, color=WEAK_LABELLER, zorder=6)
     ax_m.set_yticks([0])
     ax_m.set_yticklabels([f"Deployed labeller, {n_299} pairs"], fontsize=T_SERIES)
     ax_m.tick_params(axis="y", length=0)
     ax_m.tick_params(axis="x", labelsize=T_TICK)
-    fig.text(X_VALUE, (M0 + MH / 2) / H,
-             f"{mcc_obs:.2f}  ceiling {mcc_ceil:.2f}\nexact p {mcc_p:.2f}",
-             ha="right", va="center", fontsize=T_SERIES, color=WEAK_LABELLER,
-             linespacing=1.25)
+    # FIGURE POLISH. One line, the same two sub-columns as the AUROC rows.
+    y_fig = (M0 + MH * (0 - YM_LO) / (YM_HI - YM_LO)) / H
+    fig.text(X_EST, y_fig, f"{mcc_obs:.2f}", ha="right", va="center",
+             fontsize=T_SERIES, color=WEAK_LABELLER)
+    fig.text(X_VALUE, y_fig, quals[-1], ha="right", va="center",
+             fontsize=T_SERIES, color=WEAK_LABELLER)
     fig.text(0.012, (M0 + MH + 0.08) / H,
              "MCC against the pharmacist, exact count, no resampling interval",
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
-    fig.add_artist(plt.Line2D([0.012, X_VALUE], [1.02 / H] * 2,
+    fig.add_artist(plt.Line2D([0.012, X_VALUE], [1.15 / H] * 2,
                               color=PLATE_EDGE, lw=0.6))
 
     n_pos_253 = fact("decontam.n_positives")
@@ -515,21 +566,26 @@ def make_fig_power():
     fig, ax = plt.subplots(figsize=(FIGW, 3.30))
     canvas(fig)
     fig.subplots_adjust(left=0.1172, right=0.9890, top=0.8150, bottom=0.1420)
-    Y_LO, Y_HI = 0.47, 0.92
+    # FIGURE POLISH. Y_LO was 0.47, which left 10pt under the chance line for
+    # an 8.5pt label: it touched the dashes above it and the frame below it.
+    # At 0.44 the band is 20pt and the label sits in the middle of it.
+    Y_LO, Y_HI = 0.44, 0.92
     curve = np.clip(mde, chance, 1.0)
     # Below the curve, between chance and the analytic minimum detectable
-    # AUROC, is what this design could not resolve at the stated power: FOG.
+    # AUROC, is what this design could not resolve at the stated power: MIST,
+    # the set's one region fill (FOG until the figure polish; see style.py).
     # Above the curve is bare paper. tools/measure_ink.py holds this canvas to
     # a 0.53 coverage floor set when both regions were filled; this canvas
     # measures under it, and that is recorded in manifest.json rather than
     # met by tinting the upper region, which would be a band drawn for the tool.
-    ax.fill_between(n_pos, chance, curve, facecolor=FOG, edgecolor="none",
+    ax.fill_between(n_pos, chance, curve, facecolor=MIST, edgecolor="none",
                     linewidth=0, zorder=1)
     ax.plot(n_pos, curve, color=GRAPHITE, lw=2.2, zorder=4)
     ref_tone = SLATE    # reference and guide lines only; never type
     ax.axhline(chance, color=ref_tone, lw=LW_REF, linestyle=REF_DASH, zorder=3)
-    ax.text(2800, chance - 0.006, f"chance, AUROC {chance:.2f}", ha="right",
-            va="top", fontsize=T_NOTE, color=MUTE, style="italic", zorder=5)
+    ax.text(2400, (Y_LO + chance) / 2, f"chance, AUROC {chance:.2f}",
+            ha="right", va="center", fontsize=T_NOTE, color=MUTE,
+            style="italic", zorder=5)
     ax.axvline(n_pos_study, color=ref_tone, lw=0.6, zorder=2)
     ax.text(n_pos_study * 1.04, Y_HI - 0.010, f"{n_pos_study} positives",
             ha="left", va="top", fontsize=T_NOTE, color=MUTE, zorder=5)
@@ -547,8 +603,13 @@ def make_fig_power():
                   linespacing=1.3)
     ax.text(2800, 0.60, f"detectable at {pct} power", ha="right",
             va="bottom", fontsize=T_SERIES, color=MUTE, zorder=5)
-    ax.text(14, 0.508, f"not detectable at {pct} power", ha="left",
-            va="bottom", fontsize=T_SERIES, color=MUTE, zorder=5)
+    # FIGURE POLISH. Was bottom-aligned 3pt over the chance line, so its
+    # descenders straddled the dashes, and it could not move up because the
+    # analytic-curve label sat in the same region. That label now joins the
+    # other two above the curve (below), and this one is centred in the
+    # region it names: 8pt over the chance line, 5pt under the curve.
+    ax.text(14, 0.538, f"not detectable at {pct} power", ha="left",
+            va="center", fontsize=T_SERIES, color=MUTE, zorder=5)
 
     # The three points at this study's positive count, on the guide.
     # AUDIT ITEM 7. mde_study (0.7355) and floor_mw (0.7466) are close enough
@@ -573,7 +634,7 @@ def make_fig_power():
              f"registered decision rule, power simulation: {floor_rule:.4f}"),
             (floor_mw, floor_mw + 0.035,
              f"Mann-Whitney test, power simulation: {floor_mw:.4f}"),
-            (mde_study, 0.552, f"analytic curve: {mde_study:.4f}")):
+            (mde_study, mde_study - 0.020, f"analytic curve: {mde_study:.4f}")):
         ax.plot([n_pos_study * 1.10, x_lab * 0.95], [y_pt, y_lab],
                 color=GRAPHITE, lw=0.6, zorder=6, solid_capstyle="butt")
         ax.text(x_lab, y_lab, text, ha="left", va="center", fontsize=T_SERIES,

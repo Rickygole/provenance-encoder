@@ -60,8 +60,15 @@ they disagree). One mapping, used by every bound figure:
                    style (PUBLIC_MODEL_MARK), never by hue
     COBALT         extraction (schematic stages only)
     EMERALD        the pharmacist's annotation
-    FOG            a light neutral region (#F2F2F2), e.g. the undetectable
-                   region of the power figure
+    MIST           the one region fill on a plot: the undetectable region of
+                   the power figure, the unattainable region of the ceiling
+                   figure, the power-floor bands of the forest, the
+                   over-prediction wedge. It is also the schematics' neutral
+                   node fill, so plots and schematics share one ground.
+    FOG            retired from the bound set (#F2F2F2). At 0.89 against
+                   paper it did not read under a dashed boundary, and it was
+                   the one pure-neutral grey in a structure family that is
+                   blue-grey throughout. Kept so retired generators import.
 
 THE COLOUR MODEL. Every hue is a four-stop ramp and the stop determines the
 job. Identity lives in DEEP and CORE only; TINT and WASH are structural ground
@@ -174,7 +181,7 @@ SLATE = "#7C8AA5"      # 0.2518   3.48:1   reference lines, seed dots, stubs
 MIST = "#DCE3EE"       # 0.7633            neutral structural ground
 HAIR = "#EAEDF3"       # 0.8453            the one optional value grid
 PLATE_EDGE = "#C4CCDA" # hairline separators; no longer a plate stroke
-FOG = "#F2F2F2"        # 0.8879            light neutral region fill
+FOG = "#F2F2F2"        # 0.8879            retired region fill; plots use MIST
 
 STRUCTURE = {"PAPER": PAPER, "INK": INK, "GRAPHITE": GRAPHITE, "MUTE": MUTE,
              "SLATE": SLATE, "MIST": MIST, "HAIR": HAIR,

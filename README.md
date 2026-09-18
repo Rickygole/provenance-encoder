@@ -78,6 +78,11 @@ text and aggregates only under `accord/local_only/` (gitignored), which the medi
 scripts (`phase2_medication.py`, `phase3_mining.py`) then read in turn. No note text, HADM_ID or SUBJECT_ID
 leaves that directory.
 
+Every other clinical script reads and writes row-level files under one credentialed directory, named by the
+`MIMIC_LOCAL_ONLY_DIR` environment variable (default `~/mimic_local_only`). The four per-file variables above
+default to `$MIMIC_LOCAL_ONLY_DIR/raw_mimiciii/`. Nothing under that directory is tracked, and only aggregates
+are written into `results/`.
+
 Some results cannot be regenerated from this repository because the code that produced them was never committed or
 no longer exists: the deployed weak-labelling run and its prompt, the original Rules 1 and 2 mining notebook, the
 training run behind the rule-type head result, and several exploratory diagnostic notebooks whose aggregate outputs

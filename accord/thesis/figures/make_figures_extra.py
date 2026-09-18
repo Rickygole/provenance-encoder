@@ -28,7 +28,7 @@ this set with no committed numeric source. They are design constants quoted
 from source code in CORRECTIONS.md C1, not measurements, and they are labelled
 on the canvas as values the parameters were SET to.
 """
-import json, pathlib
+import json, os, pathlib
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import style
@@ -75,8 +75,12 @@ HERE = pathlib.Path(__file__).parent
 print("make_figures_extra.py: both figures retired; see RETIRED in "
       "tools/check_figure_invariants.py")
 raise SystemExit(0)
-Q = pathlib.Path("/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs")
-S = pathlib.Path("/Users/rickygole/mimic_local_only/accord_supp/results")
+# Credentialed local-only data lives outside the repository. Same variable and
+# same tilde default as accord/phase1_cohort.py; was the author's absolute path.
+_LOCAL = pathlib.Path(os.environ.get(
+    "MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only")))
+Q = _LOCAL / "from_drive_2026-08-08" / "outputs"
+S = _LOCAL / "accord_supp" / "results"
 man = {}
 
 # ---- fig:asymmetry ---------------------------------------------------------

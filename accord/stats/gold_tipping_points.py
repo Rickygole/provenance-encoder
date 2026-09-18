@@ -55,6 +55,7 @@ Run (MUST redirect, this script touches MIMIC-derived data):
 
 import collections
 import json
+import os
 import pathlib
 
 import numpy as np
@@ -63,7 +64,8 @@ from sklearn.metrics import roc_auc_score
 
 from _overcall_common import ROOT, load_facts, reg
 
-GOLD_CSV = pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+GOLD_CSV = MIMIC_LOCAL_ONLY_DIR / "derived" / "gold_standard_accord_results.csv"
 PUBLIC_ARTIFACT = ROOT / "results" / "accord" / "stats" / "overcall_decomposition.json"
 OUT = ROOT / "results" / "accord" / "stats" / "gold_tipping_points.json"
 MAX_FLIPS = 80  # greedy search cap; documented, not tuned to a result

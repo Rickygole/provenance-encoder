@@ -92,7 +92,7 @@ frame(ax)
 
 # The E9 operating point: the one scarlet element, and it is the claim.
 ax.plot(B, [e9_rate] * len(B), color=SCARLET_CORE, lw=LW_DATA, zorder=6)
-case(ax.text(B[-1], e9_rate + 0.012, "the audit's operating point",
+case(ax.text(B[-1], e9_rate + 0.012, "the audit\u2019s operating point",
              ha="right", va="bottom", fontsize=T_SERIES, color=SCARLET_DEEP,
              zorder=7))
 

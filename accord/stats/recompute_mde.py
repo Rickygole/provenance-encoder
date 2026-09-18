@@ -52,7 +52,8 @@ FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"
 PREFIX = "mde_recomputed"
 # n_pos and n_neg are registered too: the strata tables print the class counts,
 # and a printed number the register does not hold fails the numeric gate.
-FIELDS = ("gap_above_chance", "minimum_detectable_auc", "se0_null_approx",
+FIELDS = ("gap_above_chance", "minimum_detectable_auc",
+          "minimum_detectable_auc_null_variance", "se0_null_approx",
           "n_pos", "n_neg")
 
 
@@ -82,6 +83,17 @@ def hanley_mcneil_mde(n_pos, n_neg, alpha=ALPHA, power=POWER, iters=100):
     return (lo + hi) / 2
 
 
+def null_variance_mde(n_pos, n_neg, alpha=ALPHA, power=POWER):
+    """The same threshold with the sampling variance held at its null value
+    for both terms: 0.5 + (z_alpha + z_power) * SE0. It is reported beside the
+    Hanley and McNeil value because the two differ in the third decimal, and a
+    score that clears one by less than that difference has not cleared the
+    other. The thesis's registered decision rule uses the Hanley and McNeil
+    value; this one is a sensitivity reading, not a second rule."""
+    z = norm.ppf(1 - alpha / 2) + norm.ppf(power)
+    return 0.5 + z * se0(n_pos, n_neg)
+
+
 def main():
     out = {"alpha": ALPHA, "power": POWER, "strata": {}}
     for s in STRATA:
@@ -92,6 +104,7 @@ def main():
             "n_neg": n_neg,
             "se0_null_approx": round(se0(n_pos, n_neg), 4),
             "minimum_detectable_auc": mde,
+            "minimum_detectable_auc_null_variance": round(null_variance_mde(n_pos, n_neg), 4),
             "gap_above_chance": round(mde - 0.5, 4),
         }
     OUT.parent.mkdir(parents=True, exist_ok=True)

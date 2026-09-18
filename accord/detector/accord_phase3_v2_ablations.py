@@ -123,7 +123,8 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))  # repo root
 from accord.cloud_paths import assert_local_only, CloudStoragePathError
 
-_LOCAL_DEFAULT = os.path.expanduser("~/mimic_local_only/accord_detector")
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+_LOCAL_DEFAULT = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_detector")
 try:
     assert_local_only(OUT)
 except CloudStoragePathError as _exc:

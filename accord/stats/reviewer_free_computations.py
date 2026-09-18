@@ -36,6 +36,7 @@ Writes: results/accord/stats/reviewer_free_computations.json
 
 import json
 import math
+import os
 import pathlib
 
 import numpy as np
@@ -46,8 +47,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / "results" / "accord" / "stats" / "reviewer_free_computations.json"
 
 # Both inputs carry note sentences and stay outside the repository.
-MERGED = pathlib.Path.home() / "mimic_local_only" / "from_drive_2026-08-08" / "outputs" / "pharmacist_llama_merged.csv"
-SCORES = pathlib.Path.home() / "mimic_local_only" / "derived" / "gold_standard_accord_results.csv"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+MERGED = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08" / "outputs" / "pharmacist_llama_merged.csv"
+SCORES = MIMIC_LOCAL_ONLY_DIR / "derived" / "gold_standard_accord_results.csv"
 
 
 def mcc(tp, tn, fp, fn):

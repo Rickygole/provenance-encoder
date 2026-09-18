@@ -21,6 +21,7 @@ run time, exactly as documented in C103_PREREGISTRATION.md's compliance
 notes.
 """
 import json
+import os
 import pathlib
 import sys
 
@@ -36,8 +37,9 @@ from accord.stats.marginal_feasibility_gate import (  # noqa: E402
     attainable_floor_p, best_table, mcc,
 )
 
-GOLD = pathlib.Path.home() / "mimic_local_only/from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
-CACHE_DIR = pathlib.Path.home() / "mimic_local_only/accord_prompt_sensitivity_cache"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+GOLD = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv"
+CACHE_DIR = MIMIC_LOCAL_ONLY_DIR / "accord_prompt_sensitivity_cache"
 OVERCALL_PATH = ROOT / "results" / "accord" / "stats" / "overcall_decomposition.json"
 MDE_PATH = ROOT / "results" / "accord" / "mde_recomputed.json"
 OUT_PATH = ROOT / "results" / "accord" / "prompt_sensitivity" / "analysis.json"

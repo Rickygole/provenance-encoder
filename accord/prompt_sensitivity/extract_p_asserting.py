@@ -10,11 +10,13 @@ anywhere but prompts.py.
 Run once, by hand, before C103's first datum. Not part of the C103 run
 itself and not called by run_c103.py.
 """
+import os
 import pathlib
 
 import pandas as pd
 
-SRC = pathlib.Path.home() / "mimic_local_only/accord_supp/prompts_existing.csv"
+MIMIC_LOCAL_ONLY_DIR = pathlib.Path(os.environ.get("MIMIC_LOCAL_ONLY_DIR", pathlib.Path.home() / "mimic_local_only"))
+SRC = MIMIC_LOCAL_ONLY_DIR / "accord_supp/prompts_existing.csv"
 CONFIG_ID = "gpt4o_zeroshot"
 DEST = pathlib.Path(__file__).resolve().parent / "prompts.py"
 

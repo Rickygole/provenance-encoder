@@ -518,18 +518,42 @@ def pass10_figures():
     return problems == 0
 
 
+def pass11_appendix_counts():
+    """Appendix B prints the register's size and the claim trace's counts. They
+    were typed by hand and two audits found them stale, because every chapter
+    edit moves them and the numeric gate does not read the appendices. The
+    trace is rerun here so the comparison is against the chapters as they are
+    now, then sync_appendix_counts.py --check compares the printed counts."""
+    print("PASS 11  appendix provenance counts")
+    here = pathlib.Path(__file__).resolve().parent
+    tr = subprocess.run([sys.executable, str(here / "trace_claims.py")],
+                        capture_output=True, text=True, cwd=str(here.parents[1]))
+    # The tracer exits 1 when it lists any untraced quantity, and Appendix B
+    # discloses the ones it lists; only a crash (any other status) is a failure.
+    if tr.returncode not in (0, 1):
+        print("   FAIL: trace_claims.py did not run cleanly")
+        print()
+        return False
+    r = subprocess.run([sys.executable, str(here / "sync_appendix_counts.py"), "--check"],
+                       capture_output=True, text=True, cwd=str(here.parents[1]))
+    print(r.stdout.rstrip() or r.stderr.rstrip())
+    print()
+    return r.returncode == 0
+
+
 def main():
     skip_figs = "--skip-figures" in sys.argv
     results = [("1-5", run_original_five()),
                ("6", pass6_overclaim()),
                ("7", pass7_refs()),
                ("8", pass8_captions()),
-               ("9", pass9_template())]
+               ("9", pass9_template()),
+               ("11", pass11_appendix_counts())]
     if not skip_figs:
         results.append(("10", pass10_figures()))
     failed = [n for n, ok in results if not ok]
     print("RESULT:", "FAIL on pass " + ", ".join(failed) if failed
-          else "all ten gating passes clear"
+          else "all eleven gating passes clear"
           if not skip_figs else "passes 1-9 clear (figures skipped)")
     return 1 if failed else 0
 
