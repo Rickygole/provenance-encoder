@@ -15,8 +15,8 @@ This thesis applies no new method. It takes a pipeline whose shape is standard i
 language processing (NLP), rule-based candidate mining followed by language model weak supervision
 followed by a purpose-built neural detector, and runs at each stage a check that separates a real
 finding from an artifact of the measurement. The checks are borrowed, each credited again wherever
-it appears later. What this chapter has to establish is therefore less than a conventional review would: the gap lies among the things that have been checked, not among the methods. The review runs along five threads: the clinical task itself, attempted far less often than its
-importance suggests; weak supervision and label noise, where a single language model annotating a
+it appears later. What this chapter has to establish is therefore less than a conventional review would: the gap lies among the things that have been checked, not among the methods. The review runs along five threads: the clinical task itself, for which no system or benchmark in this thesis's
+configuration was found; weak supervision and label noise, where a single language model annotating a
 rare class falls outside the theory the field's tooling rests on; evaluation under low prevalence, a
 literature more than half a century old that this thesis applies and does not extend; controls and
 construct validity, the methodological backbone; and selection and stage-by-stage
@@ -70,7 +70,10 @@ well; this thesis has a pipeline that scores poorly and needs to know whether th
 
 \subsection{What has actually been built for the clinical case}
 
-Very little, and the exception is instructive. \citet{li2015discrepancy} report an end-to-end hybrid
+No system or benchmark was found for the case this thesis addresses, medication contradictions
+between two free-text notes of one admission. That statement covers this configuration only and makes
+no claim about how much work exists on contradiction in clinical text generally. The nearest system
+found is instructive. \citet{li2015discrepancy} report an end-to-end hybrid
 algorithm for medication discrepancy detection at Cincinnati Children's Hospital, comparing
 structured discharge prescription lists against free-text notes for 271 patients in a Complex Care
 Medical Home Program. Component performance on entity detection and attribute linkage is strong, but
@@ -90,9 +93,10 @@ attribute layer \citep{uzuner2010medication,henry2020n2c2}, negation handling ha
 The layer above it is not. \citet{weiskopf2013quality} find completeness, correctness, and
 plausibility handled unevenly, and consistency across documents about one episode is a dimension the
 reuse literature flags and the extraction literature does not target. The deployment literature says
-what that costs. For low-precision drug safety alerts, \citet{vandersijs2006overriding} report override rates of 49 percent to 96 percent, and \citet{ancker2017alertfatigue} find acceptance associated
-with alert-stream complexity rather than workload, so a recall figure without the corresponding
-precision says nothing about clinical usefulness.
+what that costs. \citet{vandersijs2006overriding} report that drug safety alerts are overridden in 49 percent to 96 percent of cases; the range is theirs, and reading it as the price of low precision is this thesis's inference.
+\citet{ancker2017alertfatigue} find that alert acceptance fell as the number of alerts rose,
+particularly repeated alerts, and find no evidence of an effect of workload as such. A recall figure
+without the corresponding precision therefore says nothing about clinical usefulness.
 
 \section{Weak Supervision and Label Noise in Clinical NLP}
 \label{sec:lit-weak}
@@ -177,10 +181,14 @@ Cohen's kappa \citep{cohen1960kappa} corrects observed agreement for the agreeme
 chance under the observed marginals. It therefore depends on those marginals in ways that surprise
 readers who take it for a corrected accuracy, and it is bounded above by a maximum the marginals
 themselves fix. \citet{feinstein1990paradoxes} set out the two paradoxes: high observed agreement can
-coexist with a low kappa when the marginals are badly unbalanced, and unbalanced
-marginals can raise rather than lower kappa; the companion paper
-\citep{cicchetti1990resolving} works through the resolution and recommends reporting the marginals
-alongside the statistic. \citet{byrt1993pabak} respond with the prevalence-adjusted bias-adjusted
+coexist with a low kappa when the marginals are badly unbalanced, and kappa is higher when the
+imbalance in the marginal totals is asymmetrical than when it is symmetrical. They add that
+substituting the maximum kappa repairs neither paradox, and this thesis accordingly uses the maximum
+as a feasibility bound on what a labeller's marginal permits, not as a repaired agreement
+coefficient. The companion paper \citep{cicchetti1990resolving} works through the resolution and
+recommends that kappa always be accompanied by separate values of positive and negative agreement.
+\citet{byrt1993pabak} recommend reporting indices of prevalence and bias alongside kappa, and they
+propose the prevalence-adjusted bias-adjusted
 kappa, an affine function of observed agreement, $\mathrm{PABAK} = 2p_o - 1$, which removes the
 marginal sensitivity by removing the marginal information. It reports a rescaled observed agreement
 under the name of a chance-corrected coefficient, so a system evaluated by PABAK on a set with 12 positives is scored almost entirely on its behaviour on the negatives. Whether that is right depends
@@ -195,8 +203,9 @@ label, computed from all four confusion matrix cells. \citet{chicco2020mcc} argu
 preferred to accuracy and $F_1$ under imbalance because it is high only when all four cells are
 favourable, and \citet{chicco2021mccbalanced} extend the argument against balanced accuracy,
 bookmaker informedness, and markedness. \citet{powers2011evaluation} situates it among informedness
-and markedness measures, and \citet{delgado2019kappa} conclude from kappa's behaviour under skew that
-it should be avoided in favour of MCC.
+and markedness measures, and \citet{delgado2019kappa} argue from kappa's behaviour under skew that
+it should be avoided as a measure of classification performance, using MCC as their contrast measure
+without explicitly recommending it.
 
 Balanced accuracy, the unweighted mean of sensitivity and specificity \citep{brodersen2010balanced},
 is the measure most often reached for when a prevalence-blind summary is wanted, and its implicit
@@ -268,9 +277,10 @@ that assignment recovers the gain, the credited feature was not the source.
 \subsection{Leakage and measurement}
 
 \citet{kaufman2012leakage} give the formulation, detection, and avoidance of leakage in data mining:
-the introduction of information about the target that should not legitimately be available. Their
-detection advice is behavioural: the primary symptom is a model performing implausibly well relative
-to the task's difficulty. An auxiliary objective derivable from the model's own inputs is a textbook
+the introduction of information about the target that should not legitimately be available. They
+give three routes to detection, exploratory data analysis, surprisingly good model performance, and
+early field testing, and rank none of them; the second is the behavioural one, a model performing
+implausibly well relative to the task's difficulty. An auxiliary objective derivable from the model's own inputs is a textbook
 instance, and the diagnosis is that the target is not independent of what the model already has.
 \citet{jacobs2021measurement} bring measurement modelling from the quantitative social sciences to
 computational systems, and their framing covers the whole chapter: systems operationalise
@@ -339,16 +349,14 @@ per-stage checks. Second, the maximum agreement attainable under fixed marginals
 \citep{pangakis2023validation,egami2023surrogates}. No work was found that uses the bound, together
 with the minimum attainable significance of a discrete test \citep{tarone1990modified}, as a check on
 a single language-model labeller's marginal. Such a check needs only a base rate from a small
-expert-labelled sample; this thesis recommends running it before training and applied it here after
-the fact.
+expert-labelled sample, and this thesis applied it after the fact.
 
 Third, the nearest descriptions of the mining bug pattern are neighbours, not
 instances: leakage \citep{kaufman2012leakage} is target information a model should not see, label
 errors \citep{northcutt2021labelerrors} are wrong labels on correctly displayed items, and boundary
 defects \citep{sculley2015debt} are named without a check. In trigger-exemplar dissociation the label
-may be right while the evidence displayed with it is not what triggered the candidate. Its rate
-cannot be recovered after the fact when the schema does not record the trigger, and none of those
-framings supplies the one-line assertion that would catch it once the schema does.
+may be right while the evidence displayed with it is not what triggered the candidate, and none of
+those framings supplies the assertion that would catch it.
 The question this thesis asks is therefore smaller than the pipeline that motivates it: what each
 stage's reported number is worth once its check is run, at a sample size that resolves only large
-effects. Nothing that follows claims a method this chapter has attributed to someone else.
+effects. Nothing that follows claims a method attributed here to someone else.

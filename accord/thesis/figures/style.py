@@ -56,19 +56,64 @@ they disagree). One mapping, used by every bound figure:
     SCARLET        a failed check or an unsupported reading, and nothing else
     PLUM_DEEP      the deployed weak labeller (#971D6B)
     AMBER DEEP/CORE the detector ensemble (#714B00 / #F5A300)
-    INK/MUTE/SLATE the three public models, told apart by marker and line
-                   style (PUBLIC_MODEL_MARK), never by hue
-    COBALT         extraction (schematic stages only)
+    MAGENTA / TANGERINE / CYAN
+                   the three public models, llama3:8b, granite3.3:8b and
+                   qwen3:8b in that order (COLOUR ROUND, below). Each keeps
+                   the marker and dash pattern it had as a neutral
+                   (PUBLIC_MODEL_MARK), because every DEEP stop sits at one
+                   lightness and hue alone is nothing in greyscale.
+    COBALT         on a plot, an analytic bound: the minimum detectable AUROC
+                   curve and the region under it in the power figure, the two
+                   ceiling curves and the unattainable region in the ceiling
+                   figure. DEEP for the line, WASH for the region. On a
+                   schematic COBALT is still the extraction stage (cohort
+                   flow: TINT node, DEEP stroke and count). That is a second
+                   use of one ramp and is stated as one: a schematic stage
+                   and a plot bound are two registers, as SCARLET's state and
+                   claim already are, and the two never share a canvas.
     EMERALD        the pharmacist's annotation
-    MIST           the one region fill on a plot: the undetectable region of
-                   the power figure, the unattainable region of the ceiling
-                   figure, the power-floor bands of the forest, the
-                   over-prediction wedge. It is also the schematics' neutral
-                   node fill, so plots and schematics share one ground.
+    AZURE_WASH / TANGERINE_TINT
+                   the exemplar schematic's two note columns, nursing note and
+                   discharge summary. Grounds only, stroked in neutral SLATE,
+                   so neither ramp's DEEP or CORE appears and no identity is
+                   spent. One WASH and one TINT on purpose: the two stops are
+                   0.136 apart in relative luminance, so the columns are two
+                   greys in print, where two WASH stops would be one.
+    MIST           the neutral region fill on a plot: the power-floor bands of
+                   the forest and the over-prediction wedge. Both figures
+                   already carry their full hue budget, and the forest's band
+                   shades what IS detectable where the power figure's region
+                   shades what is NOT, so it must not take the same wash. It
+                   is also the schematics' neutral node fill.
     FOG            retired from the bound set (#F2F2F2). At 0.89 against
                    paper it did not read under a dashed boundary, and it was
                    the one pure-neutral grey in a structure family that is
                    blue-grey throughout. Kept so retired generators import.
+
+COLOUR ROUND. The author asked for more colour in the bound set, which the
+critique round had taken close to monochrome. What came back, and why:
+
+    The three public models are hues again, the three they wore in v3.
+      llama3:8b is MAGENTA because it is the same model as the deployed weak
+      labeller (PLUM) under another prompt on another pool: same model, same
+      family, the rule gpt4o_fewshot already follows. MAGENTA and PLUM are 8.4
+      dE76 apart at DEEP by design and must never share an axes.
+    KNOWN NEAR-COLLISION, stated rather than hidden: TANGERINE (granite3.3:8b)
+      and AMBER (the ensemble) are 9.7 apart at DEEP and 17.7 at CORE. They
+      are kin in the palette and not in the thesis. They never share a figure,
+      every mark of either is named in words on its own canvas, and the only
+      allocations that avoid it put two meanings on COBALT or on the
+      AZURE/CYAN pair (8.4 apart) instead. If granite3.3:8b and the ensemble
+      are ever drawn on one axes, granite must move.
+    Measured for the three model hues, Machado (2009) severity 1.0, minimum
+      pairwise dE76: DEEP normal 61.3, protan 10.3, deutan 22.5, tritan 21.3;
+      CORE normal 94.2, protan 25.7, deutan 37.8, tritan 27.2. The protan DEEP
+      figure is the MAGENTA/CYAN pair and is why marker and dash are kept.
+      COBALT against PLUM, the ceiling figure's pair: DEEP normal 55.3, protan
+      31.3, deutan 53.2, tritan 79.8. (EMERALD was considered for the ceiling
+      curves, which are drawn on the pharmacist's gold bases, and rejected:
+      16.0 against PLUM under deutan.)
+    At most three hues plus neutrals on any one canvas.
 
 THE COLOUR MODEL. Every hue is a four-stop ramp and the stop determines the
 job. Identity lives in DEEP and CORE only; TINT and WASH are structural ground
@@ -145,9 +190,10 @@ AMBER = Ramp("AMBER",    "#714B00", "#F5A300", "#F9C765", "#FCE4B6", "#F6AC1A")
 PLUM = Ramp("PLUM",      "#971D6B", "#C3268A", "#EEC2DE", "#F7E1EF", "#E296C6")
 SCARLET = Ramp("SCARLET", "#A41704", "#D81E05", "#F5C2BC", "#FAE2DF", "#EE9A8F")
 
-# MAGENTA, TANGERINE and CYAN were the three public models' hues on the
-# prevalence grid. The role map below replaced them with neutral tones plus
-# marker and line style; the ramps stay only for retired generators.
+# MAGENTA, TANGERINE and CYAN are the three public models' hues on the
+# prevalence figure (COLOUR ROUND in the docstring). The critique round had
+# replaced them with neutral tones; marker and line style survive from that
+# round, so the series still separate in greyscale.
 MAGENTA = Ramp("MAGENTA", "#8E1257", "#E0218A", "#F6C4DF", "#FBE6F1", "#EE8CC0")
 TANGERINE = Ramp("TANGERINE", "#7A4200", "#FF8A00", "#FFCC8F", "#FFE9D2", "#FFAE52")
 CYAN = Ramp("CYAN",      "#0A5570", "#00A6D6", "#A8DEEF", "#D6F0F8", "#63C6E4")
@@ -199,36 +245,50 @@ ENTITY_HUE = {
     "gpt4o_zeroshot":       COBALT,
     "gpt4o_fewshot":        AZURE,    # same model, other prompt -> same family
     "accord":               AMBER,    # the detector ensemble
-    # The three public models are neutral tones told apart by marker and line
-    # style (PUBLIC_MODEL_MARK below), so no public model can be read as the
-    # deployed labeller (PLUM) or the ensemble (AMBER). fig_batch2.py's
-    # MODEL_HUE must name the same tone; check_figure_invariants.py enforces it.
-    "llama3_8b":            INK,
+    # gpt4o_* are withdrawn hosted rows and are drawn by no live figure, which
+    # is what leaves COBALT free to mean an analytic bound on the live plots.
+    # The three public models take one hue each and keep their marker and line
+    # style (PUBLIC_MODEL_MARK below). llama3:8b is MAGENTA, PLUM's neighbour,
+    # because it IS the deployed labeller's model under another prompt.
+    # fig_batch2.py's MODEL_HUE and PUBLIC_MODEL_MARK must name the same ramp;
+    # check_figure_invariants.py enforces both.
+    "llama3_8b":            MAGENTA,
     "weak_labeller":        PLUM,     # drawn in PLUM_DEEP
     "pharmacist_truth":     EMERALD,
     "pretrained_reference": EMERALD,
-    "qwen3_8b":             SLATE,
-    "granite33_8b":         MUTE,
+    "qwen3_8b":             CYAN,
+    "granite33_8b":         TANGERINE,
     "control_model":        EMERALD,
 }
-# Alpha parameters, the MDE curve, coded-corpus counts: measured, but not an
-# entity, so they take the structural measurement tone rather than a hue.
+# Alpha parameters, coded-corpus counts: measured, but not an entity, so they
+# take the structural measurement tone rather than a hue. (The MDE curve used
+# to be listed here; it is now a BOUND, below.)
 NON_ENTITY_MEASUREMENT = GRAPHITE
 
 # The role map, by name, so a drawing script never chooses a hue for a role.
 FAIL = SCARLET                     # failed check or unsupported reading only
 WEAK_LABELLER = PLUM.DEEP          # the deployed weak labeller
 ENSEMBLE_DEEP, ENSEMBLE_CORE = AMBER.DEEP, AMBER.CORE   # the detector ensemble
-# marker, line style, colour for each public model
+# An analytic bound on a plot: the power figure's minimum detectable AUROC and
+# the ceiling figure's two ceilings. A limit that follows from counts, not an
+# entity and not an estimate. DEEP draws the line and names the region, WASH
+# fills the side of the line the design cannot reach.
+BOUND = COBALT
+BOUND_DEEP, BOUND_CORE, BOUND_WASH = COBALT.DEEP, COBALT.CORE, COBALT.WASH
+# The exemplar schematic's two note columns. Grounds only; see the role map.
+NURSING_GROUND = AZURE.WASH
+DISCHARGE_GROUND = TANGERINE.TINT
+# marker, line style, ramp for each public model. The line and the interval
+# take the ramp's DEEP, the marker face its CORE under a DEEP edge.
 PUBLIC_MODEL_MARK = {
-    "llama3:8b":     ("o", "-", INK),
-    "granite3.3:8b": ("s", (0, (4, 2)), MUTE),
-    "qwen3:8b":      ("^", (0, (1, 1.5)), SLATE),
+    "llama3:8b":     ("o", "-", MAGENTA),
+    "granite3.3:8b": ("s", (0, (4, 2)), TANGERINE),
+    "qwen3:8b":      ("^", (0, (1, 1.5)), CYAN),
 }
 
-# The prevalence grid no longer carries hue at all. Its three public models
-# are INK, MUTE and SLATE, separated by marker and dash pattern, which survives
-# greyscale by construction and keeps hue free for the roles above.
+# The prevalence figure's three public models carry hue AND keep the marker and
+# dash pattern they had as neutrals. Every DEEP stop sits near L* 35, so in
+# greyscale the three lines are one grey and marker and dash do all the work.
 
 # ---------------------------------------------------------------------------
 # 4. TYPE SCALE. Every figure is drawn at its printed size (scale 1.0), so a

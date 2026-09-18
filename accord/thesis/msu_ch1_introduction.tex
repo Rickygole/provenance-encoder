@@ -64,7 +64,9 @@ everywhere in this thesis.
 
 Given a rare event, expensive expert labels, and a large corpus of paired notes, the standard construction is close to automatic: (1) mine candidates
 with high-recall rules; (2) label them with an instruction-tuned language
-model, since expert annotation does not scale \citep{gilardi2023chatgpt};
+model, a labeller reported to match or exceed crowd annotators on some
+text-annotation tasks \citep{gilardi2023chatgpt}, because expert annotation
+does not scale;
 (3) distil the labels into a purpose-built neural detector, referred to
 throughout this thesis as ACCORD, over a domain-pretrained clinical encoder
 \citep{gu2021biomedbert,alsentzer2019clinicalbert}; and (4) evaluate against
@@ -85,7 +87,7 @@ thesis runs checks of that kind, listed with their sources in
 Chapter~\ref{ch:lit}: code audits, the marginal agreement ceiling with the
 measured agreement, a comparison between rule strata, and a power analysis.
 Headline results are reported as the area under the receiver operating
-characteristic curve (AUROC), the Matthews correlation coefficient (MCC) and
+characteristic curve (AUROC), the Matthews correlation coefficient (MCC), and
 average precision.
 
 \begin{figure}[!ht]
@@ -94,7 +96,7 @@ average precision.
 \caption{The four pipeline stages and what survived each check}
 \includegraphics[width=0.98\linewidth]{figures/fig-pipeline-status.pdf}
 \label{fig:pipeline-status}
-\apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture and (4) evaluation. Stage $1$'s precision is not established; reading stage $2$'s recall as discrimination is unsupported; stage $3$'s credited components are unsupported by code audit (an initialisation artifact, a confounded rule-type head, an untrained harm head); stage $4$, evaluation, is a bounded null whose interval lies below the power floor.}
+\apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture, and (4) evaluation. Stage $1$'s precision is not established; reading stage $2$'s recall as discrimination is unsupported; stage $3$'s credited components are unsupported by code audit (an initialisation artifact, a confounded rule-type head, an untrained harm head); stage $4$, evaluation, is a bounded null whose interval lies below the power floor.}
 \end{figure}
 
 The candidate stage carries a bug pattern observed once here, which this thesis names
@@ -183,8 +185,7 @@ but its labels were retained and are measured directly; the reproducible
 replication of the same prompt text flags an even larger share, $0.9532$, so the
 over-calling finding does not rest on the lost run. Nor does the ranking null:
 retrained on labels regenerated with the committed replication prompt and
-script, the plain control detector, not ACCORD, reaches an ensemble AUROC of $0.5360$ on the 253 non-ambiguous pairs ($G_{253}$)
-(95 percent interval $0.3454$ to $0.7196$), which includes chance and ends
+script, the plain control detector, not ACCORD, reaches an ensemble AUROC of $0.5360$ on the 253 non-ambiguous pairs ($G_{253}$; 95 percent interval $0.3454$ to $0.7196$), which includes chance and ends
 below the $0.7466$ power floor. Of
 $15$ local labeller-and-prompt configurations run in this project, $5$, all
 Llama 3 8B (\texttt{llama3:8b}), could not have rejected the null at $\alpha = 0.05$ at

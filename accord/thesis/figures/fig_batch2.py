@@ -41,6 +41,7 @@ from style import (
     SCARLET_WASH,
     PAPER, INK, GRAPHITE, MUTE, SLATE, MIST, HAIR, PLATE_EDGE, FOG,
     WEAK_LABELLER, ENSEMBLE_DEEP, ENSEMBLE_CORE, PUBLIC_MODEL_MARK,
+    BOUND_DEEP, BOUND_WASH,
     T_HEADLINE, T_CLAIM, T_DECK, T_AXIS, T_TICK, T_SERIES, T_NOTE, T_PANEL,
     LW_SPINE, LW_DATA, LW_REF, LW_INTERVAL, MS_DOT, MS_MARK, MS_SEED,
     REF_DASH, ERRBAR, DOT, FIGW, canvas, frame, signature, panel_label, arrow,
@@ -110,12 +111,18 @@ def make_fig_prevalence_response():
 
     PL = {"A_bare": "bare prompt",
           "B_baserate_abstain": "base rate stated, abstention allowed"}
-    # The three public models carry no hue: INK, MUTE and SLATE, told apart by
-    # marker and dash pattern (style.PUBLIC_MODEL_MARK), so hue stays reserved
-    # for the deployed labeller, the ensemble and failed checks. MODEL_HUE is
-    # the name check_figure_invariants.py compares against style.ENTITY_HUE.
-    MODEL_HUE = {"llama3:8b": INK, "granite3.3:8b": MUTE,
-                 "qwen3:8b": SLATE}
+    # COLOUR ROUND. The three public models take one hue each, the three they
+    # wore in v3, and keep the marker and dash pattern they were given as
+    # neutrals (style.PUBLIC_MODEL_MARK): every DEEP stop sits at one
+    # lightness, so in greyscale marker and dash still do all the separating.
+    # llama3:8b is MAGENTA, PLUM's neighbour, because it is the deployed
+    # labeller's own model under another prompt. The line and the interval are
+    # the ramp's DEEP, the marker face its CORE under a DEEP edge. The wedge
+    # stays MIST: three hues is this canvas's whole budget. MODEL_HUE is the
+    # name check_figure_invariants.py compares against style.ENTITY_HUE and
+    # style.PUBLIC_MODEL_MARK.
+    MODEL_HUE = {"llama3:8b": MAGENTA, "granite3.3:8b": TANGERINE,
+                 "qwen3:8b": CYAN}
     # ROUND 10 (audit item 4). Per-point inline labels used to name series in
     # the left panel only, leaving the right panel unlabelled, and the
     # llama3:8b label sat close enough above its own wide error bar that a
@@ -157,15 +164,15 @@ def make_fig_prevalence_response():
                 xs.append(float(p) + DODGE[m]); ys.append(e["positive_rate_of_decided"])
                 a, b = wilson_ci(e["n_contradiction"], e["n_decided"])
                 lo.append(a); hi.append(b)
-            marker, ls, tone = PUBLIC_MODEL_MARK[m]
-            assert tone == MODEL_HUE[m]
+            marker, ls, hue = PUBLIC_MODEL_MARK[m]
+            assert hue is MODEL_HUE[m]
             ax.errorbar(xs, ys, yerr=[[y - a for y, a in zip(ys, lo)],
                                       [b - y for y, b in zip(ys, hi)]],
-                        fmt="none", ecolor=tone, elinewidth=1.1,
+                        fmt="none", ecolor=hue.DEEP, elinewidth=1.1,
                         capthick=1.1, capsize=2.6, zorder=3)
-            ax.plot(xs, ys, color=tone, linestyle=ls, lw=1.8, zorder=4,
-                    marker=marker, ms=6.0, markerfacecolor=tone,
-                    markeredgecolor=PAPER, markeredgewidth=0.8)
+            ax.plot(xs, ys, color=hue.DEEP, linestyle=ls, lw=1.8, zorder=4,
+                    marker=marker, ms=6.0, markerfacecolor=hue.CORE,
+                    markeredgecolor=hue.DEEP, markeredgewidth=1.0)
         if c == 0:
             case(ax.text(0.012, Y_HI - 0.010, "over-prediction",
                          ha="left", va="top", fontsize=T_NOTE, color=MUTE,
@@ -198,14 +205,19 @@ def make_fig_prevalence_response():
     # ROUND 10 (audit item 4). One legend, shared by both panels, in the room
     # H's growth opened up between the deck and the panel titles.
     import matplotlib.lines as mlines
-    handles = [mlines.Line2D([], [], color=MODEL_HUE[m], linestyle=PUBLIC_MODEL_MARK[m][1],
+    handles = [mlines.Line2D([], [], color=MODEL_HUE[m].DEEP,
+                             linestyle=PUBLIC_MODEL_MARK[m][1],
                              marker=PUBLIC_MODEL_MARK[m][0], ms=6.0,
-                             markerfacecolor=MODEL_HUE[m], markeredgecolor=PAPER,
-                             markeredgewidth=0.8, lw=1.8, label=m)
+                             markerfacecolor=MODEL_HUE[m].CORE,
+                             markeredgecolor=MODEL_HUE[m].DEEP,
+                             markeredgewidth=1.0, lw=1.8, label=m)
                for m in models]
-    fig.legend(handles=handles, loc="upper center", ncol=3, frameon=False,
-              bbox_to_anchor=(0.5, 0.855), fontsize=T_SERIES,
-              handlelength=2.3, columnspacing=1.6, handletextpad=0.6)
+    # Each name in its own series' DEEP tone, the set's rule for a series label.
+    leg = fig.legend(handles=handles, loc="upper center", ncol=3, frameon=False,
+                     bbox_to_anchor=(0.5, 0.855), fontsize=T_SERIES,
+                     handlelength=2.3, columnspacing=1.6, handletextpad=0.6)
+    for txt, m in zip(leg.get_texts(), models):
+        txt.set_color(MODEL_HUE[m].DEEP)
 
     signature(fig, INK,
               f"On public text, {n_under} of {n_cells} labeller settings under-call,\n"
@@ -572,15 +584,19 @@ def make_fig_power():
     Y_LO, Y_HI = 0.44, 0.92
     curve = np.clip(mde, chance, 1.0)
     # Below the curve, between chance and the analytic minimum detectable
-    # AUROC, is what this design could not resolve at the stated power: MIST,
-    # the set's one region fill (FOG until the figure polish; see style.py).
+    # AUROC, is what this design could not resolve at the stated power.
+    # COLOUR ROUND: the curve is an analytic bound, so it is BOUND_DEEP and the
+    # region it closes off is BOUND_WASH (COBALT; MIST and a GRAPHITE curve
+    # until then, see style.py). One hue on this canvas: the chance line, the
+    # guide and the two simulated floors stay neutral, because none of them is
+    # the analytic bound. The region is the same region; only its tone moved.
     # Above the curve is bare paper. tools/measure_ink.py holds this canvas to
     # a 0.53 coverage floor set when both regions were filled; this canvas
     # measures under it, and that is recorded in manifest.json rather than
     # met by tinting the upper region, which would be a band drawn for the tool.
-    ax.fill_between(n_pos, chance, curve, facecolor=MIST, edgecolor="none",
-                    linewidth=0, zorder=1)
-    ax.plot(n_pos, curve, color=GRAPHITE, lw=2.2, zorder=4)
+    ax.fill_between(n_pos, chance, curve, facecolor=BOUND_WASH,
+                    edgecolor="none", linewidth=0, zorder=1)
+    ax.plot(n_pos, curve, color=BOUND_DEEP, lw=2.2, zorder=4)
     ref_tone = SLATE    # reference and guide lines only; never type
     ax.axhline(chance, color=ref_tone, lw=LW_REF, linestyle=REF_DASH, zorder=3)
     ax.text(2400, (Y_LO + chance) / 2, f"chance, AUROC {chance:.2f}",
@@ -608,17 +624,24 @@ def make_fig_power():
     # analytic-curve label sat in the same region. That label now joins the
     # other two above the curve (below), and this one is centred in the
     # region it names: 8pt over the chance line, 5pt under the curve.
+    # The wash's own name takes the wash's DEEP: 6.27 to 1 on BOUND_WASH,
+    # where MUTE was 5.07.
     ax.text(14, 0.538, f"not detectable at {pct} power", ha="left",
-            va="center", fontsize=T_SERIES, color=MUTE, zorder=5)
+            va="center", fontsize=T_SERIES, color=BOUND_DEEP, zorder=5)
 
     # The three points at this study's positive count, on the guide.
     # AUDIT ITEM 7. mde_study (0.7355) and floor_mw (0.7466) are close enough
     # that both markers, plotted at the same x, merged into one glyph at
     # print size. Dodged symmetrically off n_pos_study on the log axis; the
     # vertical guide line above still marks the true study size.
+    # COLOUR ROUND. The open circle is a point ON the analytic curve, so its
+    # ring and its label take the curve's tone. The two simulated floors are
+    # not the curve and stay INK and GRAPHITE. Open ring, filled disc and
+    # diamond are the three shapes they always were, so nothing here is told
+    # apart by hue alone.
     X_DODGE = 1.045
     ax.plot([n_pos_study / X_DODGE], [mde_study], "o", ms=6, markerfacecolor=PAPER,
-            markeredgecolor=INK, markeredgewidth=1.1, zorder=7)
+            markeredgecolor=BOUND_DEEP, markeredgewidth=1.3, zorder=7)
     ax.plot([n_pos_study * X_DODGE], [floor_mw], "o", ms=5.2, color=INK,
             markeredgewidth=0, zorder=8)
     ax.plot([n_pos_study], [floor_rule], "D", ms=5.6, color=INK,
@@ -629,18 +652,20 @@ def make_fig_power():
     # decimals) nor each other; the labels already name which quantity is
     # which, so the fix is precision, not a new label.
     x_lab = 30.0
-    for y_pt, y_lab, text in (
+    for y_pt, y_lab, text, tone in (
             (floor_rule, floor_rule + 0.025,
-             f"registered decision rule, power simulation: {floor_rule:.4f}"),
+             f"registered decision rule, power simulation: {floor_rule:.4f}",
+             GRAPHITE),
             (floor_mw, floor_mw + 0.035,
-             f"Mann-Whitney test, power simulation: {floor_mw:.4f}"),
-            (mde_study, mde_study - 0.020, f"analytic curve: {mde_study:.4f}")):
+             f"Mann-Whitney test, power simulation: {floor_mw:.4f}", GRAPHITE),
+            (mde_study, mde_study - 0.020, f"analytic curve: {mde_study:.4f}",
+             BOUND_DEEP)):
         ax.plot([n_pos_study * 1.10, x_lab * 0.95], [y_pt, y_lab],
-                color=GRAPHITE, lw=0.6, zorder=6, solid_capstyle="butt")
+                color=tone, lw=0.6, zorder=6, solid_capstyle="butt")
         ax.text(x_lab, y_lab, text, ha="left", va="center", fontsize=T_SERIES,
-                color=GRAPHITE, zorder=7)
+                color=tone, zorder=7)
     frame(ax)
-    signature(fig, INK,
+    signature(fig, BOUND_DEEP,
               f"At {n_pos_study} positives, {pct} power needs AUROC "
               f"{floor_mw:.4f} under the Mann-Whitney test\nand {floor_rule:.4f} "
               f"under the registered decision rule.")

@@ -79,7 +79,7 @@ The candidate pool itself is dominated by one rule: of the 1,978 post-prefilter 
 (Section~``\nameref{sec:m-candidates},'' Chapter~\ref{ch:method}), so Rule 1 alone supplies close to half the pool. Pharmacist
 precision, measured on the 299-pair gold sample, does not track that share. Table~\ref{tab:rule-precision}
 gives the size of each rule's gold stratum, the share of its pairs the pharmacist confirmed (its
-precision) and ACCORD's predicted-positive rate on the same rows.
+precision), and ACCORD's predicted-positive rate on the same rows.
 
 \begin{table}[H]
 \caption{Per-rule stratum size, precision, and predicted-positive rate}
@@ -374,7 +374,7 @@ hard label on this pool; score-emitting models are taken up under ``\nameref{sec
 
 Table~\ref{tab:feasgate} and Figure~\ref{fig:ceiling} apply the gate first to
 $8$ local configurations scored row by row against the pharmacist:
-Granite 3.3 8B (\texttt{granite3.3:8b}), Llama 3 8B (\texttt{llama3:8b}), Qwen 3 8B (\texttt{qwen3:8b}) and Qwen 3 14B (\texttt{qwen3:14b}), zero-shot and few-shot, each on
+Granite 3.3 8B (\texttt{granite3.3:8b}), Llama 3 8B (\texttt{llama3:8b}), Qwen 3 8B (\texttt{qwen3:8b}), and Qwen 3 14B (\texttt{qwen3:14b}), zero-shot and few-shot, each on
 both $G_{253}$ and $G_{299}$, $8$ configurations on two nested bases, $16$
 rows. Two of the $8$,
 Llama 3 8B at both prompts, could not have rejected the null at
@@ -406,7 +406,7 @@ deployed labeller, and both of its other wordings, plain and reversed. The gate 
 replace the discrimination tests elsewhere in this chapter; it checks what a
 table could have shown before it is read as showing it.
 
-\begin{table}[!ht]
+\begin{table}[!htp]
 \caption{The marginal feasibility gate applied to labeller marginals}
 \centering
 \footnotesize
@@ -552,8 +552,10 @@ services, Claude Sonnet 5 and Claude Haiku 4.5 through the Anthropic API and
 Llama 3 70B and Llama 3 8B through AWS Bedrock; an earlier baseline sent pairs to GPT-4o through OpenAI's API. \mbox{PhysioNet's} guidance of 24 September 2025
 states that the Credentialed Data Use Agreement prohibits sharing access to the
 data with third parties, including sending it through APIs, and that MIMIC data
-must not be stored or retained by third-party LLM services, with locally deployed
-models strongly recommended; under it those runs are withdrawn (Section~``\nameref{sec:m-ethics}''), with every number, table,
+must not be stored or retained by third-party LLM services. It strongly recommends
+locally deployed models and permits a hosted service only where zero data retention,
+no training on the data, and no human review are verified. This project could not
+verify those conditions for the runs it had made, so those runs are withdrawn (Section~``\nameref{sec:m-ethics}''), with every number, table,
 and figure computed from one. Whether a frontier-scale labeller removes the
 over-calling measured at eight billion parameters is therefore not established;
 only the local-only finding is supported.
@@ -785,7 +787,7 @@ question.
 \section{Evaluation}
 \label{sec:res-rq4}
 
-Every negative result above reduces to ``the experiment was too small'' unless
+Every negative result above could mean only that the experiment was too small, unless
 the instrument can resolve an effect of the size at issue. The decontaminated
 ensemble's AUROC on $G_{253}$ is $0.5145$, 95 percent bootstrap interval
 $0.3210$ to $0.7034$: not distinguishable from chance, with an AUROC above
@@ -904,7 +906,7 @@ $G_{134}$ & Control, per-seed mean $\pm$ SD & $0.5295 \pm 0.0158$ & $0.0707 \pm 
 $G_{134}$ & ACCORD, contaminated run & 0.5078 & 0.0555 & 0.5092 & 0.1368 \\
 \bottomrule
 \end{tabular}
-\apanote{Bootstrap columns are the mean and SD over $B = 10{,}000$ resamples at seed $20260806$ \citep{efron1994bootstrap}. The four control-model rows are the control model of Section~``\nameref{sec:m-control-model},'' three seeds, subject-disjoint split. The two ACCORD rows are the contaminated released run of Tables~\ref{tab:rule-precision}, \ref{tab:marginal} and \ref{tab:systems253}; its $G_{253}$ counterpart is the $0.4595$ in Table~\ref{tab:decontam}. It is the only ACCORD score on $G_{134}$, and Table~\ref{tab:delong}'s DeLong tests compare against it. Per-seed SD uses the sample convention (Section~``\nameref{sec:m-stats}''), unlike Table~\ref{tab:decontam}'s population convention; the two are not compared.}
+\apanote{Bootstrap columns are the mean and SD over $B = 10{,}000$ resamples at seed $20260806$ \citep{efron1994bootstrap}. The four control-model rows are the control model of Section~``\nameref{sec:m-control-model},'' three seeds, subject-disjoint split. The two ACCORD rows are the contaminated released run of Tables~\ref{tab:rule-precision}, \ref{tab:marginal}, and \ref{tab:systems253}; its $G_{253}$ counterpart is the $0.4595$ in Table~\ref{tab:decontam}. It is the only ACCORD score on $G_{134}$, and Table~\ref{tab:delong}'s DeLong tests compare against it. Per-seed SD uses the sample convention (Section~``\nameref{sec:m-stats}''), unlike Table~\ref{tab:decontam}'s population convention; the two are not compared.}
 \label{tab:control299}
 \end{table}
 
@@ -928,7 +930,7 @@ control model ensemble's point estimate and its bootstrap spread, so halving the
 positive count buys a higher estimate and a wider spread, and resolves nothing
 either way. Among the 15 highest-scored pairs, the decontaminated seeds recover 1, 0 and
 0 true contradictions on $G_{253}$; on $G_{299}$ the three control seeds
-recover 1, 0 and 0, their ensemble recovers 1, and the contaminated released run,
+recover 1, 0, and 0, their ensemble recovers 1, and the contaminated released run,
 which is not a control run, recovers 0, against expected counts of
 $15 \times 12/253$ and $15 \times 12/299$ under random ordering. A count of one
 is unremarkable, and that is the point: the model's most confident predictions
@@ -1024,7 +1026,7 @@ alongside a majority-class predictor that fixes the no-skill line for average pr
 set. TF-IDF plus logistic regression trains on the $1{,}183$-row training pool at its
 $0.8521$ positive rate; the NLI model is run with no fitting to any pair from this pipeline.
 
-\begin{table}[!ht]
+\begin{table}[!htp]
 \caption{Reference baselines on the annotated pairs}
 \centering
 \small

@@ -99,6 +99,39 @@ def check_entity_hue():
             bad.append(("ENTITY_HUE",
                         f"{key} drawn {hue}, style.py declares "
                         f"{declared[norm]} for {norm}"))
+
+    # COLOUR ROUND. The three public models were INK, MUTE and SLATE and are now
+    # MAGENTA, TANGERINE and CYAN. The comparison above never named a tone, so
+    # it needed no change; what changed is that the hue now lives in THREE
+    # places (ENTITY_HUE, PUBLIC_MODEL_MARK and fig_batch2's MODEL_HUE), and
+    # the drawing code reads the second while this gate compared only the first
+    # and third. The second is now compared too, and a public model drawn in a
+    # structure tone again, or in a ramp a live role already owns, fails here.
+    m3 = re.search(r"PUBLIC_MODEL_MARK\s*=\s*\{(.*?)\n\}", style, re.S)
+    if not m3:
+        return bad + [("style.py", "PUBLIC_MODEL_MARK not found")]
+    marked = dict(re.findall(r'"([\w:.]+)"\s*:\s*\(.*?,\s*([A-Z_]+)\),?\s*$',
+                             m3.group(1), re.M))
+    if not marked:
+        return bad + [("PUBLIC_MODEL_MARK", "no entry parsed; this gate cannot "
+                                            "pass by matching nothing")]
+    for key in sorted(set(used) | set(marked)):
+        if used.get(key) != marked.get(key):
+            bad.append(("PUBLIC_MODEL_MARK",
+                        f"{key}: MODEL_HUE says {used.get(key)}, "
+                        f"PUBLIC_MODEL_MARK says {marked.get(key)}"))
+    taken = {"PLUM", "AMBER", "SCARLET", "EMERALD", "COBALT"}
+    structure = {"INK", "GRAPHITE", "MUTE", "SLATE", "MIST"}
+    for key, hue in sorted(marked.items()):
+        if hue in taken:
+            bad.append(("PUBLIC_MODEL_MARK",
+                        f"{key} is {hue}, which a live role already owns"))
+        if hue in structure:
+            bad.append(("PUBLIC_MODEL_MARK",
+                        f"{key} is the structure tone {hue}; the public models "
+                        f"carry a hue each since the colour round"))
+    if len(set(marked.values())) != len(marked):
+        bad.append(("PUBLIC_MODEL_MARK", "two public models share one hue"))
     return bad
 
 
@@ -170,13 +203,25 @@ def check_text_on_ground():
     except Exception as exc:                       # pragma: no cover
         return [("style.py", f"not importable: {exc}")]
 
+    # COLOUR ROUND. This list encoded the neutral palette: MIST was the only
+    # non-scarlet ground any text sat on. The power and ceiling regions are now
+    # COBALT_WASH with their names in COBALT_DEEP, and the exemplar's two note
+    # columns are AZURE_WASH and TANGERINE_TINT, so those are added. MIST stays,
+    # because the forest bands and the over-prediction wedge still use it. As
+    # before this is every tone against every ground, drawn or not: the pairs
+    # actually drawn on the new grounds are COBALT_DEEP, MUTE and GRAPHITE on
+    # COBALT_WASH, and INK on the two column grounds.
     text_tones = {"INK": style.INK, "MUTE": style.MUTE,
                   "GRAPHITE": style.GRAPHITE,
-                  "SCARLET_DEEP": style.SCARLET.DEEP}
+                  "SCARLET_DEEP": style.SCARLET.DEEP,
+                  "COBALT_DEEP": style.COBALT.DEEP}
     grounds = {"PAPER": style.PAPER,
                "SCARLET_TINT": style.SCARLET.TINT,
                "SCARLET_WASH": style.SCARLET.WASH,
-               "MIST": style.MIST}
+               "MIST": style.MIST,
+               "COBALT_WASH": style.COBALT.WASH,
+               "AZURE_WASH": style.AZURE.WASH,
+               "TANGERINE_TINT": style.TANGERINE.TINT}
 
     bad = []
     for tn, tv in text_tones.items():
@@ -520,11 +565,19 @@ CATEGORY_GROUNDS = {
     # three-hue version failed in greyscale
     "fig-pipeline-status":     ["SCARLET_TINT", "PAPER"],
     "fig-cohort-flow":         ["HAIR"],        # one tone for all three phases
-    "fig-exemplar":            ["COBALT_TINT", "MIST"],
+    # COLOUR ROUND. The three entries below named fills their figures had
+    # stopped drawing (the exemplar's COBALT_TINT and MIST columns were both
+    # MIST by then; the power figure's EMERALD_WASH and SCARLET_TINT regions
+    # were MIST and paper; the ceiling figure had a MIST region and declared
+    # none), so the gate was passing on pairs that were on no canvas. Each now
+    # names what is drawn. The exemplar's two note columns are a WASH and a
+    # TINT of different ramps, 0.136 apart; two WASH stops would be 0.04 apart
+    # and would fail here, which is this gate doing its job.
+    "fig-exemplar":            ["AZURE_WASH", "TANGERINE_TINT"],
     "fig-prevalence-response": ["MIST", "PAPER"],   # over-prediction wedge
-    "fig-power":               ["EMERALD_WASH", "SCARLET_TINT"],
+    "fig-power":               ["COBALT_WASH", "PAPER"],   # under the curve
     "fig-forest":              [],   # families separated by gap and hairline
-    "fig-ceiling":             [],   # a line on paper
+    "fig-ceiling":             ["COBALT_WASH", "PAPER"],   # above both ceilings
     # a sequential heatmap field is not a category ground: its fills encode a
     # continuum and are read against a scale, not against each other
 }

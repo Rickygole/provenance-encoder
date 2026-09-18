@@ -66,7 +66,7 @@ import numpy as np
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import style
 from style import (
-    WEAK_LABELLER,
+    WEAK_LABELLER, BOUND_DEEP, BOUND_CORE, BOUND_WASH,
     PAPER, INK, GRAPHITE, MUTE, SLATE,
     T_AXIS, T_SERIES, T_NOTE,
     LW_DATA, LW_REF, MS_DOT, MS_MARK, REF_DASH, FIGW,
@@ -193,15 +193,25 @@ def make_fig_ceiling():
     ZX0, ZX1, ZY1 = 0.66, 1.0, 0.20
     # Above both ceilings no table with these marginals exists, so that region
     # is shaded: it is what the identity says, not a band added for ink.
+    #
+    # COLOUR ROUND. A ceiling is an analytic bound, the same kind of object as
+    # the power figure's curve, so it takes the same role tones (style.BOUND,
+    # COBALT): DEEP for the 299-pair ceiling, CORE for the 253-pair one, WASH
+    # for the region neither reaches. The two curves are ONE hue on purpose.
+    # They are one quantity on two bases, and the only related ramp, AZURE, is
+    # 8.4 dE76 from the CYAN that means qwen3:8b on the prevalence figure. What
+    # tells them apart is what always did, and it survives greyscale: solid at
+    # 1.8pt against dashed at 1.2pt, and a name on each. PLUM stays the
+    # deployed labeller; COBALT against PLUM is 53 apart under deutan.
     qq = np.linspace(0, 1, 2001)
     upper = np.maximum(np.interp(qq, q299, c299), np.interp(qq, q253, c253))
     for ax, top in ((axL, 1.0), (axR, ZY1)):
-        ax.fill_between(qq, upper, top, facecolor=style.MIST, edgecolor="none",
+        ax.fill_between(qq, upper, top, facecolor=BOUND_WASH, edgecolor="none",
                         linewidth=0, zorder=0)
     for ax in (axL, axR):
-        ax.plot(q299, c299, color=GRAPHITE, lw=LW_DATA, zorder=4,
+        ax.plot(q299, c299, color=BOUND_DEEP, lw=LW_DATA, zorder=4,
                 solid_joinstyle="round")
-        ax.plot(q253, c253, color=GRAPHITE, lw=LW_REF + 0.2, zorder=3,
+        ax.plot(q253, c253, color=BOUND_CORE, lw=LW_REF + 0.2, zorder=3,
                 linestyle=DASH_253)
     # A small margin on every side, so the zoom box's bottom and right edges
     # do not sit on the spines.
@@ -227,8 +237,11 @@ def make_fig_ceiling():
         "the zoom box's name is back on the dashed curve"
     axL.text(BASE + 0.05, 0.93, f"peak at the pharmacist\u2019s\nrate, {N_POS} of {N}",
              ha="left", va="top", fontsize=T_NOTE, color=MUTE, linespacing=1.3)
+    # The wash's own name in the wash's DEEP, 6.27 to 1 on it; the two notes
+    # beside it name a peak and a zoom box, not the region, and stay MUTE
+    # (5.07 to 1 on the wash).
     axL.text(0.60, 0.62, "not attainable\non either basis", ha="center",
-             va="center", fontsize=T_NOTE, color=MUTE, linespacing=1.2)
+             va="center", fontsize=T_NOTE, color=BOUND_DEEP, linespacing=1.2)
     axL.set_ylabel("Largest attainable MCC\nagainst the pharmacist",
                    fontsize=T_AXIS, linespacing=1.3)
 
@@ -254,10 +267,10 @@ def make_fig_ceiling():
         y_pt = float(np.interp(x_pt, q_arr, c_arr))
         y_lab = y_pt + sign * LEAD
         axL.plot([x_pt, x_pt], [y_pt + sign * 0.012, y_lab - sign * 0.010],
-                 color=GRAPHITE, lw=0.6, zorder=6, solid_capstyle="butt")
+                 color=BOUND_DEEP, lw=0.6, zorder=6, solid_capstyle="butt")
         axL.text(x_pt + sign * 0.012, y_lab, txt,
                  ha="left" if sign > 0 else "right", va="center",
-                 fontsize=T_NOTE, color=INK, zorder=8)
+                 fontsize=T_NOTE, color=BOUND_DEEP, zorder=8)
 
     axR.set_xlim(ZX0, ZX1); axR.set_ylim(0, ZY1)
     axR.set_xticks([0.7, 0.8, 0.9, 1.0])
@@ -274,9 +287,10 @@ def make_fig_ceiling():
     y253 = float(np.interp(x_lab, q253, c253))
     y299 = float(np.interp(x_lab + 0.075, q299, c299))
     axR.text(x_lab, y253 + 0.005, f"{N_POS} of {N_253}",
-             ha="left", va="bottom", fontsize=T_SERIES, color=INK, zorder=8)
+             ha="left", va="bottom", fontsize=T_SERIES, color=BOUND_DEEP,
+             zorder=8)
     axR.text(x_lab, y299 - 0.008, f"{N_POS} of {N}",
-             ha="left", va="top", fontsize=T_SERIES, color=INK, zorder=8)
+             ha="left", va="top", fontsize=T_SERIES, color=BOUND_DEEP, zorder=8)
 
     # The deployed labeller: its ceiling on the 299 pairs, and what it measured.
     q_dep = N_FLAG / N
@@ -302,7 +316,7 @@ def make_fig_ceiling():
                   y=0.020)
 
     signature(
-        fig, GRAPHITE,
+        fig, BOUND_DEEP,
         headline=(f"Flagging {N_FLAG} of {N} pairs caps MCC at {MCC_CEIL:.2f}; "
                   f"the deployed labeller measured {MCC_OBS:.2f}."),
         deck="The ceiling follows from the two counts alone, so it carries no interval.")

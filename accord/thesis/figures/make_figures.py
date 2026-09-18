@@ -90,7 +90,7 @@ from style import (
     PLUM_DEEP, PLUM_CORE, PLUM_TINT, PLUM_WASH, PLUM_BARE,
     SCARLET_DEEP, SCARLET_CORE, SCARLET_TINT, SCARLET_WASH, SCARLET_BARE,
     PAPER, INK, GRAPHITE, MUTE, SLATE, MIST, HAIR, PLATE_EDGE,
-    ENTITY_HUE, NON_ENTITY_MEASUREMENT,
+    ENTITY_HUE, NON_ENTITY_MEASUREMENT, NURSING_GROUND, DISCHARGE_GROUND,
     T_HEADLINE, T_CLAIM, T_DECK, T_AXIS, T_TICK, T_SERIES, T_NOTE, T_PANEL,
     T_CHIP, T_FLOOR,
     LW_PLATE, LW_SPINE, LW_GRID, LW_DATA, LW_REF, LW_INTERVAL,
@@ -259,7 +259,7 @@ def make_fig_pipeline_status():
         (1, "Candidate mining", NOTEST,
          f"precision {base:.2f}\non {n_gold} gold pairs",
          "Is the exemplar in the trigger set?",
-         f"miss rate {ex_lo:.0f}, {ex_mid:.4f} or {ex_hi:.4f} by instrument"),
+         f"miss rate {ex_lo:.0f}, {ex_mid:.4f}, or {ex_hi:.4f} by instrument"),
         (2, "Weak supervision", UNSUP,
          f"{n_flag} of {n_c120} pairs\nflagged",
          "Marginal ceiling, then measured agreement",
@@ -313,7 +313,12 @@ def make_fig_pipeline_status():
                      for r in rows))
     X_REP = X_NAME + name_w + 10.0
     rep_w = max(width_pt(r[3], fontsize=T_SERIES, linespacing=1.22) for r in rows)
-    X_CHK = X_REP + rep_w + 11.0
+    # The gutter before the CHECK column was 11.0. The serial comma the
+    # graduate school's checklist requires in the row 1 chip ("0, 0.4745, or
+    # 0.9315") made that chip 2.2pt wider and put it 0.3pt over the 4pt right
+    # margin asserted below. One point comes out of this gutter, which now
+    # matches the 10.0 before the REPORTED column; no type size moves.
+    X_CHK = X_REP + rep_w + 10.0
 
     # The carrier: stages 2 to 4 consumed the exemplar stage 1 selected. It
     # records shared input, not cause and not a defect rate, so it is a neutral
@@ -455,7 +460,7 @@ def make_fig_pipeline_status():
              "stays in this note and in the tables. Three "
              "chip encodings, distinct in greyscale and named in an on-canvas key: "
              f"stage 1 not established (MIST fill, dashed GRAPHITE rim, hatched; "
-             f"miss rate {ex_lo:.0f}, {ex_mid:.4f} or {ex_hi:.4f} by instrument); "
+             f"miss rate {ex_lo:.0f}, {ex_mid:.4f}, or {ex_hi:.4f} by instrument); "
              f"stages 2 and 3 reading unsupported (solid scarlet, the only scarlet "
              f"on the canvas: MCC {mcc:.4f} against a ceiling of {mcc_ceil:.4f}; "
              "the three credited architectural components fail a code audit); "
@@ -725,14 +730,20 @@ def make_fig_exemplar():
     nurse_tags = ["M1", "M2", "M3", "M4", "M5"]
     disch_tags = ["continuation"] * 4 + ["cessation"]
     for i, y in enumerate(rows_y):
-        # Nursing-note slots are neutral MIST: cobalt means extraction elsewhere.
+        # COLOUR ROUND. The two note columns take two grounds, one per note
+        # type (style.NURSING_GROUND, style.DISCHARGE_GROUND; both columns
+        # were MIST). Still not cobalt: cobalt means extraction elsewhere.
+        # They are grounds only, so the stroke stays neutral SLATE and neither
+        # ramp's DEEP or CORE is drawn; and they are a WASH and a TINT, 0.136
+        # apart in relative luminance, so the columns are two greys in print.
+        # INK on them is 14.4 and 12.1 to 1. SCARLET keeps its one job.
         node(ax, x_nurse - box_w / 2, y - box_h / 2, box_w, box_h,
-             MIST, SLATE, radius=2.5, zorder=3, lw=1.0)
+             NURSING_GROUND, SLATE, radius=2.5, zorder=3, lw=1.0)
         ax.text(x_nurse, y, nurse_tags[i], ha="center", va="center",
                 fontsize=T_SERIES, color=INK, zorder=5)
         if i < 4:
             node(ax, x_disch - box_w / 2, y - box_h / 2, box_w, box_h,
-                 MIST, SLATE, radius=2.5, zorder=3, lw=1.0)
+                 DISCHARGE_GROUND, SLATE, radius=2.5, zorder=3, lw=1.0)
             ax.text(x_disch, y, disch_tags[i], ha="center", va="center",
                     fontsize=T_SERIES, color=INK, fontweight="bold", zorder=5)
         else:
@@ -749,7 +760,7 @@ def make_fig_exemplar():
 
     notes = [
         (0, "shown", "selected by position; what\nthe annotator, the weak\n"
-                     "labeller and the model saw", MUTE),
+                     "labeller, and the model saw", MUTE),
         (4, "fired", "the mention the rule\nmatched, dose adjacent", MUTE),
     ]
     for i, tag, text, tone in notes:
@@ -784,7 +795,7 @@ def make_fig_exemplar():
     signature(fig, SCARLET_DEEP,
               "The rule fires on a set; the exemplar is picked by position.",
               deck=(f"One schematic candidate; miss rate {ex_lo:.0f}, "
-                    f"{ex_mid:.4f} or {ex_hi:.4f} by instrument."))
+                    f"{ex_mid:.4f}, or {ex_hi:.4f} by instrument."))
     fname = "fig-exemplar.pdf"
     fig.savefig(os.path.join(FIGDIR, fname))
     plt.close(fig)
@@ -797,7 +808,9 @@ def make_fig_exemplar():
              "selected by position, carries a 2.0 pt INK outline and a 'shown' tag; row 5, "
              "where the rule matched, keeps its SCARLET_WASH ground and a 'fired' tag. A "
              "vertical brace left of M1 to M5 states that the rule quantifies over the whole "
-             "set. Nursing-note slots are neutral MIST (cobalt means extraction elsewhere). "
+             "set. Colour round: nursing-note slots are AZURE_WASH and discharge-summary slots "
+             "TANGERINE_TINT, grounds only under a neutral SLATE stroke (both were MIST; cobalt "
+             "still means extraction elsewhere), 0.136 apart in relative luminance. "
              "No plate. The one-line deck prints the three instruments' miss rates, read "
              "from the register by key: exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate "
              f"(one minus it, {ex_lo:.0f}), exemplar_recomputed.rule_1_2_pooled.wrong_rate "

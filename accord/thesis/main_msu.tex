@@ -133,12 +133,67 @@
 % Numbered citations, alphabetical reference list (author's choice). natbib=true
 % keeps \citep as [n] and \citet as Author [n], so no call site changes.
 \usepackage{csquotes}
-\usepackage[style=numeric-comp,backend=biber,sorting=nyt,natbib=true,giveninits=true,maxbibnames=99,doi=false,url=false,isbn=false,eprint=true]{biblatex}
+\usepackage[style=numeric-comp,backend=biber,sorting=nyt,natbib=true,giveninits=true,maxbibnames=20,minbibnames=20,doi=false,url=false,isbn=false,eprint=true]{biblatex}
 \addbibresource{refs.bib}
 % American punctuation in the reference list: the full stop and comma go inside
 % the closing quotation mark after a title (School of Graduate Studies error
 % checklist, item 13). biblatex's English default puts them outside.
 \DefineBibliographyExtras{english}{\uspunctuation}
+% Author lists: maxbibnames=20 with minbibnames=20 prints every list of up to
+% 20 names in full and cuts any longer list to its first 20 names plus
+% "et al.", so the two long lists in refs.bib (TRIPOD+AI, 34 authors; Llama 3,
+% 20 names and "and others") truncate the same way.
+%
+% Article numbers and e-locators. refs.bib keeps them in the eid field, never
+% in pages, so none prints as a page ("p. 36"). numeric-comp's default prints
+% eid bare and before the year ("21.1, 6 (2020)"), which reads as nothing in
+% particular, so it is labelled and moved to the slot the page range occupies
+% in every other article, the way standard.bbx's own chapter+pages orders it.
+\NewBibliographyString{articleno}
+\DefineBibliographyStrings{english}{articleno={art\adddot\addnbspace no\adddot}}
+\DeclareFieldFormat{eid}{\bibstring{articleno}~#1}
+\renewbibmacro*{volume+number+eid}{%
+  \printfield{volume}%
+  \setunit*{\adddot}%
+  \printfield{number}}
+\renewbibmacro*{note+pages}{%
+  \printfield{note}%
+  \setunit{\bibpagespunct}%
+  \printfield{eid}%
+  \setunit{\bibpagespunct}%
+  \printfield{pages}%
+  \newunit}
+% DOIs and URLs stay off (doi=false, url=false) except for an entry that would
+% otherwise print no locator at all: no pages, article number, volume, issue,
+% publisher or eprint identifier. Such an entry prints its DOI, or its URL when
+% it has no DOI. This is standard.bbx's macro with that one branch added.
+\renewbibmacro*{doi+eprint+url}{%
+  \iftoggle{bbx:doi}
+    {\printfield{doi}}
+    {}%
+  \newunit\newblock
+  \iftoggle{bbx:eprint}
+    {\usebibmacro{eprint}}
+    {}%
+  \newunit\newblock
+  \iftoggle{bbx:url}
+    {\usebibmacro{url+urldate}}
+    {}%
+  \ifboolexpr{
+    test {\iffieldundef{pages}} and test {\iffieldundef{eid}} and
+    test {\iffieldundef{volume}} and test {\iffieldundef{number}} and
+    test {\iffieldundef{eprint}} and test {\iflistundef{publisher}} }
+    {\iffieldundef{doi}
+       {\iffieldundef{url}{}{\usebibmacro{url+urldate}}}
+       {\printfield{doi}}}
+    {}}
+% A URL printed by that branch may break after any character and carries no
+% stretch of its own; biblatex's defaults break only at punctuation and
+% stretched the first line of a long URL letter by letter to fill the measure.
+\setcounter{biburlnumpenalty}{9000}
+\setcounter{biburlucpenalty}{9000}
+\setcounter{biburllcpenalty}{9000}
+\biburlbigskip=0mu\relax
 \usepackage[hidelinks,linktoc=all,bookmarks=true,bookmarksnumbered=true]{hyperref}
 % linktoc=all makes the whole entry clickable in the Table of Contents, the List
 % of Tables and the List of Figures, not just the page number.
