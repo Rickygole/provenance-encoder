@@ -127,3 +127,20 @@ only after the full run.
 ## Outcome
 
 (appended after the run)
+
+## Outcome (appended after the run; the text above is unchanged)
+
+Run on 2026-09-18 after the commit that fixed the rule above. The row-level check reproduced both registered
+intervals to four decimals (0.3210 to 0.7034 and 0.3454 to 0.7196), and every one of the 253 pairs joined to an
+admission and a subject, so the run is valid.
+
+**Outcome A: the bounded null holds under clustering.** The 253 pairs come from 231 admissions and 225 subjects;
+20 admissions and 24 subjects hold more than one pair, none more than 4. The four upper ends are 0.6996
+(subject-disjoint ensemble, by admission), 0.6995 (the same, by subject), 0.7230 (reproducible-label retrain, by
+admission) and 0.7220 (the same, by subject), all below the floor 0.7466; the smallest margin is 0.0236.
+
+Reported and deciding nothing: the analytic minimum detectable AUROC at the tipping-point check's post-flip
+counts is 0.7890 (7 positives, 246 negatives), 0.8047 (6 and 247) and 0.8230 (5 and 248); with the 46 ambiguous
+pairs read as positive the reproducible-label retrain scores 0.4940 on 299 pairs, 95 percent interval 0.4087 to
+0.5799 by row and 0.4090 to 0.5808 by subject. The subject-disjoint ensemble has no score for the ambiguous pairs,
+so that reading is not available for it.
