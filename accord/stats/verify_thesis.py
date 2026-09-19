@@ -79,7 +79,11 @@ PROSE = CHAPTERS + sorted((THESIS / "frontmatter").glob("*.tex"))
 # and are excluded from every pass, so no gate can ever require editing them.
 FRONTMATTER = [f for f in sorted((THESIS / "frontmatter").glob("*.tex"))
                if f.name != "acknowledgements.tex"]
-ABSTRACT = [THESIS / "frontmatter" / "abstract.tex"]
+# The abstract's words live in abstract_text.tex, which both the front page
+# and the copy before Chapter 1 \input. Both files are scanned: the wrapper
+# carries the header block, the text file carries the 250 words.
+ABSTRACT = [THESIS / "frontmatter" / "abstract.tex",
+            THESIS / "frontmatter" / "abstract_text.tex"]
 assert ABSTRACT[0].exists(), "abstract.tex missing: refusing to scan nothing"
 # The set every prose pass (1, 2, 3, 4) scans: chapters plus whatever side-strand
 # material is currently bound in the supplement by name. When SUPPLEMENT is

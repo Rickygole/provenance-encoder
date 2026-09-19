@@ -339,6 +339,15 @@ def pass9_template():
     ab = THESIS / "frontmatter" / "abstract.tex"
     if ab.exists():
         text = strip_comments(ab.read_text())
+        # The body was moved into abstract_text.tex so the page before
+        # Chapter 1 prints the same words; expand it, or this pass would
+        # count the \input line instead of the abstract.
+        def _expand(m):
+            f = THESIS / (m.group(1) + ".tex")
+            if not f.exists():
+                raise SystemExit(f"abstract \\input{{{m.group(1)}}} not found")
+            return strip_comments(f.read_text())
+        text = re.sub(r"\\input\{([^}]+)\}", _expand, text)
         # Body: the actual abstract paragraph, not the header block above it.
         # The template's own spacing commands mark both ends precisely: the
         # text starts right after the last \parindent=0pt (the paragraph

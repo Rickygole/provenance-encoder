@@ -366,6 +366,17 @@
 \input{frontmatter/abbreviations}
 \clearpage
 
+% The template places the abstract at the front, before the title page, where a
+% reader looking for it after the contents will not find it. It is printed again
+% here, immediately before Chapter 1, from the same source file.
+\begingroup\doublespacing
+\phantomsection\addcontentsline{toc}{chapter}{Abstract}
+{\centering\normalsize\bfseries Abstract\par}\vspace{\baselineskip}
+{\RaggedRight\parindent=0.5in\RaggedRightParindent=0.5in
+\input{frontmatter/abstract_text}
+\par}
+\endgroup\clearpage
+
 % The abbreviations longtable in the front matter increments the table
 % counter without a caption, which pushed the first body table to number 2.
 \setcounter{table}{0}
