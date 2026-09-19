@@ -13,9 +13,9 @@
 
 This thesis applies no new method. It takes a pipeline whose shape is standard in clinical natural
 language processing (NLP), rule-based candidate mining followed by language model weak supervision
-followed by a purpose-built neural detector, and runs at each stage a check that separates a real
-finding from an artifact of the measurement. The checks are borrowed, each credited again wherever
-it appears later. What this chapter has to establish is therefore less than a conventional review would: the methods are in print, and the gap lies among the things that have been checked. The review runs along five threads: the clinical task itself, for which no system or benchmark in this thesis's
+followed by a purpose-built neural detector, and checks at each stage whether the reported number
+reflects the task or the way it was measured. The checks are borrowed, each credited again wherever
+it appears later. What this chapter has to establish is therefore less than a conventional review would: the methods are in print, and the gap is in what has been checked. The review runs along five threads: the clinical task itself, for which no system or benchmark in this thesis's
 configuration was found; weak supervision and label noise, where a single language model annotating a
 rare class falls outside the theory the field's tooling rests on; evaluation under low prevalence, a
 literature more than half a century old that this thesis applies and does not extend; controls and
@@ -70,8 +70,8 @@ well; this thesis has a pipeline that scores poorly and needs to know whether th
 
 \subsection{What has actually been built for the clinical case}
 
-No system or benchmark was found for the case this thesis addresses, medication contradictions
-between two free-text notes of one admission. Neighbouring work exists:
+Among the work reviewed for this chapter, no system or benchmark was found for the case this thesis
+addresses, medication contradictions between two free-text notes of one admission. Neighbouring work exists:
 \citet{kwon2024ehrcon} check clinical notes against the structured tables of the same record,
 \citet{makhervaks2023clinical} detect contradictions between sentences of medical abstracts with
 ontology-based distant supervision, and \citet{benabacha2025medec} benchmark error detection within
@@ -160,7 +160,7 @@ validity of what is built on it.
 
 \subsection{Counting is a different problem from classifying}
 
-An over-calling annotator is, among other things, a bad prevalence estimator, and there is a
+An over-calling annotator is a bad prevalence estimator, and there is a
 literature about exactly that. \citet{forman2008quantifying} formalises quantification, estimating
 class prevalence instead of labelling individual members, and shows the classify-and-count estimator
 is biased for any imperfect classifier except at the one prevalence where its false positives and
@@ -242,7 +242,7 @@ before a results table exists.
 \label{sec:lit-controls}
 
 This section describes the methodological backbone of the thesis. Everything in it is
-borrowed, and laying it out at length makes the attribution unambiguous. Each subsection names the owner and states the design; the closing paragraph says which designs this project ran.
+borrowed, and laying it out at length makes the attribution unambiguous. Each subsection names the owner and states the design; the closing paragraph says which this project ran.
 
 \subsection{Negative and positive controls in observational research}
 
@@ -295,8 +295,7 @@ detector reaches some score but whether what is scored, a rule-mined candidate p
 annotator against heuristic-selected evidence, is a measurement of clinical contradiction.
 
 \paragraph{What this thesis takes and what it does not claim.}
-Table~\ref{tab:lit-controls} lists the checks this thesis actually ran and the work each borrows
-from. The negative, randomisation, and control-task designs above were not run; the architecture components were examined by code audit instead. No row is itself a contribution.
+Table~\ref{tab:lit-controls} lists the checks this thesis ran and their sources. The first three designs above were not run; the architecture components were examined by code audit instead. No row is itself a contribution.
 
 \begin{table}[H]
 \caption{Checks run in this thesis and the work each borrows from}
@@ -322,10 +321,9 @@ Power analysis for AUROC & \citet{hanley1982meaning} & Evaluation \\
 Construct validity framing & \citet{jacobs2021measurement} & Task definition \\
 \bottomrule
 \end{tabular}
-\apanote{Stage names the pipeline step each check applies to, using the same four names used
-throughout this thesis (candidate mining, weak supervision, architecture, evaluation); the row
-naming task definition names a framing check that applies before any stage rather than to one of
-them.}
+\apanote{Stage names the pipeline step each check applies to, under the four names used
+throughout this thesis (candidate mining, weak supervision, architecture, evaluation); task
+definition marks a framing check that applies before any stage. For the exemplar-selector audit, the cited work names the hazard and the check is this thesis's application.}
 \end{table}
 
 \section{Auditing a Pipeline Stage by Stage}
@@ -352,8 +350,7 @@ No cross-note, free-text-to-free-text medication contradiction system or benchma
 five threads leave three further openings, one for each contribution of this thesis. First, no work
 was found that runs a stage-appropriate check at every stage of a clinical text pipeline and reports
 each outcome whichever way it falls: \citet{biswas2021fairpreprocessing} audit by stage for a metric
-defined at every stage, and \citet{sculley2015debt} name the hazard at component boundaries without
-per-stage checks. Second, the maximum agreement attainable under fixed marginals is classical
+defined at every stage, and \citet{sculley2015debt} name the hazard without per-stage checks. Second, the maximum agreement attainable under fixed marginals is classical
 \citep{cohen1960kappa}, and automated annotation must be validated against human labels
 \citep{pangakis2023validation,egami2023surrogates}. No work was found that uses the bound, together
 with the minimum attainable significance of a discrete test \citep{tarone1990modified}, as a check on

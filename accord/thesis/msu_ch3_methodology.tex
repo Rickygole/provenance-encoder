@@ -161,7 +161,7 @@ detected, since two mentions of the same drug in one note are otherwise indistin
 Because candidates concentrate within admissions and the patient population has repeat admissions, a
 row-level split would place candidates sharing a nursing note, a discharge summary, an admission, or
 a patient on both sides. Two candidates from one admission differ only in the drug at issue, while
-the surrounding text and documentation style are identical. Every split used here is disjoint by \texttt{SUBJECT\_ID}, asserted in code rather than assumed:
+the surrounding text and documentation style are identical. Every split the rebuild and the plain control draw is disjoint by \texttt{SUBJECT\_ID}, asserted in code rather than assumed:
 \[
 S_{\text{train}} \cap S_{\text{val}} = S_{\text{train}} \cap S_{\text{test}}
 = S_{\text{val}} \cap S_{\text{test}} = \varnothing ,
@@ -169,7 +169,7 @@ S_{\text{train}} \cap S_{\text{val}} = S_{\text{train}} \cap S_{\text{test}}
 S_{\text{train}} \cup S_{\text{val}} \cup S_{\text{test}} = S .
 \]
 Patient-level grouping is the correct unit because it is the only unit guaranteeing no shared note
-and no shared documentation episode. Disjointness by row, or even by admission, is weaker than disjointness by subject, since a subject can contribute one admission to the gold set and another to the weak-labelled pool. For that reason the control
+and no shared documentation episode. Disjointness by row, or even by admission, is weaker than disjointness by subject, since a subject can contribute one admission to the gold set and another to the weak-labelled pool. The released run is that case: gold pairs were removed from its training pool by row only. For that reason the control
 training pool of Section~``\nameref{sec:m-control-model}'' excludes, by assertion, every weak-label
 row whose subject appears in the gold set.
 
@@ -322,8 +322,7 @@ not viable, so this project uses weak supervision: obtain approximate labels che
 they are noisy, and rely on training to absorb the noise. The pattern was established for several labelling sources, whose disagreements a label model can use \citep{ratner2017snorkel}. The
 single source used here is an instruction-tuned language model, the default cheap labeller whose
 record Chapter~\ref{ch:lit} reviews \citep{gilardi2023chatgpt}. Weak labels are used as training supervision here, never as ground
-truth: any metric computed against them measures agreement with the labeller and says nothing about clinical correctness. Validation against human labels on the same items is required \citep{pangakis2023validation}, and the gold set of Section~``\nameref{sec:m-gold}'' supplies
-those items.
+truth: any metric computed against them measures agreement with the labeller and says nothing about clinical correctness. The validation Chapter~\ref{ch:lit} takes from \citet{pangakis2023validation} is run on the gold set of Section~``\nameref{sec:m-gold}.''
 
 The production labeller is Llama 3 8B \citep{grattafiori2024llama3}, run locally and presented with
 each candidate's exemplar sentence pair and the identifier of the rule that generated it, asked for
@@ -349,10 +348,8 @@ disagree on $12 + 12 = 24$ pairs.
 
 Greedy temperature-zero decoding makes a label repeatable within one setting at most. The public
 factorial experiment (pre-registered) crossed harder negatives, prompt wording, and model scale on
-public text. On that workload, in one setting, only \texttt{llama3:8b} reproduced first-token log-odds identical to the last bit on repeated calls, while \texttt{qwen3:8b} and \texttt{granite3.3:8b} drifted
-above tolerance on a minority of items. On the clinical rows, the prompt-wording confirmation, which
-reran the reversed prompt beside three new wordings of it, reproduced \texttt{granite3.3:8b}
-exactly.
+public text, and compared each model's first-token log-odds across repeated calls. Chapter~\ref{ch:results} reports which
+models reproduced their scores, on that workload and on the clinical rows.
 Unparseable generations are kept in their own category, never defaulted to a class.
 
 \subsection{How the labeller's confidence field was used}
@@ -418,7 +415,7 @@ Two runs of this detector are scored, and their names are fixed here. The contam
 released detector, whose training rows share subjects with the gold set through the weak-labelled pool,
 although no training row is itself a gold pair. The decontaminated run is a three-seed retrain of the
 same detector whose training rows are subject-disjoint from the gold set, scored per seed and as the
-mean of its three seeds, the ensemble.
+mean of its three seeds, the decontaminated ensemble.
 
 \subsection{Pretraining and an untrained configuration}
 
@@ -496,7 +493,7 @@ establish inter-rater reliability, because there is one rater.
 
 A pair was coded ambiguous when the presented evidence did not permit adjudication, rather than
 being forced into a binary that would have converted an evidential limitation into a label
-indistinguishable from a genuine negative. Forty-six of the 299 annotated pairs carry this code, the
+indistinguishable from a genuine negative. This code is carried by 46 of the 299 annotated pairs, the
 difference between the $287$ and $241$ negative counts of Table~\ref{tab:m-mde} in Section~``\nameref{sec:m-mde}.'' Checks
 that touch the gold set are run under both readings, ambiguous pairs retained as negatives in
 $G_{299}$ and excluded in $G_{253}$, with one exception: the decontaminated ensemble was scored with the ambiguous pairs excluded only,
@@ -585,15 +582,13 @@ of Section~``\nameref{sec:m-mde},'' a failure to show a difference cannot establ
 \textbf{Condition.} If a weak labeller's error were noise, its marginal would approximate the true
 base rate and its mistakes would spread across classes. If its marginal sits far above the base
 rate, the error is a prior shift, and no downstream aggregation removes a shifted marginal:
-aggregation frameworks estimate each source's accuracy from agreement and disagreement among several
-sources, taking their errors as conditionally independent given the true label except where a
-correlation is modelled \citep{ratner2017snorkel}. One source with a systematic prior shift gives
-such a model nothing to fit and is outside that regime.
+aggregation needs several sources (Chapter~\ref{ch:lit}). One source with a systematic prior shift gives
+a label model nothing to fit and is outside that regime.
 
 Three checks bear on this. First, ordering: the base rate must be estimated on a small
 human-labelled sample before any weak labels are generated; this project produced the pharmacist
 annotations after the weak labels, inverting the only ordering in which the mismatch would have
-been actionable, reported here as a methods failure rather than repaired retrospectively. Second,
+been actionable. That is reported as a methods failure. Second,
 replication across labellers: if over-calling is a property of one model it will not survive a
 change of model, but it will if it is a property of the task presentation, so the replication prompt
 is rerun unchanged over the full pool with \texttt{llama3:8b}, \texttt{granite3.3:8b}, and
@@ -632,8 +627,7 @@ attainable one-sided hypergeometric $p$ that marginal permits. Placing every con
 the flagged set gives the best table that marginal could produce. A labeller whose floor sits
 above the significance level its agreement is read at, $0.05$ throughout, could not have rejected the
 null however it behaved. The floor depends on the pilot's size as well as on the marginal, so a
-failed gate says this pilot could not have tested the labeller; passing it is no evidence the
-labeller works. The bound covers a hard, thresholded decision
+failed gate faults the pilot, and a passed one shows only that a test was possible. The bound covers a hard, thresholded decision
 only; a scored labeller can sweep its threshold and rank well regardless of flag rate, which is why the bound says
 nothing about a ranking metric. The ceiling is the classical maximum of a chance-corrected agreement
 statistic given its marginals \citep{cohen1960kappa}, applied here as a check on a weak labeller's
@@ -649,14 +643,18 @@ outcome appended below the rule and the rule never edited. Each pre-registration
 precedes the first commit of its result file in the public repository history, where a reader
 can check the order. Table~\ref{tab:m-prereg} maps each
 identifier, which no chapter uses outside this table, to the plain name the thesis uses and to
-its rule in one line (the correction record of Appendix~\ref{app:corrections} draws on the same sequence); the full rule, including what makes a run invalid, is in the file. Several checks
+its rule in one line; the full rule, including what makes a run invalid, is in the file. Several checks
 were requested after the main results were in, so each is fixed relative to its own run but post hoc
 relative to the original plan: the tipping-point and stratum-interval checks, which count the gold
 labels that must flip before the decontaminated ensemble reaches each floor and give its interval on
 $G_{108}$; the rank-based paired test; the exact-join agreement; the teacher-student comparison; the
-exemplar-prevalence check; the reproducible-labeller retrain; and the cluster-bootstrap check. A pre-registered scale ladder
-within one model family and a prospective version of the feasibility check were each attempted
-twice and were invalid under their own gate both times. Neither is reported. The pre-registration
+exemplar-prevalence check; the reproducible-labeller retrain; and the cluster-bootstrap check, which adds to its clustered
+resampling the floors at the post-flip counts and the reading with the ambiguous pairs counted positive.
+These checks were requested in this project's own internal review rounds, which its files call ``the
+committee'' or ``an examiner''; no member of the thesis committee requested them. A pre-registered scale ladder
+within one model family was attempted twice, and a prospective version of the feasibility check that
+depended on it could run neither time. All three registrations were invalid under their gate, and none
+is reported. The pre-registration
 files record why: the prospective check was registered to run only if every model size in the ladder
 stayed under a parse-failure ceiling, and one size did not, returning a preamble word in place of an
 answer on every pair in the first attempt and failing the same gate again after the registered
@@ -664,7 +662,7 @@ decoding repair in the second. The gate has therefore been applied after the fac
 thesis and never before a labelling run. Identifiers are assigned once, in commit order, from one sequence this project shares between its
 pre-registered checks and its correction record (Appendix~\ref{app:corrections}). The gaps in the
 sequence below are therefore correction entries, not unreported checks, apart from the three
-identifiers spent on the scale-ladder and prospective attempts that were invalid under their own gate.
+identifiers spent on those unreported scale-ladder and prospective attempts.
 
 Every other check was specified after results were seen. That includes the feasibility gate, the
 ambiguous-positive reading, both tipping-point readings on the contaminated run, the public sweep
@@ -719,11 +717,11 @@ C109 & Prompt-wording confirmation & Two of three new paraphrases reach 0.7355 o
 \addlinespace[3pt]
 C110, C112 & Rules 3 and 4 rescore & On $G_{108}$ the detector's permutation $p$ is at least 0.05 and its AUROC is near its $G_{253}$ AUROC. \\
 \addlinespace[3pt]
-C111 & Bag-of-words robustness checks & TF-IDF beats its null and survives leave-one-out; the detector does not; no shared subjects. \\
+C111 & Bag-of-words robustness checks & TF-IDF beats its null and survives leave-one-out; the detector does not; no shared subjects. Its paired leg on raw scores rejected and is superseded by C116. \\
 \addlinespace[3pt]
-C114 & Tipping-point and stratum-interval checks & A paired test of inference model against detector; tipping point and $G_{108}$ interval descriptive. \\
+C114 & Tipping-point and stratum-interval checks & A paired test of inference model against detector on raw scores, not significant and superseded by C116; tipping point and $G_{108}$ interval descriptive. \\
 \addlinespace[3pt]
-C116 & Rank-based paired test & A simple model beats the detector only if a paired rank test gives $p$ below 0.05. \\
+C116 & Rank-based paired test & Written after the raw-score paired results were seen. A simple model beats the detector only if a paired rank test gives $p$ below 0.05. \\
 \addlinespace[3pt]
 C120 & Exact-join agreement & The exact join is authoritative only if it is one-to-one and agrees with every gold label. \\
 \addlinespace[3pt]
@@ -751,7 +749,7 @@ This audit was run on the three credited components of Section~``\nameref{sec:m-
 authority parameters of the asymmetric conditioning module, the auxiliary rule-type head, and the
 guideline-grounded harm estimator. The deleted pharmacological prior module, with no learned
 parameters, is not among them. Neither is the fourth specified component, the cross-note difference
-encoder: no reported parameter value, metric, or claimed contribution names it. The audit followed the claims made for the system and had no credited reading of it to check, and whether it
+encoder: no reported parameter value, metric, or claimed contribution names it. The audit followed the claims made for the system and had no credited reading of the difference encoder to check, and whether it
 contributes anything is not known.
 
 \subsection{RQ4: whether the detector's null is real}
@@ -892,9 +890,9 @@ pair per admission was selected, but several candidate pairs can come from one a
 subject can have more than one admission. Pairs are therefore not guaranteed independent of one another,
 which is why the subject-disjoint exclusion (Section~``\nameref{sec:m-weak}'') was needed before
 training a detector on the weak-labelled pool. Where pairs share a cluster, row-level intervals can
-be narrower than a clustered analysis would return. The cluster-bootstrap check (pre-registered, and
+be narrower than a clustered analysis would return. The cluster-bootstrap check (pre-registered and
 requested after the main results) resamples whole admissions, and separately whole
-subjects, for the two ensembles on $G_{253}$: the subject-disjoint ensemble of the decontaminated run and the plain control detector retrained on reproducible labels. Its rule is that the bounded null holds under
+subjects, for the two ensembles on $G_{253}$: the decontaminated ensemble and the plain control detector retrained on reproducible labels. Its other two parts are descriptive and decide nothing. Its rule is that the bounded null holds under
 clustering only if all four upper ends stay below the simulated Mann-Whitney floor $0.7466$, and the
 run counts only if it first reproduces both row-level intervals to four decimal places. No other test was rerun with clustered resampling, and the caution stands for
 the rest.

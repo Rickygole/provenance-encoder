@@ -19,10 +19,9 @@ what the check attached to that stage measured afterwards. This chapter argues
 about the difference, then states the practical lesson, the future work, and
 what the thesis leaves. With $12$ pharmacist-confirmed contradictions against
 $241$ negatives in $G_{253}$, this evaluation cannot tell a modest detector from a useless one
-(Section~``\nameref{sec:res-rq4}''). Local language-model
-labellers flagged far more pairs than the pharmacist confirmed, by an amount
-that depended heavily on the prompt and on how the $46$ ambiguous pairs were
-read. The detector trained on those labels ranked at a level not
+(Section~``\nameref{sec:res-rq4}''). Every local language-model
+labeller over-called against the pharmacist, and the size of the excess moved with the
+prompt wording and with the reading given to the $46$ ambiguous pairs. The detector trained on those labels ranked at a level not
 distinguishable from chance.
 
 \section{What Each Check Changed}
@@ -33,9 +32,8 @@ pipeline has four stages; at the first three, no standard metric was sensitive
 to the defect behind the reported number. The checks run were cheap: a code
 audit of the miner's exemplar selector and of each credited architectural
 component, a marginal ceiling on the weak labeller followed by its agreement on
-the exact gold join, a comparison between rule strata, and power analyses. None of them is a randomisation control
-\citep{adebayo2018sanity}, a control task \citep{hewitt2019control}, or a negative control
-\citep{lipsitch2010negative}, and none of those three designs was run here.
+the exact gold join, a comparison between rule strata, and power analyses. None of them is one of the
+three control designs Chapter~\ref{ch:lit} describes, and those designs were not run here.
 
 \begin{table}[!htbp]
 \centering
@@ -128,7 +126,7 @@ therefore answered component by component.
 
 The detector's ranking is not distinguishable from chance under any check applied to it
 (Section~``\nameref{sec:res-rq4}''); the evaluation's power bounds what that null can be taken
-to show. The subject-disjoint retrain did not rescue it, and because the rows sharing subjects
+to show. The decontaminated ensemble did not rescue it, and because the rows sharing subjects
 with the gold pairs carried the weak labeller's labels and never the pharmacist's, the overlap could
 do little to inflate agreement with gold. A plain BioMedBERT control model with none of ACCORD's
 credited components has a point estimate of $0.4692$ on $G_{299}$ and $0.5469$ on $G_{134}$. Because each
@@ -141,7 +139,7 @@ same pairs; neither substitutes for a test of the control against chance.
 
 Three of the four stage readings did not survive their checks (one not
 established, two unsupported); the fourth, the evaluation's near-chance reading,
-survived as a bounded null (Table~\ref{tab:disc-spine}). The chance-level ranking held under the subject-disjoint retrain, across its three seeds and
+survived as a bounded null (Table~\ref{tab:disc-spine}). The chance-level ranking held for the decontaminated ensemble, for each of its three seeds, and
 for the plain control detector retrained on reproducible labels. The over-calling held across three
 local model families, though its size did not. What did not survive is any
 claim about mechanism or about scale: this is a measurement of a pipeline under
@@ -162,16 +160,16 @@ set in advance as the test of sufficiency. Reading the $46$ ambiguous pairs as
 confirmed multiplies every ratio by exactly $12/58$, which puts both
 plain-prompt rows below the ceiling. The denominator moved; the models came no
 closer to the pharmacist. The absence of an ambiguity gradient in
-the eight local Fisher tests is absence of evidence, not calibration.
+the $8$ local Fisher tests is absence of evidence, not calibration.
 
 \textbf{Scale, public text, and what a single run means.} The step to
 Qwen 3 14B (\texttt{qwen3:14b}), the largest model this project's hardware serves and not
 frontier scale, sits inside the spread three 8B models already show, and nothing
 is concluded about scale. On an SNLI sweep under generic prompts the same models
 do not reproduce the clinical magnitude or direction, but that sweep changes
-prompt, negative type, and domain together. In the public factorial experiment, which
-crossed harder negatives, prompt wording, and model scale on public text, only Llama 3 8B reproduced stable per-item output at temperature zero,
-which makes a single-run public cell for any other model one draw from a spread. On
+prompt, negative type, and domain together. The determinism check of the public factorial experiment
+(Chapter~\ref{ch:results}) found stable per-item output for Llama 3 8B alone, so a single-run
+public cell for any other model is one draw from a spread. On
 the clinical rows, the prompt-wording confirmation, a rerun of the reversed
 prompt beside three new wordings, reproduced
 Granite 3.3 8B exactly. Across all of these runs, every 8B labeller under the clinical-pharmacist framing flags several times the
@@ -215,7 +213,7 @@ The baselines (Section~``\nameref{sec:res-rq4}'') change what the detector's
 null can be blamed on without changing the null. A bag-of-words model trained on
 the identical weak labels and an entailment model never trained on them each
 clear an average-precision null where the detector does not, the
-statistic having been chosen for the first after its value was known. A
+statistic having been chosen for the bag-of-words model after its value was known. A
 label-free model finds the same kind of signal. The bag-of-words robustness
 checks (a permutation null, leave-one-out, and a shared-subject test) call that
 signal, in their registered interpretation, a surface lexical or
@@ -230,7 +228,7 @@ on any withdrawn hosted number: the detector's bootstrap interval, the power
 simulation, and the minimum detectable effect
 (Section~``\nameref{sec:m-mde}'') answer it locally, and the analyses run after
 their numbers were in hand are listed in
-Section~``\nameref{sec:m-prereg}.'' The retrained ensemble was never swept across
+Section~``\nameref{sec:m-prereg}.'' The decontaminated ensemble was never swept across
 thresholds and stays open to the threshold objection
 (Section~``\nameref{sec:res-rq4}''). Every ranking measurement on $G_{299}$ or
 $G_{253}$ rests on $12$ positives and every measurement on $G_{108}$ on $6$;
@@ -240,10 +238,10 @@ that $12$ positives cannot separate anything: Granite 3.3 8B zero-shot
 sits at its marginal-implied ceiling with a one-sided hypergeometric $p$ of
 $0.0242$ on $G_{253}$. That is a claim about one thresholded labeller and does not reach the
 detector. In the prompt-wording confirmation the registered Llama 3 8B
-reversed-prompt score failed on AUROC under all three new wordings and the
+reversed-prompt score failed on AUROC under all three new wordings and failed the
 Bonferroni threshold under two, while Granite 3.3 8B's descriptive
 cells, uncorrected, met both criteria under two new wordings
-(Section~``\nameref{sec:res-rq2},'' Chapter~\ref{ch:results}). So the null is a statement about these
+(Section~``\nameref{sec:res-rq2},'' Chapter~\ref{ch:results}). The null is therefore a statement about these
 trained models under this supervision. Whether a graded score escapes the
 agreement ceiling is not settled, and no ablation carries a significance claim. The cross-note
 difference encoder, the fourth component Chapter~\ref{ch:method} lists, was not audited: the
@@ -256,8 +254,8 @@ committed replication prompt and script, has an ensemble AUROC on $G_{253}$ of $
 $0.7196$); the ranking null reproduces on reproducible labels
 (Section~``\nameref{sec:res-rq4}''). The limitation therefore reaches only the deployed run's numbers, such as its $261$ of $299$ marginal, which remain measured but not repeatable.
 
-\paragraph{Deployment risk and a score that was never trained.} The subject-disjoint retrain's three seeds average
-recall $0.7778$ and precision $0.0424$; no single seed attains that recall with $12$ positives, and each
+\paragraph{Deployment risk and a score that was never trained.} The decontaminated ensemble's three seeds average
+recall $0.7778$ and precision $0.0424$; the mean is no seed's value ($9$, $10$, and $9$ of $12$), and each
 seed alone still generates many false alarms per true contradiction, the first seed raising $216$
 false alarms against $9$ true contradictions at a recall of $0.75$. That alarm
 ratio, on a ranking already returned as a bounded null (Table~\ref{tab:disc-spine}), is why this
@@ -319,19 +317,19 @@ flip's AUROC, $0.8379$, is the first to clear its floor, $0.8230$. No simulated 
 recomputed at those counts. Read the other way, with the $46$ ambiguous pairs counted positive, the plain
 control detector retrained on reproducible labels scores $0.4940$ on the $299$ pairs. Neither
 reading moves the null. What keeps it fragile is what these checks cannot reach: the $46$ ambiguous
-pairs outnumber the $12$ positives nearly four to one, the subject-disjoint ensemble has no score on
+pairs outnumber the $12$ positives nearly four to one, the decontaminated ensemble has no score on
 them, and one annotator with no reliability figure stands behind every label.
 
 \paragraph{Invalid designs.} The public factorial experiment left too few
 models with a valid cell after the determinism check, so it is reported as invalid under its rule and not reinterpreted. The
-prior-correction experiment was invalid under its own rule as well. Neither contributes a finding beyond the factorial experiment's determinism check, and neither
+prior-correction experiment was declared invalid by its own registered rule as well. Neither contributes a finding beyond the factorial experiment's determinism check, and neither
 absence is read as a null.
 
 \paragraph{Pairs that share an admission or a subject.} Row-level intervals treat each pair as
 independent, although $20$ of the $231$ admissions and $24$ of the $225$ subjects behind $G_{253}$
 hold more than one pair. A pre-registered cluster bootstrap resampled whole admissions, and
 separately whole subjects, for both ensembles. Clustering barely moves the intervals: at one seed
-the subject-disjoint ensemble's upper end is $0.6971$ by row, $0.6996$ by admission, and $0.6995$ by
+the decontaminated ensemble's upper end is $0.6971$ by row, $0.6996$ by admission, and $0.6995$ by
 subject. Every clustered upper end stays under the simulated Mann-Whitney floor of $0.7466$ with at least
 $0.0236$ to spare (Section~``\nameref{sec:res-rq4}''), and under $0.7318$, the alternate construction's
 two-sided Mann-Whitney floor, a comparison made after the result was seen and outside the registered rule.
@@ -458,7 +456,7 @@ Dangerous medication contradictions between nursing notes and discharge
 summaries do occur, and detecting them is worth the effort. At the size this thesis could
 annotate, the detector's ranking of the gold pairs was not distinguishable from chance under
 any check applied to it. The thesis leaves a
-stage-wise audit (Table~\ref{tab:disc-spine}), a feasibility check on a weak
+stage-by-stage audit (Table~\ref{tab:disc-spine}), a feasibility check on a weak
 labeller's marginal, and trigger-exemplar dissociation, a mining bug that the
 original selector design shows on $41.4$ percent of the rebuilt pool's
 Rules 1 and 2 candidates, a design rate for that pool alone, and that a one-line assertion catches once the candidate schema records which
