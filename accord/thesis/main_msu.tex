@@ -331,6 +331,10 @@
 \pagenumbering{gobble}
 \doublespacing
 \input{frontmatter/declaration}
+% The abstract sits before the title page, unnumbered, as the template requires,
+% which puts it where a reader scrolling past the contents never reaches it. A
+% PDF bookmark points at it so it is one click away in any viewer's sidebar.
+\pdfbookmark[0]{Abstract}{abstractpage}
 \input{frontmatter/abstract}
 
 % Front matter: Roman numerals.
@@ -365,17 +369,6 @@
 
 \input{frontmatter/abbreviations}
 \clearpage
-
-% The template places the abstract at the front, before the title page, where a
-% reader looking for it after the contents will not find it. It is printed again
-% here, immediately before Chapter 1, from the same source file.
-\begingroup\doublespacing
-\phantomsection\addcontentsline{toc}{chapter}{Abstract}
-{\centering\normalsize\bfseries Abstract\par}\vspace{\baselineskip}
-{\RaggedRight\parindent=0.5in\RaggedRightParindent=0.5in
-\input{frontmatter/abstract_text}
-\par}
-\endgroup\clearpage
 
 % The abbreviations longtable in the front matter increments the table
 % counter without a caption, which pushed the first body table to number 2.
