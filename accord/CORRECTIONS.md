@@ -5024,3 +5024,14 @@ README data-handling section matches the thesis, NOTICE credits public datasets.
 cloud-synced output directories; hosted runners require an explicit opt-in; raw MIMIC tables moved out of a downloads
 folder into credentialed local storage and scripts repointed. Code check: a figure assertion restored, a hard-coded path
 fixed.
+
+## C134. The bounded-null ceiling moved, and C130 misdescribed the earlier one (2026-09-18)
+
+C130's registration says its 0.7466 ceiling is "the same ceiling" `accord/control/report.py` cites. It is not. That
+report codes a rule of the same two-part form (the interval includes 0.5 and its upper end is below a ceiling) with a
+ceiling of 0.6 on G_299 and the Rules 3 and 4 stratum, and records the plain control as INCONCLUSIVE_WIDE_CI (ensemble
+intervals 0.2880 to 0.6553 and 0.2418 to 0.8281). The 0.7466 ceiling was first written in C130, after the decontaminated
+ensemble's upper end, 0.7034, was known. Under 0.6 both G_253 ensembles (upper ends 0.7034 and 0.7196) read as
+inconclusive. C130's rule is left as registered. Chapter 3 now states the earlier ceiling and what it would say, the note
+to the stage table repeats it, and Chapter 5 no longer says the plain control carries no interval. The interval ends and
+the coded verdict are registered by `accord/stats/register_control_verdict.py`.

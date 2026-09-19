@@ -54,7 +54,7 @@ Evaluation & AUROC near chance, plausibly an artifact of a small, defective samp
 \bottomrule
 \end{tabular}
 \apanote{Verdict names the status this thesis gives each stage's check: not established, no metric
-distinguishes the reported reading from the audited defect; unsupported, the check finds no evidence for the reading; bounded null, the interval contains chance and ends below the simulated Mann-Whitney floor, as defined in Chapter~\ref{ch:method}.}
+distinguishes the reported reading from the audited defect; unsupported, the check finds no evidence for the reading; bounded null, the interval contains chance and ends below the simulated Mann-Whitney floor, as defined in Chapter~\ref{ch:method}; under the ceiling of $0.6$ that an earlier report coded, the same intervals read as inconclusive.}
 \end{table}
 
 \subsection{Candidate mining: not established}
@@ -126,9 +126,7 @@ The detector's ranking is not distinguishable from chance under any check applie
 to show. The decontaminated ensemble did not rescue it, and because the rows sharing subjects
 with the gold pairs carried the weak labeller's labels and never the pharmacist's, the overlap could
 do little to inflate agreement with gold. A plain BioMedBERT control model with none of ACCORD's
-credited components has a point estimate of $0.4692$ on $G_{299}$ and $0.5469$ on $G_{134}$. Because each
-carries a bootstrap mean and standard deviation but no interval and no test against chance, no
-null is claimed for either stratum. The DeLong tests reported for these two sets (Table~\ref{tab:delong} in Chapter~\ref{ch:results}), $p = 0.9300$ on $G_{299}$ and $p = 0.4306$ on $G_{134}$,
+credited components has a point estimate of $0.4692$ on $G_{299}$ and $0.5469$ on $G_{134}$. Its bootstrap intervals, $0.2880$ to $0.6553$ and $0.2418$ to $0.8281$, contain chance, but the control's own report reads them as inconclusive under its ceiling of $0.6$ and runs no test against chance, so no null is claimed for either stratum. The DeLong tests reported for these two sets (Table~\ref{tab:delong} in Chapter~\ref{ch:results}), $p = 0.9300$ on $G_{299}$ and $p = 0.4306$ on $G_{134}$,
 pair the control ensemble against ACCORD's contaminated released run on the
 same pairs; neither substitutes for a test of the control against chance.
 
@@ -155,7 +153,7 @@ text (Section~``\nameref{sec:m-weak},'' Chapter~\ref{ch:method}). Neither lowere
 ambiguous pairs read as negative, reaches the public-text ceiling of $3.5000$
 set in advance as the test of sufficiency. Reading the $46$ ambiguous pairs as
 confirmed multiplies every ratio by exactly $12/58$, which puts both
-plain-prompt rows below the ceiling. Only the denominator changed, since no model's calls did. The absence of an ambiguity gradient in
+plain-prompt rows below the ceiling. Only the denominator changed; no model's calls did. The absence of an ambiguity gradient in
 the $8$ local Fisher tests is absence of evidence, not calibration.
 
 \textbf{Scale, public text, and what a single run means.} The step to
@@ -176,7 +174,7 @@ relabels.
 \section{What the Power Analysis and the Baselines License}
 \label{sec:disc-null}
 
-The usual objection to a negative result in a small clinical sample is that the experiment was too small to see anything. That holds for most such results. The answer here is a bound on what the evaluation could have seen; it does not show that the evaluation sees. The detector's bootstrap
+The usual objection to a negative result in a small clinical sample is that the experiment was too small to see anything. That holds for most such results. The answer here is a bound on what the evaluation could have seen; it does not show that the evaluation can detect an effect. The detector's bootstrap
 interval on $G_{253}$ excludes an AUROC above $0.7034$ but not a modestly useful
 model below it.
 
@@ -305,13 +303,13 @@ leave (Section~``\nameref{sec:res-rq4}''). Held to the floor its remaining label
 $7$ relabelled positives to tip where the fixed floor put the count at $5$: the seventh
 flip's AUROC, $0.8379$, is the first to clear its floor, $0.8230$. No simulated floor was
 recomputed at those counts. Read the other way, with the $46$ ambiguous pairs counted positive, the plain
-control detector retrained on reproducible labels scores $0.4940$ on the $299$ pairs. Neither reading brings the point estimate near a floor.
+control detector retrained on reproducible labels scores $0.4940$ on the $299$ pairs. The first reading needs $7$ of the $12$ positives to be wrong, and the second leaves the point estimate below chance.
 
 The interval's upper end reaches its floor sooner. The bounded null is
 defined by an upper end below $0.7466$, and the interval tipping-point check found that 2 greedily
 chosen relabels, in either direction, lift the decontaminated ensemble's upper end past that floor (to
 $0.7760$ and $0.7673$), while 1 is enough for the plain control detector retrained on reproducible
-labels ($0.7591$ and $0.7530$). By the criterion this thesis uses, the bounded null holds only if those 1 or 2 labels are right, and the ensemble's count of 2 is not resolved from 1: after a single relabel its upper end is within the distance a change of bootstrap seed moves it. The other half of the criterion lasts longer. It takes 3 to 6 targeted relabels, depending on the ensemble and the direction, before an interval excludes chance, so 1 or 2 wrong labels would leave the reading inconclusive without reversing it. The floor was held at $0.7466$ throughout, and the relabelled intervals resample single pairs. The caveat about greedy search applies (Section~``\nameref{sec:res-rq4}''), but no second annotator exists to confirm the labels in question. The checks also cannot reach the $46$ ambiguous pairs, which outnumber the $12$ positives
+labels ($0.7591$ and $0.7530$). By the criterion this thesis uses, the bounded null holds only if those 1 or 2 labels are right, and the ensemble's count of 2 is not resolved from 1. After 1 positive is relabelled negative its upper end, $0.7422$, is closer to the floor than a change of bootstrap seed moves it, and after 1 negative is relabelled positive the upper end, $0.7373$, already exceeds the analytic minimum detectable AUROC. The other half of the criterion lasts longer. It takes 3 to 6 targeted relabels, depending on the ensemble and the direction, before an interval excludes chance, so 1 or 2 wrong labels would leave the reading inconclusive without reversing it. The floor was held at $0.7466$ throughout, and the relabelled intervals resample single pairs. The caveat about greedy search applies (Section~``\nameref{sec:res-rq4}''), but no second annotator exists to confirm the labels in question. The checks also cannot reach the $46$ ambiguous pairs, which outnumber the $12$ positives
 nearly 4 to 1 and on which the decontaminated ensemble has no score.
 
 \paragraph{Invalid designs.} The public factorial experiment left too few

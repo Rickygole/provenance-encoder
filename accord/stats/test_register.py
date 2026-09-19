@@ -317,8 +317,7 @@ FAMILY = [
     # same artifact) are scored but are NOT part of C109's primary decision
     # rule (see "primary_paraphrase_verdicts_llama3_8b" in the artifact,
     # llama3:8b only) and are not quoted as a decision in the chapter text;
-    # disclosed, not counted, the same convention this file already applies
-    # to the two Spearman correlations that do not reach the page.
+    # disclosed, not counted.
     #
     # C109 ran its own internal Bonferroni correction over these same three
     # tests (alpha/3 = 0.016667, bonferroni_alpha_over_3 in the artifact) to
@@ -514,7 +513,7 @@ def main():
             + str(sum(1 for v in groups.values() if len(v) > 1))
             + " dependence groups of more than one test: five Mann-Whitney tests "
             "on one set of 253 rows (decontam_253), five DeLong tests against a "
-            "single reference run (delong_vs_one_ref), two Spearman correlations "
+            "single reference run (delong_vs_one_ref), four Spearman correlations "
             "against one rating (danger_rating), one Mann-Whitney and two DeLong "
             "tests off a single NLI baseline run (nlibaseline), one McNemar and "
             "three Mann-Whitney tests per C103 model under three prompts on the "
