@@ -157,9 +157,12 @@ def clean(s):
     return s
 
 
+QUOTED_ONLY = {"msu_ch2_literature.tex"}
+
+
 def main():
     idx, idx_pct = index_by_value()
-    records, untraced = [], []
+    records, untraced, quoted = [], [], []
 
     for f in ALL_CHAPTERS:
         raw = f.read_text()
@@ -168,6 +171,15 @@ def main():
             tok = m.group(0)
             bare = tok.replace(",", "")
             if tok in EXEMPT or bare in EXEMPT or re.fullmatch(r"(19|20)\d\d", bare):
+                continue
+            # Every figure the literature review prints is quoted from a cited
+            # study. Matching one against the register can only produce a false
+            # provenance: 71.5 percent from a published evaluation was once
+            # "resolved" to a floor of 0.7148 computed here. They are counted
+            # apart and never looked up.
+            if f.name in QUOTED_ONLY:
+                quoted.append({"chapter": f.name, "value": tok,
+                               "sentence": sentence_around(text, m.start())})
                 continue
             keys = idx.get(tok) or idx.get(bare) or []
             # The percent-scaled index is only consulted when the literal itself
@@ -237,7 +249,8 @@ def main():
     out = {"n_traced": len(records), "n_untraced": len(untraced),
            "n_distinct": len(rows), "n_unique_rows": n_uniq,
            "n_ambiguous_rows": n_amb,
-           "records": records, "untraced": untraced}
+           "records": records, "untraced": untraced,
+           "n_quoted": len(quoted), "quoted": quoted}
     (ROOT / "results" / "accord" / "CLAIM_TRACE.json").write_text(json.dumps(out, indent=2))
 
     tex = [r"\chapter{Claim and Evidence Trace}", r"\label{app:trace}", "",

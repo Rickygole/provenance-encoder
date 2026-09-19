@@ -86,7 +86,13 @@ assert ABSTRACT[0].exists(), "abstract.tex missing: refusing to scan nothing"
 # empty (the current, transitional state) this is exactly CHAPTERS, so today's
 # run is unchanged; the moment a msu_sup*.tex file exists, its dashes, numbers,
 # citations and style are gated the same way a chapter's are.
-ALL_CHAPTERS = CHAPTERS + SUPPLEMENT
+# The two appendix texts the thesis binds were in no glob either, so a generator
+# overwrote audited appendix prose and an untraced count stopped adding up with
+# every pass reporting clear. They are scanned by the prose passes now.
+APPENDICES = [THESIS / "msu_appA_corrections.tex", THESIS / "msu_appB_pointer.tex"]
+for _a in APPENDICES:
+    assert _a.exists(), f"{_a.name} missing: refusing to scan nothing"
+ALL_CHAPTERS = CHAPTERS + SUPPLEMENT + APPENDICES
 
 # Values that are allowed to appear without being a research finding: structural
 # numbers, years, and the small integers that show up in ordinary prose.
@@ -271,7 +277,11 @@ def main():
         n_held = sum(1 for k in FACTS if k.startswith("withdrawn.hosted."))
         print(f"   hosted channels: none live, {n_held} held for the record")
     unverified = []
-    for f in ALL_CHAPTERS + ABSTRACT:
+    # The appendices' numbers count the register and the trace themselves, so
+    # they cannot be registered without circularity. make_appendices.py checks
+    # Appendix A's counts and sync_appendix_counts.py --check (deep pass 11)
+    # checks Appendix B's.
+    for f in [x for x in ALL_CHAPTERS if x not in APPENDICES] + ABSTRACT:
         # The literature review reports figures from cited works, which by
         # definition are not in our fact sheet. It is checked separately:
         # every number there must sit in a sentence carrying a citation.

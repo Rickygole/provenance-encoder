@@ -23,8 +23,7 @@ separate a real finding from an artifact of the measurement. Every check below i
 condition; only the pre-registered checks were fixed before their runs
 (Section~``\nameref{sec:m-prereg}''), and Chapter~\ref{ch:results} reports which conditions were met.
 The stage-by-stage audit checks each stage's reading against a fixed condition, a ceiling
-computed from counts, or a rule written down before its run; it is not the randomisation,
-control-task, or negative controls that Chapter~\ref{ch:lit} describes, which were not run here.
+computed from counts, or a rule written down before its run; it is not the randomisation tests, control tasks, or negative controls that Chapter~\ref{ch:lit} describes, which were not run here.
 
 A preceding cohort-building step extracts admissions from MIMIC-III and, for each, a paired
 nursing note and discharge summary. On that cohort the pipeline runs four stages. Stage one mines
@@ -307,7 +306,7 @@ The direct exemplar check (pre-registered) reads the defect rate a third way. It
 written for this check directly on the sentence text the pharmacist saw, treating each displayed
 sentence as a one-sentence document, and calls a Rule 1 or Rule 2 pair correct only if the two
 displayed sentences carry, between them, exactly one continuation action and one cessation action.
-It is a third instrument, not an arbiter. Its action classifier has never been validated
+It adds a third reading and cannot decide between the other two. Its action classifier has never been validated
 against human judgement, and its one-sentence window is shorter than the three-sentence window the
 reference pipeline uses: a sentence that would classify correctly with its neighbours present can
 read as undecidable or off-pair alone.
@@ -653,8 +652,7 @@ $G_{108}$; the rank-based paired test; the exact-join agreement; the teacher-stu
 exemplar-prevalence check; the reproducible-labeller retrain; the cluster-bootstrap check, which adds to its clustered
 resampling the floors at the post-flip counts and the reading with the ambiguous pairs counted positive; and the
 interval tipping-point check, which repeats the greedy relabelling and reads the interval's upper end after each relabel.
-The requests came from this project's own internal review rounds. Its files call those rounds ``the
-committee'' or ``an examiner,'' and neither phrase refers to the thesis committee. A pre-registered scale ladder
+The requests came from this project's own internal review rounds. The project's files call those rounds ``the committee'' or ``an examiner,'' and neither phrase refers to the thesis committee. A pre-registered scale ladder
 within one model family was attempted twice, and a prospective version of the feasibility check that
 depended on it could run neither time. All three registrations were invalid under their gate, and none
 is reported. The pre-registration
@@ -734,9 +732,9 @@ C129 & Exemplar-prevalence check & Share of rebuilt Rules 1 and 2 candidates who
 \addlinespace[3pt]
 C130 & Reproducible-labeller retrain & On replication labels the ranking null reproduces if the $G_{253}$ ensemble interval contains 0.5 and ends below 0.7466. \\
 \addlinespace[3pt]
-C132 & Cluster-bootstrap check & Resampling whole admissions and whole subjects, the bounded null holds only if both ensembles' upper ends on $G_{253}$ stay below 0.7466; invalid unless the row-level intervals reproduce. \\
+C132 & Cluster-bootstrap check & Under resampling of whole admissions and whole subjects, the bounded null holds only if both ensembles' upper ends on $G_{253}$ stay below 0.7466; invalid unless the row-level intervals reproduce. \\
 \addlinespace[3pt]
-C133 & Interval tipping-point check & Relabelling greedily in each direction on $G_{253}$, the bounded null survives 2 wrong labels only if every count of relabels needed to lift an ensemble's upper end to 0.7466 is 3 or more; invalid unless the row-level intervals reproduce. \\
+C133 & Interval tipping-point check & With pairs relabelled greedily in each direction on $G_{253}$, the bounded null survives 2 wrong labels only if each ensemble needs 3 or more relabels to lift its upper end to 0.7466; invalid unless the row-level intervals reproduce. \\
 \end{longtable}
 \endgroup
 
@@ -863,6 +861,15 @@ Mann-Whitney rule alone; and the \emph{simulated registered-rule floor}, $0.8084
 simulation's 80 percent power crossing for the full registered decision rule. The analytic and simulated values differ, and the simulated
 Mann-Whitney floor $0.7466$ and the simulated registered-rule floor $0.8084$, two different tests'
 floors, are not the two ends of one range; none of the three is interchangeable with another.
+
+This thesis calls a ranking null a \emph{bounded null} when two conditions hold on $G_{253}$: the 95 percent
+bootstrap interval of the AUROC contains $0.5$, and its upper end lies below the simulated Mann-Whitney floor
+$0.7466$. The first condition says the ranking is not distinguishable from chance, and the second says the interval
+excludes the effects this evaluation could resolve. An interval that contains $0.5$ but reaches the floor is read as
+inconclusive, and one whose lower end exceeds $0.5$ as a rejection of chance. The two conditions were first written
+down in the registration of the reproducible-labeller retrain, when the decontaminated ensemble's interval, $0.3210$
+to $0.7034$, was already known. For that ensemble the criterion is therefore post hoc, and it was fixed in advance
+only for the plain control detector retrained on reproducible labels.
 
 \subsection{Seed variation and the standard-deviation convention}
 

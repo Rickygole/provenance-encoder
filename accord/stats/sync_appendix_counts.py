@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Keep Appendix B's provenance counts equal to what the tools compute.
 
-Appendix B prints seven counts: the size of the record of reported quantities,
+Appendix B prints eight counts: the size of the record of reported quantities,
 how many of its entries are citable, and what the claim trace found (scanned,
 resolved, distinct, uniquely matched, matched among several). They move every
 time a chapter is edited, and twice an audit found them stale because they had
@@ -44,6 +44,7 @@ def counts():
         "unique": trace["n_unique_rows"],
         "ambiguous": trace["n_ambiguous_rows"],
         "untraced": untraced,
+        "quoted": trace["n_quoted"],
     }
 
 
@@ -59,6 +60,7 @@ PATTERNS = [
     ("unique", r"(the trace names, )([\d,]+)( are matched uniquely)"),
     ("ambiguous", r"(matched uniquely and )([\d,]+)( are matched among)"),
     ("untraced", r"(The trace lists )([\d,]+)( quantities as untraced)"),
+    ("quoted", r"(A further )([\d,]+)( figures in Chapter 2)"),
 ]
 
 

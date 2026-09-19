@@ -107,20 +107,12 @@ FAMILY = [
          group="mechanism",
          source="results/accord/exemplar/step2plus_results.json::confounded_proxy_rule12_vs_rule34.fisher_exact.p_value"),
 
-    # One Welch test on the anisotropy control. Chapter 4 derives this from the
-    # two registered summaries rather than reading it from a run, so it is
-    # recomputed here from those summaries and not read from a p field.
-    dict(id="welch_anisotropy", test="Welch two-sample t",
-         where="sec:res-rq3", what="control condition vs matched clinical pairs",
-         group="anisotropy",
-         source="derived: Welch two-sample t on the registered anisotropy "
-                "summaries, control mean/std/n against the matched clinical "
-                "mean/std/n; see stats.anisotropy_welch.* in VERIFIED_FACTS",
-         value=8.48e-05),
+    # The Welch test on the anisotropy control was listed here. The thesis no
+    # longer reports that control, so the test is in no family it prints.
 
-    # Two Spearman correlations against the pharmacist's danger rating. Four
-    # were computed; the two that reach the page are counted here and the
-    # subsection names the other two, which is the disclosure, not the family.
+    # Four Spearman correlations against the pharmacist's danger rating. The
+    # thesis prints all four (one in the architecture section, three in the
+    # multiplicity subsection) and counts all four in its uncorrected family.
     dict(id="spearman_full299_harm", test="Spearman rank correlation",
          where="sec:r-ranking", what="harm score vs danger rating, all 299",
          group="danger_rating",
@@ -129,6 +121,14 @@ FAMILY = [
          where="sec:r-multiplicity", what="harm score vs danger rating, 12 positives",
          group="danger_rating",
          source="results/accord/step5_ranking.json::positives_only_n12_harm_score_vs_danger_rating.p_value"),
+    dict(id="spearman_full299_contra_prob", test="Spearman rank correlation",
+         where="sec:r-multiplicity", what="contradiction probability vs danger rating, all 299",
+         group="danger_rating",
+         source="results/accord/step5_ranking.json::full_299_contra_prob_vs_danger_rating.p_value"),
+    dict(id="spearman_pos12_contra_prob", test="Spearman rank correlation",
+         where="sec:r-multiplicity", what="contradiction probability vs danger rating, 12 positives",
+         group="danger_rating",
+         source="results/accord/step5_ranking.json::positives_only_n12_contra_prob_vs_danger_rating.p_value"),
 
     # REMOVED (this rebuild): sixteen tests that lived here across C70, C72,
     # C76, C79, C85, C88 to C92 -- two hosted Fisher tests on the ambiguity
@@ -479,7 +479,21 @@ def main():
     for t in tests:
         groups.setdefault(t["group"], []).append(t["id"])
 
+    # The family Chapter 4 prints: the tests no pre-registration covers. Every
+    # other group belongs to a pre-registered check, which the chapter reads
+    # against its own rule as a separate decision family.
+    def uncorrected(t):
+        return (t["group"] in ("decontam_253", "delong_vs_one_ref", "mechanism", "danger_rating")
+                or t["group"].startswith("ambiguity_gradient_"))
+    unc = [t for t in tests if uncorrected(t)]
+    unc_by_kind = {}
+    for t in unc:
+        kind = "ambiguity_gradient" if t["group"].startswith("ambiguity_gradient_") else t["group"]
+        unc_by_kind[kind] = unc_by_kind.get(kind, 0) + 1
+
     out = {
+        "uncorrected_family": {"n_tests": len(unc), "by_kind": unc_by_kind,
+                               "ids": [t["id"] for t in unc]},
         "provenance": {
             "generated_by": "accord/stats/test_register.py",
             "method": ("The family is enumerated in the script, one entry per "
@@ -538,6 +552,10 @@ def main():
              ("value", value)])
 
     put("n_tests", out["n_tests"], "n_tests")
+    put("uncorrected_family.n_tests", out["uncorrected_family"]["n_tests"],
+        "uncorrected_family.n_tests")
+    for kind, n in unc_by_kind.items():
+        put(f"uncorrected_family.by_kind.{kind}", n, f"uncorrected_family.by_kind.{kind}")
     put("bonferroni_threshold", out["bonferroni_threshold"], "bonferroni_threshold")
     put("familywise_upper_bound", out["familywise_upper_bound"], "familywise_upper_bound")
     put("n_dependence_groups", out["n_dependence_groups"], "n_dependence_groups")

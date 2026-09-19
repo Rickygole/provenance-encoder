@@ -94,7 +94,7 @@ average precision.
 \caption{The four pipeline stages and what survived each check}
 \includegraphics[width=0.98\linewidth]{figures/fig-pipeline-status.pdf}
 \label{fig:pipeline-status}
-\apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture, and (4) evaluation. Stage $1$'s precision is not established; reading stage $2$'s recall as discrimination is unsupported; stage $3$'s credited components are unsupported by code audit (an initialisation artifact, a confounded rule-type head, an untrained harm head); stage $4$, evaluation, is a bounded null whose interval lies below the simulated Mann-Whitney floor. The vertical rail labelled ``the same selected exemplar'' marks shared input, not a failed check: stages $2$, $3$, and $4$ each consumed the one exemplar that stage $1$ selected by position.}
+\apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture, and (4) evaluation. Stage $1$'s precision is not established; reading stage $2$'s recall as discrimination is unsupported; stage $3$'s credited components are unsupported by code audit (an initialisation artifact, a confounded rule-type head, an untrained harm head); stage $4$, evaluation, is a bounded null whose interval lies below the simulated Mann-Whitney floor and which 1 or 2 targeted relabels would undo. The vertical rail labelled ``the same selected exemplar'' marks shared input, not a failed check: stages $2$, $3$, and $4$ each consumed the one exemplar that stage $1$ selected by position.}
 \end{figure}
 
 \begin{figure}[!tbp]
@@ -112,9 +112,7 @@ candidate mentions, an exemplar selector that picks from that set by position in
 together. Here the Rules 1 and 2 selector indexed candidates positionally
 (Figure~\ref{fig:exemplar}), and the pool's reported precision carried no
 trace of it, because no metric compares displayed evidence against
-triggering evidence. The pattern is not hypothetical: applied to the rebuilt
-candidate pool, the original positional rule puts the displayed exemplar outside
-the trigger set for $41.4$ percent of Rules 1 and 2 candidates. That figure is a design rate. The rate on the annotated exemplars cannot be
+triggering evidence. The pattern is not hypothetical. On the rebuilt candidate pool the original positional rule misplaces the exemplar for $41.4$ percent of Rules 1 and 2 candidates, a design rate set out under the third contribution below. The rate on the annotated exemplars cannot be
 recovered because the candidate schema does not record which mention fired.
 Three instruments were tried instead, and they give $0$ (the key join), $0.4745$ (the
 reconstruction), and $0.9315$ (the direct extractor, $69$ of whose $136$ wrong rows have no classified action on
@@ -138,8 +136,7 @@ predicts positive for nearly the whole pool, and its ranking is not
 distinguishable from chance, its bootstrap interval excluding an AUROC above
 $0.7034$ (Section~``\nameref{sec:res-rq4}''). Its ranking of the gold pairs is
 also not distinguishable from its weak labeller's ($0.5145$ against
-$0.5185$). That comparison, requested after the main results, is consistent with a student reproducing its teacher without being evidence for it: two unrelated chance-level
-rankings would fit its interval too.
+$0.5185$). That comparison, requested after the main results, cannot show that the student reproduces its teacher: two unrelated chance-level rankings would fit its interval too.
 
 \section{Research Questions}
 \label{sec:intro-rqs}
@@ -211,11 +208,8 @@ what this project's own instrument can show?
 simulation puts 80 percent power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test and
 $0.8084$ for the registered decision rule, and the three seeds of the decontaminated ensemble are not
 distinguishable from chance. The reading is fragile. Lifting the point estimate past its floor takes $7$ relabelled positives of
-the $12$, once each flip is held to the floor its remaining labels set. The bounded null is defined by
-its interval, however, and a pre-registered check found that 2 greedily chosen relabels lift the
-decontaminated ensemble's upper end past $0.7466$ and that 1 is enough for the plain control detector
-retrained on reproducible labels. Behind those labels stand $46$ ambiguous pairs and a single annotator
-with no reliability figure (Section~``\nameref{sec:disc-limits}''). Average
+the $12$, when each flip is compared with the floor recomputed for the positives that remain. The bounded null is defined by
+its interval, however, and a pre-registered check found that 1 greedily chosen relabel lifts the upper end past $0.7466$ for the plain control detector retrained on reproducible labels and that 2, not resolved from 1, do so for the decontaminated ensemble. Making an interval exclude chance takes 3 to 6. Those labels come from a single annotator with no reliability figure, and the check does not reach the $46$ ambiguous pairs (Section~``\nameref{sec:disc-limits}''). Average
 precision was chosen after its value was known. On it, a permutation of the
 gold labels against fixed scores puts a bag-of-words model trained on the weak
 labels ($p = 0.0159$) and an inference model never trained on them
@@ -244,8 +238,7 @@ power matters to the first alone, through its evaluation verdict (RQ4).
 \begin{enumerate}
 \item \textbf{A stage-by-stage audit.} Three of the four stage readings did not
 survive their checks (one not established, two unsupported); the fourth, the
-evaluation's near-chance reading, survived as a bounded null
-(Figure~\ref{fig:pipeline-status} and RQ1 to RQ4 above).
+evaluation's near-chance reading, survived as a bounded null (Figure~\ref{fig:pipeline-status} and RQ1 to RQ4 above). The bound is conditional on the labels, since 1 or 2 targeted relabels undo it.
 
 \item \textbf{A feasibility check on the weak labeller's marginal.} The
 maximum agreement under fixed marginals and the minimum attainable
@@ -255,7 +248,7 @@ before training, needing only a base rate from a small expert-labelled pilot. It
 prospective use here: the expert labels came later, and the
 pre-registered prospective version could run in neither of its 2 attempts, each ruled invalid by its own gate.
 At $261$ flagged of $299$ against $12$ confirmed, no outcome could have
-rejected the null: the smallest attainable one-sided $p$ is $0.1894$. The measured MCC, $0.0269$, sits below the $0.0780$ ceiling, as it must, and its test against chance returns $p =
+rejected the null: the smallest attainable one-sided $p$ is $0.1894$. The measured MCC, $0.0269$, is under the $0.0780$ ceiling, and its test against chance returns $p =
 0.5347$, and with that marginal a rejection was never available. The ceiling bounds thresholded
 labels and leaves graded scores free. Among the local labellers the gate fails for Llama 3 8B alone. Failing it
 means the pilot had no power to test the labeller, and passing it certifies
@@ -277,9 +270,7 @@ occurred here.
 \end{enumerate}
 
 The detector's ranking null is a supporting result. No AUROC effect is found on $G_{253}$ above the simulated Mann-Whitney floor, $0.7466$, or the simulated
-floor of the registered rule, $0.8084$. The pre-registered planted-defect benchmark, a synthetic analogue of the rule-group comparison whose defect is planted in the Rules 3 and 4
-group where the real one is in Rules 1 and 2, did
-not reach its required firing rate at either rate tried. The two-sided Fisher test of Rules 1 and 2 against Rules 3 and 4 returned a null that reflects
+floor of the registered rule, $0.8084$. The pre-registered planted-defect benchmark, a synthetic analogue of the rule-group comparison (Chapter~\ref{ch:results}), did not reach its required firing rate at either rate tried. The two-sided Fisher test of Rules 1 and 2 against Rules 3 and 4 returned a null that reflects
 the test's power and says nothing about the rule groups: the smallest rise of the Rules 1 and 2 rate detectable at
 80 percent power is $0.094$ (exact power $0.0495$ at the observed rates).
 

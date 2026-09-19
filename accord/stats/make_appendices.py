@@ -4,19 +4,11 @@ from their sources.
 
 Appendix A  one line per correction and per post-freeze revision
 Appendix B  provenance of every reported quantity, grouped by experiment
-Appendix B pointer  the short section (msu_appB_pointer.tex) that tells the
-    reader the register and the claim trace are released with the analysis
-    code, and states how big each one is
 
-msu_appB_pointer.tex used to be typed by hand. Its counts (how many values the
-register holds, how many numeric occurrences the trace resolves, how many are
-unique against how many are ambiguous, how many are untraced) drifted from the
-generated numbers during an audit, because a hand-typed number does not move
-when the script behind it is corrected. It is generated here now, from the
-register itself and from results/accord/CLAIM_TRACE.json, the artifact
-accord/stats/trace_claims.py writes: run that script before this one, or
-before reading this file's printed counts as current, since the pointer's
-trace figures are only as fresh as the last time trace_claims.py ran.
+msu_appA_corrections.tex and msu_appB_pointer.tex, the two appendix texts the
+thesis binds, are written by hand. This script checks Appendix A's two counts
+against the record and leaves the prose alone; sync_appendix_counts.py keeps
+the pointer's counts in step with the register and the claim trace.
 
 Run:  python3 accord/stats/make_appendices.py
 """
@@ -257,45 +249,17 @@ def main():
     # nobody reads sequentially; the generator owns both files so they cannot drift.
     (THESIS / "msu_appA_full.tex").write_text("\n".join(a) + "\n")
 
-    changed = [e for e in entries if e[0] in HEADLINE] if "HEADLINE" in dir() else []
-    ptr = [r"\chapter{The Correction Record}", r"\label{app:corrections}", "",
-           f"This work issued {len(entries)} numbered corrections and {len(revs)} "
-           "post-freeze revisions. Each withdrew, narrowed or confirmed a claim "
-           "against evidence. They are summarised rather than reprinted here "
-           "because the complete record runs to twenty pages of table that no "
-           "reader reads in sequence, and the full text of every one of them is "
-           "released with the analysis code rather than bound, which is the "
-           "same treatment given to the register and the claim trace. The full "
-           "correction record is released with the analysis code, so every "
-           "entry summarised below can be read in its original form.", "",
-           "Ten of them changed a number this thesis prints, and those ten are "
-           "the ones a reader is most likely to want to follow: they are named "
-           "by identifier in the released record and cross-referenced from the "
-           "chapters that carry their corrected values. The most consequential "
-           f"is C95 (of {len(entries)}), the largest single withdrawal in the "
-           "record, named here by identifier rather than by its position in "
-           "the record because the record kept growing after it: C95 "
-           "withdrew every result this work obtained by sending sentence "
-           "pairs to a hosted model service, on the authority of PhysioNet's "
-           "guidance of 24 September 2025, which requires that no third-party "
-           "service retain the data and strongly recommends locally deployed "
-           "models; under it the hosted routes are withdrawn, whatever an "
-           "earlier post had listed. That removed the only "
-           "variation in labeller capability the design contained, so the "
-           "question of whether over-calling magnitude belongs to the pool or "
-           "to the labeller is open again rather than answered, and this thesis "
-           "says so rather than returning to the attribution an earlier "
-           "correction had already retracted. The withdrawal is enforced by the "
-           "numeric provenance gate rather than by this sentence: every "
-           "withdrawn value is held under a namespace the gate excludes from "
-           "the set a reported figure may resolve against, because the "
-           "preceding withdrawal in this record was enforced by prose alone and "
-           "would have resolved a withdrawn digit anywhere in the thesis "
-           "without complaint.", "",
-           "The record is kept because a thesis about controls that reported no "
-           "failures of its own would be evidence of a project that had stopped "
-           "checking, not of one that had nothing to find.", ""]
-    (THESIS / "msu_appA_corrections.tex").write_text("\n".join(ptr) + "\n")
+    # msu_appA_corrections.tex is written by hand. This script used to write it
+    # from a template, and a routine rerun replaced audited prose with the
+    # template's older wording. The script now only checks that the two counts
+    # the appendix prints still match the record.
+    app_a = (THESIS / "msu_appA_corrections.tex").read_text()
+    want = (f"{len(entries)} distinct numbered corrections and {len(revs)} "
+            "post-freeze revisions")
+    if want not in " ".join(app_a.split()):
+        raise SystemExit(
+            f"msu_appA_corrections.tex does not say '{want}'; the correction "
+            "record has moved and the appendix must be updated by hand.")
 
     F = json.loads((ROOT / "results" / "accord" / "VERIFIED_FACTS.json").read_text())
     groups = {}
@@ -315,63 +279,11 @@ def main():
     b += [r"\end{longtable}", r"\doublespacing", ""]
     (THESIS / "msu_appB_provenance.tex").write_text("\n".join(b) + "\n")
 
-    # ---- Appendix B pointer ----
-    # This short section used to be typed by hand, and its numbers (how many
-    # values the register holds, how many occurrences the trace resolves, the
-    # unique/ambiguous split, the untraced count) moved during an audit without
-    # any of the hand-typed figures moving with them: none of them appeared
-    # anywhere in the generated output any more. Every number below is read
-    # from the register (already loaded as F, above) or from
-    # results/accord/CLAIM_TRACE.json, the artifact trace_claims.py writes; see
-    # that script's own n_distinct / n_unique_rows / n_ambiguous_rows fields,
-    # computed once over the same dedup its Appendix C table uses, rather than
-    # recomputed a second way here.
-    trace_path = ROOT / "results" / "accord" / "CLAIM_TRACE.json"
-    if not trace_path.exists():
-        raise SystemExit(
-            "results/accord/CLAIM_TRACE.json is missing; run "
-            "accord/stats/trace_claims.py before this script so the pointer "
-            "numbers below have an artifact to be read from, rather than "
-            "typing a placeholder here that would drift the same way the old "
-            "hand-typed pointer did.")
-    trace = json.loads(trace_path.read_text())
-    n_scanned = trace["n_traced"] + trace["n_untraced"]
-    survey_n = int(F["survey.n_included"]["value"])
-
-    pointer = [
-        r"% Flows directly after the correction record instead of opening its own page.",
-        r"% The label binds to Appendix A's counter, so chapter references print the",
-        r"% appendix this text actually lives in.",
-        r"% Numbered rather than starred: four chapters reference this section by number,",
-        r"% and a \label on a starred section captures the previous section counter, which",
-        r"% made every one of those references print the number of A.3 instead.",
-        r"\section{Reference Tables Released with the Code}",
-        r"\label{app:provenance}",
-        "",
-        "Two reference tables belong to the record behind this thesis, machine-generated "
-        "by the appendix builder and the claim tracer in the analysis code released with "
-        "this thesis. Both are released with that code rather than bound, "
-        "because together they run to more than thirty pages of table, none of which is "
-        "read sequentially. The first is the "
-        "register of "
-        f"reported quantities: {len(F)} values, each extracted from a stored result file "
-        "by script rather than transcribed by hand, listed with the file it was read from. "
-        f"The second is the claim and evidence trace, which scans the chapters for "
-        f"{n_scanned} numeric literals and resolves {trace['n_traced']} of them against "
-        f"the register, at the precision printed: of the {trace['n_distinct']} distinct "
-        f"registered quantities the trace names, {trace['n_unique_rows']} are matched "
-        f"uniquely and {trace['n_ambiguous_rows']} are matched among more than one "
-        "candidate and marked as indicative rather than definitive. The remaining "
-        f"{trace['n_untraced']} literals are not resolved to any registered value and are "
-        "listed as untraced rather than omitted.", "",
-    ]
-    (THESIS / "msu_appB_pointer.tex").write_text("\n".join(pointer) + "\n")
+    # msu_appB_pointer.tex is written by hand as well. Its counts are kept in
+    # step with the register and the claim trace by sync_appendix_counts.py.
 
     print(f"Appendix A: {len(entries)} corrections, {len(revs)} revisions")
     print(f"Appendix B: {len(groups)} groups covering {len(F)} values")
-    print(f"Appendix B pointer: register {len(F)}, trace {n_scanned} scanned / "
-          f"{trace['n_traced']} resolved / {trace['n_untraced']} untraced, "
-          f"survey {survey_n}")
 
 
 if __name__ == "__main__":

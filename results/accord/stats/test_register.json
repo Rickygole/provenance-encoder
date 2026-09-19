@@ -1,9 +1,8 @@
 {
- "bonferroni_threshold": 0.0010869565217391304,
+ "bonferroni_threshold": 0.0010638297872340426,
  "clears_bonferroni": [
   "mcnemar_promptsens_granite33_8b",
-  "mcnemar_promptsens_qwen3_8b",
-  "welch_anisotropy"
+  "mcnemar_promptsens_qwen3_8b"
  ],
  "dependence_groups": {
   "ambiguity_gradient_granite33_8b_ollama": [
@@ -22,9 +21,6 @@
    "fisher_ambiguity_qwen3_8b_zs_local",
    "fisher_ambiguity_qwen3_8b_fs_local"
   ],
-  "anisotropy": [
-   "welch_anisotropy"
-  ],
   "c109_llama3_8b_reversed_paraphrases": [
    "perm_c109_llama3_8b_rev_agree",
    "perm_c109_llama3_8b_rev_follow",
@@ -32,7 +28,9 @@
   ],
   "danger_rating": [
    "spearman_full299_harm",
-   "spearman_pos12_harm"
+   "spearman_pos12_harm",
+   "spearman_full299_contra_prob",
+   "spearman_pos12_contra_prob"
   ],
   "decontam_253": [
    "mw_seed0",
@@ -88,18 +86,16 @@
   ]
  },
  "familywise_bound_is_upper_only_because": "the tests are positively dependent, in 13 dependence groups of more than one test: five Mann-Whitney tests on one set of 253 rows (decontam_253), five DeLong tests against a single reference run (delong_vs_one_ref), two Spearman correlations against one rating (danger_rating), one Mann-Whitney and two DeLong tests off a single NLI baseline run (nlibaseline), one McNemar and three Mann-Whitney tests per C103 model under three prompts on the same items (promptsens_llama3_8b, promptsens_granite33_8b, promptsens_qwen3_8b), four permutation tests off one fitted TF-IDF model on nested bases (tfidfperm_taska), four pairs of one model under two prompts each for the local ambiguity gradient (ambiguity_gradient_*_ollama), and three permutation tests off llama3:8b's three C109 reversed-prompt paraphrases on one basis (c109_llama3_8b_reversed_paraphrases). The true familywise rate is lower and this thesis does not compute it.",
- "familywise_upper_bound": 0.9055317558622624,
+ "familywise_upper_bound": 0.9102551680691493,
  "holm_rejections_for_reference": [
   "mcnemar_promptsens_granite33_8b",
-  "mcnemar_promptsens_qwen3_8b",
-  "welch_anisotropy"
+  "mcnemar_promptsens_qwen3_8b"
  ],
- "n_dependence_groups": 17,
- "n_tests": 46,
+ "n_dependence_groups": 16,
+ "n_tests": 47,
  "nominally_significant_uncorrected": [
   "mcnemar_promptsens_granite33_8b",
   "mcnemar_promptsens_qwen3_8b",
-  "welch_anisotropy",
   "mw_promptsens_llama3_8b_reversed",
   "mw_promptsens_granite33_8b_reversed",
   "perm_c109_llama3_8b_rev_agree",
@@ -234,16 +230,6 @@
    "where": "sec:r-rule-mechanism"
   },
   {
-   "group": "anisotropy",
-   "id": "welch_anisotropy",
-   "p": 8.48e-05,
-   "p_is_derived": true,
-   "source": "derived: Welch two-sample t on the registered anisotropy summaries, control mean/std/n against the matched clinical mean/std/n; see stats.anisotropy_welch.* in VERIFIED_FACTS",
-   "test": "Welch two-sample t",
-   "what": "control condition vs matched clinical pairs",
-   "where": "sec:res-rq3"
-  },
-  {
    "group": "danger_rating",
    "id": "spearman_full299_harm",
    "p": 0.9991,
@@ -261,6 +247,26 @@
    "source": "results/accord/step5_ranking.json::positives_only_n12_harm_score_vs_danger_rating.p_value",
    "test": "Spearman rank correlation",
    "what": "harm score vs danger rating, 12 positives",
+   "where": "sec:r-multiplicity"
+  },
+  {
+   "group": "danger_rating",
+   "id": "spearman_full299_contra_prob",
+   "p": 0.6224,
+   "p_is_derived": false,
+   "source": "results/accord/step5_ranking.json::full_299_contra_prob_vs_danger_rating.p_value",
+   "test": "Spearman rank correlation",
+   "what": "contradiction probability vs danger rating, all 299",
+   "where": "sec:r-multiplicity"
+  },
+  {
+   "group": "danger_rating",
+   "id": "spearman_pos12_contra_prob",
+   "p": 0.3833,
+   "p_is_derived": false,
+   "source": "results/accord/step5_ranking.json::positives_only_n12_contra_prob_vs_danger_rating.p_value",
+   "test": "Spearman rank correlation",
+   "what": "contradiction probability vs danger rating, 12 positives",
    "where": "sec:r-multiplicity"
   },
   {
@@ -583,5 +589,40 @@
    "what": "llama3:8b, P_rev_compatible AUROC vs shuffled labels, G_253",
    "where": "C109"
   }
- ]
+ ],
+ "uncorrected_family": {
+  "by_kind": {
+   "ambiguity_gradient": 8,
+   "danger_rating": 4,
+   "decontam_253": 5,
+   "delong_vs_one_ref": 5,
+   "mechanism": 1
+  },
+  "ids": [
+   "mw_seed0",
+   "mw_seed1",
+   "mw_seed2",
+   "mw_ensemble",
+   "mw_contaminated",
+   "delong_ensemble_299",
+   "delong_seed42_299",
+   "delong_seed123_299",
+   "delong_seed2024_299",
+   "delong_ensemble_134",
+   "fisher_mechanism",
+   "spearman_full299_harm",
+   "spearman_pos12_harm",
+   "spearman_full299_contra_prob",
+   "spearman_pos12_contra_prob",
+   "fisher_ambiguity_llama3_8b_zs_local",
+   "fisher_ambiguity_llama3_8b_fs_local",
+   "fisher_ambiguity_granite33_8b_zs_local",
+   "fisher_ambiguity_granite33_8b_fs_local",
+   "fisher_ambiguity_qwen3_8b_zs_local",
+   "fisher_ambiguity_qwen3_8b_fs_local",
+   "fisher_ambiguity_qwen3_14b_zs_local",
+   "fisher_ambiguity_qwen3_14b_fs_local"
+  ],
+  "n_tests": 23
+ }
 }

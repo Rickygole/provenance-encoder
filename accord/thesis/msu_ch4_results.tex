@@ -64,7 +64,7 @@ A board-certified pharmacist annotated 299 candidate pairs: 12 contradictions,
 241 not contradictions, and 46 ambiguous. The base rate is $12/299$ on $G_{299}$,
 $12/253$ on $G_{253}$, $6/134$ on $G_{134}$, and $6/108$ on $G_{108}$. The majority-class baseline has
 average precision $0.0401$ on $G_{299}$, $0.0474$ on $G_{253}$, and $0.0448$ on
-$G_{134}$, the no-skill lines for every average precision in this chapter. A pool at a base rate near four percent is not itself a failure,
+$G_{134}$, the no-skill lines for every average precision in this chapter. A pool at a base rate near 4 percent is not itself a failure,
 because rule-based mining is a recall device and a low-precision pool is its
 expected output. What fails is the use made of the figure downstream, where it is taken as the
 pool's true contradiction rate and every over-calling ratio is divided by it; the
@@ -542,7 +542,7 @@ through AWS Bedrock; an earlier baseline sent pairs to GPT-4o through OpenAI's A
 September 2025 \citep{physionet2025llm} permits a hosted service only under conditions this project could not verify
 for the runs it had made, so those runs are withdrawn with every number, table, and figure computed from one
 (Section~``\nameref{sec:m-ethics},'' Chapter~\ref{ch:method}). Whether a frontier-scale labeller removes the
-over-calling measured at eight billion parameters is therefore not established; the local finding alone is
+over-calling measured at 8 billion parameters is therefore not established; the local finding alone is
 supported.
 
 \subsection{A within-family scale step}
@@ -746,8 +746,7 @@ and drives its gradient towards zero.
 as a scaled scalar into the model's prior-feature vector and predicted from the
 same forward pass. This belongs to
 the documented family of shortcut learning \citep{geirhos2020shortcut,
-zech2018generalization}; the checkable point is more specific, that an auxiliary head
-whose target is derivable from its inputs is not an auxiliary task. In-domain, the
+zech2018generalization}; the checkable point is the one Chapter~\ref{ch:method} states, that the head's target is derivable from its inputs. In-domain, the
 rule-type head reaches a macro $F_1$ of $0.9603$, which is therefore
 uninterpretable as evidence of learning. Values on two
 secondary cohorts were also recorded, but the code that produced them does not
@@ -916,8 +915,7 @@ either way. Among the 15 highest-scored pairs, the decontaminated seeds recover 
 0 true contradictions on $G_{253}$; on $G_{299}$ the three control seeds
 recover 1, 0, and 0, their ensemble recovers 1, and the contaminated released run,
 which is not a control run, recovers 0, against expected counts of
-$15 \times 12/253$ and $15 \times 12/299$ under random ordering. A count of one
-is unremarkable, and that is the point: the model's most confident predictions
+$15 \times 12/253$ and $15 \times 12/299$ under random ordering. A count of 1 is what random ordering gives: the model's most confident predictions
 are indistinguishable from a random draw.
 
 Table~\ref{tab:operating} reports the configured threshold of $0.5$. A
@@ -967,12 +965,26 @@ upper end after each relabel, in both directions of error and with the floor hel
 reproduced both row-level intervals to four decimal places. For the decontaminated ensemble, 1 confirmed positive
 relabelled negative lifts the upper end to $0.7422$ and a second lifts it to $0.7760$; 1 negative relabelled positive
 lifts it to $0.7373$ and a second to $0.7673$. The plain control detector retrained on reproducible labels tips after
-a single relabel in either direction, with upper ends of $0.7591$ and $0.7530$. The rule fixed before the run read any
-count of 1 or 2 as the bounded null failing to survive that many wrong labels, and that is the outcome recorded. By
+a single relabel in either direction, with upper ends of $0.7591$ and $0.7530$. The rule was fixed before the run: a count of 1 or 2 means the bounded null does not survive that many wrong labels. That is the outcome recorded. By
 the criterion this thesis uses, the bounded null therefore rests on 1 or 2 labels, where the point estimate suggested
-$7$. The search picks the most damaging label first, which makes these counts a bound on targeted error that says
-little about ordinary error. Because the search is greedy and follows the point AUROC, a count of 2 is also an upper
-bound on the smallest number of relabels that would tip the interval.
+$7$. The caveat about greedy search above applies here too, and because the search follows the point AUROC, a count of 2
+is only an upper bound on the smallest number of relabels that would tip the interval.
+
+The decontaminated ensemble's count of 2 is not resolved from 1. After 1 positive is relabelled, its upper end,
+$0.7422$, is under the floor by less than the choice of bootstrap seed moves that ensemble's upper end ($0.7034$
+against $0.6971$, below). After 1 negative is relabelled, the upper end, $0.7373$, already exceeds the analytic
+minimum detectable AUROC, which falls from $0.7355$ to $0.7279$ with 13 positives. The floor was held at $0.7466$
+although every relabel changes the class counts. Holding it fixed favours the null when negatives are relabelled
+positive and works against it in the other direction, where each flip leaves fewer positives and a higher floor. The
+relabelled intervals also resample single pairs, because the cluster bootstrap below was run on the labels as
+annotated and on no relabelled set.
+
+The same run counts the other half of the bounded null, the interval containing $0.5$. The registration recorded the
+lower ends as descriptive, and they decide nothing. The lower end first exceeds $0.5$ after 3 positives are relabelled
+negative for the decontaminated ensemble ($0.5017$) and after 4 for the plain control detector retrained on
+reproducible labels ($0.5571$); relabelling negatives as positive takes 6 ($0.5128$) and 5 ($0.5111$). In the terms
+of the bounded null's definition, 1 or 2 targeted relabels turn the reading inconclusive, and 3 to 6 turn it into a
+rejection of chance.
 
 \textbf{Pairs that share an admission or a subject.} The check's third part answers whether the intervals above are
 too narrow. The $253$ pairs of $G_{253}$ come from $231$ admissions and $225$ subjects; $20$ admissions and $24$
@@ -981,10 +993,7 @@ subjects, in place of single pairs gives the decontaminated ensemble upper ends 
 $0.6971$ by row at the same seed, and the plain control detector retrained on reproducible labels $0.7230$ and $0.7220$, against $0.7231$ by row at
 that seed. Clustering therefore moves the upper end less than the choice of seed does: by row, the two ensembles'
 upper ends are $0.7034$ and $0.7196$ at seed 42, reported above, against $0.6971$ and $0.7231$ at the check's seed.
-With so few shared clusters that is the expected result. The check's rule, fixed before the run, was that the bounded
-null holds under clustering only if all four clustered upper ends stay below the simulated Mann-Whitney floor
-$0.7466$. All four do, the closest by $0.0236$, and the run first reproduced both row-level intervals to four decimal
-places. After the result was seen, and outside the registered rule, the four were also compared with $0.7318$, the
+With so few shared clusters that is the expected result. The check's rule, fixed before the run, required all four clustered upper ends to stay below the simulated Mann-Whitney floor $0.7466$. All four do, the closest by $0.0236$, so the check met its rule, and its validity condition, the row-level intervals at four decimal places, was satisfied. After the result was seen, and outside the registered rule, the four were also compared with $0.7318$, the
 alternate construction's two-sided Mann-Whitney floor, and all four lie below it.
 
 \subsection{The paired comparison}
@@ -995,7 +1004,7 @@ The test is paired because both models score the identical pairs, which removes 
 pair-to-pair variation that dominates a set this small. Each row reports the difference in area,
 its standard error, and the resulting $z$, enough for a reader to check the ratio.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \caption{Paired ROC comparisons by DeLong test}
 \centering
 \small
@@ -1065,9 +1074,7 @@ either set, $p = 0.1944$ on $G_{299}$ and $p = 0.1970$ on $G_{253}$. Average
 precision was chosen as this test's statistic after its value was
 known. The pre-registered bag-of-words robustness checks found the average-precision
 result survives $11$ of $12$ leave-one-positive-out drops and comes
-from a training set sharing $0$ pairs and $0$ subjects with gold.
-
-The
+from a training set sharing $0$ pairs and $0$ subjects with gold. The
 off-the-shelf NLI model, never trained on the weak labels, is also
 significant on average precision when each system is tested against its own
 label-permutation null ($p = 0.01335$ on $G_{253}$, $0.0120$ on
@@ -1084,20 +1091,12 @@ superseded. The replacement, a pre-registered rank-based paired test,
 was written after those two results had been seen, and the choice between the two statistics was
 therefore not blind to their outcomes. It permutes within-system ranks on $G_{253}$ and separates no two of
 the three: TF-IDF minus the decontaminated ensemble $p = 0.17875$, NLI minus the decontaminated ensemble
-$p = 0.1452$, TF-IDF minus NLI $p = 0.96465$. This is an
-average-precision signal that a label-free model also finds; the robustness
-checks' registered interpretation calls it a surface lexical or
-semantic-similarity signal. It is not evidence that the weak labels carried
-signal, and not evidence that either model exceeds the detector. Nor does a gold-only retrain
-find it. A second pre-registered check, a
-nested cross-validation variant fit only on
+$p = 0.1452$, TF-IDF minus NLI $p = 0.96465$. The bag-of-words model's average-precision signal is one a label-free model also finds; the robustness checks' registered interpretation calls it a surface lexical or
+semantic-similarity signal. The weak labels are therefore not shown to have carried signal, and neither model is shown to exceed the detector. A gold-only retrain does not find the signal either. A further pre-registered check, a nested cross-validation variant fit only on
 the 253 gold rows and refit and re-selected inside every outer fold so no
 weak-label information reaches it, pools to an out-of-fold AUROC of
 $0.3434$, AP $0.0362$, one-sided Mann-Whitney $p = 0.9666$, worse than a
-constant-score floor. This is not evidence against a precision signal
-existing at this sample size; it is evidence that this particular
-gold-only estimator, retrained from scratch inside a 12-fold
-leave-one-positive-out split, does not find it.
+constant-score floor. That result describes one estimator, retrained from scratch inside a 12-fold leave-one-positive-out split; a precision signal could still exist at this sample size.
 
 The pre-registered inference-model baseline, an off-the-shelf natural-language-inference model,
 the architecture of \citet{liu2019roberta} trained for entailment and not for
@@ -1123,12 +1122,11 @@ Table~\ref{tab:m-mde} in Chapter~\ref{ch:method} gives the minimum detectable
 AUROC at 80 percent power for each evaluation set: $0.7355$ on $G_{253}$, $0.7350$
 on $G_{299}$, $0.8058$ on $G_{134}$, and $0.8064$ on $G_{108}$. On $G_{253}$ the
 measured $0.5145$ is far below that floor, and Figure~\ref{fig:power} marks the
-simulated floors at this evaluation's 12 positives. This cuts both ways. At 12
+simulated floors at this evaluation's 12 positives. The floor limits the reading in both directions. At 12
 positives the evaluation could not have detected a useful detector unless it
 was very good, so the null does not establish that the task is unsolvable.
 It does establish that this pipeline produced a point estimate far below the
-detectable range, and it fixes the size of the annotation effort a future
-attempt needs.
+detectable range (Section~``\nameref{sec:conc-future}'').
 
 \begin{figure}[!htbp]
 \centering
@@ -1242,9 +1240,7 @@ defect this subsection exists to prevent.
 \section{Metrics Near the Base Rate}
 \label{sec:res-metrics}
 
-At 12 positives against 241 negatives the standard summary statistics do
-something mechanical. The behaviour is arithmetic: it follows from the class
-counts and would be the same for any system scored on them, and it is reported
+At 12 positives against 241 negatives the standard summary statistics are driven by the class counts. Their behaviour follows from those counts and would be the same for any system scored on them, and it is reported
 apart from the systems. Balanced accuracy \citep{brodersen2010balanced} is the unweighted mean of
 sensitivity and specificity, so it prefers a classifier that forgoes one true positive
 whenever doing so avoids more than $Q/P$ false positives, where $Q/P$ is the
@@ -1259,7 +1255,7 @@ to be checked numerically. None of this is new
 chapter applies it to these class counts. Table~\ref{tab:mcc} gives Matthews correlation and its
 bootstrap interval for the two systems this pipeline produced.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \caption{Matthews correlation on the 253 non-ambiguous pairs}
 \centering
 \small
@@ -1307,7 +1303,5 @@ almost every confirmed case and returns a positive MCC. What this evaluation
 can resolve is bounded per rule by the power simulation. The feasibility gate
 covers the evaluation baseline, which could not have rejected the null at any
 outcome; it was not run on the ACCORD row, and no ceiling claim is made about
-that one. What the sample-size reading never covered is a comparison that lives
-on the $241$ clear negatives, not on the 12 positives, and over-calling
-is measured there.
+that one. The sample-size limit concerns the 12 positives. Over-calling is measured on the $241$ clear negatives, which that limit does not touch.
 
