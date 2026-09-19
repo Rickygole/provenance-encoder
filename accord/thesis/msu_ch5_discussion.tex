@@ -103,9 +103,7 @@ this biased needs gold labels on the same distribution
 The teacher-student comparison finds the detector's ranking of the gold pairs
 not distinguishable from its labeller's. Whether that prior scales with
 capability or vendor is unknown, since the hosted comparisons are
-withdrawn. What survives is that the weak labeller's marginal was a
-property nobody checked before training on it \citep{pangakis2023validation},
-and how far it over-calls is a function of how it is asked.
+withdrawn. What survives is that nobody checked the weak labeller's marginal before training on it \citep{pangakis2023validation}, and that the size of its over-calling depends on the prompt.
 
 \subsection{Architecture: unsupported by code audit}
 
@@ -123,7 +121,7 @@ therefore answered component by component.
 
 The detector's ranking is not distinguishable from chance under any check applied to it
 (Section~``\nameref{sec:res-rq4}''); the evaluation's power bounds what that null can be taken
-to show. The decontaminated ensemble did not rescue it, and because the rows sharing subjects
+to show. Decontamination did not rescue the ranking, and because the rows sharing subjects
 with the gold pairs carried the weak labeller's labels and never the pharmacist's, the overlap could
 do little to inflate agreement with gold. A plain BioMedBERT control model with none of ACCORD's
 credited components has a point estimate of $0.4692$ on $G_{299}$ and $0.5469$ on $G_{134}$. Its bootstrap intervals, $0.2880$ to $0.6553$ and $0.2418$ to $0.8281$, contain chance, but the control's own report reads them as inconclusive under its ceiling of $0.6$ and runs no test against chance, so no null is claimed for either stratum. The DeLong tests reported for these two sets (Table~\ref{tab:delong} in Chapter~\ref{ch:results}), $p = 0.9300$ on $G_{299}$ and $p = 0.4306$ on $G_{134}$,
@@ -223,8 +221,7 @@ thresholds and stays open to the threshold objection
 (Section~``\nameref{sec:res-rq4}''). Every ranking measurement on $G_{299}$ or
 $G_{253}$ rests on $12$ positives and every measurement on $G_{108}$ on $6$;
 each null carries its floor, and the two systems this pipeline produced are not
-ordered, both Matthews correlations within $0.05$ of chance. The limit is not
-that $12$ positives cannot separate anything: Granite 3.3 8B zero-shot
+ordered, both Matthews correlations within $0.05$ of chance. Twelve positives can still separate something: Granite 3.3 8B zero-shot
 sits at its marginal-implied ceiling with a one-sided hypergeometric $p$ of
 $0.0242$ on $G_{253}$. That is a claim about one thresholded labeller and does not reach the
 detector. In the prompt-wording confirmation the registered Llama 3 8B
@@ -251,8 +248,7 @@ false alarms against $9$ true contradictions at a recall of $0.75$. That alarm
 ratio, on a ranking already returned as a bounded null (Table~\ref{tab:disc-spine}), is why this
 system should not be deployed in any form; alert burdens at that ratio are separately associated
 with reduced acceptance \citep{vandersijs2006overriding,ancker2017alertfatigue}. A more specific hazard sits inside the
-architecture: the untrained harm head's outputs span $0.3977$ to $0.6096$, yet
-that earlier draft presented that range as a severity score, the
+architecture: the untrained harm head's outputs span $0.3977$ to $0.6096$, yet the draft preceding the correction record presented that range as a severity score, the
 most serious overstatement this project produced. A one-line
 diagnostic, printing the empirical range of every emitted score, catches it.
 
@@ -295,21 +291,16 @@ a wrong label could move a conclusion is bounded by counts, not estimates
 of how many labels are wrong: in the tipping-point and stratum-interval checks,
 $5$, $6$, and $7$ relabelled positives lift the decontaminated ensemble's AUROC
 past the three floors, and in a post hoc relabelling check $5$ relabelled flags
-move the least over-calling row below the public-text ceiling. That check has two limits: every flip its greedy search chose relabelled a confirmed positive
-as negative, which leaves pairs wrongly read as negative or ambiguous untested, and the post-flip
-AUROC is compared with floors computed for $12$ positives when the flips leave fewer.
-The pre-registered cluster-bootstrap check also computed the analytic floor at the counts the flips
-leave (Section~``\nameref{sec:res-rq4}''). Held to the floor its remaining labels set, the ensemble needs
-$7$ relabelled positives to tip where the fixed floor put the count at $5$: the seventh
-flip's AUROC, $0.8379$, is the first to clear its floor, $0.8230$. No simulated floor was
-recomputed at those counts. Read the other way, with the $46$ ambiguous pairs counted positive, the plain
+move the least over-calling row below the public-text ceiling. Section~``\nameref{sec:res-rq4}'' states the tipping-point check's two limits, and the
+cluster-bootstrap check answers the second: compared with the floor recomputed for the positives that
+remain, the ensemble needs $7$ relabelled positives to tip, where the fixed floor put the count at $5$. Under the opposite reading, with the $46$ ambiguous pairs counted positive, the plain
 control detector retrained on reproducible labels scores $0.4940$ on the $299$ pairs. The first reading needs $7$ of the $12$ positives to be wrong, and the second leaves the point estimate below chance.
 
 The interval's upper end reaches its floor sooner. The bounded null is
 defined by an upper end below $0.7466$, and the interval tipping-point check found that 2 greedily
 chosen relabels, in either direction, lift the decontaminated ensemble's upper end past that floor (to
 $0.7760$ and $0.7673$), while 1 is enough for the plain control detector retrained on reproducible
-labels ($0.7591$ and $0.7530$). By the criterion this thesis uses, the bounded null holds only if those 1 or 2 labels are right, and the ensemble's count of 2 is not resolved from 1. After 1 positive is relabelled negative its upper end, $0.7422$, is closer to the floor than a change of bootstrap seed moves it, and after 1 negative is relabelled positive the upper end, $0.7373$, already exceeds the analytic minimum detectable AUROC. The other half of the criterion lasts longer. It takes 3 to 6 targeted relabels, depending on the ensemble and the direction, before an interval excludes chance, so 1 or 2 wrong labels would leave the reading inconclusive without reversing it. The floor was held at $0.7466$ throughout, and the relabelled intervals resample single pairs. The caveat about greedy search applies (Section~``\nameref{sec:res-rq4}''), but no second annotator exists to confirm the labels in question. The checks also cannot reach the $46$ ambiguous pairs, which outnumber the $12$ positives
+labels ($0.7591$ and $0.7530$). By the criterion this thesis uses, the bounded null holds only if those 1 or 2 labels are right, and the ensemble's count of 2 cannot be separated from 1. Section~``\nameref{sec:res-rq4}'' gives the two single-relabel upper ends, $0.7422$ and $0.7373$, and why neither settles the count. The other half of the criterion lasts longer. It takes 3 to 6 targeted relabels, depending on the ensemble and the direction, before an interval excludes chance, so 1 or 2 wrong labels would leave the reading inconclusive without reversing it. The floor was held at $0.7466$ throughout, and the relabelled intervals resample single pairs. The caveat about greedy search applies (Section~``\nameref{sec:res-rq4}''), but no second annotator exists to confirm the labels in question. The checks also cannot reach the $46$ ambiguous pairs, which outnumber the $12$ positives
 nearly 4 to 1 and on which the decontaminated ensemble has no score.
 
 \paragraph{Invalid designs.} The public factorial experiment left too few
@@ -334,7 +325,7 @@ Chapter~\ref{ch:method} stands.
 \label{sec:disc-threats}
 
 Internal threats attack whether the measured relationships hold in this sample,
-external threats whether they hold anywhere else, construct threats whether the
+external threats whether they hold anywhere else, and construct threats whether the
 quantities measured are the quantities named. They are separated because they
 call for different responses. Table~\ref{tab:disc-internal} lists the internal
 threats and what this thesis does with each.
@@ -409,8 +400,7 @@ against a human-established base rate, measured on a small expert-labelled pilot
 training anything on its output. That feasibility gate applies the classical
 maximum of agreement under fixed marginals and the minimum attainable
 significance of a discrete test \citep{cohen1960kappa,tarone1990modified}: at
-$261$ flagged of $299$ the smallest attainable one-sided $p$ is $0.1894$, and it
-needs no statistical power. The gate's limit, stated in Chapter~\ref{ch:method}, is that it can clear a pilot to test a labeller
+$261$ flagged of $299$ the smallest attainable one-sided $p$ is $0.1894$, and the gate needs no statistical power. The gate's limit, stated in Chapter~\ref{ch:method}, is that it can clear a pilot to test a labeller
 and cannot vouch for the labeller: Granite 3.3 8B passes it, yet its graded score has AUROC $0.5467$.
 It also treats the pilot's confirmed positive count as known. A simple baseline's significance test belongs
 alongside any neural ranking result, and the exemplar check
@@ -426,8 +416,7 @@ per-test floors sit at $0.7466$ and $0.8084$, and on $G_{108}$, with $6$
 positives, the intervals are wider still. Those floors set the size of the
 annotation effort a future attempt needs before a modest detector could be told
 apart from chance. Re-annotation against corrected exemplars and a cohort with
-far more positives would test these conclusions; none is available from these
-data.
+far more positives would test these conclusions; neither is available from these data.
 
 \textbf{An independent set, a validated exemplar instrument, and larger local
 labellers.} A wording-specific prompt signal can only be tested on pairs it was
@@ -448,8 +437,7 @@ memory than the machine used here provides.
 Dangerous medication contradictions between nursing notes and discharge
 summaries do occur, and detecting them is worth the effort. At the size this thesis could
 annotate, no check told the detector's ranking of the gold pairs apart from chance. The thesis leaves a
-stage-by-stage audit (Table~\ref{tab:disc-spine}), a feasibility check on a weak
-labeller's marginal, and trigger-exemplar dissociation. The
+stage-by-stage audit (Table~\ref{tab:disc-spine}), a feasibility check on a weak labeller's marginal, and a named mining bug pattern, trigger-exemplar dissociation. The
 original selector design shows that bug on $41.4$ percent of the rebuilt pool's
 Rules 1 and 2 candidates, a design rate for that pool alone. A one-line assertion catches it once the candidate
 schema records which mention fired. None of that

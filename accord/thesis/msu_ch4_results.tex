@@ -109,8 +109,7 @@ rule-sensitive discrimination. Combined, Rules 3 and 4 account for 134 of the
 299 pairs and 6 of the 12 confirmed contradictions: no one rule holds
 the positives.
 
-Grouping the rules in pairs, Rules 1 and 2 together
-account for $165$ pairs with $6$ positives, a rate of $0.0364$; Rules 3 and 4 together account for
+When the rules are grouped in pairs, Rules 1 and 2 together account for $165$ pairs with $6$ positives, a rate of $0.0364$; Rules 3 and 4 together account for
 $134$ pairs with $6$ positives, a rate of $0.0448$. A Fisher exact test on that $2 \times 2$ table
 gives an odds ratio of $0.805$ at \mbox{$p = 0.7725$}; its exact power at the observed rates is $0.0495$,
 and the smallest rise of the Rules 1 and 2 rate above the base rate detectable at 80 percent power is
@@ -353,9 +352,8 @@ smallest one-sided hypergeometric $p$ the labeller's margins could return
 against the pharmacist's labels. That floor $p$ needs the labeller's realised flag count,
 so it is computable before any comparison with the gold labels, though not
 before the labeller runs. It says whether
-the test that follows could have rejected the null at all. It depends on the
-pilot's size as well as on the flag rate. A labeller that fails it was given a pilot that could
-not have tested it, and one that clears it has shown that a test was possible and nothing more.
+the test that follows could have rejected the null at all. Chapter~\ref{ch:method} states what a
+failed and a passed gate each show.
 
 This bounds a thresholded decision only. A labeller that emits a
 continuous score is not bounded this way, because the threshold that turns a
@@ -965,17 +963,17 @@ upper end after each relabel, in both directions of error and with the floor hel
 reproduced both row-level intervals to four decimal places. For the decontaminated ensemble, 1 confirmed positive
 relabelled negative lifts the upper end to $0.7422$ and a second lifts it to $0.7760$; 1 negative relabelled positive
 lifts it to $0.7373$ and a second to $0.7673$. The plain control detector retrained on reproducible labels tips after
-a single relabel in either direction, with upper ends of $0.7591$ and $0.7530$. The rule was fixed before the run: a count of 1 or 2 means the bounded null does not survive that many wrong labels. That is the outcome recorded. By
+a single relabel in either direction, with upper ends of $0.7591$ and $0.7530$. Under the rule fixed before the run, a count of 1 or 2 means the bounded null does not survive that many wrong labels, and that is the outcome recorded. By
 the criterion this thesis uses, the bounded null therefore rests on 1 or 2 labels, where the point estimate suggested
 $7$. The caveat about greedy search above applies here too, and because the search follows the point AUROC, a count of 2
 is only an upper bound on the smallest number of relabels that would tip the interval.
 
-The decontaminated ensemble's count of 2 is not resolved from 1. After 1 positive is relabelled, its upper end,
+The decontaminated ensemble's count of 2 cannot be separated from 1. After 1 positive is relabelled, its upper end,
 $0.7422$, is under the floor by less than the choice of bootstrap seed moves that ensemble's upper end ($0.7034$
 against $0.6971$, below). After 1 negative is relabelled, the upper end, $0.7373$, already exceeds the analytic
 minimum detectable AUROC, which falls from $0.7355$ to $0.7279$ with 13 positives. The floor was held at $0.7466$
 although every relabel changes the class counts. Holding it fixed favours the null when negatives are relabelled
-positive and works against it in the other direction, where each flip leaves fewer positives and a higher floor. The
+positive and works against it in the other direction, where the floor rises as positives are removed. The
 relabelled intervals also resample single pairs, because the cluster bootstrap below was run on the labels as
 annotated and on no relabelled set.
 
@@ -1156,8 +1154,7 @@ target AUROC, is the pre-registered primary construction; a second, alternate
 construction corrupts the same scores with noise instead of relabelling and
 gives different 80 percent power crossings, $0.7318$ for the two-sided
 Mann-Whitney test and $0.7939$ for the registered decision rule, against the
-label mixture's $0.7466$ and $0.8084$ above. Both constructions point the same
-direction. The label mixture was the registered primary construction and the noise mixture the
+label mixture's $0.7466$ and $0.8084$ above. Both constructions point in the same direction. The label mixture was the registered primary construction and the noise mixture the
 registered secondary one, reported here without being averaged into either floor.
 
 \subsection{Multiplicity and what is not corrected for}

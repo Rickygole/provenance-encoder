@@ -31,9 +31,7 @@ dose. Both documents are in the chart and they disagree.
 The disagreement matters because the two documents do not carry equal
 weight. The outpatient physician reads the discharge summary and the pharmacy
 fills against it, while the nursing note, which holds the reason the instruction is
-wrong, rarely travels with the patient. This is not a
-documentation defect cleaned up later; it is an instruction that leaves the
-building. The scenario is a constructed illustration drawn from no record, but disagreements of this kind were confirmed.
+wrong, rarely travels with the patient. The instruction leaves the hospital with the patient, and no later reconciliation of the chart reaches it. The scenario is a constructed illustration drawn from no record, but disagreements of this kind were confirmed.
 Of the $12$ contradictions a board-certified pharmacist confirmed in this
 project's annotated sample, $3$ were rated at the scale maximum of $5$ on a
 five-point danger scale and $1$ at $4$.
@@ -50,7 +48,7 @@ the same admission, in the Medical Information Mart for Intensive Care
 text or identifier is reported, and results are aggregates or keyed to internal
 sequential indices.
 
-The phenomenon is real and it is rare. The pharmacist annotated $299$
+The phenomenon is confirmed but rare. The pharmacist annotated $299$
 candidate pairs and confirmed $12$, a base rate of $0.0401$ in a pool that four
 hand-written rules had already enriched. Restricting to the $253$ pairs the
 annotator did not mark ambiguous leaves the same $12$ positives, a base rate
@@ -209,7 +207,7 @@ simulation puts 80 percent power at an AUROC of $0.7466$ for a two-sided Mann-Wh
 $0.8084$ for the registered decision rule, and the three seeds of the decontaminated ensemble are not
 distinguishable from chance. The reading is fragile. Lifting the point estimate past its floor takes $7$ relabelled positives of
 the $12$, when each flip is compared with the floor recomputed for the positives that remain. The bounded null is defined by
-its interval, however, and a pre-registered check found that 1 greedily chosen relabel lifts the upper end past $0.7466$ for the plain control detector retrained on reproducible labels and that 2, not resolved from 1, do so for the decontaminated ensemble. Making an interval exclude chance takes 3 to 6. Those labels come from a single annotator with no reliability figure, and the check does not reach the $46$ ambiguous pairs (Section~``\nameref{sec:disc-limits}''). Average
+its interval, however, and a pre-registered check found that 1 greedily chosen relabel lifts the upper end past $0.7466$ for the plain control detector retrained on reproducible labels and that 2 do so for the decontaminated ensemble, a count the check cannot separate from 1. Making an interval exclude chance takes 3 to 6. Those labels come from a single annotator with no reliability figure, and the check does not reach the $46$ ambiguous pairs (Section~``\nameref{sec:disc-limits}''). Average
 precision was chosen after its value was known. On it, a permutation of the
 gold labels against fixed scores puts a bag-of-words model trained on the weak
 labels ($p = 0.0159$) and an inference model never trained on them
@@ -246,7 +244,7 @@ significance of a discrete test are classical
 \citep{cohen1960kappa,tarone1990modified}. The contribution is their use as a gate that can be run on a language-model weak labeller
 before training, needing only a base rate from a small expert-labelled pilot. It has had no
 prospective use here: the expert labels came later, and the
-pre-registered prospective version could run in neither of its 2 attempts, each ruled invalid by its own gate.
+pre-registered prospective version could run in neither of its two attempts, each ruled invalid by its own gate.
 At $261$ flagged of $299$ against $12$ confirmed, no outcome could have
 rejected the null: the smallest attainable one-sided $p$ is $0.1894$. The measured MCC, $0.0269$, is under the $0.0780$ ceiling. Its test against chance returns $p = 0.5347$, and with that marginal a rejection was never available. The ceiling bounds thresholded
 labels and leaves graded scores free. Among the local labellers the gate fails for Llama 3 8B alone. Failing it
@@ -268,8 +266,7 @@ picks. That shows the check works and is silent on how often the defect
 occurred here.
 \end{enumerate}
 
-The detector's ranking null is a supporting result. No AUROC effect is found on $G_{253}$ above the simulated Mann-Whitney floor, $0.7466$, or the simulated
-floor of the registered rule, $0.8084$. The pre-registered planted-defect benchmark, a synthetic analogue of the rule-group comparison (Chapter~\ref{ch:results}), did not reach its required firing rate at either rate tried. The two-sided Fisher test of Rules 1 and 2 against Rules 3 and 4 returned a null that reflects
+The detector's ranking null is a supporting result. No AUROC effect is found on $G_{253}$ above the simulated Mann-Whitney floor, $0.7466$, or the simulated registered-rule floor, $0.8084$. The pre-registered planted-defect benchmark, a synthetic analogue of the rule-group comparison (Chapter~\ref{ch:results}), did not reach its required firing rate at either rate tried. The two-sided Fisher test of Rules 1 and 2 against Rules 3 and 4 returned a null that reflects
 the test's power and says nothing about the rule groups: the smallest rise of the Rules 1 and 2 rate detectable at
 80 percent power is $0.094$ (exact power $0.0495$ at the observed rates).
 

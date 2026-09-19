@@ -37,8 +37,7 @@ a meaningful share of discharged patients \citep{moore2003discontinuity}, advers
 discharge are frequently drug-related and preventable \citep{forster2003adverse}, the document meant
 to prevent them is itself unreliable in content and timing \citep{kripalani2007deficits}, and its
 timeliness is associated with patient outcomes \citep{li2013timeliness}. Two features of that
-literature shape the computational formulation. The most common discrepancy category is omission, which relates a statement to the absence of one where a contradiction relates two statements, and that asymmetry does not survive translation into a sentence-pair classification
-task. The two sides of a cross-note comparison are also not interchangeable: a discharge medication
+literature shape the computational formulation. The most common discrepancy category is omission, a statement set against the absence of one, whereas a contradiction sets two statements against each other; a sentence-pair classification task cannot represent an omission. The two sides of a cross-note comparison are also not interchangeable: a discharge medication
 list is an instruction that will be acted on while a nursing note records what was observed, and
 that relation has a direction that carries the consequence.
 
@@ -149,7 +148,7 @@ workflow in which a language model annotates a document set that feeds a downstr
 analysis, and show that direct use of surrogate labels causes substantial bias and invalid confidence
 intervals even at 80 percent to 90 percent surrogate accuracy. Their remedy, design-based supervised learning, is
 a doubly-robust estimator combining surrogate labels with a smaller set of gold-standard labels,
-giving valid inference without assuming the surrogate is good. Two things follow, and only one is usually noticed. The headline is that high annotator accuracy is
+giving valid inference without assuming the surrogate is good. Two consequences follow. The headline is that high annotator accuracy is
 not sufficient for a valid downstream conclusion: reporting it is not a validation step. The
 second is that the correction itself requires gold labels on a subsample, which the workflow that
 used a language model to avoid annotation entirely cannot supply. Their estimand is a population
@@ -172,8 +171,7 @@ The relevance to weak supervision is direct and, in clinical NLP, largely
 unremarked. When a weak labeller's positive rate differs from the base rate, the quantification
 literature says both what the discrepancy means and what correcting it requires: estimates of the
 labeller's true and false positive rates on the same distribution, which require gold labels. This
-correction and the Egami correction therefore fail for the same reason in the same setting. That is
-worth knowing before the annotator runs rather than after.
+correction and the Egami correction therefore fail for the same reason in the same setting. The requirement therefore has to be met before the annotator runs.
 
 \section{Evaluation Under Class Imbalance and Low Prevalence}
 \label{sec:lit-metrics}
@@ -290,9 +288,7 @@ computational systems, and their framing covers the whole chapter: systems opera
 unobservable constructs through observable proxies, and the gap between construct and
 operationalisation is where harms and invalid conclusions originate. They give fairness-oriented
 accounts of construct reliability and validity, arguing that disagreements about fairness definitions
-frequently mask disagreements about the underlying construct. The question here is not whether a
-detector reaches some score but whether what is scored, a rule-mined candidate pair judged by one
-annotator against heuristic-selected evidence, is a measurement of clinical contradiction.
+frequently mask disagreements about the underlying construct. The question here is whether what is scored, a rule-mined candidate pair judged by one annotator against heuristic-selected evidence, measures clinical contradiction at all.
 
 \paragraph{What this thesis takes and what it does not claim.}
 Table~\ref{tab:lit-controls} lists the checks this thesis ran and their sources. The first three designs above were not run; the architecture components were examined by code audit instead. No row is itself a contribution.

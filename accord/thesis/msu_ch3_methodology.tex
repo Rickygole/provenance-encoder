@@ -160,7 +160,7 @@ detected, since two mentions of the same drug in one note are otherwise indistin
 Because candidates concentrate within admissions and the patient population has repeat admissions, a
 row-level split would place candidates sharing a nursing note, a discharge summary, an admission, or
 a patient on both sides. Two candidates from one admission differ only in the drug at issue, while
-the surrounding text and documentation style are identical. Every split the rebuild and the plain control draw is disjoint by \texttt{SUBJECT\_ID}, asserted in code rather than assumed:
+the surrounding text and documentation style are identical. Every split the rebuild and the plain control model draw is disjoint by \texttt{SUBJECT\_ID}, asserted in code rather than assumed:
 \[
 S_{\text{train}} \cap S_{\text{val}} = S_{\text{train}} \cap S_{\text{test}}
 = S_{\text{val}} \cap S_{\text{test}} = \varnothing ,
@@ -179,9 +179,7 @@ row whose subject appears in the gold set.
 
 True cross-note medication contradictions are rare, and exhaustive human review of the cohort is
 infeasible. Candidate mining is the standard response: a cheap, high-recall,
-low-precision rule set narrows the space to a pool a human or a model can examine. The rules are not
-meant to be accurate. They are meant to be transparent, each candidate carrying a reason, and
-enriching, the base rate inside the pool exceeding the rate outside it.
+low-precision rule set narrows the space to a pool a human or a model can examine. The rules are meant to be transparent, each candidate carrying a reason, and enriching, the base rate inside the pool exceeding the rate outside it; accuracy is not asked of them.
 
 Let admission $a$ have a nursing note $N_a$ and a discharge summary $D_a$, with mention sets
 $M(N_a)$ and $M(D_a)$. Each mention $m$ carries a normalised drug $\mathrm{drug}(m)$, an action
@@ -747,7 +745,7 @@ not trivially derivable from. A credited parameter that sits at initialisation f
 a metric whose target is written into its own input is confounded. Each failure is checkable by reading the executed code path, without training an arbitrary-substitute control: a
 component with zero learned parameters cannot have learned the property it is credited with, a head
 that never receives a gradient cannot have been fit to anything, and an auxiliary target that is a
-fixed function of the model's own input features is not a task.
+fixed function of the model's own input features is confounded (Section~``\nameref{sec:m-detector}'').
 This audit was run on the three credited components of Section~``\nameref{sec:m-detector}'': the
 authority parameters of the asymmetric conditioning module, the auxiliary rule-type head, and the
 guideline-grounded harm estimator. The deleted pharmacological prior module, with no learned
@@ -871,10 +869,8 @@ down in the registration of the reproducible-labeller retrain, when the decontam
 to $0.7034$, was already known. For that ensemble the criterion is therefore post hoc, and it was fixed in advance only for the plain control
 detector retrained on reproducible labels.
 
-The ceiling in that criterion was not the project's first. The report written for the plain control model codes a
-rule of the same two-part form with a ceiling of $0.6$, applied on $G_{299}$ and $G_{134}$, and it records that
-control as inconclusive: its ensemble intervals run from $0.2880$ to $0.6553$ and from $0.2418$ to $0.8281$. The
-registration of the reproducible-labeller retrain describes that report as using the same ceiling, which it does not.
+The ceiling in that criterion was not the project's first. The script behind the plain control model's report applies a rule of the same two-part form with a ceiling of $0.6$, on $G_{299}$ and $G_{134}$, and records that control as inconclusive: its ensemble intervals run from $0.2880$ to $0.6553$ and from $0.2418$ to $0.8281$. The
+registration of the reproducible-labeller retrain describes that report as using the same ceiling; it did not.
 Under a ceiling of $0.6$ both $G_{253}$ ensembles, whose upper ends are $0.7034$ and $0.7196$, would also read as
 inconclusive. The ceiling moved to the simulated Mann-Whitney floor after the decontaminated ensemble's upper end was
 known, and a bounded null in this thesis is bounded at $0.7466$ and no tighter.
@@ -912,7 +908,7 @@ which is why the subject-disjoint exclusion (Section~``\nameref{sec:m-weak}'') w
 training a detector on the weak-labelled pool. Where pairs share a cluster, row-level intervals can
 be narrower than a clustered analysis would return. The cluster-bootstrap check (pre-registered and
 requested after the main results) resamples whole admissions, and separately whole
-subjects, for the two ensembles on $G_{253}$: the decontaminated ensemble and the plain control detector retrained on reproducible labels. Its other two parts are descriptive and decide nothing. Its rule is that the bounded null holds under
+subjects, for the two ensembles on $G_{253}$: the decontaminated ensemble and the plain control detector retrained on reproducible labels. The check's other two parts, the floors at the post-flip counts and the reading with the ambiguous pairs counted positive, are descriptive and decide nothing. Its rule is that the bounded null holds under
 clustering only if all four upper ends stay below the simulated Mann-Whitney floor $0.7466$, and the
 run counts only if it first reproduces both row-level intervals to four decimal places. No other test was rerun with clustered resampling, and the caution stands for
 the rest.
