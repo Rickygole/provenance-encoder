@@ -103,6 +103,11 @@ from style import (
 
 style.setup()
 
+# Where the PDFs and manifest.json are written: FIGDIR, unless ACCORD_FIG_OUT
+# redirects it (the deep gate's figure pass renders into a temporary directory
+# so it never rewrites the committed PDFs it compares against).
+OUTDIR = str(style.out_dir(FIGDIR))
+
 # Legacy names, for the four figures in this file that the thesis does not bind
 # (funnel, prevalence, tracking, met-sharpened) and for the two whose drawing
 # functions are kept unreferenced (rule-precision, disc-strata, survey-audit).
@@ -245,6 +250,8 @@ def make_fig_pipeline_status():
     # scarlet (dark) for unsupported, a SCARLET_TINT fill under a dashed rim
     # (mid grey) for not established, paper under a solid rim for bounded null.
     NOTEST, UNSUP, BOUNDED = "not established", "unsupported", "bounded null"
+    # The not-established rim, shared by the chip and its key swatch.
+    NOTEST_RIM, NOTEST_DASH = 1.7, (0, (2.6, 1.5))
     # ROUND 9 (committee). The numbers largely stand; what failed is the
     # reading of each. The per-stage label for an unsupported stage says so.
     LABEL = {NOTEST: NOTEST, UNSUP: "reading unsupported", BOUNDED: BOUNDED}
@@ -375,18 +382,23 @@ def make_fig_pipeline_status():
         elif status == NOTEST:
             # ROUND 11 (coordinator regression). A full-fill hatch ran behind
             # this chip's own text and made it the least legible chip on the
-            # canvas. Replaced with a solid GRAPHITE bar down the chip's left
-            # edge, clear of the text (which starts 6pt further right): a
-            # structural cue that needs no chroma and does not touch a
-            # glyph. The dashed rim stays as the second cue.
+            # canvas, and was replaced with a solid GRAPHITE bar down the
+            # chip's left edge.
+            # VISUAL AUDIT. That bar, a dark slab cutting across a dashed rim
+            # on one side only, read as a rendering glitch on the chip and on
+            # its key swatch. It is gone. The verdict is carried by the rim
+            # alone, made heavy enough to be read as a choice (NOTEST_RIM:
+            # 1.7pt against the bounded-null chip's solid 1.4pt, long dashes
+            # with butt ends), over the same MIST fill. The three verdicts
+            # stay three things in greyscale: a dark solid fill with white
+            # type, a grey fill under a heavy dashed rim, paper under a solid
+            # rim. A leading glyph inside the chip was the other candidate and
+            # does not fit: this chip ends 1.8pt inside the right margin
+            # asserted below.
             p = node(ax, X_CHK, mid - 14.5, w_i, 13.0, MIST, GRAPHITE,
-                     radius=3.0, zorder=6, lw=1.2)
-            p.set_linestyle((0, (3.0, 1.8)))
-            ax.add_patch(FancyBboxPatch(
-                (X_CHK, mid - 14.5), 3.0, 13.0,
-                boxstyle="round,pad=0,rounding_size=1.0", mutation_aspect=1.0,
-                linewidth=0, edgecolor="none", facecolor=GRAPHITE, zorder=7,
-                clip_on=False))
+                     radius=3.0, zorder=6, lw=NOTEST_RIM)
+            p.set_linestyle(NOTEST_DASH)
+            p.set_capstyle("butt")
             ax.text(X_CHK + 6.0, mid - 8.0, finding, ha="left", va="center",
                     fontsize=T_CHIP, fontweight="bold", color=INK, zorder=7)
         else:
@@ -424,15 +436,11 @@ def make_fig_pipeline_status():
         elif status == NOTEST:
             p = FancyBboxPatch(
                 (x_leg, y0), sw_w, sw_h, boxstyle="round,pad=0,rounding_size=1.5",
-                facecolor=MIST, edgecolor=GRAPHITE, linewidth=1.2, zorder=6,
-                clip_on=False)
-            p.set_linestyle((0, (3.0, 1.8)))
+                facecolor=MIST, edgecolor=GRAPHITE, linewidth=NOTEST_RIM,
+                zorder=6, clip_on=False)
+            p.set_linestyle(NOTEST_DASH)
+            p.set_capstyle("butt")
             ax.add_patch(p)
-            ax.add_patch(FancyBboxPatch(
-                (x_leg, y0), sw_w * 0.28, sw_h,
-                boxstyle="round,pad=0,rounding_size=1.0", mutation_aspect=1.0,
-                linewidth=0, edgecolor="none", facecolor=GRAPHITE, zorder=7,
-                clip_on=False))
         else:
             ax.add_patch(FancyBboxPatch(
                 (x_leg, y0), sw_w, sw_h, boxstyle="round,pad=0,rounding_size=1.5",
@@ -448,7 +456,7 @@ def make_fig_pipeline_status():
               "(one not established, two unsupported); the fourth, the evaluation\u2019s\n"
               "near-chance reading, survived as a bounded null.")
     fname = "fig-pipeline-status.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     srcs = [_FACTS_PATH] + sorted({fact_source(k) for k in PIPELINE_KEYS} - {_FACTS_PATH})
     register(fname, "fig:pipeline-status", srcs,
@@ -459,7 +467,8 @@ def make_fig_pipeline_status():
              "miss rates, which print to four as the captions do; full precision "
              "stays in this note and in the tables. Three "
              "chip encodings, distinct in greyscale and named in an on-canvas key: "
-             f"stage 1 not established (MIST fill, dashed GRAPHITE rim, hatched; "
+             f"stage 1 not established (MIST fill under a heavy dashed GRAPHITE "
+             f"rim, 1.7pt, with no hatch and no edge bar; "
              f"miss rate {ex_lo:.0f}, {ex_mid:.4f}, or {ex_hi:.4f} by instrument); "
              f"stages 2 and 3 reading unsupported (solid scarlet, the only scarlet "
              f"on the canvas: MCC {mcc:.4f} against a ceiling of {mcc_ceil:.4f}; "
@@ -477,7 +486,7 @@ def make_fig_pipeline_status():
 # Figure 2 -- fig:intro-headline  (ch1_introduction.tex)
 # ============================================================================
 def make_fig_intro_headline():
-    step01, p_step01 = load("diag", "step0_1_join_and_calibration.json")
+    step01, p_step01 = load("step0_1_join_and_calibration.json")
     xtab = step01["weak_confidence_is_degenerate"]["crosstab_label_x_confidence"]
     weak_pos, weak_neg = xtab["0.95"]["contradiction"], xtab["1.0"]["not_contradiction"]
     weak_n = weak_pos + weak_neg
@@ -489,7 +498,7 @@ def make_fig_intro_headline():
     pred_n = sum(g["n"] for g in lang)
     pred_rate = pred_pos / pred_n
 
-    step2, p_step2 = load("diag", "step2_signal_check.json")
+    step2, p_step2 = load("step2_signal_check.json")
     d = step2["contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]
     pharm_pos, pharm_n = d["n_pos"], d["n"]
     pharm_rate = pharm_pos / pharm_n
@@ -617,7 +626,7 @@ def make_fig_intro_headline():
               deck=f"{gold_ratio:.0f}x: the weak labeller\u2019s marginal over the "
                    f"pharmacist\u2019s, on the same {pharm_n} pairs.")
     fname = "fig-intro-headline.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:intro-headline",
              [p_step01, p_exp1a, p_step2],
@@ -666,7 +675,7 @@ def make_fig_funnel():
             "(grep of results/accord/**/*.json found no match for those counts) and are omitted here rather than typed in.",
             ha="center", fontsize=8.0, color=MUTE)
     fname = "fig-funnel.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:funnel", [p_icd, p_era],
              "Simplified from the 5-stage spec to the 3 stages traceable to committed files; "
@@ -733,10 +742,15 @@ def make_fig_exemplar():
         # COLOUR ROUND. The two note columns take two grounds, one per note
         # type (style.NURSING_GROUND, style.DISCHARGE_GROUND; both columns
         # were MIST). Still not cobalt: cobalt means extraction elsewhere.
-        # They are grounds only, so the stroke stays neutral SLATE and neither
-        # ramp's DEEP or CORE is drawn; and they are a WASH and a TINT, 0.136
+        # They are grounds only, so the stroke stays neutral SLATE and no
+        # ramp's DEEP or CORE is drawn.
+        # VISUAL AUDIT. The discharge ground was TANGERINE_TINT, an orange a
+        # reader took for the detector ensemble's AMBER (the forest draws the
+        # ensemble in that hue). It is now the structure family's neutral
+        # blue-grey at TINT depth (style.DISCHARGE_GROUND, PLATE_EDGE), which
+        # names no entity anywhere in the set. The two grounds are 0.201
         # apart in relative luminance, so the columns are two greys in print.
-        # INK on them is 14.4 and 12.1 to 1. SCARLET keeps its one job.
+        # INK on them is 14.4 and 11.0 to 1. SCARLET keeps its one job.
         node(ax, x_nurse - box_w / 2, y - box_h / 2, box_w, box_h,
              NURSING_GROUND, SLATE, radius=2.5, zorder=3, lw=1.0)
         ax.text(x_nurse, y, nurse_tags[i], ha="center", va="center",
@@ -797,7 +811,7 @@ def make_fig_exemplar():
               deck=(f"One schematic candidate; miss rate {ex_lo:.0f}, "
                     f"{ex_mid:.4f}, or {ex_hi:.4f} by instrument."))
     fname = "fig-exemplar.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:exemplar",
              [_FACTS_PATH, p_exemplar,
@@ -808,9 +822,11 @@ def make_fig_exemplar():
              "selected by position, carries a 2.0 pt INK outline and a 'shown' tag; row 5, "
              "where the rule matched, keeps its SCARLET_WASH ground and a 'fired' tag. A "
              "vertical brace left of M1 to M5 states that the rule quantifies over the whole "
-             "set. Colour round: nursing-note slots are AZURE_WASH and discharge-summary slots "
-             "TANGERINE_TINT, grounds only under a neutral SLATE stroke (both were MIST; cobalt "
-             "still means extraction elsewhere), 0.136 apart in relative luminance. "
+             "set. Nursing-note slots are AZURE_WASH and discharge-summary slots the neutral "
+             "blue-grey PLATE_EDGE, grounds only under a neutral SLATE stroke, 0.201 apart in "
+             "relative luminance. The discharge ground was TANGERINE_TINT until the visual "
+             "audit, which read that orange as the detector ensemble's AMBER; cobalt still "
+             "means extraction elsewhere. "
              "No plate. The one-line deck prints the three instruments' miss rates, read "
              "from the register by key: exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate "
              f"(one minus it, {ex_lo:.0f}), exemplar_recomputed.rule_1_2_pooled.wrong_rate "
@@ -901,7 +917,7 @@ def make_fig_rule_precision():
              "pooled rules-3+4 CI (stats/intervals.json E3) is available and is shown as a reference band.",
              fontsize=8.0, color=MUTE)
     fname = "fig-rule-precision.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:rule-precision", [p_strata, p_intervals],
              "MODIFIED from spec: shows per-rule AUROC (sourced) rather than per-rule precision "
@@ -916,12 +932,12 @@ def make_fig_rule_precision():
 # Figure 6 -- fig:prevalence  (ch5_weak_supervision.tex)
 # ============================================================================
 def make_fig_prevalence():
-    step01, p_step01 = load("diag", "step0_1_join_and_calibration.json")
+    step01, p_step01 = load("step0_1_join_and_calibration.json")
     xtab = step01["weak_confidence_is_degenerate"]["crosstab_label_x_confidence"]
     weak_pos, weak_neg = xtab["0.95"]["contradiction"], xtab["1.0"]["not_contradiction"]
     weak_n = weak_pos + weak_neg
 
-    step2, p_step2 = load("diag", "step2_signal_check.json")
+    step2, p_step2 = load("step2_signal_check.json")
     d = step2["contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]
     gold_pos, gold_n = d["n_pos"], d["n"]
     d_all_incl = step2["contra_prob_vs_pharm_label__ambiguous_as_positive_n299"]
@@ -975,11 +991,11 @@ def make_fig_prevalence():
                  f"implied floor: ≥{implied_wrong:,} of {weak_pos:,} positive weak labels wrong "
                  f"at the measured {gold_pos/gold_n*100:.1f}% base rate", fontsize=8.0)
     fname = "fig-prevalence.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:prevalence", [p_step01, p_step2],
-             "Weak-label counts from diag/step0_1 weak_confidence crosstab; gold counts "
-             "(12 contradiction / 241 not / 46 ambiguous) reconstructed from diag/step2_signal_check "
+             "Weak-label counts from step0_1 weak_confidence crosstab; gold counts "
+             "(12 contradiction / 241 not / 46 ambiguous) reconstructed from step2_signal_check "
              "ambiguous-included vs ambiguous-excluded base rates.")
 
 
@@ -987,7 +1003,7 @@ def make_fig_prevalence():
 # Figure 7 -- fig:tracking  (ch5_weak_supervision.tex)
 # ============================================================================
 def make_fig_tracking():
-    step01, p_step01 = load("diag", "step0_1_join_and_calibration.json")
+    step01, p_step01 = load("step0_1_join_and_calibration.json")
     cal = step01["rule_stratified_calibration"]
     rules = ["1", "2", "3", "4"]
     ns = {r: cal[r]["n_gold"] for r in rules}
@@ -1026,7 +1042,7 @@ def make_fig_tracking():
     if SHOW_INFIGURE_TITLES: ax.set_title("The student tracks the teacher\u2019s marginal, not the truth\u2019s",
                  fontsize=8.5)
     fname = "fig-tracking.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:tracking", [p_step01],
              "Wilson score 95% CIs added per point (n from n_gold per rule: 134/31/79/55); "
@@ -1037,7 +1053,7 @@ def make_fig_tracking():
 # Figure 8 -- fig:met-exchange  (ch8_metrics.tex)
 # ============================================================================
 def make_fig_met_exchange():
-    baselines, p_baselines = load("diag", "step3_baselines.json")
+    baselines, p_baselines = load("step3_baselines.json")
     # The two GPT-4o systems were withdrawn: they came from a hosted API that
     # the methodology chapter records as a departure from the data use
     # agreement, and no reported number in this thesis derives from them any
@@ -1194,19 +1210,19 @@ def make_fig_met_exchange():
               "Two of three systems clear every exchange rate ACCORD\u2019s "
               "counts define.")
     fname = "fig-met-exchange.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:met-exchange", [p_baselines],
              "Indifference lines are closed-form (PABAK, balanced accuracy) or numerically "
              "root-solved (MCC, scipy.optimize.brentq) from the confusion-matrix class counts "
-             "in diag/step3_baselines.json; not fabricated curve shapes.")
+             "in step3_baselines.json; not fabricated curve shapes.")
 
 
 # ============================================================================
 # Figure 9 -- fig:met-sharpened  (ch8_metrics.tex)
 # ============================================================================
 def make_fig_met_sharpened():
-    baselines, p_baselines = load("diag", "step3_baselines.json")
+    baselines, p_baselines = load("step3_baselines.json")
     intervals, p_intervals = load("stats", "intervals.json")
     order = ["gpt4o_zeroshot", "gpt4o_fewshot", "accord_binary_at_0.5_253core", "llama_baseline"]
     labels = ["GPT-4o zero-shot", "GPT-4o few-shot", "ACCORD", "Llama 3 8B"]
@@ -1276,7 +1292,7 @@ def make_fig_met_sharpened():
     if SHOW_INFIGURE_TITLES: fig.suptitle("The high-recall systems predict positive almost everywhere;\n"
                  "no MCC interval excludes chance", fontsize=8.0, y=0.99)
     fname = "fig-met-sharpened.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:met-sharpened", [p_baselines, p_intervals],
              "Recall CIs are Wilson score on (tp, 12) -- not in the original spec, added per "
@@ -1356,7 +1372,7 @@ def make_fig_disc_strata():
              "restricts released files to aggregates). Panels show the committed point estimate and its bootstrap CI instead.",
              ha="center", fontsize=8.0, color=MUTE)
     fname = "fig-disc-strata.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:disc-strata", [p_decontam, p_control],
              "MODIFIED from spec (ROC panels) to point-estimate+CI panels because per-pair scores "
@@ -1469,7 +1485,7 @@ def make_fig_disc_actionability():
               "The document the system triggers on is finalised at or "
               "after the patient leaves.")
     fname = "fig-disc-actionability.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:disc-actionability", ["accord/CORRECTIONS.md (C6)"],
              "Structural/schema diagram, not derived from a numeric result file; documents a "
@@ -1482,7 +1498,7 @@ def make_fig_disc_actionability():
 #   Nine stages, four exclusions. Every count is read from a committed file:
 #   the ICD and length-of-stay counts from stats/cohort_icd_counts.json, the
 #   candidate count from generality/transfer_results_correct.json, the gold
-#   counts from diag/step2_signal_check.json, and the four stages whose own
+#   counts from step2_signal_check.json, and the four stages whose own
 #   upstream artifact is quarantined off this repository (note-role coverage,
 #   pair selection, mention extraction, the drawn annotation sample) from the
 #   thesis register, which is itself committed under results/accord. The
@@ -1536,10 +1552,15 @@ def make_fig_cohort_flow():
     # Differences computed here, not typed: drops no file records as its own
     # exclusion are drawn as dashed stubs.
     n_no_roles = n_post - n_both_roles
-    # AUDIT ITEM 5. The step from classified mentions to prefilter candidates
-    # had no exclusion box at all; this is the drop, a computed difference of
-    # two registered counts, drawn dashed like the other computed drops below.
-    n_prefilter_dropped = n_classified - n_candidates
+    # AUDIT ITEM 5 gave the step from classified mentions to prefilter
+    # candidates a dashed box holding n_classified - n_candidates, labelled as
+    # mentions dropped.
+    # VISUAL AUDIT. That subtraction mixes units. A candidate is a pair of
+    # mentions matched under a rule, not a mention, so 88,336 mentions minus
+    # 1,978 candidates is not a count of dropped mentions, and no file records
+    # one. The difference is no longer computed or drawn. The box stays,
+    # dashed, and says what happens at the step instead: the unit changes. The
+    # two registered counts stand in their own stage boxes, each with its unit.
     n_not_sampled = n_candidates - n_sampled
     n_not_annotated = n_sampled - n_annot
     # FIGURE POLISH. This stub is drawn solid, which the caption defines as a
@@ -1552,7 +1573,7 @@ def make_fig_cohort_flow():
     assert n_ambiguous == n_annot - n_core
     # Cross-check the ambiguous count against the signal-check artifact, which
     # records the positives on the same 299 rows both ways.
-    step2, p_step2 = load("diag", "step2_signal_check.json")
+    step2, p_step2 = load("step2_signal_check.json")
     d_neg = step2["contra_prob_vs_pharm_label__ambiguous_as_negative_n299"]
     d_amb = step2["contra_prob_vs_pharm_label__ambiguous_as_positive_n299"]
     assert d_amb["n_pos"] - d_neg["n_pos"] == n_ambiguous
@@ -1566,6 +1587,8 @@ def make_fig_cohort_flow():
     ax.axis("off")
     x_right = W * 72 - 1.5
 
+    # The one stub that is not an exclusion: no count, by design (see above).
+    UNIT_NOTE = "unit changes: mentions are\npaired into candidates"
     # (stage name, count with unit, stub below this stage or None)
     # a stub is (text, recorded): recorded -> solid, a computed difference -> dashed
     stages = [
@@ -1582,8 +1605,7 @@ def make_fig_cohort_flow():
         # that step (an exclusion), matching the "left the path" heading; the
         # previous two stated what was kept instead, which contradicted it.
         ("Mentions with an action class", f"{n_classified:,} mentions",
-         (f"{n_prefilter_dropped:,} mentions dropped by\nthe temporal prefilter",
-          False)),
+         (UNIT_NOTE, False)),
         ("After the temporal prefilter", f"{n_candidates:,} candidates",
          (f"{n_not_sampled:,} candidates not\nsampled for annotation", False)),
         ("Sampled for annotation", f"{n_sampled:,} pairs",
@@ -1668,8 +1690,11 @@ def make_fig_cohort_flow():
                      zorder=4, lw=1.0)
             if not recorded:
                 p.set_linestyle((0, (3.0, 2.0)))
+            # The unit note is a remark, not a count, and is set in italic so
+            # it does not read as one more exclusion in the column.
             ax.text(x_gut + 5.0, y_gap, text, ha="left", va="center",
                     fontsize=T_NOTE, color=MUTE if not recorded else GRAPHITE,
+                    style="italic" if text == UNIT_NOTE else "normal",
                     linespacing=1.15, zorder=5)
 
     ax.text(x_gut, y_top + 6.0, "left the path", ha="left", va="bottom",
@@ -1679,26 +1704,32 @@ def make_fig_cohort_flow():
               f"Of {n_candidates:,} candidates, {n_pos:,} contradictions survive "
               f"sampling and annotation.")
     fname = "fig-cohort-flow.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     srcs = [_FACTS_PATH] + sorted({fact_source(k) for k in KEYS} - {_FACTS_PATH}) + [p_step2]
     register(fname, "fig:cohort-flow", srcs,
              "Path from the source database to the evaluated core, ten stages. Every "
              "count is read from results/accord/VERIFIED_FACTS.json by key ("
              + ", ".join(KEYS) + "), and every right-hand count carries its unit. "
-             "Every stub under the 'left the path' heading now states an exclusion, "
-             "never a kept count (audit item 5): solid stubs are exclusions the "
+             "Every stub under the 'left the path' heading states an exclusion, "
+             "never a kept count (audit item 5), except the one at the temporal "
+             "prefilter, which carries no count: solid stubs are exclusions the "
              f"register records as counts ({n_los_removed} with no positive length "
              f"of stay, {n_not_selectable} with no nursing note before discharge, "
              f"{n_unclassified:,} unclassified mentions, {n_ambiguous} coded "
              "ambiguous). Dashed stubs are drops no file records as an exclusion, "
              "drawn as differences computed in code from two register counts: "
              f"admissions after the length-of-stay filter minus admissions with both "
-             f"note types ({n_no_roles}); mentions with an action class minus "
-             f"candidates surviving the temporal prefilter ({n_prefilter_dropped:,}, "
-             "previously missing a box entirely); candidates minus the sample "
+             f"note types ({n_no_roles}); candidates minus the sample "
              f"({n_not_sampled:,}); the sample minus the annotated pairs "
-             f"({n_not_annotated}). The ambiguous count is read from "
+             f"({n_not_annotated}). The dashed stub at the temporal prefilter "
+             "used to print mentions with an action class minus candidates as a "
+             "count of dropped mentions. A candidate is a pair of mentions "
+             "matched under a rule, so that difference mixed units and is no "
+             "longer computed or drawn; the stub now says in italic that the "
+             "unit changes from mentions to candidates, and the two registered "
+             f"counts ({n_classified:,} mentions, {n_candidates:,} candidates) stand "
+             "in their stage boxes. The ambiguous count is read from "
              f"overcallamb.n_ambiguous, asserted equal to {n_annot} minus {n_core} and "
              "cross-checked against the signal-check file. The core is drawn in the "
              "pharmacist's emerald rather than scarlet, which the set reserves for a "
@@ -1802,7 +1833,7 @@ def make_fig_survey_audit():
     ax.tick_params(axis="y", length=0)
 
     fname = "fig-survey-audit.pdf"
-    fig.savefig(os.path.join(FIGDIR, fname))
+    fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:survey-audit", [p_coding],
              "One bar, three segments, a rate of a whole. The strict count, the permissive "
@@ -1862,13 +1893,12 @@ SKIPPED = [
 
 # fig:falsification used to be listed above as unbuildable, on the grounds that
 # transfer_results_correct.json did not exist here. It does exist, at
-# results/accord/generality/, but make_figures_extra.py no longer reads it:
-# the rule-head transfer panel that once drew from that file was dropped from
-# fig:falsification and its numbers moved to a table in the results chapter.
-# The figure make_figures_extra.py builds now loads only the authority-scale
-# aggregate (accord_v2_decontam_gold_aggregate.json). The one number the
-# original entry was right about is the held-out 45.2%: 0.4515 appears in no
-# result file anywhere, so that reference line was removed rather than
+# results/accord/generality/. The figure was retired (two numbers on an axis;
+# reason of record in tools/check_figure_invariants.py) and its generator,
+# make_figures_extra.py, which had been switched off, was removed from the
+# repository; its numbers are in a table in the results chapter. The one number
+# the original entry was right about is the held-out 45.2%: 0.4515 appears in
+# no result file anywhere, so that reference line was removed rather than
 # sourced.
 
 
@@ -1919,12 +1949,15 @@ def main():
     # one sentence of the discussion chapter.
     make_fig_cohort_flow()
 
-    manifest_path = os.path.join(FIGDIR, "manifest.json")
+    # Read from the committed manifest, written next to the PDFs just built;
+    # the two are the same file unless ACCORD_FIG_OUT redirects the output.
+    manifest_src = os.path.join(FIGDIR, "manifest.json")
+    manifest_path = os.path.join(OUTDIR, "manifest.json")
     # Entries for figures built by fig_batch2.py and fig_ceiling.py are kept:
     # this script does not build them and must not erase their notes.
     ours = {m["label"] for m in MANIFEST}
     try:
-        with open(manifest_path) as f:
+        with open(manifest_src) as f:
             kept = [m for m in json.load(f).get("built", []) if m["label"] not in ours]
     except (OSError, ValueError):
         kept = []

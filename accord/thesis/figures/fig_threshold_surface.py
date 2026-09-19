@@ -165,7 +165,7 @@ cb.outline.set_edgecolor(INK)
 
 signature(fig, SCARLET_DEEP,
           "The audit passed at an operating point where nothing was detectable.")
-out = pathlib.Path(__file__).parent / "fig-threshold-surface.pdf"
+out = style.out_dir(pathlib.Path(__file__).parent) / "fig-threshold-surface.pdf"
 fig.savefig(out)
 n_under = int((M > TOLERANCE).sum())
 print(f"wrote {out.name}  ({Z.shape[0]}x{Z.shape[1]} cells, {n_under} underpowered)")

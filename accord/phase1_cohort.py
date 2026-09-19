@@ -26,8 +26,8 @@ Cohort definition (unchanged from reference): ICD-9 code matching ^428
 nursing note (last CHARTTIME strictly before DISCHTIME) and a discharge
 summary (first chronologically).
 
-Local only. Prints aggregate counts. Writes note TEXT only under local_only/
-(gitignored), never elsewhere.
+Local only. Prints aggregate counts. Writes note TEXT only under $MIMIC_LOCAL_ONLY_DIR/accord/
+(outside this tree), never elsewhere.
 """
 
 from __future__ import annotations
@@ -41,9 +41,9 @@ from pathlib import Path
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / "local_only"
 
 MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUT = Path(MIMIC_LOCAL_ONLY_DIR) / "accord"
 NOTEEVENTS = os.environ.get("MIMIC_NOTEEVENTS_PATH", os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/NOTEEVENTS.csv.gz"))
 ADMISSIONS = os.environ.get("MIMIC_ADMISSIONS_PATH", os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/ADMISSIONS.csv"))
 PATIENTS = os.environ.get("MIMIC_PATIENTS_PATH", os.path.join(MIMIC_LOCAL_ONLY_DIR, "raw_mimiciii/PATIENTS.csv"))

@@ -31,7 +31,7 @@ exactly what the code lets us rule in and rule out about the relationship betwee
 
 `accord/phase3_mining.py::main` reads `OUT / "hf_medication_mentions.csv.gz"` where
 `OUT = Path(__file__).resolve().parent / "local_only"`, i.e. `accord/local_only/`, which is a symlink
-to `/Users/rickygole/mimic_local_only/accord/` (verified with `readlink`). This run reads the same file,
+to `~/mimic_local_only/accord/` (verified with `readlink`). This run reads the same file,
 read-only, and writes nothing there. `accord/local_only/phase3_mining_summary.json` is the rebuild's own
 prior recorded run (fields `rule1_candidates` ... `total_candidates`); it is the "rebuild's recorded
 counts" gate below (`results/accord/source_summaries/mining_summary.json` is a different, older artifact:

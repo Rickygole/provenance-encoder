@@ -56,35 +56,45 @@ they disagree). One mapping, used by every bound figure:
     SCARLET        a failed check or an unsupported reading, and nothing else
     PLUM_DEEP      the deployed weak labeller (#971D6B)
     AMBER DEEP/CORE the detector ensemble (#714B00 / #F5A300)
-    MAGENTA / TANGERINE / CYAN
+    MAGENTA / VIOLET / CYAN
                    the three public models, llama3:8b, granite3.3:8b and
-                   qwen3:8b in that order (COLOUR ROUND, below). Each keeps
+                   qwen3:8b in that order (COLOUR ROUND and HUE COLLISION
+                   ROUND, below). Each keeps
                    the marker and dash pattern it had as a neutral
                    (PUBLIC_MODEL_MARK), because every DEEP stop sits at one
                    lightness and hue alone is nothing in greyscale.
     COBALT         on a plot, an analytic bound: the minimum detectable AUROC
-                   curve and the region under it in the power figure, the two
-                   ceiling curves and the unattainable region in the ceiling
-                   figure. DEEP for the line, WASH for the region. On a
+                   curve in the power figure, the two ceiling curves and the
+                   unattainable region in the ceiling figure. DEEP for the
+                   line, WASH for a region no table can reach. On a
                    schematic COBALT is still the extraction stage (cohort
                    flow: TINT node, DEEP stroke and count). That is a second
                    use of one ramp and is stated as one: a schematic stage
                    and a plot bound are two registers, as SCARLET's state and
                    claim already are, and the two never share a canvas.
     EMERALD        the pharmacist's annotation
-    AZURE_WASH / TANGERINE_TINT
+    AZURE_WASH / PLATE_EDGE
                    the exemplar schematic's two note columns, nursing note and
                    discharge summary. Grounds only, stroked in neutral SLATE,
-                   so neither ramp's DEEP or CORE appears and no identity is
-                   spent. One WASH and one TINT on purpose: the two stops are
-                   0.136 apart in relative luminance, so the columns are two
+                   so no ramp's DEEP or CORE appears and no identity is
+                   spent. The discharge column was TANGERINE_TINT, an orange
+                   that read as the ensemble's AMBER two figures before the
+                   ensemble is drawn (HUE COLLISION ROUND); it is now the
+                   neutral blue-grey the structure family already holds at
+                   TINT depth. The two grounds are 0.201 apart in relative
+                   luminance (0.8006 against 0.5998), so the columns are two
                    greys in print, where two WASH stops would be one.
-    MIST           the neutral region fill on a plot: the power-floor bands of
-                   the forest and the over-prediction wedge. Both figures
-                   already carry their full hue budget, and the forest's band
-                   shades what IS detectable where the power figure's region
-                   shades what is NOT, so it must not take the same wash. It
-                   is also the schematics' neutral node fill.
+    MIST           the neutral region fill on a plot: the detectable region of
+                   the power figure, the detectable bands of the forest, and
+                   the over-prediction wedge. The power figure and the forest
+                   now shade the SAME kind of region, what IS detectable at
+                   the stated power, in the SAME tone, and each says so on its
+                   canvas; the power figure used to shade the opposite side in
+                   COBALT_WASH, so the two figures' shading meant opposite
+                   things a page apart. COBALT_WASH is left with one meaning,
+                   the side of an analytic bound nothing can reach (the
+                   ceiling figure). MIST is also the schematics' neutral node
+                   fill.
     FOG            retired from the bound set (#F2F2F2). At 0.89 against
                    paper it did not read under a dashed boundary, and it was
                    the one pure-neutral grey in a structure family that is
@@ -98,17 +108,31 @@ critique round had taken close to monochrome. What came back, and why:
       labeller (PLUM) under another prompt on another pool: same model, same
       family, the rule gpt4o_fewshot already follows. MAGENTA and PLUM are 8.4
       dE76 apart at DEEP by design and must never share an axes.
-    KNOWN NEAR-COLLISION, stated rather than hidden: TANGERINE (granite3.3:8b)
-      and AMBER (the ensemble) are 9.7 apart at DEEP and 17.7 at CORE. They
-      are kin in the palette and not in the thesis. They never share a figure,
-      every mark of either is named in words on its own canvas, and the only
-      allocations that avoid it put two meanings on COBALT or on the
-      AZURE/CYAN pair (8.4 apart) instead. If granite3.3:8b and the ensemble
-      are ever drawn on one axes, granite must move.
+    HUE COLLISION ROUND. granite3.3:8b was TANGERINE, 9.7 dE76 from the
+      ensemble's AMBER at DEEP and 17.7 at CORE. The colour round stated that
+      as a known near-collision and argued the two never share a figure. A
+      visual audit of the bound set overruled it: at print size the brown
+      line and orange square of granite3.3:8b on the prevalence figure and
+      the brown line and orange dot of the ensemble on the forest are one
+      hue, two figures apart, and one hue must mean one thing across the
+      set. granite3.3:8b is now VIOLET, a ramp added for it at CIELAB hue
+      angle 316 and used for nothing else. An olive green at hue 118 was
+      measured and rejected: 33.0 from AMBER at DEEP for a normal reader but
+      3.8 under protan and 4.9 under deutan, which rebuilds the same
+      collision for a red-green reader. VIOLET, dE76 at DEEP then CORE:
+      AMBER 104.5 / 134.3, PLUM 36.8 / 38.2, SCARLET 98.4 / 111.1, COBALT
+      32.5 / 36.3, EMERALD 103.9 / 121.4, MAGENTA 44.2 / 47.8, CYAN 70.5 /
+      74.9. Against AMBER it stays 93 or more at DEEP under protan and
+      deutan and 23.4 under tritan. Its nearest neighbour is COBALT (4.6
+      under protan at DEEP), which on a plot is only ever a bound curve and
+      its region, never a marker with an interval, and never on the
+      prevalence canvas.
     Measured for the three model hues, Machado (2009) severity 1.0, minimum
-      pairwise dE76: DEEP normal 61.3, protan 10.3, deutan 22.5, tritan 21.3;
-      CORE normal 94.2, protan 25.7, deutan 37.8, tritan 27.2. The protan DEEP
-      figure is the MAGENTA/CYAN pair and is why marker and dash are kept.
+      pairwise dE76: DEEP normal 44.2, protan 10.3, deutan 22.5, tritan 43.7;
+      CORE normal 47.8, protan 25.7, deutan 12.4, tritan 62.6. The protan DEEP
+      figure is the MAGENTA/CYAN pair and the deutan CORE figure is the
+      VIOLET/CYAN marker faces, a square against a triangle; both are why
+      marker and dash are kept.
       COBALT against PLUM, the ceiling figure's pair: DEEP normal 55.3, protan
       31.3, deutan 53.2, tritan 79.8. (EMERALD was considered for the ceiling
       curves, which are drawn on the pharmacist's gold bases, and rejected:
@@ -152,8 +176,22 @@ structurally, not chromatically: SLATE is only ever a dashed hairline or a
 small open seed dot, and never takes the same mark type as an entity hue on the
 same axes.
 """
+import os
+import pathlib
+
 import matplotlib
 matplotlib.use("Agg")
+
+
+def out_dir(default):
+    """Directory a generator writes its PDFs into: `default` (this directory,
+    where the committed figures live) unless ACCORD_FIG_OUT names another one.
+    The deep gate's figure pass sets it to a temporary directory, so checking
+    that the figures rebuild never rewrites the committed PDFs it compares
+    against."""
+    d = pathlib.Path(os.environ.get("ACCORD_FIG_OUT") or default)
+    d.mkdir(parents=True, exist_ok=True)
+    return d
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.patheffects as mpe
@@ -197,9 +235,15 @@ SCARLET = Ramp("SCARLET", "#A41704", "#D81E05", "#F5C2BC", "#FAE2DF", "#EE9A8F")
 MAGENTA = Ramp("MAGENTA", "#8E1257", "#E0218A", "#F6C4DF", "#FBE6F1", "#EE8CC0")
 TANGERINE = Ramp("TANGERINE", "#7A4200", "#FF8A00", "#FFCC8F", "#FFE9D2", "#FFAE52")
 CYAN = Ramp("CYAN",      "#0A5570", "#00A6D6", "#A8DEEF", "#D6F0F8", "#63C6E4")
+# VIOLET is granite3.3:8b (HUE COLLISION ROUND in the docstring). Built in the
+# same five-stop form at CIELAB hue angle 316: DEEP at L* 35.1 (relative
+# luminance 0.085, the set's DEEP level), CORE at L* 55, TINT 0.623, WASH
+# 0.801, BARE 0.438. TANGERINE stays defined because the retired
+# fig_frontier.py imports it; no live figure draws it.
+VIOLET = Ramp("VIOLET",  "#782CA6", "#B060DE", "#E0C6EC", "#F0E3F6", "#CCA1E1")
 
 RAMPS = {r.name: r for r in (COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET,
-                             MAGENTA, TANGERINE, CYAN)}
+                             MAGENTA, TANGERINE, CYAN, VIOLET)}
 
 # Flat names, because a drawing script reads better as SCARLET_DEEP than as
 # SCARLET.DEEP inside an f-string-heavy layout block.
@@ -226,7 +270,7 @@ MUTE = "#5A6072"       # 0.1175   6.27:1   secondary annotation text
 SLATE = "#7C8AA5"      # 0.2518   3.48:1   reference lines, seed dots, stubs
 MIST = "#DCE3EE"       # 0.7633            neutral structural ground
 HAIR = "#EAEDF3"       # 0.8453            the one optional value grid
-PLATE_EDGE = "#C4CCDA" # hairline separators; no longer a plate stroke
+PLATE_EDGE = "#C4CCDA" # 0.5998  hairline separators; the exemplar's discharge ground
 FOG = "#F2F2F2"        # 0.8879            retired region fill; plots use MIST
 
 STRUCTURE = {"PAPER": PAPER, "INK": INK, "GRAPHITE": GRAPHITE, "MUTE": MUTE,
@@ -257,7 +301,7 @@ ENTITY_HUE = {
     "pharmacist_truth":     EMERALD,
     "pretrained_reference": EMERALD,
     "qwen3_8b":             CYAN,
-    "granite33_8b":         TANGERINE,
+    "granite33_8b":         VIOLET,   # was TANGERINE, which read as AMBER
     "control_model":        EMERALD,
 }
 # Alpha parameters, coded-corpus counts: measured, but not an entity, so they
@@ -277,13 +321,25 @@ BOUND = COBALT
 BOUND_DEEP, BOUND_CORE, BOUND_WASH = COBALT.DEEP, COBALT.CORE, COBALT.WASH
 # The exemplar schematic's two note columns. Grounds only; see the role map.
 NURSING_GROUND = AZURE.WASH
-DISCHARGE_GROUND = TANGERINE.TINT
+# The discharge column was TANGERINE.TINT, an orange a reader took for the
+# ensemble's AMBER. It is the structure family's own TINT-depth blue-grey now:
+# neutral, 0.201 under AZURE.WASH in relative luminance, INK on it 11.0 to 1.
+DISCHARGE_GROUND = PLATE_EDGE
 # marker, line style, ramp for each public model. The line and the interval
 # take the ramp's DEEP, the marker face its CORE under a DEEP edge.
 PUBLIC_MODEL_MARK = {
     "llama3:8b":     ("o", "-", MAGENTA),
-    "granite3.3:8b": ("s", (0, (4, 2)), TANGERINE),
+    "granite3.3:8b": ("s", (0, (4, 2)), VIOLET),
     "qwen3:8b":      ("^", (0, (1, 1.5)), CYAN),
+}
+# The name each public model is printed under on a canvas: the display name
+# the thesis tables use, not the registry tag the artifacts are keyed by. A
+# legend that said llama3:8b beside a table that says Llama 3 8B made a reader
+# match two spellings of one model.
+PUBLIC_MODEL_NAME = {
+    "llama3:8b":     "Llama 3 8B",
+    "granite3.3:8b": "Granite 3.3 8B",
+    "qwen3:8b":      "Qwen 3 8B",
 }
 
 # The prevalence figure's three public models carry hue AND keep the marker and

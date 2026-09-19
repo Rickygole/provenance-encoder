@@ -36,8 +36,20 @@ Public benchmark and survey data used by the public control experiments:
 - SNLI, the Stanford Natural Language Inference corpus (Bowman et al., 2015), Stanford NLP Group.
 - AG News topic classification data (Zhang, Zhao and LeCun, 2015), derived from the AG corpus of news articles.
 - American Community Survey Public Use Microdata Sample (PUMS), U.S. Census Bureau.
-Each is used under the terms published by its provider. This repository commits only row indices, labels,
-hashes, model scores and aggregate statistics derived from them, not the corpus text.
+Each is used under the terms published by its provider. For AG News and the PUMS this repository commits only
+row indices, labels, hashes, model scores and aggregate statistics derived from them, not the corpus text.
+
+SNLI is the exception: corpus text is committed. `accord/prevalence_replication/data/snli_test.parquet` and
+`accord/prevalence_replication/data/snli_validation.parquet` are the SNLI test and validation splits (10,000 rows
+each; columns `premise`, `hypothesis`, `label`), unmodified, as downloaded from the Hugging Face mirror named in
+`accord/prevalence_replication/build_pools.py` (huggingface.co/datasets/stanfordnlp/snli). No file in this
+repository other than this one records SNLI's licence. The dataset card at that address, read on 18 September
+2026, states: "The Stanford Natural Language Inference Corpus by The Stanford NLP Group is licensed under a
+Creative Commons Attribution-ShareAlike 4.0 International License. The corpus includes content from the
+Flickr 30k corpus, also released under an Attribution-ShareAlike licence." The two parquet files are
+redistributed here under that licence (CC BY-SA 4.0), which is not the licence of this repository's own code.
+Attribution: Samuel R. Bowman, Gabor Angeli, Christopher Potts and Christopher D. Manning, "A large annotated
+corpus for learning natural language inference", EMNLP 2015.
 
 HANS, the Heuristic Analysis for NLI Systems evaluation set (McCoy, Pavlick and Linzen, 2019; cited as
 `mccoy2019hans`), is vendored in full at `accord/public_controls/nlifactorial/data/heuristics_evaluation_set.txt`,

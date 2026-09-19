@@ -101,7 +101,8 @@ def check_entity_hue():
                         f"{declared[norm]} for {norm}"))
 
     # COLOUR ROUND. The three public models were INK, MUTE and SLATE and are now
-    # MAGENTA, TANGERINE and CYAN. The comparison above never named a tone, so
+    # MAGENTA, VIOLET and CYAN (VIOLET was TANGERINE; see below). The
+    # comparison above never named a tone, so
     # it needed no change; what changed is that the hue now lives in THREE
     # places (ENTITY_HUE, PUBLIC_MODEL_MARK and fig_batch2's MODEL_HUE), and
     # the drawing code reads the second while this gate compared only the first
@@ -122,7 +123,18 @@ def check_entity_hue():
                         f"PUBLIC_MODEL_MARK says {marked.get(key)}"))
     taken = {"PLUM", "AMBER", "SCARLET", "EMERALD", "COBALT"}
     structure = {"INK", "GRAPHITE", "MUTE", "SLATE", "MIST"}
+    # HUE COLLISION ROUND. granite3.3:8b was TANGERINE and is now VIOLET. This
+    # gate named no tone for it, so nothing above needed to change to let the
+    # move through; what is ADDED is a refusal. TANGERINE is 9.7 dE76 from the
+    # ensemble's AMBER at DEEP and 17.7 at CORE, and a visual audit read the
+    # two as one hue at print size, so a public model drawn in TANGERINE again
+    # now fails here even though no live role "owns" the ramp by name.
+    collides = {"TANGERINE": "AMBER, the detector ensemble"}
     for key, hue in sorted(marked.items()):
+        if hue in collides:
+            bad.append(("PUBLIC_MODEL_MARK",
+                        f"{key} is {hue}, which reads as {collides[hue]} "
+                        f"at print size"))
         if hue in taken:
             bad.append(("PUBLIC_MODEL_MARK",
                         f"{key} is {hue}, which a live role already owns"))
@@ -211,6 +223,11 @@ def check_text_on_ground():
     # before this is every tone against every ground, drawn or not: the pairs
     # actually drawn on the new grounds are COBALT_DEEP, MUTE and GRAPHITE on
     # COBALT_WASH, and INK on the two column grounds.
+    # HUE COLLISION ROUND. The exemplar's discharge column is no longer
+    # TANGERINE_TINT (it read as the ensemble's AMBER); it is the neutral
+    # PLATE_EDGE, so that ground replaces TANGERINE_TINT below. Nothing is
+    # dropped from the check: TANGERINE_TINT is drawn on no live canvas, and
+    # this list has only ever named grounds that are.
     text_tones = {"INK": style.INK, "MUTE": style.MUTE,
                   "GRAPHITE": style.GRAPHITE,
                   "SCARLET_DEEP": style.SCARLET.DEEP,
@@ -221,7 +238,7 @@ def check_text_on_ground():
                "MIST": style.MIST,
                "COBALT_WASH": style.COBALT.WASH,
                "AZURE_WASH": style.AZURE.WASH,
-               "TANGERINE_TINT": style.TANGERINE.TINT}
+               "PLATE_EDGE": style.PLATE_EDGE}
 
     bad = []
     for tn, tv in text_tones.items():
@@ -573,9 +590,17 @@ CATEGORY_GROUNDS = {
     # names what is drawn. The exemplar's two note columns are a WASH and a
     # TINT of different ramps, 0.136 apart; two WASH stops would be 0.04 apart
     # and would fail here, which is this gate doing its job.
-    "fig-exemplar":            ["AZURE_WASH", "TANGERINE_TINT"],
+    # HUE COLLISION ROUND. Two expectations below follow the canvases, as the
+    # colour round's did. The exemplar's discharge column was TANGERINE_TINT
+    # and is the neutral PLATE_EDGE (the orange read as the ensemble's AMBER);
+    # against AZURE_WASH that is 0.201 apart, wider than the 0.136 it
+    # replaces. The power figure shaded the region UNDER its curve in
+    # COBALT_WASH and now shades the region ABOVE it in MIST, so that shading
+    # means "detectable" on it as it does on the forest; MIST against paper is
+    # 0.237 apart. The 0.10 gate itself is untouched.
+    "fig-exemplar":            ["AZURE_WASH", "PLATE_EDGE"],
     "fig-prevalence-response": ["MIST", "PAPER"],   # over-prediction wedge
-    "fig-power":               ["COBALT_WASH", "PAPER"],   # under the curve
+    "fig-power":               ["MIST", "PAPER"],   # above the curve
     "fig-forest":              [],   # families separated by gap and hairline
     "fig-ceiling":             ["COBALT_WASH", "PAPER"],   # above both ceilings
     # a sequential heatmap field is not a category ground: its fills encode a

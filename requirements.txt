@@ -10,12 +10,27 @@
 # accord/thesis/figures/, and accord/thesis/figures/tools/check_figure_invariants.py
 # and measure_ink.py. This is the set the README's "Rebuild and verify" and
 # "Regenerate figures" steps need.
-numpy>=1.26.4
-pandas>=2.2.2
-scipy>=1.13.1
-scikit-learn>=1.5.1
-matplotlib>=3.9.2
-Pillow>=10.4.0
+#
+# Pinned exactly, to the versions recorded in environment.yml (Python 3.12.7).
+# These pins reproduce every number the gates check. They do NOT by themselves
+# reproduce the committed figure PDFs pixel for pixel: the matplotlib wheel on
+# PyPI bundles FreeType 2.6.1, the author's conda build links FreeType 2.12.1,
+# and text metrics differ between them. Under pip, pass 10 of
+# verify_thesis_deep.py says so and reports the figures as "not comparable in
+# this environment" without failing; use environment.yml for the exact
+# comparison.
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+scikit-learn==1.5.1
+matplotlib==3.9.2
+Pillow==10.4.0
+# pd.read_parquet (accord/prevalence_replication/build_pools.py and the other
+# public-control scripts that read the committed .parquet files).
+pyarrow==16.1.0
+# Optional. Pass 10 rasterises with poppler's pdftoppm; PyMuPDF is only the
+# fallback it uses when pdftoppm is not on PATH.
+pymupdf==1.28.2
 
 # ---- experiment code (not needed to rebuild the thesis PDF or run the gates) ----
 # These are imported by scripts under accord/ that reproduce individual

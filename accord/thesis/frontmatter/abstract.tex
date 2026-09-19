@@ -13,7 +13,7 @@
   % four lines, so the title is single-spaced and the gaps are one and two lines.
   \begingroup\RaggedRight\setlength{\parindent}{0pt}
   \hangindent=3in\hangafter=1
-  \makebox[3in][l]{Title of the Thesis:}{\hyphenpenalty=10000\exhyphenpenalty=10000\MakeUppercase{Where a Cross-Note Medication Contradiction Detection Pipeline Fails: A Controlled Failure Analysis}\par}
+  \makebox[3in][l]{Title of the Thesis:}{\hyphenpenalty=10000\exhyphenpenalty=10000\MakeUppercase{Where a Clinical NLP Pipeline Fails: A Stage-by-Stage Audit of Cross-Note Medication Contradiction Detection}\par}
   \hspace*{3in}Ricky Gole, Master of Science in Advanced Computing\par
   \hspace*{3in}[MONTH YEAR]\par
   \vspace{\baselineskip}
@@ -28,21 +28,21 @@
   % no citations, no keywords. Write this LAST.
   {\doublespacing\RaggedRight\parindent=0.5in\RaggedRightParindent=0.5in
   A nursing note and a discharge summary can disagree about a medication, and only the summary leaves
-the hospital. This thesis audits a four-stage pipeline detecting such contradictions in an intensive
-care database. Three of the four stage readings did not survive their checks (one not established,
-two unsupported); the fourth, the evaluation's near-chance reading, survived as a bounded null; one
-annotator leaves it fragile. Candidate precision is not established, and credited architectural
+the hospital. This thesis audits this project's own earlier readings of a four-stage pipeline
+detecting such contradictions in an intensive care database. Three of the four stage readings
+did not survive their checks (one not established, two unsupported); the fourth, the evaluation's near-chance reading, survived as a bounded null; one
+annotator leaves it fragile. Candidate precision is not established; credited architectural
 components are unsupported by code audit. A detector ensemble retrained on subject-disjoint rows is
 indistinguishable from chance on 253 non-ambiguous pairs, as is the plain control detector retrained
 on reproducible labels. Those pairs resolve only area under the curve effects above 0.7466 under
-one test and 0.8084 under another. A feasibility gate, applied after training, shows that a labeller flagging 261 of 299 pairs,
-against 12 a pharmacist confirmed, had agreement not distinguishable from chance, and at this
-marginal it could not have been (smallest attainable one-sided significance 0.1894). A failed gate
-says this pilot could not have tested the labeller; passing it is no evidence the labeller works.
+one test, 0.8084 under another. A feasibility gate, applied after training, finds that a
+labeller flagging 261 of 299 pairs, against 12 a pharmacist confirmed, left no outcome able to
+reject chance agreement (smallest attainable one-sided significance 0.1894); the measured
+agreement did not. A failed gate says this pilot could not have tested the labeller; passing it is no evidence the labeller works.
 Trigger-exemplar dissociation is a bug pattern observed once here: the original positional selector
 shows an exemplar outside the trigger set for 41.4 percent of the rebuilt pool's Rules 1 and 2
-candidates, a design rate, not the annotated exemplars' defect rate. Before training, builders
-should measure a labeller's positive rate and agreement on a small expert-labelled pilot.
+candidates, a design rate that leaves the annotated exemplars' defect rate unresolved. Before
+training, builders should measure a labeller's positive rate on a small expert-labelled pilot.
 Unsolvability is not shown.
 \par}
 \end{frontmatterpage}

@@ -63,9 +63,17 @@ def main():
         ("base_rate", base),
         ("min_detectable_abs_diff_80pct_rule12_above_base", mdd),
     ])
+    # Stored at 12 significant digits. The 16th and 17th digits of these floats
+    # move between SciPy builds, which made every rerun a diff in the artifact
+    # and the register with no change in anything the thesis prints.
+    for k, v in out.items():
+        if isinstance(v, float):
+            out[k] = float(f"{v:.12g}")
     OUT.write_text(json.dumps(out, indent=2) + "\n")
     facts = json.loads(FACTS.read_text(), object_pairs_hook=collections.OrderedDict)
-    for k in [k for k in facts if k.split(".")[0] == PREFIX]:
+    # Keys this run no longer produces are dropped; the rest are assigned in
+    # place, so a rerun leaves the register's key order as it found it.
+    for k in [k for k in facts if k.split(".")[0] == PREFIX and k.split(".", 1)[1] not in out]:
         del facts[k]
     for k, v in out.items():
         facts[f"{PREFIX}.{k}"] = {"artifact": f"results/accord/stats/exemplar_power_exact.json::{k}", "value": v}

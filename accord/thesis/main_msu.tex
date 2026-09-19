@@ -47,6 +47,8 @@
 \renewcommand{\cftchappresnum}{Chapter }
 \renewcommand{\cftchapaftersnum}{:}
 \setlength{\cftchapnumwidth}{6.4em}
+% Three-digit page numbers touched the dot leaders at the default width.
+\makeatletter\renewcommand{\@pnumwidth}{2.2em}\renewcommand{\@tocrmarg}{3.2em}\makeatother
 % List of Tables / List of Figures entries read "Table 1 Title" / "Figure 1 Title"
 % as in the template; the number box is widened to hold the word and a two-digit
 % number, and the entries sit flush left.
@@ -120,6 +122,15 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{longtable}
+% array is already loaded by longtable; it is named here because the table
+% column specifications below depend on its >{...} syntax directly.
+\usepackage{array}
+% Wrapped-text table cells: ragged right with hyphenation suppressed, so a
+% narrow column never splits a word ("selec-tor", "super-vision"). Used as
+% >{\tblragged}p{...} in the chapter tables. The penalty lives here and not in
+% the chapter files because the numeric gate scans those for unregistered
+% numbers.
+\newcommand{\tblragged}{\raggedright\arraybackslash\hyphenpenalty=10000\relax}
 \usepackage{caption}
 \usepackage{titlesec}
 \usepackage{float}
@@ -184,7 +195,7 @@
     test {\iffieldundef{volume}} and test {\iffieldundef{number}} and
     test {\iffieldundef{eprint}} and test {\iflistundef{publisher}} }
     {\iffieldundef{doi}
-       {\iffieldundef{url}{}{\usebibmacro{url+urldate}}}
+       {\iftoggle{bbx:url}{}{\iffieldundef{url}{}{\usebibmacro{url+urldate}}}}
        {\printfield{doi}}}
     {}}
 % A URL printed by that branch may break after any character and carries no
@@ -298,7 +309,7 @@
 
 \hypersetup{
   pdfauthor={Ricky Gole},
-  pdftitle={Where a Cross-Note Medication Contradiction Detection Pipeline Fails: A Controlled Failure Analysis}}
+  pdftitle={Where a Clinical NLP Pipeline Fails: A Stage-by-Stage Audit of Cross-Note Medication Contradiction Detection}}
 
 \begin{document}
 \RaggedRight

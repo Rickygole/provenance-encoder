@@ -30,8 +30,8 @@ LOG_DIR = assert_local_only(MIMIC_LOCAL_ONLY_DIR / "logs")
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG = LOG_DIR / f"c129_run_{time.strftime('%Y%m%dT%H%M%S')}.log"
 OUT = ROOT / "results" / "accord" / "c129_exemplar_prevalence" / "c129.json"
-RECORDED_SUMMARY = assert_local_only(ROOT / "accord" / "local_only" / "phase3_mining_summary.json")
-MENTIONS_PATH = assert_local_only(ROOT / "accord" / "local_only" / "hf_medication_mentions.csv.gz")
+RECORDED_SUMMARY = assert_local_only(MIMIC_LOCAL_ONLY_DIR / "accord" / "phase3_mining_summary.json")
+MENTIONS_PATH = assert_local_only(MIMIC_LOCAL_ONLY_DIR / "accord" / "hf_medication_mentions.csv.gz")
 
 Z = 1.959963984540054  # scipy.stats.norm.ppf(0.975)
 

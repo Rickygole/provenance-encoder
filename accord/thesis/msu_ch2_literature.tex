@@ -15,11 +15,11 @@ This thesis applies no new method. It takes a pipeline whose shape is standard i
 language processing (NLP), rule-based candidate mining followed by language model weak supervision
 followed by a purpose-built neural detector, and runs at each stage a check that separates a real
 finding from an artifact of the measurement. The checks are borrowed, each credited again wherever
-it appears later. What this chapter has to establish is therefore less than a conventional review would: the gap lies among the things that have been checked, not among the methods. The review runs along five threads: the clinical task itself, for which no system or benchmark in this thesis's
+it appears later. What this chapter has to establish is therefore less than a conventional review would: the methods are in print, and the gap lies among the things that have been checked. The review runs along five threads: the clinical task itself, for which no system or benchmark in this thesis's
 configuration was found; weak supervision and label noise, where a single language model annotating a
 rare class falls outside the theory the field's tooling rests on; evaluation under low prevalence, a
 literature more than half a century old that this thesis applies and does not extend; controls and
-construct validity, the methodological backbone; and selection and stage-by-stage
+construct validity, the methodological backbone; and stage-by-stage
 auditing of pipelines. Each thread supplies a constraint the next has to respect, and the final section states what the
 five leave.
 
@@ -37,7 +37,7 @@ a meaningful share of discharged patients \citep{moore2003discontinuity}, advers
 discharge are frequently drug-related and preventable \citep{forster2003adverse}, the document meant
 to prevent them is itself unreliable in content and timing \citep{kripalani2007deficits}, and its
 timeliness is associated with patient outcomes \citep{li2013timeliness}. Two features of that
-literature shape the computational formulation. The most common discrepancy category is omission, a relation between a statement and the absence of one, not a disagreement between two statements, and that asymmetry does not survive translation into a sentence-pair classification
+literature shape the computational formulation. The most common discrepancy category is omission, which relates a statement to the absence of one where a contradiction relates two statements, and that asymmetry does not survive translation into a sentence-pair classification
 task. The two sides of a cross-note comparison are also not interchangeable: a discharge medication
 list is an instruction that will be acted on while a nursing note records what was observed, and
 that relation has a direction that carries the consequence.
@@ -47,9 +47,9 @@ that relation has a direction that carries the consequence.
 Natural language inference classifies a premise-hypothesis pair as entailment, contradiction, or neutral, and the large general corpora \citep{bowman2015snli,williams2018mnli} made it a standard
 probe of sentence-level semantic competence. MedNLI \citep{romanov2018mednli} carried the task into
 the clinical domain, using clinician-written hypotheses over patient-record premises, and remains the
-closest established benchmark to the problem studied here. Later clinical resources moved toward
+closest established benchmark to the problem studied here. Later clinical resources moved towards
 multi-evidence and numerical reasoning over structured trial documents \citep{jullien2023nli4ct},
-still within one document, not across documents written by different roles.
+still within one document and never across documents written by different roles.
 
 Contradiction detection as a task distinct from entailment was posed by
 \citet{demarneffe2008contradictions}, whose typology separates negation, numeric, antonymy, and
@@ -71,17 +71,20 @@ well; this thesis has a pipeline that scores poorly and needs to know whether th
 \subsection{What has actually been built for the clinical case}
 
 No system or benchmark was found for the case this thesis addresses, medication contradictions
-between two free-text notes of one admission. That statement covers this configuration only and makes
-no claim about how much work exists on contradiction in clinical text generally. The nearest system
+between two free-text notes of one admission. Neighbouring work exists:
+\citet{kwon2024ehrcon} check clinical notes against the structured tables of the same record,
+\citet{makhervaks2023clinical} detect contradictions between sentences of medical abstracts with
+ontology-based distant supervision, and \citet{benabacha2025medec} benchmark error detection within
+a single clinical note. None compares two free-text notes of one admission. The nearest system
 found is instructive. \citet{li2015discrepancy} report an end-to-end hybrid
 algorithm for medication discrepancy detection at Cincinnati Children's Hospital, comparing
 structured discharge prescription lists against free-text notes for 271 patients in a Complex Care
 Medical Home Program. Component performance on entity detection and attribute linkage is strong, but
-combining stages drops precision, recall, and $F$-measure to 71.5 percent, 65.2 percent and 68.2 percent on discrepant
+combining stages drops precision, recall, and $F$-measure to 71.5 percent, 65.2 percent, and 68.2 percent on discrepant
 medications, well below the matched-medication figures. Three properties of that setting explain why
 the numbers do not transfer, and between them they define the problem this thesis takes on. One side
-of the comparison is structured, not extracted from prose; the cohort is a care-management
-program followed deliberately and so has a raised base rate; and the comparison is anchored, since
+of the comparison is structured, where here both sides must be extracted from prose; the cohort is a care-management
+programme followed deliberately and so has a raised base rate; and the comparison is anchored, since
 every prescription in the list is a candidate and no retrieval step can silently bound recall.
 Remove all three, as a free-text-to-free-text comparison over an unselected critical-care cohort
 does, and detection becomes inseparable from retrieval: a candidate generator sits in front of the
@@ -113,8 +116,8 @@ ontology-driven weak supervision matches hand-labelled training data for entity 
 by writing rules over an auxiliary text modality \citep{dunnmon2020crossmodal};
 \citet{zhang2022wssurvey} survey the paradigm.
 
-The label model estimates each source's accuracy from the agreements and disagreements among several sources, taking their errors as conditionally independent given the true label except where a correlation between sources is modelled, so that disagreement is informative and aggregation recovers a better label than any single source. With one source, aggregation is the identity function and the generative model has no signal
-to fit; this is the stated premise, not a subtlety buried in the proofs. A single instruction-tuned
+The label model estimates each source's accuracy from the agreements and disagreements among several sources, taking their errors as conditionally independent given the true label except where a correlation between sources is modelled. Disagreement is then informative, and aggregation recovers a better label than any single source. With one source, aggregation is the identity function and the generative model has no signal
+to fit, which the method states as its premise. A single instruction-tuned
 model puts a project in exactly that one-source position, and the literature supplies no check that
 can be run before annotation when only one source is available.
 
@@ -129,7 +132,7 @@ Calibration is a second problem: the output probabilities of modern neural class
 miscalibrated unless calibration is measured and corrected \citep{guo2017calibration}, and a language
 model's few-shot predictions shift with the format of the prompt and the choice and order of its
 examples \citep{zhao2021calibrate}. Neither work studies a confidence value that a language model
-writes beside its label, so such a value is treated here as unmeasured.
+writes beside its label. Such a value is treated here as unmeasured.
 
 Label noise has its own literature. \citet{frenay2014labelnoise} survey classification under label
 noise and separate the cases that matter: noise completely at random, noise depending on the true
@@ -147,10 +150,10 @@ analysis, and show that direct use of surrogate labels causes substantial bias a
 intervals even at 80 percent to 90 percent surrogate accuracy. Their remedy, design-based supervised learning, is
 a doubly-robust estimator combining surrogate labels with a smaller set of gold-standard labels,
 giving valid inference without assuming the surrogate is good. Two things follow, and only one is usually noticed. The headline is that high annotator accuracy is
-not sufficient for a valid downstream conclusion, so reporting it is not a validation step. The
+not sufficient for a valid downstream conclusion: reporting it is not a validation step. The
 second is that the correction itself requires gold labels on a subsample, which the workflow that
 used a language model to avoid annotation entirely cannot supply. Their estimand is a population
-quantity in a social-science analysis, not the training signal of a detector, and no work was
+quantity in a social-science analysis. It is not the training signal of a detector, and no work was
 found mapping the result to the case where surrogate labels are the training targets themselves. What
 transfers is the shape of the warning: accuracy on the annotator's own terms says nothing about the
 validity of what is built on it.
@@ -248,7 +251,7 @@ noncausal association between exposure and outcome threatens any causal claim, s
 by finding an exposure known not to cause the outcome, or an outcome known not to be caused by the
 exposure, and checking whether the analysis nonetheless produces an association. An association where
 none can exist is evidence that the analysis is picking up confounding, recall bias, or a defect in procedure, though the control does not identify which. A positive control runs the same analysis in
-the opposite direction, on a case where an effect is already known to exist, so the result speaks about the instrument, not the question asked of it; \citet{lipsitch2010negative} do not
+the opposite direction, on a case where an effect is already known to exist. Its result describes the instrument and leaves the question untouched; \citet{lipsitch2010negative} do not
 formalise this direction. The transfer to a machine learning pipeline is direct: replace the
 substantive input with one that cannot carry the claimed information, hold everything else fixed,
 and see whether the reported effect survives.
@@ -258,7 +261,7 @@ and see whether the reported effect survives.
 \citet{adebayo2018sanity} use the same logic in their sanity checks for saliency maps. A model randomisation test
 progressively randomises trained weights and asks whether the saliency map changes, and a data
 randomisation test retrains on permuted labels and asks the same; some widely used methods produce
-visually plausible maps independent of both, so those maps cannot be evidence about the model. The
+visually plausible maps independent of both, which means those maps cannot be evidence about the model. The
 design generalises past saliency to any component credited with contributing something: replace what
 it consumes with something that cannot contain the credited signal and see whether the contribution persists.
 
@@ -271,7 +274,7 @@ defines selectivity as the gap between linguistic and control task accuracy; com
 have poor selectivity, dropout does not fix this for multilayer perceptron probes, and a more
 selective representation layer can win despite lower raw accuracy. \citet{belinkov2022probing}
 synthesises the literature that followed: probe accuracy alone identifies neither what a
-representation encodes nor whether the model uses it. The transfer to an architecture is this thesis's own inference, not Belinkov's: an ordinal or categorical feature a component is credited with exploiting can be replaced with an arbitrary assignment of the same shape, and if
+representation encodes nor whether the model uses it. The transfer to an architecture is this thesis's own inference, which Belinkov does not draw: an ordinal or categorical feature a component is credited with exploiting can be replaced with an arbitrary assignment of the same shape, and if
 that assignment recovers the gain, the credited feature was not the source.
 
 \subsection{Leakage and measurement}
@@ -291,7 +294,7 @@ frequently mask disagreements about the underlying construct. The question here 
 detector reaches some score but whether what is scored, a rule-mined candidate pair judged by one
 annotator against heuristic-selected evidence, is a measurement of clinical contradiction.
 
-\paragraph{What this thesis takes, and what it does not claim.}
+\paragraph{What this thesis takes and what it does not claim.}
 Table~\ref{tab:lit-controls} lists the checks this thesis actually ran and the work each borrows
 from. The negative, randomisation, and control-task designs above were not run; the architecture components were examined by code audit instead. No row is itself a contribution.
 
@@ -300,16 +303,22 @@ from. The negative, randomisation, and control-task designs above were not run; 
 \label{tab:lit-controls}
 \centering
 \small
-\begin{tabular}{@{}p{2.1in}p{1.8in}p{1.7in}@{}}
+\begin{tabular}{@{}>{\tblragged}p{2.5in}>{\tblragged}p{1.85in}>{\tblragged}p{1.25in}@{}}
 \toprule
 \textbf{Check run} & \textbf{Borrowed from} & \textbf{Stage} \\
 \midrule
 Code audit of the exemplar selector & \citet{sculley2015debt} & Candidate mining \\
+\addlinespace[3pt]
 Marginal ceiling and attainable floor & \citet{cohen1960kappa}, \citet{tarone1990modified} & Weak supervision \\
+\addlinespace[3pt]
 Measured agreement with expert labels & \citet{pangakis2023validation} & Weak supervision \\
+\addlinespace[3pt]
 Code audit for target leakage & \citet{kaufman2012leakage} & Architecture \\
+\addlinespace[3pt]
 Rule-stratum comparison & \citet{barocas2021disaggregated} & Evaluation \\
+\addlinespace[3pt]
 Power analysis for AUROC & \citet{hanley1982meaning} & Evaluation \\
+\addlinespace[3pt]
 Construct validity framing & \citet{jacobs2021measurement} & Task definition \\
 \bottomrule
 \end{tabular}
@@ -319,7 +328,7 @@ naming task definition names a framing check that applies before any stage rathe
 them.}
 \end{table}
 
-\section{Selection, Pipelines, and Disaggregated Evaluation}
+\section{Auditing a Pipeline Stage by Stage}
 \label{sec:lit-selection}
 
 The literature on disaggregated evaluation bears on this thesis only through the idea of auditing a
@@ -327,8 +336,8 @@ pipeline stage by stage, since its fairness quantities are not claims about this
 contradiction detector. \citet{biswas2021fairpreprocessing} already audit at stage level: they study
 fairness introduced by data preprocessing rather than by the classifier, evaluate 37 pipelines drawn
 from three sources using causal fairness measures, and show how the local fairness of individual
-preprocessing stages composes into the fairness of the pipeline as a whole. What differs here is the object audited, not the idea of auditing by stage, which is theirs. Their metric, fairness against protected attributes, is defined at every stage,
-whereas the quantity here is the validity of each stage's evidential claim, whether a candidate pool
+preprocessing stages composes into the fairness of the pipeline as a whole. The idea of auditing by stage is theirs; what differs here is the object audited. Their metric, fairness against protected attributes, is defined at every stage,
+whereas the quantity here is the validity of each stage's evidential claim: whether a candidate pool
 contains the pairs it should, whether a weak labeller's marginal is usable, whether an architectural
 component contributes what it is credited with, and whether the evaluation could resolve an effect.
 These are stage-specific and not comparable to one another, so they cannot be composed the way a

@@ -27,13 +27,14 @@ following changes only:
      exemplar-correctness measurement in phase 3.
 
 Local only. Prints aggregate counts. Writes note-derived sentence text only
-under local_only/ (gitignored), never elsewhere.
+under $MIMIC_LOCAL_ONLY_DIR/accord/ (outside this tree), never elsewhere.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import time
 from pathlib import Path
@@ -44,7 +45,8 @@ import spacy
 from dictionaries import ABBREV, ACTION_PATTERNS, ALL_DRUGS, NEGATION, VARIANTS, parse_dose, resolve_action
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / "local_only"
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUT = Path(MIMIC_LOCAL_ONLY_DIR) / "accord"
 
 _ABBREV_RES = [(re.compile(r"\b" + re.escape(a) + r"\b", re.IGNORECASE), full) for a, full in ABBREV.items()]
 _VARIANT_RES = [(re.compile(r"\b" + re.escape(v) + r"\b", re.IGNORECASE), correct) for v, correct in VARIANTS.items()]

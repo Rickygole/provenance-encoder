@@ -34,6 +34,7 @@ import matplotlib.ticker
 import style
 from style import (
     COBALT, AZURE, EMERALD, AMBER, PLUM, SCARLET, MAGENTA, TANGERINE, CYAN,
+    VIOLET,
     COBALT_DEEP, COBALT_CORE, COBALT_TINT, COBALT_WASH, COBALT_BARE,
     AZURE_DEEP, AZURE_CORE, EMERALD_DEEP, EMERALD_CORE, EMERALD_TINT,
     EMERALD_WASH, AMBER_DEEP, AMBER_CORE, AMBER_TINT, AMBER_WASH,
@@ -41,6 +42,7 @@ from style import (
     SCARLET_WASH,
     PAPER, INK, GRAPHITE, MUTE, SLATE, MIST, HAIR, PLATE_EDGE, FOG,
     WEAK_LABELLER, ENSEMBLE_DEEP, ENSEMBLE_CORE, PUBLIC_MODEL_MARK,
+    PUBLIC_MODEL_NAME,
     BOUND_DEEP, BOUND_WASH,
     T_HEADLINE, T_CLAIM, T_DECK, T_AXIS, T_TICK, T_SERIES, T_NOTE, T_PANEL,
     LW_SPINE, LW_DATA, LW_REF, LW_INTERVAL, MS_DOT, MS_MARK, MS_SEED,
@@ -50,6 +52,7 @@ style.setup()
 import matplotlib.pyplot as plt
 
 HERE = pathlib.Path(__file__).parent
+OUTDIR = style.out_dir(HERE)  # HERE unless ACCORD_FIG_OUT redirects it
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 
 
@@ -121,7 +124,11 @@ def make_fig_prevalence_response():
     # stays MIST: three hues is this canvas's whole budget. MODEL_HUE is the
     # name check_figure_invariants.py compares against style.ENTITY_HUE and
     # style.PUBLIC_MODEL_MARK.
-    MODEL_HUE = {"llama3:8b": MAGENTA, "granite3.3:8b": TANGERINE,
+    # HUE COLLISION ROUND. granite3.3:8b was TANGERINE, which at print size
+    # was the ensemble's AMBER two figures on (9.7 dE76 apart at DEEP). It is
+    # VIOLET now, 104.5 from AMBER at DEEP and used for nothing else; the
+    # measurements are in style.py. Marker and dash are unchanged.
+    MODEL_HUE = {"llama3:8b": MAGENTA, "granite3.3:8b": VIOLET,
                  "qwen3:8b": CYAN}
     # ROUND 10 (audit item 4). Per-point inline labels used to name series in
     # the left panel only, leaving the right panel unlabelled, and the
@@ -130,6 +137,8 @@ def make_fig_prevalence_response():
     # share one legend below the headline instead, so no inline label is
     # anchored to a single, sometimes-crowded point.
     # Models are dodged on x so their intervals do not print on one another.
+    # The dodge is a drawing offset, not data: all three models were run at
+    # the same four prevalence levels, and the figure's note says so.
     DODGE = {"llama3:8b": -0.004, "granite3.3:8b": 0.0, "qwen3:8b": +0.004}
     # FIGURE POLISH. X_HI was 0.27 under a last tick of 0.2, so the 0.25 sweep
     # level sat past the end of the labelled axis. The axis now runs to a tick.
@@ -141,8 +150,12 @@ def make_fig_prevalence_response():
     # keep their original absolute size.
     fig, axes = plt.subplots(1, 2, figsize=(FIGW, 3.60), sharey=True)
     canvas(fig)
+    # VISUAL AUDIT. wspace was 0.075, a 14pt gutter, and the left panel's last
+    # tick label "0.3" and the right panel's first, "0", sat 5pt apart and read
+    # as one number. The gutter is now 22pt. Both end ticks stay: each panel
+    # is read on its own axis, and the axis still runs from a tick to a tick.
     fig.subplots_adjust(left=0.0930, right=0.9830, top=0.7379, bottom=0.1155,
-                        wspace=0.075)
+                        wspace=0.120)
     for c, pr in enumerate(prompts):
         ax = axes[c]
         gx = np.linspace(0, X_HI, 2)
@@ -204,13 +217,18 @@ def make_fig_prevalence_response():
 
     # ROUND 10 (audit item 4). One legend, shared by both panels, in the room
     # H's growth opened up between the deck and the panel titles.
+    # VISUAL AUDIT. The legend printed the registry tags (llama3:8b) where
+    # every table in the thesis prints the display name (Llama 3 8B); it now
+    # prints style.PUBLIC_MODEL_NAME, so figure and table name one model one
+    # way.
     import matplotlib.lines as mlines
     handles = [mlines.Line2D([], [], color=MODEL_HUE[m].DEEP,
                              linestyle=PUBLIC_MODEL_MARK[m][1],
                              marker=PUBLIC_MODEL_MARK[m][0], ms=6.0,
                              markerfacecolor=MODEL_HUE[m].CORE,
                              markeredgecolor=MODEL_HUE[m].DEEP,
-                             markeredgewidth=1.0, lw=1.8, label=m)
+                             markeredgewidth=1.0, lw=1.8,
+                             label=PUBLIC_MODEL_NAME[m])
                for m in models]
     # Each name in its own series' DEEP tone, the set's rule for a series label.
     leg = fig.legend(handles=handles, loc="upper center", ncol=3, frameon=False,
@@ -229,7 +247,7 @@ def make_fig_prevalence_response():
               # own clinical figure for scale.
               deck=(f"These panels are on public text only; on the clinical pairs the "
                     f"same over-call ratio reaches {clin_hi:.1f} times."))
-    fig.savefig(HERE / "fig-prevalence-response.pdf"); plt.close(fig)
+    fig.savefig(OUTDIR / "fig-prevalence-response.pdf"); plt.close(fig)
     print("wrote fig-prevalence-response.pdf")
 
 
@@ -243,7 +261,7 @@ def make_fig_prevalence_response():
 # reason of record is in tools/check_figure_invariants.py.
 #
 # It goes on being built, rather than being switched off the way fig_frontier.py
-# and make_figures_extra.py were, because this module still builds three live
+# was, because this module still builds three live
 # figures and because that is what this directory already does with a retired
 # figure whose generator shares a file: make_figures.py has kept building
 # fig-funnel, fig-prevalence and fig-tracking since each of them was retired.
@@ -319,7 +337,7 @@ def make_fig_scaling():
     signature(fig, EMERALD_DEEP,
               "The from-scratch arm rises with size\n"
               "and never reaches the pretrained band.")
-    fig.savefig(HERE / "fig-scaling.pdf"); plt.close(fig)
+    fig.savefig(OUTDIR / "fig-scaling.pdf"); plt.close(fig)
     print("wrote fig-scaling.pdf")
 
 
@@ -387,7 +405,16 @@ def make_fig_forest():
     # the minimum that clears (tools/measure_ink.py's chroma floor is a
     # ratio to total canvas area, and blank canvas above the panels dilutes
     # it) rather than the first, more generous guess.
-    H = 2.89
+    # VISUAL AUDIT. The shaded-band note now says which side is shaded and
+    # spells "percent", which made it 24pt wider than the canvas on one line,
+    # so it is set on two and needs 0.15in more above the AUROC panel. Only
+    # 0.07in of that is new canvas: the other 0.08in is taken from the 17pt of
+    # bare paper that sat under the MCC panel's tick labels, by moving both
+    # panels and the hairline between them down together (A0, M0 and Y_RULE
+    # below; AH and MH are untouched, so both panels keep their size). The
+    # chroma floor in tools/measure_ink.py is a ratio to canvas area, and this
+    # canvas sits 4 percent over it rather than 1.
+    H = 2.96
     fig = plt.figure(figsize=(FIGW, H))
     canvas(fig)
     X_LEFT, X_RIGHT, X_VALUE = 0.3250, 0.7700, 0.9950
@@ -398,8 +425,9 @@ def make_fig_forest():
     # reference marks. Those names used to sit at the bottom of each panel,
     # where "chance" touched the 108-pair interval and "no association"
     # crossed the frame.
-    A0, AH = 1.37, 0.71
-    M0, MH = 0.36, 0.53
+    A0, AH = 1.29, 0.71
+    M0, MH = 0.28, 0.53
+    Y_RULE = 1.07          # the hairline between the two panels, in inches
     ax_a = fig.add_axes([X_LEFT, A0 / H, X_RIGHT - X_LEFT, AH / H])
     ax_m = fig.add_axes([X_LEFT, M0 / H, X_RIGHT - X_LEFT, MH / H])
 
@@ -464,13 +492,19 @@ def make_fig_forest():
              "AUROC, decontaminated detector, 95% bootstrap interval",
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
+    # VISUAL AUDIT. This line said "Shaded: 80% power floor" and did not say
+    # which side of the floor the band is on, while the power figure, one
+    # figure earlier, shaded the side that is NOT detectable. Both figures now
+    # shade what IS detectable, in MIST, and both say so in the same words,
+    # with "percent" spelled as the power figure spells it. The two named
+    # floors are kept.
     fig.text(0.012, (A0 + AH + 0.233) / H,
-             f"Shaded: {power * 100:.0f}% power floor "
+             f"Shaded: detectable at {power * 100:.0f} percent power "
              f"({n_pos_floor} positives, simulated Mann-Whitney floor "
-             f"{floor:.4f}; {n_pos_108} positives, analytic floor "
+             f"{floor:.4f};\n{n_pos_108} positives, analytic floor "
              f"{floor_108:.4f}).",
              ha="left", va="bottom", fontsize=T_NOTE, color=MUTE,
-             style="italic")
+             style="italic", linespacing=1.15)
 
     # MCC panel: zero is no association; the ceiling is a bound, drawn as a tick.
     ax_m.set_xlim(-0.02, 0.10)
@@ -515,7 +549,7 @@ def make_fig_forest():
              "MCC against the pharmacist, exact count, no resampling interval",
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
-    fig.add_artist(plt.Line2D([0.012, X_VALUE], [1.15 / H] * 2,
+    fig.add_artist(plt.Line2D([0.012, X_VALUE], [Y_RULE / H] * 2,
                               color=PLATE_EDGE, lw=0.6))
 
     n_pos_253 = fact("decontam.n_positives")
@@ -525,7 +559,7 @@ def make_fig_forest():
               "and 4, no headline estimate is distinguishable from chance.",
               deck="Two units, two rulers: nothing is comparable across the "
                    "panel boundary.")
-    fig.savefig(HERE / "fig-forest.pdf"); plt.close(fig)
+    fig.savefig(OUTDIR / "fig-forest.pdf"); plt.close(fig)
     print("wrote fig-forest.pdf")
 
 
@@ -585,16 +619,18 @@ def make_fig_power():
     curve = np.clip(mde, chance, 1.0)
     # Below the curve, between chance and the analytic minimum detectable
     # AUROC, is what this design could not resolve at the stated power.
-    # COLOUR ROUND: the curve is an analytic bound, so it is BOUND_DEEP and the
-    # region it closes off is BOUND_WASH (COBALT; MIST and a GRAPHITE curve
-    # until then, see style.py). One hue on this canvas: the chance line, the
-    # guide and the two simulated floors stay neutral, because none of them is
-    # the analytic bound. The region is the same region; only its tone moved.
-    # Above the curve is bare paper. tools/measure_ink.py holds this canvas to
-    # a 0.53 coverage floor set when both regions were filled; this canvas
-    # measures under it, and that is recorded in manifest.json rather than
-    # met by tinting the upper region, which would be a band drawn for the tool.
-    ax.fill_between(n_pos, chance, curve, facecolor=BOUND_WASH,
+    # COLOUR ROUND: the curve is an analytic bound, so it is BOUND_DEEP. One
+    # hue on this canvas: the chance line, the guide and the two simulated
+    # floors stay neutral, because none of them is the analytic bound.
+    # VISUAL AUDIT. The shaded region used to be the one UNDER the curve, what
+    # is not detectable, in BOUND_WASH, while the forest shades what IS
+    # detectable: two figures a page apart whose shading meant opposite
+    # things. This canvas now shades the region ABOVE the curve, in the MIST
+    # the forest's bands use, so shading means "detectable at the stated
+    # power" in both, and both regions keep the names they had. Under the
+    # curve is bare paper. The change was made for that reading and not for
+    # tools/measure_ink.py, whose coverage it happens to raise.
+    ax.fill_between(n_pos, curve, Y_HI, facecolor=MIST,
                     edgecolor="none", linewidth=0, zorder=1)
     ax.plot(n_pos, curve, color=BOUND_DEEP, lw=2.2, zorder=4)
     ref_tone = SLATE    # reference and guide lines only; never type
@@ -617,15 +653,18 @@ def make_fig_power():
                   fontsize=T_AXIS)
     ax.set_ylabel(f"Minimum detectable AUROC\n({pct} power)", fontsize=T_AXIS,
                   linespacing=1.3)
-    ax.text(2800, 0.60, f"detectable at {pct} power", ha="right",
-            va="bottom", fontsize=T_SERIES, color=MUTE, zorder=5)
+    # The shaded region's name sits on the shading and says it is the shaded
+    # one. GRAPHITE, 9.5 to 1 on MIST where MUTE was 4.85, and uncased like
+    # the four other labels that now sit on the same field.
+    ax.text(2800, 0.60, f"shaded: detectable at {pct} power", ha="right",
+            va="bottom", fontsize=T_SERIES, color=GRAPHITE, zorder=5)
     # FIGURE POLISH. Was bottom-aligned 3pt over the chance line, so its
     # descenders straddled the dashes, and it could not move up because the
     # analytic-curve label sat in the same region. That label now joins the
     # other two above the curve (below), and this one is centred in the
     # region it names: 8pt over the chance line, 5pt under the curve.
-    # The wash's own name takes the wash's DEEP: 6.27 to 1 on BOUND_WASH,
-    # where MUTE was 5.07.
+    # It names the side the bound closes off, so it keeps the bound's DEEP,
+    # now on bare paper.
     ax.text(14, 0.538, f"not detectable at {pct} power", ha="left",
             va="center", fontsize=T_SERIES, color=BOUND_DEEP, zorder=5)
 
@@ -639,12 +678,22 @@ def make_fig_power():
     # not the curve and stay INK and GRAPHITE. Open ring, filled disc and
     # diamond are the three shapes they always were, so nothing here is told
     # apart by hue alone.
-    X_DODGE = 1.045
-    ax.plot([n_pos_study / X_DODGE], [mde_study], "o", ms=6, markerfacecolor=PAPER,
+    # VISUAL AUDIT. The symmetric 1.045 dodge was 2.5pt each way under 6pt
+    # markers, so the 0.7466 disc still sat on the 0.7355 ring, and it moved
+    # the ring off the curve it is a point of. The ring and the diamond are
+    # now ON the guide, at the study's own positive count, the ring on the
+    # curve; only the Mann-Whitney disc is pulled aside, by X_PULL on the log
+    # axis (about 8pt), and a hairline ties it back to the guide at its own
+    # height so it cannot be read as a different sample size. Markers are a
+    # point smaller, which leaves about 2pt of paper between ring and disc.
+    X_PULL = 1.15
+    ax.plot([n_pos_study], [mde_study], "o", ms=5.0, markerfacecolor=PAPER,
             markeredgecolor=BOUND_DEEP, markeredgewidth=1.3, zorder=7)
-    ax.plot([n_pos_study * X_DODGE], [floor_mw], "o", ms=5.2, color=INK,
+    ax.plot([n_pos_study, n_pos_study * X_PULL], [floor_mw, floor_mw],
+            color=INK, lw=0.6, zorder=6, solid_capstyle="butt")
+    ax.plot([n_pos_study * X_PULL], [floor_mw], "o", ms=4.4, color=INK,
             markeredgewidth=0, zorder=8)
-    ax.plot([n_pos_study], [floor_rule], "D", ms=5.6, color=INK,
+    ax.plot([n_pos_study], [floor_rule], "D", ms=5.0, color=INK,
             markeredgewidth=0, zorder=8)
     # Labels to the right, each joined to its point by a thin leader.
     # AUDIT ITEM 6. Two decimals collapsed 0.7466 to 0.75 and 0.8084 to 0.81
@@ -652,15 +701,15 @@ def make_fig_power():
     # decimals) nor each other; the labels already name which quantity is
     # which, so the fix is precision, not a new label.
     x_lab = 30.0
-    for y_pt, y_lab, text, tone in (
-            (floor_rule, floor_rule + 0.025,
+    for x_pt, y_pt, y_lab, text, tone in (
+            (n_pos_study, floor_rule, floor_rule + 0.025,
              f"registered decision rule, power simulation: {floor_rule:.4f}",
              GRAPHITE),
-            (floor_mw, floor_mw + 0.035,
+            (n_pos_study * X_PULL, floor_mw, floor_mw + 0.035,
              f"Mann-Whitney test, power simulation: {floor_mw:.4f}", GRAPHITE),
-            (mde_study, mde_study - 0.020, f"analytic curve: {mde_study:.4f}",
-             BOUND_DEEP)):
-        ax.plot([n_pos_study * 1.10, x_lab * 0.95], [y_pt, y_lab],
+            (n_pos_study, mde_study, mde_study - 0.020,
+             f"analytic curve: {mde_study:.4f}", BOUND_DEEP)):
+        ax.plot([x_pt * 1.10, x_lab * 0.95], [y_pt, y_lab],
                 color=tone, lw=0.6, zorder=6, solid_capstyle="butt")
         ax.text(x_lab, y_lab, text, ha="left", va="center", fontsize=T_SERIES,
                 color=tone, zorder=7)
@@ -669,7 +718,7 @@ def make_fig_power():
               f"At {n_pos_study} positives, {pct} power needs AUROC "
               f"{floor_mw:.4f} under the Mann-Whitney test\nand {floor_rule:.4f} "
               f"under the registered decision rule.")
-    fig.savefig(HERE / "fig-power.pdf"); plt.close(fig)
+    fig.savefig(OUTDIR / "fig-power.pdf"); plt.close(fig)
     print("wrote fig-power.pdf")
 
 

@@ -1,5 +1,5 @@
 """
-Ten verification passes over the thesis. Wraps the original five and adds five.
+Eleven verification passes over the thesis. Wraps the original five and adds six.
 
 Pass 1   dashes         no em dash, en dash, or unicode minus anywhere
 Pass 2   numbers        every numeric literal traces to VERIFIED_FACTS.json
@@ -10,8 +10,11 @@ Pass 6   overclaim      strong verbs attached to results, outside negation
 Pass 7   references     every \\ref resolves, no duplicate labels
 Pass 8   captions       figure captions above the graphic, substantial, files exist
 Pass 9   template       abstract hard rules and page-setup invariants (FORMAT.md)
-Pass 10  figures        scripts rebuild the committed PDFs pixel-identically,
-                        and no result-file name is drawn on any canvas
+Pass 10  figures        scripts rebuild the committed PDFs pixel-identically
+                        (rendered into a temporary directory; compared only in
+                        the environment recorded in environment.yml), and no
+                        result-file name is drawn on any canvas
+Pass 11  appendix       Appendix B's printed provenance counts match the tools
 
 Passes 1 to 5 run by invoking verify_thesis.py, so the two scripts cannot
 drift. Exit code is nonzero if any gating pass fails.
@@ -21,6 +24,7 @@ Run:  python3 accord/stats/verify_thesis_deep.py
 """
 
 import json
+import os
 import pathlib
 import re
 import shutil
@@ -109,8 +113,7 @@ def _live_figs():
 
 THESIS_FIGS = _live_figs()
 FIG_SCRIPTS = ["make_figures.py", "fig_batch2.py",
-               "fig_threshold_surface.py", "make_figures_extra.py",
-               "fig_frontier.py", "fig_ceiling.py"]
+               "fig_threshold_surface.py", "fig_frontier.py", "fig_ceiling.py"]
 
 # FORMAT.md records no explicit page limit; this is the ceiling this project's
 # own review process has set and reported (150 pages, currently exact). Named
@@ -452,6 +455,44 @@ def pass9_template():
     return problems == 0
 
 
+def _recorded_figure_env():
+    """The matplotlib and FreeType versions the committed figure PDFs were
+    rendered with, read from the pins in environment.yml at the repo root so
+    the gate and the recorded environment cannot disagree."""
+    text = (ROOT / "environment.yml").read_text()
+    rec = {}
+    for pkg in ("matplotlib", "freetype"):
+        m = re.search(rf"^\s*-\s*{pkg}==?([0-9][^\s#]*)", text, re.M)
+        if m:
+            rec[pkg] = m.group(1)
+    return rec
+
+
+def _rasterise(pdf, png, width=700):
+    """First page of `pdf` as a greyscale array `width` pixels wide. poppler's
+    pdftoppm where it is on PATH (any platform), else PyMuPDF into Pillow.
+    Returns None when neither is available."""
+    import numpy as np
+    from PIL import Image
+    pdftoppm = shutil.which("pdftoppm")
+    if pdftoppm:
+        stem = str(png)[:-4]
+        subprocess.run([pdftoppm, "-png", "-singlefile", "-f", "1", "-l", "1",
+                        "-scale-to-x", str(width), "-scale-to-y", "-1",
+                        str(pdf), stem], capture_output=True, check=True)
+        return np.asarray(Image.open(png).convert("L"), float)
+    try:
+        import pymupdf
+    except ImportError:
+        return None
+    with pymupdf.open(str(pdf)) as doc:
+        page = doc[0]
+        z = width / page.rect.width
+        pix = page.get_pixmap(matrix=pymupdf.Matrix(z, z), alpha=False)
+        img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+    return np.asarray(img.convert("L"), float)
+
+
 def pass10_figures():
     print("PASS 10  figure reproducibility")
     figdir = THESIS / "figures"
@@ -477,43 +518,84 @@ def pass10_figures():
     else:
         print("   (pdftotext unavailable; canvas-text check skipped)")
 
+    # The committed PDFs match a rebuild only under the matplotlib and FreeType
+    # they were rendered with (environment.yml). The PyPI matplotlib wheel
+    # bundles a different FreeType from the conda build, which moves text
+    # metrics and canvas sizes; that is a property of the environment, not a
+    # defect in a generator, so it is reported and does not fail the gate. A
+    # generator that crashes or stops producing a bound figure still does.
+    comparable = True
+    try:
+        recorded = _recorded_figure_env()
+        import matplotlib
+        from matplotlib import ft2font
+        running = {"matplotlib": matplotlib.__version__,
+                   "freetype": ft2font.__freetype_version__}
+        diffs = [f"{k} {running[k]} (recorded {recorded.get(k, 'nothing')})"
+                 for k in ("matplotlib", "freetype") if running[k] != recorded.get(k)]
+        if diffs:
+            comparable = False
+            print("   this environment differs from the one recorded in "
+                  "environment.yml: " + "; ".join(diffs))
+    except (OSError, ImportError) as e:
+        comparable = False
+        print(f"   could not establish the rendering environment ({e})")
+
+    # Generators render into a temporary directory (ACCORD_FIG_OUT, honoured by
+    # style.out_dir); the committed PDFs are read and never written.
     with tempfile.TemporaryDirectory() as td:
-        before = {}
-        for n in THESIS_FIGS:
-            p = figdir / f"{n}.pdf"
-            if not p.exists():
-                print(f"   MISSING committed figure: {n}.pdf")
-                problems += 1
-                continue
-            before[n] = pathlib.Path(td) / f"{n}.pdf"
-            shutil.copy(p, before[n])
+        out = pathlib.Path(td) / "rebuilt"
+        env = dict(os.environ, ACCORD_FIG_OUT=str(out))
         for s in FIG_SCRIPTS:
-            r = subprocess.run([sys.executable, str(figdir / s)],
+            r = subprocess.run([sys.executable, str(figdir / s)], env=env,
                                capture_output=True, text=True, cwd=str(figdir))
             if r.returncode != 0:
-                print(f"   {s} FAILED to run: {r.stderr.strip().splitlines()[-1][:100]}")
+                last = (r.stderr.strip().splitlines() or ["no stderr"])[-1][:100]
+                print(f"   {s} FAILED to run: {last}")
                 problems += 1
+        pairs = []
+        for n in THESIS_FIGS:
+            old, new = figdir / f"{n}.pdf", out / f"{n}.pdf"
+            if not old.exists():
+                print(f"   MISSING committed figure: {n}.pdf")
+                problems += 1
+            elif not new.exists():
+                print(f"   {n}: no generator rebuilt it")
+                problems += 1
+            else:
+                pairs.append((n, old, new))
+        differing = []
         try:
-            import numpy as np
-            from PIL import Image
-            for n, old in before.items():
-                new = figdir / f"{n}.pdf"
-                pair = []
-                for src_pdf, out in ((old, f"{td}/a_{n}.png"), (new, f"{td}/b_{n}.png")):
-                    subprocess.run(["sips", "-s", "format", "png",
-                                    "--resampleWidth", "700", str(src_pdf),
-                                    "--out", out], capture_output=True)
-                    pair.append(np.asarray(Image.open(out).convert("L"), float))
-                if pair[0].shape != pair[1].shape:
-                    print(f"   {n}: canvas size changed {pair[0].shape} -> {pair[1].shape}")
-                    problems += 1
-                elif float(np.abs(pair[0] - pair[1]).mean()) > 0.5:
-                    print(f"   {n}: rebuild differs from committed PDF "
-                          f"(mean {np.abs(pair[0]-pair[1]).mean():.3f})")
-                    problems += 1
+            for n, old, new in pairs:
+                a = _rasterise(old, pathlib.Path(td) / f"a_{n}.png")
+                b = _rasterise(new, pathlib.Path(td) / f"b_{n}.png")
+                if a is None or b is None:
+                    print("   (neither pdftoppm nor PyMuPDF available; pixel "
+                          "comparison skipped, script execution still gated)")
+                    differing = None
+                    break
+                if a.shape != b.shape:
+                    differing.append(f"{n}: canvas size changed {a.shape} -> {b.shape}")
+                elif float(abs(a - b).mean()) > 0.5:
+                    differing.append(f"{n}: rebuild differs from committed PDF "
+                                     f"(mean {abs(a - b).mean():.3f})")
         except ImportError:
             print("   (PIL/numpy unavailable; pixel comparison skipped, "
                   "script execution still gated)")
+            differing = None
+        if differing is not None and comparable:
+            for d in differing:
+                print(f"   {d}")
+            problems += len(differing)
+            print(f"   {len(pairs) - len(differing)} of {len(pairs)} bound figures "
+                  "rebuild to the committed PDF")
+        elif differing is not None:
+            for d in differing:
+                print(f"   (not gating) {d}")
+            print(f"   {len(pairs)} bound figures were produced by their generators; NOT "
+                  "COMPARABLE IN THIS ENVIRONMENT, so whether they match the "
+                  "committed PDFs was not tested. Use environment.yml for the "
+                  "exact comparison.")
     print(f"   {'FAIL' if problems else 'pass'}: {problems} figure problems\n")
     return problems == 0
 

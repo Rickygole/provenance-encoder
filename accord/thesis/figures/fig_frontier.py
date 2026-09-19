@@ -42,6 +42,7 @@ style.setup()
 import matplotlib.pyplot as plt
 
 HERE = pathlib.Path(__file__).parent
+OUTDIR = style.out_dir(HERE)  # HERE unless ACCORD_FIG_OUT redirects it
 # figures -> thesis -> accord -> repository root. Was the author's absolute path.
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 
@@ -202,7 +203,7 @@ signature(fig, EMERALD_DEEP,
                 "rows read in pairs. Serving a model remotely costs a tenth of "
                 "what scaling it does."))
 fig.subplots_adjust(left=0.395, right=0.955, top=0.755, bottom=0.105, hspace=0.62)
-fig.savefig(HERE / "fig-capability.pdf")
+fig.savefig(OUTDIR / "fig-capability.pdf")
 plt.close(fig)
 print(f"wrote fig-capability.pdf ({len(rows)} labellers on one denominator, "
       f"3 factors, ceiling {PUBLIC_MAX:.2f})")
@@ -285,7 +286,7 @@ signature(fig, SCARLET_DEEP,
                 "difference could only\nbe attributed to the domain. The "
                 "deciding cell was never built."))
 fig.subplots_adjust(left=0.04, right=0.97, top=0.68, bottom=0.05)
-fig.savefig(HERE / "fig-missing-cell.pdf")
+fig.savefig(OUTDIR / "fig-missing-cell.pdf")
 plt.close(fig)
 print("wrote fig-missing-cell.pdf (3 filled cells, 1 empty)")
 
@@ -367,7 +368,7 @@ signature(fig, EMERALD_DEEP,
                 "four, the few-shot at one in eleven."))
 fig.subplots_adjust(left=0.155, right=0.965, top=0.755, bottom=0.115,
                     hspace=0.20)
-fig.savefig(HERE / "fig-labelnoise.pdf")
+fig.savefig(OUTDIR / "fig-labelnoise.pdf")
 plt.close(fig)
 z = NOISE["by_strategy"]["zero_shot"]
 f = NOISE["by_strategy"]["few_shot"]

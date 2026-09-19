@@ -76,6 +76,7 @@ style.setup()
 import matplotlib.pyplot as plt
 
 HERE = pathlib.Path(__file__).resolve().parent
+OUTDIR = style.out_dir(HERE)  # HERE unless ACCORD_FIG_OUT redirects it
 ROOT = HERE.parents[2]
 FACTS = json.loads((ROOT / "results/accord/VERIFIED_FACTS.json").read_text())
 GATE = json.loads((ROOT / "results/accord/stats"
@@ -205,7 +206,13 @@ def make_fig_ceiling():
     # deployed labeller; COBALT against PLUM is 53 apart under deutan.
     qq = np.linspace(0, 1, 2001)
     upper = np.maximum(np.interp(qq, q299, c299), np.interp(qq, q253, c253))
-    for ax, top in ((axL, 1.0), (axR, ZY1)):
+    # VISUAL AUDIT. The left panel ended at 1.0, which is also where the
+    # ceiling peaks (at the pharmacist's own rate the ceiling is 1), so the
+    # peak was drawn on the top spine and read as clipped. The panel now runs
+    # to YL_TOP; the last tick is still 1.0, and the wash runs to the frame,
+    # because a value above 1 is as unattainable as any other above the curve.
+    YL_TOP = 1.07
+    for ax, top in ((axL, YL_TOP), (axR, ZY1)):
         ax.fill_between(qq, upper, top, facecolor=BOUND_WASH, edgecolor="none",
                         linewidth=0, zorder=0)
     for ax in (axL, axR):
@@ -215,7 +222,7 @@ def make_fig_ceiling():
                 linestyle=DASH_253)
     # A small margin on every side, so the zoom box's bottom and right edges
     # do not sit on the spines.
-    axL.set_xlim(-0.02, 1.02); axL.set_ylim(-0.02, 1.0)
+    axL.set_xlim(-0.02, 1.02); axL.set_ylim(-0.02, YL_TOP)
     axL.set_xticks([0, 0.25, 0.5, 0.75, 1.0])
     axL.set_xticklabels(["0", "0.25", "0.5", "0.75", "1"])
     axL.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
@@ -320,7 +327,7 @@ def make_fig_ceiling():
         headline=(f"Flagging {N_FLAG} of {N} pairs caps MCC at {MCC_CEIL:.2f}; "
                   f"the deployed labeller measured {MCC_OBS:.2f}."),
         deck="The ceiling follows from the two counts alone, so it carries no interval.")
-    fig.savefig(HERE / "fig-ceiling.pdf")
+    fig.savefig(OUTDIR / "fig-ceiling.pdf")
     plt.close(fig)
     print(f"wrote fig-ceiling.pdf: {N_FLAG} of {N}, ceiling MCC {MCC_CEIL:.4f}, "
           f"measured {MCC_OBS:.4f}; {len(ATTAIN)} attaining rows checked, not drawn")

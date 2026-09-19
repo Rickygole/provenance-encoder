@@ -35,10 +35,8 @@ wrong, rarely travels with the patient. This is not a
 documentation defect cleaned up later; it is an instruction that leaves the
 building. The scenario is a constructed composite, but the pattern is real.
 Of the $12$ contradictions a board-certified pharmacist confirmed in this
-project's annotated sample, $3$ involve a loop diuretic and $3$ an
-anticoagulant, $7$ are omissions, not dose or class disagreements, and on a five-point danger scale $1$ was
-rated $4$ and $3$ were rated $5$. Loop diuretics and anticoagulants are drugs with which a
-wrong instruction does damage quickly.
+project's annotated sample, $3$ were rated at the scale maximum of $5$ on a
+five-point danger scale and $1$ at $4$.
 
 Unintended medication discrepancies are common at both admission and
 discharge \citep{cornish2005discrepancies,wong2008reconciliation}. Adverse drug events among hospitalised patients were measured three decades ago
@@ -53,11 +51,11 @@ text or identifier is reported; results are aggregates or keyed to internal
 sequential indices.
 
 The phenomenon is real and it is rare. The pharmacist annotated $299$
-candidate pairs and confirmed $12$, a base rate of $0.0401$ in a pool four
+candidate pairs and confirmed $12$, a base rate of $0.0401$ in a pool that four
 hand-written rules had already enriched; restricting to the $253$ pairs the
 annotator did not mark ambiguous leaves the same $12$ positives, a base rate
 of $0.0474$. These two denominators are different sets, kept apart
-everywhere in this thesis.
+in every chapter.
 
 \section{The Pipeline the Field Would Build}
 \label{sec:intro-pipeline}
@@ -67,13 +65,13 @@ with high-recall rules; (2) label them with an instruction-tuned language
 model, a labeller reported to match or exceed crowd annotators on some
 text-annotation tasks \citep{gilardi2023chatgpt}, because expert annotation
 does not scale;
-(3) distil the labels into a purpose-built neural detector, referred to
-throughout this thesis as ACCORD, over a domain-pretrained clinical encoder
+(3) distil the labels into a purpose-built neural detector, called ACCORD
+throughout this thesis, over a domain-pretrained clinical encoder
 \citep{gu2021biomedbert,alsentzer2019clinicalbert}; and (4) evaluate against
 the expert annotations. Chapter~\ref{ch:lit} traces the literature behind
 each step, and this project executed it end to end.
 Figure~\ref{fig:pipeline-status} is the whole project in one view. One
-constraint under all four stages is arithmetic, not a finding: a
+constraint under all four stages is plain arithmetic: a
 fixed number of confirmed positives limits any evaluation built on them,
 whoever trains the detector.
 
@@ -96,36 +94,37 @@ average precision.
 \caption{The four pipeline stages and what survived each check}
 \includegraphics[width=0.98\linewidth]{figures/fig-pipeline-status.pdf}
 \label{fig:pipeline-status}
-\apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture, and (4) evaluation. Stage $1$'s precision is not established; reading stage $2$'s recall as discrimination is unsupported; stage $3$'s credited components are unsupported by code audit (an initialisation artifact, a confounded rule-type head, an untrained harm head); stage $4$, evaluation, is a bounded null whose interval lies below the power floor.}
+\apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture, and (4) evaluation. Stage $1$'s precision is not established; reading stage $2$'s recall as discrimination is unsupported; stage $3$'s credited components are unsupported by code audit (an initialisation artifact, a confounded rule-type head, an untrained harm head); stage $4$, evaluation, is a bounded null whose interval lies below the power floor. The vertical rail labelled ``the same selected exemplar'' marks shared input, not a failed check: stages $2$, $3$, and $4$ each consumed the one exemplar that stage $1$ selected by position.}
 \end{figure}
 
-The candidate stage carries a bug pattern observed once here, which this thesis names
-\textbf{trigger-exemplar dissociation}: a mining rule whose predicate quantifies over a set of
-candidate mentions, an exemplar selector that picks from that set by position, not by membership, and no assertion tying the two
-together. Here the Rules 1 and 2 selector indexed candidates positionally
-(Figure~\ref{fig:exemplar}), and the pool's reported precision carried no
-trace of it, because no metric compares displayed evidence against
-triggering evidence. The pattern is not hypothetical: on the rebuilt
-candidate pool the original positional design would show an exemplar outside
-the trigger set for $41.4$ percent of Rules 1 and 2 candidates, a design rate, not the annotated exemplars' defect rate. That defect rate cannot be
-recovered because the candidate schema does not record which mention fired,
-so three instruments on the same rules give $0$ (the key join), $0.4745$ (the
-reconstruction) and $0.9315$ (the direct extractor, $69$ of whose $136$ wrong rows have no classified action on
-at least one side); Section~``\nameref{sec:r-exemplar}'' reports all three. Two further defects and one scope
-limitation are argued in
-Chapter~\ref{ch:method}: the harm head received no term in the training objective (RQ3 below); the row-level candidate
-split was corrected to subject-level before any result here was generated;
-and scispaCy and medspaCy were abandoned over dependency resolution without being evaluated, which limits scope and is not a
-defect a check could have caught.
-
-\begin{figure}[!ht]
+\begin{figure}[!tbp]
 
 \centering
 \caption{Schematic of the exemplar defect}
 \includegraphics[width=0.88\linewidth]{figures/fig-exemplar.pdf}
 \label{fig:exemplar}
-\apanote{The check that was not run. The rule fires on a conflict between two sets of medication mentions; the exemplar shown to annotator, weak labeller, and model is chosen by position instead. Slots are abstract and carry no clinical text. The three instrument readings printed in the figure do not agree, so how often the pick misses is not established.}
+\apanote{The check that was not run. The rule fires on a conflict between two sets of medication mentions; the exemplar shown to annotator, weak labeller, and model is chosen by position instead. Slots are abstract and carry no clinical text. Because the three instrument readings printed in the figure do not agree, how often the pick misses is unresolved.}
 \end{figure}
+
+The candidate stage carries a bug pattern observed once here, which this thesis names
+\textbf{trigger-exemplar dissociation}: a mining rule whose predicate quantifies over a set of
+candidate mentions, an exemplar selector that picks from that set by position instead of membership, and no assertion tying the two
+together. Here the Rules 1 and 2 selector indexed candidates positionally
+(Figure~\ref{fig:exemplar}), and the pool's reported precision carried no
+trace of it, because no metric compares displayed evidence against
+triggering evidence. The pattern is not hypothetical: applied to the rebuilt
+candidate pool, the original positional rule puts the displayed exemplar outside
+the trigger set for $41.4$ percent of Rules 1 and 2 candidates. That figure is a design rate. The rate on the annotated exemplars cannot be
+recovered because the candidate schema does not record which mention fired.
+Three instruments were tried instead, and they give $0$ (the key join), $0.4745$ (the
+reconstruction), and $0.9315$ (the direct extractor, $69$ of whose $136$ wrong rows have no classified action on
+at least one side); Section~``\nameref{sec:r-exemplar}'' reports all three. Two further defects and one scope
+limitation are argued in
+Chapter~\ref{ch:method}: the harm head received no term in the training objective (RQ3 below); the row-level candidate
+split was corrected to subject-level before any result here was generated, though the released run's training rows still share subjects with the gold set
+and Chapter~\ref{ch:results} marks the tables that rest on that run;
+and scispaCy and medspaCy were abandoned over dependency resolution without being evaluated, which limits scope and is not a
+defect a check could have caught.
 
 \section{The Finding}
 \label{sec:intro-finding}
@@ -139,7 +138,7 @@ predicts positive for nearly the whole pool, and its ranking is not
 distinguishable from chance, its bootstrap interval excluding an AUROC above
 $0.7034$ (Section~``\nameref{sec:res-rq4}''). Its ranking of the gold pairs is
 also not distinguishable from its weak labeller's ($0.5145$ against
-$0.5185$). That comparison, requested after the main results, is consistent with, not evidence for, a student reproducing its teacher: two unrelated chance-level
+$0.5185$). That comparison, requested after the main results, is consistent with a student reproducing its teacher without being evidence for it: two unrelated chance-level
 rankings would fit its interval too.
 
 \section{Research Questions}
@@ -150,10 +149,10 @@ about each stage. RQ4 is reworded
 from its original form, whether the failure was a property of the task or of
 the instrument, because the results that answered that form were withdrawn
 (Appendix~\ref{app:corrections}). The stage readings checked are this
-project's own earlier readings of its pipeline, reported in an earlier version
-of this work. ``Controlled'' in the title means each reading is checked
+project's own, reported in an earlier version
+of this work. The audit in the title checks each stage's reading
 against a fixed condition, a ceiling computed from counts, or a rule written
-down before its run. It does not mean the randomisation, control-task, or
+down before its run. It is not the randomisation, control-task, or
 negative controls Chapter~\ref{ch:lit} describes, none of which was run here.
 Each check is specified in Chapter~\ref{ch:method} and its evidence sits in
 Chapter~\ref{ch:results}; only the pre-registered checks were fixed before
@@ -165,10 +164,10 @@ their runs (Section~``\nameref{sec:m-prereg}'').
 notes yield a candidate pool with usable precision?
 \emph{Not established. Four rules enrich the pool to $12$ true contradictions
 in $299$ annotated pairs, a base rate of $0.0401$. For Rules 1 and 2 the
-surviving selector excerpt picks by position, so whether it selected the
-annotated exemplars is not established, an instance of trigger-exemplar
-dissociation. How often that defect fired is not established:
-three instruments give $0$, $0.4745$ and $0.9315$
+surviving selector excerpt picks by position, an instance of trigger-exemplar
+dissociation, and nothing shows that it selected the annotated exemplars.
+How often that defect fired is unresolved:
+three instruments give $0$, $0.4745$, and $0.9315$
 (Section~``\nameref{sec:r-exemplar}''), and Section~``\nameref{sec:intro-notclaim}''
 states what that leaves of the $0.0401$ figure.}
 
@@ -178,11 +177,11 @@ for expert annotation at this base rate?
 discrimination is unsupported, since flagging most pairs recovers most
 positives by chance. The deployed labeller flagged $261$ of the $299$
 annotated pairs against $12$ confirmed, a marginal at which no outcome could
-have rejected the null (smallest attainable one-sided $p = 0.1894$), so its measured MCC of $0.0269$ is not
-distinguishable from chance and could not have been (Section~``\nameref{sec:res-rq2},'' Chapter~\ref{ch:results}). The script and
-prompt that produced those labels were never saved, so the run cannot be repeated,
-but its labels were retained and are measured directly; the reproducible
-replication of the same prompt text flags an even larger share, $0.9532$, so the
+have rejected the null (smallest attainable one-sided $p = 0.1894$). Its measured MCC of $0.0269$ does not
+reject chance, and neither would any other value that marginal allows (Section~``\nameref{sec:res-rq2},'' Chapter~\ref{ch:results}). The script and
+prompt that produced those labels were never saved. The run cannot be repeated,
+but its labels were retained and are measured directly, and the reproducible
+replication of the same prompt text flags an even larger share, $0.9532$. The
 over-calling finding does not rest on the lost run. Nor does the ranking null:
 retrained on labels regenerated with the committed replication prompt and
 script, the plain control detector, not ACCORD, reaches an ensemble AUROC of $0.5360$ on the 253 non-ambiguous pairs ($G_{253}$; 95 percent interval $0.3454$ to $0.7196$), which includes chance and ends
@@ -191,11 +190,10 @@ $15$ local labeller-and-prompt configurations run in this project, $5$, all
 Llama 3 8B (\texttt{llama3:8b}), could not have rejected the null at $\alpha = 0.05$ at
 any outcome their marginal permitted. A graded score is not bound by the
 ceiling, but the pre-registered Granite 3.3 8B (\texttt{granite3.3:8b}) score reaches an AUROC
-of only $0.5467$ ($p = 0.2934$), and the strongest cell of the pre-registered
+of $0.5467$ ($p = 0.2934$), and the strongest cell of the pre-registered
 prompt-framing contrast, Llama 3 8B under a reversed-direction prompt
-($0.7503$, $p = 0.0017$), did not confirm under three new wordings in the
-prompt-wording confirmation, a pre-registered rerun of those cells under
-reworded prompts. Granite 3.3 8B's descriptive cells there
+($0.7503$, $p = 0.0017$), did not confirm when the prompt-wording confirmation, also pre-registered,
+reran it under three new wordings. Granite 3.3 8B's descriptive cells there
 rank above chance under every wording, so whether a graded score escapes the
 ceiling is not settled. That is the strongest reason not to read the detector's null as a statement about the task.}
 
@@ -217,13 +215,13 @@ $0.8084$ for the registered decision rule, and three seeds of the retrained dete
 distinguishable from chance. With one annotator this reading is fragile: $5$, $6$, and $7$
 relabelled positives of the $12$ confirmed would lift the retrained ensemble past the analytic
 floor $0.7355$ and those two simulated floors respectively
-(Section~``\nameref{sec:disc-limits}''). By average
-precision, chosen after its value was known, the bag-of-words permutation
-test, which permutes the gold labels against fixed scores, finds that a
-bag-of-words model trained on the weak labels ($p = 0.0159$) and an inference
-model never trained on them ($p = 0.01335$) clear their nulls where the detector
-($p = 0.4629$) does not, but no paired test separates any two of the three.
-The Rules 3 and 4 stratum lies outside the documented positional defect, its own exemplar
+(Section~``\nameref{sec:disc-limits}''). Average
+precision was chosen after its value was known. On it, a permutation of the
+gold labels against fixed scores puts a bag-of-words model trained on the weak
+labels ($p = 0.0159$) and an inference model never trained on them
+($p = 0.01335$) above their nulls; the detector ($p = 0.4629$) stays inside its
+own. No paired test separates any two of the three.
+The Rules 3 and 4 stratum lies outside the documented positional defect, its exemplar
 correctness assumed (Chapter~\ref{ch:method}). On its $108$ non-ambiguous pairs the retrained
 ensemble's AUROC is $0.6095$ ($95$ percent bootstrap interval $0.3029$ to
 $0.9010$), against $0.4221$ on the $145$ Rules 1 and 2 non-ambiguous pairs; that
@@ -253,34 +251,36 @@ evaluation's near-chance reading, survived as a bounded null
 maximum agreement under fixed marginals and the minimum attainable
 significance of a discrete test are classical
 \citep{cohen1960kappa,tarone1990modified}; the contribution is their use as a gate that can be run on a language-model weak labeller
-before training, needing only a base rate from a small expert-labelled pilot. Here it was
-applied after the fact, the expert labels coming later.
+before training, needing only a base rate from a small expert-labelled pilot. It has had no
+prospective use here: the expert labels came later, and two
+pre-registered prospective attempts were invalid under their own rule.
 At $261$ flagged of $299$ against $12$ confirmed, no outcome could have
-rejected the null: the smallest attainable one-sided $p$ is $0.1894$. The measured MCC, $0.0269$, sits below the $0.0780$ ceiling, as it must; it is not distinguishable from chance ($p =
-0.5347$), and at this marginal it could not have been. The ceiling bounds thresholded labels
-only. A failed gate says this pilot could not have tested the labeller; passing it is no
-evidence the labeller works: Granite 3.3 8B passes it, yet its graded score reaches an AUROC of
-only $0.5467$. The gate also treats the pilot's positive count as known.
+rejected the null: the smallest attainable one-sided $p$ is $0.1894$. The measured MCC, $0.0269$, sits below the $0.0780$ ceiling, as it must, and its test against chance returns $p =
+0.5347$; with that marginal a rejection was never available. The ceiling bounds thresholded
+labels and leaves graded scores free. Among the local labellers the gate fails for Llama 3 8B alone. Failing it
+means the pilot had no power to test the labeller, and passing it certifies
+nothing: Granite 3.3 8B passes, yet its graded score reaches an AUROC of
+$0.5467$. The gate also treats the pilot's positive count as known.
 
-\item \textbf{Trigger-exemplar dissociation as a mining bug pattern.} A rule
-that fires on a set of mentions and an exemplar selector that picks from it
+\item \textbf{Trigger-exemplar dissociation as a mining bug pattern.} The pattern pairs a rule
+that fires on a set of mentions with an exemplar selector that picks from it
 by position (Figure~\ref{fig:exemplar}). On the rebuilt candidate pool the
-original selector design would show an exemplar outside the trigger set for
+original selector design shows an exemplar outside the trigger set for
 $41.4$ percent of Rules 1 and 2 candidates (95 percent interval $38.8$ to
-$44.1$), and the rebuild's selector for $0$ by construction. That pool has a
-different sentence segmenter and an unrecoverable original row order, so the figure is a design rate, not the annotated exemplars' defect rate. The dissociation would be caught by a one-line assertion that the displayed exemplar belongs to the trigger set, once the
+$44.1$), and the rebuild's selector for $0$ by construction. Because that pool has a
+different sentence segmenter and an unrecoverable original row order, the figure is a design rate and cannot stand in for the annotated exemplars' defect rate. The dissociation would be caught by a one-line assertion that the displayed exemplar belongs to the trigger set, once the
 candidate schema records which mention fired. On $1{,}000$ seeded synthetic
 candidates with one to three triggering mentions the assertion flags all
 $372$ positional picks outside the trigger set and none of the trigger-based
-picks; that shows the check works, not how often the defect
+picks; that shows the check works and is silent on how often the defect
 occurred here.
 \end{enumerate}
 
-The detector's ranking null is a supporting result. No AUROC effect above the simulated Mann-Whitney floor $0.7466$ or the simulated
-registered-rule floor $0.8084$, two different tests' floors, is found on $G_{253}$. The pre-registered planted-defect benchmark, a synthetic analogue of the rule-group comparison whose defect is planted in the Rules 3 and 4
+The detector's ranking null is a supporting result. No AUROC effect is found on $G_{253}$ above the simulated Mann-Whitney floor, $0.7466$, or the simulated
+floor of the registered rule, $0.8084$. The pre-registered planted-defect benchmark, a synthetic analogue of the rule-group comparison whose defect is planted in the Rules 3 and 4
 group where the real one is in Rules 1 and 2, did
 not reach its required firing rate at either rate tried. The two-sided Fisher test of Rules 1 and 2 against Rules 3 and 4 returned a null that reflects
-the test's power, not the rule groups: the smallest rise of the Rules 1 and 2 rate detectable at
+the test's power and says nothing about the rule groups: the smallest rise of the Rules 1 and 2 rate detectable at
 80 percent power is $0.094$ (exact power $0.0495$ at the observed rates).
 
 \section{What This Thesis Does Not Claim}
@@ -288,10 +288,9 @@ the test's power, not the rule groups: the smallest rise of the Rules 1 and 2 ra
 
 This thesis declines four claims, each argued in Chapter~\ref{ch:conclusion},
 Section~``\nameref{sec:disc-limits}.'' It does not claim that the task is unsolvable: the
-evaluation bounds what this pipeline showed, not what a detector could do. It does not claim
-that $0.0401$ is wrong: that figure is an unbiased estimate of the confirmed rate in the
-annotated sample of the original pool, and trigger-exemplar dissociation leaves its validity as
-a property of the mining rules not established. It does not claim to know the defect rate of
+evaluation bounds what this pipeline showed and leaves open what a detector could do. It does not claim
+that $0.0401$ is wrong: that figure is an unbiased estimate for the annotated pairs, and
+trigger-exemplar dissociation leaves open whether it describes the mining rules. It does not claim to know the defect rate of
 the gold exemplars, which three instruments leave unresolved. It does not claim that a
 frontier-scale model would not help, since every hosted result is withdrawn and the largest
 model run here is not frontier scale.

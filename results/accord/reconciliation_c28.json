@@ -4,10 +4,10 @@
   "script": "accord/stats/reconcile_c28.py",
   "method": "Both numbers were recomputed from the files on disk rather than read out of prose. (1) 278 was recomputed as the count of accord_pred == 'contradiction' in the released per-pair file gold_standard_accord_results.csv (299 rows). (2) 261 was recomputed by re-running the exact join that accord/differential/run_experiments.py performs -- gold_standard_accord_results.csv -> annotation_sample_300.csv (pair_id -> HADM_ID/drug/rule/sentences) -> accord_decontamination_audit.csv (weak_label) -- and counting weak_label == 'contradiction'; it was independently cross-checked by summing TP+FP over the per-group cells stored in results/accord/differential/exp1a_gold_error_rates_by_group.json, which is the operation that 'implies 261'. (3) The hypothesis in C28 -- that the gap is a difference in how the value 'ambiguous' is handled -- was tested by enumerating every filter and every threshold rule on accord_pred and accord_contra_prob and checking whether any of them yields 261. (4) The two columns were cross-tabulated to give the exact per-cell disagreement. (5) The measured weak-labeller and ACCORD confusion matrices were compared against the reconstructed ones printed in ch7 and ch8. No note text, HADM_ID, SUBJECT_ID or pair_id is written by this script.",
   "inputs": {
-    "released_per_pair_file": "/Users/rickygole/Downloads/gold_standard_accord_results.csv",
-    "pair_id_bridge": "/Users/rickygole/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv",
-    "weak_label_carrier": "/Users/rickygole/mimic_local_only/accord_supp/accord_decontamination_audit.csv",
-    "exp1a_artifact": "/Users/rickygole/provenance-encoder/results/accord/differential/exp1a_gold_error_rates_by_group.json",
+    "released_per_pair_file": "~/Downloads/gold_standard_accord_results.csv",
+    "pair_id_bridge": "~/mimic_local_only/from_drive_2026-08-08/outputs/annotation_sample_300.csv",
+    "weak_label_carrier": "~/mimic_local_only/accord_supp/accord_decontamination_audit.csv",
+    "exp1a_artifact": "~/provenance-encoder/results/accord/differential/exp1a_gold_error_rates_by_group.json",
     "note_on_bridge_path": "run_experiments.py hard-codes the Google Drive copy of annotation_sample_300.csv; that mount no longer exists, so the identical local copy under mimic_local_only/from_drive_2026-08-08/outputs was used."
   },
   "a_what_each_number_counts": {

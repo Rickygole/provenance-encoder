@@ -22,8 +22,8 @@ This chapter describes the pipeline that was built and, for each stage, the chec
 separate a real finding from an artifact of the measurement. Every check below is written as a
 condition; only the pre-registered checks were fixed before their runs
 (Section~``\nameref{sec:m-prereg}''), and Chapter~\ref{ch:results} reports which conditions were met.
-``Controlled'' in the title means each stage's reading is checked against a fixed condition, a ceiling
-computed from counts, or a rule written down before its run; it does not mean the randomisation,
+The stage-by-stage audit checks each stage's reading against a fixed condition, a ceiling
+computed from counts, or a rule written down before its run; it is not the randomisation,
 control-task, or negative controls that Chapter~\ref{ch:lit} describes, which were not run here.
 
 A preceding cohort-building step extracts admissions from MIMIC-III and, for each, a paired
@@ -54,7 +54,7 @@ pairs to hosted model APIs has been withdrawn. The export script scans candidate
 system that replaces protected health information with bracketed surrogate tokens
 \citep{neamatullah2008deid}, and surrogates cluster at the head of a note where name, date, service,
 and identifier fields sit. A model truncating a discharge summary to its first few hundred WordPiece
-tokens is therefore reading an administrative header for some unknown fraction of notes, a property of the data representation, not of the modelling.
+tokens is therefore reading an administrative header for some unknown fraction of notes. That is a property of the data representation, whatever model reads it.
 
 \subsection{Cohort definition}
 
@@ -65,7 +65,7 @@ documented harm when continued inappropriately. Admissions enter if any ICD-9 co
 study would use: it over-includes comorbid admissions and under-includes admissions where the
 condition was present but uncoded.
 
-The only further clinical filter is a positive length of stay. Applying the prefix match alone
+One further clinical filter applies, a positive length of stay. Applying the prefix match alone
 returns 13,608 heart failure admissions; after the length-of-stay filter 13,597 remain, of which
 10,143 belong to distinct subjects. Two secondary cohorts, sepsis under \texttt{038} (6,265 to 6,253
 admissions after the same filter) and acute kidney injury under \texttt{584} (11,422 to 11,408), were
@@ -97,11 +97,11 @@ before the patient leaves. The discharge summary is the first row under a determ
 discharge-summary row in MIMIC-III: these notes are written retrospectively and only a
 \texttt{CHARTDATE} is recorded. That ordering restores determinism, not sub-day chronology, which
 the resource does not contain. Every statement that the nursing note came first therefore rests on
-the selection rule, not on a measured comparison. One explanation for a disagreement is that some
+the selection rule; no comparison of times was measured. One explanation for a disagreement is that some
 other note, written between the two selected notes, documents the change; at sub-day resolution that
 explanation cannot be tested in this resource, which is different from its having been tested and
 rejected. Counting such notes at date-level resolution is a coarser but answerable question, and Section~``\nameref{sec:m-candidates}''
-reports it directly.
+reports it.
 
 This selection returns 9,783 admissions with a selected nursing note and 9,783 with a selected
 discharge summary, for 19,566 note rows across 9,783 pairs in total, 37 fewer than the 9,820
@@ -120,7 +120,7 @@ non-ambiguous evaluation core and the confirmed contradictions inside it.
 \caption{Cohort flow from the source database to the evaluated sets}
 \includegraphics[width=0.88\linewidth]{figures/fig-cohort-flow.pdf}
 \label{fig:cohort-flow}
-\apanote{The path from the source database to the evaluated sets, with the unit at each count. Solid side boxes are recorded exclusions; dashed side boxes are differences between two recorded counts.}
+\apanote{The path from the source database to the evaluated sets, with the unit at each count. Solid side boxes are recorded exclusions; dashed side boxes are differences between two recorded counts, except the one at the temporal prefilter, which carries no count because the unit changes there from mentions to candidates, a candidate being a pair of mentions matched under a rule.}
 \end{figure}
 
 \subsection{Medication mention extraction and splitting}
@@ -145,8 +145,8 @@ Run over the 9,783 admissions the extractor returns 219,683 mentions across 9,73
 and 70 distinct drugs, of which 88,336 receive an action classification and 131,347 do not. Fewer
 than half of all mentions carry an action at all, which bounds how much of the corpus Rules 1 and 2
 can ever reach, since both rules are defined entirely over the classified subset. Three properties
-propagate downstream: the action is a property of the window and not of the drug mention, so every
-drug named anywhere in the window gets the same label; first-match ordering makes the classes
+propagate downstream: the action belongs to the window, which means every
+drug named anywhere in it gets the same label; first-match ordering makes the classes
 non-exclusive in effect, since a window carrying vocabulary from two classes resolves to whichever is
 tested first; and the negation rewrite is a hard flip with no scope model, where a purpose-built
 context algorithm would model scope explicitly \citep{chapman2001negex}.
@@ -158,11 +158,10 @@ need drug-specific conversion the resource lacks. The second is a sentence index
 offset on every mention, without which the defect in Section~``\nameref{sec:m-exemplar}'' cannot be
 detected, since two mentions of the same drug in one note are otherwise indistinguishable rows.
 
-Candidates concentrate within admissions and the patient population has repeat admissions, so a
+Because candidates concentrate within admissions and the patient population has repeat admissions, a
 row-level split would place candidates sharing a nursing note, a discharge summary, an admission, or
 a patient on both sides. Two candidates from one admission differ only in the drug at issue, while
-the surrounding text and documentation style are identical. Every split used here is instead
-disjoint by \texttt{SUBJECT\_ID}, asserted in code rather than assumed:
+the surrounding text and documentation style are identical. Every split used here is disjoint by \texttt{SUBJECT\_ID}, asserted in code rather than assumed:
 \[
 S_{\text{train}} \cap S_{\text{val}} = S_{\text{train}} \cap S_{\text{test}}
 = S_{\text{val}} \cap S_{\text{test}} = \varnothing ,
@@ -170,7 +169,7 @@ S_{\text{train}} \cap S_{\text{val}} = S_{\text{train}} \cap S_{\text{test}}
 S_{\text{train}} \cup S_{\text{val}} \cup S_{\text{test}} = S .
 \]
 Patient-level grouping is the correct unit because it is the only unit guaranteeing no shared note
-and no shared documentation episode. Disjointness by row, or even by admission, is weaker than disjointness by subject, since a subject can contribute one admission to the gold set and another to the weak-labelled pool, so the control
+and no shared documentation episode. Disjointness by row, or even by admission, is weaker than disjointness by subject, since a subject can contribute one admission to the gold set and another to the weak-labelled pool. For that reason the control
 training pool of Section~``\nameref{sec:m-control-model}'' excludes, by assertion, every weak-label
 row whose subject appears in the gold set.
 
@@ -182,8 +181,8 @@ row whose subject appears in the gold set.
 True cross-note medication contradictions are rare, and exhaustive human review of the cohort is
 infeasible. Candidate mining is the standard response: a cheap, high-recall,
 low-precision rule set narrows the space to a pool a human or a model can examine. The rules are not
-meant to be accurate. They are meant to be transparent, so that each candidate carries a reason, and
-enriching, so that the base rate inside the pool exceeds the rate outside it.
+meant to be accurate. They are meant to be transparent, each candidate carrying a reason, and
+enriching, the base rate inside the pool exceeding the rate outside it.
 
 Let admission $a$ have a nursing note $N_a$ and a discharge summary $D_a$, with mention sets
 $M(N_a)$ and $M(D_a)$. Each mention $m$ carries a normalised drug $\mathrm{drug}(m)$, an action
@@ -245,7 +244,7 @@ also produces a structurally different input, since there is no discharge senten
 discharge side is a literal marker. Any difference in labeller or model behaviour on Rule 4 then has
 at least two explanations the design cannot separate, clinical reasoning and a formatting response to
 a degenerate input. Rules 3 and 4 were implemented in the original pipeline, whose source does not
-survive, and the rebuild reimplements them, so its selectors are not the code that produced the
+survive. The rebuild reimplements them, which means its selectors are not the code that produced the
 annotated exemplars. The Rules 3 and 4 stratum is not subject to the documented Rules 1 and 2
 positional defect, but its exemplar correctness in the gold set is assumed rather than verified.
 
@@ -259,7 +258,7 @@ admissions without a usable window, so the two admission counts are not reconcil
 candidate count elsewhere in this thesis is the post-prefilter figure, 1,978, unless stated
 otherwise, and the gold sample was drawn from this pool, not from the rebuilt one.
 
-\subsection{Exemplar selection, and the defect in it}
+\subsection{Exemplar selection and the defect in it}
 \label{sec:m-exemplar}
 
 A surviving excerpt of the reference mining notebook for Rules 1 and 2, quoted in the rebuild's
@@ -273,15 +272,15 @@ side, so the exemplar presented as a contradiction consists of two sentences in 
 agree.
 That this code selected the annotated gold exemplars is not established: no file links it to the annotation sheet, and the three measurements of the defect rate in Chapter~\ref{ch:results} disagree.
 
-This is a methods matter, not an incidental bug: the pharmacist annotated the exemplar pair,
-the weak labeller read it, and the detector was trained on it, so wherever the selector failed, all
-three reasoned about evidence that did not contain the conflict which caused the candidate to exist.
+This is a methods matter as well as a bug: the pharmacist annotated the exemplar pair,
+the weak labeller read it, and the detector was trained on it. Wherever the selector failed, all
+three reasoned about evidence that did not contain the conflict that caused the candidate to exist.
 The defect was invisible because of an upstream schema decision: with no sentence index or character
 offset, two mentions of one drug in one note are indistinguishable rows, so no representation could
 express which mention carried the conflict. This is configuration
 and data-dependency debt in the sense of \citet{sculley2015debt}, a defect that could not be seen because the field that would have exposed it did not exist.
 
-The rebuild selects, on each side independently, among only those mentions whose own action equals
+The rebuild selects, on each side independently, among the mentions whose action equals
 the action required by that candidate's conflict branch:
 \[
 E_r^{\text{new}}(a,d) = \Bigl(\arg\min_{m \in C_N} \delta(m),\;
@@ -297,21 +296,20 @@ changes a clinical judgement was not measured. The exemplar-prevalence check (pr
 the original positional rule and the rebuild's selector to every Rules 1 and 2 candidate in the
 rebuilt pool and asks, on each note side, whether the chosen mention belongs to the trigger set. It
 measures the original selector design on the rebuilt pool, whose sentence segmenter differs from the
-original run's and whose original row order cannot be recovered, not the defect rate of the annotated
-gold exemplars. The rebuilt pool's Rules 1 and 2 candidates number $1{,}307$, $1{,}061$ from Rule 1
+original run's and whose original row order cannot be recovered. The defect rate of the annotated
+gold exemplars is a different quantity, which this check does not measure. The rebuilt pool's Rules 1 and 2 candidates number $1{,}307$, $1{,}061$ from Rule 1
 and $246$ from Rule 2, against $886$ from Rule 1 and $202$ from Rule 2 in the original pool. The
-rebuild's different sentence segmenter draws candidate sentence boundaries differently from the
-original run, and that is the documented reason the two counts differ, not a change in the
-underlying notes or rules. Every rate the exemplar-prevalence check reports is measured on the rebuilt
-pool and carries its own denominator; the rate Chapter~\ref{ch:results} reports from it is called the design rate for that reason.
+rebuild's sentence segmenter draws sentence boundaries differently from the original run's. That is
+the documented reason the two counts differ; the underlying notes and rules did not change. Every rate the exemplar-prevalence check reports is measured on the rebuilt
+pool and carries that pool's denominator; the rate Chapter~\ref{ch:results} reports from it is called the design rate for that reason.
 
 The direct exemplar check (pre-registered) reads the defect rate a third way. It neither reconstructs nor joins against a mentions-table snapshot: it runs a purpose-built extractor
 written for this check directly on the sentence text the pharmacist saw, treating each displayed
 sentence as a one-sentence document, and calls a Rule 1 or Rule 2 pair correct only if the two
 displayed sentences carry, between them, exactly one continuation action and one cessation action.
-It is a third instrument, not an arbiter: its action classifier has never been validated
-against human judgement, and the one-sentence window is shorter than the three-sentence window the
-reference pipeline uses, so a sentence that would classify correctly with its neighbours present can
+It is a third instrument, not an arbiter. Its action classifier has never been validated
+against human judgement, and its one-sentence window is shorter than the three-sentence window the
+reference pipeline uses: a sentence that would classify correctly with its neighbours present can
 read as undecidable or off-pair alone.
 
 \section{Weak Supervision}
@@ -321,11 +319,10 @@ read as undecidable or off-pair alone.
 
 Training a supervised detector on a few hundred annotations containing a handful of positives is
 not viable, so this project uses weak supervision: obtain approximate labels cheaply, accept that
-they are noisy, and rely on training to absorb the noise, a pattern established for several labelling sources whose disagreements a label model can use \citep{ratner2017snorkel}. Since
-2023 the dominant cheap labeller has been an instruction-tuned language model, on the strength of
-results showing such models matching or exceeding crowd annotators on several classification tasks
-\citep{gilardi2023chatgpt}. Weak labels are used only as training supervision here, never as ground
-truth, so any metric computed against them measures agreement with the labeller, not clinical correctness. Validation against human labels on the same items is a requirement, not an option \citep{pangakis2023validation}, and the gold set of Section~``\nameref{sec:m-gold}'' supplies
+they are noisy, and rely on training to absorb the noise. The pattern was established for several labelling sources, whose disagreements a label model can use \citep{ratner2017snorkel}. The
+single source used here is an instruction-tuned language model, the default cheap labeller whose
+record Chapter~\ref{ch:lit} reviews \citep{gilardi2023chatgpt}. Weak labels are used as training supervision here, never as ground
+truth: any metric computed against them measures agreement with the labeller and says nothing about clinical correctness. Validation against human labels on the same items is required \citep{pangakis2023validation}, and the gold set of Section~``\nameref{sec:m-gold}'' supplies
 those items.
 
 The production labeller is Llama 3 8B \citep{grattafiori2024llama3}, run locally and presented with
@@ -335,13 +332,12 @@ chain-of-thought elicitation. Neither that prompt nor the script that sent it wa
 the row level by construction; Section~``\nameref{sec:m-data}'' explains why that was insufficient.
 The weak-labelled pool holds 1,679 rows before subject-disjoint exclusion; removing the 291 rows
 whose subject also appears in an evaluation split leaves 1,388, split into the 1,183-row training
-pool of Table~\ref{tab:m-strata}, used to fit the detector, and a 205-row validation pool used only
-to monitor the training loss.
+pool of Table~\ref{tab:m-strata} in Section~``\nameref{sec:m-gold},'' used to fit the detector, and a 205-row validation pool used to monitor the training loss.
 
 For the replication in Section~``\nameref{sec:m-control-rq2}'' a clinical-pharmacist framing that
 names no conflict type or rule was recovered verbatim and reused unchanged across models. Its text
-is identical to $P_{\text{asserting}}$, defined in that same section, but the two runs differ
-in three named settings: the replication parser counts a reply positive when
+is identical to $P_{\text{asserting}}$, defined in that same section, but the replication run and the clinical-framing run differ
+in three settings: the replication parser counts a reply positive when
 \texttt{contradiction} appears anywhere and no negative form does, while the clinical-framing runner
 reads only the first word; the replication run sends Ollama seed 42 and the clinical-framing runner
 none; and the run dates differ. Both report zero parse failures, yet
@@ -359,26 +355,24 @@ reran the reversed prompt beside three new wordings of it, reproduced \texttt{gr
 exactly.
 Unparseable generations are kept in their own category, never defaulted to a class.
 
-\subsection{How the labeller's confidence field was derived}
+\subsection{How the labeller's confidence field was used}
 
 The labelling stage emits a \texttt{weak\_confidence} field alongside each label. Across the
 training pool and the audited rows it takes exactly two distinct values, one for each label class,
-in a one-to-one mapping, so it is a deterministic function of the label and carries no information
-about the labeller's uncertainty on any individual example. The output probabilities of neural
-classifiers are miscalibrated unless calibration is measured and corrected
-\citep{guo2017calibration}, and a language model's predictions shift with the construction of its
-prompt \citep{zhao2021calibrate}; a confidence value that a language model writes beside a label was
-never measured here, and this thesis does not treat it as a probability.
+in a one-to-one mapping. It is a deterministic function of the label and carries no information
+about the labeller's uncertainty on any individual example. The calibration work reviewed in
+Chapter~\ref{ch:lit} \citep{guo2017calibration,zhao2021calibrate} does not cover a confidence value that a language model writes beside a label; the calibration of this one was
+never measured, and this thesis does not treat it as a probability.
 
 The field was used in two places, both converting a label into a training-time intervention. As a
-filter, the training code discards rows whose confidence falls below a threshold lying beneath the
-field's minimum value, so the filter removes nothing while reading as a quality-control step. As a loss weight, the same field is
-multiplied into the per-example loss, making it a label-conditioned reweighting, not a confidence weighting, in the direction that further downweights the already-dominant class.
+filter, the training code discards rows whose confidence falls below a threshold, and the threshold lies beneath the
+field's minimum value: the filter removes nothing while reading as a quality-control step. As a loss weight, the same field is
+multiplied into the per-example loss. With two values fixed by the label, that is a label-conditioned reweighting, in the direction that further downweights the already-dominant class.
 
 \section{Architecture}
 \label{sec:m-detector}
 
-\subsection{Backbone, and what the running code contained}
+\subsection{Backbone and what the running code contained}
 
 The encoder is BioMedBERT (released as PubMedBERT) \citep{gu2021biomedbert}, selected over
 ClinicalBERT \citep{alsentzer2019clinicalbert} on published benchmark performance, adapted with
@@ -397,8 +391,7 @@ table, interaction table, or contraindication list.
 The guideline-grounded harm estimator has no guideline corpus: its guideline bank is a single
 randomly initialised parameter matrix cross-attended from one query, with no document collection,
 index, retrieval step, or text of any kind. The harm head and the explanation head also receive no
-loss term, since the objective is a weighted sum of only the contradiction loss and the rule-type
-loss. Both are randomly initialised modules whose outputs are computed, recorded, and reported while
+loss term, since the objective is a weighted sum of the contradiction loss and the rule-type loss. Both are randomly initialised modules whose outputs are computed, recorded, and reported while
 their weights never move. The severity-ranking question was therefore not
 tested, and any correlation between that head's output and a human danger rating measures an
 untrained module rather than severity ranking.
@@ -418,8 +411,8 @@ layer-normalised. Layer normalisation is invariant to a per-branch scalar rescal
 to the effect on its own affine parameters, so the normalisation removes most of what the parameter
 does and the gradient reaching it is correspondingly small. The diagnostic applied in
 Chapter~\ref{ch:results} is the parameter's displacement from its initial value across seeds. No
-gradient-norm trace was recorded for any run, so the audit read the code and the final parameter
-values, not traces; for a parameter reported as learned, future work should publish both.
+gradient-norm trace was recorded for any run. The audit read the code and the final parameter
+values; for a parameter reported as learned, future work should publish the trace too.
 
 Two runs of this detector are scored, and their names are fixed here. The contaminated run is the
 released detector, whose training rows share subjects with the gold set through the weak-labelled pool,
@@ -427,12 +420,12 @@ although no training row is itself a gold pair. The decontaminated run is a thre
 same detector whose training rows are subject-disjoint from the gold set, scored per seed and as the
 mean of its three seeds, the ensemble.
 
-\subsection{Pretraining, and an untrained configuration}
+\subsection{Pretraining and an untrained configuration}
 
 Before supervised training the model was to be pretrained with a cross-note coherence objective,
 discriminating genuine note pairs from mismatched ones. One configuration has a surviving run
-record, with a frozen backbone. A wider configuration was meant to test whether trainable capacity, not
-architecture, was the constraint. The pretraining script could not have trained the wider
+record, with a frozen backbone. A wider configuration was meant to test whether the constraint was trainable capacity or
+architecture. The pretraining script could not have trained the wider
 configuration: it freezes the backbone unconditionally and has no path that unfreezes an encoder
 layer. A checkpoint bearing that configuration's name exists; its origin is unexplained. The
 parameter total attributed to it is reproducible only by counting a pooler module flagged trainable
@@ -449,8 +442,8 @@ head, no harm head, and no confidence reweighting, since any of those would rein
 control exists to rule out.
 
 The training protocol is fixed and reported in full. The train and validation split is drawn by
-subject with a dedicated split seed held fixed across runs, so variation between runs reflects
-model stochasticity and not different training data, and the seed setter is called inside each
+subject with a dedicated split seed held fixed across runs, which confines variation between runs
+to model stochasticity. The seed setter is called inside each
 run's own process, one process per seed, so no session state carries across runs. Optimisation uses
 AdamW at learning rate $2\times 10^{-5}$ with weight decay $0.01$, batch size 16, three epochs, and a
 maximum sequence length of 160 tokens, all fixed and none swept.
@@ -461,14 +454,14 @@ positive rate, and a TF-IDF representation with at most $5{,}000$ features feedi
 regression. The constant score yields an AUROC of exactly $0.5$ by construction, making it the
 correct reference point for reading any AUROC near chance. The bag-of-words permutation test
 (pre-registered) tests the TF-IDF baseline's ranking against a label-permutation null, extends it to
-$G_{253}$ (Table~\ref{tab:m-strata}), and separately fits a gold-only version of the same pipeline
+$G_{253}$ (Table~\ref{tab:m-strata} in Section~``\nameref{sec:m-gold}''), and separately fits a gold-only version of the same pipeline
 in nested cross-validation, one held-out fold per confirmed positive, with no weak-labelled row in its training data, so any signal it carries cannot come from the training-pool marginal.
 
 A third baseline is an off-the-shelf natural-language-inference model, RoBERTa-large-MNLI
 \citep{liu2019roberta}, run offline with no fine-tuning of any kind: the mean contradiction
 probability across both premise-hypothesis orderings of the nursing and discharge sentences is its
 score (the inference-model baseline, pre-registered). Unlike the two floor baselines, it was never
-trained on this project's labels, weak or gold, so it checks whether the task is separable by a general-purpose sentence-pair model, not whether this project's own training pipeline works. The
+trained on this project's labels, weak or gold. What it checks is whether a general-purpose sentence-pair model can separate the task, a question independent of whether this project's training pipeline works. The
 power simulation of Section~``\nameref{sec:m-mde}'' draws on the same model's scores.
 
 \section{The Gold Standard}
@@ -478,16 +471,15 @@ power simulation of Section~``\nameref{sec:m-mde}'' draws on the same model's sc
 
 The original pipeline drew a stratified sample from its 1,978-candidate pool, allocated across the four rules in
 proportion to each rule's share of the pool (886, 202, 520, and 370 candidates for Rules 1 through
-4), rounded to whole pairs and not oversampled toward any rule. The frame draws 134 pairs from Rule
+4), rounded to whole pairs and not oversampled towards any rule. The frame draws 134 pairs from Rule
 1, 31 from Rule 2, 79 from Rule 3, and 56 from Rule 4, for 300 pairs total, the same sampling
 fraction in every stratum to within rounding, and was fixed before annotation began. Proportional
-allocation fixes what the gold sample's base rate, $12/299$ or $0.0401$, stands for, and it is stated
-here once. It is an unbiased estimate of the confirmed rate in the annotated sample of the original
+allocation fixes what the gold sample's base rate, $12/299$ or $0.0401$, stands for. It is an unbiased estimate of the confirmed rate in the annotated sample of the original
 pool: how often the pharmacist confirms the exemplar pair as displayed, across the pool the sample
 was drawn from. It is not an estimate for the rebuilt pool, and it cannot be cited as the precision
-of the mining rules, by this thesis or by anyone, because the displayed exemplar is not known to be
+of the mining rules, because the displayed exemplar is not known to be
 the pair that triggered the candidate (Section~``\nameref{sec:m-exemplar}''). The over-calling ratios
-of Chapter~\ref{ch:results} divide against the sample's own unrounded $12/299$, not against either
+of Chapter~\ref{ch:results} divide against the sample's unrounded $12/299$, not against either
 candidate pool's rate. The returned annotation set has $n = 299$ pairs,
 one fewer than the frame. The per-rule breakdown, 134, 31, 79, and 55, places the missing row in Rule
 4: Rules 1 through 3 returned every sampled pair and Rule 4 returned one fewer than it was sent.
@@ -495,7 +487,7 @@ one fewer than the frame. The per-rule breakdown, 134, 31, 79, and 55, places th
 A single board-certified pharmacist annotated the sampled pairs, recording for each a three-way
 label, contradiction, not a contradiction, or ambiguous; a free-text justification; a confidence
 rating; and, for contradictions, an ordinal danger rating. The annotator saw the exemplar sentence
-pair and the rule that generated the candidate, which is the same evidence the weak labeller and
+pair and the rule that generated the candidate, the same evidence the weak labeller and
 the detector saw. Annotation ran in two passes separated by a two-week washout. The two-pass design
 controls for within-session drift and fatigue, and that is all it controls for; it does not
 establish inter-rater reliability, because there is one rater.
@@ -505,10 +497,10 @@ establish inter-rater reliability, because there is one rater.
 A pair was coded ambiguous when the presented evidence did not permit adjudication, rather than
 being forced into a binary that would have converted an evidential limitation into a label
 indistinguishable from a genuine negative. Forty-six of the 299 annotated pairs carry this code, the
-difference between the $287$ and $241$ negative counts of Table~\ref{tab:m-mde}. Checks
+difference between the $287$ and $241$ negative counts of Table~\ref{tab:m-mde} in Section~``\nameref{sec:m-mde}.'' Checks
 that touch the gold set are run under both readings, ambiguous pairs retained as negatives in
 $G_{299}$ and excluded in $G_{253}$, with one exception: the decontaminated ensemble was scored with the ambiguous pairs excluded only,
-on $G_{253}$ and its two rule strata, so $G_{253}$ is the only full set it is reported on. Neither reading
+on $G_{253}$ and its two rule strata, so $G_{253}$ is the single full set it is reported on. Neither reading
 is preferred by default; the minimum detectable effect
 is reported under both denominators for the same reason. Over-calling ratios are also shown with
 every ambiguous pair counted as a contradiction; that post hoc sensitivity reading rescales every
@@ -528,7 +520,7 @@ limitation on every conclusion resting on the gold labels.
 Intra-rater agreement is not a fallback here. The two-pass protocol reduced within-session drift and
 fatigue in a single rater, but it did not produce two comparable sets of judgements: the annotation
 file stores one final label per pair, and the second pass overwrote the first rather than sitting
-beside it. No file keeps the two passes separately, so no reliability figure can be computed
+beside it. No file keeps the two passes separately, and without them no reliability figure can be computed
 from the record. Every clinical result in this thesis rests on a
 single-rater instrument with no inter-rater or intra-rater agreement statistic attached to it.
 
@@ -542,14 +534,18 @@ $G_{145}$ holds the other half and, together with $G_{108}$, partitions $G_{253}
 \label{tab:m-strata}
 \centering
 \small
-\begin{tabular}{lp{1.7in}rrp{1.75in}}
+\begin{tabular}{@{}l>{\tblragged}p{1.75in}rr>{\tblragged}p{2.05in}@{}}
 \toprule
 \textbf{Symbol} & \textbf{Stratum} & \textbf{$n$} & \textbf{Positives} & \textbf{Defined by} \\
 \midrule
 $G_{299}$ & Gold, all annotated pairs & 299 & 12 & Ambiguous retained as negatives \\
+\addlinespace
 $G_{253}$ & Non-ambiguous evaluation  & 253 & 12 & Ambiguous pairs excluded \\
+\addlinespace
 $G_{145}$ & Rules 1 and 2, non-ambiguous & 145 & 6 & Rules 1 and 2, ambiguous excluded \\
+\addlinespace
 $G_{134}$ & Rules 3 and 4             & 134 & 6  & Rules 3 and 4 only \\
+\addlinespace
 $G_{108}$ & Rules 3 and 4, non-ambiguous & 108 & 6 & Rules 3 and 4, ambiguous excluded \\
 \bottomrule
 \end{tabular}
@@ -571,20 +567,19 @@ action-conflict candidate, the pharmacist judged the evidence that caused the ca
 and the measured precision estimates the pool's precision. If it does not agree, the pharmacist judged sentences that need not contain the conflict, and the measured precision is a biased estimate of the pool's precision, in a direction the data collected cannot determine. The audit instruments both selectors and records, for every action-conflict candidate, whether the
 positional exemplar's action pair matched the pair required by the branch that fired, and whether
 the corrected selector changed the chosen rows. Two quantities follow, an agreement rate and a
-change rate, and they are not the same quantity: a candidate can change exemplar on one side while
-the old exemplar happened to be correct on the other. The second half of the check is structural, not measured. Rules 3 and 4 lie outside the positional defect, under the caveat of Section~``\nameref{sec:m-candidates},'' so their gold pairs form strata fixed before any model score exists, and Chapter~\ref{ch:results} reports the
+change rate, and they differ: a candidate can change exemplar on one side while
+the old exemplar happened to be correct on the other. The second half of the check is structural and involves no measurement. Rules 3 and 4 lie outside the positional defect, under the caveat of Section~``\nameref{sec:m-candidates},'' so their gold pairs form strata fixed before any model score exists, and Chapter~\ref{ch:results} reports the
 detection metrics on them as well as on the full set. A difference between the two rule groups is
-confounded with rule content and base rate, so it is a comparison between rule groups, not a test of
-the defect.
+confounded with rule content and base rate. It compares rule groups and does not test the defect.
 
 The Rules 3 and 4 rescore (pre-registered) sharpens this comparison. It scored the contaminated run,
 the off-the-shelf inference model, and the TF-IDF baseline on the Rules 1 and 2 and the Rules 3 and 4
 strata alike under both readings of the ambiguous pairs, and then, under the same rule, the
-decontaminated ensemble with the ambiguous pairs excluded, with a label-permutation null on every AUROC and average-precision figure, so a difference between strata is tested, not read off a point estimate. Its interpretation was
-fixed before the run: with six confirmed positives in $G_{108}$, against the minimum detectable AUROC
+decontaminated ensemble with the ambiguous pairs excluded. Because every AUROC and average-precision figure carries a label-permutation null, a difference between strata is tested instead of read off a point estimate. Its interpretation was
+fixed before the run: with 6 confirmed positives in $G_{108}$, against the minimum detectable AUROC
 of Section~``\nameref{sec:m-mde},'' a failure to show a difference cannot establish that the exemplar defect has no effect.
 
-\subsection{RQ2: is the labeller's error noise or prior?}
+\subsection{RQ2: whether the labeller's error is noise or prior}
 \label{sec:m-control-rq2}
 
 \textbf{Condition.} If a weak labeller's error were noise, its marginal would approximate the true
@@ -601,7 +596,7 @@ annotations after the weak labels, inverting the only ordering in which the mism
 been actionable, reported here as a methods failure rather than repaired retrospectively. Second,
 replication across labellers: if over-calling is a property of one model it will not survive a
 change of model, but it will if it is a property of the task presentation, so the replication prompt
-is rerun unchanged over the full pool with \texttt{llama3:8b}, \texttt{granite3.3:8b} and
+is rerun unchanged over the full pool with \texttt{llama3:8b}, \texttt{granite3.3:8b}, and
 \texttt{qwen3:8b}, served through Ollama at temperature zero. Third, a domain check: if the magnitude
 of over-calling generalises, a comparable labelling task on public non-clinical text will show a
 comparable ratio, and if only the mechanism generalises the ratio will be materially smaller while
@@ -621,11 +616,11 @@ Rules 1 and 2 from Rules 3 and 4 among the confirmed negatives.
 
 Whether a score rescues the marginal problem is the last axis. A scored labeller can rank well
 even while its hard-label marginal sits far from the base rate, which the marginal feasibility gate
-below does not test. The prior-correction experiment (pre-registered) therefore fit the
+below does not test. The prior-correction experiment (pre-registered) therefore used the
 intercept-shift form of the Saerens, Latinne, and Decaestecker adjustment
 \citep{saerens2002adjusting}, which corrects a classifier's output for a known shift between its
-implicit training-time prior and the deployment prevalence, to a teacher's continuous score on
-public text at this evaluation's own prevalence and sample size, against an uncorrected soft target
+implicit training-time prior and the deployment prevalence. The adjustment was fitted to a teacher's continuous score on
+public text at this evaluation's prevalence and sample size, and the corrected target was compared with an uncorrected soft target
 and a hard-label ablation on the identical training pool and student.
 
 \subsection{Specifying the marginal feasibility gate}
@@ -639,7 +634,7 @@ above the significance level its agreement is read at, $0.05$ throughout, could 
 null however it behaved. The floor depends on the pilot's size as well as on the marginal, so a
 failed gate says this pilot could not have tested the labeller; passing it is no evidence the
 labeller works. The bound covers a hard, thresholded decision
-only; a scored labeller can sweep its threshold and rank well regardless of flag rate, so this says
+only; a scored labeller can sweep its threshold and rank well regardless of flag rate, which is why the bound says
 nothing about a ranking metric. The ceiling is the classical maximum of a chance-corrected agreement
 statistic given its marginals \citep{cohen1960kappa}, applied here as a check on a weak labeller's
 marginal. The floor is the minimum attainable significance level that \citet{tarone1990modified}
@@ -651,37 +646,37 @@ hosted results were withdrawn.
 
 A pre-registered check was committed as a file fixing its rule before its first datum, with its
 outcome appended below the rule and the rule never edited. Each pre-registration file's first commit
-precedes the first commit of its own result file in the public repository history, where a reader
+precedes the first commit of its result file in the public repository history, where a reader
 can check the order. Table~\ref{tab:m-prereg} maps each
 identifier, which no chapter uses outside this table, to the plain name the thesis uses and to
-its rule in one line (the correction record of Appendix~\ref{app:corrections} uses its own numbering); the full rule, including what makes a run invalid, is in the file. Several checks
+its rule in one line (the correction record of Appendix~\ref{app:corrections} draws on the same sequence); the full rule, including what makes a run invalid, is in the file. Several checks
 were requested after the main results were in, so each is fixed relative to its own run but post hoc
 relative to the original plan: the tipping-point and stratum-interval checks, which count the gold
 labels that must flip before the decontaminated ensemble reaches each floor and give its interval on
 $G_{108}$; the rank-based paired test; the exact-join agreement; the teacher-student comparison; the
 exemplar-prevalence check; the reproducible-labeller retrain; and the cluster-bootstrap check. A pre-registered scale ladder
 within one model family and a prospective version of the feasibility check were each attempted
-twice and were invalid under their own gate both times, so neither is reported. The pre-registration
+twice and were invalid under their own gate both times. Neither is reported. The pre-registration
 files record why: the prospective check was registered to run only if every model size in the ladder
 stayed under a parse-failure ceiling, and one size did not, returning a preamble word in place of an
 answer on every pair in the first attempt and failing the same gate again after the registered
-decoding repair in the second. The gate has therefore only been applied after the fact in this
-thesis, never before a labelling run. Identifiers are assigned once, in commit order, across every
-pre-registration file in the project and are not reused within this table, so gaps in the sequence
-below mark identifiers spent on attempts invalidated under their own gate,
-on withdrawn hosted runs, or on checks outside this thesis's scope.
+decoding repair in the second. The gate has therefore been applied after the fact in this
+thesis and never before a labelling run. Identifiers are assigned once, in commit order, from one sequence this project shares between its
+pre-registered checks and its correction record (Appendix~\ref{app:corrections}). The gaps in the
+sequence below are therefore correction entries, not unreported checks, apart from the three
+identifiers spent on the scale-ladder and prospective attempts that were invalid under their own gate.
 
 Every other check was specified after results were seen. That includes the feasibility gate, the
 ambiguous-positive reading, both tipping-point readings on the contaminated run, the public sweep
 decomposition, the choice of average precision as the bag-of-words permutation test's headline
-statistic, the RQ3 code audits, the rule-group Fisher test, and its exact power, the synthetic
+statistic, the RQ3 code audits, the rule-group Fisher test with its exact power, the synthetic
 assertion fixtures, the Monte Carlo cross-check of the minimum detectable AUROC, the contaminated-run
 threshold sweep, and the Spearman tests. None of these had a threshold fixed in advance.
 
 \begingroup
 \small
 \singlespacing
-\begin{longtable}{@{}p{0.75in}p{1.55in}p{3.3in}@{}}
+\begin{longtable}{@{}>{\tblragged}p{0.75in}>{\tblragged}p{1.6in}>{\tblragged}p{3.3in}@{}}
 \caption{Identifier, plain name, and rule for each check}
 \label{tab:m-prereg}\\
 \toprule
@@ -693,33 +688,56 @@ threshold sweep, and the Spearman tests. None of these had a threshold fixed in 
 \textbf{Identifier} & \textbf{Plain name} & \textbf{Rule, in one line} \\
 \midrule
 \endhead
+\midrule
+\multicolumn{3}{@{}r@{}}{(continued)}\\
+\endfoot
 \bottomrule
 \endlastfoot
 C98 & Graded-score check & A graded local labeller score meets the registered decision rule. \\
+\addlinespace[3pt]
 C99 & Scale replication & The 8B to 14B ratio exceeds the 8B spread and McNemar $p$ on $G_{299}$ is below 0.05. \\
+\addlinespace[3pt]
 C100 & Inference-model baseline & RoBERTa-large-MNLI meets the registered decision rule. \\
+\addlinespace[3pt]
 C101 & Planted positive control & Empirical power crossing on real public scores lies within a registered band of 0.7355. \\
+\addlinespace[3pt]
 C102 & Planted-defect benchmark & A check is validated only if it fires on its planted defect and stays quiet on clean arms. \\
+\addlinespace[3pt]
 C103 & Prompt-framing contrast & In two of three models the plain prompt flags fewer pairs (McNemar) and meets the public-text ceiling. \\
+\addlinespace[3pt]
 C104 & Public factorial experiment & Hardness and prompt contrasts lie above zero in most models; the scale contrast not below zero. \\
+\addlinespace[3pt]
 C105 & Prior-correction experiment & A prior-corrected soft target raises average precision with an interval above zero. \\
+\addlinespace[3pt]
 C106 & Direct exemplar check & The defect-rate interval excludes one earlier reading and favours the other. \\
+\addlinespace[3pt]
 C107 & Bag-of-words permutation test & TF-IDF average precision has permutation $p$ below 0.05 on $G_{299}$. \\
+\addlinespace[3pt]
 C108 & Power simulation & The rule of C101, with its calibration step corrected. \\
+\addlinespace[3pt]
 C109 & Prompt-wording confirmation & Two of three new paraphrases reach 0.7355 on $G_{253}$ with Bonferroni-corrected permutation $p$. \\
+\addlinespace[3pt]
 C110, C112 & Rules 3 and 4 rescore & On $G_{108}$ the detector's permutation $p$ is at least 0.05 and its AUROC is near its $G_{253}$ AUROC. \\
+\addlinespace[3pt]
 C111 & Bag-of-words robustness checks & TF-IDF beats its null and survives leave-one-out; the detector does not; no shared subjects. \\
+\addlinespace[3pt]
 C114 & Tipping-point and stratum-interval checks & A paired test of inference model against detector; tipping point and $G_{108}$ interval descriptive. \\
+\addlinespace[3pt]
 C116 & Rank-based paired test & A simple model beats the detector only if a paired rank test gives $p$ below 0.05. \\
+\addlinespace[3pt]
 C120 & Exact-join agreement & The exact join is authoritative only if it is one-to-one and agrees with every gold label. \\
+\addlinespace[3pt]
 C126 & Teacher-student comparison & Student and teacher rankings are indistinguishable if the paired interval contains zero and the gap is small. \\
+\addlinespace[3pt]
 C129 & Exemplar-prevalence check & Share of rebuilt Rules 1 and 2 candidates whose positional exemplar lies outside the trigger set, with a Wilson interval; the rebuild's selector must give 0. \\
+\addlinespace[3pt]
 C130 & Reproducible-labeller retrain & On replication labels the ranking null reproduces if the $G_{253}$ ensemble interval contains 0.5 and ends below 0.7466. \\
+\addlinespace[3pt]
 C132 & Cluster-bootstrap check & Resampling whole admissions and whole subjects, the bounded null holds only if both ensembles' upper ends on $G_{253}$ stay below 0.7466; invalid unless the row-level intervals reproduce. \\
 \end{longtable}
 \endgroup
 
-\subsection{RQ3: does the code the detector runs contain what it is credited with?}
+\subsection{RQ3: whether the running code contains what it is credited with}
 \label{sec:m-control-rq3}
 
 \textbf{Condition.} A component credited with a semantic contribution must, at minimum, exist in the
@@ -733,11 +751,10 @@ This audit was run on the three credited components of Section~``\nameref{sec:m-
 authority parameters of the asymmetric conditioning module, the auxiliary rule-type head, and the
 guideline-grounded harm estimator. The deleted pharmacological prior module, with no learned
 parameters, is not among them. Neither is the fourth specified component, the cross-note difference
-encoder: no reported parameter value, metric, or claimed contribution names it, so the audit, which
-followed the claims made for the system, had no credited reading of it to check, and whether it
+encoder: no reported parameter value, metric, or claimed contribution names it. The audit followed the claims made for the system and had no credited reading of it to check, and whether it
 contributes anything is not known.
 
-\subsection{RQ4, Evaluation: is the detector's null real?}
+\subsection{RQ4: whether the detector's null is real}
 
 \textbf{Condition.} A null result is evidence only if the instrument that produced it can be shown
 to resolve an effect of comparable size, and only if the evaluation had enough power to see one.
@@ -771,8 +788,8 @@ Precision-recall summaries are preferred to ROC summaries where the positive cla
 Interval estimates on AUROC and average precision are nonparametric percentile bootstraps over the
 evaluation rows \citep{efron1994bootstrap}. The main control uses $10{,}000$ resamples at a fixed
 generator seed of $20260806$; the decontamination analysis uses $10{,}000$ resamples at seed $42$.
-With few positives a resample can contain none, in which case AUROC is undefined, so such resamples are discarded, not imputed, and do not count toward the requested total. The count of valid
-resamples is reported beside an interval only where that interval's own result file stored it; where no
+With few positives a resample can contain none, in which case AUROC is undefined. Such resamples are discarded without imputation and do not count towards the requested total. The count of valid
+resamples is reported beside an interval only where that interval's result file stored it; where no
 count is stored, none is quoted, and that interval is read as computed over the requested resamples
 less an unrecorded number of degenerate draws. A separate bootstrap of $G_{134}$, not printed in this
 thesis, does record its discards, $20$ of $10{,}000$, a rate of $0.002$, the only direct measurement
@@ -808,9 +825,9 @@ fixed before any of those checks ran. That threshold was computed with $z_{1-\al
 two-sided $\alpha$ of 0.05, while the rule's own Mann-Whitney arm is one-sided; conjoining the two
 does not match a common $\alpha$, and the mismatch runs conservative, since the AUROC arm demands a
 larger effect than a one-sided threshold at the same $\alpha$ would set. A system that fails the rule is not shown to lack an effect
-smaller than that threshold. The rule's own power at its threshold is low: in the power simulation
-described below, a score whose true AUROC is exactly $0.7355$ meets the rule on only $0.5208$ of
-replicates, so a system with that much signal fails the rule about as often as it passes.
+smaller than that threshold. The rule's power at its threshold is low. In the power simulation
+described below, a score whose true AUROC is exactly $0.7355$ meets the rule on $0.5208$ of
+replicates: a system with that much signal fails the rule about as often as it passes.
 
 \begin{table}[H]
 \caption{Evaluation sensitivity under each treatment of ambiguous rows}
@@ -827,13 +844,13 @@ $G_{134}$ &  6 & 128 & 0.1210 & 0.8058 \\
 $G_{108}$ & 6 & 102 & 0.1218 & 0.8064 \\
 \bottomrule
 \end{tabular}
-\apanote{$n_+$ and $n_-$ are the positive and negative counts of the stratum; $\mathrm{SE}_0$ is the analytic standard error of an AUROC estimate under the null of no discrimination, defined above; $\mathrm{AUROC}_{\min}$ is the analytic minimum detectable AUROC. $\mathrm{AUROC}_{\min}$ is computed by the same procedure that also drives the marker positions in Figure~\ref{fig:power}. Values are rounded to four decimal places. These figures bound what the evaluation could have seen and are not results about any model. They also state the limit of the thesis's negative claim: nothing here can establish that the task is unsolvable, only that this pipeline does not solve it at a sensitivity this coarse.}
+\apanote{$n_+$ and $n_-$ are the positive and negative counts of the stratum; $\mathrm{SE}_0$ is the analytic standard error of an AUROC estimate under the null of no discrimination, defined above; $\mathrm{AUROC}_{\min}$ is the analytic minimum detectable AUROC. $\mathrm{AUROC}_{\min}$ is computed by the same procedure that also drives the marker positions in Figure~\ref{fig:power} in Chapter~\ref{ch:results}. Values are rounded to four decimal places. These figures bound what the evaluation could have seen and are not results about any model. They also state the limit of the thesis's negative claim: nothing here can establish that the task is unsolvable, only that this pipeline does not solve it at a sensitivity this coarse.}
 \end{table}
 
-The table is an analytic approximation. The power simulation (pre-registered) checks it on a real score distribution, not on the binormal assumption the analytic procedure makes: replicate
+The table is an analytic approximation. The power simulation (pre-registered) checks it on a real score distribution in place of the binormal assumption the analytic procedure makes: replicate
 evaluation sets shaped like $G_{253}$ are drawn from the off-the-shelf inference model's scores on
 held-out SNLI validation and test items, at a grid of true AUROC values constructed two independent ways, which give different floors (Section~``\nameref{sec:res-rq4}'' reports both), and the power of several rejection rules, including the registered decision rule, is measured.
-The resolvable AUROC is therefore stated per rule. It reruns the planted positive control, which was invalid
+The resolvable AUROC is therefore stated per rule. The simulation reruns the planted positive control, which was invalid
 under its rule because a calibration step accepted an unchecked boundary value, with that
 calibration step corrected and nothing else changed. Three thresholds recur across this thesis and
 are given fixed names here, so that none is called simply ``the floor'': the \emph{analytic minimum
@@ -853,7 +870,7 @@ stochasticity and excludes sampling variance. The decontaminated run's seeds, de
 count are recorded in that run's aggregate file, released with the code; its training hyperparameters are not recorded in any traced file. Error bars reported as $\pm$ are standard
 deviations across those three seeds, not standard errors and not confidence intervals. The convention is not uniform in the underlying result files: the subject-disjoint control computes the
 standard deviation with $\mathrm{ddof} = 1$, the sample convention, while the decontamination analysis
-uses $\mathrm{ddof} = 0$, the population convention. At three seeds the two differ materially, so
+uses $\mathrm{ddof} = 0$, the population convention. Because the two differ materially at three seeds,
 every reported spread in Chapter~\ref{ch:results} carries its convention explicitly, and no spread
 computed under one convention is compared against a spread computed under the other.
 
@@ -862,33 +879,32 @@ is emitted over fewer than three genuinely independent runs, where independence 
 ran inside the run and the row was produced by that run rather than pasted from an earlier one, and a
 reference row in any comparison table must be produced by the same script and protocol as the rows it
 is compared against, or the comparison is reported as directional with no significance claim
-attached. Every quantity in Chapter~\ref{ch:results} maps to the committed file that
-produced it. The tables that carry that mapping are released with the code and are not bound in this
+attached. Every printed quantity in Chapter~\ref{ch:results} maps to the committed file that
+produced it. Verdicts of the planted-defect benchmark's later stages are quoted in words from the outcome record of its pre-registration, because their result files are not in the released repository. The tables that carry that mapping are released with the code and are not bound in this
 thesis; Appendix~\ref{app:provenance}, Section~``\nameref{app:provenance},'' describes them and gives
 the counts. Of the distinct registered quantities the trace names, most match more than one
 registered value at the printed precision and are marked indicative, not definitive.
 
 \subsection{Pairs that share an admission or a subject}
 
-Every interval and test in this thesis treats each annotated pair as an independent row. One note
+Every row-level interval and test in this thesis treats each annotated pair as an independent row. One note
 pair per admission was selected, but several candidate pairs can come from one admission, and a
-subject can have more than one admission, so pairs are not guaranteed independent of one another;
-this is why the subject-disjoint exclusion (Section~``\nameref{sec:m-weak}'') was needed before
-training a detector on the weak-labelled pool. Where pairs share a cluster, row-level intervals are
-narrower than a clustered analysis would return. The cluster-bootstrap check (pre-registered, and
-requested after the main results) therefore resamples whole admissions, and separately whole
-subjects, for the two ensembles on $G_{253}$. Its rule is that the bounded null holds under
+subject can have more than one admission. Pairs are therefore not guaranteed independent of one another,
+which is why the subject-disjoint exclusion (Section~``\nameref{sec:m-weak}'') was needed before
+training a detector on the weak-labelled pool. Where pairs share a cluster, row-level intervals can
+be narrower than a clustered analysis would return. The cluster-bootstrap check (pre-registered, and
+requested after the main results) resamples whole admissions, and separately whole
+subjects, for the two ensembles on $G_{253}$: the subject-disjoint ensemble of the decontaminated run and the plain control detector retrained on reproducible labels. Its rule is that the bounded null holds under
 clustering only if all four upper ends stay below the simulated Mann-Whitney floor $0.7466$, and the
-run counts only if it first reproduces both row-level intervals to four decimal places. The tests
-other than those two intervals were not rerun with clustered resampling, so the caution stands for
-them.
+run counts only if it first reproduces both row-level intervals to four decimal places. No other test was rerun with clustered resampling, and the caution stands for
+the rest.
 
 \section{Data Use, Ethics, and Compliance}
 \label{sec:m-ethics}
 
-\paragraph{Note text, and third-party transmission.} Sentence pairs extracted from MIMIC-III notes were sent to hosted language model services in
+\paragraph{Note text and third-party transmission.} Sentence pairs extracted from MIMIC-III notes were sent to hosted language model services in
 several runs. PhysioNet's guidance of 24 September 2025,
-\emph{Use of MIMIC Data with Large Language Models and Online Services}, states that the
+\emph{Use of MIMIC Data with Large Language Models and Online Services} \citep{physionet2025llm}, states that the
 Credentialed Data Use Agreement prohibits sharing access to the data with third parties, including
 sending it through APIs or using it on online platforms, and that MIMIC data must not be stored or
 retained by third-party LLM services. The guidance strongly recommends locally deployed models, and
@@ -908,11 +924,10 @@ read each pair on the author's screen, in the author's presence, and gave a judg
 No re-identification was attempted and nothing was
 joined against MIMIC-III at the patient level.
 
-\paragraph{Clinical status, and code contribution.} Nothing in this thesis has been validated for
-clinical use or supports deployment in any care setting. The analysis code is released, with one gap: the deployed weak-labelling run of Section~``\nameref{sec:m-weak}'' cannot be repeated. That run produced $1{,}425$ positive labels among the $1{,}679$-row weak-labelled pool,
-which subject-disjoint exclusion reduces to the $1{,}183$-row training pool of
-Table~\ref{tab:m-strata}, and the $261$ of $299$ marginal Chapter~\ref{ch:results} reports, so those
-numbers cannot be regenerated by anyone. The reproducible-labeller retrain (pre-registered) is the plain control
+\paragraph{Clinical status and code contribution.} Nothing in this thesis has been validated for
+clinical use or supports deployment in any care setting. The analysis code is released, with one gap: the deployed weak-labelling run of Section~``\nameref{sec:m-weak}'' cannot be repeated. That run produced two numbers nobody can regenerate: $1{,}425$ positive labels in the $1{,}679$-row weak-labelled pool
+and the $261$ of $299$ marginal that Chapter~\ref{ch:results} reports. Subject-disjoint exclusion and the validation split then reduce
+that pool to the $1{,}183$-row training pool of Table~\ref{tab:m-strata}. The reproducible-labeller retrain (pre-registered) is the plain control
 detector retrained on reproducible labels: labels regenerated from the committed replication prompt
 and script replace the lost run's on the same pool, so the ranking null can be checked without the
 lost run

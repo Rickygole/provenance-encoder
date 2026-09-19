@@ -1,0 +1,39 @@
+# The environment that reproduces the committed figure PDFs exactly.
+#
+# Recorded on 2026-09-18 from the interpreter the thesis was built with
+# (`python --version`, `conda list`, `pip show`, and
+# matplotlib.ft2font.__freetype_version__): Anaconda, channel `defaults`,
+# macOS arm64. The versions below are what was installed, not minimums.
+#
+# Why conda and not pip alone: the matplotlib wheel on PyPI bundles its own
+# FreeType (2.6.1), while this conda build links the conda `freetype` package
+# (2.12.1). Text metrics, and through them canvas sizes, differ between the
+# two, so a figure rebuilt under the PyPI wheel does not match the committed
+# PDF even at identical matplotlib and numpy versions. Pass 10 of
+# accord/stats/verify_thesis_deep.py reads the `matplotlib=` and `freetype=`
+# pins in this file; when the running versions differ it reports the figures
+# as "not comparable in this environment" rather than failing.
+#
+#   conda env create -f environment.yml && conda activate provenance-encoder
+#
+# Also needed, from the system package manager rather than conda: a LaTeX
+# distribution with latexmk (accord/thesis/build.sh) and poppler's pdftoppm and
+# pdftotext (`brew install poppler` / `apt install poppler-utils`; 26.04.0 was
+# installed here). Poppler only rasterises for the comparison, so its version
+# does not have to match.
+name: provenance-encoder
+channels:
+  - defaults
+dependencies:
+  - python=3.12.7
+  - numpy=1.26.4
+  - pandas=2.2.2
+  - scipy=1.13.1
+  - scikit-learn=1.5.1
+  - matplotlib=3.9.2
+  - freetype=2.12.1
+  - pillow=10.4.0
+  - pyarrow=16.1.0
+  - pip
+  - pip:
+      - pymupdf==1.28.2

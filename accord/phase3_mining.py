@@ -61,13 +61,14 @@ Splits: admissions are assigned to train/val/test by SUBJECT_ID (not row, not
 HADM_ID) with disjointness asserted in code -- the reference used a row-level
 random split.
 
-Local only. Prints aggregates only. Sentence text stays under local_only/.
+Local only. Prints aggregates only. Sentence text stays under $MIMIC_LOCAL_ONLY_DIR/accord/.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import random
 import time
 from pathlib import Path
@@ -78,7 +79,8 @@ import pandas as pd
 from dictionaries import dose_pct_diff
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / "local_only"
+MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser("~/mimic_local_only"))
+OUT = Path(MIMIC_LOCAL_ONLY_DIR) / "accord"
 
 # ---------------------------------------------------------------------------
 # VERBATIM from ACCORD_Phase2_Contradiction_Mining, cell 5
