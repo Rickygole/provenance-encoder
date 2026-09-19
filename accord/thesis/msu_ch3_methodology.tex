@@ -641,17 +641,20 @@ hosted results were withdrawn.
 A pre-registered check was committed as a file fixing its rule before its first datum, with its
 outcome appended below the rule and the rule never edited. Each pre-registration file's first commit
 precedes the first commit of its result file in the public repository history, where a reader
-can check the order. Table~\ref{tab:m-prereg} maps each
+can check the order. That history was rewritten once, to remove commit trailers, which left author
+and committer dates identical, so the order rests on those recorded dates and not on an independent
+timestamp. Table~\ref{tab:m-prereg} maps each
 identifier, which no chapter uses outside this table, to the plain name the thesis uses and to
 its rule in one line; the full rule, including what makes a run invalid, is in the file. Several checks
 were requested after the main results were in, so each is fixed relative to its own run but post hoc
 relative to the original plan: the tipping-point and stratum-interval checks, which count the gold
 labels that must flip before the decontaminated ensemble reaches each floor and give its interval on
 $G_{108}$; the rank-based paired test; the exact-join agreement; the teacher-student comparison; the
-exemplar-prevalence check; the reproducible-labeller retrain; and the cluster-bootstrap check, which adds to its clustered
-resampling the floors at the post-flip counts and the reading with the ambiguous pairs counted positive.
-These checks were requested in this project's own internal review rounds, which its files call ``the
-committee'' or ``an examiner''; no member of the thesis committee requested them. A pre-registered scale ladder
+exemplar-prevalence check; the reproducible-labeller retrain; the cluster-bootstrap check, which adds to its clustered
+resampling the floors at the post-flip counts and the reading with the ambiguous pairs counted positive; and the
+interval tipping-point check, which repeats the greedy relabelling and reads the interval's upper end after each relabel.
+The requests came from this project's own internal review rounds. Its files call those rounds ``the
+committee'' or ``an examiner,'' and neither phrase refers to the thesis committee. A pre-registered scale ladder
 within one model family was attempted twice, and a prospective version of the feasibility check that
 depended on it could run neither time. All three registrations were invalid under their gate, and none
 is reported. The pre-registration
@@ -732,6 +735,8 @@ C129 & Exemplar-prevalence check & Share of rebuilt Rules 1 and 2 candidates who
 C130 & Reproducible-labeller retrain & On replication labels the ranking null reproduces if the $G_{253}$ ensemble interval contains 0.5 and ends below 0.7466. \\
 \addlinespace[3pt]
 C132 & Cluster-bootstrap check & Resampling whole admissions and whole subjects, the bounded null holds only if both ensembles' upper ends on $G_{253}$ stay below 0.7466; invalid unless the row-level intervals reproduce. \\
+\addlinespace[3pt]
+C133 & Interval tipping-point check & Relabelling greedily in each direction on $G_{253}$, the bounded null survives 2 wrong labels only if every count of relabels needed to lift an ensemble's upper end to 0.7466 is 3 or more; invalid unless the row-level intervals reproduce. \\
 \end{longtable}
 \endgroup
 

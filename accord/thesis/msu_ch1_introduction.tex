@@ -210,10 +210,12 @@ what this project's own instrument can show?
 \emph{A bounded null. No AUROC effect above the resolvable floor is found on the $253$ non-ambiguous pairs: a power
 simulation puts 80 percent power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test and
 $0.8084$ for the registered decision rule, and the three seeds of the decontaminated ensemble are not
-distinguishable from chance. The reading is fragile, and the reason is the labels, not the
-arithmetic: tipping it takes $7$ relabelled positives of the $12$ once each flip is held to the
-floor its remaining labels set, but $46$ ambiguous pairs and a single annotator with no
-reliability figure stand behind those labels (Section~``\nameref{sec:disc-limits}''). Average
+distinguishable from chance. The reading is fragile. Lifting the point estimate past its floor takes $7$ relabelled positives of
+the $12$, once each flip is held to the floor its remaining labels set. The bounded null is defined by
+its interval, however, and a pre-registered check found that 2 greedily chosen relabels lift the
+decontaminated ensemble's upper end past $0.7466$ and that 1 is enough for the plain control detector
+retrained on reproducible labels. Behind those labels stand $46$ ambiguous pairs and a single annotator
+with no reliability figure (Section~``\nameref{sec:disc-limits}''). Average
 precision was chosen after its value was known. On it, a permutation of the
 gold labels against fixed scores puts a bag-of-words model trained on the weak
 labels ($p = 0.0159$) and an inference model never trained on them
@@ -250,8 +252,8 @@ maximum agreement under fixed marginals and the minimum attainable
 significance of a discrete test are classical
 \citep{cohen1960kappa,tarone1990modified}. The contribution is their use as a gate that can be run on a language-model weak labeller
 before training, needing only a base rate from a small expert-labelled pilot. It has had no
-prospective use here: the expert labels came later, and two
-pre-registered prospective attempts were ruled invalid by their own gate.
+prospective use here: the expert labels came later, and the
+pre-registered prospective version could run in neither of its 2 attempts, each ruled invalid by its own gate.
 At $261$ flagged of $299$ against $12$ confirmed, no outcome could have
 rejected the null: the smallest attainable one-sided $p$ is $0.1894$. The measured MCC, $0.0269$, sits below the $0.0780$ ceiling, as it must, and its test against chance returns $p =
 0.5347$, and with that marginal a rejection was never available. The ceiling bounds thresholded

@@ -144,6 +144,10 @@ def clean(s):
     s = re.sub(r"\\texttt\{[^}]*\}", " ", s)
     s = re.sub(r"(?<!\\)%.*", "", s)
     s = re.sub(r"\\(label|ref|cite[tp]?)\{[^}]*\}", " ", s)
+    # Model names are not claims. "Granite 3.3 8B" put a 3.3 into the trace 33
+    # times, each matched to whatever register value rounds to 3.3.
+    s = re.sub(r"\b(Granite|Llama|Qwen|Claude\s+Sonnet|Claude\s+Haiku|GPT-?)\s*\d+(\.\d+)?[a-z]?"
+               r"(\s+\d+B)?\b", " ", s)
     # Layout lengths are not claims. A column width such as p{0.18\linewidth}
     # was being traced as a quantity and matched to whatever register value
     # happened to round to it, which inflated the counts Appendix B prints.

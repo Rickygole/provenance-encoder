@@ -150,6 +150,8 @@
 % the closing quotation mark after a title (School of Graduate Studies error
 % checklist, item 13). biblatex's English default puts them outside.
 \DefineBibliographyExtras{english}{\uspunctuation}
+% An entry is not split across two pages.
+\AtBeginBibliography{\interlinepenalty=10000}
 % Author lists: maxbibnames=20 with minbibnames=20 prints every list of up to
 % 20 names in full and cuts any longer list to its first 20 names plus
 % "et al.", so the two long lists in refs.bib (TRIPOD+AI, 34 authors; Llama 3,
@@ -222,6 +224,9 @@
 \frenchspacing
 
 % Widow/orphan control.
+% Words that must never break: a cross-reference split as "Ta-ble 12" or "Fig-ure 2" reads as an
+% error, and a personal name should not be divided.
+\hyphenation{Table Tables Figure Figures Chapter Section Appendix labeller labellers Amrita}
 \clubpenalty=10000
 \widowpenalty=10000
 \displaywidowpenalty=10000

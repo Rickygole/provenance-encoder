@@ -952,13 +952,27 @@ post-flip counts, the reading with the ambiguous pairs counted positive, and the
 The first two put numbers on the two limits. At the counts the flips leave behind, the analytic minimum detectable
 AUROC is $0.7890$ with $7$ positives, $0.8047$ with $6$, and $0.8230$ with $5$, against $0.7355$ with $12$. The greedy
 flips leave the AUROC at $0.7416$ after $5$, below $0.7890$; at $0.7848$ after $6$, below $0.8047$; and at $0.8379$
-after $7$, above $0.8230$. The seventh flip alone clears the floor for the labels it leaves, which puts the tipping
+after $7$, above $0.8230$. The seventh flip alone clears the floor for the labels it leaves, which puts the point estimate's tipping
 point at $7$ relabelled positives where the fixed floor gave $5$. The simulated floors were not recomputed at those
 counts. That is $7$ of $12$, most of the positives, and a greedy search picks the most damaging labels
 first, so this is a bound on what targeted error could do and says little about ordinary error. Reading the $46$ ambiguous pairs
 as positive, the opposite error, leaves the plain control detector retrained on reproducible labels at an AUROC of
 $0.4940$ on the $299$ pairs (row-level 95 percent interval $0.4087$ to $0.5799$; resampling whole subjects, $0.4090$
 to $0.5808$). The decontaminated ensemble has no score for those pairs, so that reading does not exist for it.
+
+\textbf{The tipping point read from the interval.} The counts above follow the point estimate, but the bounded null
+is defined by the interval: the 95 percent upper end stays below the simulated Mann-Whitney floor $0.7466$. A further
+pre-registered check, requested after those counts were reported, repeated the greedy search on $G_{253}$ and read the
+upper end after each relabel, in both directions of error and with the floor held at $0.7466$. The run first
+reproduced both row-level intervals to four decimal places. For the decontaminated ensemble, 1 confirmed positive
+relabelled negative lifts the upper end to $0.7422$ and a second lifts it to $0.7760$; 1 negative relabelled positive
+lifts it to $0.7373$ and a second to $0.7673$. The plain control detector retrained on reproducible labels tips after
+a single relabel in either direction, with upper ends of $0.7591$ and $0.7530$. The rule fixed before the run read any
+count of 1 or 2 as the bounded null failing to survive that many wrong labels, and that is the outcome recorded. By
+the criterion this thesis uses, the bounded null therefore rests on 1 or 2 labels, where the point estimate suggested
+$7$. The search picks the most damaging label first, which makes these counts a bound on targeted error that says
+little about ordinary error. Because the search is greedy and follows the point AUROC, a count of 2 is also an upper
+bound on the smallest number of relabels that would tip the interval.
 
 \textbf{Pairs that share an admission or a subject.} The check's third part answers whether the intervals above are
 too narrow. The $253$ pairs of $G_{253}$ come from $231$ admissions and $225$ subjects; $20$ admissions and $24$
@@ -1053,20 +1067,22 @@ known. The pre-registered bag-of-words robustness checks found the average-preci
 result survives $11$ of $12$ leave-one-positive-out drops and comes
 from a training set sharing $0$ pairs and $0$ subjects with gold.
 
-But the
+The
 off-the-shelf NLI model, never trained on the weak labels, is also
 significant on average precision when each system is tested against its own
 label-permutation null ($p = 0.01335$ on $G_{253}$, $0.0120$ on
 $G_{299}$), while the decontaminated ensemble's average precision, $0.0598$, is not
-above its permutation null ($p = 0.4629$). The paired comparison has a history that belongs on
-the page. The first pre-registered paired test swapped raw scores between systems and separated
+above its permutation null ($p = 0.4629$).
+
+The paired comparison was run twice, and the first run is superseded. The first pre-registered paired test swapped raw scores between systems and separated
 TF-IDF from the decontaminated ensemble at $p = 0.00005$, while the same statistic gave the NLI model
 against the ensemble $p = 0.10035$ for a difference of about the same size. That discrepancy
 exposed the flaw: the three systems' scores sit on different scales on $G_{253}$, with medians of
 $0.8858$, $0.2966$, and $0.9647$, and swapping raw scores between them is not an exchange under
-the null. Both results are superseded. The replacement, a pre-registered rank-based paired test,
-was written after those two results had been seen, which is a forking path this thesis cannot
-undo and therefore states. It permutes within-system ranks on $G_{253}$ and separates no two of
+the null. Those two results, and the same statistic's third leg, TF-IDF against the NLI model, are
+superseded. The replacement, a pre-registered rank-based paired test,
+was written after those two results had been seen, and the choice between the two statistics was
+therefore not blind to their outcomes. It permutes within-system ranks on $G_{253}$ and separates no two of
 the three: TF-IDF minus the decontaminated ensemble $p = 0.17875$, NLI minus the decontaminated ensemble
 $p = 0.1452$, TF-IDF minus NLI $p = 0.96465$. This is an
 average-precision signal that a label-free model also finds; the robustness
@@ -1119,7 +1135,7 @@ attempt needs.
 \caption{Minimum detectable AUROC by evaluation size}
 \includegraphics[width=0.98\linewidth]{figures/fig-power.pdf}
 \label{fig:power}
-\apanote{Minimum detectable AUROC at 80 percent power and two-sided $\alpha$ of 0.05, by Hanley and McNeil \citep{hanley1982meaning}, against the number of positives in the evaluation set. At 12 positives the power simulation on a real score distribution gives floors of $0.7466$ for a two-sided Mann-Whitney test and $0.8084$ for the registered decision rule. The hollow marker is the analytic minimum detectable AUROC, $0.7355$, at 12 positives; the shaded region above the curve is what the design could detect at 80 percent power, and the unshaded region below it is what it could not.}
+\apanote{Minimum detectable AUROC at 80 percent power and two-sided $\alpha$ of 0.05, by Hanley and McNeil \citep{hanley1982meaning}, against the number of positives in the evaluation set. At 12 positives the power simulation on a real score distribution gives floors of $0.7466$ for a two-sided Mann-Whitney test and $0.8084$ for the registered decision rule. The hollow marker is the analytic minimum detectable AUROC, $0.7355$, at 12 positives; the shaded region above the curve is what the design could detect at 80 percent power, and the unshaded region below it is what it could not. The Mann-Whitney marker is drawn slightly to the right of the 12-positive line, with a leader, so that it does not cover the analytic marker.}
 \end{figure}
 
 The analytic value has two checks. A Monte Carlo check released with this
@@ -1143,8 +1159,8 @@ construction corrupts the same scores with noise instead of relabelling and
 gives different 80 percent power crossings, $0.7318$ for the two-sided
 Mann-Whitney test and $0.7939$ for the registered decision rule, against the
 label mixture's $0.7466$ and $0.8084$ above. Both constructions point the same
-direction, but only the label mixture was pre-registered, and the alternate is
-disclosed here without being averaged into either floor.
+direction. The label mixture was the registered primary construction and the noise mixture the
+registered secondary one, reported here without being averaged into either floor.
 
 \subsection{Multiplicity and what is not corrected for}
 \label{sec:r-multiplicity}
@@ -1180,18 +1196,18 @@ teacher-student comparison. The remaining checks in that table report rates, int
 simulation read against a written rule, and add no test to any family. The descriptive Granite 3.3 8B cells of the
 prompt-wording confirmation are uncorrected across models.
 
-The planted-defect benchmark's later stages say which of these checks were themselves checked. Stage 2 plants
+The planted-defect benchmark's later parts say which of these checks were themselves checked. Part 2 plants
 defective labellers on a synthetic score and puts three checks to them (the gate's floor $p$, the registered decision
-rule, and a bootstrap of the over-calling ratio, the bootstrap over-calling check); Stage 3 plants a defect for each of
-four architecture checks on the detector's modules; and Stage 4 applies the registered decision rule to detector scores
-against synthetic gold labels. In Stage 2 the
+rule, and a bootstrap of the over-calling ratio, the bootstrap over-calling check); Part 3 plants a defect for each of
+four architecture checks on the detector's modules; and Part 4 applies the registered decision rule to detector scores
+against synthetic gold labels. In Part 2 the
 registered decision rule applied to a synthetic score was validated, and the gate's floor $p$ is arithmetic and
 carries no verdict. The bootstrap over-calling check was ambiguous under its own rule, which never named its clean
-arm: it is validated under one reading, a false alarm under the other, and not relied on. Stages 3 and 4 ran on
+arm: it is validated under one reading, a false alarm under the other, and not relied on. Parts 3 and 4 ran on
 untrained weights where the registration specified the trained detector, and are recorded as departing from the registration.
-Three of the four architecture checks and the Stage 4 check carry no verdict; the check that the harm head receives no
-gradient when its loss is excluded stands as validated, because that property does not depend on training. The Stage 2
-and Stage 3 result files are not in the repository as released, and their verdicts are quoted in words from the
+Three of the four architecture checks and the Part 4 check carry no verdict; the check that the harm head receives no
+gradient when its loss is excluded stands as validated, because that property does not depend on training. The Part 2
+and Part 3 result files are not in the repository as released, and their verdicts are quoted in words from the
 pre-registration's outcome record.
 
 A test belongs to this family by its inferential target, not by what a run

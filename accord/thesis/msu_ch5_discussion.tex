@@ -50,7 +50,7 @@ Weak supervision & A high-recall labeller usable in place of expert annotation &
 \addlinespace
 Architecture & Three named components credited with the reported performance & Authority parameters at their initial values; rule-type head confounded (target in its input); harm head untrained (no term in the objective) & Unsupported (code audit) \\
 \addlinespace
-Evaluation & AUROC near chance, plausibly an artifact of a small, defective sample & Not distinguishable from chance at any of three seeds; only AUROC above the simulated Mann-Whitney floor $0.7466$ or the simulated registered-rule floor $0.8084$, two different tests' floors, resolvable; defect-artifact reading unresolved & Bounded null (fragile, one annotator) \\
+Evaluation & AUROC near chance, plausibly an artifact of a small, defective sample & Not distinguishable from chance at any of three seeds; only AUROC above the simulated Mann-Whitney floor $0.7466$ or the simulated registered-rule floor $0.8084$, two different tests' floors, resolvable; defect-artifact reading unresolved & Bounded null (fragile: 1 or 2 relabels tip its interval; one annotator) \\
 \bottomrule
 \end{tabular}
 \apanote{Verdict names the status this thesis gives each stage's check: not established, no metric
@@ -245,7 +245,7 @@ cells, uncorrected, met both criteria under two new wordings
 trained models under this supervision. Whether a graded score escapes the
 agreement ceiling is not settled, and no ablation carries a significance claim. The cross-note
 difference encoder, the fourth component Chapter~\ref{ch:method} lists, was not audited: the
-audits followed the three components an earlier version credited with a result.
+audits followed the three components that the draft preceding the correction record credited with a result.
 
 \paragraph{The deployed labelling run is lost, but the ranking null does not rest on it.} The
 script and prompt behind the deployed weak labels were never committed, and those labels cannot be
@@ -262,7 +262,7 @@ ratio, on a ranking already returned as a bounded null (Table~\ref{tab:disc-spin
 system should not be deployed in any form; alert burdens at that ratio are separately associated
 with reduced acceptance \citep{vandersijs2006overriding,ancker2017alertfatigue}. A more specific hazard sits inside the
 architecture: the untrained harm head's outputs span $0.3977$ to $0.6096$, yet
-an earlier version of this work presented that range as a severity score, the
+that earlier draft presented that range as a severity score, the
 most serious overstatement this project produced. A one-line
 diagnostic, printing the empirical range of every emitted score, catches it.
 
@@ -316,9 +316,15 @@ $7$ relabelled positives to tip where the fixed floor put the count at $5$: the 
 flip's AUROC, $0.8379$, is the first to clear its floor, $0.8230$. No simulated floor was
 recomputed at those counts. Read the other way, with the $46$ ambiguous pairs counted positive, the plain
 control detector retrained on reproducible labels scores $0.4940$ on the $299$ pairs. Neither
-reading moves the null. What keeps it fragile is what these checks cannot reach: the $46$ ambiguous
-pairs outnumber the $12$ positives nearly four to one, the decontaminated ensemble has no score on
-them, and one annotator with no reliability figure stands behind every label.
+reading moves the point estimate far enough to matter. The interval moves sooner. The bounded null is
+defined by an upper end below $0.7466$, and the interval tipping-point check found that 2 greedily
+chosen relabels, in either direction, lift the decontaminated ensemble's upper end past that floor (to
+$0.7760$ and $0.7673$), while 1 is enough for the plain control detector retrained on reproducible
+labels ($0.7591$ and $0.7530$). By its own criterion the bounded null holds only if those 1 or 2 labels
+are right. A greedy search picks the most damaging labels, which makes the counts a bound on targeted
+error and no estimate of ordinary error, but no second annotator exists to confirm the labels in
+question. The checks also cannot reach the $46$ ambiguous pairs, which outnumber the $12$ positives
+nearly four to one and on which the decontaminated ensemble has no score.
 
 \paragraph{Invalid designs.} The public factorial experiment left too few
 models with a valid cell after the determinism check, so it is reported as invalid under its rule and not reinterpreted. The
@@ -362,7 +368,7 @@ Training rows sharing subjects with the evaluation set & Severe if unaddressed &
 \addlinespace
 Exemplar defect on action-conflict candidates & Severe for pool precision & Three readings disagree, none a tiebreaker; planted-defect benchmark did not meet its rule; Rules 3 and 4 rescore inconclusive \\
 \addlinespace
-Single annotator, no reliability figure & Severe; bounds every gold-label conclusion & Stated; circular coefficient retracted; tipping-point and relabelling checks bound sensitivity to wrong labels \\
+Single annotator, no reliability figure & Severe; bounds every gold-label conclusion & Stated; circular coefficient retracted; tipping-point and relabelling checks bound sensitivity to wrong labels; read from the interval, the bounded null tips after 1 or 2 relabels \\
 \addlinespace
 Pairs sharing an admission or a subject & Moderate & Checked for the bounded null: cluster bootstrap by admission and by subject keeps all four upper ends below $0.7466$; other tests not rerun with clustering \\
 \addlinespace
@@ -442,8 +448,9 @@ labellers.} A wording-specific prompt signal can only be tested on pairs it was
 not found on, and the strongest one did not confirm under new wordings. The
 highest of the three exemplar readings comes from an extractor never validated
 against human annotation, and validating one would bound the defect rate and whether the pool's confirmed base rate is valid. Whether over-calling attenuates
-with scale, attempted through a hosted service and withdrawn
-(Section~``\nameref{sec:m-ethics}''), is answerable only by a larger labeller
+with scale was attempted through a hosted service and withdrawn
+(Section~``\nameref{sec:m-ethics}''), then attempted twice on a local model ladder that was invalid
+under its gate (Chapter~\ref{ch:method}). It is answerable only by a larger labeller
 served locally. The smallest experiment that would close it is the same
 clinical-framing prompt run on a 30-billion-parameter-class open-weights model
 served on the analysis machine, scored against the same gold pairs; it needs more
@@ -461,6 +468,6 @@ labeller's marginal, and trigger-exemplar dissociation, a mining bug that the
 original selector design shows on $41.4$ percent of the rebuilt pool's
 Rules 1 and 2 candidates, a design rate for that pool alone, and that a one-line assertion catches once the candidate schema records which
 mention fired. None of that
-establishes that the task cannot be done; it establishes what floors of $0.7466$ and $0.8084$, one per test, let a $253$-pair
-evaluation say, and it leaves the size and
-design of the next attempt to the future work above.
+shows the task cannot be done. It shows how little a $253$-pair evaluation can say when its floors are $0.7466$ and
+$0.8084$, one per test, and when 1 or 2 labels carry its bounded null. The size and
+design of the next attempt are set out in the future work above.
