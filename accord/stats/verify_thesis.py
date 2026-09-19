@@ -79,11 +79,7 @@ PROSE = CHAPTERS + sorted((THESIS / "frontmatter").glob("*.tex"))
 # and are excluded from every pass, so no gate can ever require editing them.
 FRONTMATTER = [f for f in sorted((THESIS / "frontmatter").glob("*.tex"))
                if f.name != "acknowledgements.tex"]
-# The abstract's words live in abstract_text.tex, which both the front page
-# and the copy before Chapter 1 \input. Both files are scanned: the wrapper
-# carries the header block, the text file carries the 250 words.
-ABSTRACT = [THESIS / "frontmatter" / "abstract.tex",
-            THESIS / "frontmatter" / "abstract_text.tex"]
+ABSTRACT = [THESIS / "frontmatter" / "abstract.tex"]
 assert ABSTRACT[0].exists(), "abstract.tex missing: refusing to scan nothing"
 # The set every prose pass (1, 2, 3, 4) scans: chapters plus whatever side-strand
 # material is currently bound in the supplement by name. When SUPPLEMENT is
@@ -403,7 +399,11 @@ def main():
         if len(opens) > 2:
             print(f"   {f.name}: {len(opens)} paragraphs opening with {sorted(set(opens))}")
             hits += len(opens)
-    print(f"   {'review' if hits else 'pass'}: {hits} style flags\n")
+    # This pass counted its hits and never added them to `failures`, so it could
+    # report flags and still let the run pass: the gate-that-cannot-fail defect
+    # CLAUDE.md records. It gates now.
+    print(f"   {'FAIL' if hits else 'pass'}: {hits} style flags\n")
+    failures += hits > 0
 
     # ---------------- pass 5: structure ----------------
     print("PASS 5  structure")

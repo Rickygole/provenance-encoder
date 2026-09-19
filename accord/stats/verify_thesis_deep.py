@@ -157,7 +157,11 @@ def run_original_five():
 def pass6_overclaim():
     print("PASS 6  overclaim")
     hard, soft = [], []
-    for f in CHAPTERS + [THESIS / "frontmatter" / "abstract.tex"]:
+    # The two bound appendices were outside this list, so their prose was never
+    # read for overclaims although the thesis prints them.
+    for f in CHAPTERS + [THESIS / "frontmatter" / "abstract.tex",
+                         THESIS / "msu_appA_corrections.tex",
+                         THESIS / "msu_appB_pointer.tex"]:
         if not f.exists():
             continue
         text = strip_comments(f.read_text())

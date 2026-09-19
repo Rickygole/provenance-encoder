@@ -79,6 +79,24 @@ not a failure. The closing section of Appendix A ("Reference Tables Released wit
 it lists and what they are, and `sync_appendix_counts.py --check` holds that section's counts to the tool's
 output. The trace table itself is released with the code (`results/accord/CLAIM_TRACE.json`), not bound into the PDF.
 
+## A note on rerunning the register's generators
+
+Each generator deletes its own prefix in `results/accord/VERIFIED_FACTS.json` and appends it again, so a rerun can
+move blocks of keys to the end of the file. A diff after a rerun is therefore expected to be large and to change no
+value. To confirm that, compare the parsed contents rather than the text:
+
+```bash
+python3 - <<'EOF'
+import json, subprocess
+old = json.loads(subprocess.run(["git", "show", "HEAD:results/accord/VERIFIED_FACTS.json"],
+                                capture_output=True, text=True).stdout)
+new = json.load(open("results/accord/VERIFIED_FACTS.json"))
+print("keys added   :", sorted(set(new) - set(old))[:5], len(set(new) - set(old)))
+print("keys removed :", sorted(set(old) - set(new))[:5], len(set(old) - set(new)))
+print("values moved :", [k for k in set(old) & set(new) if old[k] != new[k]][:5])
+EOF
+```
+
 ## Regenerate figures
 
 ```bash
@@ -88,7 +106,9 @@ python3 accord/thesis/figures/fig_ceiling.py
 ```
 
 The generators read only from `results/accord/` (or compute closed-form from numbers read from there), so they
-run from this repository alone. Between them these three build the seven figures the thesis binds. They write
+run from this repository alone. Between them these three build the seven figures the thesis binds. The other
+generators in that directory draw figures the thesis does not bind; `accord/thesis/figures/tools/check_figure_invariants.py`
+reads the bound set from the LaTeX source and names the rest. They write
 into `accord/thesis/figures/`, over the committed PDFs; set `ACCORD_FIG_OUT=/some/dir` to write elsewhere, which
 is what the figure gate does. Outside the recorded environment (see Python requirements) the PDFs they write
 will not match the committed ones pixel for pixel.

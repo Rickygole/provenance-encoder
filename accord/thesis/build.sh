@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# Build both thesis documents: main_msu.tex (the thesis body) and
-# main_supplement.tex (the companion document the side strands moved to).
-# Up to four passes per document: pdflatex, biber if that document actually
-# uses biblatex, then pdflatex x2 to resolve cross-references and the
-# bibliography. Reports page counts, undefined refs and undefined citations
+# Build the thesis, main_msu.tex. It is submitted as one document; a companion
+# supplement was planned once and never written, and nothing binds one now.
+# Up to four passes: pdflatex, biber if the document actually uses biblatex,
+# then pdflatex x2 to resolve cross-references and the bibliography. Reports page counts, undefined refs and undefined citations
 # for each document, and exits nonzero if either document fails to build.
 #
 # Not `set -e`: a build failure in one document must be caught and reported,
@@ -23,19 +22,18 @@ MAIN_THESIS_MAX_PAGES=150
 
 OVERALL_FAILED=0
 
-# PACKAGES. This document needs apacite (APA 7 references, FORMAT.md section 8),
-# plus tocloft, newtx, chngcntr, needspace, placeins and xurl. None ships with
+# PACKAGES. This document needs tocloft, newtx and xurl. None ships with
 # TeX Live basic. They do NOT need root: the TeX tree is owned by root, but
 # tlmgr installs into the user tree instead, which kpsewhich finds automatically.
 #
 #   tlmgr --usermode init-usertree   # once, if ~/Library/texmf does not exist
-#   tlmgr --usermode install apacite tocloft newtx chngcntr needspace placeins xurl
+#   tlmgr --usermode install tocloft newtx xurl
 #
 # biblatex-apa requires biber, which refuses to be a bibtex drop-in. biber lives
 # in /opt/homebrew/bin because tlmgr cannot install a binary package in user mode.
 
 # build_one DOC
-#   DOC is the file stem, e.g. main_msu or main_supplement (no .tex).
+#   DOC is the file stem, e.g. main_msu (no .tex).
 # Prints a report for DOC and returns 0 if it built to a PDF with no
 # undefined refs/citations, 1 otherwise. Never exits the script itself: the
 # caller decides what a failure here means for the overall exit code.
@@ -60,7 +58,7 @@ build_one() {
 
     # biber only if this document actually uses biblatex: a .bcf is written by
     # pdflatex's first pass when \usepackage{biblatex} is loaded, and biber
-    # refuses to run without one. main_supplement.tex did not carry biblatex
+    # refuses to run without one. A document that does not carry biblatex
     # for a period of this project's history (no \cite among the appendices
     # it bound then); that state is reported as a skip below, not silently,
     # rather than assumed and hard-coded, because whether a document uses
@@ -124,30 +122,15 @@ build_one() {
 
 build_one main_msu; MAIN_STATUS=$?
 echo
-# The thesis is submitted as one document; there is no supplement.
-SUP_STATUS=0
 
 # The glob used to be ch*.tex, which matches nothing (the chapters are
-# msu_ch*.tex): a gate that cannot fail. msu_sup*.tex is included for the same
-# reason msu_ch*.tex is: a TODO left in the supplement is as much an open item
-# as one left in a chapter.
-todo_count=$(grep -ho '\[TODO' msu_ch*.tex msu_app*.tex frontmatter/*.tex main_msu.tex main_supplement.tex 2>/dev/null | wc -l | tr -d ' ')
+# msu_ch*.tex): a gate that cannot fail. Every file the thesis binds is listed
+# here, so a TODO left in any of them is counted.
+todo_count=$(grep -ho '\[TODO' msu_ch*.tex msu_app*.tex frontmatter/*.tex main_msu.tex 2>/dev/null | wc -l | tr -d ' ')
 echo "open TODOs in text:  ${todo_count}"
 
 if [ "$MAIN_STATUS" -ne 0 ]; then
     echo "OVERALL: main_msu.tex FAILED to build cleanly"
     OVERALL_FAILED=1
 fi
-if [ "$SUP_STATUS" -ne 0 ]; then
-    # main_supplement.tex may not yet build cleanly while the side-strand
-    # files it binds (msu_sup*.tex) are still being written elsewhere in this
-    # tree: that is reported here, loudly, rather than caught and hidden, so
-    # a broken supplement cannot sit unbuilt and unnoticed the way it did
-    # before this script built it at all.
-    echo "OVERALL: main_supplement.tex FAILED to build cleanly (see above; the"
-    echo "  supplement's own inputs may still be incomplete -- this is reported,"
-    echo "  not swallowed, exactly so that state cannot go unnoticed)"
-    OVERALL_FAILED=1
-fi
-
 exit "$OVERALL_FAILED"
