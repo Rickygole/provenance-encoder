@@ -150,6 +150,21 @@ are present, and that C132's join gate passes; it computes no AUROC, flip or int
 `results/`, and prints counts and booleans only. `register_c133.py` (prefix `c133`) deletes its prefix and re-adds
 it from the artifact; it is written now and run only after the full run.
 
-## Outcome
+## Outcome (appended after the run; the text above is unchanged)
 
-(appended after the run)
+Run on 2026-09-18 after the commit that fixed the reading rule. With no flips the script reproduced both
+registered row-level intervals to four decimals (0.3210 to 0.7034 and 0.3454 to 0.7196), so the run is valid.
+
+**Outcome B: the bounded null, as the thesis defines it, does not survive one or two wrong labels of the most
+damaging kind.** The smallest number of greedily chosen relabels that lifts the 95 percent upper end to or past
+the floor 0.7466 is:
+
+| Ensemble | positives relabelled negative | negatives relabelled positive |
+|---|---|---|
+| decontaminated ensemble | 2 (upper end 0.7422 after one, 0.7760 after two) | 2 (0.7373 after one, 0.7673 after two) |
+| plain control detector retrained on reproducible labels | 1 (0.7591) | 1 (0.7530) |
+
+The smallest of the four counts is 1. Under the reading rule the thesis must state these counts wherever it
+discusses the fragility of the bounded null. They bound what targeted label error could do, because the search
+picks the most damaging label first; they say little about what random error would do.
+
