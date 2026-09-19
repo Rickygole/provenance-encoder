@@ -144,6 +144,12 @@ def clean(s):
     s = re.sub(r"\\texttt\{[^}]*\}", " ", s)
     s = re.sub(r"(?<!\\)%.*", "", s)
     s = re.sub(r"\\(label|ref|cite[tp]?)\{[^}]*\}", " ", s)
+    # Layout lengths are not claims. A column width such as p{0.18\linewidth}
+    # was being traced as a quantity and matched to whatever register value
+    # happened to round to it, which inflated the counts Appendix B prints.
+    s = re.sub(r"[\d.]+\s*\\(linewidth|textwidth|baselineskip)", " ", s)
+    s = re.sub(r"\\(setlength|addtolength|vspace\*?|hspace\*?)\{[^}]*\}(\{[^}]*\})?", " ", s)
+    s = re.sub(r"\{[\d.]+(in|pt|em|ex|cm|mm)\}", " ", s)
     return s
 
 

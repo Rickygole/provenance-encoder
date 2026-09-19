@@ -53,9 +53,12 @@ else:
     for section in ("task_a", "task_b", "decision", "task_c", "task_d"):
         put(section, d[section])
 
+# On a valid run the top-level "outcome" entry is a copy of decision.outcome, and the artifact holds
+# it only there, so its path must say so or a reader following the path finds nothing.
+ALIAS = {} if d.get("outcome") == "C" else {"outcome": "decision.outcome"}
 for field, value in entries.items():
     facts[f"{PREFIX}.{field}"] = collections.OrderedDict(
-        [("artifact", f"{SRC}::{field}"), ("value", value)]
+        [("artifact", f"{SRC}::{ALIAS.get(field, field)}"), ("value", value)]
     )
 
 FACTS.write_text(json.dumps(facts, indent=1) + "\n")

@@ -489,7 +489,7 @@ def make_fig_forest():
     ax_a.tick_params(axis="y", length=0)
     ax_a.tick_params(axis="x", labelsize=T_TICK)
     fig.text(0.012, (A0 + AH + 0.08) / H,
-             "AUROC, decontaminated detector, 95% bootstrap interval",
+             "AUROC, decontaminated detector, 95 percent bootstrap interval",
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
     # VISUAL AUDIT. This line said "Shaded: 80% power floor" and did not say

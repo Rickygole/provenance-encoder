@@ -201,9 +201,11 @@
 % A URL printed by that branch may break after any character and carries no
 % stretch of its own; biblatex's defaults break only at punctuation and
 % stretched the first line of a long URL letter by letter to fill the measure.
-\setcounter{biburlnumpenalty}{9000}
-\setcounter{biburlucpenalty}{9000}
-\setcounter{biburllcpenalty}{9000}
+% URLs break at punctuation only. Allowing a break after any letter split
+% "https" across two lines in two entries.
+\setcounter{biburlnumpenalty}{0}
+\setcounter{biburlucpenalty}{0}
+\setcounter{biburllcpenalty}{0}
 \biburlbigskip=0mu\relax
 \usepackage[hidelinks,linktoc=all,bookmarks=true,bookmarksnumbered=true]{hyperref}
 % linktoc=all makes the whole entry clickable in the Table of Contents, the List
@@ -295,6 +297,10 @@
 \captionsetup[table]{labelsep=space,labelfont=it,textfont=it,
   font={normalsize,stretch=1},justification=raggedright,singlelinecheck=false,
   position=top,skip=0.6\baselineskip}
+% A longtable's caption is set in the table's own width, which starts a point and a half left of
+% the text block; pin it to the margin like every other caption.
+\setlength{\LTleft}{0pt}\setlength{\LTright}{0pt}
+\captionsetup[longtable]{labelsep=space,labelfont=it,textfont=it,justification=raggedright,singlelinecheck=false,margin=0pt}
 % Notes below a table or figure: the template sets "*Note: ..." upright and
 % double-spaced, flush left.
 \newcommand{\apanote}[1]{%

@@ -46,6 +46,10 @@ STRATA = [
     # C110/C112's Rules 3+4 stratum with ambiguous rows dropped (108 pairs). The
     # 134-pair floor above was being applied to it; committee round after C113.
     {"name": "rules34_ambiguous_dropped", "n_pos": 6, "n_neg": 102},
+    # The Rules 1 and 2 stratum with ambiguous rows dropped (145 pairs), the
+    # complement of the 108 above within the 253. The thesis prints its class
+    # counts, and a printed count the register does not hold is not traceable.
+    {"name": "rules12_ambiguous_dropped", "n_pos": 6, "n_neg": 139},
 ]
 
 FACTS = ROOT / "results" / "accord" / "VERIFIED_FACTS.json"

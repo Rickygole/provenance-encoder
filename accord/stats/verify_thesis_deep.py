@@ -353,7 +353,13 @@ def pass9_template():
         m = re.search(r"(?:\\RaggedRightParindent=0\.5in|\\parindent=0pt)\s*(.*?)\\par\}\s*\\end\{frontmatterpage\}",
                        text, re.S)
         body = m.group(1) if m else text
-        body_words = re.findall(r"[A-Za-z][A-Za-z'-]*", re.sub(r"\\[a-zA-Z]+", " ", body))
+        # Count the way a format reviewer's word processor does: every
+        # whitespace-separated token, numbers included. The earlier count took
+        # alphabetic words only, so an abstract carrying ten numbers read as ten
+        # words shorter than it is, and a 254-word abstract passed as 244.
+        plain = re.sub(r"\\[a-zA-Z]+\*?", " ", body)
+        plain = re.sub(r"[{}$]", "", plain)
+        body_words = plain.split()
         n_words = len(body_words)
         if n_words > 250:
             print(f"   abstract body is {n_words} words (template cap: 250)")
