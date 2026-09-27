@@ -1,0 +1,101 @@
+{
+ "provenance": {
+  "generated_by": "accord/promised_analyses/c138c_bootstrap_definitions.py",
+  "seed": 42,
+  "n_boot": 10000,
+  "basis": "G_253, 12 positives and 241 negatives",
+  "unstratified_rule": "accord/control/report.py::bootstrap_auroc_ci, n rows resampled, single-class draws discarded",
+  "stratified_rule": "accord/public_controls/evaluation.py::stratified_bootstrap_auroc, class counts held fixed, the rule used by the C108 power simulation",
+  "power_floor_mw_two_sided": 0.7466,
+  "power_floor_bootstrap_rule": 0.7766,
+  "c132_min_margin_below_floor": 0.0236,
+  "no_model_inference": true
+ },
+ "decontam_ensemble": {
+  "auroc": 0.5145228215767634,
+  "n": 253,
+  "n_pos": 12,
+  "unstratified": {
+   "ci95_lo": 0.3209574856693268,
+   "ci95_hi": 0.7033717778609418,
+   "n_boot_valid": 10000,
+   "n_draws_dropped_single_class": 0,
+   "boot_mean": 0.5141946822906716,
+   "boot_sd": 0.09583707647231056,
+   "width": 0.38241429219161505,
+   "margin_below_power_floor": 0.043228,
+   "hi_below_power_floor": true,
+   "contains_0_5": true,
+   "margin_below_bootstrap_rule_floor": 0.073228
+  },
+  "stratified": {
+   "ci95_lo": 0.3357538035961273,
+   "ci95_hi": 0.6898340248962654,
+   "n_boot_valid": 10000,
+   "n_draws_dropped_single_class": 0,
+   "boot_mean": 0.5137196403872752,
+   "boot_sd": 0.09115865477572427,
+   "width": 0.35408022130013816,
+   "margin_below_power_floor": 0.056766,
+   "hi_below_power_floor": true,
+   "contains_0_5": true,
+   "margin_below_bootstrap_rule_floor": 0.086766
+  },
+  "upper_end_shift_stratified_minus_unstratified": -0.013538,
+  "lower_end_shift_stratified_minus_unstratified": 0.014796
+ },
+ "c130_ensemble": {
+  "auroc": 0.5359612724757953,
+  "n": 253,
+  "n_pos": 12,
+  "unstratified": {
+   "ci95_lo": 0.345434996612753,
+   "ci95_hi": 0.7195712309820194,
+   "n_boot_valid": 10000,
+   "n_draws_dropped_single_class": 0,
+   "boot_mean": 0.5356801620882201,
+   "boot_sd": 0.09433322409217858,
+   "width": 0.37413623436926635,
+   "margin_below_power_floor": 0.027029,
+   "hi_below_power_floor": true,
+   "contains_0_5": true,
+   "margin_below_bootstrap_rule_floor": 0.057029
+  },
+  "stratified": {
+   "ci95_lo": 0.3582209543568465,
+   "ci95_hi": 0.7098893499308437,
+   "n_boot_valid": 10000,
+   "n_draws_dropped_single_class": 0,
+   "boot_mean": 0.5346807053941908,
+   "boot_sd": 0.09037946905652175,
+   "width": 0.35166839557399726,
+   "margin_below_power_floor": 0.036711,
+   "hi_below_power_floor": true,
+   "contains_0_5": true,
+   "margin_below_bootstrap_rule_floor": 0.066711
+  },
+  "upper_end_shift_stratified_minus_unstratified": -0.009682,
+  "lower_end_shift_stratified_minus_unstratified": 0.012786
+ },
+ "four_upper_ends": {
+  "decontam_unstratified_hi": 0.7033717778609418,
+  "decontam_stratified_hi": 0.6898340248962654,
+  "c130_unstratified_hi": 0.7195712309820194,
+  "c130_stratified_hi": 0.7098893499308437
+ },
+ "decision": {
+  "all_four_below_power_floor": true,
+  "max_upper_end": 0.7195712309820194,
+  "argmax_upper_end": "c130_unstratified_hi",
+  "min_margin_below_power_floor": 0.027029,
+  "all_four_contain_0_5": true,
+  "stratified_is_tighter_at_upper_end_both_ensembles": true,
+  "bounded_null_verdict_unchanged_under_stratified_definition": true
+ },
+ "reproduction_checks": {
+  "decontam_auroc_matches_c132_4dp": true,
+  "c130_auroc_matches_c132_4dp": true,
+  "decontam_unstratified_hi_matches_registered_4dp": true,
+  "c130_unstratified_hi_matches_registered_4dp": true
+ }
+}
