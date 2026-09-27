@@ -176,6 +176,11 @@ def run_combo(model, prompt_name, prompt_fn, level, pool):
     return out
 
 
+def _fmt(x, places):
+    """A metric for the run log, or "undefined" where there was no denominator."""
+    return "undefined" if x is None else f"{x:.{places}f}"
+
+
 def combo_metrics(out_df, level):
     n = len(out_df)
     n_contra = int((out_df["pred"] == "contradiction").sum())
@@ -183,11 +188,12 @@ def combo_metrics(out_df, level):
     n_abstain = int((out_df["pred"] == "ABSTAIN").sum())
     n_unparse = int((out_df["pred"] == "UNPARSEABLE").sum())
     decided = n_contra + n_not  # excludes abstain and unparseable
-    pos_rate_of_decided = n_contra / decided if decided else float("nan")
-    pos_rate_of_all_valid = n_contra / (n - n_unparse) if (n - n_unparse) else float("nan")
+    pos_rate_of_decided = n_contra / decided if decided else None
+    pos_rate_of_all_valid = n_contra / (n - n_unparse) if (n - n_unparse) else None
     true_pos = int(out_df["is_contradiction"].sum())
     true_rate = true_pos / n
-    over_call_ratio = pos_rate_of_decided / true_rate if true_rate else float("nan")
+    over_call_ratio = (pos_rate_of_decided / true_rate
+                       if true_rate and pos_rate_of_decided is not None else None)
 
     # accuracy on decided rows only, vs SNLI gold
     decided_mask = out_df["pred"].isin(["contradiction", "not_contradiction"])
@@ -198,12 +204,12 @@ def combo_metrics(out_df, level):
         fp = int(((y_true == 0) & (y_pred == 1)).sum())
         fn = int(((y_true == 1) & (y_pred == 0)).sum())
         tn = int(((y_true == 0) & (y_pred == 0)).sum())
-        recall = tp / (tp + fn) if (tp + fn) else float("nan")
-        precision = tp / (tp + fp) if (tp + fp) else float("nan")
+        recall = tp / (tp + fn) if (tp + fn) else None
+        precision = tp / (tp + fp) if (tp + fp) else None
         accuracy = (tp + tn) / decided_mask.sum()
     else:
         tp = fp = fn = tn = 0
-        recall = precision = accuracy = float("nan")
+        recall = precision = accuracy = None
 
     return {
         "n": n, "n_contradiction": n_contra, "n_not_contradiction": n_not,
@@ -244,9 +250,9 @@ def main():
                 log(f"  n={metrics['n']}  pos={metrics['n_contradiction']} "
                     f"neg={metrics['n_not_contradiction']} abstain={metrics['n_abstain']} "
                     f"unparseable={metrics['n_unparseable']}")
-                log(f"  positive_rate_of_decided={metrics['positive_rate_of_decided']:.4f} "
+                log(f"  positive_rate_of_decided={_fmt(metrics['positive_rate_of_decided'], 4)} "
                     f"vs true_prevalence={metrics['true_prevalence']:.4f} "
-                    f"-> over_call_ratio={metrics['over_call_ratio']:.2f}x")
+                    f"-> over_call_ratio={_fmt(metrics['over_call_ratio'], 2)}x")
 
     with open(os.path.join(RESULTS_DIR, "sweep_results.json"), "w") as f:
         json.dump({
@@ -255,7 +261,10 @@ def main():
             "prompts": {k: {"system_template": "see run_prevalence_sweep.py:prompt_" + k[0]}
                         for k in PROMPTS},
             "results": all_results,
-        }, f, indent=2, default=str)
+            # allow_nan=False: NaN and Infinity are not JSON, and this file is read
+            # back by the register, which ships in the published repository. An
+            # undefined metric is None here and null on disk; see combo_metrics.
+        }, f, indent=2, default=str, allow_nan=False)
 
     with open(os.path.join(RESULTS_DIR, "sweep_run_log.txt"), "w") as f:
         f.write("\n".join(log_lines))
