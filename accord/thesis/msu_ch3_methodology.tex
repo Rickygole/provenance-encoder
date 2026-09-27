@@ -809,19 +809,25 @@ estimate with $n_+$ positives and $n_-$ negatives is approximated by
 \[
 \mathrm{SE}_0 = \sqrt{\frac{n_+ + n_- + 1}{12\, n_+ n_-}} ,
 \]
-with $\alpha = 0.05$ and power $0.80$ throughout. This approximation is reported in
-Table~\ref{tab:m-mde} for reference, but the table's minimum detectable AUROC column follows the full
-\citet{hanley1982meaning} procedure, which evaluates the sampling variance of the AUROC estimator at the
-candidate value $a$ itself rather than at the null, and finds the smallest $a$ such that
-$(a - 0.5) / \sqrt{\mathrm{Var}(a)} \geq z_{1-\alpha/2} + z_{1-\beta}$ by search, since
-$\mathrm{Var}(a)$ depends on $a$. The full procedure was reimplemented and rerun for this thesis, and
-Table~\ref{tab:m-mde} gives its output on each stratum (Figure~\ref{fig:power},
-Chapter~\ref{ch:results}).
+with $\alpha = 0.05$ and power $0.80$ throughout. The table's minimum detectable AUROC column solves the
+standard \citet{hanley1982meaning} condition, which splits the two terms of the requirement: the critical
+value of the test is set under the null, so the significance term takes the standard error at the null and
+only the power term takes the standard error $\mathrm{SE}(a)$ at the alternative, giving
+$a - 0.5 \geq z_{1-\alpha/2}\, \mathrm{SE}_0 + z_{1-\beta}\, \mathrm{SE}(a)$, solved for the smallest
+$a$ by search because the \citet{hanley1982meaning} sampling variance behind $\mathrm{SE}(a)$ depends on
+$a$. The two standard errors are one convention, not two approximations: at $a = 0.5$ that sampling variance
+has $Q_1 = Q_2 = 1/3$ and collapses exactly to $\mathrm{SE}_0$. Since $\mathrm{SE}(a) < \mathrm{SE}_0$ for
+every $a > 0.5$, dividing the whole effect by $\mathrm{SE}(a)$ alone instead asks it to clear a smaller
+quantity and returns a floor that is too low: on $G_{253}$ that route gives $0.7355$ where the condition
+above gives $0.7382$. Figure~\ref{fig:power} draws the same condition as a curve.
 
 The registered decision rule, used by several pre-registered checks and named that way throughout
 this thesis, is an AUROC at or above 0.7355 with a one-sided Mann-Whitney $p$ below 0.05 on
-$G_{253}$. The AUROC threshold is the minimum detectable AUROC of $G_{253}$ in Table~\ref{tab:m-mde},
-fixed before any of those checks ran. That threshold was computed with $z_{1-\alpha/2}$ at a
+$G_{253}$. That threshold is what the minimum detectable AUROC procedure as implemented at registration
+time returned on $G_{253}$, fixed before any of those checks ran, and it is therefore no longer the value
+Table~\ref{tab:m-mde} prints: that implementation used the defective route above, and the standard
+condition puts the floor of $G_{253}$ at $0.7382$. It stands unchanged because it records what the checks
+were judged against rather than the sensitivity of the evaluation. That threshold was computed with $z_{1-\alpha/2}$ at a
 two-sided $\alpha$ of 0.05, while the rule's own Mann-Whitney arm is one-sided; conjoining the two
 does not match a common $\alpha$, and the mismatch runs conservative, since the AUROC arm demands a
 larger effect than a one-sided threshold at the same $\alpha$ would set. A system that fails the rule is not shown to lack an effect
@@ -838,13 +844,13 @@ replicates: a system with that much signal fails the rule about as often as it p
 \toprule
 \textbf{Stratum} & \textbf{$n_+$} & \textbf{$n_-$} & \textbf{$\mathrm{SE}_0$} & \textbf{$\mathrm{AUROC}_{\min}$} \\
 \midrule
-$G_{253}$ & 12 & 241 & 0.0856 & 0.7355 \\
-$G_{299}$ & 12 & 287 & 0.0852 & 0.7350 \\
-$G_{134}$ &  6 & 128 & 0.1210 & 0.8058 \\
-$G_{108}$ & 6 & 102 & 0.1218 & 0.8064 \\
+$G_{253}$ & 12 & 241 & 0.0856 & 0.7382 \\
+$G_{299}$ & 12 & 287 & 0.0852 & 0.7375 \\
+$G_{134}$ & 6 & 128 & 0.1210 & 0.8258 \\
+$G_{108}$ & 6 & 102 & 0.1218 & 0.8274 \\
 \bottomrule
 \end{tabular}
-\apanote{$n_+$ and $n_-$ are the positive and negative counts of the stratum; $\mathrm{SE}_0$ is the analytic standard error of an AUROC estimate under the null of no discrimination, defined above; $\mathrm{AUROC}_{\min}$ is the analytic minimum detectable AUROC. $\mathrm{AUROC}_{\min}$ is computed by the same procedure that also drives the marker positions in Figure~\ref{fig:power} in Chapter~\ref{ch:results}. Values are rounded to four decimal places. These figures bound what the evaluation could have seen and are not results about any model. They also state the limit of the thesis's negative claim: nothing here can establish that the task is unsolvable, only that this pipeline does not solve it at a sensitivity this coarse.}
+\apanote{$n_+$ and $n_-$ are the positive and negative counts of the stratum; $\mathrm{SE}_0$ is the analytic standard error of an AUROC estimate under the null of no discrimination, defined above; $\mathrm{AUROC}_{\min}$ is the analytic minimum detectable AUROC. Both columns come from the same \citet{hanley1982meaning} sampling variance: $\mathrm{SE}_0$ is that variance evaluated at the null, and $\mathrm{AUROC}_{\min}$ solves the two-term condition stated above, which is the condition that also draws the curve and the marker in Figure~\ref{fig:power} in Chapter~\ref{ch:results}. Values are rounded to four decimal places. These figures bound what the evaluation could have seen and are not results about any model. They also state the limit of the thesis's negative claim: nothing here can establish that the task is unsolvable, only that this pipeline does not solve it at a sensitivity this coarse.}
 \end{table}
 
 The table is an analytic approximation. The power simulation (pre-registered) checks it on a real score distribution in place of the binormal assumption the analytic procedure makes: replicate
@@ -852,14 +858,18 @@ evaluation sets shaped like $G_{253}$ are drawn from the off-the-shelf inference
 held-out SNLI validation and test items, at a grid of true AUROC values constructed two independent ways, which give different floors (Section~``\nameref{sec:res-rq4}'' reports both), and the power of several rejection rules, including the registered decision rule, is measured.
 The resolvable AUROC is therefore stated per rule. The simulation reruns the planted positive control, which was invalid
 under its rule because a calibration step accepted an unchecked boundary value, with that
-calibration step corrected and nothing else changed. Three thresholds recur across this thesis and
+calibration step corrected and nothing else changed. Four thresholds recur across this thesis and
 are given fixed names here, so that none is called simply ``the floor'': the \emph{analytic minimum
-detectable AUROC}, $0.7355$ on $G_{253}$ from Table~\ref{tab:m-mde} above; the \emph{simulated
+detectable AUROC}, $0.7382$ on $G_{253}$ from Table~\ref{tab:m-mde} above; the \emph{registered
+AUROC threshold}, $0.7355$, fixed in advance and used by the pre-registered checks, a record of a
+decision rather than a claim about sensitivity; the \emph{simulated
 Mann-Whitney floor}, $0.7466$, this simulation's 80 percent power crossing for the two-sided
 Mann-Whitney rule alone; and the \emph{simulated registered-rule floor}, $0.8084$, this
 simulation's 80 percent power crossing for the full registered decision rule. The analytic and simulated values differ, and the simulated
 Mann-Whitney floor $0.7466$ and the simulated registered-rule floor $0.8084$, two different tests'
-floors, are not the two ends of one range; none of the three is interchangeable with another.
+floors, are not the two ends of one range; none of the four is interchangeable with another. The first
+two are the pair most easily confused: the registered threshold was set from the defective reading of the
+analytic quantity and sits $0.0027$ below the value that quantity now takes.
 
 This thesis calls a ranking null a \emph{bounded null} when two conditions hold on $G_{253}$: the 95 percent
 bootstrap interval of the AUROC contains $0.5$, and its upper end lies below the simulated Mann-Whitney floor

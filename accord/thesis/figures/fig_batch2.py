@@ -391,29 +391,30 @@ def make_fig_forest():
     # AUDIT ITEM 2. The 108-pair row has 6 positives, not 12, so its own
     # detectability floor differs from the top row's; there is no simulated
     # power curve registered for this stratum, but its analytic MDE is
-    # (results/accord/mde_recomputed.json, strata.rules34_ambiguous_dropped),
-    # which the canvas labels "analytic" so the two rows are never read as the
-    # same computation.
+    # (results/accord/mde_standard_condition.json, strata.g108), which the
+    # canvas labels "analytic" so the two rows are never read as the same
+    # computation.
     n_pos_108 = fact("c114.task_c.n_pos")
-    # SIBLING NOTICE, AND IT IS DELIBERATELY NOT ACTED ON HERE. This analytic
-    # floor comes from mde_recomputed, which solves the defective one standard
-    # error condition documented above mde_as_implemented in this same file.
-    # At this stratum's counts (6 positives, 102 negatives) the corrected two
-    # standard error condition returns 0.8274, not the 0.8064 drawn here, so
-    # this band starts about 0.021 too far left. It is NOT silently corrected,
-    # for two reasons: the register key, the results chapter's prose and this
-    # figure's caption all print 0.8064, and changing the drawn value alone
-    # would put three disagreeing numbers in front of the reader instead of
-    # one wrong one. The verdict this band supports does not turn on it, since
-    # both AUROC intervals include chance under either floor. The fix belongs
-    # upstream in accord/stats/recompute_mde.py, with the prose and the
-    # caption, and is reported rather than performed.
-    assert abs(mde_as_implemented([6], [102])[0]
-               - fact("mde_recomputed.rules34_ambiguous_dropped"
-                      ".minimum_detectable_auc")) < 5e-5, \
-        "this stratum's registered floor no longer holds the as-implemented " \
-        "value; check whether recompute_mde.py has been corrected upstream"
-    floor_108 = fact("mde_recomputed.rules34_ambiguous_dropped.minimum_detectable_auc")
+    # CORRECTED, AND THE DEFERRAL THAT USED TO STAND HERE IS GONE. This band
+    # was drawn for months from mde_recomputed, which solves the defective one
+    # standard error condition documented above mde_as_implemented in this same
+    # file. At this stratum's counts (6 positives, 102 negatives) that route
+    # returns 0.8064 and the standard two standard error condition returns
+    # 0.8274, so the band used to start about 0.021 too far left, on the
+    # optimistic side, in a figure whose subject is what the design could not
+    # detect. It now draws the corrected floor, which is the same condition
+    # fig-power draws and the same one Chapter 3's table and Chapter 4's prose
+    # now print, so the reader meets one number rather than two.
+    floor_108 = fact("mdestandard.g108.minimum_detectable_auc")
+    # The pin. Both routes are recomputed here from the class counts: the drawn
+    # floor must be the corrected one, and it must be the HIGHER of the two, so
+    # a future edit cannot quietly walk this band back to the optimistic value.
+    assert abs(mde_two_se([6], [102])[0] - floor_108) < 5e-5, \
+        "the drawn 108-pair floor no longer reproduces the standard Hanley " \
+        "and McNeil condition; see mdestandard in accord/stats/mde_standard_condition.py"
+    assert floor_108 > mde_as_implemented([6], [102])[0], \
+        "the drawn 108-pair floor is no longer above the as-implemented one; " \
+        "the defective one standard error route has come back"
 
     # ROUND 11 (coordinator regression). H grows by 0.09in over the round-10
     # canvas so the shared power-floor note has a line of its own, clear of

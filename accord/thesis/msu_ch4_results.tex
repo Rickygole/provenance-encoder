@@ -226,7 +226,7 @@ The stratum comparison does not depend on that rate, because Rules 3 and 4 lie
 outside the documented defect, their exemplar correctness assumed
 (Section~``\nameref{sec:m-candidates}''). That yields $G_{134}$ and $G_{108}$, scored under ``\nameref{sec:res-rq4},''
 at the cost of wider intervals: 6 positives give a minimum detectable AUROC of
-$0.8058$ on $G_{134}$. The base rate $0.0401$ estimates the confirmed rate in the annotated sample
+$0.8258$ on $G_{134}$. The base rate $0.0401$ estimates the confirmed rate in the annotated sample
 (Section~``\nameref{sec:m-gold}''); the exemplar defect means it is not
 established as the rate of true contradictions among the candidates.
 
@@ -704,9 +704,13 @@ Granite 3.3 8B's cells in that check, registered as descriptive only, rank above
 chance at the uncorrected $0.05$ level under all four wordings (AUROC $0.6788$
 to $0.7936$) and meet both registered criteria under two of the three new
 wordings ($0.7936$, $p = 0.0002$; $0.7362$, $p = 0.0026$), which would have met the rule had it
-covered this model. The second clears $0.7355$ by less than the choice of variance formula moves
-that threshold: $0.7355$ evaluates the Hanley and McNeil variance at the alternative, and
-evaluating it at the null gives $0.7397$, which $0.7362$ does not reach. Its best wording, picked after the fact, ranks most strongly on
+covered this model. The second clears $0.7355$ by less than the choice of variance formula moves that
+threshold, and all three routes through that formula are on the record: the registered AUROC threshold
+$0.7355$ divides the whole effect by the standard error at the alternative, taking that standard error at
+the null in both terms gives $0.7397$, and the standard condition, which mixes the two as
+Section~``\nameref{sec:m-mde}'' sets out, gives the analytic minimum detectable AUROC $0.7382$ between
+them. The score $0.7362$ reaches the lowest of the three and neither of the others, so this cell turns on
+the choice of route rather than on the score. Its best wording, picked after the fact, ranks most strongly on
 the Rules 3 and 4 rows ($0.8775$ against $0.7302$, $6$ positives
 each). That changes no registered outcome, but it is the strongest reason not to
 read the detector's ranking null as a verdict on the task.
@@ -773,7 +777,7 @@ about $0.70$ excluded. The pre-registered power simulation on real score distrib
 puts the simulated Mann-Whitney floor at $0.7466$ and the simulated
 registered-rule floor at $0.8084$
 (Section~``\nameref{sec:m-mde}''); the analytic
-minimum detectable AUROC, $0.7355$, is a cross-check.
+minimum detectable AUROC, $0.7382$, is a cross-check.
 
 \subsection{Three seeds at chance}
 
@@ -901,7 +905,7 @@ reading predicts, but the contrast is between rule groups and carries the
 confound already named for the rule-group comparison. The rescore met its rule, which means that the stratum AUROC was within
 $0.10$ of the $G_{253}$ value and not significant; the gap is $0.0950$, a
 margin that turns on about one positive. With 6 positives and a minimum
-detectable AUROC of $0.8064$ this fails to show the null is a defect
+detectable AUROC of $0.8274$ this fails to show the null is a defect
 artifact and cannot establish that it is not.
 
 The contaminated released run returns an AUROC near chance on the full sets,
@@ -935,7 +939,10 @@ decision. Both decision variables are degenerate.
 The tipping-point and stratum-interval checks were pre-registered before
 they ran but requested after these results were in. The tipping point asks of the detector what the
 weak-supervision section asks of a labeller: how many pharmacist labels on $G_{253}$ would have to be wrong before the
-decontaminated ensemble's AUROC, from $0.5145$, reached each floor. Greedily flipping the label that moves the AUROC
+decontaminated ensemble's AUROC, from $0.5145$, reached each target. The three targets were fixed before the check
+ran: the registered AUROC threshold $0.7355$, which is the value the checks were judged against and not the analytic
+minimum detectable AUROC of $0.7382$, the simulated Mann-Whitney floor $0.7466$, and the simulated registered-rule
+floor $0.8084$. Greedily flipping the label that moves the AUROC
 most, it takes $5$ flips to reach $0.7355$, $6$ to reach $0.7466$, and $7$ to reach $0.8084$, every flip a confirmed
 positive relabelled negative. A greedy count is an upper bound on the true minimum, and it counts labels an annotation
 error would have to get wrong without identifying any label as wrong. The check has two limits. Every flip relabels a
@@ -946,11 +953,13 @@ fewer positives and a higher floor.
 A pre-registered cluster-bootstrap check, requested after these limits were raised, has three parts: the floors at the
 post-flip counts, the reading with the ambiguous pairs counted positive, and the clustered resampling it is named for.
 The first two put numbers on the two limits. At the counts the flips leave behind, the analytic minimum detectable
-AUROC is $0.7890$ with $7$ positives, $0.8047$ with $6$, and $0.8230$ with $5$, against $0.7355$ with $12$. The greedy
-flips leave the AUROC at $0.7416$ after $5$, below $0.7890$; at $0.7848$ after $6$, below $0.8047$; and at $0.8379$
-after $7$, above $0.8230$. The seventh flip alone clears the floor for the labels it leaves, which puts the point estimate's tipping
-point at $7$ relabelled positives where the fixed floor gave $5$. The simulated floors were not recomputed at those
-counts. That is $7$ of $12$, most of the positives, and a greedy search picks the most damaging labels
+AUROC is $0.8024$ with $7$ positives, $0.8229$ with $6$, and $0.8480$ with $5$, against $0.7382$ with $12$. The greedy
+flips leave the AUROC at $0.7416$ after $5$, below $0.8024$; at $0.7848$ after $6$, below $0.8229$; and at $0.8379$
+after $7$, below $0.8480$. No flip count within the seven clears the floor for the labels it leaves, so the tipping
+point read against the moving floor is above $7$ relabelled positives where the fixed target gave $5$. These floors
+follow the corrected condition of Section~``\nameref{sec:m-mde}''; the defective route gave $0.7890$, $0.8047$ and
+$0.8230$, under which the seventh flip did clear its own floor. The simulated floors were not recomputed at those
+counts. Seven flips is $7$ of $12$, most of the positives, and a greedy search picks the most damaging labels
 first, so this is a bound on what targeted error could do and says little about ordinary error. Reading the $46$ ambiguous pairs
 as positive, the opposite error, leaves the plain control detector retrained on reproducible labels at an AUROC of
 $0.4940$ on the $299$ pairs (row-level 95 percent interval $0.4087$ to $0.5799$; resampling whole subjects, $0.4090$
@@ -971,7 +980,7 @@ is only an upper bound on the smallest number of relabels that would tip the int
 The decontaminated ensemble's count of 2 cannot be separated from 1. After 1 positive is relabelled, its upper end,
 $0.7422$, is under the floor by less than the choice of bootstrap seed moves that ensemble's upper end ($0.7034$
 against $0.6971$, below). After 1 negative is relabelled, the upper end, $0.7373$, already exceeds the analytic
-minimum detectable AUROC, which falls from $0.7355$ to $0.7279$ with 13 positives. The floor was held at $0.7466$
+minimum detectable AUROC, which falls from $0.7382$ to $0.7298$ with 13 positives. The floor was held at $0.7466$
 although every relabel changes the class counts. Holding it fixed favours the null when negatives are relabelled
 positive and works against it in the other direction, where the floor rises as positives are removed. The
 relabelled intervals also resample single pairs, because the cluster bootstrap below was run on the labels as
@@ -1117,8 +1126,8 @@ these results equally.
 \label{sec:r-instrument}
 
 Table~\ref{tab:m-mde} in Chapter~\ref{ch:method} gives the minimum detectable
-AUROC at 80 percent power for each evaluation set: $0.7355$ on $G_{253}$, $0.7350$
-on $G_{299}$, $0.8058$ on $G_{134}$, and $0.8064$ on $G_{108}$. On $G_{253}$ the
+AUROC at 80 percent power for each evaluation set: $0.7382$ on $G_{253}$, $0.7375$
+on $G_{299}$, $0.8258$ on $G_{134}$, and $0.8274$ on $G_{108}$. On $G_{253}$ the
 measured $0.5145$ is far below that floor, and Figure~\ref{fig:power} marks the
 simulated floors at this evaluation's 12 positives. The floor limits the reading in both directions. At 12
 positives the evaluation could not have detected a useful detector unless it
@@ -1137,9 +1146,11 @@ detectable range. The annotation effort a future attempt needs is set out under 
 The analytic value has two checks. A Monte Carlo check released with this
 thesis draws $5{,}000$ synthetic score sets at $12$ positives and $241$
 negatives from an equal-variance binormal and finds the two-sided Mann-Whitney
-test crossing 80 percent power at $0.7324$, within $0.0031$ of the analytic
-$0.7355$; its only inputs are class counts, $\alpha$, and a target grid, so it
-corroborates the arithmetic, not the instrument. The pre-registered power
+test crossing 80 percent power at $0.7324$, which sits $0.0058$ below the analytic $0.7382$; its only
+inputs are class counts, $\alpha$, and a target grid, so what it can corroborate is the arithmetic and not
+the instrument. That corroboration is weaker than it was before the correction: the same $0.7324$ was
+within $0.0031$ of the defective route's $0.7355$ and is twice as far from the corrected value, so the
+check does not adjudicate between the two routes. The pre-registered power
 simulation, a corrected rerun of an attempt that was recorded as invalid and not
 patched, corrupts a natural-language-inference model's real scores towards
 chance at this evaluation's class counts: the two-sided Mann-Whitney test
@@ -1282,7 +1293,7 @@ row and its interval are withdrawn and do not appear here.}
 \caption{Headline estimates against chance}
 \includegraphics[width=0.98\linewidth]{figures/fig-forest.pdf}
 \label{fig:forest}
-\apanote{Headline estimates on the clinical pairs, one panel per unit, each on its own scale. AUROC rows are the decontaminated ensemble with percentile bootstrap intervals, and every interval includes chance. Each row carries its own shaded band, the range that row's evaluation could detect at 80 percent power: the simulated Mann-Whitney floor $0.7466$ at $12$ positives, and the analytic floor $0.8064$ at the $6$ positives of the Rules 3 and 4 stratum. The labeller's correlation is shown against its ceiling.}
+\apanote{Headline estimates on the clinical pairs, one panel per unit, each on its own scale. AUROC rows are the decontaminated ensemble with percentile bootstrap intervals, and every interval includes chance. Each row carries its own shaded band, the range that row's evaluation could detect at 80 percent power: the simulated Mann-Whitney floor $0.7466$ at $12$ positives, and the analytic floor $0.8274$ at the $6$ positives of the Rules 3 and 4 stratum. The labeller's correlation is shown against its ceiling.}
 \end{figure}
 
 ACCORD at $\tau = 0.5$ and the Llama 3 8B
