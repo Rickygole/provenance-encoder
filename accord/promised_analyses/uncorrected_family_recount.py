@@ -1,4 +1,4 @@
-"""C138d: independent recount of the uncorrected test family.
+"""Independent recount of the uncorrected test family.
 
 Chapter 4 (sec:r-multiplicity) states the uncorrected family has 23 tests and
 enumerates five blocks. This script re-enumerates every p value in the thesis
@@ -21,7 +21,7 @@ import pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 RES = ROOT / "results/accord"
 OUT_DIR = RES / "promised_analyses"
-OUT = OUT_DIR / "c138d_uncorrected_family_recount.json"
+OUT = OUT_DIR / "uncorrected_family_recount.json"
 
 ALPHA = 0.05
 
@@ -41,6 +41,7 @@ def main():
     gate = load("stats/marginal_feasibility_gate.json")
     c109 = load("prompt_sensitivity/c109/analysis.json")
     step2 = load("step2_signal_check.json")
+    oracle = load("stats/reviewer_free_computations.json")["oracle_threshold_null"]
 
     reg_by_id = {t["id"]: t for t in reg["tests"]}
     fam_ids = reg["uncorrected_family"]["ids"]
@@ -69,13 +70,14 @@ def main():
     # the thesis itself distinguishes from a ranking (msu_ch4_results.tex:358
     # to 361 and the tab:feasgate note), so it is not the same question as
     # mw_contaminated.
-    for name, val, what in (
-        ("threshsweep_contra_prob_g253", 0.8195, "best MCC at any cutoff on the contaminated run's contradiction probability, G_253, against the same maximisation on random scores"),
-        ("threshsweep_harm_score_g253", 0.7642, "best MCC at any cutoff on the contaminated run's harm score, G_253, against the same maximisation on random scores"),
+    for name, col, what in (
+        ("threshsweep_contra_prob_g253", "accord_contra_prob", "best MCC at any cutoff on the contaminated run's contradiction probability, G_253, against the same maximisation on random scores"),
+        ("threshsweep_harm_score_g253", "accord_harm_score", "best MCC at any cutoff on the contaminated run's harm score, G_253, against the same maximisation on random scores"),
     ):
-        add(id=name, p=val, test="Permutation test (maximised MCC on random scores)",
+        add(id=name, p=oracle["p_null_ge"][col],
+            test="Permutation test (maximised MCC on random scores)",
             target=what,
-            source="msu_ch4_results.tex:924 (prose; no results/ artifact holds this p value)",
+            source="results/accord/stats/reviewer_free_computations.json::oracle_threshold_null.p_null_ge." + col,
             thesis_location="sec:r-ranking, msu_ch4_results.tex:923-926",
             read_against="alpha=0.05, uncorrected, via the null verdict 'no threshold rescues the detector'",
             preregistration=None, in_chapter_count=False, verdict="IN_FAMILY",
@@ -187,7 +189,7 @@ def main():
 
     res = collections.OrderedDict()
     res["provenance"] = {
-        "generated_by": "accord/promised_analyses/c138d_uncorrected_family_recount.py",
+        "generated_by": "accord/promised_analyses/uncorrected_family_recount.py",
         "membership_rule_quoted": "msu_ch4_results.tex:1208, 'A test belongs to this family by its inferential target, not by what a run was commissioned for'",
         "alpha": ALPHA,
         "no_model_inference": True,

@@ -1,7 +1,7 @@
-"""C138c2: the C133 interval tipping-point check recomputed under the
+"""The C133 interval tipping-point check recomputed under the
 STRATIFIED bootstrap definition, the one the C108 power simulation uses.
 
-C138c shows the stratified upper end sits 0.0097 to 0.0135 below the
+bootstrap_definitions.py shows the stratified upper end sits 0.0097 to 0.0135 below the
 unstratified one on G_253. The bounded null's own verdict survives that shift
 with room to spare, but the C133 tipping counts do not obviously survive it:
 the C130 ensemble's k = 1 upper end clears the 0.7466 floor by only 0.0125
@@ -31,7 +31,7 @@ import c132_run as c132  # noqa: E402
 from c133_run import DrawPool, auroc, greedy_step, pair_kernel, percentile_interval  # noqa: E402
 
 OUT_DIR = ROOT / "results/accord/promised_analyses"
-OUT = OUT_DIR / "c138c2_stratified_tipping.json"
+OUT = OUT_DIR / "stratified_tipping.json"
 
 SEED, B, MAX_FLIPS = 42, 10_000, 8
 FLOOR = 0.7466
@@ -39,20 +39,33 @@ FLOOR = 0.7466
 
 def stratified_interval(y, K2, seed=SEED, B=B):
     """Class counts held fixed, the C108 power simulation's convention.
-    AUROC of each resample is computed through the same exact 2U kernel C133
-    uses, so the only difference from percentile_interval is the draw rule."""
+
+    Vectorised the same way C133's percentile_interval is: each resample is
+    held as a vector of per-row multiplicities, and the exact 2U statistic of
+    all B resamples is one pair of matrix products against the same pairwise
+    kernel, so this differs from percentile_interval only in the draw rule.
+    """
     y = np.asarray(y, dtype=float)
     n = len(y)
     ip, ineg = np.flatnonzero(y == 1), np.flatnonzero(y == 0)
     rng = np.random.default_rng(seed)
-    aucs = np.empty(B)
+    # The index stream is drawn replicate by replicate, positives then
+    # negatives, the same order and the same two rng.choice calls per
+    # replicate as bootstrap_definitions.py::boot_stratified and as
+    # accord/audit_c137/a3_decontam.py::boot_ci(strat=True), so the k = 0
+    # interval this returns is the one those two independently report.
+    # Only the AUROC evaluation is batched.
+    idx = np.empty((B, n), dtype=np.int64)
     for b in range(B):
-        idx = np.r_[rng.choice(ip, len(ip), True), rng.choice(ineg, len(ineg), True)]
-        cnt = np.bincount(idx, minlength=n).astype(float)
-        c_pos, c_neg = cnt * y, cnt * (1.0 - y)
-        aucs[b] = float((c_pos @ K2) @ c_neg) / (2.0 * c_pos.sum() * c_neg.sum())
+        idx[b, :len(ip)] = rng.choice(ip, len(ip), True)
+        idx[b, len(ip):] = rng.choice(ineg, len(ineg), True)
+    flat = (idx + np.arange(B)[:, None] * n).ravel()
+    cnt = np.bincount(flat, minlength=B * n).reshape(B, n).astype(float)
+    c_pos, c_neg = cnt * y, cnt * (1.0 - y)
+    u2 = ((c_pos @ K2) * c_neg).sum(axis=1)
+    aucs = u2 / (2.0 * c_pos.sum(axis=1) * c_neg.sum(axis=1))
     return collections.OrderedDict([
-        ("seed", seed), ("n_boot_valid", B), ("n_redrawn_single_class", 0),
+        ("seed", seed), ("n_boot_valid", int(B)), ("n_redrawn_single_class", 0),
         ("ci95_lo", float(np.percentile(aucs, 2.5))),
         ("ci95_hi", float(np.percentile(aucs, 97.5))),
     ])
@@ -65,7 +78,7 @@ def main():
 
     res = collections.OrderedDict()
     res["provenance"] = {
-        "generated_by": "accord/promised_analyses/c138c2_stratified_tipping.py",
+        "generated_by": "accord/promised_analyses/stratified_tipping.py",
         "reuses": "accord/c133_interval_tipping/c133_run.py greedy_step, pair_kernel, percentile_interval; accord/c132_cluster_bootstrap/c132_run.py load_inputs",
         "seed": SEED, "n_boot": B, "max_flips": MAX_FLIPS, "power_floor": FLOOR,
         "direction": "pos_to_neg, the direction C133 reports the tipping counts for",
@@ -109,6 +122,23 @@ def main():
         blk["tipping_count_changes_under_stratified_definition"] = bool(first_u != first_s)
         res[name] = blk
 
+    # Validity: the k = 0 unstratified interval must reproduce the registered
+    # row-level interval, and the k = 0 stratified interval must reproduce the
+    # one bootstrap_definitions.py reports, or nothing below can be read.
+    reg = json.loads((ROOT / "results/accord/c132_cluster_bootstrap/c132.json").read_text())["task_b"]
+    bd = json.loads((ROOT / "results/accord/promised_analyses/bootstrap_definitions.json").read_text())
+    res["reproduction_checks"] = {
+        f"{name}_k0_unstratified_hi_matches_registered_4dp": bool(
+            round(res[name]["k0"]["unstratified_ci95_hi"], 4)
+            == round(reg[name]["row_level_seed42_check"]["ci95_hi"], 4))
+        for name in ensembles
+    }
+    res["reproduction_checks"].update({
+        f"{name}_k0_stratified_hi_matches_bootstrap_definitions_6dp": bool(
+            round(res[name]["k0"]["stratified_ci95_hi"], 6)
+            == round(bd[name]["stratified"]["ci95_hi"], 6))
+        for name in ensembles
+    })
     res["decision"] = collections.OrderedDict([
         ("unstratified_tipping_counts", {k: res[k]["k_first_at_or_above_floor_unstratified"] for k in ensembles}),
         ("stratified_tipping_counts", {k: res[k]["k_first_at_or_above_floor_stratified"] for k in ensembles}),

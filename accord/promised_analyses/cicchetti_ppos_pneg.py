@@ -1,4 +1,4 @@
-"""C138a: Cicchetti and Feinstein positive and negative agreement for every
+"""Cicchetti and Feinstein positive and negative agreement for every
 scored labeller row in the feasibility-gate table.
 
 Chapter 2 cites cicchetti1990resolving for the recommendation that kappa always
@@ -27,7 +27,7 @@ import pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 GATE = ROOT / "results/accord/stats/marginal_feasibility_gate.json"
 OUT_DIR = ROOT / "results/accord/promised_analyses"
-OUT = OUT_DIR / "c138a_cicchetti_ppos_pneg.json"
+OUT = OUT_DIR / "cicchetti_ppos_pneg.json"
 
 
 def cells_from_margins(n, n_positives, n_flagged, tp):
@@ -124,7 +124,7 @@ def main():
     neg_vals = [x["negative_agreement"] for x in scored]
     res = collections.OrderedDict()
     res["provenance"] = {
-        "generated_by": "accord/promised_analyses/c138a_cicchetti_ppos_pneg.py",
+        "generated_by": "accord/promised_analyses/cicchetti_ppos_pneg.py",
         "reads": "results/accord/stats/marginal_feasibility_gate.json",
         "definitions": {
             "positive_agreement": "2*TP / (2*TP + FP + FN)",

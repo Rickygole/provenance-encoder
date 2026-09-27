@@ -1,4 +1,4 @@
-"""C138c: reconcile the two bootstrap definitions the bounded null mixes.
+"""Reconcile the two bootstrap definitions the bounded null mixes.
 
 The thesis's headline G_253 interval, 0.3210 to 0.7034, is an UNSTRATIFIED row
 bootstrap (accord/control/report.py::bootstrap_auroc_ci resamples n rows with
@@ -36,7 +36,7 @@ C130_DIR = MIMIC / "accord_c130_reproducible_student"
 C130_SEEDS = (42, 123, 2024)
 
 OUT_DIR = ROOT / "results/accord/promised_analyses"
-OUT = OUT_DIR / "c138c_bootstrap_definitions.json"
+OUT = OUT_DIR / "bootstrap_definitions.json"
 
 SEED, B = 42, 10_000
 POWER_FLOOR = 0.7466              # sizectl108 mw_two_sided crossing at power 0.80
@@ -110,7 +110,7 @@ def main():
 
     res = collections.OrderedDict()
     res["provenance"] = {
-        "generated_by": "accord/promised_analyses/c138c_bootstrap_definitions.py",
+        "generated_by": "accord/promised_analyses/bootstrap_definitions.py",
         "seed": SEED,
         "n_boot": B,
         "basis": "G_253, 12 positives and 241 negatives",
