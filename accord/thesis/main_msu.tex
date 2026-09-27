@@ -36,6 +36,16 @@
 % entries such as "List of Tables" are added with no \numberline, so they take no
 % prefix; the appendix switches the prefix word where it switches the heading word.
 \usepackage{tocloft}
+% (d) tocloft inherits the class's bold chapter-heading font for TOC chapter
+% entries, which set the entry text, the dot leaders and the page number in
+% bold, References and Appendix A included. The template sets every TOC line in
+% the body weight, so each of the five fonts is pinned to medium 12pt and the
+% chapter leader is declared explicitly as a dotted fill.
+\renewcommand{\cftchapfont}{\normalfont\normalsize\mdseries}
+\renewcommand{\cftchappagefont}{\normalfont\normalsize\mdseries}
+\renewcommand{\cftsecfont}{\normalfont\normalsize\mdseries}
+\renewcommand{\cftsecpagefont}{\normalfont\normalsize\mdseries}
+\renewcommand{\cftchapleader}{\normalfont\cftdotfill{\cftchapdotsep}}
 % tocloft's report-class chapter preset ships with \cftchapdotsep set to
 % \cftnodots (no leader), which is why the Table of Contents alone, of the
 % three tocloft-driven lists, printed with no dot leader between the entry
@@ -226,7 +236,7 @@
 % Widow/orphan control.
 % Words that must never break: a cross-reference split as "Ta-ble 12" or "Fig-ure 2" reads as an
 % error, and a personal name should not be divided.
-\hyphenation{Table Tables Figure Figures Chapter Section Appendix labeller labellers Amrita AUROC DeLong Marneffe Tchetgen Decaestecker Anthropic Laffel Calster Juurlink Ghassemi Zettlemoyer Chaudhary}
+\hyphenation{Table Tables Figure Figures Chapter Section Appendix labeller labellers Amrita AUROC DeLong Marneffe Tchetgen Decaestecker Laffel Calster Juurlink Ghassemi Zettlemoyer Chaudhary}
 \clubpenalty=10000
 \brokenpenalty=10000
 \widowpenalty=10000
@@ -269,7 +279,8 @@
 % chapter-level entries only, as the template's TOC does. Cross-references to
 % sections use \nameref (hyperref's nameref is loaded with hyperref).
 \setcounter{secnumdepth}{0}
-\setcounter{tocdepth}{0}
+% Sections and subsections are listed in the Table of Contents (unnumbered).
+\setcounter{tocdepth}{2}
 
 % Headings: chapter centred, bold, normal size, "Chapter N:" on the same line.
 \titleformat{\chapter}[block]
@@ -326,28 +337,39 @@
 \begin{document}
 \RaggedRight
 
-% Declaration and Abstract: unnumbered, excluded from the page count.
+% Front matter, in the order the SGS Handbook mandates and the official
+% template prints: Title, Abstract, Approval, Dedication, Acknowledgments,
+% Declaration of Authorship, Table of Contents, List of Tables, List of
+% Figures, List of Abbreviations.
+%
+% Pagination. The title page opens the roman sequence and counts as i while
+% printing no folio. The abstract is neither numbered nor counted, so the
+% approval page that follows it is ii, and every front-matter folio after it
+% sits one lower than a scheme that counted the abstract would give.
 \hypersetup{pageanchor=false}
-\pagenumbering{gobble}
-\doublespacing
-\input{frontmatter/declaration}
-% The abstract sits before the title page, unnumbered, as the template requires,
-% which puts it where a reader scrolling past the contents never reaches it. A
-% PDF bookmark points at it so it is one click away in any viewer's sidebar.
-\pdfbookmark[0]{Abstract}{abstractpage}
-\input{frontmatter/abstract}
-
-% Front matter: Roman numerals.
-\clearpage
-\hypersetup{pageanchor=true}
 \pagenumbering{roman}
 \setcounter{page}{1}
 \pagestyle{plain}
 \doublespacing
 \input{frontmatter/titlepage}
+
+% Abstract: unnumbered, excluded from the page count. A PDF bookmark points at
+% it so it is one click away in any viewer's sidebar.
+\pagenumbering{gobble}
+\pdfbookmark[0]{Abstract}{abstractpage}
+\input{frontmatter/abstract}
+
+% Numbered front matter resumes at ii, the abstract having taken no folio.
+\clearpage
+\hypersetup{pageanchor=true}
+\pagenumbering{roman}
+\setcounter{page}{2}
+\pagestyle{plain}
+\doublespacing
 \input{frontmatter/approval}
 \input{frontmatter/dedication}
 \input{frontmatter/acknowledgements}
+\input{frontmatter/declaration}
 
 \clearpage
 \begingroup\doublespacing
