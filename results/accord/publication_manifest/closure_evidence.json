@@ -1,0 +1,6010 @@
+{
+ "how_this_was_computed": [
+  "Recompute the minimal publication manifest for this thesis.",
+  "",
+  "WHAT THIS COMPUTES",
+  "------------------",
+  "The set of files that is necessary and sufficient for a clone to (a) build",
+  "main_msu.pdf, (b) re-derive every number the thesis prints from a committed",
+  "artifact, and (c) return the SAME verdict this repository returns on its own six",
+  "gates:",
+  "",
+  "    python3 accord/stats/verify_thesis.py",
+  "    python3 accord/stats/verify_thesis_deep.py",
+  "    python3 accord/stats/make_appendices.py && python3 accord/stats/trace_claims.py",
+  "    cd accord/thesis/figures && python3 tools/check_figure_invariants.py",
+  "    cd accord/thesis/figures && python3 tools/measure_ink.py",
+  "    cd accord/thesis && bash build.sh",
+  "",
+  "HOW, AND WHY NOT JUST STATIC ANALYSIS",
+  "-------------------------------------",
+  "Static import analysis is not enough here: the gates resolve artifact paths out",
+  "of the register at run time, and the figure generators read result JSONs by",
+  "string. So the closure is measured in two stages.",
+  "",
+  "  STAGE 1, instrumented runs. The six commands run in a throwaway copy of the",
+  "  repository with builtins.open, io.open and os.open wrapped, recording every",
+  "  path opened under the tree, plus every sys.modules entry whose __file__ is in",
+  "  the tree. main_msu.tex is compiled with -recorder so main_msu.fls gives the",
+  "  authoritative LaTeX input list.",
+  "",
+  "  STAGE 2, fixpoint sufficiency. An open() hook is NOT trustworthy on its own;",
+  "  the first version of this analysis missed two pathlib reads inside the figure",
+  "  generators and would have shipped a manifest that does not build. So a tree",
+  "  containing only the stage 1 candidates is assembled, the six commands are run",
+  "  IN IT, every path named in a FileNotFoundError or equivalent is copied in, and",
+  "  the loop repeats until a round adds nothing. Then the minimal tree's verdicts",
+  "  are compared to the full tree's. Sufficiency is demonstrated, not argued.",
+  "",
+  "NOTHING IS WRITTEN OUTSIDE --out AND THE SCRATCH DIRECTORY. The gates regenerate",
+  "appendices and CLAIM_TRACE.json, which is why they are never run in place.",
+  "",
+  "AUGMENTED BY HAND AFTER THE AUTOMATED RUN:",
+  "A single-file removal experiment was run over the 16 least obviously required files, removing each one from the minimal tree and re-running the gates, to separate REQUIRED from GATE-STRENGTHENING. Those results are the 'single-file removal experiment' entries below.",
+  "results/accord/framing_mechanism/answer_polarity.json was added after the automated run: fig_batch3.py needs it, and NO gate runs fig_batch3.py, so the automated closure could not see the edge. build_manifest.py now runs fig_batch3.py directly for exactly this reason."
+ ],
+ "verdict_parity": {
+  "identical": true,
+  "full": [
+   "RESULT: all gating passes clear",
+   "stale: total prints 6,336, tools compute 6,524",
+   "stale: citable prints 5,247, tools compute 5,435",
+   "stale: distinct prints 659, tools compute 660",
+   "stale: unique prints 199, tools compute 198",
+   "stale: ambiguous prints 460, tools compute 462",
+   "RESULT: FAIL on pass 11",
+   "Appendix A: 110 corrections, 9 revisions",
+   "Appendix B: 82 groups covering 6524 values",
+   "traced   1337 numeric occurrences to 660 distinct register entries",
+   "MUTE on SCARLET_TINT: 3.98:1, FAILS AA",
+   "MUTE on PLATE_EDGE: 3.88:1, FAILS AA",
+   "all gating figure invariants hold.",
+   "all figures at or above their floor",
+   "pages: 146",
+   "pass"
+  ],
+  "minimal": [
+   "RESULT: all gating passes clear",
+   "stale: total prints 6,336, tools compute 6,524",
+   "stale: citable prints 5,247, tools compute 5,435",
+   "stale: distinct prints 659, tools compute 660",
+   "stale: unique prints 199, tools compute 198",
+   "stale: ambiguous prints 460, tools compute 462",
+   "RESULT: FAIL on pass 11",
+   "Appendix A: 110 corrections, 9 revisions",
+   "Appendix B: 82 groups covering 6524 values",
+   "traced   1337 numeric occurrences to 660 distinct register entries",
+   "MUTE on SCARLET_TINT: 3.98:1, FAILS AA",
+   "MUTE on PLATE_EDGE: 3.88:1, FAILS AA",
+   "all gating figure invariants hold.",
+   "all figures at or above their floor",
+   "pages: 146",
+   "pass"
+  ]
+ },
+ "counts": {
+  "files": 168,
+  "bytes": 8856130
+ },
+ "paths": {
+  "accord/CORRECTIONS.md": {
+   "size_bytes": 333275,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED: make_appendices.py raises FileNotFoundError without it"
+    }
+   ]
+  },
+  "accord/REVISION_LOG.md": {
+   "size_bytes": 20806,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED: make_appendices.py raises FileNotFoundError without it"
+    }
+   ]
+  },
+  "accord/control/report.py": {
+   "size_bytes": 12919,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED: verify_thesis.py pass 2 cited-artifact existence FAILS without it"
+    }
+   ]
+  },
+  "accord/control/train.py": {
+   "size_bytes": 9188,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED: verify_thesis.py pass 2 cited-artifact existence FAILS without it"
+    }
+   ]
+  },
+  "accord/dictionaries.py": {
+   "size_bytes": 7334,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED: verify_thesis.py pass 2 cited-artifact existence FAILS without it"
+    }
+   ]
+  },
+  "accord/hosted_withdrawal.py": {
+   "size_bytes": 9182,
+   "evidence": [
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/prevalence_replication/results/sweep_results.json": {
+   "size_bytes": 17188,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED: verify_thesis.py pass 2 cited-artifact existence FAILS without it"
+    }
+   ]
+  },
+  "accord/scaling/C44_PREREGISTRATION.md": {
+   "size_bytes": 4568,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "CITED, NOT ENFORCED: the register cites it; removal does not fail a gate, because the source string carries a trailing clause the existence check skips"
+    }
+   ]
+  },
+  "accord/scaling/C44_convergence_check.ipynb": {
+   "size_bytes": 17527,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "CITED, NOT ENFORCED: same as C44_PREREGISTRATION.md"
+    }
+   ]
+  },
+  "accord/stats/make_appendices.py": {
+   "size_bytes": 16277,
+   "evidence": [
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/stats/sync_appendix_counts.py": {
+   "size_bytes": 3564,
+   "evidence": [
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED: deep pass 11 runs it as a subprocess; absent gives a can't-open-file error"
+    }
+   ]
+  },
+  "accord/stats/trace_claims.py": {
+   "size_bytes": 15399,
+   "evidence": [
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/stats/verify_thesis.py": {
+   "size_bytes": 23808,
+   "evidence": [
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/stats/verify_thesis_deep.py": {
+   "size_bytes": 32215,
+   "evidence": [
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/build.sh": {
+   "size_bytes": 5887,
+   "evidence": [
+    {
+     "method": "entry point, build driver, or a check that silently skips when absent",
+     "by": "task definition"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-answer-polarity.pdf": {
+   "size_bytes": 52863,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-asymmetry.pdf": {
+   "size_bytes": 8677,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-capability.pdf": {
+   "size_bytes": 46495,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-ceiling.pdf": {
+   "size_bytes": 95990,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-cohort-flow.pdf": {
+   "size_bytes": 22348,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-disc-actionability.pdf": {
+   "size_bytes": 35675,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-exemplar.pdf": {
+   "size_bytes": 60291,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-falsification.pdf": {
+   "size_bytes": 12410,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-forest.pdf": {
+   "size_bytes": 19043,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-funnel.pdf": {
+   "size_bytes": 9343,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-gap-trajectory.pdf": {
+   "size_bytes": 35369,
+   "evidence": [
+    {
+     "method": "fixpoint sufficiency test: check_figure_invariants.py reported it absent (round 1)",
+     "by": "minimal tree"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-intro-headline.pdf": {
+   "size_bytes": 12211,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-labelnoise.pdf": {
+   "size_bytes": 68670,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-met-exchange.pdf": {
+   "size_bytes": 92485,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-missing-cell.pdf": {
+   "size_bytes": 11406,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-pipeline-status.pdf": {
+   "size_bytes": 23952,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-power.pdf": {
+   "size_bytes": 17138,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-prevalence-response.pdf": {
+   "size_bytes": 20530,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-prevalence.pdf": {
+   "size_bytes": 10490,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-rule-precision.pdf": {
+   "size_bytes": 13154,
+   "evidence": [
+    {
+     "method": "fixpoint sufficiency test: check_figure_invariants.py reported it absent (round 1)",
+     "by": "minimal tree"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-scale-ladder.pdf": {
+   "size_bytes": 91213,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-scaling.pdf": {
+   "size_bytes": 50018,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-spec-curve.pdf": {
+   "size_bytes": 37950,
+   "evidence": [
+    {
+     "method": "fixpoint sufficiency test: check_figure_invariants.py reported it absent (round 1)",
+     "by": "minimal tree"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-threshold-surface.pdf": {
+   "size_bytes": 42975,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig-tracking.pdf": {
+   "size_bytes": 10737,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig_batch2.py": {
+   "size_bytes": 55038,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig_batch3.py": {
+   "size_bytes": 24075,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED: read by the pass 1 dash scan over figure source. NOT listed in verify_thesis_deep.py's FIG_SCRIPTS, so pass 10 never runs it even though it builds two figures check_figure_invariants.py requires"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig_ceiling.py": {
+   "size_bytes": 17036,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig_frontier.py": {
+   "size_bytes": 19776,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/fig_threshold_surface.py": {
+   "size_bytes": 7983,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/make_figures.py": {
+   "size_bytes": 117993,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/manifest.json": {
+   "size_bytes": 19878,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED for make_figures.py and fig_batch3.py to complete when ACCORD_FIG_OUT is set"
+    }
+   ]
+  },
+  "accord/thesis/figures/style.py": {
+   "size_bytes": 34426,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/tools/check_figure_invariants.py": {
+   "size_bytes": 40632,
+   "evidence": [
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/figures/tools/measure_ink.py": {
+   "size_bytes": 23841,
+   "evidence": [
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: imported as a Python module",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/frontmatter/abbreviations.tex": {
+   "size_bytes": 1967,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/frontmatter/abstract.tex": {
+   "size_bytes": 3212,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/frontmatter/acknowledgements.tex": {
+   "size_bytes": 1405,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/frontmatter/approval.tex": {
+   "size_bytes": 834,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/frontmatter/declaration.tex": {
+   "size_bytes": 1319,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/frontmatter/dedication.tex": {
+   "size_bytes": 1014,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/frontmatter/titlepage.tex": {
+   "size_bytes": 601,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/main_msu.pdf": {
+   "size_bytes": 802224,
+   "evidence": [
+    {
+     "method": "entry point, build driver, or a check that silently skips when absent",
+     "by": "task definition"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "GATE-STRENGTHENING: deep pass 9's page-count and internal-filename checks are guarded by exists(). Regenerated by build.sh"
+    }
+   ]
+  },
+  "accord/thesis/main_msu.tex": {
+   "size_bytes": 22996,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "entry point, build driver, or a check that silently skips when absent",
+     "by": "task definition"
+    }
+   ]
+  },
+  "accord/thesis/main_msu.toc": {
+   "size_bytes": 10300,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "entry point, build driver, or a check that silently skips when absent",
+     "by": "task definition"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "GATE-STRENGTHENING: deep pass 9's TOC-prefix check is guarded by exists() and silently skips when absent. Also gitignored, so a clone of the current repo does not have it"
+    }
+   ]
+  },
+  "accord/thesis/msu_appA_corrections.tex": {
+   "size_bytes": 2014,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/msu_appA_full.tex": {
+   "size_bytes": 6970,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/msu_appB_pointer.tex": {
+   "size_bytes": 2053,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/msu_appB_provenance.tex": {
+   "size_bytes": 14397,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/msu_appC_trace.tex": {
+   "size_bytes": 170622,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "accord/thesis/msu_ch1_introduction.tex": {
+   "size_bytes": 20909,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/msu_ch2_literature.tex": {
+   "size_bytes": 29437,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/msu_ch3_methodology.tex": {
+   "size_bytes": 75680,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/msu_ch4_results.tex": {
+   "size_bytes": 93630,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/msu_ch5_discussion.tex": {
+   "size_bytes": 34277,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    },
+    {
+     "method": "pdflatex -recorder: INPUT line in main_msu.fls",
+     "by": "build.sh"
+    }
+   ]
+  },
+  "accord/thesis/refs.bib": {
+   "size_bytes": 52784,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "entry point, build driver, or a check that silently skips when absent",
+     "by": "task definition"
+    }
+   ]
+  },
+  "environment.yml": {
+   "size_bytes": 1636,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "entry point, build driver, or a check that silently skips when absent",
+     "by": "task definition"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "GATE-STRENGTHENING: deep pass 10 reads the recorded matplotlib and FreeType versions; absent means the comparability check is skipped"
+    }
+   ]
+  },
+  "results/accord/CLAIM_TRACE.json": {
+   "size_bytes": 821298,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "single-file removal experiment",
+     "result": "GATE-STRENGTHENING: cited by the register; regenerated by trace_claims.py"
+    }
+   ]
+  },
+  "results/accord/VERIFIED_FACTS.json": {
+   "size_bytes": 1295791,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/annotation_sheet_span_profile.json": {
+   "size_bytes": 670,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/artifact_recovery.json": {
+   "size_bytes": 35526,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/bonus_bootstrap_ci.json": {
+   "size_bytes": 384,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c111_robustness/c111_robustness.json": {
+   "size_bytes": 13101,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c112_decontam_defectfree/c112_defectfree.json": {
+   "size_bytes": 3778,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c114_committee_checks/c114.json": {
+   "size_bytes": 1877,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c116_rank_paired/c116.json": {
+   "size_bytes": 1463,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c120_exact_join/c120.json": {
+   "size_bytes": 993,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c126_teacher_student/c126.json": {
+   "size_bytes": 1409,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c129_exemplar_prevalence/c129.json": {
+   "size_bytes": 4644,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c130_reproducible_student/c130.json": {
+   "size_bytes": 4475,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c132_cluster_bootstrap/c132.json": {
+   "size_bytes": 6242,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c133_interval_tipping/c133.json": {
+   "size_bytes": 18500,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c134_reanalysis/c134a_bootstrap_coverage.json": {
+   "size_bytes": 8587,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c135_dissociation_cost/c135_bias_curve.json": {
+   "size_bytes": 11752,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/c135_dissociation_cost/c135_labeller.json": {
+   "size_bytes": 1873,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/clinical_core/displayed_exemplar_lower_bound.json": {
+   "size_bytes": 11207,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/control/final_report.json": {
+   "size_bytes": 9618,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/control/metrics_seed42.json": {
+   "size_bytes": 1165,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/control/rq3_falsification_reproduction.json": {
+   "size_bytes": 2000,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/decontam/accord_v2_decontam_gold_aggregate.json": {
+   "size_bytes": 13853,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/decontam/corrected_gold_metrics.json": {
+   "size_bytes": 1124,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/decontam/decontam_aggregate_recomputed.json": {
+   "size_bytes": 1086,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/defectfree_rescore/dfrescore_strata.json": {
+   "size_bytes": 5137,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/capability_ladder.json": {
+   "size_bytes": 1607,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_granite33_few_shot.json": {
+   "size_bytes": 18657,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_granite33_zero_shot.json": {
+   "size_bytes": 18637,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_llama3_few_shot.json": {
+   "size_bytes": 18639,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_llama3_zero_shot.json": {
+   "size_bytes": 18647,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_metrics_granite33.json": {
+   "size_bytes": 4859,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_metrics_llama3.json": {
+   "size_bytes": 4841,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_metrics_qwen3_14b_nothink.json": {
+   "size_bytes": 4982,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_metrics_qwen3_8b_nothink.json": {
+   "size_bytes": 5033,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_qwen3_14b_nothink_few_shot.json": {
+   "size_bytes": 18893,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_qwen3_14b_nothink_zero_shot.json": {
+   "size_bytes": 18873,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_qwen3_8b_nothink_few_shot.json": {
+   "size_bytes": 18892,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/frontier_ollama_qwen3_8b_nothink_zero_shot.json": {
+   "size_bytes": 18872,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/graded_score_granite33_g253.json": {
+   "size_bytes": 352,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/nli_roberta_large_mnli.json": {
+   "size_bytes": 1921,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/differential/scale_step_c99.json": {
+   "size_bytes": 964,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/era/era_confound_closed.json": {
+   "size_bytes": 776,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/exemplar/exemplar_correctness_recomputed.json": {
+   "size_bytes": 1461,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/exemplar/step2plus_results.json": {
+   "size_bytes": 3979,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/exemplar_direct/exemplar_direct.json": {
+   "size_bytes": 2060,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/framing_mechanism/answer_polarity.json": {
+   "size_bytes": 10599,
+   "evidence": [
+    {
+     "method": "single-file removal experiment",
+     "result": "REQUIRED BY fig_batch3.py, found only by running that generator directly. No gate runs it, so no gate would have found this edge; without it fig_batch3.py raises FileNotFoundError and the published repo ships a generator that cannot run"
+    }
+   ]
+  },
+  "results/accord/injection_sensitivity.json": {
+   "size_bytes": 541,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/mde_recomputed.json": {
+   "size_bytes": 1242,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/mining/trigger_exemplar_assertion.json": {
+   "size_bytes": 528,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/multillm/per_model_results.json": {
+   "size_bytes": 4868,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/plantbench/stage1_s1b.json": {
+   "size_bytes": 2078,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/plantbench/stage3_detector_scores_for_stage4.json": {
+   "size_bytes": 8270,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/plantbench/stage4_s4.json": {
+   "size_bytes": 706,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/prevalence_replication/sweep_results.json": {
+   "size_bytes": 17188,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/prompt_sensitivity/analysis.json": {
+   "size_bytes": 6665,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/prompt_sensitivity/c109/analysis.json": {
+   "size_bytes": 13748,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/prompt_sensitivity/cells/_qwen3_8b_nothink__P_neutral.json": {
+   "size_bytes": 348,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/public_controls/nlifactorial/analysis.json": {
+   "size_bytes": 78395,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/public_controls/priorfix/analysis.json": {
+   "size_bytes": 7212,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/public_controls/sizectl_c108/power_curves.json": {
+   "size_bytes": 12619,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/public_controls/sizectl_c108/roberta_scores.json": {
+   "size_bytes": 2316189,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/public_controls/sizectl_c108/roberta_scores_meta.json": {
+   "size_bytes": 685,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/reconciliation_c28.json": {
+   "size_bytes": 13031,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/scaling/convergence_results.json": {
+   "size_bytes": 74604,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/scaling/scaling_gaps.json": {
+   "size_bytes": 286,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/scaling/scaling_results.json": {
+   "size_bytes": 2255,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/section6_auroc_power.json": {
+   "size_bytes": 176,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/selection/threshold_robustness_results.json": {
+   "size_bytes": 406490,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/sign_provenance_drift_recomputation.json": {
+   "size_bytes": 6960,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/signed_gap_analysis.json": {
+   "size_bytes": 87686,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/source_summaries/accord_v2_results.json": {
+   "size_bytes": 303,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/source_summaries/cohort_summary.json": {
+   "size_bytes": 225,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/source_summaries/mining_summary.json": {
+   "size_bytes": 482,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/source_summaries/phase1_summary.json": {
+   "size_bytes": 655,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/source_summaries/phase2_summary.json": {
+   "size_bytes": 912,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stage0/anisotropy_control.json": {
+   "size_bytes": 342,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stage0/homogeneity.json": {
+   "size_bytes": 1423,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/cohort_icd_counts.json": {
+   "size_bytes": 405,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/deployed_vs_frontier_zeroshot.json": {
+   "size_bytes": 196,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/exemplar_power_exact.json": {
+   "size_bytes": 382,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/gold_tipping_points.json": {
+   "size_bytes": 6767,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/intervals.json": {
+   "size_bytes": 966,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/marginal_feasibility_gate.json": {
+   "size_bytes": 24343,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/overcall_ambiguity_readings.json": {
+   "size_bytes": 15907,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/overcall_decomposition.json": {
+   "size_bytes": 39663,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/reviewer_free_computations.json": {
+   "size_bytes": 5380,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/stats/test_register.json": {
+   "size_bytes": 23200,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/step0_1_join_and_calibration.json": {
+   "size_bytes": 4351,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/step2_signal_check.json": {
+   "size_bytes": 2038,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/step3_baselines.json": {
+   "size_bytes": 1787,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/step4_threshold_fix_test.json": {
+   "size_bytes": 2130,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/step5_ranking.json": {
+   "size_bytes": 612,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/accord/tfidf_permutation/tfidf_permutation.json": {
+   "size_bytes": 2501,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/pretraining_runs.json": {
+   "size_bytes": 36237,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  },
+  "results/task_runs.json": {
+   "size_bytes": 9527,
+   "evidence": [
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    },
+    {
+     "method": "instrumented run: open() hook recorded a read",
+     "by": "gate suite"
+    }
+   ]
+  }
+ },
+ "repository_baseline": {
+  "working_tree_files": 678,
+  "working_tree_bytes": 232742651,
+  "git_tracked_files": 403,
+  "git_tracked_bytes": 39954206,
+  "note": "the working tree excludes the two local_only symlink targets, which point at /Users/rickygole/mimic_local_only and are matched by four .gitignore rules"
+ }
+}

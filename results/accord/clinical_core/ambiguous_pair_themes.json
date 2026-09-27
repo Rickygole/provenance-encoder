@@ -1,0 +1,621 @@
+{
+ "analysis": "Analysis 3: what made 46 of the 299 gold pairs ambiguous",
+ "generated_by": "accord/clinical_core/ambiguous_pair_themes.py",
+ "inputs": {
+  "canonical_gold_labels": "$MIMIC_LOCAL_ONLY_DIR/derived/gold_standard_accord_results.csv",
+  "pharmacist_returned_sheet": "$MIMIC_LOCAL_ONLY_DIR/from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv",
+  "candidates_table": "$MIMIC_LOCAL_ONLY_DIR/from_drive_2026-08-08/outputs/annotation_sample_300.csv"
+ },
+ "method": "One free-text justification per gold pair was coded against seven fixed regular expressions over generic clinical-reasoning vocabulary. Multi-label incidence counts every theme a justification touches; the primary category is the highest-priority theme it touches, under the priority order recorded here. The justification text is never written, printed or quoted.",
+ "theme_definitions": {
+  "insufficient_documentation": "The pharmacist states the two sentences do not carry enough to decide, and asks for information the pair does not contain.",
+  "dose_or_frequency_uncertainty": "The apparent conflict is about how much or how often, not about whether the drug is on or off, and the pair does not fix the amount.",
+  "care_setting_transition": "The two sides describe different phases of care, so a difference between them is what a transition looks like rather than an error.",
+  "temporal_sequence": "The two statements plausibly refer to different moments, typically a hold followed by a restart, and the pair does not fix the order.",
+  "monitoring_dependent": "Whether the pair is an error depends on a laboratory or monitoring value that is not in either sentence.",
+  "plausible_clinical_alternative": "A benign clinical reading of the pair exists, so the pharmacist declined to call it an error without committing to it being correct either.",
+  "class_versus_agent": "The conflict sits between a class-level instruction and a named agent, or between two agents of one class, so what counts as the same medication is itself in question.",
+  "uncategorised": "The justification matched none of the seven themed patterns."
+ },
+ "theme_patterns": {
+  "insufficient_documentation": "informations?|insufficient|not sure|unsure|unclear|not clear|cannot (?:tell|determine|say|conclude)|can'?t (?:tell|say)|needs? (?:more|to be|further|additional)|provide|missing|not (?:specif|mention|document|state)|no (?:detail|clear)|more (?:detail|context|information)|why",
+  "dose_or_frequency_uncertainty": "dosages?|doses?|dosed|dosing|titrat|adjust|increas|decreas|reduc|taper|once|twice|three times|daily|frequency|divided|total daily|\\bmg\\b|units?",
+  "care_setting_transition": "inpatient|outpatient|discharg|\\bhome\\b|transition",
+  "temporal_sequence": "restart|resum|held|hold|temporar|later|\\btimes?\\b|timing|sequence|same day|day \\d|earlier",
+  "monitoring_dependent": "\\binr\\b|\\bptt\\b|levels?|monitor|\\blab\\b|bleeding|platelet|creatinine|potassium level|rate control|heart rate",
+  "plausible_clinical_alternative": "likely|probabl|\\bmay\\b|could|possib|however|reflect|appropriate|expected|indication|depends|standard|guideline",
+  "class_versus_agent": "\\bclass\\b|together|\\bboth\\b|different (?:drug|medication|agent|beta)|substitut|blocker"
+ },
+ "primary_priority_order": [
+  "insufficient_documentation",
+  "monitoring_dependent",
+  "dose_or_frequency_uncertainty",
+  "temporal_sequence",
+  "care_setting_transition",
+  "class_versus_agent",
+  "plausible_clinical_alternative"
+ ],
+ "n_gold_pairs": 299,
+ "gold_label_distribution": {
+  "not_contradiction": 241,
+  "ambiguous": 46,
+  "contradiction": 12
+ },
+ "ambiguous_to_positive_ratio": 3.833,
+ "strata": {
+  "ambiguous": {
+   "n_pairs": 46,
+   "n_with_justification": 46,
+   "themes_multilabel_incidence": {
+    "insufficient_documentation": 23,
+    "dose_or_frequency_uncertainty": 24,
+    "care_setting_transition": 8,
+    "temporal_sequence": 12,
+    "monitoring_dependent": 9,
+    "plausible_clinical_alternative": 11,
+    "class_versus_agent": 4
+   },
+   "themes_multilabel_share_of_pairs": {
+    "insufficient_documentation": 0.5,
+    "dose_or_frequency_uncertainty": 0.5217,
+    "care_setting_transition": 0.1739,
+    "temporal_sequence": 0.2609,
+    "monitoring_dependent": 0.1957,
+    "plausible_clinical_alternative": 0.2391,
+    "class_versus_agent": 0.087
+   },
+   "primary_category_counts": {
+    "insufficient_documentation": 23,
+    "monitoring_dependent": 8,
+    "dose_or_frequency_uncertainty": 8,
+    "temporal_sequence": 2,
+    "care_setting_transition": 1,
+    "plausible_clinical_alternative": 2,
+    "uncategorised": 2
+   },
+   "n_themes_per_justification": {
+    "0": 2,
+    "1": 14,
+    "2": 14,
+    "3": 15,
+    "4": 1
+   },
+   "rule_distribution": {
+    "1": 17,
+    "2": 3,
+    "3": 16,
+    "4": 10
+   },
+   "rule_share": {
+    "1": 0.3696,
+    "2": 0.0652,
+    "3": 0.3478,
+    "4": 0.2174
+   },
+   "pharmacologic_class_distribution": {
+    "ace_inhibitors": 1,
+    "antiarrhythmics": 5,
+    "anticoagulants": 14,
+    "antiplatelets": 1,
+    "beta_blockers": 4,
+    "calcium_channel_blockers": 1,
+    "central_alpha2_agonists": 1,
+    "inotropes": 3,
+    "insulins": 1,
+    "loop_diuretics": 10,
+    "nitrates": 4,
+    "opioid_analgesics": 1
+   },
+   "confidence_distribution": {
+    "high": 2,
+    "low": 12,
+    "medium": 31,
+    "moderate": 1
+   }
+  },
+  "contradiction": {
+   "n_pairs": 12,
+   "n_with_justification": 12,
+   "themes_multilabel_incidence": {
+    "insufficient_documentation": 2,
+    "dose_or_frequency_uncertainty": 2,
+    "care_setting_transition": 3,
+    "temporal_sequence": 1,
+    "monitoring_dependent": 2,
+    "plausible_clinical_alternative": 0,
+    "class_versus_agent": 1
+   },
+   "themes_multilabel_share_of_pairs": {
+    "insufficient_documentation": 0.1667,
+    "dose_or_frequency_uncertainty": 0.1667,
+    "care_setting_transition": 0.25,
+    "temporal_sequence": 0.0833,
+    "monitoring_dependent": 0.1667,
+    "plausible_clinical_alternative": 0.0,
+    "class_versus_agent": 0.0833
+   },
+   "primary_category_counts": {
+    "insufficient_documentation": 2,
+    "monitoring_dependent": 1,
+    "dose_or_frequency_uncertainty": 1,
+    "temporal_sequence": 1,
+    "care_setting_transition": 1,
+    "class_versus_agent": 1,
+    "uncategorised": 5
+   },
+   "n_themes_per_justification": {
+    "0": 5,
+    "1": 4,
+    "2": 2,
+    "3": 1
+   },
+   "rule_distribution": {
+    "1": 3,
+    "2": 3,
+    "3": 4,
+    "4": 2
+   },
+   "rule_share": {
+    "1": 0.25,
+    "2": 0.25,
+    "3": 0.3333,
+    "4": 0.1667
+   },
+   "pharmacologic_class_distribution": {
+    "anticoagulants": 5,
+    "antiplatelets": 1,
+    "beta_blockers": 2,
+    "electrolyte_supplements": 1,
+    "loop_diuretics": 3
+   },
+   "confidence_distribution": {
+    "high": 6,
+    "low": 1,
+    "medium": 5
+   }
+  },
+  "not_contradiction": {
+   "n_pairs": 241,
+   "n_with_justification": 241,
+   "themes_multilabel_incidence": {
+    "insufficient_documentation": 1,
+    "dose_or_frequency_uncertainty": 66,
+    "care_setting_transition": 33,
+    "temporal_sequence": 26,
+    "monitoring_dependent": 13,
+    "plausible_clinical_alternative": 40,
+    "class_versus_agent": 29
+   },
+   "themes_multilabel_share_of_pairs": {
+    "insufficient_documentation": 0.0041,
+    "dose_or_frequency_uncertainty": 0.2739,
+    "care_setting_transition": 0.1369,
+    "temporal_sequence": 0.1079,
+    "monitoring_dependent": 0.0539,
+    "plausible_clinical_alternative": 0.166,
+    "class_versus_agent": 0.1203
+   },
+   "primary_category_counts": {
+    "insufficient_documentation": 1,
+    "monitoring_dependent": 13,
+    "dose_or_frequency_uncertainty": 58,
+    "temporal_sequence": 13,
+    "care_setting_transition": 21,
+    "class_versus_agent": 26,
+    "plausible_clinical_alternative": 11,
+    "uncategorised": 98
+   },
+   "n_themes_per_justification": {
+    "0": 98,
+    "1": 98,
+    "2": 30,
+    "3": 12,
+    "4": 1,
+    "5": 2
+   },
+   "rule_distribution": {
+    "1": 114,
+    "2": 25,
+    "3": 59,
+    "4": 43
+   },
+   "rule_share": {
+    "1": 0.473,
+    "2": 0.1037,
+    "3": 0.2448,
+    "4": 0.1784
+   },
+   "pharmacologic_class_distribution": {
+    "ace_inhibitors": 16,
+    "aldosterone_antagonists": 1,
+    "antiarrhythmics": 22,
+    "antibacterials": 5,
+    "anticoagulants": 43,
+    "antiplatelets": 3,
+    "arbs": 1,
+    "beta_blockers": 47,
+    "calcium_channel_blockers": 5,
+    "corticosteroids": 1,
+    "electrolyte_supplements": 1,
+    "inotropes": 3,
+    "insulins": 16,
+    "loop_diuretics": 48,
+    "nitrates": 13,
+    "opioid_analgesics": 11,
+    "vasodilators": 5
+   },
+   "confidence_distribution": {
+    "high": 217,
+    "low": 2,
+    "medium": 22
+   }
+  },
+  "non_ambiguous_combined": {
+   "n_pairs": 253,
+   "n_with_justification": 253,
+   "themes_multilabel_incidence": {
+    "insufficient_documentation": 3,
+    "dose_or_frequency_uncertainty": 68,
+    "care_setting_transition": 36,
+    "temporal_sequence": 27,
+    "monitoring_dependent": 15,
+    "plausible_clinical_alternative": 40,
+    "class_versus_agent": 30
+   },
+   "themes_multilabel_share_of_pairs": {
+    "insufficient_documentation": 0.0119,
+    "dose_or_frequency_uncertainty": 0.2688,
+    "care_setting_transition": 0.1423,
+    "temporal_sequence": 0.1067,
+    "monitoring_dependent": 0.0593,
+    "plausible_clinical_alternative": 0.1581,
+    "class_versus_agent": 0.1186
+   },
+   "primary_category_counts": {
+    "insufficient_documentation": 3,
+    "monitoring_dependent": 14,
+    "dose_or_frequency_uncertainty": 59,
+    "temporal_sequence": 14,
+    "care_setting_transition": 22,
+    "class_versus_agent": 27,
+    "plausible_clinical_alternative": 11,
+    "uncategorised": 103
+   },
+   "n_themes_per_justification": {
+    "0": 103,
+    "1": 102,
+    "2": 32,
+    "3": 13,
+    "4": 1,
+    "5": 2
+   },
+   "rule_distribution": {
+    "1": 117,
+    "2": 28,
+    "3": 63,
+    "4": 45
+   },
+   "rule_share": {
+    "1": 0.4625,
+    "2": 0.1107,
+    "3": 0.249,
+    "4": 0.1779
+   },
+   "pharmacologic_class_distribution": {
+    "ace_inhibitors": 16,
+    "aldosterone_antagonists": 1,
+    "antiarrhythmics": 22,
+    "antibacterials": 5,
+    "anticoagulants": 48,
+    "antiplatelets": 4,
+    "arbs": 1,
+    "beta_blockers": 49,
+    "calcium_channel_blockers": 5,
+    "corticosteroids": 1,
+    "electrolyte_supplements": 2,
+    "inotropes": 3,
+    "insulins": 16,
+    "loop_diuretics": 51,
+    "nitrates": 13,
+    "opioid_analgesics": 11,
+    "vasodilators": 5
+   },
+   "confidence_distribution": {
+    "high": 223,
+    "low": 3,
+    "medium": 27
+   }
+  },
+  "all_gold": {
+   "n_pairs": 299,
+   "n_with_justification": 299,
+   "themes_multilabel_incidence": {
+    "insufficient_documentation": 26,
+    "dose_or_frequency_uncertainty": 92,
+    "care_setting_transition": 44,
+    "temporal_sequence": 39,
+    "monitoring_dependent": 24,
+    "plausible_clinical_alternative": 51,
+    "class_versus_agent": 34
+   },
+   "themes_multilabel_share_of_pairs": {
+    "insufficient_documentation": 0.087,
+    "dose_or_frequency_uncertainty": 0.3077,
+    "care_setting_transition": 0.1472,
+    "temporal_sequence": 0.1304,
+    "monitoring_dependent": 0.0803,
+    "plausible_clinical_alternative": 0.1706,
+    "class_versus_agent": 0.1137
+   },
+   "primary_category_counts": {
+    "insufficient_documentation": 26,
+    "monitoring_dependent": 22,
+    "dose_or_frequency_uncertainty": 67,
+    "temporal_sequence": 16,
+    "care_setting_transition": 23,
+    "class_versus_agent": 27,
+    "plausible_clinical_alternative": 13,
+    "uncategorised": 105
+   },
+   "n_themes_per_justification": {
+    "0": 105,
+    "1": 116,
+    "2": 46,
+    "3": 28,
+    "4": 2,
+    "5": 2
+   },
+   "rule_distribution": {
+    "1": 134,
+    "2": 31,
+    "3": 79,
+    "4": 55
+   },
+   "rule_share": {
+    "1": 0.4482,
+    "2": 0.1037,
+    "3": 0.2642,
+    "4": 0.1839
+   },
+   "pharmacologic_class_distribution": {
+    "ace_inhibitors": 17,
+    "aldosterone_antagonists": 1,
+    "antiarrhythmics": 27,
+    "antibacterials": 5,
+    "anticoagulants": 62,
+    "antiplatelets": 5,
+    "arbs": 1,
+    "beta_blockers": 53,
+    "calcium_channel_blockers": 6,
+    "central_alpha2_agonists": 1,
+    "corticosteroids": 1,
+    "electrolyte_supplements": 2,
+    "inotropes": 6,
+    "insulins": 17,
+    "loop_diuretics": 61,
+    "nitrates": 17,
+    "opioid_analgesics": 12,
+    "vasodilators": 5
+   },
+   "confidence_distribution": {
+    "high": 225,
+    "low": 15,
+    "medium": 58,
+    "moderate": 1
+   }
+  }
+ },
+ "theme_enrichment_ambiguous_vs_non_ambiguous": {
+  "insufficient_documentation": {
+   "share_ambiguous": 0.5,
+   "share_non_ambiguous": 0.0119,
+   "ratio": 42.017,
+   "note": null
+  },
+  "dose_or_frequency_uncertainty": {
+   "share_ambiguous": 0.5217,
+   "share_non_ambiguous": 0.2688,
+   "ratio": 1.941,
+   "note": null
+  },
+  "care_setting_transition": {
+   "share_ambiguous": 0.1739,
+   "share_non_ambiguous": 0.1423,
+   "ratio": 1.222,
+   "note": null
+  },
+  "temporal_sequence": {
+   "share_ambiguous": 0.2609,
+   "share_non_ambiguous": 0.1067,
+   "ratio": 2.445,
+   "note": null
+  },
+  "monitoring_dependent": {
+   "share_ambiguous": 0.1957,
+   "share_non_ambiguous": 0.0593,
+   "ratio": 3.3,
+   "note": null
+  },
+  "plausible_clinical_alternative": {
+   "share_ambiguous": 0.2391,
+   "share_non_ambiguous": 0.1581,
+   "ratio": 1.512,
+   "note": null
+  },
+  "class_versus_agent": {
+   "share_ambiguous": 0.087,
+   "share_non_ambiguous": 0.1186,
+   "ratio": 0.734,
+   "note": null
+  }
+ },
+ "ambiguity_rate_by_rule": {
+  "1": {
+   "rule_short": "direct action conflict",
+   "n_pairs": 134,
+   "n_ambiguous": 17,
+   "ambiguous_rate": 0.1269,
+   "n_confirmed": 3,
+   "confirmed_rate": 0.0224
+  },
+  "2": {
+   "rule_short": "drug class conflict",
+   "n_pairs": 31,
+   "n_ambiguous": 3,
+   "ambiguous_rate": 0.0968,
+   "n_confirmed": 3,
+   "confirmed_rate": 0.0968
+  },
+  "3": {
+   "rule_short": "dosage conflict",
+   "n_pairs": 79,
+   "n_ambiguous": 16,
+   "ambiguous_rate": 0.2025,
+   "n_confirmed": 4,
+   "confirmed_rate": 0.0506
+  },
+  "4": {
+   "rule_short": "discharge-side absence",
+   "n_pairs": 55,
+   "n_ambiguous": 10,
+   "ambiguous_rate": 0.1818,
+   "n_confirmed": 2,
+   "confirmed_rate": 0.0364
+  }
+ },
+ "ambiguity_rate_by_pharmacologic_class": {
+  "ace_inhibitors": {
+   "n_pairs": 17,
+   "n_ambiguous": 1,
+   "ambiguous_rate": 0.0588,
+   "n_confirmed": 0
+  },
+  "aldosterone_antagonists": {
+   "n_pairs": 1,
+   "n_ambiguous": 0,
+   "ambiguous_rate": 0.0,
+   "n_confirmed": 0
+  },
+  "antiarrhythmics": {
+   "n_pairs": 27,
+   "n_ambiguous": 5,
+   "ambiguous_rate": 0.1852,
+   "n_confirmed": 0
+  },
+  "antibacterials": {
+   "n_pairs": 5,
+   "n_ambiguous": 0,
+   "ambiguous_rate": 0.0,
+   "n_confirmed": 0
+  },
+  "anticoagulants": {
+   "n_pairs": 62,
+   "n_ambiguous": 14,
+   "ambiguous_rate": 0.2258,
+   "n_confirmed": 5
+  },
+  "antiplatelets": {
+   "n_pairs": 5,
+   "n_ambiguous": 1,
+   "ambiguous_rate": 0.2,
+   "n_confirmed": 1
+  },
+  "arbs": {
+   "n_pairs": 1,
+   "n_ambiguous": 0,
+   "ambiguous_rate": 0.0,
+   "n_confirmed": 0
+  },
+  "beta_blockers": {
+   "n_pairs": 53,
+   "n_ambiguous": 4,
+   "ambiguous_rate": 0.0755,
+   "n_confirmed": 2
+  },
+  "calcium_channel_blockers": {
+   "n_pairs": 6,
+   "n_ambiguous": 1,
+   "ambiguous_rate": 0.1667,
+   "n_confirmed": 0
+  },
+  "central_alpha2_agonists": {
+   "n_pairs": 1,
+   "n_ambiguous": 1,
+   "ambiguous_rate": 1.0,
+   "n_confirmed": 0
+  },
+  "corticosteroids": {
+   "n_pairs": 1,
+   "n_ambiguous": 0,
+   "ambiguous_rate": 0.0,
+   "n_confirmed": 0
+  },
+  "electrolyte_supplements": {
+   "n_pairs": 2,
+   "n_ambiguous": 0,
+   "ambiguous_rate": 0.0,
+   "n_confirmed": 1
+  },
+  "inotropes": {
+   "n_pairs": 6,
+   "n_ambiguous": 3,
+   "ambiguous_rate": 0.5,
+   "n_confirmed": 0
+  },
+  "insulins": {
+   "n_pairs": 17,
+   "n_ambiguous": 1,
+   "ambiguous_rate": 0.0588,
+   "n_confirmed": 0
+  },
+  "loop_diuretics": {
+   "n_pairs": 61,
+   "n_ambiguous": 10,
+   "ambiguous_rate": 0.1639,
+   "n_confirmed": 3
+  },
+  "nitrates": {
+   "n_pairs": 17,
+   "n_ambiguous": 4,
+   "ambiguous_rate": 0.2353,
+   "n_confirmed": 0
+  },
+  "opioid_analgesics": {
+   "n_pairs": 12,
+   "n_ambiguous": 1,
+   "ambiguous_rate": 0.0833,
+   "n_confirmed": 0
+  },
+  "vasodilators": {
+   "n_pairs": 5,
+   "n_ambiguous": 0,
+   "ambiguous_rate": 0.0,
+   "n_confirmed": 0
+  }
+ },
+ "c112_ambiguous_dropped_strata_gate": {
+  "rules12_ambiguous_dropped": {
+   "registered": {
+    "n": 145,
+    "n_pos": 6
+   },
+   "recomputed": {
+    "n": 145,
+    "n_pos": 6
+   },
+   "agrees": true
+  },
+  "rules34_ambiguous_dropped": {
+   "registered": {
+    "n": 108,
+    "n_pos": 6
+   },
+   "recomputed": {
+    "n": 108,
+    "n_pos": 6
+   },
+   "agrees": true
+  }
+ },
+ "data_agreement": "Category labels and integer counts only. No clinical note text, no free-text justification content, and no patient or admission identifier appears in this artifact; asserted in code before writing."
+}

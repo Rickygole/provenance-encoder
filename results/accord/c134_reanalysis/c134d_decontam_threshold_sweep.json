@@ -1,0 +1,149 @@
+{
+  "what": "threshold sweep and max-over-threshold MCC null for the decontaminated three-seed detector on G_253, the run Table tab:operating reports",
+  "closes": "accord/stats/reviewer_free_computations.py docstring: the threshold-rescue objection was answered for the released subject-overlap run only, 'not on the three-seed run behind the operating table'",
+  "geometry": {
+    "n": 253,
+    "n_positives": 12,
+    "n_negatives": 241,
+    "source": "gold_eval_decontam_predictions.csv (local only)"
+  },
+  "nulls": {
+    "oracle_random_scores": {
+      "B": 4000,
+      "seed": 1,
+      "description": "uniform random scores, permuted labels, max MCC over cutoffs; identical to the null behind the printed p = 0.8195",
+      "median": 0.0968,
+      "p05": 0.0323,
+      "p95": 0.2785
+    },
+    "label_permutation_holding_real_scores": {
+      "B": 10000,
+      "seed": 134
+    }
+  },
+  "comparability_check_against_released_run": {
+    "released_run_printed_mcc": 0.0554,
+    "released_run_printed_p": 0.8195,
+    "released_run_p_recomputed_against_this_null": 0.8195,
+    "oracle_null_median_recomputed": 0.0968,
+    "oracle_null_median_printed": 0.0968,
+    "p_reproduces": true,
+    "null_median_reproduces": true
+  },
+  "per_configuration": {
+    "seed0": {
+      "threshold_optimal": {
+        "mcc": 0.1159,
+        "mcc_full_precision": 0.11591850544961854,
+        "threshold": 0.985597,
+        "tp": 8,
+        "tn": 145,
+        "fp": 96,
+        "fn": 4
+      },
+      "at_configured_0.5": {
+        "mcc": -0.0991,
+        "tp": 9,
+        "tn": 25,
+        "fp": 216,
+        "fn": 3
+      },
+      "n_distinct_cutoffs_swept": 251,
+      "p_vs_oracle_random_score_null": 0.3782,
+      "p_vs_label_permutation_null": 0.3784,
+      "label_permutation_null": {
+        "median": 0.09669906964157363,
+        "p05": 0.03168409184138223,
+        "p95": 0.28230438748940334
+      }
+    },
+    "seed1": {
+      "threshold_optimal": {
+        "mcc": 0.0939,
+        "mcc_full_precision": 0.09385269241543352,
+        "threshold": 0.984609,
+        "tp": 4,
+        "tn": 201,
+        "fp": 40,
+        "fn": 8
+      },
+      "at_configured_0.5": {
+        "mcc": -0.024,
+        "tp": 10,
+        "tn": 31,
+        "fp": 210,
+        "fn": 2
+      },
+      "n_distinct_cutoffs_swept": 251,
+      "p_vs_oracle_random_score_null": 0.5245,
+      "p_vs_label_permutation_null": 0.5168,
+      "label_permutation_null": {
+        "median": 0.09669906964157363,
+        "p05": 0.03168409184138223,
+        "p95": 0.28230438748940334
+      }
+    },
+    "seed2": {
+      "threshold_optimal": {
+        "mcc": 0.0688,
+        "mcc_full_precision": 0.06879668167043727,
+        "threshold": 0.988916,
+        "tp": 3,
+        "tn": 208,
+        "fp": 33,
+        "fn": 9
+      },
+      "at_configured_0.5": {
+        "mcc": -0.0655,
+        "tp": 9,
+        "tn": 34,
+        "fp": 207,
+        "fn": 3
+      },
+      "n_distinct_cutoffs_swept": 251,
+      "p_vs_oracle_random_score_null": 0.7198,
+      "p_vs_label_permutation_null": 0.7235,
+      "label_permutation_null": {
+        "median": 0.09715833205383566,
+        "p05": 0.03168409184138223,
+        "p95": 0.27851185824791064
+      }
+    },
+    "ensemble_mean_of_three_seeds": {
+      "threshold_optimal": {
+        "mcc": 0.0829,
+        "mcc_full_precision": 0.08292032534446415,
+        "threshold": 0.98845,
+        "tp": 3,
+        "tn": 212,
+        "fp": 29,
+        "fn": 9
+      },
+      "at_configured_0.5": {
+        "mcc": -0.0722,
+        "tp": 9,
+        "tn": 32,
+        "fp": 209,
+        "fn": 3
+      },
+      "n_distinct_cutoffs_swept": 251,
+      "p_vs_oracle_random_score_null": 0.6125,
+      "p_vs_label_permutation_null": 0.6111,
+      "label_permutation_null": {
+        "median": 0.09679620649132116,
+        "p05": 0.03168409184138223,
+        "p95": 0.28230438748940334
+      }
+    }
+  },
+  "headline": {
+    "best_mcc_attainable_at_any_cutoff_ensemble": 0.0829,
+    "mcc_at_configured_threshold_ensemble": -0.0722,
+    "p_comparable_to_printed_0_8195": 0.6125,
+    "released_run_for_reference": {
+      "mcc": 0.0554,
+      "p": 0.8195
+    }
+  },
+  "runtime_seconds": 2.1
+}

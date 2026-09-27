@@ -1,0 +1,347 @@
+{
+ "analysis": "Analysis 1: characterisation of the 12 pharmacist-confirmed contradictions",
+ "generated_by": "accord/clinical_core/characterise_confirmed_contradictions.py",
+ "inputs": {
+  "canonical_gold_labels": "$MIMIC_LOCAL_ONLY_DIR/derived/gold_standard_accord_results.csv",
+  "pharmacist_returned_sheet": "$MIMIC_LOCAL_ONLY_DIR/from_drive_2026-08-08/outputs/pharmacist_labeled_clean.csv",
+  "candidates_table": "$MIMIC_LOCAL_ONLY_DIR/from_drive_2026-08-08/outputs/annotation_sample_300.csv",
+  "weak_label_audit": "$MIMIC_LOCAL_ONLY_DIR/accord_supp/accord_decontamination_audit.csv",
+  "class_dictionary": "accord/phase3_mining.py DRUG_CLASSES plus clinical_core_data.CLASS_SUPPLEMENT"
+ },
+ "rule_definitions": {
+  "1": "Direct Action Conflict: same drug, opposite actions across notes",
+  "2": "Drug Class Conflict: class-level instruction conflicts with agent-level instruction",
+  "3": "Dosage Conflict: same drug, dose differs by more than 20 percent",
+  "4": "Omission Conflict: drug held in nursing note, absent from discharge summary"
+ },
+ "rule_short_names": {
+  "1": "direct action conflict",
+  "2": "drug class conflict",
+  "3": "dosage conflict",
+  "4": "discharge-side absence"
+ },
+ "n_gold_pairs": 299,
+ "gold_label_distribution": {
+  "not_contradiction": 241,
+  "ambiguous": 46,
+  "contradiction": 12
+ },
+ "confirmed_contradictions": [
+  {
+   "pair_id": "PAIR_0003",
+   "rule": 2,
+   "rule_short": "drug class conflict",
+   "drug_normalised": "furosemide",
+   "drug_normalised_discharge_side": "furosemide",
+   "pharmacologic_class": "loop_diuretics",
+   "pharmacologic_class_discharge_side": "loop_diuretics",
+   "drug_class_recorded_by_rule2": "loop_diuretics",
+   "nursing_action": "cessation",
+   "discharge_action": "initiation",
+   "conflict_type_coarse": "class substitution",
+   "conflict_type": "class substitution (class-level instruction versus same agent)",
+   "danger_rating": 1,
+   "pharmacist_confidence": "high",
+   "dose_diff_pct": null
+  },
+  {
+   "pair_id": "PAIR_0010",
+   "rule": 3,
+   "rule_short": "dosage conflict",
+   "drug_normalised": "heparin",
+   "drug_normalised_discharge_side": "heparin",
+   "pharmacologic_class": "anticoagulants",
+   "pharmacologic_class_discharge_side": "anticoagulants",
+   "drug_class_recorded_by_rule2": null,
+   "nursing_action": "initiation",
+   "discharge_action": "initiation",
+   "conflict_type_coarse": "dose change",
+   "conflict_type": "dose change",
+   "danger_rating": 2,
+   "pharmacist_confidence": "medium",
+   "dose_diff_pct": 6400.0
+  },
+  {
+   "pair_id": "PAIR_0065",
+   "rule": 3,
+   "rule_short": "dosage conflict",
+   "drug_normalised": "furosemide",
+   "drug_normalised_discharge_side": "furosemide",
+   "pharmacologic_class": "loop_diuretics",
+   "pharmacologic_class_discharge_side": "loop_diuretics",
+   "drug_class_recorded_by_rule2": null,
+   "nursing_action": "initiation",
+   "discharge_action": "continuation",
+   "conflict_type_coarse": "dose change",
+   "conflict_type": "dose change",
+   "danger_rating": 1,
+   "pharmacist_confidence": "medium",
+   "dose_diff_pct": 100.0
+  },
+  {
+   "pair_id": "PAIR_0067",
+   "rule": 1,
+   "rule_short": "direct action conflict",
+   "drug_normalised": "warfarin",
+   "drug_normalised_discharge_side": "warfarin",
+   "pharmacologic_class": "anticoagulants",
+   "pharmacologic_class_discharge_side": "anticoagulants",
+   "drug_class_recorded_by_rule2": null,
+   "nursing_action": "continuation",
+   "discharge_action": "continuation",
+   "conflict_type_coarse": "held versus continued",
+   "conflict_type": "held versus continued",
+   "danger_rating": 5,
+   "pharmacist_confidence": "high",
+   "dose_diff_pct": null
+  },
+  {
+   "pair_id": "PAIR_0094",
+   "rule": 3,
+   "rule_short": "dosage conflict",
+   "drug_normalised": "carvedilol",
+   "drug_normalised_discharge_side": "carvedilol",
+   "pharmacologic_class": "beta_blockers",
+   "pharmacologic_class_discharge_side": "beta_blockers",
+   "drug_class_recorded_by_rule2": null,
+   "nursing_action": "initiation",
+   "discharge_action": "continuation",
+   "conflict_type_coarse": "dose change",
+   "conflict_type": "dose change",
+   "danger_rating": 3,
+   "pharmacist_confidence": "medium",
+   "dose_diff_pct": 400.0
+  },
+  {
+   "pair_id": "PAIR_0131",
+   "rule": 2,
+   "rule_short": "drug class conflict",
+   "drug_normalised": "metoprolol",
+   "drug_normalised_discharge_side": "atenolol",
+   "pharmacologic_class": "beta_blockers",
+   "pharmacologic_class_discharge_side": "beta_blockers",
+   "drug_class_recorded_by_rule2": "beta_blockers",
+   "nursing_action": "cessation",
+   "discharge_action": "continuation",
+   "conflict_type_coarse": "class substitution",
+   "conflict_type": "class substitution (agent swapped within class)",
+   "danger_rating": 3,
+   "pharmacist_confidence": "high",
+   "dose_diff_pct": null
+  },
+  {
+   "pair_id": "PAIR_0134",
+   "rule": 1,
+   "rule_short": "direct action conflict",
+   "drug_normalised": "furosemide",
+   "drug_normalised_discharge_side": "furosemide",
+   "pharmacologic_class": "loop_diuretics",
+   "pharmacologic_class_discharge_side": "loop_diuretics",
+   "drug_class_recorded_by_rule2": null,
+   "nursing_action": "continuation",
+   "discharge_action": "cessation",
+   "conflict_type_coarse": "held versus continued",
+   "conflict_type": "held versus continued",
+   "danger_rating": 2,
+   "pharmacist_confidence": "high",
+   "dose_diff_pct": null
+  },
+  {
+   "pair_id": "PAIR_0190",
+   "rule": 1,
+   "rule_short": "direct action conflict",
+   "drug_normalised": "aspirin",
+   "drug_normalised_discharge_side": "aspirin",
+   "pharmacologic_class": "antiplatelets",
+   "pharmacologic_class_discharge_side": "antiplatelets",
+   "drug_class_recorded_by_rule2": null,
+   "nursing_action": "continuation",
+   "discharge_action": "cessation",
+   "conflict_type_coarse": "held versus continued",
+   "conflict_type": "held versus continued",
+   "danger_rating": 2,
+   "pharmacist_confidence": "medium",
+   "dose_diff_pct": null
+  },
+  {
+   "pair_id": "PAIR_0218",
+   "rule": 4,
+   "rule_short": "discharge-side absence",
+   "drug_normalised": "heparin",
+   "drug_normalised_discharge_side": "heparin",
+   "pharmacologic_class": "anticoagulants",
+   "pharmacologic_class_discharge_side": "anticoagulants",
+   "drug_class_recorded_by_rule2": null,
+   "nursing_action": "cessation",
+   "discharge_action": "absent",
+   "conflict_type_coarse": "omission",
+   "conflict_type": "omission",
+   "danger_rating": 5,
+   "pharmacist_confidence": "low",
+   "dose_diff_pct": null
+  },
+  {
+   "pair_id": "PAIR_0233",
+   "rule": 4,
+   "rule_short": "discharge-side absence",
+   "drug_normalised": "potassium",
+   "drug_normalised_discharge_side": "potassium",
+   "pharmacologic_class": "electrolyte_supplements",
+   "pharmacologic_class_discharge_side": "electrolyte_supplements",
+   "drug_class_recorded_by_rule2": null,
+   "nursing_action": "cessation",
+   "discharge_action": "absent",
+   "conflict_type_coarse": "omission",
+   "conflict_type": "omission",
+   "danger_rating": 4,
+   "pharmacist_confidence": "high",
+   "dose_diff_pct": null
+  },
+  {
+   "pair_id": "PAIR_0247",
+   "rule": 3,
+   "rule_short": "dosage conflict",
+   "drug_normalised": "warfarin",
+   "drug_normalised_discharge_side": "warfarin",
+   "pharmacologic_class": "anticoagulants",
+   "pharmacologic_class_discharge_side": "anticoagulants",
+   "drug_class_recorded_by_rule2": null,
+   "nursing_action": "initiation",
+   "discharge_action": "continuation",
+   "conflict_type_coarse": "dose change",
+   "conflict_type": "dose change",
+   "danger_rating": 2,
+   "pharmacist_confidence": "medium",
+   "dose_diff_pct": 212.5
+  },
+  {
+   "pair_id": "PAIR_0268",
+   "rule": 2,
+   "rule_short": "drug class conflict",
+   "drug_normalised": "heparin",
+   "drug_normalised_discharge_side": "heparin",
+   "pharmacologic_class": "anticoagulants",
+   "pharmacologic_class_discharge_side": "anticoagulants",
+   "drug_class_recorded_by_rule2": "anticoagulants",
+   "nursing_action": "initiation",
+   "discharge_action": "continuation",
+   "conflict_type_coarse": "class substitution",
+   "conflict_type": "class substitution (class-level instruction versus same agent)",
+   "danger_rating": 5,
+   "pharmacist_confidence": "high",
+   "dose_diff_pct": null
+  }
+ ],
+ "per_rule_positives": {
+  "1": 3,
+  "2": 3,
+  "3": 4,
+  "4": 2
+ },
+ "danger_distribution": {
+  "1": 2,
+  "2": 4,
+  "3": 2,
+  "4": 1,
+  "5": 3
+ },
+ "danger_summary": {
+  "n_rated": 12,
+  "n_unrated": 0,
+  "min": 1,
+  "max": 5,
+  "mean": 2.9167,
+  "median": 2.5,
+  "n_at_or_above_4": 4
+ },
+ "pharmacologic_class_distribution": {
+  "anticoagulants": 5,
+  "antiplatelets": 1,
+  "beta_blockers": 2,
+  "electrolyte_supplements": 1,
+  "loop_diuretics": 3
+ },
+ "conflict_type_distribution_coarse": {
+  "class substitution": 3,
+  "dose change": 4,
+  "held versus continued": 3,
+  "omission": 2
+ },
+ "conflict_type_distribution": {
+  "class substitution (agent swapped within class)": 1,
+  "class substitution (class-level instruction versus same agent)": 2,
+  "dose change": 4,
+  "held versus continued": 3,
+  "omission": 2
+ },
+ "exemplar_action_caveat": {
+  "what": "The nursing_action and discharge_action recorded in the candidates table are the actions of the single exemplar mention each side contributed, chosen by pick_exemplar in accord/phase3_mining.py. Rule 1 fires on the SET of actions for a drug within a note, so an exemplar pair can fail to display the opposite-action pair that made the row fire.",
+  "n_rule1_gold_pairs": 134,
+  "n_rule1_gold_pairs_whose_exemplar_actions_are_an_opposite_pair": 80,
+  "n_rule1_confirmed": 3,
+  "n_rule1_confirmed_whose_exemplar_actions_are_an_opposite_pair": 2,
+  "consequence": "A reader who reads the recorded action pair as the conflict itself will find Rule 1 rows whose two actions are identical. That is an artefact of exemplar selection, not a mislabelled pair."
+ },
+ "dose_conflict_caveat": {
+  "what": "dose_diff_pct is computed from parsed numeric doses whose canonical units must match (accord/dictionaries.py parse_dose). Anticoagulant rows can pair a bolus figure against a maintenance figure, producing percent differences far above 100 that are a unit and role mismatch rather than a dose error of that size.",
+  "dose_diff_pct_of_confirmed_rule3": [
+   100.0,
+   212.5,
+   400.0,
+   6400.0
+  ],
+  "n_confirmed_rule3_above_100_pct": 3
+ },
+ "thesis_crosscheck": {
+  "n_confirmed": {
+   "thesis": 12,
+   "recomputed": 12,
+   "agrees": true
+  },
+  "per_rule_positives": {
+   "thesis": {
+    "1": 3,
+    "2": 3,
+    "3": 4,
+    "4": 2
+   },
+   "recomputed": {
+    "1": 3,
+    "2": 3,
+    "3": 4,
+    "4": 2
+   },
+   "agrees": true
+  },
+  "stratum_rules_1_2": {
+   "thesis": 6,
+   "recomputed": 6,
+   "agrees": true
+  },
+  "stratum_rules_3_4": {
+   "thesis": 6,
+   "recomputed": 6,
+   "agrees": true
+  },
+  "n_danger_5": {
+   "thesis": 3,
+   "recomputed": 3,
+   "agrees": true
+  },
+  "n_danger_4": {
+   "thesis": 1,
+   "recomputed": 1,
+   "agrees": true
+  }
+ },
+ "thesis_crosscheck_all_agree": true,
+ "publishability_confirmation": {
+  "drug_names": "Every normalised drug name written here was asserted to be a member of accord/dictionaries.py ALL_DRUGS, the extraction dictionary, before the artifact was written. A name that appeared in a note but not in the dictionary would fail that assertion and nothing would be written.",
+  "n_distinct_drug_names_in_gold_set": 35,
+  "drug_classes": "Class names come from accord/phase3_mining.py DRUG_CLASSES and from clinical_core_data.CLASS_SUPPLEMENT, both fixed maps of pharmacologic class terms. No class name is derived from a note.",
+  "action_labels": "Action labels are the keys of accord/dictionaries.py ACTION_PATTERNS plus the literal 'absent' that Rule 4 assigns to a missing discharge side; asserted before writing.",
+  "danger_and_confidence": "The pharmacist's ordinal danger rating and confidence band, which are annotation metadata, not note content.",
+  "keys": "pair_id is the synthetic PAIR_nnnn key from the annotation sheet."
+ },
+ "data_agreement": "Aggregates and dictionary terms only. No clinical note text and no patient or admission identifier appears in this artifact; asserted in code before writing."
+}
