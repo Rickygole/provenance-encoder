@@ -147,6 +147,8 @@ def main():
                     # confirmation and nothing else moves, so gap = -(n_planted / pool_n).
                     "analytic_gap": -n_plant / len(cands),
                     "analytic_gap_residual": (mp - tp_rate) - (-n_plant / len(cands)),
+                    # would a study reporting only measured precision cover the truth?
+                    "measured_wilson_covers_true_precision": bool(mw[0] <= tp_rate <= mw[1]),
                     "assertion_flagged_on_true_positives": len(flagged),
                     "assertion_flagged_equals_planted_set": bool(ok),
                     "assertion_flagged_on_false_positives": int(fp_flagged),
