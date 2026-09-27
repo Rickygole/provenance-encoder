@@ -26,7 +26,8 @@ def main():
     a = json.load(open(ART))
     L = []
     w = L.append
-    ns = [r["flag_count"] for r in a["labellers"]]
+    ns = [r["flag_count"] for r in a["labellers"] if r["family"] == "synthetic"]
+    ns_real = [r["flag_count"] for r in a["labellers"] if r["family"] == "real_ollama"]
     hp = a["headroom_precondition"]
     gt = a["gate"]
     syn = a["synthetic_minilm"]
@@ -36,7 +37,7 @@ def main():
     real = a.get("real_minilm", {})
     pooled = a.get("pooled_minilm")
 
-    w(f"Run on 2026-09-26, seed {a['seed']}, data {a['data_source']}. Frames: pilot "
+    w(f"Run on 2026-09-26 and 2026-09-27, seed {a['seed']}, data {a['data_source']}. Frames: pilot "
       f"{a['frames']['pilot'][0]} with {a['frames']['pilot'][1]} positives, pool "
       f"{a['frames']['pool'][0]} with {a['frames']['pool'][1]}, test {a['frames']['test'][0]} with "
       f"{a['frames']['test'][1]}, pool and test disjoint: {a['frames']['pool_test_disjoint']}. "
@@ -98,11 +99,13 @@ def main():
       f"above {f(eq['ratio_threshold'])} reproduces the gate's verdict on every labeller "
       f"(`identical_to_gate_verdicts` = {eq['identical_to_gate_verdicts']}, "
       f"{eq['disagreements']} disagreements), giving the same 2x2 {table(eq['screening'])}. No "
-      f"labeller in this run flagged zero items (the observed flag counts run from {min(ns)} to "
-      f"{max(ns)}), so the gate's zero point never separates it from the single threshold; had a "
-      "labeller flagged nothing, the gate would be a two sided rule on the same one statistic "
-      "rather than a one sided one. Either way the hypergeometric floor buys no information the "
-      "flag count does not already carry.\n")
+      f"synthetic labeller flagged zero items (their flag counts run from {min(ns)} to {max(ns)}), "
+      "so in the primary arm the gate's zero point never separates it from that single threshold. "
+      + (f"The real arm does contain zero flag labellers ({sum(1 for n in ns_real if n == 0)} of "
+         f"{len(ns_real)} models flagged none of the 300 pilot items), so there the gate is a two "
+         "sided rule on the flag count, low or high, rather than a one sided one. " if ns_real and
+         min(ns_real) == 0 else "")
+      + "Either way the hypergeometric floor buys no information beyond the flag count itself.\n")
     w(f"**And a better threshold on the same raw ratio strictly dominates the gate.** Sweeping every "
       f"threshold, the best Youden J is {f(best['youden_j'])} at ratio "
       f"{f(best['ratio_threshold'])}, that is a flag count of about "

@@ -152,3 +152,54 @@ read or written. Every number in the report comes from `c136_run.py` into
 
 ## Outcome (appended after the run; the text above is unchanged)
 
+Run on 2026-09-26 and 2026-09-27, seed 42, data SNLI (stanfordnlp/snli), binary contradiction vs not. Frames: pilot 300 with 12 positives, pool 5000 with 200, test 10000 with 400, pool and test disjoint: True. Artifact `results/accord/c136_gate_validation/c136.json`. Every number below is read from that artifact by `c136_outcome.py`; none is typed.
+
+**Headroom precondition, checked before the grid was read: PASSED.** The primary `minilm` student's clean-label reference AUROC is 0.8167, above the pre-registered floor of 0.75. The secondary `tfidf` student's reference is 0.6037, which is why C135 was uninformative; it is reported below and not read.
+
+## Outcome C, NOT VALIDATED
+
+Primary reading, synthetic arm, `minilm` student, failure at AUROC below 0.60, 24 labellers. 2x2 as gate fail and student failed / gate fail and student useful / gate pass and student failed / gate pass and student useful: **5 / 0 / 12 / 7**. Sensitivity 0.2941, specificity 1.0000, ppv 1.0000, npv 0.3684. Youden J 0.2941. Sensitivity 0.2941 is far below the pre-registered 0.90, so the outcome is C.
+
+Sensitivity analysis, failure at AUROC below 0.70, same arm and student: 2x2 **5 / 0 / 16 / 3**, sensitivity 0.2381, specificity 1.0000, PPV 1.0000, NPV 0.1579, Youden J 0.2381. The conclusion does not move.
+
+Secondary `tfidf` student, failure below 0.60: 2x2 **5 / 0 / 19 / 0**, sensitivity 0.2083, specificity undefined, PPV 1.0000, NPV 0.0000. Every student failed including the clean-label reference, so specificity is undefined; this reproduces C135 and is reported only to show the defect is the student, not the gate.
+
+### The honest limit: a passing gate certifies nothing, quantified
+
+Among the 19 gate PASSING labellers in the primary reading, 12 produced a failing student, a fraction of **0.6316**, which is 1 minus the NPV of 0.3684. At the 0.70 threshold it is 0.8421 (16 of 19). The thesis's own caveat is confirmed numerically: most labellers the gate passes still yield a useless student.
+
+The other direction is the one place the gate holds up. In the primary reading no gate FAILING labeller produced a useful student (0 such cells), so specificity is 1.0000 and PPV is 1.0000. The gate never wrongly condemns a labeller. It just almost never condemns one at all.
+
+### Why: the gate is arithmetically a flag count threshold
+
+With N = 300 and K = 12, evaluating `p_floor` at every flag count from 0 to 300 gives a FAIL region that is exactly the single point 0 together with the upper tail 235 to 300 (`fail_region_is_zero_plus_upper_tail` = True). The gate therefore fails a labeller only if it flags at least 235 of 300 pilot items, a flag rate of 0.7833 or more, or flags nothing at all. It carries no information beyond the flag count.
+
+### The gate against the raw ratio, flag rate over base rate
+
+**The gate adds nothing over the raw ratio.** Predicting failure when the ratio is at or above 19.5833 reproduces the gate's verdict on every labeller (`identical_to_gate_verdicts` = True, 0 disagreements), giving the same 2x2 5 / 0 / 12 / 7. No synthetic labeller flagged zero items (their flag counts run from 5 to 291), so in the primary arm the gate's zero point never separates it from that single threshold. The real arm does contain zero flag labellers (2 of 7 models flagged none of the 300 pilot items), so there the gate is a two sided rule on the flag count, low or high, rather than a one sided one. Either way the hypergeometric floor buys no information beyond the flag count itself.
+
+**And a better threshold on the same raw ratio strictly dominates the gate.** Sweeping every threshold, the best Youden J is 0.6807 at ratio 3.5833, that is a flag count of about 43 of 300, with sensitivity 0.8235 and specificity 0.8571, against the gate's J of 0.2941 (`ratio_beats_gate` = True). That sweep chooses its threshold on the same 24 labellers it is scored on, so it is an in sample upper bound and flatters the ratio; the gate's operating point is fixed a priori and does not get that advantage. The comparison that does not depend on the sweep is the previous paragraph: the gate IS a ratio threshold, and it is a badly placed one.
+
+Rank correlations, deciding nothing: ceiling MCC against student AUROC, Spearman rho 0.5310 (p 0.00759); `p_floor` against student AUROC, rho -0.5197 (p 0.00925). Both are moderate and in the expected direction, which is the strongest thing that can be said for the gate's quantities: they are correlated with student quality, they are not a decision rule for it.
+
+### Real labellers, secondary
+
+7 local Ollama models ran under the plain contradiction prompt:
+
+| model | pilot flags of 300 | true positives flagged of 12 | p_floor | gate | student AUROC minilm | student AUROC tfidf |
+|---|---|---|---|---|---|---|
+| qwen3:0.6b | 272 | 6 | 0.301 | FAIL | 0.2409 | 0.4110 |
+| qwen3:1.7b | 176 | 0 | 0.00142 | PASS | 0.2028 | 0.4598 |
+| qwen3:4b | 0 | 0 | 1 | FAIL | 0.5000 | 0.5000 |
+| llama3:8b | 17 | 2 | 6.97e-18 | PASS | 0.4228 | 0.4668 |
+| granite3.3:8b | 18 | 10 | 2.09e-17 | PASS | 0.7808 | 0.5852 |
+| qwen3:8b | 0 | 0 | 1 | FAIL | 0.4120 | 0.4915 |
+| qwen3:14b | 8 | 5 | 3.34e-13 | PASS | 0.7580 | 0.5949 |
+
+Real arm screening at 0.60: 2x2 3 / 0 / 2 / 2, sensitivity 0.6000, specificity 1.0000, PPV 1.0000, NPV 0.5000.
+
+Pooled synthetic and real at 0.60: 2x2 8 / 0 / 14 / 9, sensitivity 0.3636, specificity 1.0000, PPV 1.0000, NPV 0.3913, fraction of gate passers still failing 0.6087.
+
+### What this means for the thesis
+
+The marginal feasibility gate is **not validated as a screen for student failure**. It is validated as one thing only, and a narrow one: a sufficient condition for hopelessness that fires almost never. Nothing it condemned was salvageable, and it condemned 5 of 24 labellers while 17 of 24 students actually failed. The thesis may claim that the gate, when it fires, is a correct veto, and that it formalises why the observed clinical labelling was hopeless before any student was trained. It may not claim the gate screens labellers, predicts student utility, or is a feasibility criterion: it passes most labellers whose students are useless, and its verdict is a restatement of the pilot flag count with no added information. Any claim beyond the veto reading is contradicted by this run.
