@@ -112,8 +112,34 @@ def _live_figs():
 
 
 THESIS_FIGS = _live_figs()
-FIG_SCRIPTS = ["make_figures.py", "fig_batch2.py",
+# Every generator under accord/thesis/figures/ that calls savefig, with no
+# exception, and the list is checked against that directory below rather than
+# maintained by hand. fig_batch3.py was absent from it for as long as it
+# existed, so pass 10 never executed the generator behind fig-scale-ladder and
+# fig-answer-polarity and a fresh clone could ship a generator that crashes on
+# its first read: the same "gate that cannot fail" shape CLAUDE.md records for
+# build.sh's TODO count. Naming the scripts explicitly rather than globbing is
+# deliberate (order is reproducible, and style.py is not a generator), so the
+# assertion is what keeps the two in step.
+FIG_SCRIPTS = ["make_figures.py", "fig_batch2.py", "fig_batch3.py",
                "fig_threshold_surface.py", "fig_frontier.py", "fig_ceiling.py"]
+
+
+def _fig_script_audit(figdir):
+    """Every savefig generator in the figure directory is listed, and every
+    listed script exists. Returns a list of complaints, empty when they agree.
+    A generator the list forgets is never run by pass 10; a listed script that
+    does not exist fails the pass loudly instead of being skipped."""
+    problems = []
+    for s in FIG_SCRIPTS:
+        if not (figdir / s).exists():
+            problems.append(f"FIG_SCRIPTS names {s}, which does not exist")
+    for src in sorted(figdir.glob("*.py")):
+        if src.name in FIG_SCRIPTS or src.name == "style.py":
+            continue
+        if "savefig(" in src.read_text():
+            problems.append(f"{src.name} writes a figure and is not in FIG_SCRIPTS")
+    return problems
 
 # FORMAT.md records no explicit page limit; this is the ceiling this project's
 # own review process has set and reported (150 pages, currently exact). Named
@@ -516,6 +542,10 @@ def pass10_figures():
     print("PASS 10  figure reproducibility")
     figdir = THESIS / "figures"
     problems = 0
+
+    for complaint in _fig_script_audit(figdir):
+        print("   " + complaint)
+        problems += 1
 
     # No result-file name, register key, or dash may be drawn on a canvas.
     # Tested on the rendered artifact, not the source: pdftotext extracts what

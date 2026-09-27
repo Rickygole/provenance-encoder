@@ -1,6 +1,6 @@
 """Audit pass 10: every numeric literal in every thesis tex file against the register."""
 import json,pathlib,re
-ROOT=pathlib.Path("/Users/rickygole/provenance-encoder")
+ROOT=pathlib.Path(__file__).resolve().parents[2]
 OUT=ROOT/"results/accord/audit_c137"
 F=json.load(open(ROOT/"results/accord/VERIFIED_FACTS.json"))
 vals=set()

@@ -7,7 +7,7 @@ import numpy as np, pandas as pd
 from scipy.stats import hypergeom, fisher_exact, spearmanr, mannwhitneyu
 from sklearn.metrics import roc_auc_score, average_precision_score, cohen_kappa_score, matthews_corrcoef
 
-ROOT = pathlib.Path("/Users/rickygole/provenance-encoder")
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT/"results/accord/audit_c137"; OUT.mkdir(parents=True, exist_ok=True)
 df = pd.read_csv(ROOT/"local_only/derived/gold_standard_accord_results.csv")
 R = {}

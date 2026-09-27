@@ -3,7 +3,7 @@ import json, math, pathlib
 import numpy as np, pandas as pd
 from scipy.stats import mannwhitneyu
 from sklearn.metrics import roc_auc_score, average_precision_score, cohen_kappa_score, matthews_corrcoef
-ROOT=pathlib.Path("/Users/rickygole/provenance-encoder"); OUT=ROOT/"results/accord/audit_c137"
+ROOT=pathlib.Path(__file__).resolve().parents[2]; OUT=ROOT/"results/accord/audit_c137"
 P=ROOT/"local_only/from_drive_2026-09-13/outputs/gold_eval_decontam_predictions.csv"
 df=pd.read_csv(P); y=df.y_true.values
 R={"n":int(len(df)),"n_pos":int(y.sum()),"n_neg":int((y==0).sum())}

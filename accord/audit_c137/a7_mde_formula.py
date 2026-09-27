@@ -12,7 +12,7 @@ Route A is anti-conservative because SE_HM(a) < SE_HM(0.5) for a > 0.5.
 """
 import json,math,pathlib
 from scipy.stats import norm
-ROOT=pathlib.Path("/Users/rickygole/provenance-encoder"); OUT=ROOT/"results/accord/audit_c137"
+ROOT=pathlib.Path(__file__).resolve().parents[2]; OUT=ROOT/"results/accord/audit_c137"
 FACTS=json.load(open(ROOT/"results/accord/VERIFIED_FACTS.json"))
 def V(k):
     v=FACTS.get(k); return None if v is None else (v.get("value") if isinstance(v,dict) else v)

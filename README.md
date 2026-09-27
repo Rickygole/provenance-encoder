@@ -61,23 +61,62 @@ lets long monospace register keys break across a line, and `csquotes`/`biblatex`
 
 ## Rebuild and verify
 
-Every command runs from the repository root.
+Six commands, in this order, run from the repository root. This is the same list the
+publication manifest was computed against (`results/accord/publication_manifest/`): the
+set of files committed here is exactly the set needed for a clone to return the same
+verdict these six return in the author's tree.
 
 ```bash
-bash accord/thesis/build.sh                                      # builds main_msu.pdf (pdflatex, biber, pdflatex x2)
-python3 accord/stats/verify_thesis.py                            # dashes, numeric provenance, citations, style, structure
-python3 accord/stats/verify_thesis_deep.py                       # eleven passes, including template and figure reproducibility
-python3 accord/stats/trace_claims.py                             # every printed number -> register key -> artifact
-python3 accord/stats/withdraw_hosted.py --check                  # no hosted-channel value is live
-python3 accord/stats/sync_appendix_counts.py --check             # the appendix's printed provenance counts match the tools
-python3 accord/thesis/figures/tools/check_figure_invariants.py
-python3 accord/thesis/figures/tools/measure_ink.py
+python3 accord/stats/verify_thesis.py                                   # 1. five gating passes: dashes, numeric provenance, citations, style, structure
+python3 accord/stats/verify_thesis_deep.py                              # 2. eleven passes, including template, figure reproducibility and appendix counts
+python3 accord/stats/make_appendices.py && python3 accord/stats/trace_claims.py   # 3. regenerate the generated appendices and the claim trace
+cd accord/thesis/figures && python3 tools/check_figure_invariants.py     # 4. measure, palette, contrast, collision and provenance invariants
+cd accord/thesis/figures && python3 tools/measure_ink.py                # 5. ink budget per figure
+cd accord/thesis && bash build.sh                                       # 6. builds main_msu.pdf (pdflatex, biber, pdflatex x2)
 ```
 
-`trace_claims.py` exits 1 by design whenever it lists any untraced quantity, and it currently lists some; that is
-not a failure. The closing section of Appendix A ("Reference Tables Released with the Code") discloses how many
-it lists and what they are, and `sync_appendix_counts.py --check` holds that section's counts to the tool's
-output. The trace table itself is released with the code (`results/accord/CLAIM_TRACE.json`), not bound into the PDF.
+Step 3 writes into the tree: `make_appendices.py` rewrites `accord/thesis/msu_appA_full.tex`
+and `accord/thesis/msu_appB_provenance.tex`, and `trace_claims.py` rewrites
+`accord/thesis/msu_appC_trace.tex` and `results/accord/CLAIM_TRACE.json`. Step 2 runs the
+claim trace itself as part of pass 11, so it has the same side effect. Expect a diff after
+either, and build the PDF after them rather than before.
+
+Two further checks are not in the six because they read rather than regenerate:
+
+```bash
+python3 accord/stats/withdraw_hosted.py --check                  # no withdrawn-channel value is live
+python3 accord/stats/sync_appendix_counts.py --check             # the appendix's printed provenance counts match the tools
+```
+
+Drop `--check` from the second to write the refreshed counts into
+`accord/thesis/msu_appB_pointer.tex`. It is the only place those counts come from.
+
+`trace_claims.py` exits 1 by design whenever it lists any untraced quantity, so a non-zero exit from it is a
+disclosure, not a crash; pass 11 treats any status other than 0 or 1 as the failure. Appendix B discloses how many
+it lists and what they are, and `sync_appendix_counts.py --check` holds those counts to the tool's output. The trace
+table itself is released with the code (`results/accord/CLAIM_TRACE.json`), not bound into the PDF.
+
+## Known gate failures
+
+Two, both open, both recorded here rather than worked around.
+
+1. **Pass 11 of `verify_thesis_deep.py` fails: the appendix's provenance counts are stale.** The paragraph in
+   `accord/thesis/msu_appB_pointer.tex` prints the register's size and the claim trace's counts. Chapter edits and
+   register reruns move them, and they are behind. `python3 accord/stats/sync_appendix_counts.py --check` names
+   every stale one; running it without `--check`, after step 3 of the six commands above, writes the current
+   values. The counts are never to be typed by hand. Status: open, one command away, and the command rewrites a
+   bound LaTeX file, so it is left to the author.
+
+2. **The claim trace could not resolve three interval endpoints.** Two sentences, in Chapter 1 and Chapter 4,
+   write a Wilson interval as "95 percent interval $38.8$ to $44.1$". The register holds those endpoints as the
+   fractions 0.387513 and 0.440842, which the trace can only match through its percent-scaled index, and it
+   consulted that index only when a percent marker sat within 24 characters *after* the digits. In that phrasing
+   the marker sits before them, so three of the four endpoint occurrences went untraced. `trace_claims.py` now
+   recognises the interval as a pair and looks for the marker once for the pair, either ahead of the second
+   endpoint or in the "percent interval" phrase before the first; all three then resolve uniquely to the correct
+   register keys and nothing else in the trace changes. Status: the code fix is in; it takes effect on the next
+   run of step 3, which also drops the untraced count to zero and so requires the sentences in
+   `msu_appB_pointer.tex` that describe the three untraced quantities to be removed by hand.
 
 ## A note on rerunning the register's generators
 
@@ -100,13 +139,19 @@ EOF
 ## Regenerate figures
 
 ```bash
-python3 accord/thesis/figures/make_figures.py   # sourced from results/accord/; writes the PDFs and manifest.json
+python3 accord/thesis/figures/make_figures.py          # sourced from results/accord/; writes the PDFs and manifest.json
 python3 accord/thesis/figures/fig_batch2.py
+python3 accord/thesis/figures/fig_batch3.py            # fig-scale-ladder, fig-answer-polarity
 python3 accord/thesis/figures/fig_ceiling.py
+python3 accord/thesis/figures/fig_threshold_surface.py
+python3 accord/thesis/figures/fig_frontier.py
 ```
 
 The generators read only from `results/accord/` (or compute closed-form from numbers read from there), so they
-run from this repository alone. Between them these three build the seven figures the thesis binds. The other
+run from this repository alone. `make_figures.py`, `fig_batch2.py` and `fig_ceiling.py` between them build the
+seven figures the thesis binds; the rest draw
+figures it does not bind, and every one of the six is executed by pass 10 of `verify_thesis_deep.py`, which also
+fails if a generator in that directory is missing from the list it runs. The other
 generators in that directory draw figures the thesis does not bind; `accord/thesis/figures/tools/check_figure_invariants.py`
 reads the bound set from the LaTeX source and names the rest. They write
 into `accord/thesis/figures/`, over the committed PDFs; set `ACCORD_FIG_OUT=/some/dir` to write elsewhere, which

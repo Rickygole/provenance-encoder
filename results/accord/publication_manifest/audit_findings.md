@@ -96,6 +96,44 @@ the local cache layout. **Publishable after a one-field change.** Note that
 appendix, not to the artifact file itself, so this value would reach a reader who
 opens the JSON.
 
+**RESOLVED.** The field now reads
+`[CACHE]/hub/datasets--stanfordnlp--snli/snapshots/cdb5c3d5eed6ead6e5a341c8e56e669bb666725b/plain_text/train-00000-of-00001.parquet`,
+prefix rewritten and the snapshot digest kept. `accord/c135_dissociation_cost/c135_run.py`
+records that symbolic form directly, so a rerun cannot reintroduce the expansion; the
+kill condition that tests whether the parquet really sits under the local cache still
+tests the real path. The claim above that this was the only absolute machine path in the
+closure was true of the closure and not of the tree:
+`results/accord/c134_reanalysis/c134e_ambiguous46_score_audit.json` held 46 more, and
+`accord/audit_c137/*.py` hard-coded the repository root in ten files. Both are fixed on
+the same rule (see finding M1a).
+
+### M1a. Absolute paths outside the closure: the ambiguous-46 search record and the C137 audit scripts
+
+Found while closing M1, by sweeping `results/accord/` and `accord/` rather than the
+closure alone.
+
+`results/accord/c134_reanalysis/c134e_ambiguous46_score_audit.json` held 46 absolute
+paths. That file is the record of an exhaustive search for a per-pair score file that
+does not exist, so the paths are its evidence and none was dropped: only the two
+prefixes were rewritten, the credentialed directory to `[LOCAL]` and this repository to
+a repo-relative path, which is the convention `make_appendices.py` already uses. Every
+directory name and filename below the prefix survives, so the record still names exactly
+where it looked; what stops being published is the account name, which was never part of
+the evidence. Keeping one file exempt from the rule because it holds many paths is the
+"gate that cannot fail" shape in another form, so it was not made exempt. The generator
+applies the same rewrite once over its assembled output, immediately before writing, so a
+rerun reproduces the committed form byte for byte; it is not applied to the dicts the
+search carries internally, because one candidate's path is read back and opened.
+
+`accord/audit_c137/*.py`, ten tracked files, opened with
+`ROOT = pathlib.Path("/Users/rickygole/provenance-encoder")`. That is a reproducibility
+defect as well as a name leak: none of the ten runs in a clone. All ten now derive the
+root as `pathlib.Path(__file__).resolve().parents[2]`, the form every other script in
+the tree uses, and they run from any working directory. Separately, `a10_coverage.py`
+still raises `ValueError: cannot convert float NaN to integer` on a register value that
+is NaN; that is a pre-existing defect in the script, unrelated to the path change, and
+is left open.
+
 ### M2. Four required artifacts describe where MIMIC data physically lives, including a Google Drive mount
 
 `results/accord/artifact_recovery.json` and `results/accord/reconciliation_c28.json`

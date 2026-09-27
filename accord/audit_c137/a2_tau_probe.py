@@ -1,6 +1,6 @@
 import json, pathlib, numpy as np, pandas as pd
 from scipy.stats import mannwhitneyu
-ROOT=pathlib.Path("/Users/rickygole/provenance-encoder"); OUT=ROOT/"results/accord/audit_c137"
+ROOT=pathlib.Path(__file__).resolve().parents[2]; OUT=ROOT/"results/accord/audit_c137"
 df=pd.read_csv(ROOT/"local_only/derived/gold_standard_accord_results.csv")
 R={}
 R["prob_quantiles"]={str(q): float(np.quantile(df.accord_contra_prob,q)) for q in [0,.05,.25,.5,.75,.95,1]}

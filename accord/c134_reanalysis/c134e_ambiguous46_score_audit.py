@@ -53,6 +53,32 @@ GOLD = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-09-13" / "outputs" / "gold_standa
 DECONTAM_PRED = MIMIC_LOCAL_ONLY_DIR / "from_drive_2026-09-13" / "outputs" / "gold_eval_decontam_predictions.csv"
 DECONTAM_AGG = ROOT / "results" / "accord" / "decontam" / "accord_v2_decontam_gold_aggregate.json"
 
+
+# This audit's whole content is a record of where it looked, so it records more
+# filesystem paths than any other artifact in the tree: 46 of them. They are
+# evidence and none of them is dropped, but an absolute path in a committed file
+# publishes the operator's account name, and the account name is not part of the
+# evidence. Both prefixes are therefore rewritten to the same symbolic forms the
+# rest of the project uses (accord/stats/make_appendices.py normalize_artifact_
+# path): the credentialed directory becomes [LOCAL], a path in this repository
+# becomes repo relative. Every directory name and filename below the prefix
+# survives, so "we searched here and it was not there" still names here exactly.
+#
+# Applied once, over the assembled output, immediately before it is written, and
+# never to the dicts the search itself carries: one candidate's "file" is read
+# back as a real path further down (src = pathlib.Path(qualifying[0]["file"])),
+# and redacting at record time would hand that line a path it cannot open.
+def publish_paths(o):
+    if isinstance(o, dict):
+        return {k: publish_paths(v) for k, v in o.items()}
+    if isinstance(o, list):
+        return [publish_paths(v) for v in o]
+    if isinstance(o, str):
+        o = o.replace(str(MIMIC_LOCAL_ONLY_DIR), "[LOCAL]")
+        o = o.replace(str(ROOT) + "/", "")
+    return o
+
+
 SCORE_COL = re.compile(r"(prob|score|contra|harm|pred|logit|p_)", re.I)
 DECONTAM_MARK = re.compile(r"decontam", re.I)
 B = 10000
@@ -228,7 +254,7 @@ def main():
         "runtime_seconds": round(time.time() - t0, 1),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, indent=2) + "\n")
+    OUT.write_text(json.dumps(publish_paths(out), indent=2) + "\n")
     print("answer:", out["answer"])
     print("closest non-decontam file to the decontaminated scores: max_abs_diff="
           f"{provenance['closest_10'][0]['max_abs_diff']:.4f}, exact match="

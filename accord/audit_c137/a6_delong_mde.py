@@ -3,7 +3,7 @@ import json,math,pathlib
 import numpy as np, pandas as pd
 from scipy.stats import norm
 from sklearn.metrics import roc_auc_score, average_precision_score
-ROOT=pathlib.Path("/Users/rickygole/provenance-encoder"); OUT=ROOT/"results/accord/audit_c137"
+ROOT=pathlib.Path(__file__).resolve().parents[2]; OUT=ROOT/"results/accord/audit_c137"
 R={"mde":{},"delong":{}}
 # ---- Hanley-McNeil MDE, written from the formula, not read from any file
 def se0(np_,nn_):

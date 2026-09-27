@@ -2,7 +2,7 @@
 import json,math,pathlib,glob
 from fractions import Fraction
 from scipy.stats import hypergeom
-ROOT=pathlib.Path("/Users/rickygole/provenance-encoder"); OUT=ROOT/"results/accord/audit_c137"
+ROOT=pathlib.Path(__file__).resolve().parents[2]; OUT=ROOT/"results/accord/audit_c137"
 FACTS=json.load(open(ROOT/"results/accord/VERIFIED_FACTS.json"))
 def val(k):
     v=FACTS[k]; return v.get("value") if isinstance(v,dict) else v

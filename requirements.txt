@@ -1,8 +1,9 @@
-# Verified against the installed environment (Python 3.12) on 2026-09-16 by
+# Verified against the installed environment (Python 3.12.7) on 2026-09-27 by
 # grepping every `import` / `from ... import` in accord/ and
-# accord/thesis/figures/tools/. Minimum versions below are the versions that
-# were actually installed and confirmed working; nothing here is pinned to a
-# version that was not checked.
+# accord/thesis/figures/tools/, then reading the version of each one actually
+# installed. Every pin below is a version confirmed present in that
+# environment; the one package not installed there says so and is not pinned.
+# Nothing here is an aspirational version.
 
 # ---- core: verification gates, statistics, figure generators ----
 # Needed to run accord/stats/verify_thesis.py, verify_thesis_deep.py,
@@ -27,7 +28,16 @@ matplotlib==3.9.2
 Pillow==10.4.0
 # pd.read_parquet (accord/prevalence_replication/build_pools.py and the other
 # public-control scripts that read the committed .parquet files).
-pyarrow==16.1.0
+#
+# 25.0.1, not the 16.1.0 environment.yml records, and this file states what is
+# installed rather than what was intended. Installing the corpus loader used by
+# the C135 and C136 public-data runs (see the line below) upgraded pyarrow in
+# place, and the six reproduction commands in README.md were last run against
+# 25.0.1 and pass on it. environment.yml still pins 16.1.0 because that is the
+# build the committed figure PDFs were rendered under and changing it would
+# misstate their provenance; the two files disagree on purpose, and a reader who
+# wants the exact figure comparison should use environment.yml.
+pyarrow==25.0.1
 # Optional. Pass 10 rasterises with poppler's pdftoppm; PyMuPDF is only the
 # fallback it uses when pdftoppm is not on PATH.
 pymupdf==1.28.2
@@ -38,14 +48,22 @@ pymupdf==1.28.2
 # credentialed access, a GPU, or a locally served model (see README "Reproducing
 # results"); they are listed here because item 2 of this pass asked for every
 # import actually found, not because the gates require them.
-requests>=2.32.3
-statsmodels>=0.14.2
-spacy>=3.8.14
-torch>=2.7.1
-transformers>=5.14.1
-huggingface-hub>=1.26.0
-boto3>=1.42.62
-google-genai>=2.23.0
+requests==2.32.3
+statsmodels==0.14.2
+# The corpus loader one public-data run imports (accord/c136_gate_validation/
+# superseded_first_attempt/run_superseded.py, `from datasets import load_dataset`).
+# Installing it is what moved pyarrow to 25.0.1 and dill to 0.4.1 in this
+# environment; dill is recorded here because it is a transitive dependency whose
+# installed version changed, not because anything in this tree imports it
+# directly. Both are the versions actually present.
+datasets==5.0.1
+dill==0.4.1
+spacy==3.8.14
+torch==2.7.1
+transformers==5.14.1
+huggingface-hub==1.26.0
+boto3==1.42.62
+google-genai==2.23.0
 peft  # version not confirmed in this environment (not installed here); only
       # imported by accord/detector/accord_phase3_v2_ablations.py
 

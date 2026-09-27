@@ -122,13 +122,44 @@ PCT_WINDOW = 24
 PCT_BOUNDARY = re.compile(r"\\\\|&|\.\s")
 PCT_MARKER = re.compile(r"\\%|\bpercent\b")
 
+# An interval is written with its unit once, not once per endpoint, and the
+# unit sits outside the pair: "95 percent interval $38.8$ to $44.1$", or
+# "$38.8$ to $44.1$ percent". Neither endpoint then has a percent marker
+# inside its own forward window, so neither reached the percent-scaled index,
+# and three literals went untraced while the register held them as the
+# fractions 0.387513 and 0.440842 (c129.pooled.positional_outside_trigger_set.
+# either_side.wilson_lo and .wilson_hi). The range is recognised only in the
+# exact shape the chapters write, two math-mode numerals joined by "to" or
+# "and", and the marker is then looked for once for the pair: ahead of the
+# range's last endpoint, or in the "percent interval" phrase immediately
+# before its first. A bare column of counts matches neither and still gets no
+# percent reading, which is the guard PCT_WINDOW was narrowed for.
+PCT_RANGE = re.compile(r"\$[\d.,{}]+\$\s*(?:to|and)\s*\$[\d.,{}]+\$")
+PCT_BEFORE = re.compile(r"(?:\\%|percent)\s+(?:confidence\s+)?(?:interval|CI)"
+                        r"[^.$]{0,20}$", re.I)
 
-def is_percent_context(text, end):
+
+def _marker_ahead(text, end):
     window = text[end:end + PCT_WINDOW]
     boundary = PCT_BOUNDARY.search(window)
     if boundary:
         window = window[:boundary.start()]
     return bool(PCT_MARKER.search(window))
+
+
+def is_percent_context(text, end, start=None):
+    if _marker_ahead(text, end):
+        return True
+    if start is None:
+        return False
+    for m in PCT_RANGE.finditer(text, max(0, start - 40),
+                                min(len(text), end + 40)):
+        if m.start() <= start and end <= m.end():
+            if _marker_ahead(text, m.end()):
+                return True
+            if PCT_BEFORE.search(text[max(0, m.start() - 60):m.start()]):
+                return True
+    return False
 
 
 def sentence_around(text, pos, width=240):
@@ -187,7 +218,7 @@ def main():
             # Candidates found this way are appended, not substituted, so a value
             # that is genuinely stored both ways (rare, but ablation.*.pct_of_
             # segment_index keys are pre-scaled) is not lost either direction.
-            if is_percent_context(text, m.end()):
+            if is_percent_context(text, m.end(), m.start()):
                 pct_keys = idx_pct.get(tok) or idx_pct.get(bare) or []
                 keys = list(dict.fromkeys(keys + [k for k in pct_keys if k not in keys]))
             rec = {"chapter": f.name, "value": tok,

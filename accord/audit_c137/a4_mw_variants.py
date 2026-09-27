@@ -1,7 +1,7 @@
 import json,pathlib,numpy as np,pandas as pd
 from scipy.stats import mannwhitneyu, ranksums, norm
 from sklearn.metrics import average_precision_score, roc_auc_score
-ROOT=pathlib.Path("/Users/rickygole/provenance-encoder"); OUT=ROOT/"results/accord/audit_c137"
+ROOT=pathlib.Path(__file__).resolve().parents[2]; OUT=ROOT/"results/accord/audit_c137"
 df=pd.read_csv(ROOT/"local_only/derived/gold_standard_accord_results.csv")
 sub=df[df.pharm_label!="ambiguous"]; y=(sub.pharm_label=="contradiction").values
 a=sub.accord_contra_prob.values[y]; b=sub.accord_contra_prob.values[~y]

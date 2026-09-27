@@ -69,7 +69,14 @@ def main():
         "seed": P.SEED,
         "data": {
             "source": "stanfordnlp/snli train split, local Hugging Face cache, read only",
-            "parquet": str(P.SNLI),
+            # The cache prefix is recorded symbolically, not expanded. The data
+            # is public SNLI, so what an absolute path here would publish is not
+            # the corpus but the account name of whoever ran it, in a file that
+            # is committed. The snapshot digest below the token is the part that
+            # carries provenance and is kept in full. The kill condition on the
+            # next lines still tests the real path, not this string.
+            "parquet": "[CACHE]/" + str(P.SNLI.relative_to(
+                pathlib.Path.home() / ".cache/huggingface")),
             "n_usable_premise_groups": n_groups,
             "group_filter": "exactly three hypotheses with gold label multiset (0, 1, 2)",
             "provenance_audit_hits": data_provenance_audit(),

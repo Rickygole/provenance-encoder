@@ -1,7 +1,7 @@
 """Audit pass 9: authority-parameter spreads, SD conventions, prose arithmetic, figure data."""
 import json,math,pathlib,glob
 import numpy as np
-ROOT=pathlib.Path("/Users/rickygole/provenance-encoder"); OUT=ROOT/"results/accord/audit_c137"
+ROOT=pathlib.Path(__file__).resolve().parents[2]; OUT=ROOT/"results/accord/audit_c137"
 F=json.load(open(ROOT/"results/accord/VERIFIED_FACTS.json"))
 def V(k):
     v=F.get(k); return None if v is None else (v.get("value") if isinstance(v,dict) else v)
