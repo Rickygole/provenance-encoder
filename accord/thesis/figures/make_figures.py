@@ -230,6 +230,24 @@ def make_fig_pipeline_status():
     ex_hi = fact("exemplardirect.defect_rate")
     ex_mid = fact("exemplar_recomputed.rule_1_2_pooled.wrong_rate")
     assert ex_lo < ex_mid < ex_hi
+    # THE FOURTH INSTRUMENT. This chip used to print the three readings 0,
+    # 0.4745 and 0.9315 and nothing else, which was the honest summary while no
+    # instrument could measure the annotated rows without excluding some of
+    # them. One now can: for Rules 1 and 2 the trigger fires only on an
+    # opposite action pair, so a displayed pair that is not an opposite pair
+    # provably could not have fired it, and that is decidable on every one of
+    # the 165 annotated pairs with nothing excluded. It is a LOWER BOUND, so
+    # the verdict on this stage does not move (the rate is still not pinned by
+    # any instrument) but the chip must carry it, or this figure and
+    # fig:exemplar, which face each other in Chapter 1, print two different
+    # stories about the same stage. Read as two counts from the artifact, as
+    # fig:exemplar reads it; there is no register key yet.
+    lb_pooled = load("clinical_core",
+                     "displayed_exemplar_lower_bound.json")[0][
+                         "rules_1_and_2"]["pooled"]
+    ex_bound = (lb_pooled["n_displayed_pair_is_not_opposite"]
+                / lb_pooled["n_pairs"])
+    assert ex_lo < ex_bound < ex_hi
     n_c120 = fact("c120.g299.n")
     n_flag = fact("c120.g299.n_flagged")
     mcc = fact("c120.g299.mcc")
@@ -266,7 +284,7 @@ def make_fig_pipeline_status():
         (1, "Candidate mining", NOTEST,
          f"precision {base:.2f}\non {n_gold} gold pairs",
          "Is the exemplar in the trigger set?",
-         f"miss rate {ex_lo:.0f}, {ex_mid:.4f}, or {ex_hi:.4f} by instrument"),
+         f"miss rate at least {ex_bound:.4f}, not pinned"),
         (2, "Weak supervision", UNSUP,
          f"{n_flag} of {n_c120} pairs\nflagged",
          "Marginal ceiling, then measured agreement",
@@ -451,10 +469,17 @@ def make_fig_pipeline_status():
         x_leg += sw_w + 4.0 + width_pt(word, fontsize=T_NOTE) + 9.0
         assert x_leg < W * 72 - 4.0, f"legend overflows the canvas at {word!r}"
 
+    # THE FRAMING, changed with the thesis's. This headline read "Three of the
+    # four stage readings did not survive their checks ... the fourth ...
+    # survived as a bounded null", which is the language of an audit of an
+    # earlier draft: it asks the reader to score stages as survivors and
+    # casualties. The thesis is one first study, so the headline says what each
+    # check FOUND instead. Every verdict is unchanged, and so is every number,
+    # every chip encoding and the on-canvas key that names them.
     signature(fig, SCARLET_DEEP,
-              headline="Three of the four stage readings did not survive their checks\n"
-              "(one not established, two unsupported); the fourth, the evaluation\u2019s\n"
-              "near-chance reading, survived as a bounded null.")
+              headline="Four stages, four checks, four findings: one reading no "
+              "instrument establishes,\ntwo readings the checks do not support, "
+              "and one near-chance reading\nbounded under the power floor.")
     fname = "fig-pipeline-status.pdf"
     fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
@@ -468,8 +493,14 @@ def make_fig_pipeline_status():
              "stays in this note and in the tables. Three "
              "chip encodings, distinct in greyscale and named in an on-canvas key: "
              f"stage 1 not established (MIST fill under a heavy dashed GRAPHITE "
-             f"rim, 1.7pt, with no hatch and no edge bar; "
-             f"miss rate {ex_lo:.0f}, {ex_mid:.4f}, or {ex_hi:.4f} by instrument); "
+             f"rim, 1.7pt, with no hatch and no edge bar; miss rate at least "
+             f"{ex_bound:.4f}, the displayed-exemplar lower bound read as "
+             f"{lb_pooled['n_displayed_pair_is_not_opposite']} of "
+             f"{lb_pooled['n_pairs']} from results/accord/clinical_core/"
+             f"displayed_exemplar_lower_bound.json, against readings of "
+             f"{ex_lo:.0f} and {ex_hi:.4f} from the other two instruments; the "
+             f"verdict does not move, because a lower bound does not pin the "
+             f"rate); "
              f"stages 2 and 3 reading unsupported (solid scarlet, the only scarlet "
              f"on the canvas: MCC {mcc:.4f} against a ceiling of {mcc_ceil:.4f}; "
              "the three credited architectural components fail a code audit); "
@@ -683,159 +714,319 @@ def make_fig_funnel():
 
 
 # ============================================================================
-# Figure 4 -- fig:exemplar  (ch4_candidates.tex)
+# Figure 4 -- fig:exemplar  (ch1_introduction.tex)
+#
+# REBUILT when the fourth instrument arrived. The previous canvas was a
+# schematic: five abstract mention slots, a brace, and a one line deck printing
+# three miss rates (0, 0.4745, 0.9315) whose message was that the instruments
+# disagree so the rate is unresolved. Two things make that canvas wrong now.
+#
+# The first is that a fourth instrument exists and it needs neither a
+# reconstruction nor a key join. It asks one decidable question of the
+# annotated rows themselves: for Rules 1 and 2 the trigger fires only on an
+# opposite action pair, so a displayed pair that is not an opposite pair
+# provably could not have fired the trigger. That is 72 of 165 annotated pairs,
+# a measured LOWER BOUND with nothing excluded, and it lands where two other
+# readings already were.
+#
+# The second is that the "unresolved" message was never the honest one. Ranking
+# the instruments by how many of the 165 rows each one throws away turns three
+# numbers that look like noise into a pattern: the readings that exclude little
+# or nothing agree, and the two that wander are the two that exclude the most.
+# So this figure now PLOTS the readings, ordered by exclusion, on one axis,
+# with the intervals the counts support and the excluded count spelled out per
+# row. The schematic's mechanism is one sentence of the caption; it drew no
+# measured quantity and the generator said so itself.
+#
+# WHAT THE FIGURE MUST NOT SAY, and the encoding that keeps it from saying it:
+#   - The 0.9315 reading is not drawn as an equal. Its mark is open, it carries
+#     the largest excluded count of the annotated instruments after the key
+#     join, and the canvas prints the count of its own defect rows that have no
+#     classified action on at least one side.
+#   - Rules 3 and 4 are not on the canvas at all, and a note says why. Their
+#     triggers reference no action label, so a high non-opposite rate is the
+#     rule behaving as designed and carries no defect meaning. The artifact
+#     tags them defect_interpretation "none" and this figure honours that.
+#   - The rebuilt-pool row is separated by a hairline and named as a different
+#     substrate. It shares no rows with the four above it.
 # ============================================================================
+EXEMPLAR_KEYS = [
+    "exemplar_recomputed.rule_1_2_pooled.n",
+    "exemplar_recomputed.rule_1_2_pooled.n_wrong",
+    "exemplar_recomputed.rule_1_2_pooled.n_resolved",
+    "exemplar_recomputed.rule_1_2_pooled.n_unresolved",
+    "exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.n_known",
+    "exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.n_correct",
+    "exemplardirect.n_wrong",
+    "exemplardirect.n_decidable",
+    "exemplardirect.n_undecidable",
+    "exemplardirect.n_wrong_involves_unclassified",
+    "c129.pooled.positional_outside_trigger_set.either_side.count",
+    "c129.pooled.positional_outside_trigger_set.either_side.n",
+]
+
+
 def make_fig_exemplar():
-    exemplar, p_exemplar = load("exemplar", "exemplar_correctness_recomputed.json")
+    # The fourth instrument has no register key yet, so it is read from its own
+    # committed artifact by the same rule every other number here follows: a
+    # count and a denominator, never a rate typed in. The Wilson interval is
+    # recomputed from the two counts and asserted against the one the artifact
+    # stores, so a drifted artifact fails the build rather than the reader.
+    lb, p_lb = load("clinical_core", "displayed_exemplar_lower_bound.json")
+    pooled12 = lb["rules_1_and_2"]["pooled"]
+    assert pooled12["trigger_requires_opposite_action_pair"] is True
+    n_lb = pooled12["n_pairs"]
+    k_lb = pooled12["n_displayed_pair_is_not_opposite"]
+    # Rules 3 and 4 carry no defect interpretation. Asserted, not assumed: if a
+    # future artifact ever claimed one, this figure would have to be rethought
+    # rather than quietly gain two rows.
+    for r in ("3", "4"):
+        assert lb["rules_3_and_4_not_a_defect_measurement"][r][
+            "defect_interpretation"] == "none"
 
-    # Abstract slots. No synthetic clinical sentences: a thesis about
-    # instruments that mislead, built on a MIMIC-III data agreement, does not
-    # put invented clinical text on a canvas where a reader could take it for a
-    # record. One data unit is one typographic point. No plate.
-    W, H = W88, 2.76
-    fig, ax = plt.subplots(figsize=(W, H))
-    canvas(fig)
-    fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
-    ax.set_xlim(0, W * 72)
-    ax.set_ylim(0, H * 72)
-    ax.axis("off")
+    n_pairs = fact("exemplar_recomputed.rule_1_2_pooled.n")
+    assert n_lb == n_pairs
 
-    x_brace, box_w = 72.0, 84.0
-    x_nurse = x_brace + 9.0 + box_w / 2
-    x_disch = x_nurse + box_w + 7.0
-    x_note = x_disch + box_w / 2 + 15.0
-    box_h, pitch = 22.0, 28.5
-    y_row0 = 133.0
-    rows_y = [y_row0 - i * pitch for i in range(5)]
-    x_right = W * 72
+    # Instrument 1, the displayed-exemplar lower bound: nothing excluded.
+    # Instrument 2, the reconstruction: 28 of 165 unresolved.
+    # Instrument 3, the direct extractor: 19 of 165 undecidable.
+    # Instrument 4, the key join: resolves 23 of 165 and reports no defect.
+    k_rec = fact("exemplar_recomputed.rule_1_2_pooled.n_wrong")
+    n_rec = fact("exemplar_recomputed.rule_1_2_pooled.n_resolved")
+    x_rec = fact("exemplar_recomputed.rule_1_2_pooled.n_unresolved")
+    assert n_rec + x_rec == n_pairs
+    k_dir = fact("exemplardirect.n_wrong")
+    n_dir = fact("exemplardirect.n_decidable")
+    x_dir = fact("exemplardirect.n_undecidable")
+    assert n_dir + x_dir == n_pairs
+    k_unc = fact("exemplardirect.n_wrong_involves_unclassified")
+    n_join = fact("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.n_known")
+    k_join = n_join - fact(
+        "exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.n_correct")
+    assert k_join == 0
+    k_des = fact("c129.pooled.positional_outside_trigger_set.either_side.count")
+    n_des = fact("c129.pooled.positional_outside_trigger_set.either_side.n")
 
-    # Row 5 is where the rule fired: a wash ground across the whole row.
-    ax.add_patch(mpatches.Rectangle(
-        (0, rows_y[4] - box_h / 2 - 4.5), x_right, box_h + 9.0,
-        facecolor=SCARLET_WASH, edgecolor="none", linewidth=0, zorder=0))
-
-    # A vertical brace left of M1 to M5: the rule quantifies over the whole set,
-    # which is the fact the positional selector ignores.
-    y_top, y_bot = rows_y[0] + box_h / 2, rows_y[4] - box_h / 2
-    y_mid = (y_top + y_bot) / 2
-    bx = x_brace
-    ax.plot([bx + 4.0, bx, bx, bx - 4.0, bx, bx, bx + 4.0],
-            [y_top, y_top - 4.0, y_mid + 4.0, y_mid, y_mid - 4.0, y_bot + 4.0,
-             y_bot], color=INK, lw=1.2, solid_joinstyle="round", zorder=4)
-    ax.text(bx - 8.0, y_mid, "the rule\nquantifies\nover the\nwhole set",
-            ha="right", va="center", fontsize=T_SERIES, color=INK,
-            linespacing=1.2, zorder=5)
-
-    for x, head in ((x_nurse, "Nursing note"), (x_disch, "Discharge summary")):
-        ax.text(x, y_top + 10.0, head, ha="center", va="bottom", fontsize=10.0,
-                color=INK, zorder=5)
-
-    # AUDIT ITEM 13. Five slots and a four-continuation/one-cessation split are
-    # schematic scene-setting, not a measurement: no register key names "five
-    # mentions" or "four of five continuation", and none should be invented to
-    # give this canvas one. Checked at this round: nothing else on the canvas
-    # is a bare digit either (the deck's miss rates are the only numbers here,
-    # and they are the ones fact() actually reads above).
-    nurse_tags = ["M1", "M2", "M3", "M4", "M5"]
-    disch_tags = ["continuation"] * 4 + ["cessation"]
-    for i, y in enumerate(rows_y):
-        # COLOUR ROUND. The two note columns take two grounds, one per note
-        # type (style.NURSING_GROUND, style.DISCHARGE_GROUND; both columns
-        # were MIST). Still not cobalt: cobalt means extraction elsewhere.
-        # They are grounds only, so the stroke stays neutral SLATE and no
-        # ramp's DEEP or CORE is drawn.
-        # VISUAL AUDIT. The discharge ground was TANGERINE_TINT, an orange a
-        # reader took for the detector ensemble's AMBER (the forest draws the
-        # ensemble in that hue). It is now the structure family's neutral
-        # blue-grey at TINT depth (style.DISCHARGE_GROUND, PLATE_EDGE), which
-        # names no entity anywhere in the set. The two grounds are 0.201
-        # apart in relative luminance, so the columns are two greys in print.
-        # INK on them is 14.4 and 11.0 to 1. SCARLET keeps its one job.
-        node(ax, x_nurse - box_w / 2, y - box_h / 2, box_w, box_h,
-             NURSING_GROUND, SLATE, radius=2.5, zorder=3, lw=1.0)
-        ax.text(x_nurse, y, nurse_tags[i], ha="center", va="center",
-                fontsize=T_SERIES, color=INK, zorder=5)
-        if i < 4:
-            node(ax, x_disch - box_w / 2, y - box_h / 2, box_w, box_h,
-                 DISCHARGE_GROUND, SLATE, radius=2.5, zorder=3, lw=1.0)
-            ax.text(x_disch, y, disch_tags[i], ha="center", va="center",
-                    fontsize=T_SERIES, color=INK, fontweight="bold", zorder=5)
-        else:
-            chip(ax, x_disch - box_w / 2, y - box_h / 2, box_w, box_h,
-                 SCARLET, disch_tags[i], fontsize=T_SERIES, radius=2.5,
-                 zorder=3)
-
-    # Row 1 is the exemplar everyone was shown: outlined as a row.
-    pad = 3.0
-    ax.add_patch(mpatches.Rectangle(
-        (x_nurse - box_w / 2 - pad, rows_y[0] - box_h / 2 - pad),
-        (x_disch + box_w / 2) - (x_nurse - box_w / 2) + 2 * pad, box_h + 2 * pad,
-        facecolor="none", edgecolor=INK, linewidth=2.0, zorder=6))
-
-    notes = [
-        (0, "shown", "selected by position; what\nthe annotator, the weak\n"
-                     "labeller, and the model saw", MUTE),
-        (4, "fired", "the mention the rule\nmatched, dose adjacent", MUTE),
+    # (id, label, k, n, n_excluded, credible, note)
+    # credible False means the mark is drawn open: this row's own analysis
+    # limits what it can support, and the reason is printed beside it. Rows are
+    # sorted below by how many of the 165 pairs each instrument throws away,
+    # which is the one ordering on this canvas that is not a judgement. It is
+    # NOT claimed to be monotone in the reading: the direct extractor excludes
+    # fewer rows than the reconstruction and lands twice as high, and that is
+    # the point of printing the reason beside it rather than ranking on it.
+    rows = [
+        ("lb", "Displayed exemplar could not\nhave fired the trigger",
+         k_lb, n_lb, 0, True, "a measured lower bound on these rows"),
+        ("rec", "Reconstruction of the\nfiring mention",
+         k_rec, n_rec, x_rec, True, None),
+        ("dir", "Direct extractor", k_dir, n_dir, x_dir, False,
+         f"{k_unc} of its {k_dir} defect rows have no\nclassified action on at "
+         f"least one side"),
+        ("join", "Key join to the rebuilt\ncandidates table", k_join, n_join,
+         n_pairs - n_join, False,
+         f"resolves {n_join} of {n_pairs} rows and finds\nno defect in any of "
+         f"them"),
     ]
-    for i, tag, text, tone in notes:
-        y = rows_y[i]
-        x0 = x_disch + box_w / 2 + (pad + 2.0 if i == 0 else 3.0)
-        ax.plot([x0, x_note - 4.0], [y, y], color=SLATE, lw=1.0,
-                solid_capstyle="butt", zorder=4)
-        ax.text(x_note, y, tag, ha="left", va="center", fontsize=T_SERIES,
-                color=INK, fontweight="bold", zorder=5)
-        # Row 1's note sits under its tag; row 5's sits above its tag, on
-        # paper beside row 4, so it stays inside the canvas and off the wash.
-        if i == 0:
-            ax.text(x_note, y - 7.0, text, ha="left", va="top",
-                    fontsize=T_NOTE, color=tone, linespacing=1.2, zorder=5)
-        else:
-            ax.text(x_note, y + 18.0, text, ha="left", va="bottom",
-                    fontsize=T_NOTE, color=tone, linespacing=1.2, zorder=5)
-            # FIGURE POLISH. That position is level with row 4, and with no
-            # leader the note read as describing M4. An elbow in the leader's
-            # own tone and weight now runs from the note down onto the "fired"
-            # leader, so the note and the tag reach row 5 by one line.
-            x_elb = (x0 + x_note - 4.0) / 2
-            y_txt = y + 18.0 + T_NOTE * 1.2
-            ax.plot([x_note - 4.0, x_elb, x_elb], [y_txt, y_txt, y],
-                    color=SLATE, lw=1.0, solid_capstyle="butt",
-                    solid_joinstyle="miter", zorder=4)
-        assert x_note + 104.0 < x_right, "note leaves the canvas"
+    rows.sort(key=lambda r: r[4])
+    design = ("des", "Positional selector on the\nrebuilt candidate pool",
+              k_des, n_des)
 
-    ex_lo = 1.0 - fact("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate")
-    ex_mid = fact("exemplar_recomputed.rule_1_2_pooled.wrong_rate")
-    ex_hi = fact("exemplardirect.defect_rate")
-    signature(fig, SCARLET_DEEP,
-              "The rule fires on a set; the exemplar is picked by position.",
-              deck=(f"One schematic candidate; miss rate {ex_lo:.0f}, "
-                    f"{ex_mid:.4f}, or {ex_hi:.4f} by instrument."))
+    ci = {r[0]: wilson_ci(r[2], r[3]) for r in rows}
+    ci_des = wilson_ci(k_des, n_des)
+    # The stored intervals are the check on the recomputation, not the source.
+    assert abs(ci["lb"][0] - pooled12["wilson_ci95"][0]) < 5e-4
+    assert abs(ci["lb"][1] - pooled12["wilson_ci95"][1]) < 5e-4
+    assert abs(ci_des[0] - fact(
+        "c129.pooled.positional_outside_trigger_set.either_side.wilson_lo")) < 5e-4
+    assert abs(ci_des[1] - fact(
+        "c129.pooled.positional_outside_trigger_set.either_side.wilson_hi")) < 5e-4
+
+    # THE CLUSTER, computed and not asserted by eye: the two annotated-pair
+    # readings that resolve every row or nearly every row, plus the rebuilt
+    # pool, and the union of their three intervals. The band is that union. If
+    # the readings ever stop agreeing the band widens and the headline, which
+    # prints its own ends, says so.
+    cl_lo = min(ci["lb"][0], ci["rec"][0], ci_des[0])
+    cl_hi = max(ci["lb"][1], ci["rec"][1], ci_des[1])
+    outlier_lo = ci["dir"][0]
+    assert outlier_lo > cl_hi, \
+        "the high reading now overlaps the cluster; the headline would be false"
+    assert ci["join"][1] < cl_lo, \
+        "the key join reading now reaches the cluster; the canvas would mislead"
+
+    W, H = W88, 3.58
+    fig = plt.figure(figsize=(W, H))
+    canvas(fig)
+    # The label column is measured, not guessed: the longest instrument name
+    # sets the axes' left edge, so no name is clipped and no space is wasted.
+    fig.canvas.draw()
+    _r = fig.canvas.get_renderer()
+
+    def _wfrac(text, **kw):
+        t = fig.text(0, 0, text, **kw)
+        w = t.get_window_extent(_r).width / fig.bbox.width
+        t.remove()
+        return w
+
+    names = [r[1] for r in rows] + [design[1]]
+    lab_w = max(max(_wfrac(line, fontsize=T_SERIES) for line in n_.split("\n"))
+                for n_ in names)
+    X_LEFT = 0.012 + lab_w + 10.0 / (72 * W)
+    X_RIGHT = 0.722
+    A0, AH = 1.12, 1.72
+    ax = fig.add_axes([X_LEFT, A0 / H, X_RIGHT - X_LEFT, AH / H])
+    # Four annotated-pair rows at y 3 to 0, the rebuilt pool at y -1.35 under a
+    # hairline, and headroom at the top for the band's own label.
+    Y_LO, Y_HI = -1.95, 3.75
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(Y_LO, Y_HI)
+    ax.set_xticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    frame(ax, grid="x")
+
+    # One scarlet element on the axes, and it is the finding: the interval band
+    # the three low-exclusion readings agree inside. SCARLET means a failed
+    # check in this set and an exemplar defect rate is the measurement of one.
+    band(ax, cl_lo, cl_hi, SCARLET_TINT, zorder=0)
+    ax.text((cl_lo + cl_hi) / 2, Y_HI - 0.10,
+            f"{cl_lo:.2f} to {cl_hi:.2f}", ha="center", va="top",
+            color=INK, zorder=6, **cased(fontsize=T_NOTE))
+
+    # The rebuilt pool is a different substrate and sits under a hairline.
+    Y_SPLIT, Y_DES = -0.62, -1.35
+    ax.axhline(Y_SPLIT, color=PLATE_EDGE, lw=0.8, zorder=1)
+
+    plotted = [(r[1], r[2], r[3], r[4], r[5], 3 - i)
+               for i, r in enumerate(rows)]
+    plotted.append((design[1], design[2], design[3], 0, True, Y_DES))
+    for lab, k, n, n_ex, credible, y in plotted:
+        e = k / n
+        lo, hi = wilson_ci(k, n)
+        ax.errorbar([e], [y], xerr=[[e - lo], [hi - e]], fmt="o",
+                    color=GRAPHITE,
+                    markerfacecolor=GRAPHITE if credible else PAPER,
+                    markeredgecolor=GRAPHITE,
+                    markeredgewidth=1.0 if credible else 1.3,
+                    zorder=5, **dict(ERRBAR, elinewidth=1.6, capthick=1.6),
+                    **DOT)
+
+    # The two substrate headers sit INSIDE the axes, cased, each just above the
+    # rows it governs. In figure coordinates they collided with the value
+    # column and with the axis label; in data coordinates they cannot.
+    t = ax.text(0.018, Y_SPLIT - 0.30,
+                f"On the {n_des:,} rebuilt Rules 1 and 2 candidates",
+                ha="left", va="top", color=MUTE, style="italic", zorder=6,
+                **cased(fontsize=T_NOTE))
+    case(t, linewidth=3.0)
+
+    # Row labels and the value column in figure coordinates, on one grid.
+    def y_fig(y):
+        return (A0 + AH * (y - Y_LO) / (Y_HI - Y_LO)) / H
+
+    X_VAL = 0.9960
+    quals = [f"{k / n:.4f}  [{wilson_ci(k, n)[0]:.2f}, {wilson_ci(k, n)[1]:.2f}]"
+             for _, k, n, *_ in plotted]
+    excls = ["nothing excluded" if r[3] == 0
+             else f"{r[3]} of {n_pairs} pairs excluded" for r in plotted]
+    # BOTH sub-columns set this width, not just the estimates. Sizing on the
+    # estimates alone put three "n of 165 pairs excluded" lines 15pt past the
+    # right edge, savefig expanded the file and the measure gate failed the
+    # build, which is that gate doing its job.
+    X_EST = X_VAL - max([_wfrac(q, fontsize=T_SERIES) for q in quals]
+                        + [_wfrac(e, fontsize=T_NOTE, style="italic")
+                           for e in excls])
+    assert X_EST > X_RIGHT + 7.0 / (72 * W), "value column reaches the axes"
+    for (lab, k, n, n_ex, credible, y), qual, excl in zip(plotted, quals,
+                                                          excls):
+        yf = y_fig(y)
+        nl = lab.count("\n") + 1
+        fig.text(0.012, yf + (nl - 1) * 0.5 * T_SERIES * 1.18 / (72 * H), lab,
+                 ha="left", va="center", fontsize=T_SERIES, color=INK,
+                 linespacing=1.18)
+        fig.text(X_EST, yf + 4.6 / (72 * H), qual, ha="left", va="center",
+                 fontsize=T_SERIES, color=INK)
+        fig.text(X_EST, yf - 5.6 / (72 * H), excl, ha="left", va="center",
+                 fontsize=T_NOTE, color=MUTE, style="italic")
+
+    fig.text(0.012, (A0 + AH + 0.060) / H,
+             f"On the {n_pairs} annotated Rules 1 and 2 pairs, ordered by how "
+             f"much each instrument excludes",
+             ha="left", va="bottom", fontsize=T_NOTE, color=MUTE,
+             style="italic")
+
+    ax.set_yticks([])
+    ax.tick_params(axis="x", labelsize=T_TICK)
+    ax.set_xlabel("Share of Rules 1 and 2 candidates whose displayed exemplar "
+                  "is wrong", fontsize=T_AXIS, color=INK, labelpad=3.0)
+    # The two reasons the open marks are open, and the one thing a reader could
+    # take from this canvas that the artifact forbids, in one block under the
+    # axis label. They were per-row remarks in the value column and printed
+    # through the row below.
+    # THE MEASURE GATE CAUGHT THIS BLOCK. Set as three long lines it ran about
+    # 60pt past the canvas, savefig(bbox="tight") expanded the file to 443pt,
+    # and every type size on the page would have printed at 0.957 of its stated
+    # size. It is four shorter lines now and each one is measured against the
+    # measure and asserted, so a longer string fails the build rather than
+    # shrinking the type.
+    foot = [
+        f"Open marks: the direct extractor, {k_unc} of whose {k_dir} defect "
+        f"rows have no classified",
+        f"action on at least one side; the key join, which resolves {n_join} of "
+        f"{n_pairs} rows.",
+        "Rules 3 and 4 are not drawn: their triggers reference no action label, "
+        "so a high",
+        "non-opposite rate there is the rule working as designed, not a defect.",
+    ]
+    for line in foot:
+        w = _wfrac(line, fontsize=T_NOTE, style="italic")
+        assert 0.012 + w < 0.996, f"footnote overflows the canvas: {line!r}"
+    fig.text(0.012, 0.026, "\n".join(foot), ha="left", va="bottom",
+             fontsize=T_NOTE, color=MUTE, style="italic", linespacing=1.18)
+
+    e_dir = k_dir / n_dir
+    # Three lines at the 0.88 measure, not two. Two lines put 83 characters of
+    # 11pt type on a 378pt canvas, savefig expanded the file to 397pt and the
+    # whole figure would have printed at 0.96 scale. Asserted, so the next edit
+    # to this sentence fails the build instead of shrinking the type.
+    head = ["Three readings on two substrates put the exemplar defect",
+            f"rate between {cl_lo:.2f} and {cl_hi:.2f}; the fourth, "
+            f"{e_dir:.2f}, fails its own check."]
+    for line in head:
+        assert 0.012 + _wfrac(line, fontsize=T_HEADLINE) < 0.996, \
+            f"headline overflows the canvas: {line!r}"
+    signature(fig, SCARLET_DEEP, "\n".join(head))
     fname = "fig-exemplar.pdf"
     fig.savefig(os.path.join(OUTDIR, fname))
     plt.close(fig)
     register(fname, "fig:exemplar",
-             [_FACTS_PATH, p_exemplar,
-              fact_source("exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate"),
-              fact_source("exemplardirect.defect_rate")],
-             "Schematic; slots are abstract labels (M1 to M5, action classes written out as "
-             "continuation and cessation) and carry no clinical text. Row 1, the exemplar "
-             "selected by position, carries a 2.0 pt INK outline and a 'shown' tag; row 5, "
-             "where the rule matched, keeps its SCARLET_WASH ground and a 'fired' tag. A "
-             "vertical brace left of M1 to M5 states that the rule quantifies over the whole "
-             "set. Nursing-note slots are AZURE_WASH and discharge-summary slots the neutral "
-             "blue-grey PLATE_EDGE, grounds only under a neutral SLATE stroke, 0.201 apart in "
-             "relative luminance. The discharge ground was TANGERINE_TINT until the visual "
-             "audit, which read that orange as the detector ensemble's AMBER; cobalt still "
-             "means extraction elsewhere. "
-             "No plate. The one-line deck prints the three instruments' miss rates, read "
-             "from the register by key: exemplar.rule_1_2_pooled_exemplar_correct_rate_in_299.rate "
-             f"(one minus it, {ex_lo:.0f}), exemplar_recomputed.rule_1_2_pooled.wrong_rate "
-             f"({ex_mid:.4f}), exemplardirect.defect_rate ({ex_hi:.4f}). Gate note: "
-             "tools/measure_ink.py holds this "
-             "canvas to chroma 0.055; it measures 0.023, because the cobalt slot fills and "
-             "strokes the floor was set against are removed by the critique and the only "
-             "saturated element left is the cessation chip. The floor was not met by adding "
-             "colour; it needs lowering by the gate owner.")
+             [_FACTS_PATH, p_lb]
+             + sorted({fact_source(k) for k in EXEMPLAR_KEYS} - {_FACTS_PATH}),
+             "Five readings of one quantity, the share of Rules 1 and 2 "
+             "candidates whose displayed exemplar is wrong, on one axis. Four "
+             f"are on the {n_pairs} annotated pairs and are ordered by how many "
+             "of those pairs each instrument excludes; the fifth, under a "
+             f"hairline, is on the {n_des:,} rebuilt candidates and shares no "
+             "row with them. Every rate is a count over a denominator read from "
+             "results/accord/VERIFIED_FACTS.json by key ("
+             + ", ".join(EXEMPLAR_KEYS) + "), except the displayed-exemplar "
+             "lower bound, which has no register key yet and is read as two "
+             "counts from results/accord/clinical_core/"
+             f"displayed_exemplar_lower_bound.json ({k_lb} of {n_lb}). No rate "
+             "is typed. Every interval is a Wilson interval recomputed here "
+             "from the row's own two counts and asserted against the interval "
+             "the artifact stores. The SCARLET_TINT band is the union of the "
+             "three low-exclusion intervals, computed on the canvas, and the "
+             f"headline prints its ends ({cl_lo:.4f} to {cl_hi:.4f}); the "
+             "assertion that the high reading's lower end "
+             f"({outlier_lo:.4f}) clears that union fails the build if the "
+             "cluster ever dissolves. Open marks, not a second hue, mark the "
+             "two readings their own analysis limits: the direct extractor "
+             f"({k_unc} of its {k_dir} defect rows have no classified action on "
+             "at least one side) and the key join (23 rows resolved of 165). "
+             "Rules 3 and 4 are named on the canvas and drawn nowhere: the "
+             "artifact tags both defect_interpretation none, which this "
+             "generator asserts. No clinical text, no identifiers, no pair "
+             "identifiers on the canvas.")
 
 
 # ============================================================================

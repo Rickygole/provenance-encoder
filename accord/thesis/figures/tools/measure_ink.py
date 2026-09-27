@@ -49,6 +49,25 @@ FLOORS = {
     "fig-prevalence-response": (0.40, 0.14),
     "fig-power":              (0.62, 0.18),
     "fig-forest":             (0.46, 0.15),
+    # The two figures added with the framing-mechanism run. Neither has a spec
+    # entry, because both were built after the spec, so their floors are what
+    # the finished figures measure, set just under, as fig-ceiling's are and
+    # for the reason recorded there. The ladder is a four point series on a
+    # shaded field and clears 0.34 coverage on its own; the polarity figure is
+    # three marks, one reference line and one corridor on a square field, so
+    # its coverage is a plot's coverage and not a schematic's. Chroma on both
+    # is close to vestigial for the arithmetic reason stated under LOWERED: the
+    # ground that does the work on each is MIST at S=0.076, under this metric's
+    # own 0.25 gate, so the shaded region that IS the argument counts for
+    # nothing here.
+    # The ladder's coverage is 0.27 and not the 0.34 it first measured, and the
+    # difference is not ink lost: the measure gate showed its two-line rotated
+    # y axis label reaching past the left edge of the canvas, so the axes gave
+    # up width to the label and the shaded field shrank with it. A field that
+    # is narrower on the same sheet covers a smaller fraction of it. The floor
+    # follows the finished figure, as fig-ceiling's does.
+    "fig-scale-ladder":       (0.270, 0.012),
+    "fig-answer-polarity":    (0.110, 0.006),
     "fig-threshold-surface":  (0.90, 0.55),
     # fig-ceiling has no spec entry, because it was built after the spec. Its
     # floors are what the finished figure measures, and the reason they sit this
@@ -166,8 +185,23 @@ LOWERED = {
         "terminal box lost its CORE rim with the rest, which is the consistency "
         "the change was for. Lowered again by directive 1: the bar was 1.07% of "
         "this canvas and 0.137 became 0.124."),
-    "fig-exemplar": ((0.40, 0.020),
-        "Lowered to 0.020 by the senior figure review of 2026-09-14: the nursing-note boxes lost cobalt (cobalt means extraction elsewhere in the set) and the selected row is marked by a black outline, so the one cessation chip is the only saturated ink left. ten slots on a five-row grid is the whole content. COBALT_TINT is "
+    "fig-exemplar": ((0.115, 0.002),
+        "LOWERED FURTHEST IN THIS TABLE AFTER fig-forest, AND FOR THE SAME "
+        "KIND OF REASON: a schematic became a plot. The canvas these floors "
+        "were set against was five abstract mention slots on a five row grid "
+        "with two filled note columns and a solid chip, which is a lot of "
+        "filled area carrying no measured quantity; the generator said so "
+        "itself in its audit note. It is now five readings of one rate with "
+        "their Wilson intervals on one axis, which is four marks, five "
+        "intervals, a band and type. Coverage 0.406 to 0.118 is the two note "
+        "columns and the chip leaving. Chroma 0.023 to 0.003 is the cessation "
+        "chip leaving: the one band left, the union of the three low-exclusion "
+        "intervals, is SCARLET_TINT at S=0.233, under this metric's own 0.25 "
+        "gate, so a quarter of the canvas turning pink buys nothing here. That "
+        "is a statement about the metric. Neither number can be raised without "
+        "putting back a schematic that drew no measurement. "
+        "The previous entry read: lowered to 0.020 by the senior figure review "
+        "of 2026-09-14: the nursing-note boxes lost cobalt (cobalt means extraction elsewhere in the set) and the selected row is marked by a black outline, so the one cessation chip is the only saturated ink left. ten slots on a five-row grid is the whole content. COBALT_TINT is "
         "S=0.206 and MIST S=0.076, so only the one solid chip counts. Lowered "
         "again by directives 1 and 2 together: this is the smallest canvas in "
         "the set, so its bar was the second largest share of any (1.52%), and "
@@ -253,7 +287,19 @@ SET_CHROMA_FLOOR = 0.10
 # measure 0.013, 0.125, 0.058, 0.015, 0.041, 0.010, 0.027 and 0.115, which is
 # 0.050, and the floor is set just under it.
 # Lowered to 0.045 on 2026-09-14 for the three per-figure changes recorded above.
-SET_MEAN_CHROMA_FLOOR = 0.045
+#
+# Lowered once more, to 0.040, and again not one figure lost any colour it
+# could keep. Two things moved the mean and both are arithmetic. fig-exemplar
+# stopped being a schematic and became a plot, which cost it the one solid chip
+# that was its entire chroma (0.023 to 0.003; the reason is under LOWERED).
+# And the set went from eight members to ten, the two new ones measuring 0.013
+# and 0.007, because what they shade is MIST at S=0.076 and this metric does
+# not count a pixel as chromatic under S=0.25. A mean over ten members is not
+# the same statistic as a mean over eight. The ten measure 0.037, 0.149, 0.003,
+# 0.033, 0.017, 0.012, 0.115, 0.022, 0.013 and 0.007, which is 0.041, and the
+# floor is set just under it. The alternative was to put CORE stops at area
+# scale on three canvases, which section 1.5 forbids outright.
+SET_MEAN_CHROMA_FLOOR = 0.040
 
 
 def render(pdf, dpi=300):

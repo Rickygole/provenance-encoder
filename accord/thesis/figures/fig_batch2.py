@@ -489,7 +489,8 @@ def make_fig_forest():
     ax_a.tick_params(axis="y", length=0)
     ax_a.tick_params(axis="x", labelsize=T_TICK)
     fig.text(0.012, (A0 + AH + 0.08) / H,
-             "AUROC, decontaminated detector, 95 percent bootstrap interval",
+             "AUROC, decontaminated detector, nominal 95 percent bootstrap "
+             "interval",
              ha="left", va="bottom", fontsize=T_SERIES, color=MUTE,
              style="italic")
     # VISUAL AUDIT. This line said "Shaded: 80% power floor" and did not say
@@ -554,11 +555,37 @@ def make_fig_forest():
 
     n_pos_253 = fact("decontam.n_positives")
     assert n_pos_253 == fact("c120.g299.n_positives")
+    # THE INTERVAL IS NOMINAL AND THE DECK NOW SAYS SO. "95 percent bootstrap
+    # interval" was printed on this canvas as a property of the interval. It is
+    # a property of the recipe: C134a resamples the C108 pool at this study's
+    # own class counts, 12 positives and 241 negatives, 2,000 replications at
+    # each of five true AUROC values, and measures how often the declared
+    # percentile interval actually covers the truth. It never reaches 0.95 at
+    # any of the five, which is not a defect this figure can fix and is a fact
+    # every reading of its intervals depends on. The deck it replaces said
+    # "Two units, two rulers: nothing is comparable across the panel boundary",
+    # which the two panel header lines already say in more detail.
+    #
+    # The DECLARED method is what the thesis ran, so the declared method is
+    # what is reported; the stratified variant covers worse still and naming
+    # both here would cost the deck its one line to gain a comparison the
+    # chapter makes.
+    cov = json.loads((ROOT / "results/accord/c134_reanalysis"
+                      / "c134a_bootstrap_coverage.json").read_text())
+    assert cov["design"]["n_positives"] == n_pos_253
+    assert cov["design"]["nominal_coverage"] == 0.95
+    covs = [t["methods"]["declared_unstratified"]["coverage"]
+            for t in cov["per_target"].values()]
+    assert len(covs) == len(cov["design"]["targets"])
+    cov_lo, cov_hi = min(covs), max(covs)
+    assert cov_hi < cov["design"]["nominal_coverage"], \
+        "the measured coverage now reaches nominal; this deck would mislead"
     signature(fig, GRAPHITE,
               f"At {n_pos_253} positives, or {fact('c114.task_c.n_pos')} for Rules 3 "
               "and 4, no headline estimate is distinguishable from chance.",
-              deck="Two units, two rulers: nothing is comparable across the "
-                   "panel boundary.")
+              deck=f"Nominal 95 percent bootstrap intervals; measured "
+                   f"coverage at {n_pos_253} positives is {cov_lo:.3f} to "
+                   f"{cov_hi:.3f}.")
     fig.savefig(OUTDIR / "fig-forest.pdf"); plt.close(fig)
     print("wrote fig-forest.pdf")
 

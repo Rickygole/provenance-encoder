@@ -1,0 +1,229 @@
+{
+ "analysis": "Analysis 4: a directly measured LOWER BOUND on the displayed-exemplar defect rate for Rules 1 and 2 on the annotated gold set",
+ "generated_by": "accord/clinical_core/displayed_exemplar_lower_bound.py",
+ "inputs": {
+  "canonical_gold_labels": "$MIMIC_LOCAL_ONLY_DIR/derived/gold_standard_accord_results.csv",
+  "candidates_table": "$MIMIC_LOCAL_ONLY_DIR/from_drive_2026-08-08/outputs/annotation_sample_300.csv",
+  "trigger_predicate_source": "accord/phase3_mining.py mine_rule1, mine_rule2 (read by static parse, never executed)"
+ },
+ "what_is_measured": "The proportion of annotated pairs whose DISPLAYED exemplar action labels are not {continuation, cessation}. For Rules 1 and 2 the trigger fires only on an opposite action pair, so such a display provably cannot be the mention pair that fired the rule.",
+ "why_this_is_a_lower_bound": "The test detects a display that could not have fired the trigger. It cannot detect a display that is an opposite pair but still the wrong mention pair, which happens whenever an admission has more than one continuation or more than one cessation mention of the drug. Those rows are scored non-defective here, so the true displayed-exemplar defect rate is at least the rate reported.",
+ "trigger_predicate_verified_in_code": {
+  "mine_rule1": {
+   "requires_continuation_and_cessation": true,
+   "guard_present": true
+  },
+  "mine_rule2": {
+   "requires_continuation_and_cessation": true,
+   "guard_present": true
+  }
+ },
+ "thesis_claim_this_bears_on": "Chapters 3 and 4 state the exemplar defect rate cannot be recovered because the candidate schema does not record which mention fired. That holds for the identity of the firing mention. It does not hold for whether the displayed mentions could have fired the trigger, which is decidable from the stored action labels alone and is measured here.",
+ "n_gold_pairs": 299,
+ "rules_1_and_2": {
+  "pooled": {
+   "trigger_requires_opposite_action_pair": true,
+   "defect_interpretation": "lower bound on the displayed-exemplar defect rate",
+   "n_pairs": 165,
+   "n_displayed_pair_is_opposite": 93,
+   "n_displayed_pair_is_not_opposite": 72,
+   "rate_not_opposite": 0.4364,
+   "wilson_ci95": [
+    0.363,
+    0.5126
+   ]
+  },
+  "per_rule": {
+   "1": {
+    "rule_short": "direct action conflict",
+    "trigger_requires_opposite_action_pair": true,
+    "defect_interpretation": "lower bound on the displayed-exemplar defect rate",
+    "n_pairs": 134,
+    "n_displayed_pair_is_opposite": 80,
+    "n_displayed_pair_is_not_opposite": 54,
+    "rate_not_opposite": 0.403,
+    "wilson_ci95": [
+     0.3238,
+     0.4876
+    ]
+   },
+   "2": {
+    "rule_short": "drug class conflict",
+    "trigger_requires_opposite_action_pair": true,
+    "defect_interpretation": "lower bound on the displayed-exemplar defect rate",
+    "n_pairs": 31,
+    "n_displayed_pair_is_opposite": 13,
+    "n_displayed_pair_is_not_opposite": 18,
+    "rate_not_opposite": 0.5806,
+    "wilson_ci95": [
+     0.4077,
+     0.7358
+    ]
+   }
+  },
+  "displayed_action_pairs_on_the_defective_rows": {
+   "continuation+continuation": 19,
+   "continuation+initiation": 13,
+   "cessation+initiation": 8,
+   "cessation+cessation": 7,
+   "continuation+dose_modification": 5,
+   "cessation+dose_modification": 5,
+   "initiation+continuation": 5,
+   "initiation+initiation": 3,
+   "dose_modification+cessation": 2,
+   "initiation+cessation": 2,
+   "initiation+dose_modification": 1,
+   "dose_modification+continuation": 1,
+   "dose_modification+dose_modification": 1
+  }
+ },
+ "rules_3_and_4_not_a_defect_measurement": {
+  "3": {
+   "rule_short": "dosage conflict",
+   "trigger_requires_opposite_action_pair": false,
+   "trigger_is": "a dose difference above a percent threshold",
+   "defect_interpretation": "none",
+   "why": "This rule's trigger does not reference an action label, so the displayed actions are under no obligation to be an opposite pair. The figure below is descriptive only and must not be read as a defect rate.",
+   "n_pairs": 79,
+   "n_displayed_pair_is_opposite": 13,
+   "n_displayed_pair_is_not_opposite": 66,
+   "rate_not_opposite": 0.8354,
+   "wilson_ci95": [
+    0.7385,
+    0.9012
+   ]
+  },
+  "4": {
+   "rule_short": "discharge-side absence",
+   "trigger_requires_opposite_action_pair": false,
+   "trigger_is": "absence of the drug from every discharge mention",
+   "defect_interpretation": "none",
+   "why": "This rule's trigger does not reference an action label, so the displayed actions are under no obligation to be an opposite pair. The figure below is descriptive only and must not be read as a defect rate.",
+   "n_pairs": 55,
+   "n_displayed_pair_is_opposite": 0,
+   "n_displayed_pair_is_not_opposite": 55,
+   "rate_not_opposite": 1.0,
+   "wilson_ci95": [
+    0.9347,
+    1.0
+   ]
+  }
+ },
+ "READ_THIS_BEFORE_THE_TABLE": "Only the Rules 1 and 2 figures carry a defect interpretation. Rules 3 and 4 are included for completeness and are tagged defect_interpretation none: their triggers are a dose difference and an absence, so an opposite action pair was never required and a high non-opposite rate is the expected behaviour of the rule.",
+ "confirmed_positives_in_rules_1_and_2": {
+  "n": 6,
+  "n_whose_displayed_evidence_could_not_have_fired_the_trigger": 3,
+  "rows": [
+   {
+    "pair_id": "PAIR_0003",
+    "rule": 2,
+    "drug_normalised": "furosemide",
+    "pharmacologic_class": "loop_diuretics",
+    "displayed_actions": "cessation+initiation",
+    "displayed_pair_could_have_fired_the_trigger": false,
+    "danger_rating": 1
+   },
+   {
+    "pair_id": "PAIR_0067",
+    "rule": 1,
+    "drug_normalised": "warfarin",
+    "pharmacologic_class": "anticoagulants",
+    "displayed_actions": "continuation+continuation",
+    "displayed_pair_could_have_fired_the_trigger": false,
+    "danger_rating": 5
+   },
+   {
+    "pair_id": "PAIR_0131",
+    "rule": 2,
+    "drug_normalised": "metoprolol",
+    "pharmacologic_class": "beta_blockers",
+    "displayed_actions": "cessation+continuation",
+    "displayed_pair_could_have_fired_the_trigger": true,
+    "danger_rating": 3
+   },
+   {
+    "pair_id": "PAIR_0134",
+    "rule": 1,
+    "drug_normalised": "furosemide",
+    "pharmacologic_class": "loop_diuretics",
+    "displayed_actions": "continuation+cessation",
+    "displayed_pair_could_have_fired_the_trigger": true,
+    "danger_rating": 2
+   },
+   {
+    "pair_id": "PAIR_0190",
+    "rule": 1,
+    "drug_normalised": "aspirin",
+    "pharmacologic_class": "antiplatelets",
+    "displayed_actions": "continuation+cessation",
+    "displayed_pair_could_have_fired_the_trigger": true,
+    "danger_rating": 2
+   },
+   {
+    "pair_id": "PAIR_0268",
+    "rule": 2,
+    "drug_normalised": "heparin",
+    "pharmacologic_class": "anticoagulants",
+    "displayed_actions": "initiation+continuation",
+    "displayed_pair_could_have_fired_the_trigger": false,
+    "danger_rating": 5
+   }
+  ],
+  "n_danger_5_in_whole_gold_set": 3,
+  "danger_5_positives_affected": [
+   "PAIR_0067",
+   "PAIR_0268"
+  ],
+  "n_danger_5_affected": 2
+ },
+ "association_with_the_ambiguous_verdict": {
+  "ambiguous_rate_when_display_could_not_have_fired": 0.125,
+  "ambiguous_rate_when_display_could_have_fired": 0.1183,
+  "n_defective": 72,
+  "n_non_defective": 93,
+  "note": "Descriptive only. No test is run and no causal claim is made; a defective display is one of several reasons a pair could read as undecidable."
+ },
+ "comparison_with_existing_instruments": {
+  "key_join": {
+   "value": 0.0,
+   "n": 23,
+   "artifact": "reported in accord/exemplar_direct/exemplar_direct.json::existing_estimates.keyjoin_23_rows",
+   "what": "23 rows that could be key-joined back to a mentions snapshot",
+   "read_back": 0.0,
+   "agrees_with_artifact": true
+  },
+  "reconstruction": {
+   "value": 0.4745,
+   "n": 137,
+   "artifact": "results/accord/exemplar/exemplar_correctness_recomputed.json::rule_1_2_pooled",
+   "what": "reconstruction of the firing mention over the 137 of 165 rows it could resolve",
+   "read_back": 0.4745,
+   "agrees_with_artifact": true
+  },
+  "direct_extractor": {
+   "value": 0.9315,
+   "n": 146,
+   "artifact": "results/accord/exemplar_direct/exemplar_direct.json::defect_rate",
+   "what": "re-running the mention extractor and action classifier over the pair text",
+   "read_back": 0.9315,
+   "agrees_with_artifact": true
+  },
+  "rebuilt_pool_design_rate": {
+   "value": 0.414,
+   "n": 1307,
+   "artifact": "$MIMIC_LOCAL_ONLY_DIR/accord/phase3_mining_summary.json::headline_old_exemplar_correct_rate",
+   "what": "one minus the rebuilt pool's old (.iloc[0]) exemplar correct rate, on the 1307 rebuilt action-conflict candidates, not on the annotated pairs",
+   "read_back": 0.4139,
+   "agrees_with_artifact": true
+  }
+ },
+ "independence_of_the_agreeing_instruments": {
+  "caveat": "The three agreeing readings are not fully independent and should not be presented as if they were. The reconstruction reads a mentions-table snapshot and re-derives which mention sat at .iloc[0]; this instrument reads the action labels the candidates table stored. Those two substrates are strongly correlated: exemplar_direct.json's own calibration check matches the stored labels against the snapshot at 0.8934 on the nursing side and 0.9508 on the discharge side. So the reconstruction and this lower bound are two views of nearly the same labels, and their agreement is weaker evidence than two independent measurements would be.",
+  "what_is_independent": "The rebuilt-pool design rate is independent of both. It is computed on a freshly mined 1307-candidate pool by reproducing the .iloc[0] selection and comparing it against the corrected selection, touching neither the annotated candidates table nor the snapshot those two read. That it lands at 0.4139, inside this bound's interval, is the load-bearing part of the agreement.",
+  "calibration_match_nursing_side": 0.8934,
+  "calibration_match_discharge_side": 0.9508,
+  "calibration_source": "results/accord/exemplar_direct/exemplar_direct.json::calibration_check"
+ },
+ "what_the_comparison_supports": "Three of the four instruments now sit close together: the reconstruction at 0.4745 on 137 rows, the rebuilt pool's own design rate at 0.4140 on 1307 rebuilt candidates, and this lower bound at 0.4364 on all 165 annotated Rules 1 and 2 pairs, whose 95 percent Wilson interval contains both of the other two. The key join's 0 sits outside that interval on 23 non-randomly selected rows, and the direct extractor's 0.9315 sits above it and rests on 69 of 136 rows whose defect is a missing action cue from an unvalidated extractor. The agreement of three instruments computed from three different substrates, one of them a floor that needs no reconstruction and no extractor, is evidence that the rate is near 0.4 rather than unrecoverable. Read with the independence caveat above: the strongest single claim this supports is that a rate of 0 is excluded on the annotated pairs themselves, by a measurement that needs no reconstruction, no key join and no extractor.",
+ "data_agreement": "Dictionary action labels, synthetic pair keys, counts, proportions and intervals only. No clinical note text and no patient or admission identifier appears in this artifact; asserted in code before writing."
+}

@@ -382,6 +382,23 @@ RETIRED = {
 # and a figure cannot appear in a chapter and in this directory in the same
 # breath.
 PENDING_INCLUSION = {
+    "fig-scale-ladder": (
+        "fig:scale-ladder", "msu_ch4_results.tex",
+        "Built in the round that added the framing-mechanism run. It argues "
+        "one claim the results chapter now needs and no other figure carries: "
+        "over-calling falls monotonically across four sizes of one open-weights "
+        "family under one identical prompt on the same 299 pairs, and is still "
+        "an order of magnitude above the pharmacist's base rate at the largest "
+        "size that can be served here. Drawn at the 0.98 measure, so the "
+        "chapter must include it with width=0.98\\linewidth."),
+    "fig-answer-polarity": (
+        "fig:answer-polarity", "msu_ch4_results.tex",
+        "Built in the same round, from the same artifact's coherence block. It "
+        "argues that asking the complementary question moves two of the three "
+        "models' answer rate further than the pharmacist's own ambiguity "
+        "allows, which is the mechanism claim behind the over-calling result "
+        "and is argued nowhere else in the set. Drawn at the 0.98 measure, so "
+        "the chapter must include it with width=0.98\\linewidth."),
 }
 
 
@@ -499,7 +516,19 @@ WORD_RE = re.compile(
 COLLISION_KEEP = 0.55        # of each box's height
 COLLISION_SHAVE = 0.6        # pt off each side
 COLLISION_FRACTION = 0.25    # of the smaller box's area
-ROTATION_ALLOWLIST = set()   # (stem, word) pairs; see above
+# FIRST ENTRY, and it is the case this allowlist was written against. The scale
+# ladder's y axis label is two rotated lines, "Share of the 299 pairs flagged"
+# over "as a contradiction". pdftotext reports each word with an axis-aligned
+# box, so a rotated word's reported WIDTH is its glyph height: "pairs" is
+# 14.3pt wide and 18.5pt tall in page coordinates and "contradiction" is 14.3pt
+# wide and 50.1pt tall, which is how a 13 letter word can be reported as
+# narrower than a 5 letter one. Confirmed rotated by those dimensions and by
+# the rendered page; the two lines are clean on the page and clear each other
+# by a full line of lead. The label cannot be set on one line: at the 9.5pt
+# axis size it is about 205pt long against a 128pt axes box, so one line would
+# overflow the canvas and fail the measure gate above, which is the worse
+# defect of the two.
+ROTATION_ALLOWLIST = {("fig-scale-ladder", "contradiction")}
 
 
 def _words(pdf):
@@ -598,7 +627,18 @@ CATEGORY_GROUNDS = {
     # COBALT_WASH and now shades the region ABOVE it in MIST, so that shading
     # means "detectable" on it as it does on the forest; MIST against paper is
     # 0.237 apart. The 0.10 gate itself is untouched.
-    "fig-exemplar":            ["AZURE_WASH", "PLATE_EDGE"],
+    # EXEMPLAR REBUILD. The two note columns are gone with the schematic they
+    # belonged to. What this canvas grounds now is one region, the union of the
+    # three low-exclusion intervals, against bare paper; the same binary
+    # fig-pipeline-status uses, and 0.415 apart in relative luminance.
+    "fig-exemplar":            ["SCARLET_TINT", "PAPER"],
+    # The ladder shades everything above the pharmacist's base rate, and the
+    # polarity figure shades the corridor under x + y = 1 that the pharmacist's
+    # own ambiguity allows. Both mean "the region the reader is being asked to
+    # notice", which is what MIST means on fig-power, fig-forest and
+    # fig-prevalence-response, and both are read against paper.
+    "fig-scale-ladder":        ["MIST", "PAPER"],
+    "fig-answer-polarity":     ["MIST", "PAPER"],
     "fig-prevalence-response": ["MIST", "PAPER"],   # over-prediction wedge
     "fig-power":               ["MIST", "PAPER"],   # above the curve
     "fig-forest":              [],   # families separated by gap and hairline

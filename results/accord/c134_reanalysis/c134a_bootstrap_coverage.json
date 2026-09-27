@@ -1,0 +1,235 @@
+{
+  "what": "measured coverage of the nominal 95 percent percentile bootstrap AUROC interval at 12 positives and 241 negatives",
+  "addresses": "accord/thesis/msu_ch3_methodology.tex: 'nothing here measures how often the percentile bootstrap's upper end covers the true value at 12 positives'",
+  "machinery": "accord/public_controls/evaluation.py label-mix construction, C108 pool",
+  "pool": {
+    "file": "results/accord/public_controls/sizectl_c108/roberta_scores.json",
+    "n": 18064,
+    "A0_auroc": 0.9771897578950803,
+    "n_pos_pool": 6347,
+    "n_neg_pool": 11717
+  },
+  "design": {
+    "n_positives": 12,
+    "n_negatives": 241,
+    "n_reps_per_target": 2000,
+    "bootstrap_B": 10000,
+    "nominal_coverage": 0.95,
+    "floor": 0.7466,
+    "master_seed": 134,
+    "targets": [
+      0.5,
+      0.6,
+      0.7355,
+      0.7466,
+      0.8
+    ]
+  },
+  "pin_check": {
+    "max_abs_diff_vs_sklearn_on_tie_heavy_inputs": 1.1102230246251565e-16,
+    "passes": true
+  },
+  "per_target": {
+    "0.5": {
+      "target_auroc": 0.5,
+      "label_mix_lambda": 1.0,
+      "point_auroc_mean": 0.4995529910096818,
+      "point_auroc_sd": 0.08565585138463017,
+      "methods": {
+        "declared_unstratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.9345,
+          "coverage_mc_se": 0.005532167296819575,
+          "noncoverage": 0.0655,
+          "miss_rate_interval_entirely_below_truth": 0.0335,
+          "miss_rate_interval_entirely_above_truth": 0.032,
+          "p_upper_end_exceeds_0_7466": 0.1715,
+          "p_lower_end_exceeds_0_5": 0.032,
+          "p_interval_contains_0_5": 0.9345,
+          "mean_width": 0.3348757205071188,
+          "mean_upper_end": 0.6670118847894966,
+          "mean_lower_end": 0.3321361642823777,
+          "verdict": "anti-conservative"
+        },
+        "stratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.927,
+          "coverage_mc_se": 0.005816829033072915,
+          "noncoverage": 0.07299999999999995,
+          "miss_rate_interval_entirely_below_truth": 0.0365,
+          "miss_rate_interval_entirely_above_truth": 0.0365,
+          "p_upper_end_exceeds_0_7466": 0.1505,
+          "p_lower_end_exceeds_0_5": 0.0365,
+          "p_interval_contains_0_5": 0.927,
+          "mean_width": 0.3181865988070539,
+          "mean_upper_end": 0.6586780752939142,
+          "mean_lower_end": 0.3404914764868603,
+          "verdict": "anti-conservative"
+        }
+      }
+    },
+    "0.6": {
+      "target_auroc": 0.6,
+      "label_mix_lambda": 0.7904397603982377,
+      "point_auroc_mean": 0.5995286134163209,
+      "point_auroc_sd": 0.09401658391237228,
+      "methods": {
+        "declared_unstratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.932,
+          "coverage_mc_se": 0.005629209535982825,
+          "noncoverage": 0.06799999999999995,
+          "miss_rate_interval_entirely_below_truth": 0.0275,
+          "miss_rate_interval_entirely_above_truth": 0.0405,
+          "p_upper_end_exceeds_0_7466": 0.6725,
+          "p_lower_end_exceeds_0_5": 0.173,
+          "p_interval_contains_0_5": 0.8245,
+          "mean_width": 0.37192972063257435,
+          "mean_upper_end": 0.7820342962730145,
+          "mean_lower_end": 0.4101045756404401,
+          "verdict": "anti-conservative"
+        },
+        "stratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.9195,
+          "coverage_mc_se": 0.006083574196144895,
+          "noncoverage": 0.08050000000000002,
+          "miss_rate_interval_entirely_below_truth": 0.034,
+          "miss_rate_interval_entirely_above_truth": 0.0465,
+          "p_upper_end_exceeds_0_7466": 0.6345,
+          "p_lower_end_exceeds_0_5": 0.205,
+          "p_interval_contains_0_5": 0.792,
+          "mean_width": 0.3527959867738588,
+          "mean_upper_end": 0.7725155234266944,
+          "mean_lower_end": 0.41971953665283535,
+          "verdict": "anti-conservative"
+        }
+      }
+    },
+    "0.7355": {
+      "target_auroc": 0.7355,
+      "label_mix_lambda": 0.5064856357378495,
+      "point_auroc_mean": 0.7343764695712309,
+      "point_auroc_sd": 0.09377804797398061,
+      "methods": {
+        "declared_unstratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.926,
+          "coverage_mc_se": 0.005853375094763702,
+          "noncoverage": 0.07399999999999995,
+          "miss_rate_interval_entirely_below_truth": 0.0155,
+          "miss_rate_interval_entirely_above_truth": 0.0585,
+          "p_upper_end_exceeds_0_7466": 0.9775,
+          "p_lower_end_exceeds_0_5": 0.6125,
+          "p_interval_contains_0_5": 0.3875,
+          "mean_width": 0.36091579107426347,
+          "mean_upper_end": 0.9035355479362545,
+          "mean_lower_end": 0.5426197568619909,
+          "verdict": "anti-conservative"
+        },
+        "stratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.9075,
+          "coverage_mc_se": 0.006478570444164362,
+          "noncoverage": 0.09250000000000003,
+          "miss_rate_interval_entirely_below_truth": 0.0225,
+          "miss_rate_interval_entirely_above_truth": 0.07,
+          "p_upper_end_exceeds_0_7466": 0.971,
+          "p_lower_end_exceeds_0_5": 0.6485,
+          "p_interval_contains_0_5": 0.3515,
+          "mean_width": 0.3418548366182573,
+          "mean_upper_end": 0.8947906033886582,
+          "mean_lower_end": 0.5529357667704011,
+          "verdict": "anti-conservative"
+        }
+      }
+    },
+    "0.7466": {
+      "target_auroc": 0.7466,
+      "label_mix_lambda": 0.483224449142054,
+      "point_auroc_mean": 0.7450661307053943,
+      "point_auroc_sd": 0.09193360538777633,
+      "methods": {
+        "declared_unstratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.922,
+          "coverage_mc_se": 0.005996498978570745,
+          "noncoverage": 0.07799999999999996,
+          "miss_rate_interval_entirely_below_truth": 0.02,
+          "miss_rate_interval_entirely_above_truth": 0.058,
+          "p_upper_end_exceeds_0_7466": 0.98,
+          "p_lower_end_exceeds_0_5": 0.672,
+          "p_interval_contains_0_5": 0.328,
+          "mean_width": 0.3565514102106764,
+          "mean_upper_end": 0.9114765347668834,
+          "mean_lower_end": 0.5549251245562071,
+          "verdict": "anti-conservative"
+        },
+        "stratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.911,
+          "coverage_mc_se": 0.006367063687446513,
+          "noncoverage": 0.08899999999999997,
+          "miss_rate_interval_entirely_below_truth": 0.025,
+          "miss_rate_interval_entirely_above_truth": 0.064,
+          "p_upper_end_exceeds_0_7466": 0.975,
+          "p_lower_end_exceeds_0_5": 0.712,
+          "p_interval_contains_0_5": 0.288,
+          "mean_width": 0.3378411263831258,
+          "mean_upper_end": 0.9029745829011064,
+          "mean_lower_end": 0.5651334565179806,
+          "verdict": "anti-conservative"
+        }
+      }
+    },
+    "0.8": {
+      "target_auroc": 0.8,
+      "label_mix_lambda": 0.37131928119471286,
+      "point_auroc_mean": 0.7982629668049793,
+      "point_auroc_sd": 0.08617429003047275,
+      "methods": {
+        "declared_unstratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.9165,
+          "coverage_mc_se": 0.006185780063985464,
+          "noncoverage": 0.08350000000000002,
+          "miss_rate_interval_entirely_below_truth": 0.013,
+          "miss_rate_interval_entirely_above_truth": 0.0705,
+          "p_upper_end_exceeds_0_7466": 0.996,
+          "p_lower_end_exceeds_0_5": 0.831,
+          "p_interval_contains_0_5": 0.169,
+          "mean_width": 0.3286133643483671,
+          "mean_upper_end": 0.9472133215986109,
+          "mean_lower_end": 0.6185999572502437,
+          "verdict": "anti-conservative"
+        },
+        "stratified": {
+          "n_reps": 2000,
+          "B": 10000,
+          "coverage": 0.907,
+          "coverage_mc_se": 0.006494266702253611,
+          "noncoverage": 0.09299999999999997,
+          "miss_rate_interval_entirely_below_truth": 0.016,
+          "miss_rate_interval_entirely_above_truth": 0.077,
+          "p_upper_end_exceeds_0_7466": 0.995,
+          "p_lower_end_exceeds_0_5": 0.8535,
+          "p_interval_contains_0_5": 0.1465,
+          "mean_width": 0.31192582987551865,
+          "mean_upper_end": 0.9401505618948823,
+          "mean_lower_end": 0.6282247320193637,
+          "verdict": "anti-conservative"
+        }
+      }
+    }
+  },
+  "runtime_seconds": 4805.9
+}
