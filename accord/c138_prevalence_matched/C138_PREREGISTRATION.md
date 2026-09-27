@@ -166,3 +166,92 @@ captured before the first call, as C103 and C109 do.
 ## OUTCOME
 
 (appended after the run; the rule above is not edited)
+
+**Run date 2026-09-27. Outcome B. Prevalence-matched thresholding did not help.**
+
+Pool-level graded scores did not exist before this run and were generated for
+it. The per-pair caches under `~/mimic_local_only/accord_prompt_sensitivity_cache/`
+cover only the 299 gold pairs, and `~/mimic_local_only/accord_multillm/` holds
+only HARD llama3:8b pool labels (`pool_replication_labels_llama3_8b.csv`, a
+single `replication_label` column, no graded score). All 1,679 pool rows were
+scored by `accord/c138_prevalence_matched/score_pool_granite.py` with the
+configuration fixed in section 2, over 1,560 seconds on a local Ollama:
+0 call failures, 0 parse failures, 0 truncations, 14 degenerate log-odds,
+1,613 distinct score values. The teacher's own hard positive rate on the pool
+is 0.6027, which is 15.0 times the pilot base rate: less extreme than llama3:8b's
+0.9470 but still grossly over-calling.
+
+All pre-registered gates passed. PM47 realised exactly 47 positives at rate
+0.039730, one row tied at the threshold value. Every prevalence-matched positive
+set is a strict subset of the teacher's own hard positives (47, 56 and 95 of
+them respectively, with 0 positives introduced that the hard label had not
+already flagged).
+
+G253 ensemble, three seeds, 12 positives against 241 negatives:
+
+| arm | train positives | train positive rate | AUROC | 95% CI | AP |
+| --- | --- | --- | --- | --- | --- |
+| RAW | 722 | 0.6103 | 0.5806 | 0.4406 to 0.7263 | 0.0706 |
+| PM47 | 47 | 0.0397 | 0.5156 | 0.3090 to 0.7198 | 0.0934 |
+| PM56 | 56 | 0.0473 | 0.5508 | 0.3622 to 0.7347 | 0.0709 |
+| PM95 | 95 | 0.0803 | 0.5073 | 0.3160 to 0.7049 | 0.0650 |
+| C130 reference | 1,132 | 0.9569 | 0.5360 | 0.3454 to 0.7196 | 0.0830 |
+
+Per-seed G253 AUROC. RAW 42: 0.5688, 123: 0.5965, 2024: 0.5968. PM47 42: 0.5633, 123: 0.5609, 2024: 0.5249.
+PM56 42: 0.4917, 123: 0.5719, 2024: 0.5688. PM95 42: 0.5045, 123: 0.5041, 2024: 0.5284.
+
+Paired bootstrap on the 253 shared gold rows, 10,000 replicates, rng seed 43:
+
+| comparison | difference | 95% CI | excludes zero |
+| --- | --- | --- | --- |
+| P1_PM47_minus_c130 | -0.0204 | -0.3202 to +0.2953 | no |
+| P2_PM47_minus_RAW | -0.0650 | -0.2419 to +0.1218 | no |
+| PM56_minus_RAW | -0.0297 | -0.1750 to +0.1247 | no |
+| PM95_minus_RAW | -0.0733 | -0.2209 to +0.0915 | no |
+| RAW_minus_c130 | +0.0446 | -0.1860 to +0.2538 | no |
+
+**Decision.** (P1) is not satisfied: the CI covers zero and the point estimate
+is negative. (P2) is not satisfied: likewise. The pre-registered outcome is
+therefore **B**, no recoverable benefit demonstrated. Not one of the four
+pre-registered comparisons excludes zero.
+
+**The sign is against the remedy, not merely uninformative.** Prevalence
+matching moved the student the wrong way at every k. PM47 at 0.5156 is below
+both the same-teacher hard-label student (0.5806) and the registered
+reproducible-label student (0.5360). The PM47/PM56/PM95 ladder, 0.5156, 0.5508
+and 0.5073, is flat at chance with no monotone trend in k, so the result is not
+an artefact of having chosen k badly: the ladder brackets the roughly 0.006 to
+0.075 interval a held-out-half estimate of k would have occupied, and the
+conclusion is the same across all of it. The best of the four arms is the one
+that did no prevalence matching at all.
+
+**Where the signal is lost.** This teacher configuration ranks the GOLD pairs at
+AUROC 0.7936 with permutation p = 0.0002. Its top 47 pool rows, distilled into
+the control architecture under the identical protocol, yield a student at 0.5156.
+The teacher's rank signal is real and it does not survive distillation. The
+failure is therefore located at the distillation step, on 47 positive examples,
+and not at the thresholding step. Correcting the marginal does not correct it,
+because the marginal was not what was broken. The one non-null hint runs the
+other way and is not significant: PM47 carries the highest average precision of
+any arm (0.0934 against RAW's 0.0706 and the reference's 0.0830), which is what
+a slightly better-ordered head of the ranking would look like, but no AUROC
+interval and no paired interval supports it and it must not be reported as a
+finding.
+
+**Power, stated plainly.** G253 carries 12 positives. The corrected analytic
+minimum detectable AUROC at alpha 0.05 and 80 percent power is 0.7382
+(`results/accord/audit_c137/a6_delong_mde.json::mde_alt_r4`), not the 0.7355 the
+thesis prints; the null-variance route gives 0.7397, recomputed independently
+here. Every arm's CI is roughly 0.30 wide. This design could only ever have
+detected a very large recovery. Outcome B rules out prevalence matching lifting
+the student to the 0.74 region; it does not rule out a modest benefit, and the
+negative point estimates are themselves well inside noise. A null here is weak
+evidence, and the honest claim is the narrow one: rethresholding the teacher's
+marginal is not sufficient to recover the ranking, at the only effect size this
+gold set can see.
+
+**Double use of the gold set, as declared.** k came from the same gold set the
+students were scored on, exactly as section 6 anticipated. The circularity, had
+it biased anything, would have biased the result TOWARDS Outcome A, and Outcome
+A did not occur, so the negative conclusion does not rest on it. The disclosure
+stands regardless.
