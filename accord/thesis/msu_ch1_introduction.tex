@@ -89,7 +89,7 @@ average precision.
 \begin{figure}[!ht]
 
 \centering
-\caption{The four pipeline stages and what survived each check}
+\caption{The four pipeline stages and what each check found}
 \includegraphics[width=0.98\linewidth]{figures/fig-pipeline-status.pdf}
 \label{fig:pipeline-status}
 \apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture, and (4) evaluation. Stage $1$'s precision is not established; reading stage $2$'s recall as discrimination is unsupported; stage $3$'s credited components are unsupported by code audit (an initialisation artifact, a confounded rule-type head, an untrained harm head); stage $4$, evaluation, is a bounded null whose interval lies below the simulated Mann-Whitney floor and which 1 or 2 targeted relabels would undo. The vertical rail labelled ``the same selected exemplar'' marks shared input, not a failed check: stages $2$, $3$, and $4$ each consumed the one exemplar that stage $1$ selected by position.}
@@ -98,10 +98,19 @@ average precision.
 \begin{figure}[!tbp]
 
 \centering
-\caption{Schematic of the exemplar defect}
+\caption{Five readings of the exemplar defect rate}
 \includegraphics[width=0.88\linewidth]{figures/fig-exemplar.pdf}
 \label{fig:exemplar}
-\apanote{The check that was not run. The rule fires on a conflict between two sets of medication mentions; the exemplar shown to annotator, weak labeller, and model is chosen by position instead. Slots are abstract and carry no clinical text. Because the three instrument readings printed in the figure do not agree, how often the pick misses is unresolved.}
+\apanote{The rule fires on a conflict between two sets of medication mentions;
+the exemplar shown to annotator, weak labeller, and model is chosen by position
+instead, and no metric compares displayed evidence against triggering evidence.
+Four instruments read the resulting defect rate on the $165$ annotated Rules 1
+and 2 pairs, ordered here by how many of those pairs each one excludes. The
+fifth, under the hairline, is the design rate on the $1{,}307$ rebuilt candidates
+and shares no row with the four above it. Intervals are Wilson intervals computed
+from each row's two counts. Open marks are readings their own analysis limits.
+Rules 3 and 4 are not drawn: their triggers reference no action label, so a high
+non-opposite rate there is the rule working as designed.}
 \end{figure}
 
 The candidate stage carries a bug pattern observed once here, which this thesis names
@@ -110,11 +119,25 @@ candidate mentions, an exemplar selector that picks from that set by position in
 together. Here the Rules 1 and 2 selector indexed candidates positionally
 (Figure~\ref{fig:exemplar}), and the pool's reported precision carried no
 trace of it, because no metric compares displayed evidence against
-triggering evidence. The pattern is not hypothetical. On the rebuilt candidate pool the original positional rule misplaces the exemplar for $41.4$ percent of Rules 1 and 2 candidates, a design rate set out under the third contribution below. The rate on the annotated exemplars cannot be
-recovered because the candidate schema does not record which mention fired.
-Three instruments were tried instead, and they give $0$ (the key join), $0.4745$ (the
-reconstruction), and $0.9315$ (the direct extractor, $69$ of whose $136$ wrong rows have no classified action on
-at least one side). Section~``\nameref{sec:r-exemplar}'' reports all three.
+triggering evidence. The pattern is not hypothetical. On the rebuilt candidate pool the original positional rule misplaces the exemplar for $41.4$ percent of Rules 1 and 2 candidates, a design rate set out under the third contribution below. What the annotated exemplars cannot recover is which mention fired, because the
+candidate schema does not record it. Whether the displayed mentions could have
+fired the trigger is a different question and is decidable from the stored action
+labels alone: for Rules 1 and 2 the trigger fires only on an opposite action pair,
+so a displayed pair that is not one provably cannot be the pair that fired. On
+that test $72$ of the $165$ annotated Rules 1 and 2 pairs sit outside the trigger
+set, a rate of $0.4364$ (Wilson $0.3630$ to $0.5126$), and the figure's first
+stage chip prints it. It is a lower bound and not the rate, because a display can
+be an opposite pair and still be drawn from the wrong mentions. Four instruments
+now read the same quantity: $0$ (the key join, on the $23$ rows it could resolve),
+$0.4364$ (this lower bound, on all $165$ pairs), $0.4745$ (the reconstruction),
+and $0.9315$ (the direct extractor, $69$ of whose $136$ wrong rows have no
+classified action on at least one side). The lower bound and the reconstruction
+are not independent, since they read nearly the same labels, which agree at
+$0.8934$ on the nursing side and $0.9508$ on the discharge side. The independent
+agreement is the rebuilt pool's design rate of $0.4139$, which touches neither the
+annotated candidates table nor that snapshot. What the set supports is three
+readings across two substrates, concentrated near $0.4$, with zero excluded on the
+annotated pairs themselves. Section~``\nameref{sec:r-exemplar}'' reports all four.
 Two further defects and one scope limitation are argued in
 Chapter~\ref{ch:method}. The harm head received no term in the training objective (RQ3 below). The train and validation split was made by subject, but the gold pairs were removed from the
 training pool by row, so the released run's training rows still share subjects with the gold set, and
@@ -159,9 +182,11 @@ notes yield a candidate pool with usable precision?
 in $299$ annotated pairs, a base rate of $0.0401$. For Rules 1 and 2 the
 surviving selector excerpt picks by position, an instance of trigger-exemplar
 dissociation, and nothing shows that it selected the annotated exemplars.
-How often that defect fired is unresolved:
-three instruments give $0$, $0.4745$, and $0.9315$
-(Section~``\nameref{sec:r-exemplar}''), and Section~``\nameref{sec:intro-notclaim}''
+How often that defect fired is bounded but not pinned:
+four instruments give $0$, $0.4364$, $0.4745$, and $0.9315$
+(Section~``\nameref{sec:r-exemplar}''), the second of them a lower bound measured on
+all $165$ annotated Rules 1 and 2 pairs with nothing reconstructed, and
+Section~``\nameref{sec:intro-notclaim}''
 states what that leaves of the $0.0401$ figure.}
 
 \item[RQ2. Weak supervision.] Can a language model weak labeller substitute
@@ -237,7 +262,7 @@ power matters to the first alone, through its evaluation verdict (RQ4).
 \begin{enumerate}
 \item \textbf{A stage-by-stage audit.} Three of the four stage readings did not
 survive their checks (one not established, two unsupported); the fourth, the
-evaluation's near-chance reading, survived as a bounded null (Figure~\ref{fig:pipeline-status} and RQ1 to RQ4 above). The bound is conditional on the labels, since 1 or 2 targeted relabels undo it.
+evaluation's near-chance reading, is reported as a bounded null (Figure~\ref{fig:pipeline-status} and RQ1 to RQ4 above). The bound is conditional on the labels, since 1 or 2 targeted relabels undo it.
 
 \item \textbf{A feasibility check on the weak labeller's marginal.} The
 maximum agreement under fixed marginals and the minimum attainable
@@ -279,6 +304,6 @@ Section~``\nameref{sec:disc-limits}.'' It does not claim that the task is unsolv
 evaluation bounds what this pipeline showed and leaves open what a detector could do. It does not claim
 that $0.0401$ is wrong: that figure is an unbiased estimate for the annotated pairs, and
 trigger-exemplar dissociation leaves open whether it describes the mining rules. It does not claim to know the defect rate of
-the gold exemplars, which three instruments leave unresolved. It does not claim that a
+the gold exemplars, which four instruments bound near $0.4$ without pinning. It does not claim that a
 frontier-scale model would not help, since every hosted result is withdrawn and the largest
 model run here is not frontier scale.

@@ -44,7 +44,7 @@ three control designs Chapter~\ref{ch:lit} describes, and those designs were not
 \toprule
 \textbf{Stage} & \textbf{Before check} & \textbf{After check} & \textbf{Verdict} \\
 \midrule
-Candidate mining & Pool base rate $0.0401$ read as a property of the mining rules & Confirmed rate on the annotated pairs only; exemplar defect rate unresolved ($0$, $0.4745$, $0.9315$) & Not established \\
+Candidate mining & Pool base rate $0.0401$ read as a property of the mining rules & Confirmed rate on the annotated pairs only; exemplar defect rate bounded, not pinned (four readings: $0$, $0.4364$, $0.4745$, $0.9315$; the $0.4364$ a lower bound on all $165$ annotated Rules 1 and 2 pairs) & Not established \\
 \addlinespace
 Weak supervision & A high-recall labeller usable in place of expert annotation & $261$ of $299$ flagged; agreement on the exact gold join not distinguishable from chance (MCC $0.0269$), and at this marginal it could not have been; the size of the over-calling depends on prompt and ambiguity reading & Unsupported \\
 \addlinespace
@@ -66,11 +66,22 @@ selected the annotated exemplars is not established. The design itself can be me
 rebuilt candidate pool, the original positional selector shows an exemplar outside the trigger
 set for $41.4$ percent of Rules 1 and 2 candidates. Under that design the failure is common. The
 figure is a design rate, because the rebuilt pool's sentence segmenter and row order are not the
-original's. Three instruments disagree on how often that
+original's. Four instruments read how often that
 failure fired on the pooled Rules 1 and 2 candidates
 (Section~``\nameref{sec:r-exemplar}''): a reconstruction, an exact key join on a
-much smaller subset, and a purpose-built extractor
-applied to the single truncated sentence the pharmacist saw. None is a tiebreaker. The rate is unresolved, and choosing one reading would not settle it.
+much smaller subset, a purpose-built extractor
+applied to the single truncated sentence the pharmacist saw, and a lower bound that
+needs none of the three. For Rules 1 and 2 the trigger fires only on an opposite
+action pair, so a displayed pair that is not one provably cannot be the pair that
+fired; $72$ of the $165$ annotated pairs are such a display, a rate of at least
+$0.4364$ (Wilson $0.3630$ to $0.5126$). That bound is not independent of the
+reconstruction, which reads nearly the same labels: the two substrates agree at
+$0.8934$ on the nursing side and $0.9508$ on the discharge side. The independent
+reading is the rebuilt pool's design rate of $0.4139$, which touches neither the
+annotated candidates table nor that snapshot. What the set supports is three
+readings across two substrates, concentrated near $0.4$, with zero excluded on the
+annotated pairs themselves. Which mention fired is still not recoverable, and no
+single reading is a tiebreaker for the rate itself.
 
 The gold sample was drawn by the original pipeline from its own pool. For that
 annotated sample $0.0401$ is unbiased (Chapter~\ref{ch:method} states the estimand);
@@ -270,9 +281,9 @@ date, which means the summary cannot be placed in time relative to the discharge
 finding, too late to be an intervention, and nothing here measures whether the task is tractable at the
 discharge order.
 
-\paragraph{The exemplar defect rate is unresolved.} This is the limitation most
-likely to be read as smaller than it is: the three readings span $0$ to $0.9315$, and $69$ of the $136$ rows behind the highest have no
-classified action on at least one side. The planted-defect benchmark (Chapter~\ref{ch:results}) asked whether the two rule groups could be
+\paragraph{The exemplar defect rate is bounded, not pinned.} This is the limitation most
+likely to be read as smaller than it is: the four readings span $0$ to $0.9315$, and $69$ of the $136$ rows behind the highest have no
+classified action on at least one side. The lower bound of $0.4364$ rules out a rate of $0$ on the annotated pairs and does not fix the rate above it. The planted-defect benchmark (Chapter~\ref{ch:results}) asked whether the two rule groups could be
 distinguished at this sample size, and did not meet its rule. The rule-group
 comparison has exact power $0.0495$ at the observed rates, with $0.094$ the
 smallest excess Rules 1 and 2 rate detectable at $80$ percent power. Near-equal precision between the groups therefore shows only that the test could not have detected a
