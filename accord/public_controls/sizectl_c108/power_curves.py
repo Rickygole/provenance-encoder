@@ -15,6 +15,12 @@ C108 pre-registration). The ONLY difference from that script:
    `INFINITE_SIGMA` sentinel at target 0.50, which downstream code (replicate
    drawing, and this script's own held-out population-AUROC check) must
    handle explicitly rather than passing to `rng.normal(0, sigma, ...)`.
+3. That sentinel is SERIALISED as `"sigma": null` plus an explicit
+   `"sigma_is_infinite_limit": true/false` flag, and the artifact is written
+   with `allow_nan=False` (see `json_safe_params`). Representation only: no
+   grid point, rule, replicate count, seed, decision rule, outcome threshold
+   or reported number changes, and nothing downstream reads the serialised
+   per-grid-point `params`.
 
 Pure simulation on top of the already-scored SNLI pool: no model load, no
 network, no MIMIC. Reuses accord/public_controls/evaluation.py throughout.
@@ -52,6 +58,38 @@ RULES_CHEAP = ["mw_one_sided", "mw_two_sided", "c98_rule",
               "delong_single_one_sided", "delong_paired_vs_null"]
 RULE_BOOTSTRAP = "bootstrap_lower_excludes_chance"
 ALL_RULES = RULES_CHEAP + [RULE_BOOTSTRAP]
+
+
+def json_safe_params(params):
+    """On-disk form of a grid point's construction parameters.
+
+    The noise-mix construction's target-AUROC-0.50 cell is the sigma ->
+    infinity limit, and `evaluation.bisect_sigma_for_target` returns the
+    `ev.INFINITE_SIGMA` sentinel (`float("inf")`) for it. That sentinel is a
+    LIMIT, not a measured quantity: infinite additive noise, realised exactly
+    by drawing both slot groups from the pooled distribution (see
+    `evaluation.draw_noise_mix_replicate`). It is not a divide by zero and not
+    a defect in the simulation.
+
+    Infinity is not JSON. `json.dumps` writes the bare token `Infinity`, which
+    a strict parser rejects, so the artifact stopped being parseable JSON.
+    Written here as `"sigma": null` plus an explicit
+    `"sigma_is_infinite_limit"` flag, so the sentinel survives the round trip
+    as a fact rather than as a non-standard token. Nothing downstream reads
+    this value: `register.py` registers only the top-level and per-construction
+    summary keys and deliberately does not explode the per-grid-point `grid`
+    lists, and the replicate draws inside this run use the in-memory sentinel,
+    not the serialised form.
+    """
+    if "sigma" not in params:
+        return dict(params)
+    infinite = params["sigma"] == ev.INFINITE_SIGMA
+    # Key order fixed here, so the artifact a rerun writes is byte-comparable
+    # with the committed one: sigma, then the flag, then everything else.
+    out = {"sigma": None if infinite else params["sigma"],
+           "sigma_is_infinite_limit": bool(infinite)}
+    out.update({k: v for k, v in params.items() if k != "sigma"})
+    return out
 
 
 def fire(rule, y, s, extra_seed=None):
@@ -167,7 +205,7 @@ def run_construction(kind, construction_seed_seq, pos_pool, neg_pool, pos_z, neg
             if target == 0.50:
                 validity["rejection_rate_at_0_50"][rule] = fires / n_reps
 
-        grid_results.append({"target_auroc": target, "params": params,
+        grid_results.append({"target_auroc": target, "params": json_safe_params(params),
                              "population_auroc_check": pop_auroc,
                              "fire_rates": fire_rates})
 
@@ -242,9 +280,14 @@ def main():
         "wall_clock_seconds": round(time.time() - t0, 1),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, indent=2) + "\n")
+    # allow_nan=False: NaN and Infinity are not JSON. The only non-finite value
+    # this simulation can produce is the noise-mix sigma -> infinity sentinel,
+    # which json_safe_params already turns into null plus an explicit flag, so
+    # anything else non-finite is a defect and must fail loudly here rather than
+    # write a token no strict JSON parser will read.
+    OUT.write_text(json.dumps(out, indent=2, allow_nan=False) + "\n")
     print(json.dumps({k: v for k, v in out.items() if k not in ("label_mix", "noise_mix")},
-                     indent=2))
+                     indent=2, allow_nan=False))
 
 
 if __name__ == "__main__":

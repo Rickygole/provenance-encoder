@@ -21,6 +21,34 @@ MIMIC_LOCAL_ONLY_DIR = os.environ.get("MIMIC_LOCAL_ONLY_DIR", os.path.expanduser
 OUTDIR = os.path.join(MIMIC_LOCAL_ONLY_DIR, "accord_differential")
 os.makedirs(OUTDIR, exist_ok=True)
 
+def json_safe(obj):
+    """Map every non-finite float to None (JSON `null`) recursively.
+
+    NaN and Infinity are not JSON: `json.dump` writes the bare tokens `NaN`
+    and `Infinity`, which a strict parser rejects outright. Every non-finite
+    value this script can produce is an UNDEFINED metric, not a number: a rate
+    whose denominator is an empty cell (for example FNR = FN / n_pos and
+    recall = TP / n_pos for a demographic group with zero gold positives).
+    `null` is the correct on-disk representation of "undefined".
+
+    Building a DataFrame out of records re-introduces NaN even when the record
+    held None, because a numeric column cannot hold None, so the sanitising
+    has to happen at serialisation time rather than only at the arithmetic.
+    Every dump below then passes allow_nan=False, so a non-finite value this
+    helper somehow did not reach fails loudly instead of writing a non-JSON
+    token into an artifact that other code and the thesis read.
+    """
+    if isinstance(obj, float) and not np.isfinite(obj):
+        return None
+    if isinstance(obj, np.floating):
+        return None if not np.isfinite(obj) else float(obj)
+    if isinstance(obj, dict):
+        return {k: json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [json_safe(v) for v in obj]
+    return obj
+
+
 log_lines = []
 def log(*a):
     s = " ".join(str(x) for x in a)
@@ -241,16 +269,21 @@ def confusion_by_group(df, group_col):
         tn = ((sub["weak_pos"] == 0) & (sub["pharm_pos"] == 0)).sum()
         n_pos = tp + fn
         n_neg = fp + tn
-        fpr = fp / n_neg if n_neg else np.nan
-        fnr = fn / n_pos if n_pos else np.nan
-        precision = tp / (tp + fp) if (tp + fp) else np.nan
-        recall = tp / n_pos if n_pos else np.nan
+        # A zero denominator is an empty cell, not a rate of zero: the metric
+        # is undefined for that group and is written as null, never as NaN.
+        # (n_pos == 0 happens for real here: several demographic groups hold no
+        # gold positive at all in this 299-row set, so FNR and recall have
+        # nothing to divide by.)
+        fpr = fp / n_neg if n_neg else None
+        fnr = fn / n_pos if n_pos else None
+        precision = tp / (tp + fp) if (tp + fp) else None
+        recall = tp / n_pos if n_pos else None
         out.append(dict(group=g, n=len(sub), n_pos=n_pos, n_neg=n_neg,
                          TP=tp, FP=fp, FN=fn, TN=tn,
-                         FPR=round(fpr, 3) if pd.notna(fpr) else fpr,
-                         FNR=round(fnr, 3) if pd.notna(fnr) else fnr,
-                         precision=round(precision, 3) if pd.notna(precision) else precision,
-                         recall=round(recall, 3) if pd.notna(recall) else recall))
+                         FPR=round(fpr, 3) if fpr is not None else None,
+                         FNR=round(fnr, 3) if fnr is not None else None,
+                         precision=round(precision, 3) if precision is not None else None,
+                         recall=round(recall, 3) if recall is not None else None))
     return pd.DataFrame(out)
 
 exp1a_results = {}
@@ -273,7 +306,7 @@ for gcol in ["language_group3"]:
     exp1a_results[gcol + "_no_ambiguous"] = tbl.to_dict(orient="records")
 
 with open(os.path.join(OUTDIR, "exp1a_gold_error_rates_by_group.json"), "w") as f:
-    json.dump(exp1a_results, f, indent=2, default=str)
+    json.dump(json_safe(exp1a_results), f, indent=2, default=str, allow_nan=False)
 
 print("PART3_DONE")
 
@@ -311,7 +344,7 @@ log("to labeller error. Only (a) above (n=299, gold) speaks to error; (b) is pre
 log("positive-calls only, offered because it is well powered.")
 
 with open(os.path.join(OUTDIR, "exp1b_positive_rate_by_group.json"), "w") as f:
-    json.dump(exp1b_results, f, indent=2, default=str)
+    json.dump(json_safe(exp1b_results), f, indent=2, default=str, allow_nan=False)
 
 print("PART4_DONE")
 
@@ -362,13 +395,13 @@ log("\nOdds ratios with 95% CI:")
 log(or_ci.round(4).to_string())
 
 with open(os.path.join(OUTDIR, "exp1c_logistic_regression.json"), "w") as f:
-    json.dump({
+    json.dump(json_safe({
         "n": int(reg_df.shape[0]),
         "params": model.params.to_dict(),
         "pvalues": model.pvalues.to_dict(),
         "or_ci": or_ci.round(4).to_dict(orient="index"),
         "pseudo_r2": model.prsquared,
-    }, f, indent=2, default=str)
+    }), f, indent=2, default=str, allow_nan=False)
 
 print("PART5_DONE")
 
@@ -424,9 +457,11 @@ log(f"\nLanguage coefficient still excludes OR=1 (95% CI) after volume adjustmen
 log(f"non-English/missing categories: {verdict_survives}")
 
 with open(os.path.join(OUTDIR, "exp2a_candidate_yield_regression.json"), "w") as f:
-    json.dump({"n": int(m2.shape[0]), "before_volume_adj": before, "after_volume_adj": after,
-               "base_pseudo_r2": model_base.prsquared, "full_pseudo_r2": model_full.prsquared},
-              f, indent=2, default=str)
+    json.dump(json_safe({"n": int(m2.shape[0]), "before_volume_adj": before,
+                         "after_volume_adj": after,
+                         "base_pseudo_r2": model_base.prsquared,
+                         "full_pseudo_r2": model_full.prsquared}),
+              f, indent=2, default=str, allow_nan=False)
 
 print("PART6_DONE")
 
@@ -474,13 +509,13 @@ log(f"  CMH statistic = {cmh_em.statistic:.3f}, p = {cmh_em.pvalue:.2e}")
 strat_flat = strat.copy()
 strat_flat.columns = ["_".join(str(c) for c in col) for col in strat_flat.columns]
 with open(os.path.join(OUTDIR, "exp2b_decile_stratified.json"), "w") as f:
-    json.dump({
+    json.dump(json_safe({
         "yield_by_decile_language": strat_flat.round(4).reset_index().to_dict(orient="records"),
         "cmh_english_vs_nonenglish_or_missing": {"common_OR": strat_table.oddsratio_pooled,
                                                    "statistic": float(cmh.statistic), "p": float(cmh.pvalue)},
         "cmh_english_vs_missing_only": {"common_OR": strat_table_em.oddsratio_pooled,
                                           "statistic": float(cmh_em.statistic), "p": float(cmh_em.pvalue)},
-    }, f, indent=2, default=str)
+    }), f, indent=2, default=str, allow_nan=False)
 
 print("PART7_DONE")
 
@@ -552,7 +587,7 @@ log(f"  WHITE yield={yield_by_eth3.loc['WHITE','mean']:.4f} (n={yield_by_eth3.lo
 log(f"  UNKNOWN_OTHER yield={yield_by_eth3.loc['UNKNOWN_OTHER','mean']:.4f} (n={yield_by_eth3.loc['UNKNOWN_OTHER','count']:.0f})")
 
 with open(os.path.join(OUTDIR, "exp3_disaggregation.json"), "w") as f:
-    json.dump({
+    json.dump(json_safe({
         "population_language_composition": pop_lang.to_dict(),
         "candidate_pool_language_composition": cand_lang.to_dict(),
         "yield_by_language3": yield_by_lang3.round(4).to_dict(),
@@ -563,7 +598,7 @@ with open(os.path.join(OUTDIR, "exp3_disaggregation.json"), "w") as f:
         "eth_chi2": {"chi2": chi2e, "dof": dofe, "p": pe},
         "yield_by_ethnicity_broad": yield_by_eth_broad.round(4).to_dict(),
         "white_vs_named_minority_chi2": {"chi2": chi2n, "p": pn},
-    }, f, indent=2, default=str)
+    }), f, indent=2, default=str, allow_nan=False)
 
 with open(os.path.join(OUTDIR, "run_log.txt"), "w") as f:
     f.write("\n".join(log_lines))
