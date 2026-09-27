@@ -1,0 +1,1903 @@
+{
+  "what_this_closes": [
+    "bootstrap 95 percent AUROC interval and LOPO range for all 17 graded-score labeller configurations on G_253 and on the Rules 1-2 / Rules 3-4 strata (previously present for the four llama3:8b C109 cells only)",
+    "the C109 registered confound test (rule-type cue among confirmed negatives) run on the nine C103 promptsens cells, which never carried it"
+  ],
+  "inputs": {
+    "per_pair_score_caches": "~/mimic_local_only/accord_prompt_sensitivity_cache/*.jsonl (flag_logodds, the graded score; never the hard label)",
+    "gold_labels": "pharmacist_labeled_clean.csv::label_clean",
+    "rules": "derived/gold_standard_accord_results.csv::rule",
+    "no_new_inference": true
+  },
+  "method": {
+    "auroc_and_permutation_p": "accord/prompt_sensitivity/analyze_c109.py::auroc_and_perm_p",
+    "permutation_draws": 20000,
+    "permutation_seed": 109,
+    "lopo": "accord/prompt_sensitivity/analyze_c109.py::lopo_range",
+    "bootstrap": "accord/control/report.py::bootstrap_auroc_ci (percentile, single-class resamples discarded)",
+    "bootstrap_draws": 10000,
+    "bootstrap_seed": 20260806,
+    "confound_test": "accord/prompt_sensitivity/analyze_c109.py registered thresholds",
+    "note_on_earlier_bootstrap": "the four llama3:8b C109 bootstrap intervals already in the register came from analyze_c109.py::stratified_bootstrap_ci, a STRATIFIED bootstrap at B = 5000, seed 42. This run uses the plain percentile bootstrap at B = 10000, the construction accord/control/report.py uses everywhere else in the thesis, so all 17 cells are now on one method; the llama3:8b numbers here therefore need not equal the stratified ones already registered."
+  },
+  "n_configurations": 17,
+  "n_configurations_with_cache": 17,
+  "g253_n": 253,
+  "g253_n_pos": 12,
+  "cells": {
+    "promptsens::llama3:8b::P_asserting": {
+      "cache_present": true,
+      "family": "promptsens",
+      "model": "llama3:8b",
+      "prompt": "P_asserting",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.6535269709543569,
+        "permutation_p": 0.03424828758562072,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6250471520181063,
+        "lopo_auroc_max": 0.7035081101471143,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.46083654773384763,
+            0.827953853112241
+          ],
+          "boot_mean": 0.6531002209939482,
+          "boot_std": 0.09401621362185478,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.03637481812590937,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.605515587529976,
+        "permutation_p": 0.19624018799060047,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.5467625899280576,
+        "lopo_auroc_max": 0.6661870503597123,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.3873239436619718,
+            0.8103048804162134
+          ],
+          "boot_mean": 0.6065215852509577,
+          "boot_std": 0.10709966869400958,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.7009803921568627,
+        "permutation_p": 0.04904754762261887,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6450980392156863,
+        "lopo_auroc_max": 0.803921568627451,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.35336538461538464,
+            0.9708807879014189
+          ],
+          "boot_mean": 0.7017112010674821,
+          "boot_std": 0.16038386311654107,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.6246649739032304,
+        "permutation_p": 0.00039998000099995,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.37533502609676966,
+        "permutation_p_reverse_direction": 0.9998000099995,
+        "direction_free_auroc_max_auc_1minusauc": 0.6246649739032304,
+        "direction_free_permutation_p_two_sided": 0.0007999600019999,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_1_2",
+        "registered_rule_is_one_sided": true,
+        "already_registered": false
+      },
+      "registered_auroc_253_key": "promptsens.llama3_8b.P_asserting.auroc_253",
+      "registered_auroc_253_value": 0.6535269709543569,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptsens::llama3:8b::P_neutral": {
+      "cache_present": true,
+      "family": "promptsens",
+      "model": "llama3:8b",
+      "prompt": "P_neutral",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.6929460580912863,
+        "permutation_p": 0.011249437528123594,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6665409279517164,
+        "lopo_auroc_max": 0.7487740475292343,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.5337499124603884,
+            0.829594337735094
+          ],
+          "boot_mean": 0.6930060136231024,
+          "boot_std": 0.07614748907931425,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.011534942325288374,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.8189448441247003,
+        "permutation_p": 0.0028998550072496373,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7841726618705036,
+        "lopo_auroc_max": 0.860431654676259,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.6948356807511737,
+            0.9300699300699301
+          ],
+          "boot_mean": 0.8199820499406764,
+          "boot_std": 0.0598763212077051,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.5604575163398693,
+        "permutation_p": 0.31478426078696065,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.47843137254901963,
+        "lopo_auroc_max": 0.6627450980392157,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.26983543417366945,
+            0.8245353349673201
+          ],
+          "boot_mean": 0.5603714485830511,
+          "boot_std": 0.14048772737688572,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.36214557765552263,
+        "permutation_p": 0.9998000099995,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.6378544223444773,
+        "permutation_p_reverse_direction": 0.00024998750062496874,
+        "direction_free_auroc_max_auc_1minusauc": 0.6378544223444773,
+        "direction_free_permutation_p_two_sided": 0.0004999750012499375,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": false
+      },
+      "registered_auroc_253_key": "promptsens.llama3_8b.P_neutral.auroc_253",
+      "registered_auroc_253_value": 0.6929460580912863,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptsens::llama3:8b::P_reversed": {
+      "cache_present": true,
+      "family": "promptsens",
+      "model": "llama3:8b",
+      "prompt": "P_reversed",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.7503457814661134,
+        "permutation_p": 0.0010999450027498626,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7276499434175783,
+        "lopo_auroc_max": 0.7800829875518671,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.6351953488864426,
+            0.8568779859289275
+          ],
+          "boot_mean": 0.7499168930319382,
+          "boot_std": 0.05684347458677274,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.0014049929750351248,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.8525179856115108,
+        "permutation_p": 0.0010999450027498626,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.823021582733813,
+        "lopo_auroc_max": 0.8805755395683453,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.75177304964539,
+            0.9441040372670807
+          ],
+          "boot_mean": 0.8533586627221698,
+          "boot_std": 0.04854095014562907,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.619281045751634,
+        "permutation_p": 0.16869156542172892,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.5450980392156863,
+        "lopo_auroc_max": 0.6745098039215687,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.40623938106796115,
+            0.841352103960396
+          ],
+          "boot_mean": 0.6206551370817355,
+          "boot_std": 0.10894210407366345,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.39240372407955987,
+        "permutation_p": 0.9986500674966252,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.6075962759204401,
+        "permutation_p_reverse_direction": 0.0024998750062496873,
+        "direction_free_auroc_max_auc_1minusauc": 0.6075962759204401,
+        "direction_free_permutation_p_two_sided": 0.004999750012499375,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": false
+      },
+      "registered_auroc_253_key": "promptsens.llama3_8b.P_reversed.auroc_253",
+      "registered_auroc_253_value": 0.7503457814661134,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptsens::granite3.3:8b::P_asserting": {
+      "cache_present": true,
+      "family": "promptsens",
+      "model": "granite3.3:8b",
+      "prompt": "P_asserting",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.6884508990318119,
+        "permutation_p": 0.013099345032748363,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6605054696341003,
+        "lopo_auroc_max": 0.7167106752168994,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.5641025641025641,
+            0.8046692025251839
+          ],
+          "boot_mean": 0.6875947682978784,
+          "boot_std": 0.06113373358798986,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.012969935150324248,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.802158273381295,
+        "permutation_p": 0.00439978001099945,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7640287769784172,
+        "lopo_auroc_max": 0.8215827338129497,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.6968085106382979,
+            0.9088729016786571
+          ],
+          "boot_mean": 0.803011349537511,
+          "boot_std": 0.053151178739011665,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.5441176470588235,
+        "permutation_p": 0.3618319084045798,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.4627450980392157,
+        "lopo_auroc_max": 0.5901960784313726,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.3475468614822647,
+            0.7631067961165048
+          ],
+          "boot_mean": 0.5439365613859373,
+          "boot_std": 0.10610026430410932,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.4645577655522641,
+        "permutation_p": 0.824158792060397,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.535442234447736,
+        "permutation_p_reverse_direction": 0.1717914104294785,
+        "direction_free_auroc_max_auc_1minusauc": 0.5354422344477359,
+        "direction_free_permutation_p_two_sided": 0.343582820858957,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": false
+      },
+      "registered_auroc_253_key": "promptsens.granite33_8b.P_asserting.auroc_253",
+      "registered_auroc_253_value": 0.6884508990318119,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptsens::granite3.3:8b::P_neutral": {
+      "cache_present": true,
+      "family": "promptsens",
+      "model": "granite3.3:8b",
+      "prompt": "P_neutral",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.6538727524204703,
+        "permutation_p": 0.033548322583870804,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6224066390041494,
+        "lopo_auroc_max": 0.7076574877404753,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.4603780528604885,
+            0.828151060257941
+          ],
+          "boot_mean": 0.6528609311190839,
+          "boot_std": 0.09301404022679013,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.03499482502587487,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.6942446043165468,
+        "permutation_p": 0.05254737263136843,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6330935251798562,
+        "lopo_auroc_max": 0.7611510791366907,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.46686253481686696,
+            0.9248826291079811
+          ],
+          "boot_mean": 0.6951664697173524,
+          "boot_std": 0.11350964778865143,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.6323529411764706,
+        "permutation_p": 0.14409279536023198,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.5588235294117647,
+        "lopo_auroc_max": 0.7352941176470589,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.326984126984127,
+            0.9037517238330977
+          ],
+          "boot_mean": 0.6325996032828615,
+          "boot_std": 0.14493132345823848,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.5336084073917337,
+        "permutation_p": 0.1870906454677266,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.46639159260826635,
+        "permutation_p_reverse_direction": 0.8146092695365231,
+        "direction_free_auroc_max_auc_1minusauc": 0.5336084073917337,
+        "direction_free_permutation_p_two_sided": 0.3741812909354532,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_1_2",
+        "registered_rule_is_one_sided": true,
+        "already_registered": false
+      },
+      "registered_auroc_253_key": "promptsens.granite33_8b.P_neutral.auroc_253",
+      "registered_auroc_253_value": 0.6538727524204703,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptsens::granite3.3:8b::P_reversed": {
+      "cache_present": true,
+      "family": "promptsens",
+      "model": "granite3.3:8b",
+      "prompt": "P_reversed",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.7365145228215768,
+        "permutation_p": 0.0023998800059997,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7140701622029423,
+        "lopo_auroc_max": 0.7619766125990193,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.6172819795753681,
+            0.8495957471441803
+          ],
+          "boot_mean": 0.7366473272668166,
+          "boot_std": 0.05915477767095048,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.0022149889250553745,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.7302158273381295,
+        "permutation_p": 0.026698665066746664,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6848920863309352,
+        "lopo_auroc_max": 0.7697841726618705,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.5727364185110664,
+            0.8943661971830986
+          ],
+          "boot_mean": 0.7318868355741918,
+          "boot_std": 0.07897291434251211,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.7565359477124183,
+        "permutation_p": 0.016699165041747913,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.707843137254902,
+        "lopo_auroc_max": 0.7999999999999999,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.5707381855052018,
+            0.9301587301587302
+          ],
+          "boot_mean": 0.7573198619345146,
+          "boot_std": 0.08873249939600185,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.3959303145718719,
+        "permutation_p": 0.9978001099945003,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.6040696854281281,
+        "permutation_p_reverse_direction": 0.0026498675066246686,
+        "direction_free_auroc_max_auc_1minusauc": 0.6040696854281281,
+        "direction_free_permutation_p_two_sided": 0.005299735013249337,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": false
+      },
+      "registered_auroc_253_key": "promptsens.granite33_8b.P_reversed.auroc_253",
+      "registered_auroc_253_value": 0.7365145228215768,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptsens::qwen3:8b::P_asserting": {
+      "cache_present": true,
+      "family": "promptsens",
+      "model": "qwen3:8b",
+      "prompt": "P_asserting",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.5776279391424619,
+        "permutation_p": 0.1800909954502275,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.543379856657865,
+        "lopo_auroc_max": 0.6224066390041494,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.41695648814207037,
+            0.7369799073475543
+          ],
+          "boot_mean": 0.5770020147148563,
+          "boot_std": 0.08156714910975855,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.1848040759796201,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.6750599520383693,
+        "permutation_p": 0.07649617519124044,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6187050359712231,
+        "lopo_auroc_max": 0.7251798561151079,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.4580419580419581,
+            0.9017039784321608
+          ],
+          "boot_mean": 0.6761418794389059,
+          "boot_std": 0.10794942450018852,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.5138888888888888,
+        "permutation_p": 0.45477726113694317,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.4362745098039216,
+        "lopo_auroc_max": 0.5862745098039216,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.30266876999766557,
+            0.7355769230769231
+          ],
+          "boot_mean": 0.5142837325620268,
+          "boot_std": 0.11043906608615243,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.5725772323317816,
+        "permutation_p": 0.02664866756662167,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.42742276766821835,
+        "permutation_p_reverse_direction": 0.9749012549372531,
+        "direction_free_auroc_max_auc_1minusauc": 0.5725772323317816,
+        "direction_free_permutation_p_two_sided": 0.05329733513324334,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_1_2",
+        "registered_rule_is_one_sided": true,
+        "already_registered": false
+      },
+      "registered_auroc_253_key": "promptsens.qwen3_8b.P_asserting.auroc_253",
+      "registered_auroc_253_value": 0.5776279391424619,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptsens::qwen3:8b::P_neutral": {
+      "cache_present": true,
+      "family": "promptsens",
+      "model": "qwen3:8b",
+      "prompt": "P_neutral",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.6843015214384509,
+        "permutation_p": 0.014349282535873207,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6593738211995472,
+        "lopo_auroc_max": 0.7457563183704263,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.5175373619233268,
+            0.8191689044038668
+          ],
+          "boot_mean": 0.6839553771310389,
+          "boot_std": 0.07746993023633557,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.015189924050379748,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.7961630695443646,
+        "permutation_p": 0.005549722513874306,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7611510791366906,
+        "lopo_auroc_max": 0.8316546762589928,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.6557034161490684,
+            0.9347943384422895
+          ],
+          "boot_mean": 0.7975983061571799,
+          "boot_std": 0.06878357870157524,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.5588235294117647,
+        "permutation_p": 0.3184840757962102,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.5019607843137255,
+        "lopo_auroc_max": 0.6686274509803922,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.28154581310679605,
+            0.7875
+          ],
+          "boot_mean": 0.5586120602745339,
+          "boot_std": 0.13009029657848856,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.43966003667654113,
+        "permutation_p": 0.9466026698665067,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.5603399633234589,
+        "permutation_p_reverse_direction": 0.05329733513324334,
+        "direction_free_auroc_max_auc_1minusauc": 0.5603399633234589,
+        "direction_free_permutation_p_two_sided": 0.10659467026648668,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": false
+      },
+      "registered_auroc_253_key": "promptsens.qwen3_8b.P_neutral.auroc_253",
+      "registered_auroc_253_value": 0.6843015214384509,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptsens::qwen3:8b::P_reversed": {
+      "cache_present": true,
+      "family": "promptsens",
+      "model": "qwen3:8b",
+      "prompt": "P_reversed",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.6721991701244814,
+        "permutation_p": 0.02199890005499725,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6431535269709543,
+        "lopo_auroc_max": 0.7121840814786873,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.522577353522054,
+            0.8188177041454481
+          ],
+          "boot_mean": 0.6731040570282765,
+          "boot_std": 0.07559261998217257,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.021624891875540623,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.7146282973621103,
+        "permutation_p": 0.03864806759662017,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6676258992805756,
+        "lopo_auroc_max": 0.7654676258992806,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.5407801418439716,
+            0.8826348088531186
+          ],
+          "boot_mean": 0.7152238266533176,
+          "boot_std": 0.08520588051154546,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.6258169934640523,
+        "permutation_p": 0.15959202039898004,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.5529411764705883,
+        "lopo_auroc_max": 0.7274509803921569,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.3348863842525399,
+            0.8888996763754045
+          ],
+          "boot_mean": 0.626369603517964,
+          "boot_std": 0.14058891482990796,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.3677881224432219,
+        "permutation_p": 0.99990000499975,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.6322118775567781,
+        "permutation_p_reverse_direction": 0.0002999850007499625,
+        "direction_free_auroc_max_auc_1minusauc": 0.6322118775567781,
+        "direction_free_permutation_p_two_sided": 0.000599970001499925,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": false
+      },
+      "registered_auroc_253_key": "promptsens.qwen3_8b.P_reversed.auroc_253",
+      "registered_auroc_253_value": 0.6721991701244814,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptconfirm::llama3:8b::P_rev_agree": {
+      "cache_present": true,
+      "family": "promptconfirm",
+      "model": "llama3:8b",
+      "prompt": "P_rev_agree",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.7309820193637621,
+        "permutation_p": 0.002999850007499625,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7065258393059223,
+        "lopo_auroc_max": 0.7634854771784232,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.6024634971509971,
+            0.8502075329132729
+          ],
+          "boot_mean": 0.7312436862564599,
+          "boot_std": 0.06301674650090905,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.0030449847750761245,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.8201438848920863,
+        "permutation_p": 0.003399830008499575,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7841726618705036,
+        "lopo_auroc_max": 0.8719424460431655,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.6762548902483853,
+            0.9485714285714286
+          ],
+          "boot_mean": 0.8220168136954804,
+          "boot_std": 0.06916370867250304,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.6078431372549019,
+        "permutation_p": 0.1888405579721014,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.5294117647058824,
+        "lopo_auroc_max": 0.6745098039215687,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.37016952614379084,
+            0.8504677433989656
+          ],
+          "boot_mean": 0.6083847218930236,
+          "boot_std": 0.11904896035739945,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.3626393003244463,
+        "permutation_p": 1.0,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.6373606996755536,
+        "permutation_p_reverse_direction": 0.0002999850007499625,
+        "direction_free_auroc_max_auc_1minusauc": 0.6373606996755536,
+        "direction_free_permutation_p_two_sided": 0.000599970001499925,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": true
+      },
+      "registered_auroc_253_key": "promptconfirm.llama3_8b.P_rev_agree.auroc_253",
+      "registered_auroc_253_value": 0.7309820193637621,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptconfirm::llama3:8b::P_rev_follow": {
+      "cache_present": true,
+      "family": "promptconfirm",
+      "model": "llama3:8b",
+      "prompt": "P_rev_follow",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.6431535269709544,
+        "permutation_p": 0.04459777011149443,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6107129385137684,
+        "lopo_auroc_max": 0.6993587325537534,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.45816319473847633,
+            0.8160513739545997
+          ],
+          "boot_mean": 0.6427425518390509,
+          "boot_std": 0.09009125794350764,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.04759476202618987,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.7218225419664268,
+        "permutation_p": 0.03329833508324584,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6661870503597123,
+        "lopo_auroc_max": 0.776978417266187,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.4955492957746479,
+            0.951048951048951
+          ],
+          "boot_mean": 0.7235701594480314,
+          "boot_std": 0.10804444301638205,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.565359477124183,
+        "permutation_p": 0.29718514074296287,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.48431372549019613,
+        "lopo_auroc_max": 0.6725490196078432,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.253948609146629,
+            0.8529006156918213
+          ],
+          "boot_mean": 0.5663408752987279,
+          "boot_std": 0.1496071721732497,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.5010932430526167,
+        "permutation_p": 0.48272586370681464,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.4989067569473833,
+        "permutation_p_reverse_direction": 0.5077746112694366,
+        "direction_free_auroc_max_auc_1minusauc": 0.5010932430526167,
+        "direction_free_permutation_p_two_sided": 0.9654517274136293,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_1_2",
+        "registered_rule_is_one_sided": true,
+        "already_registered": true
+      },
+      "registered_auroc_253_key": "promptconfirm.llama3_8b.P_rev_follow.auroc_253",
+      "registered_auroc_253_value": 0.6431535269709544,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptconfirm::llama3:8b::P_rev_compatible": {
+      "cache_present": true,
+      "family": "promptconfirm",
+      "model": "llama3:8b",
+      "prompt": "P_rev_compatible",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.6514522821576764,
+        "permutation_p": 0.040197990100494976,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6197661259901924,
+        "lopo_auroc_max": 0.6842700867597133,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.5083998888811723,
+            0.7926305379746835
+          ],
+          "boot_mean": 0.6522021460731783,
+          "boot_std": 0.07265567705938288,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.03722481387593062,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.7673860911270983,
+        "permutation_p": 0.011649417529123544,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7208633093525181,
+        "lopo_auroc_max": 0.8330935251798561,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.5720639989572471,
+            0.9475634538818845
+          ],
+          "boot_mean": 0.7696782916820435,
+          "boot_std": 0.09387478407622536,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.5016339869281046,
+        "permutation_p": 0.4983250837458127,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.4019607843137255,
+        "lopo_auroc_max": 0.5764705882352942,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.22428799401380495,
+            0.8022875816993464
+          ],
+          "boot_mean": 0.5025405850985238,
+          "boot_std": 0.14623793516797468,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.18087882635068417,
+        "permutation_p": 1.0,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.8191211736493158,
+        "permutation_p_reverse_direction": 4.999750012499375e-05,
+        "direction_free_auroc_max_auc_1minusauc": 0.8191211736493158,
+        "direction_free_permutation_p_two_sided": 9.99950002499875e-05,
+        "direction_free_confounded_same_thresholds": true,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": true
+      },
+      "registered_auroc_253_key": "promptconfirm.llama3_8b.P_rev_compatible.auroc_253",
+      "registered_auroc_253_value": 0.6514522821576764,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptconfirm::llama3:8b::P_reversed_rerun": {
+      "cache_present": true,
+      "family": "promptconfirm",
+      "model": "llama3:8b",
+      "prompt": "P_reversed_rerun",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.7503457814661134,
+        "permutation_p": 0.0010999450027498626,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7276499434175783,
+        "lopo_auroc_max": 0.7800829875518671,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.6351953488864426,
+            0.8568779859289275
+          ],
+          "boot_mean": 0.7499168930319382,
+          "boot_std": 0.05684347458677274,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.0014049929750351248,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.8525179856115108,
+        "permutation_p": 0.0010999450027498626,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.823021582733813,
+        "lopo_auroc_max": 0.8805755395683453,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.75177304964539,
+            0.9441040372670807
+          ],
+          "boot_mean": 0.8533586627221698,
+          "boot_std": 0.04854095014562907,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.619281045751634,
+        "permutation_p": 0.16869156542172892,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.5450980392156863,
+        "lopo_auroc_max": 0.6745098039215687,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.40623938106796115,
+            0.841352103960396
+          ],
+          "boot_mean": 0.6206551370817355,
+          "boot_std": 0.10894210407366345,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.39240372407955987,
+        "permutation_p": 0.9986500674966252,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.6075962759204401,
+        "permutation_p_reverse_direction": 0.0024998750062496873,
+        "direction_free_auroc_max_auc_1minusauc": 0.6075962759204401,
+        "direction_free_permutation_p_two_sided": 0.004999750012499375,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": true
+      },
+      "registered_auroc_253_key": "promptconfirm.llama3_8b.P_reversed_rerun.auroc_253",
+      "registered_auroc_253_value": 0.7503457814661134,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptconfirm::granite3.3:8b::P_rev_agree": {
+      "cache_present": true,
+      "family": "promptconfirm",
+      "model": "granite3.3:8b",
+      "prompt": "P_rev_agree",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.7935684647302904,
+        "permutation_p": 0.000199990000499975,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7763108261033572,
+        "lopo_auroc_max": 0.8434552998868352,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.6540569028441252,
+            0.9076536434075705
+          ],
+          "boot_mean": 0.7944275215981853,
+          "boot_std": 0.06464098697092195,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.00017499912500437497,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.7302158273381295,
+        "permutation_p": 0.028748562571871406,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6892086330935252,
+        "lopo_auroc_max": 0.8100719424460432,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.5196687370600414,
+            0.9133417266187049
+          ],
+          "boot_mean": 0.7318028620128314,
+          "boot_std": 0.09954243647477584,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.8774509803921569,
+        "permutation_p": 0.00039998000099995,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.8568627450980392,
+        "lopo_auroc_max": 0.903921568627451,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.7721528182465683,
+            0.965079365079365
+          ],
+          "boot_mean": 0.877724375955239,
+          "boot_std": 0.048801082515599455,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.3756171533361546,
+        "permutation_p": 0.999550022498875,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.6243828466638454,
+        "permutation_p_reverse_direction": 0.0005499725013749313,
+        "direction_free_auroc_max_auc_1minusauc": 0.6243828466638455,
+        "direction_free_permutation_p_two_sided": 0.0010999450027498626,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": true
+      },
+      "registered_auroc_253_key": "promptconfirm.granite33_8b.P_rev_agree.auroc_253",
+      "registered_auroc_253_value": 0.7935684647302904,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptconfirm::granite3.3:8b::P_rev_follow": {
+      "cache_present": true,
+      "family": "promptconfirm",
+      "model": "granite3.3:8b",
+      "prompt": "P_rev_follow",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.6787690179806363,
+        "permutation_p": 0.017249137543122843,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6495662014334215,
+        "lopo_auroc_max": 0.7389664277631083,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.46806492380183845,
+            0.8662692353318712
+          ],
+          "boot_mean": 0.6783281610050576,
+          "boot_std": 0.101989626350499,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.017724911375443124,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.7170263788968825,
+        "permutation_p": 0.0343982800859957,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6647482014388489,
+        "lopo_auroc_max": 0.827338129496403,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.4237588652482269,
+            0.9389671361502347
+          ],
+          "boot_mean": 0.719269280765465,
+          "boot_std": 0.1337919816252583,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.6470588235294118,
+        "permutation_p": 0.11469426528673567,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.5764705882352942,
+        "lopo_auroc_max": 0.7705882352941177,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.3125861916548797,
+            0.9215686274509803
+          ],
+          "boot_mean": 0.6466676150707028,
+          "boot_std": 0.15682347936820648,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.5566017774016081,
+        "permutation_p": 0.06789660516974151,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.4433982225983919,
+        "permutation_p_reverse_direction": 0.9343532823358832,
+        "direction_free_auroc_max_auc_1minusauc": 0.5566017774016081,
+        "direction_free_permutation_p_two_sided": 0.13579321033948302,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_1_2",
+        "registered_rule_is_one_sided": true,
+        "already_registered": true
+      },
+      "registered_auroc_253_key": "promptconfirm.granite33_8b.P_rev_follow.auroc_253",
+      "registered_auroc_253_value": 0.6787690179806363,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptconfirm::granite3.3:8b::P_rev_compatible": {
+      "cache_present": true,
+      "family": "promptconfirm",
+      "model": "granite3.3:8b",
+      "prompt": "P_rev_compatible",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.7361687413554634,
+        "permutation_p": 0.0026498675066246686,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7133157299132402,
+        "lopo_auroc_max": 0.7597133157299132,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.6179409563975239,
+            0.8506234521523777
+          ],
+          "boot_mean": 0.7363201435978459,
+          "boot_std": 0.0595732910336726,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.0023149884250578748,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.8225419664268585,
+        "permutation_p": 0.0024998750062496873,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7913669064748202,
+        "lopo_auroc_max": 0.8532374100719425,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.6995305164319249,
+            0.9389858655478971
+          ],
+          "boot_mean": 0.8241502493298518,
+          "boot_std": 0.05985310640882377,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.6356209150326797,
+        "permutation_p": 0.1369431528423579,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.5686274509803921,
+        "lopo_auroc_max": 0.6980392156862745,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.36448598130841126,
+            0.9067977822196841
+          ],
+          "boot_mean": 0.6368805061669521,
+          "boot_std": 0.13132852125355632,
+          "lower_bound_above_half": false,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.2234800394978135,
+        "permutation_p": 1.0,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.7765199605021865,
+        "permutation_p_reverse_direction": 4.999750012499375e-05,
+        "direction_free_auroc_max_auc_1minusauc": 0.7765199605021865,
+        "direction_free_permutation_p_two_sided": 9.99950002499875e-05,
+        "direction_free_confounded_same_thresholds": true,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": true
+      },
+      "registered_auroc_253_key": "promptconfirm.granite33_8b.P_rev_compatible.auroc_253",
+      "registered_auroc_253_value": 0.7361687413554634,
+      "recomputed_auroc_253_matches_register": true
+    },
+    "promptconfirm::granite3.3:8b::P_reversed_rerun": {
+      "cache_present": true,
+      "family": "promptconfirm",
+      "model": "granite3.3:8b",
+      "prompt": "P_reversed_rerun",
+      "n_cache_rows": 299,
+      "g253": {
+        "n": 253,
+        "n_pos": 12,
+        "auroc": 0.7365145228215768,
+        "permutation_p": 0.0023998800059997,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.7140701622029423,
+        "lopo_auroc_max": 0.7619766125990193,
+        "lopo_n_positives_left_out": 12,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 0,
+          "n_attempts": 10000,
+          "ci95": [
+            0.6172819795753681,
+            0.8495957471441803
+          ],
+          "boot_mean": 0.7366473272668166,
+          "boot_std": 0.05915477767095048,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        },
+        "permutation_p_high_precision": 0.0022149889250553745,
+        "permutation_draws_high_precision": 200000,
+        "permutation_seed_high_precision": 1090
+      },
+      "stratum_rules_1_2": {
+        "n": 145,
+        "n_pos": 6,
+        "auroc": 0.7302158273381295,
+        "permutation_p": 0.026698665066746664,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.6848920863309352,
+        "lopo_auroc_max": 0.7697841726618705,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 19,
+          "n_attempts": 10019,
+          "ci95": [
+            0.5727364185110664,
+            0.8943661971830986
+          ],
+          "boot_mean": 0.7318868355741918,
+          "boot_std": 0.07897291434251211,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "stratum_rules_3_4": {
+        "n": 108,
+        "n_pos": 6,
+        "auroc": 0.7565359477124183,
+        "permutation_p": 0.016699165041747913,
+        "permutation_draws": 20000,
+        "permutation_seed": 109,
+        "lopo_auroc_min": 0.707843137254902,
+        "lopo_auroc_max": 0.7999999999999999,
+        "lopo_n_positives_left_out": 6,
+        "bootstrap": {
+          "n_boot_valid": 10000,
+          "n_resamples_discarded_single_class": 21,
+          "n_attempts": 10021,
+          "ci95": [
+            0.5707381855052018,
+            0.9301587301587302
+          ],
+          "boot_mean": 0.7573198619345146,
+          "boot_std": 0.08873249939600185,
+          "lower_bound_above_half": true,
+          "seed": 20260806,
+          "n_boot_requested": 10000
+        }
+      },
+      "confound_rule12_vs_rule34_among_confirmed_negatives": {
+        "n_negatives": 241,
+        "n_rule12": 139,
+        "n_rule34": 102,
+        "auroc_rule12_vs_rule34": 0.3959303145718719,
+        "permutation_p": 0.9978001099945003,
+        "auroc_threshold": 0.65,
+        "p_threshold": 0.05,
+        "confounded": false,
+        "auroc_reverse_direction": 0.6040696854281281,
+        "permutation_p_reverse_direction": 0.0026498675066246686,
+        "direction_free_auroc_max_auc_1minusauc": 0.6040696854281281,
+        "direction_free_permutation_p_two_sided": 0.005299735013249337,
+        "direction_free_confounded_same_thresholds": false,
+        "cue_direction": "higher_score_means_rules_3_4",
+        "registered_rule_is_one_sided": true,
+        "already_registered": true
+      },
+      "registered_auroc_253_key": "promptconfirm.granite33_8b.P_reversed_rerun.auroc_253",
+      "registered_auroc_253_value": 0.7365145228215768,
+      "recomputed_auroc_253_matches_register": true
+    }
+  },
+  "summary": {
+    "cells_with_bootstrap_lower_bound_above_0_5_on_g253": [
+      "promptconfirm::granite3.3:8b::P_rev_agree",
+      "promptconfirm::granite3.3:8b::P_rev_compatible",
+      "promptconfirm::granite3.3:8b::P_reversed_rerun",
+      "promptconfirm::llama3:8b::P_rev_agree",
+      "promptconfirm::llama3:8b::P_rev_compatible",
+      "promptconfirm::llama3:8b::P_reversed_rerun",
+      "promptsens::granite3.3:8b::P_asserting",
+      "promptsens::granite3.3:8b::P_reversed",
+      "promptsens::llama3:8b::P_neutral",
+      "promptsens::llama3:8b::P_reversed",
+      "promptsens::qwen3:8b::P_neutral",
+      "promptsens::qwen3:8b::P_reversed"
+    ],
+    "n_cells_with_bootstrap_lower_bound_above_0_5_on_g253": 12,
+    "confounded_cells": [],
+    "confounded_cells_direction_free_same_thresholds": [
+      "promptconfirm::granite3.3:8b::P_rev_compatible",
+      "promptconfirm::llama3:8b::P_rev_compatible"
+    ],
+    "cells_with_a_significant_rule_type_cue_in_either_direction": [
+      "promptconfirm::granite3.3:8b::P_rev_agree",
+      "promptconfirm::granite3.3:8b::P_rev_compatible",
+      "promptconfirm::granite3.3:8b::P_reversed_rerun",
+      "promptconfirm::llama3:8b::P_rev_agree",
+      "promptconfirm::llama3:8b::P_rev_compatible",
+      "promptconfirm::llama3:8b::P_reversed_rerun",
+      "promptsens::granite3.3:8b::P_reversed",
+      "promptsens::llama3:8b::P_asserting",
+      "promptsens::llama3:8b::P_neutral",
+      "promptsens::llama3:8b::P_reversed",
+      "promptsens::qwen3:8b::P_reversed"
+    ],
+    "confounded_cells_not_previously_tested": [],
+    "n_confounded_cells": 0,
+    "recomputed_auroc_mismatches_vs_register": [],
+    "n_configurations_rejecting_chance_at_0_05": 16,
+    "configurations_not_rejecting_chance_at_0_05": [
+      "promptsens::qwen3:8b::P_asserting"
+    ],
+    "bonferroni_alpha_over_17": 0.0029411764705882353,
+    "n_surviving_bonferroni_at_registered_B_20000": 6,
+    "surviving_bonferroni_at_registered_B_20000": [
+      "promptconfirm::granite3.3:8b::P_rev_agree",
+      "promptconfirm::granite3.3:8b::P_rev_compatible",
+      "promptconfirm::granite3.3:8b::P_reversed_rerun",
+      "promptconfirm::llama3:8b::P_reversed_rerun",
+      "promptsens::granite3.3:8b::P_reversed",
+      "promptsens::llama3:8b::P_reversed"
+    ],
+    "n_surviving_bonferroni_at_B_200000": 6,
+    "surviving_bonferroni_at_B_200000": [
+      "promptconfirm::granite3.3:8b::P_rev_agree",
+      "promptconfirm::granite3.3:8b::P_rev_compatible",
+      "promptconfirm::granite3.3:8b::P_reversed_rerun",
+      "promptconfirm::llama3:8b::P_reversed_rerun",
+      "promptsens::granite3.3:8b::P_reversed",
+      "promptsens::llama3:8b::P_reversed"
+    ],
+    "duplicate_auroc_groups": [
+      [
+        "promptconfirm::llama3:8b::P_reversed_rerun",
+        "promptsens::llama3:8b::P_reversed"
+      ],
+      [
+        "promptconfirm::granite3.3:8b::P_reversed_rerun",
+        "promptsens::granite3.3:8b::P_reversed"
+      ]
+    ],
+    "duplicate_note": "P_reversed_rerun is C109's determinism re-run of C103's P_reversed on the same model and the same 299 pairs. It reproduces P_reversed's AUROC to every printed digit, which is what a passing determinism check means. The 17 configurations therefore contain 2 duplicate pairs and cover 15 distinct model-and-wording cells; a count of 17 must not be read as 17 independent wordings."
+  }
+}
