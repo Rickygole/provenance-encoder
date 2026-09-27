@@ -125,3 +125,49 @@ corrected number. What it can do is attach a signed, bounded interpretation to 0
 defect rate.
 
 ## OUTCOME (appended after the run; the rule above is unedited)
+
+Run 2026-09-26, seed 20260926. Artifacts:
+`results/accord/c135_dissociation_cost/c135_bias_curve.json` and
+`results/accord/c135_dissociation_cost/c135_labeller.json`. Registered under prefix `c135` in
+`results/accord/VERIFIED_FACTS.json` (188 keys).
+
+**Outcome A, cost established.** No kill condition fired: the gap is exactly 0 at rate 0 in both pools,
+the assertion check's flagged set equals the planted set at every rate in both pools, realized base rates
+are 0.040125 and 0.500000 against targets 0.0401 and 0.50, and the provenance audit over this check's own
+sources returned no hits.
+
+Headline, `low` pool (true precision 0.040125, matched to the thesis's 12/299), planted rate 0.414:
+measured precision 0.023500, gap -0.016625, paired bootstrap 95 percent interval -0.019375 to -0.013875,
+relative bias -0.4143. Measured precision understates true precision by 0.016625 (0.013875 to 0.019375).
+
+Bias curve, gap = measured minus true:
+
+| rate | low pool gap | low 95 pct | mid pool gap | mid 95 pct |
+| --- | --- | --- | --- | --- |
+| 0.000 | 0.000000 | 0.000000 to 0.000000 | 0.000000 | 0.000000 to 0.000000 |
+| 0.100 | -0.004000 | -0.005375 to -0.002625 | -0.050000 | -0.054875 to -0.045247 |
+| 0.250 | -0.010000 | -0.012250 to -0.007875 | -0.125000 | -0.132250 to -0.117875 |
+| 0.414 | -0.016625 | -0.019375 to -0.013875 | -0.207000 | -0.215875 to -0.198000 |
+| 0.600 | -0.024125 | -0.027500 to -0.020875 | -0.300000 | -0.310125 to -0.289872 |
+
+The gap equals minus the planted count over the pool size in every cell, residual at most 2.8e-17, so
+under this planting model the bias is the closed form minus (defect rate times true precision) and the
+curve is a straight line through the origin with slope minus true precision. The Wilson interval on
+measured precision stops covering true precision at rate 0.25 and above in the `low` pool, and at 0.10
+and above in the `mid` pool.
+
+Student, `mid` pool, AUROC against true labels on the clean held-out set. Primary A, labels from the
+displayed evidence: 0.656402, 0.657165, 0.656549, 0.656176, 0.654509 across the five rates, flat, while
+the training positive rate falls 0.500 to 0.200. Secondary B, candidate-level labels on displayed text:
+0.656402, 0.648008, 0.632636, 0.610888, 0.581553, a fall of 0.074849. The defect costs the student
+positive training signal rather than ranking ability when the labeller reads only the exemplar; it costs
+ranking ability when the label is attached at candidate level.
+
+Labeller arm: **both models are skipped under the rule above.** The local Ollama server was held for
+most of an hour by unrelated local work, and `llama3:8b` completed no rate. `granite3.3:8b` completed
+four of five rates before the server was taken again and is recorded with `skipped: true`. By the rule
+above no number from this arm is used; its four rows are retained in the artifact as description only.
+For the record, those rows fell monotonically: flag rate 0.4200, 0.3750, 0.3200, 0.2625 and accuracy
+against the true label 0.8500, 0.8050, 0.7500, 0.6925 at rates 0, 0.10, 0.25, 0.414, with specificity
+constant at 0.9257 and recall on true positives falling 0.7727 to 0.4545. The arm needs a rerun on an
+idle server before any of it can be claimed.
