@@ -395,6 +395,24 @@ def make_fig_forest():
     # which the canvas labels "analytic" so the two rows are never read as the
     # same computation.
     n_pos_108 = fact("c114.task_c.n_pos")
+    # SIBLING NOTICE, AND IT IS DELIBERATELY NOT ACTED ON HERE. This analytic
+    # floor comes from mde_recomputed, which solves the defective one standard
+    # error condition documented above mde_as_implemented in this same file.
+    # At this stratum's counts (6 positives, 102 negatives) the corrected two
+    # standard error condition returns 0.8274, not the 0.8064 drawn here, so
+    # this band starts about 0.021 too far left. It is NOT silently corrected,
+    # for two reasons: the register key, the results chapter's prose and this
+    # figure's caption all print 0.8064, and changing the drawn value alone
+    # would put three disagreeing numbers in front of the reader instead of
+    # one wrong one. The verdict this band supports does not turn on it, since
+    # both AUROC intervals include chance under either floor. The fix belongs
+    # upstream in accord/stats/recompute_mde.py, with the prose and the
+    # caption, and is reported rather than performed.
+    assert abs(mde_as_implemented([6], [102])[0]
+               - fact("mde_recomputed.rules34_ambiguous_dropped"
+                      ".minimum_detectable_auc")) < 5e-5, \
+        "this stratum's registered floor no longer holds the as-implemented " \
+        "value; check whether recompute_mde.py has been corrected upstream"
     floor_108 = fact("mde_recomputed.rules34_ambiguous_dropped.minimum_detectable_auc")
 
     # ROUND 11 (coordinator regression). H grows by 0.09in over the round-10
@@ -596,24 +614,115 @@ def make_fig_forest():
 # The significance level is named alpha_level, not alpha: this set bans the
 # matplotlib alpha= keyword outright and verification greps for it, so a
 # statistical alpha must not wear the same name as a transparency.
-def hanley_mde(n_pos, n_neg, alpha_level=0.05, power=0.80):
-    """Smallest AUROC distinguishable from 0.5 at the given power, Hanley and
-    McNeil variance. Uses BOTH class counts."""
+# -----------------------------------------------------------------------------
+# THE MINIMUM DETECTABLE AUROC, AND THE CONDITION THAT WAS ACTUALLY SOLVED.
+#
+# This curve was drawn for months from a condition that is not a power
+# calculation. The route below named mde_as_implemented divides the WHOLE
+# effect by the standard error at the ALTERNATIVE:
+#
+#     (a - 0.5) / SE(a)  >=  z_{1-alpha/2} + z_{power}
+#
+# The standard Hanley and McNeil / Obuchowski condition splits the two terms
+# and uses the NULL standard error for the significance term, because the
+# critical value of the test statistic is set under the null, and the
+# alternative only for the power term:
+#
+#     a - 0.5  >=  z_{1-alpha/2} * SE(0.5)  +  z_{power} * SE(a)
+#
+# SE(a) < SE(0.5) for every a > 0.5, so the implemented route asks the effect
+# to clear a smaller quantity and every floor it returns is TOO LOW. At this
+# study's class counts it returns 0.7355 where the standard condition returns
+# 0.7382, and at the 6-positive stratum 0.8064 where the standard condition
+# returns 0.8274. A figure whose subject is what the design could not detect
+# cannot draw the optimistic one of the two.
+#
+# ONE ARITHMETIC FACT WORTH RECORDING, because it is why SE(0.5) is not a
+# second approximation smuggled in beside the Hanley and McNeil variance. At
+# a = 0.5 that variance has Q1 = Q2 = 1/3, and it collapses exactly to
+# (n_pos + n_neg + 1) / (12 n_pos n_neg), which is the simple normal
+# approximation the methodology chapter writes out. The two are the same
+# number, not two conventions, so _se_null below is the Hanley and McNeil
+# variance evaluated at the null and nothing else.
+#
+# All three routes are kept. The corrected one draws the figure; the other two
+# exist so make_fig_power can ASSERT that they sit either side of it, which is
+# the check that would have caught this and is now impossible to revert past.
+# -----------------------------------------------------------------------------
+def _auroc_var_hanley(a, n_pos, n_neg):
+    """Hanley and McNeil (1982) sampling variance of an AUROC estimate a."""
+    q1, q2 = a / (2 - a), 2 * a * a / (1 + a)
+    return (a * (1 - a) + (n_pos - 1) * (q1 - a * a)
+            + (n_neg - 1) * (q2 - a * a)) / (n_pos * n_neg)
+
+
+def _se_null(n_pos, n_neg):
+    """Standard error under the null, a = 0.5. See the note above: this is the
+    Hanley and McNeil variance at 0.5 and equals (m + n + 1) / (12 m n)."""
+    return math.sqrt(_auroc_var_hanley(0.5, n_pos, n_neg))
+
+
+def _bisect_mde(holds, iters=200):
+    """Smallest a in (0.5, 1) for which the condition holds. Monotone in a."""
+    lo, hi = 0.5, 0.9999
+    for _ in range(iters):
+        a = (lo + hi) / 2
+        if holds(a):
+            hi = a
+        else:
+            lo = a
+    return (lo + hi) / 2
+
+
+def mde_two_se(n_pos, n_neg, alpha_level=0.05, power=0.80):
+    """CORRECTED, and the only one this figure draws.
+
+        a - 0.5 >= z_{1-alpha/2} * SE(0.5) + z_{power} * SE(a)
+
+    The significance term takes the null standard error and the power term the
+    alternative's, written out as two terms so the next reader can see which
+    standard error belongs to which."""
+    from scipy.stats import norm
+    z_sig, z_pow = norm.ppf(1 - alpha_level / 2), norm.ppf(power)
+    out = []
+    for m_, n_ in zip(np.atleast_1d(n_pos), np.atleast_1d(n_neg)):
+        se_null = _se_null(m_, n_)
+        out.append(_bisect_mde(
+            lambda a, m_=m_, n_=n_, se_null=se_null:
+            (a - 0.5) >= z_sig * se_null
+            + z_pow * math.sqrt(max(_auroc_var_hanley(a, m_, n_), 1e-12))))
+    return np.array(out)
+
+
+def mde_as_implemented(n_pos, n_neg, alpha_level=0.05, power=0.80):
+    """THE DEFECTIVE ROUTE, kept only so the corrected figure can assert that
+    it is the optimistic one. This is what accord/stats/recompute_mde.py
+    solves and what every mde_recomputed.* register key still holds:
+
+        (a - 0.5) / SE(a) >= z_{1-alpha/2} + z_{power}
+
+    Nothing may draw from it."""
     from scipy.stats import norm
     z = norm.ppf(1 - alpha_level / 2) + norm.ppf(power)
     out = []
     for m_, n_ in zip(np.atleast_1d(n_pos), np.atleast_1d(n_neg)):
-        lo, hi = 0.5, 0.9999
-        for _ in range(80):
-            a = (lo + hi) / 2
-            q1, q2 = a / (2 - a), 2 * a * a / (1 + a)
-            v = (a * (1 - a) + (m_ - 1) * (q1 - a * a) + (n_ - 1) * (q2 - a * a)) / (m_ * n_)
-            if (a - 0.5) / math.sqrt(max(v, 1e-12)) < z:
-                lo = a
-            else:
-                hi = a
-        out.append((lo + hi) / 2)
+        out.append(_bisect_mde(
+            lambda a, m_=m_, n_=n_:
+            (a - 0.5) / math.sqrt(max(_auroc_var_hanley(a, m_, n_), 1e-12))
+            >= z))
     return np.array(out)
+
+
+def mde_null_only(n_pos, n_neg, alpha_level=0.05, power=0.80):
+    """Both terms at the null: 0.5 + (z_sig + z_pow) * SE(0.5). The
+    conservative end of the three, registered under
+    mde_recomputed.*.minimum_detectable_auc_null_variance, and kept here for
+    the same reason the defective route is."""
+    from scipy.stats import norm
+    z = norm.ppf(1 - alpha_level / 2) + norm.ppf(power)
+    return np.array([0.5 + z * _se_null(m_, n_)
+                     for m_, n_ in zip(np.atleast_1d(n_pos),
+                                       np.atleast_1d(n_neg))])
 
 
 def make_fig_power():
@@ -629,16 +738,77 @@ def make_fig_power():
     assert floor_mw == fact("sizectl108.power_curves.primary_crossing_power_0_80")
     n_pos = np.logspace(np.log10(5), np.log10(3000), 120)
     n_neg = n_pos * (n_neg_study / n_pos_study)
-    mde = hanley_mde(n_pos, n_neg, alpha_level=alpha_study, power=power_study)
-    mde_study = hanley_mde([n_pos_study], [n_neg_study], alpha_level=alpha_study,
-                           power=power_study)[0]
-    assert abs(mde_study - fact("sizectl108.power_curves.mde_analytic")) < 5e-5
+    mde = mde_two_se(n_pos, n_neg, alpha_level=alpha_study, power=power_study)
+    mde_study = mde_two_se([n_pos_study], [n_neg_study],
+                           alpha_level=alpha_study, power=power_study)[0]
+
+    # ---------------------------------------------------------------------
+    # THE ASSERT THAT SHOULD HAVE CAUGHT THIS. It locked the drawn marker to
+    # sizectl108.power_curves.mde_analytic and it passed for months, because
+    # the figure and the register were computing the same wrong thing. It is
+    # not removed. It is split into four, and each one names what it is for.
+    #
+    # The corrected value is NOT typed here. The register already holds it,
+    # under a key the current recompute script overwrote believing it did not
+    # reproduce: control.power_ceiling.referenced_gold_all_ambiguous_excluded,
+    # 12 positives, 241 negatives, alpha 0.05, power 0.80, minimum detectable
+    # AUROC 0.7382. It reproduces exactly under the two standard error
+    # condition, to four decimals, which is the precision the register stores.
+    # ---------------------------------------------------------------------
+    REG = "control.power_ceiling.referenced_gold_all_ambiguous_excluded"
+    assert fact(f"{REG}.n_positives") == n_pos_study
+    assert fact(f"{REG}.n_negatives") == n_neg_study
+    assert fact(f"{REG}.alpha") == alpha_study
+    assert fact(f"{REG}.power") == power_study
+    assert abs(_se_null(n_pos_study, n_neg_study)
+               - fact(f"{REG}.se_auc_under_null")) < 5e-5, \
+        "the null standard error no longer matches the registered one"
+    # 1. The curve's own value at this study's size is the registered one.
+    mde_registered_correct = fact(f"{REG}.minimum_detectable_auc")
+    assert abs(mde_study - mde_registered_correct) < 5e-5, \
+        "the drawn analytic floor no longer reproduces the registered 0.7382"
+    # 2. The defective route is the OPTIMISTIC one, and it is exactly what
+    #    mde_recomputed and sizectl108 still hold. If either key is ever
+    #    corrected upstream, this assert fails and this figure gets revisited
+    #    rather than quietly disagreeing with the chapter.
+    mde_impl = mde_as_implemented([n_pos_study], [n_neg_study],
+                                  alpha_level=alpha_study,
+                                  power=power_study)[0]
+    assert abs(mde_impl - fact("sizectl108.power_curves.mde_analytic")) < 5e-5, \
+        "sizectl108.power_curves.mde_analytic no longer holds the as-implemented value"
+    assert abs(mde_impl
+               - fact("mde_recomputed.gold_ambiguous_excluded"
+                      ".minimum_detectable_auc")) < 5e-5
+    assert mde_impl < mde_study, \
+        "the as-implemented route is no longer the optimistic one; the " \
+        "direction of the defect has changed and this figure must be reread"
+    # 3. Holding BOTH terms at the null is the conservative end, and it too is
+    #    registered. The corrected condition must sit strictly between them.
+    mde_null = mde_null_only([n_pos_study], [n_neg_study],
+                             alpha_level=alpha_study, power=power_study)[0]
+    assert abs(mde_null
+               - fact("mde_recomputed.gold_ambiguous_excluded"
+                      ".minimum_detectable_auc_null_variance")) < 5e-5
+    assert mde_impl < mde_study < mde_null, \
+        "the corrected floor no longer lies between the two one-sided routes"
+    # 4. The pre-registered threshold is a HISTORICAL FACT, not a sensitivity
+    #    claim: it is the number several checks in this thesis were judged
+    #    against, and it happens to equal the as-implemented route because
+    #    that route is what computed it. It is drawn as a fixed constant and
+    #    is never moved here; moving it is the author's decision.
+    mde_registered_rule = fact("sizectl108.power_curves.mde_analytic")
+
     pct = f"{power_study * 100:.0f} percent"
     chance = 0.5
 
-    fig, ax = plt.subplots(figsize=(FIGW, 3.30))
+    # H 3.30 to 3.42 and top 0.8150 to 0.7900, both for the same reason: the
+    # headline is three lines rather than two now that the corrected analytic
+    # floor and the pre-registered threshold are two separate numbers, and at
+    # the old geometry the third line landed on the axes box. The axes gives
+    # up 12pt of height; no type size and no tuned margin else moves.
+    fig, ax = plt.subplots(figsize=(FIGW, 3.42))
     canvas(fig)
-    fig.subplots_adjust(left=0.1172, right=0.9890, top=0.8150, bottom=0.1420)
+    fig.subplots_adjust(left=0.1172, right=0.9890, top=0.7900, bottom=0.1420)
     # FIGURE POLISH. Y_LO was 0.47, which left 10pt under the chance line for
     # an 8.5pt label: it touched the dashes above it and the frame below it.
     # At 0.44 the band is 20pt and the label sits in the middle of it.
@@ -713,9 +883,25 @@ def make_fig_power():
     # axis (about 8pt), and a hairline ties it back to the guide at its own
     # height so it cannot be read as a different sample size. Markers are a
     # point smaller, which leaves about 2pt of paper between ring and disc.
-    X_PULL = 1.15
+    # FOUR MARKS NOW, NOT THREE, because the corrected analytic floor and the
+    # pre-registered threshold are two different kinds of thing and used to be
+    # one mark. 0.7382 is a statement about this design's sensitivity and it
+    # moves whenever the class counts do; 0.7355 is a historical fact about
+    # what was registered and several checks were judged against, and it does
+    # not move at all. They are 0.0027 apart, which is under a point of paper
+    # at this scale, so they cannot share an x.
+    #
+    # The registered threshold is drawn as a short FIXED rule left of the
+    # guide rather than as a point on the curve, because it is a constant and
+    # not a function of the positive count. Its tone is GRAPHITE, the set's
+    # non-entity measurement tone, not the curve's BOUND_DEEP: it is not a
+    # point of the curve and must not read as one.
+    X_PULL, X_PUSH = 1.15, 0.80
     ax.plot([n_pos_study], [mde_study], "o", ms=5.0, markerfacecolor=PAPER,
             markeredgecolor=BOUND_DEEP, markeredgewidth=1.3, zorder=7)
+    ax.plot([n_pos_study * X_PUSH * 0.88, n_pos_study * X_PUSH * 1.14],
+            [mde_registered_rule, mde_registered_rule], color=GRAPHITE,
+            lw=1.8, zorder=8, solid_capstyle="butt")
     ax.plot([n_pos_study, n_pos_study * X_PULL], [floor_mw, floor_mw],
             color=INK, lw=0.6, zorder=6, solid_capstyle="butt")
     ax.plot([n_pos_study * X_PULL], [floor_mw], "o", ms=4.4, color=INK,
@@ -729,22 +915,44 @@ def make_fig_power():
     # which, so the fix is precision, not a new label.
     x_lab = 30.0
     for x_pt, y_pt, y_lab, text, tone in (
-            (n_pos_study, floor_rule, floor_rule + 0.025,
+            (n_pos_study, floor_rule, floor_rule + 0.022,
              f"registered decision rule, power simulation: {floor_rule:.4f}",
              GRAPHITE),
-            (n_pos_study * X_PULL, floor_mw, floor_mw + 0.035,
+            (n_pos_study * X_PULL, floor_mw, floor_mw + 0.030,
              f"Mann-Whitney test, power simulation: {floor_mw:.4f}", GRAPHITE),
-            (n_pos_study, mde_study, mde_study - 0.020,
-             f"analytic curve: {mde_study:.4f}", BOUND_DEEP)):
+            (n_pos_study, mde_study, mde_study - 0.022,
+             f"analytic curve, two standard errors: {mde_study:.4f}",
+             BOUND_DEEP),
+            (n_pos_study * X_PUSH, mde_registered_rule,
+             mde_registered_rule - 0.068,
+             f"pre-registered threshold, fixed at {mde_registered_rule:.4f}",
+             GRAPHITE)):
         ax.plot([x_pt * 1.10, x_lab * 0.95], [y_pt, y_lab],
                 color=tone, lw=0.6, zorder=6, solid_capstyle="butt")
         ax.text(x_lab, y_lab, text, ha="left", va="center", fontsize=T_SERIES,
                 color=tone, zorder=7)
     frame(ax)
-    signature(fig, BOUND_DEEP,
-              f"At {n_pos_study} positives, {pct} power needs AUROC "
-              f"{floor_mw:.4f} under the Mann-Whitney test\nand {floor_rule:.4f} "
-              f"under the registered decision rule.")
+    # Three lines, each measured against the canvas. Two lines put 96
+    # characters of 11pt type on a 421pt sheet, savefig expanded the file to
+    # 454pt and the whole figure would have printed at 0.935 scale.
+    fig.canvas.draw()
+    _rp = fig.canvas.get_renderer()
+
+    def _hw(line):
+        t = fig.text(0, 0, line, fontsize=T_HEADLINE)
+        w = t.get_window_extent(_rp).width / fig.bbox.width
+        t.remove()
+        return w
+
+    head = [f"At {n_pos_study} positives, {pct} power needs AUROC "
+            f"{mde_study:.4f} analytically",
+            f"and {floor_mw:.4f} under the simulated Mann-Whitney test; the "
+            f"threshold",
+            f"registered in advance, {mde_registered_rule:.4f}, is below both."]
+    for line in head:
+        assert 0.012 + _hw(line) < 0.996, \
+            f"headline overflows the canvas: {line!r}"
+    signature(fig, BOUND_DEEP, "\n".join(head))
     fig.savefig(OUTDIR / "fig-power.pdf"); plt.close(fig)
     print("wrote fig-power.pdf")
 
