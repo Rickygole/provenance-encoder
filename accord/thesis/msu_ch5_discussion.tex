@@ -109,7 +109,7 @@ withdrawn. What survives is that nobody checked the weak labeller's marginal bef
 
 The architectural checks did the most damage, and the verdict differs by component. The authority parameters are unsupported by code audit (at their initial values):
 each is initialised at the value later reported as discovered, sits
-behind a normalisation that drives its gradient towards zero, and moves by less than $0.01$ in every seed (Chapter~\ref{ch:results} gives the per-seed ranges). The rule-type head is confounded, its
+behind a normalisation that drives its gradient towards zero, and moves by less than $0.01$ from that value in every seed (Chapter~\ref{ch:results} gives the per-seed ranges). The rule-type head is confounded, its
 auxiliary target readable from the input features one linear layer away, the
 textbook symptom of leakage \citep{kaufman2012leakage}, which vacates the metric
 without refuting the component. The harm head is untrained: no term in the
@@ -149,8 +149,9 @@ leaves Llama 3 8B (\texttt{llama3:8b}) within the spread between two runs of its
 text (Section~``\nameref{sec:m-weak},'' Chapter~\ref{ch:method}). Neither lowered ratio, with
 ambiguous pairs read as negative, reaches the public-text ceiling of $3.5000$
 set in advance as the test of sufficiency. Reading the $46$ ambiguous pairs as
-confirmed multiplies every ratio by exactly $12/58$, which puts both
-plain-prompt rows below the ceiling. Only the denominator changed; no model's calls did. The absence of an ambiguity gradient in
+confirmed multiplies every ratio by exactly $12/58$, which puts the Granite 3.3 8B and
+Qwen 3 8B plain-prompt rows below the ceiling while Llama 3 8B's, at $4.8276$, stays
+above it. Only the denominator changed; no model's calls did. The absence of an ambiguity gradient in
 the $8$ local Fisher tests is absence of evidence, not calibration.
 
 \textbf{Scale, public text, and what a single run means.} The step to
