@@ -91,18 +91,28 @@ def main():
         "slot_true_positive_rate": float(true.mean()),
         "models": {},
     }
+    OUT.mkdir(parents=True, exist_ok=True)
+    dest = OUT / "c135_labeller.json"
+
+    def flush():
+        """Persist after every rate, so a server loss cannot lose the rows already earned."""
+        dest.write_text(json.dumps(out, indent=1) + "\n")
+
     for model in MODELS:
         rows, t0 = [], time.time()
+        out["models"][model] = {"skipped": True, "reason": "in_progress", "by_rate": rows}
         try:
             for r in P.RATES:
                 disp, planted, _ = P.display_for(cands, n_tp, order, r)
                 conf = P.confirm(cands, disp)[slots]
                 flags = []
-                for i in slots:
+                for n, i in enumerate(slots):
                     flags.append(
                         parse(ask(model, PROMPT.format(premise=cands[i]["premise"],
                                                        hypothesis=cands[i]["hypotheses"][disp[i]])))
                     )
+                    if (n + 1) % 100 == 0:
+                        print(f"    {model} r={r} {n + 1}/{len(slots)}", flush=True)
                 f = np.array(flags, dtype=int)
                 rows.append(
                     {
@@ -116,12 +126,16 @@ def main():
                     }
                 )
                 print(f"  {model} r={r} flag={f.mean():.4f} acc={(f == true).mean():.4f}", flush=True)
-            out["models"][model] = {"skipped": False, "seconds": time.time() - t0, "by_rate": rows}
+                flush()
+            done = len(rows) == len(P.RATES)  # the rule: every planted rate, or the model is skipped
+            out["models"][model] = {"skipped": not done, "seconds": time.time() - t0, "by_rate": rows}
+            if not done:
+                out["models"][model]["reason"] = "incomplete_rate_coverage"
         except Exception as exc:  # unreachable or too slow: arm is skipped, no number used
             out["models"][model] = {"skipped": True, "reason": type(exc).__name__, "by_rate": rows}
-    OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "c135_labeller.json").write_text(json.dumps(out, indent=1) + "\n")
-    print("written", OUT / "c135_labeller.json")
+        flush()
+    flush()
+    print("written", dest)
 
 
 if __name__ == "__main__":

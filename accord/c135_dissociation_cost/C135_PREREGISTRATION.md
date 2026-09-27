@@ -171,3 +171,58 @@ For the record, those rows fell monotonically: flag rate 0.4200, 0.3750, 0.3200,
 against the true label 0.8500, 0.8050, 0.7500, 0.6925 at rates 0, 0.10, 0.25, 0.414, with specificity
 constant at 0.9257 and recall on true positives falling 0.7727 to 0.4545. The arm needs a rerun on an
 idle server before any of it can be claimed.
+
+## OUTCOME, labeller arm rerun (appended 2026-09-27; the rule above is unedited)
+
+Rerun on an idle server, seed 20260926, LLM seed 7, temperature 0, local Ollama socket only. Artifacts:
+`results/accord/c135_dissociation_cost/c135_labeller.json` and the derived comparison
+`results/accord/c135_dissociation_cost/c135_labeller_vs_gold.json`. Both models completed every planted
+rate, so **neither model is skipped** and the arm now stands. 400 candidate slots from the `mid` pool,
+the same slots at every rate, realized true precision on those slots 0.495.
+
+Per model and planted rate:
+
+| model | rate | flag rate | accuracy vs true | specificity | recall on true positives |
+| --- | --- | --- | --- | --- | --- |
+| granite3.3:8b | 0.000 | 0.4200 | 0.8500 | 0.9257 | 0.7727 |
+| granite3.3:8b | 0.100 | 0.3750 | 0.8050 | 0.9257 | 0.6818 |
+| granite3.3:8b | 0.250 | 0.3200 | 0.7500 | 0.9257 | 0.5707 |
+| granite3.3:8b | 0.414 | 0.2625 | 0.6925 | 0.9257 | 0.4545 |
+| granite3.3:8b | 0.600 | 0.2050 | 0.6350 | 0.9257 | 0.3384 |
+| llama3:8b | 0.000 | 0.0625 | 0.4475 | 0.8812 | 0.0051 |
+| llama3:8b | 0.100 | 0.0750 | 0.4600 | 0.8812 | 0.0303 |
+| llama3:8b | 0.250 | 0.0850 | 0.4700 | 0.8812 | 0.0505 |
+| llama3:8b | 0.414 | 0.0925 | 0.4775 | 0.8812 | 0.0657 |
+| llama3:8b | 0.600 | 0.1025 | 0.4875 | 0.8812 | 0.0859 |
+
+Specificity is constant within each model because planting never changes a false positive's displayed
+evidence, which is the construction working as registered.
+
+The four `granite3.3:8b` rows the aborted attempt had reached reproduced bit for bit (0.4200, 0.3750,
+0.3200, 0.2625 flag rate and 0.8500, 0.8050, 0.7500, 0.6925 accuracy), so the arm is deterministic at
+temperature 0 and this rerun supersedes those rows rather than disagreeing with them.
+
+**Does the measured-precision bias survive a fallible judge?** Measured precision under a judge is that
+judge's flag rate. The gold judge on these same 400 slots gives 0.4950, 0.4425, 0.3700, 0.2900, 0.2125.
+
+- `granite3.3:8b`: **yes.** Measured precision falls monotonically 0.4200 to 0.2050. From rate 0 to the
+  0.414 design rate it drops 0.1575, unpaired Newcombe 95 percent interval 0.0649 to 0.2471, which
+  excludes 0. The gold judge drops 0.2050 over the same contrast, so the fallible judge recovers 0.7683
+  of the error-free effect and the bias is attenuated by 0.0475. The interval is conservative: the rates
+  share their slots, so the paired interval is narrower than the one quoted.
+- Because this judge is also pessimistic at rate 0 (gap against true precision -0.0750 with no defect
+  present), its total understatement at rate 0.414 is -0.2325 against the gold judge's -0.2050. Annotator
+  error and the dissociation defect compound here; they do not cancel.
+- `llama3:8b`: **no.** Its measured precision rises 0.0625 to 0.1025, a change of +0.0300 with interval
+  -0.0228 to +0.0822 that contains 0. Its recall on true positives is 0.0051 at rate 0, so it almost
+  never confirms a genuine contradiction and cannot register the defect at all. Its flag rate does move
+  systematically with the displayed evidence and its specificity stays fixed, so it is responding to its
+  input rather than emitting constant unparseable text; the script does not retain raw responses, so the
+  share of replies that fell through `parse` to 0 is not recoverable from the artifact. Recorded as a
+  completed arm with a degenerate judge, not as a skip.
+
+**What this licenses.** The direction and rough magnitude of the bias survive a fallible language-model
+annotator that is competent on the task, and the two error sources compound. It does not survive a judge
+whose recall on the trigger condition is near zero, which is a floor effect in the judge and not evidence
+against the defect. One of two models reproducing the effect is weak support for generality across
+annotators, and no claim about human annotators follows from either row.
