@@ -20,15 +20,15 @@
  "labellers": [
   "deployed_weak_labeller_llama3_8b_v1",
   "replication_llama3:8b",
-  "replication_granite3.3:8b"
+  "replication_granite3.3:8b",
+  "replication_qwen3:8b"
  ],
  "replication_labellers_attached": [
   "llama3:8b",
-  "granite3.3:8b"
+  "granite3.3:8b",
+  "qwen3:8b"
  ],
- "replication_labellers_missing": [
-  "qwen3:8b -> /Users/rickygole/mimic_local_only/accord_multillm/gold_replication_labels_qwen3_8b.csv"
- ],
+ "replication_labellers_missing": [],
  "pooled_confusion_gate": {
   "llama3:8b": {
    "registered": {
@@ -57,6 +57,21 @@
     "FP": 210,
     "FN": 0,
     "TN": 77
+   },
+   "agrees": true
+  },
+  "qwen3:8b": {
+   "registered": {
+    "TP": 11,
+    "FP": 174,
+    "FN": 1,
+    "TN": 113
+   },
+   "recomputed": {
+    "TP": 11,
+    "FP": 174,
+    "FN": 1,
+    "TN": 113
    },
    "agrees": true
   },
@@ -141,6 +156,22 @@
    "recall": 1.0,
    "fp_share_of_cell": 0.7023,
    "flagged_rate": 0.7425,
+   "n_unparseable": 0
+  },
+  "replication_qwen3:8b": {
+   "n_pairs": 299,
+   "n_confirmed": 12,
+   "n_ambiguous": 46,
+   "n_flagged": 185,
+   "over_call_ratio": 15.417,
+   "n_true_positive": 11,
+   "n_false_positive": 174,
+   "n_ambiguous_flagged": 30,
+   "n_false_positive_excluding_ambiguous": 144,
+   "precision": 0.0595,
+   "recall": 0.9167,
+   "fp_share_of_cell": 0.5819,
+   "flagged_rate": 0.6187,
    "n_unparseable": 0
   }
  },
@@ -352,6 +383,76 @@
     "recall": 1.0,
     "fp_share_of_cell": 0.4909,
     "flagged_rate": 0.5273,
+    "n_unparseable": 0
+   }
+  },
+  "replication_qwen3:8b": {
+   "1": {
+    "rule_short": "direct action conflict",
+    "n_pairs": 134,
+    "n_confirmed": 3,
+    "n_ambiguous": 17,
+    "n_flagged": 83,
+    "over_call_ratio": 27.667,
+    "n_true_positive": 3,
+    "n_false_positive": 80,
+    "n_ambiguous_flagged": 13,
+    "n_false_positive_excluding_ambiguous": 67,
+    "precision": 0.0361,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.597,
+    "flagged_rate": 0.6194,
+    "n_unparseable": 0
+   },
+   "2": {
+    "rule_short": "drug class conflict",
+    "n_pairs": 31,
+    "n_confirmed": 3,
+    "n_ambiguous": 3,
+    "n_flagged": 19,
+    "over_call_ratio": 6.333,
+    "n_true_positive": 3,
+    "n_false_positive": 16,
+    "n_ambiguous_flagged": 2,
+    "n_false_positive_excluding_ambiguous": 14,
+    "precision": 0.1579,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.5161,
+    "flagged_rate": 0.6129,
+    "n_unparseable": 0
+   },
+   "3": {
+    "rule_short": "dosage conflict",
+    "n_pairs": 79,
+    "n_confirmed": 4,
+    "n_ambiguous": 16,
+    "n_flagged": 67,
+    "over_call_ratio": 16.75,
+    "n_true_positive": 4,
+    "n_false_positive": 63,
+    "n_ambiguous_flagged": 12,
+    "n_false_positive_excluding_ambiguous": 51,
+    "precision": 0.0597,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.7975,
+    "flagged_rate": 0.8481,
+    "n_unparseable": 0
+   },
+   "4": {
+    "rule_short": "discharge-side absence",
+    "n_pairs": 55,
+    "n_confirmed": 2,
+    "n_ambiguous": 10,
+    "n_flagged": 16,
+    "over_call_ratio": 8.0,
+    "n_true_positive": 1,
+    "n_false_positive": 15,
+    "n_ambiguous_flagged": 3,
+    "n_false_positive_excluding_ambiguous": 12,
+    "precision": 0.0625,
+    "recall": 0.5,
+    "fp_share_of_cell": 0.2727,
+    "flagged_rate": 0.2909,
     "n_unparseable": 0
    }
   }
@@ -1226,6 +1327,296 @@
     "flagged_rate": 1.0,
     "n_unparseable": 0
    }
+  },
+  "replication_qwen3:8b": {
+   "ace_inhibitors": {
+    "n_pairs": 17,
+    "n_confirmed": 0,
+    "n_ambiguous": 1,
+    "n_flagged": 6,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 6,
+    "n_ambiguous_flagged": 1,
+    "n_false_positive_excluding_ambiguous": 5,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.3529,
+    "flagged_rate": 0.3529,
+    "n_unparseable": 0
+   },
+   "aldosterone_antagonists": {
+    "n_pairs": 1,
+    "n_confirmed": 0,
+    "n_ambiguous": 0,
+    "n_flagged": 0,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 0,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 0,
+    "precision": null,
+    "recall": null,
+    "fp_share_of_cell": 0.0,
+    "flagged_rate": 0.0,
+    "n_unparseable": 0
+   },
+   "antiarrhythmics": {
+    "n_pairs": 27,
+    "n_confirmed": 0,
+    "n_ambiguous": 5,
+    "n_flagged": 22,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 22,
+    "n_ambiguous_flagged": 5,
+    "n_false_positive_excluding_ambiguous": 17,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.8148,
+    "flagged_rate": 0.8148,
+    "n_unparseable": 0
+   },
+   "antibacterials": {
+    "n_pairs": 5,
+    "n_confirmed": 0,
+    "n_ambiguous": 0,
+    "n_flagged": 1,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 1,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 1,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.2,
+    "flagged_rate": 0.2,
+    "n_unparseable": 0
+   },
+   "anticoagulants": {
+    "n_pairs": 62,
+    "n_confirmed": 5,
+    "n_ambiguous": 14,
+    "n_flagged": 42,
+    "over_call_ratio": 8.4,
+    "n_true_positive": 5,
+    "n_false_positive": 37,
+    "n_ambiguous_flagged": 9,
+    "n_false_positive_excluding_ambiguous": 28,
+    "precision": 0.119,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.5968,
+    "flagged_rate": 0.6774,
+    "n_unparseable": 0
+   },
+   "antiplatelets": {
+    "n_pairs": 5,
+    "n_confirmed": 1,
+    "n_ambiguous": 1,
+    "n_flagged": 4,
+    "over_call_ratio": 4.0,
+    "n_true_positive": 1,
+    "n_false_positive": 3,
+    "n_ambiguous_flagged": 1,
+    "n_false_positive_excluding_ambiguous": 2,
+    "precision": 0.25,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.6,
+    "flagged_rate": 0.8,
+    "n_unparseable": 0
+   },
+   "arbs": {
+    "n_pairs": 1,
+    "n_confirmed": 0,
+    "n_ambiguous": 0,
+    "n_flagged": 0,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 0,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 0,
+    "precision": null,
+    "recall": null,
+    "fp_share_of_cell": 0.0,
+    "flagged_rate": 0.0,
+    "n_unparseable": 0
+   },
+   "beta_blockers": {
+    "n_pairs": 53,
+    "n_confirmed": 2,
+    "n_ambiguous": 4,
+    "n_flagged": 34,
+    "over_call_ratio": 17.0,
+    "n_true_positive": 2,
+    "n_false_positive": 32,
+    "n_ambiguous_flagged": 3,
+    "n_false_positive_excluding_ambiguous": 29,
+    "precision": 0.0588,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.6038,
+    "flagged_rate": 0.6415,
+    "n_unparseable": 0
+   },
+   "calcium_channel_blockers": {
+    "n_pairs": 6,
+    "n_confirmed": 0,
+    "n_ambiguous": 1,
+    "n_flagged": 4,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 4,
+    "n_ambiguous_flagged": 1,
+    "n_false_positive_excluding_ambiguous": 3,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.6667,
+    "flagged_rate": 0.6667,
+    "n_unparseable": 0
+   },
+   "central_alpha2_agonists": {
+    "n_pairs": 1,
+    "n_confirmed": 0,
+    "n_ambiguous": 1,
+    "n_flagged": 0,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 0,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 0,
+    "precision": null,
+    "recall": null,
+    "fp_share_of_cell": 0.0,
+    "flagged_rate": 0.0,
+    "n_unparseable": 0
+   },
+   "corticosteroids": {
+    "n_pairs": 1,
+    "n_confirmed": 0,
+    "n_ambiguous": 0,
+    "n_flagged": 1,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 1,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 1,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 1.0,
+    "flagged_rate": 1.0,
+    "n_unparseable": 0
+   },
+   "electrolyte_supplements": {
+    "n_pairs": 2,
+    "n_confirmed": 1,
+    "n_ambiguous": 0,
+    "n_flagged": 0,
+    "over_call_ratio": 0.0,
+    "n_true_positive": 0,
+    "n_false_positive": 0,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 0,
+    "precision": null,
+    "recall": 0.0,
+    "fp_share_of_cell": 0.0,
+    "flagged_rate": 0.0,
+    "n_unparseable": 0
+   },
+   "inotropes": {
+    "n_pairs": 6,
+    "n_confirmed": 0,
+    "n_ambiguous": 3,
+    "n_flagged": 4,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 4,
+    "n_ambiguous_flagged": 3,
+    "n_false_positive_excluding_ambiguous": 1,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.6667,
+    "flagged_rate": 0.6667,
+    "n_unparseable": 0
+   },
+   "insulins": {
+    "n_pairs": 17,
+    "n_confirmed": 0,
+    "n_ambiguous": 1,
+    "n_flagged": 11,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 11,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 11,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.6471,
+    "flagged_rate": 0.6471,
+    "n_unparseable": 0
+   },
+   "loop_diuretics": {
+    "n_pairs": 61,
+    "n_confirmed": 3,
+    "n_ambiguous": 10,
+    "n_flagged": 38,
+    "over_call_ratio": 12.667,
+    "n_true_positive": 3,
+    "n_false_positive": 35,
+    "n_ambiguous_flagged": 3,
+    "n_false_positive_excluding_ambiguous": 32,
+    "precision": 0.0789,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.5738,
+    "flagged_rate": 0.623,
+    "n_unparseable": 0
+   },
+   "nitrates": {
+    "n_pairs": 17,
+    "n_confirmed": 0,
+    "n_ambiguous": 4,
+    "n_flagged": 12,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 12,
+    "n_ambiguous_flagged": 4,
+    "n_false_positive_excluding_ambiguous": 8,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.7059,
+    "flagged_rate": 0.7059,
+    "n_unparseable": 0
+   },
+   "opioid_analgesics": {
+    "n_pairs": 12,
+    "n_confirmed": 0,
+    "n_ambiguous": 1,
+    "n_flagged": 4,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 4,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 4,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.3333,
+    "flagged_rate": 0.3333,
+    "n_unparseable": 0
+   },
+   "vasodilators": {
+    "n_pairs": 5,
+    "n_confirmed": 0,
+    "n_ambiguous": 0,
+    "n_flagged": 2,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 2,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 2,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.4,
+    "flagged_rate": 0.4,
+    "n_unparseable": 0
+   }
   }
  },
  "by_pharmacologic_class_grouped_for_reporting": {
@@ -1667,6 +2058,153 @@
     "recall": 1.0,
     "fp_share_of_cell": 0.8182,
     "flagged_rate": 0.8788,
+    "n_unparseable": 0
+   }
+  },
+  "replication_qwen3:8b": {
+   "ace_inhibitors": {
+    "n_pairs": 17,
+    "n_confirmed": 0,
+    "n_ambiguous": 1,
+    "n_flagged": 6,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 6,
+    "n_ambiguous_flagged": 1,
+    "n_false_positive_excluding_ambiguous": 5,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.3529,
+    "flagged_rate": 0.3529,
+    "n_unparseable": 0
+   },
+   "antiarrhythmics": {
+    "n_pairs": 27,
+    "n_confirmed": 0,
+    "n_ambiguous": 5,
+    "n_flagged": 22,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 22,
+    "n_ambiguous_flagged": 5,
+    "n_false_positive_excluding_ambiguous": 17,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.8148,
+    "flagged_rate": 0.8148,
+    "n_unparseable": 0
+   },
+   "anticoagulants": {
+    "n_pairs": 62,
+    "n_confirmed": 5,
+    "n_ambiguous": 14,
+    "n_flagged": 42,
+    "over_call_ratio": 8.4,
+    "n_true_positive": 5,
+    "n_false_positive": 37,
+    "n_ambiguous_flagged": 9,
+    "n_false_positive_excluding_ambiguous": 28,
+    "precision": 0.119,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.5968,
+    "flagged_rate": 0.6774,
+    "n_unparseable": 0
+   },
+   "beta_blockers": {
+    "n_pairs": 53,
+    "n_confirmed": 2,
+    "n_ambiguous": 4,
+    "n_flagged": 34,
+    "over_call_ratio": 17.0,
+    "n_true_positive": 2,
+    "n_false_positive": 32,
+    "n_ambiguous_flagged": 3,
+    "n_false_positive_excluding_ambiguous": 29,
+    "precision": 0.0588,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.6038,
+    "flagged_rate": 0.6415,
+    "n_unparseable": 0
+   },
+   "insulins": {
+    "n_pairs": 17,
+    "n_confirmed": 0,
+    "n_ambiguous": 1,
+    "n_flagged": 11,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 11,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 11,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.6471,
+    "flagged_rate": 0.6471,
+    "n_unparseable": 0
+   },
+   "loop_diuretics": {
+    "n_pairs": 61,
+    "n_confirmed": 3,
+    "n_ambiguous": 10,
+    "n_flagged": 38,
+    "over_call_ratio": 12.667,
+    "n_true_positive": 3,
+    "n_false_positive": 35,
+    "n_ambiguous_flagged": 3,
+    "n_false_positive_excluding_ambiguous": 32,
+    "precision": 0.0789,
+    "recall": 1.0,
+    "fp_share_of_cell": 0.5738,
+    "flagged_rate": 0.623,
+    "n_unparseable": 0
+   },
+   "nitrates": {
+    "n_pairs": 17,
+    "n_confirmed": 0,
+    "n_ambiguous": 4,
+    "n_flagged": 12,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 12,
+    "n_ambiguous_flagged": 4,
+    "n_false_positive_excluding_ambiguous": 8,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.7059,
+    "flagged_rate": 0.7059,
+    "n_unparseable": 0
+   },
+   "opioid_analgesics": {
+    "n_pairs": 12,
+    "n_confirmed": 0,
+    "n_ambiguous": 1,
+    "n_flagged": 4,
+    "over_call_ratio": null,
+    "n_true_positive": 0,
+    "n_false_positive": 4,
+    "n_ambiguous_flagged": 0,
+    "n_false_positive_excluding_ambiguous": 4,
+    "precision": 0.0,
+    "recall": null,
+    "fp_share_of_cell": 0.3333,
+    "flagged_rate": 0.3333,
+    "n_unparseable": 0
+   },
+   "other_classes_under_10_pairs": {
+    "n_classes_pooled": 10,
+    "n_pairs": 33,
+    "n_confirmed": 2,
+    "n_ambiguous": 6,
+    "n_flagged": 16,
+    "over_call_ratio": 8.0,
+    "n_true_positive": 1,
+    "n_false_positive": 15,
+    "n_ambiguous_flagged": 5,
+    "n_false_positive_excluding_ambiguous": 10,
+    "precision": 0.0625,
+    "recall": 0.5,
+    "fp_share_of_cell": 0.4545,
+    "flagged_rate": 0.4848,
     "n_unparseable": 0
    }
   }
@@ -2144,6 +2682,151 @@
      {
       "pharmacologic_class": "central_alpha2_agonists",
       "n_pairs": 1,
+      "n_flagged": 1,
+      "n_false_positive": 1
+     },
+     {
+      "pharmacologic_class": "corticosteroids",
+      "n_pairs": 1,
+      "n_flagged": 1,
+      "n_false_positive": 1
+     }
+    ]
+   }
+  },
+  "replication_qwen3:8b": {
+   "by_rule": {
+    "ranked_by_over_call_ratio": [
+     {
+      "rule": "1",
+      "n_pairs": 134,
+      "n_confirmed": 3,
+      "n_flagged": 83,
+      "over_call_ratio": 27.667,
+      "n_false_positive": 80
+     },
+     {
+      "rule": "3",
+      "n_pairs": 79,
+      "n_confirmed": 4,
+      "n_flagged": 67,
+      "over_call_ratio": 16.75,
+      "n_false_positive": 63
+     },
+     {
+      "rule": "4",
+      "n_pairs": 55,
+      "n_confirmed": 2,
+      "n_flagged": 16,
+      "over_call_ratio": 8.0,
+      "n_false_positive": 15
+     },
+     {
+      "rule": "2",
+      "n_pairs": 31,
+      "n_confirmed": 3,
+      "n_flagged": 19,
+      "over_call_ratio": 6.333,
+      "n_false_positive": 16
+     }
+    ],
+    "no_confirmed_positive_ranked_by_false_positives": []
+   },
+   "by_pharmacologic_class": {
+    "ranked_by_over_call_ratio": [
+     {
+      "pharmacologic_class": "beta_blockers",
+      "n_pairs": 53,
+      "n_confirmed": 2,
+      "n_flagged": 34,
+      "over_call_ratio": 17.0,
+      "n_false_positive": 32
+     },
+     {
+      "pharmacologic_class": "loop_diuretics",
+      "n_pairs": 61,
+      "n_confirmed": 3,
+      "n_flagged": 38,
+      "over_call_ratio": 12.667,
+      "n_false_positive": 35
+     },
+     {
+      "pharmacologic_class": "anticoagulants",
+      "n_pairs": 62,
+      "n_confirmed": 5,
+      "n_flagged": 42,
+      "over_call_ratio": 8.4,
+      "n_false_positive": 37
+     },
+     {
+      "pharmacologic_class": "antiplatelets",
+      "n_pairs": 5,
+      "n_confirmed": 1,
+      "n_flagged": 4,
+      "over_call_ratio": 4.0,
+      "n_false_positive": 3
+     },
+     {
+      "pharmacologic_class": "electrolyte_supplements",
+      "n_pairs": 2,
+      "n_confirmed": 1,
+      "n_flagged": 0,
+      "over_call_ratio": 0.0,
+      "n_false_positive": 0
+     }
+    ],
+    "no_confirmed_positive_ranked_by_false_positives": [
+     {
+      "pharmacologic_class": "antiarrhythmics",
+      "n_pairs": 27,
+      "n_flagged": 22,
+      "n_false_positive": 22
+     },
+     {
+      "pharmacologic_class": "nitrates",
+      "n_pairs": 17,
+      "n_flagged": 12,
+      "n_false_positive": 12
+     },
+     {
+      "pharmacologic_class": "insulins",
+      "n_pairs": 17,
+      "n_flagged": 11,
+      "n_false_positive": 11
+     },
+     {
+      "pharmacologic_class": "ace_inhibitors",
+      "n_pairs": 17,
+      "n_flagged": 6,
+      "n_false_positive": 6
+     },
+     {
+      "pharmacologic_class": "calcium_channel_blockers",
+      "n_pairs": 6,
+      "n_flagged": 4,
+      "n_false_positive": 4
+     },
+     {
+      "pharmacologic_class": "inotropes",
+      "n_pairs": 6,
+      "n_flagged": 4,
+      "n_false_positive": 4
+     },
+     {
+      "pharmacologic_class": "opioid_analgesics",
+      "n_pairs": 12,
+      "n_flagged": 4,
+      "n_false_positive": 4
+     },
+     {
+      "pharmacologic_class": "vasodilators",
+      "n_pairs": 5,
+      "n_flagged": 2,
+      "n_false_positive": 2
+     },
+     {
+      "pharmacologic_class": "antibacterials",
+      "n_pairs": 5,
       "n_flagged": 1,
       "n_false_positive": 1
      },
