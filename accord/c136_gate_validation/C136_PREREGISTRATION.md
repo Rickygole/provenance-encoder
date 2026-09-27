@@ -1,8 +1,28 @@
 # C136 pre-registration: the marginal feasibility gate as a screen for student failure, on a design with student headroom
 
 Committed before the first C136 datum. The outcome is appended below; the rule above the outcome line is never
-edited. Convention set by C44. This pre-registration replaces C135, whose run is recorded in
-`accord/c135_gate_validation/C135_PREREGISTRATION.md` as uninformative because its student had no headroom.
+edited. Convention set by C44.
+
+## Superseded first attempt, this check's own history
+
+This check was attempted once before and abandoned. That attempt is **not a separately numbered check**: it is this
+check's first attempt, and it holds no identifier of its own. Its rule text and its script are preserved unedited
+under `accord/c136_gate_validation/superseded_first_attempt/`, as `PREREGISTRATION_SUPERSEDED.md` and
+`run_superseded.py`, with its artifacts under
+`results/accord/c136_gate_validation/superseded_first_attempt/`. The convention is that a rule is never edited, so
+the abandoned rule is kept as superseded history rather than corrected or deleted.
+
+It was abandoned because its pre-registered student, TF-IDF plus logistic regression on 5000 SNLI items at 4 percent
+prevalence, had no headroom: its clean-label reference student reached AUROC 0.6037, four thousandths above its own
+0.60 failure line, so every labeller in the grid produced a failing student, the outcome variable had no variance,
+and specificity was undefined. No screening instrument could have been scored on that design.
+
+Commits that hold it: `8f31ab7` committed its rule before its first datum, and `ed0ecdf` appended its outcome and
+recorded it as uninformative. Both commits describe it as "C135". That identifier was a collision: the
+trigger-exemplar dissociation-cost check, `accord/c135_dissociation_cost/`, is the live holder of C135, it has a
+completed run and 188 keys under the `c135` register prefix, and this abandoned attempt wrote nothing to the
+register. The directories asserting the duplicate identity were therefore renamed into the superseded history above.
+The commit messages are left as they stand, since history is not rewritten.
 
 ## What changed from C135 and why, stated before any C136 number exists
 
