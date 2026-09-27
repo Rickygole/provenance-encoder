@@ -60,6 +60,8 @@ sys.path.insert(0, str(ROOT))
 
 from accord.prompt_sensitivity.analyze_c109 import (  # noqa: E402
     CONFOUND_AUROC_THRESHOLD,
+    MDE_AUROC_253,
+    MDE_AUROC_DEFECT_FREE,
     CONFOUND_P_THRESHOLD,
     PERM_DRAWS,
     PERM_SEED,
@@ -237,6 +239,29 @@ def main():
             ids = ids_for(rules)
             blocks[name] = block([y253_by_pair[pid] for pid in ids],
                                  [recs[pid]["flag_logodds"] for pid in ids])
+        # The exact mirror of this thesis's own bounded-null criterion.
+        # Chapter 5 defines a bounded null as an interval that CONTAINS
+        # chance AND ENDS BELOW the simulated Mann-Whitney floor. The mirror
+        # image, for a labeller cell, is an interval that EXCLUDES chance
+        # (lower end above 0.5) AND BEGINS ABOVE that same floor. Both halves
+        # are recorded per cell, because only the first half is met anywhere
+        # and a claim that quotes it without the second is overstated.
+        floors = {"g253": MDE_AUROC_253,
+                  "rules_1_2": MDE_AUROC_253,
+                  "rules_3_4": MDE_AUROC_DEFECT_FREE}
+        for name, floor in floors.items():
+            b = blocks[name]
+            ci = b["bootstrap"]["ci95"] if b["bootstrap"] else None
+            b["registered_floor"] = floor
+            b["floor_source"] = ("analyze_c109.py::MDE_AUROC_253" if floor == MDE_AUROC_253
+                                 else "analyze_c109.py::MDE_AUROC_DEFECT_FREE")
+            b["bootstrap_lower_above_half"] = bool(ci and ci[0] > 0.5)
+            b["bootstrap_lower_above_registered_floor"] = bool(ci and ci[0] > floor)
+            b["auroc_at_or_above_registered_floor"] = bool(
+                b["auroc"] is not None and b["auroc"] >= floor)
+            b["mirror_of_bounded_null_fully_met"] = bool(
+                ci and ci[0] > 0.5 and ci[0] > floor)
+
         ids253 = ids_for(None)
         _, p_high = perm_p_high_precision(
             [y253_by_pair[pid] for pid in ids253],
@@ -336,6 +361,13 @@ def main():
     newly_confounded = sorted(
         k for k in confounded_cells
         if not scored[k]["confound_rule12_vs_rule34_among_confirmed_negatives"]["already_registered"])
+    mirror_full = sorted(k for k, v in scored.items()
+                         if v["g253"]["mirror_of_bounded_null_fully_met"])
+    lower_above_floor_any = sorted(
+        k for k, v in scored.items()
+        if v["g253"]["bootstrap_lower_above_registered_floor"]
+        or v["stratum_rules_1_2"].get("bootstrap_lower_above_registered_floor")
+        or v["stratum_rules_3_4"].get("bootstrap_lower_above_registered_floor"))
     alpha_bonf = 0.05 / len(CONFIGS)
     rejects_05 = sorted(k for k, v in scored.items()
                         if (v["g253"]["permutation_p"] or 1.0) < 0.05)
@@ -401,6 +433,20 @@ def main():
         "summary": {
             "cells_with_bootstrap_lower_bound_above_0_5_on_g253": lower_above_half,
             "n_cells_with_bootstrap_lower_bound_above_0_5_on_g253": len(lower_above_half),
+            "registered_floor_g253": MDE_AUROC_253,
+            "registered_floor_rules_3_4": MDE_AUROC_DEFECT_FREE,
+            "cells_meeting_the_full_mirror_of_the_bounded_null_on_g253": mirror_full,
+            "n_cells_meeting_the_full_mirror_of_the_bounded_null_on_g253": len(mirror_full),
+            "cells_whose_interval_begins_above_the_floor_on_any_stratum": lower_above_floor_any,
+            "mirror_note": (
+                "Chapter 5 defines a bounded null as an interval that contains "
+                "chance AND ends below the simulated Mann-Whitney floor. The "
+                "mirror image is an interval that excludes chance AND begins "
+                "above that floor. The first half is met by 12 of 17 cells on "
+                "G_253. The second half is met by none, on G_253 or on either "
+                "stratum. A labeller cell may therefore be said to exclude "
+                "chance; it may not be said to clear this study's own "
+                "detectability floor with its interval."),
             "confounded_cells": confounded_cells,
             "confounded_cells_direction_free_same_thresholds": confounded_direction_free,
             "cells_with_a_significant_rule_type_cue_in_either_direction": rule_cue_significant_any_direction,
@@ -435,6 +481,8 @@ def main():
     print(f"significant rule-type cue in either direction: {rule_cue_significant_any_direction}")
     print(f"newly tested and confounded: {newly_confounded}")
     print(f"register AUROC mismatches: {mismatches}")
+    print(f"full mirror of the bounded null met on G_253: {mirror_full}")
+    print(f"interval begins above the floor on any stratum: {lower_above_floor_any}")
 
 
 if __name__ == "__main__":
