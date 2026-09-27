@@ -154,7 +154,7 @@
 % Numbered citations, alphabetical reference list (author's choice). natbib=true
 % keeps \citep as [n] and \citet as Author [n], so no call site changes.
 \usepackage{csquotes}
-\usepackage[style=numeric-comp,backend=biber,sorting=nyt,natbib=true,giveninits=true,maxbibnames=20,minbibnames=20,doi=false,url=false,isbn=false,eprint=true]{biblatex}
+\usepackage[style=numeric-comp,backend=biber,sorting=nyt,natbib=true,giveninits=true,maxbibnames=99,minbibnames=99,doi=true,url=false,isbn=false,eprint=true]{biblatex}
 \addbibresource{refs.bib}
 % American punctuation in the reference list: the full stop and comma go inside
 % the closing quotation mark after a title (School of Graduate Studies error
@@ -162,10 +162,15 @@
 \DefineBibliographyExtras{english}{\uspunctuation}
 % An entry is not split across two pages.
 \AtBeginBibliography{\interlinepenalty=10000}
-% Author lists: maxbibnames=20 with minbibnames=20 prints every list of up to
-% 20 names in full and cuts any longer list to its first 20 names plus
-% "et al.", so the two long lists in refs.bib (TRIPOD+AI, 34 authors; Llama 3,
-% 20 names and "and others") truncate the same way.
+% Author lists: maxbibnames=99 with minbibnames=99 prints every name in every
+% list, so no entry hides authors behind "et al." (Error Checklist item 6 bars
+% the malformed variants, and APA 7 section 9.8 bars a truncated list). The one
+% list refs.bib itself cannot complete is Llama 3, whose author field ends in
+% "and others" because the paper has more than 500 authors; biblatex prints the
+% andothers bibstring for it whatever maxbibnames is, so that string is an
+% ellipsis, APA's own marker for the authors a list omits, not "et al.".
+\DefineBibliographyStrings{english}{andothers={\textellipsis}}
+\renewcommand*{\andothersdelim}{\addspace}
 %
 % Article numbers and e-locators. refs.bib keeps them in the eid field, never
 % in pages, so none prints as a page ("p. 36"). numeric-comp's default prints
@@ -186,10 +191,14 @@
   \setunit{\bibpagespunct}%
   \printfield{pages}%
   \newunit}
-% DOIs and URLs stay off (doi=false, url=false) except for an entry that would
+% DOIs print for every entry that has one (doi=true): the handbook requires a
+% DOI or a direct link "where available". URLs stay off (url=false) because the
+% 32 url fields in refs.bib are mostly the landing page of a work whose DOI is
+% already printed, so printing both doubles the locator, and a bare URL is the
+% only thing in the reference list that overruns the measure. The one branch
+% added to standard.bbx's macro keeps the url fallback for an entry that would
 % otherwise print no locator at all: no pages, article number, volume, issue,
-% publisher or eprint identifier. Such an entry prints its DOI, or its URL when
-% it has no DOI. This is standard.bbx's macro with that one branch added.
+% publisher, eprint identifier or DOI.
 \renewbibmacro*{doi+eprint+url}{%
   \iftoggle{bbx:doi}
     {\printfield{doi}}
@@ -208,7 +217,7 @@
     test {\iffieldundef{eprint}} and test {\iflistundef{publisher}} }
     {\iffieldundef{doi}
        {\iftoggle{bbx:url}{}{\iffieldundef{url}{}{\usebibmacro{url+urldate}}}}
-       {\printfield{doi}}}
+       {\iftoggle{bbx:doi}{}{\printfield{doi}}}}
     {}}
 % A URL printed by that branch may break after any character and carries no
 % stretch of its own; biblatex's defaults break only at punctuation and
@@ -446,12 +455,10 @@
 \doublespacing
 \setlength{\bibitemsep}{0pt}
 \setlength{\bibparsep}{0pt}
-% english.lbx's \DeclareBibliographyExtras re-defines \bibrangedash to
-% \textendash at begin-document, after any preamble-level \renewcommand runs
-% (the same load-order trap the \bibname fix above already documents), so the
-% override has to sit here, after that hook has already fired, to reach the
-% printed page ranges. The project forbids en/em dashes anywhere in the build.
-\renewcommand*{\bibrangedash}{-}
+% Page ranges print with an en dash, english.lbx's default for \bibrangedash.
+% The handbook requires one in a numerical range ("1995--1998, 32--35"), and the
+% project's no-dash rule is scoped to prose: verify_thesis.py pass 1 permits an
+% en dash only between two digits and still fails on every other dash use.
 \printbibliography[heading=bibliography]
 \endgroup
 

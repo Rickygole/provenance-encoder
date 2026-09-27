@@ -218,6 +218,120 @@ PARA_OPENERS = ["Moreover", "Furthermore", "Additionally", "Notably", "Important
                 "Consequently", "Overall"]
 
 
+# ---------------------------------------------------------------- pass 1 rules
+# The no-dash rule is a rule about prose: it exists so no sentence reads as
+# machine-written. It is not a rule about numerals, and the School of Graduate
+# Studies handbook requires the opposite there: "An en dash is a symbol used to
+# show numerical range... Examples: 1995-1998, 32-35" (with en dashes in the
+# handbook's own examples, not the hyphens this comment is limited to spelling).
+# Enforcing the prose
+# rule over the whole document forced \bibrangedash to a hyphen and printed 68
+# page ranges in violation of the handbook.
+#
+# So the rule is scoped, not weakened. Exactly one construction is permitted
+# anywhere: an en dash with a digit on each side and no space. Everything
+# else still fails, including
+#   * an en dash anywhere in prose (spaced, or against a letter),
+#   * an en dash spaced away from the digits it joins,
+#   * an em dash or a unicode minus, in any position at all,
+#   * a spaced hyphen used as a dash (word - word), which the old rule missed,
+#   * TeX's -- and ---, which render as an en and an em dash.
+# A digit range is narrower than "between digits": the check below requires the
+# dash to be flanked by a digit directly, so an en dash against a letter fails.
+DIGIT_RANGE_ENDASH = re.compile(r"(?<=\d)\u2013(?=\d)")
+SPACED_DASH = re.compile(r"(?:(?<=\s)|^)(?:-{1,3}|[\u2013\u2014\u2212])(?=\s|$)")
+# Inline math, and the environments that carry display math over several lines.
+# A spaced hyphen inside math is a minus sign, not punctuation, so the spaced-dash
+# rule does not apply there; every other rule still does, which is what keeps a
+# real en dash or unicode minus from hiding inside $...$.
+INLINE_MATH = re.compile(r"(?<!\\)\$.*?(?<!\\)\$", re.S)
+MATH_ENV = r"equation\*?|align\*?|alignat\*?|gather\*?|multline\*?|displaymath|eqnarray\*?"
+MATH_OPEN = re.compile(r"\\begin\{(?:" + MATH_ENV + r")\}|\\\[")
+MATH_CLOSE = re.compile(r"\\end\{(?:" + MATH_ENV + r")\}|\\\]")
+
+
+def dash_violations(line, in_math=False):
+    """Return [(name, count)] for every dash in one source line that is not a
+    handbook numeric range. in_math marks a line inside display math, where an
+    ASCII hyphen between spaces is a minus sign. Pure function of its arguments,
+    so it is negative-testable without a document; see self_test()."""
+    out = []
+    # A spaced dash is a dash used as punctuation whatever its glyph, so it is
+    # checked before the en-dash exemption can reach it. Math is removed first,
+    # inline spans here and whole lines by the caller's in_math flag.
+    if not in_math:
+        n = len(SPACED_DASH.findall(INLINE_MATH.sub(" ", line)))
+        if n:
+            out.append(("spaced dash", n))
+    stripped = DIGIT_RANGE_ENDASH.sub("", line)
+    for ch, name in (("\u2014", "em dash"), ("\u2212", "minus sign")):
+        if ch in line:
+            out.append((name, line.count(ch)))
+    if "\u2013" in stripped:
+        out.append(("en dash outside a numeric range", stripped.count("\u2013")))
+    if not line.lstrip().startswith("%"):
+        # TeX ligatures: -- is an en dash and --- an em dash on the page. The
+        # printed page is what the handbook and the checklist are read against.
+        for m in re.finditer(r"-{2,}", line):
+            out.append(("latex em dash (---)" if len(m.group(0)) > 2
+                        else "latex en dash (--)", 1))
+    return out
+
+
+def scan_dashes(text):
+    """Yield (lineno, name, count) for one file's text, tracking display math."""
+    in_math = False
+    for i, line in enumerate(text.splitlines(), 1):
+        opened = bool(MATH_OPEN.search(line))
+        closed = bool(MATH_CLOSE.search(line))
+        for name, hits in dash_violations(line, in_math=in_math or opened):
+            yield i, name, hits
+        if opened and not closed:
+            in_math = True
+        elif closed:
+            in_math = False
+
+
+def self_test():
+    """Negative tests for dash_violations. Run: verify_thesis.py --self-test"""
+    cases = [
+        # (line, expect_fail, what it is)
+        ("Pages 32\u201335 of the handbook.", False, "handbook numeric range"),
+        ("The interval was 0.12\u20130.19 wide.", False, "decimal range"),
+        ("A range from 1995\u20131998.", False, "year range"),
+        ("The pipeline\u2013and its gate\u2013failed.", True, "prose en dash"),
+        ("The pipeline \u2013 and its gate \u2013 failed.", True, "spaced en dash"),
+        ("The pipeline \u2014 and its gate \u2014 failed.", True, "spaced em dash"),
+        ("The pipeline\u2014and its gate\u2014failed.", True, "prose em dash"),
+        ("A drop of \u22120.03 points.", True, "unicode minus"),
+        ("The gate - which never fired - reported zero.", True, "spaced hyphen"),
+        ("Pages 32 \u2013 35 of the handbook.", True, "spaced dash between digits"),
+        ("Pages 32--35 of the handbook.", True, "TeX -- in prose"),
+        ("The gate---which never fired---reported zero.", True, "TeX ---"),
+        ("A 3\u2013fold increase.", True, "en dash against a letter"),
+        ("Cross-note, stage-by-stage, GPT-4o.", False, "ordinary hyphens"),
+        ("32\u201335 and 1995\u20131998 on one line.", False, "two ranges"),
+        ("The quantity $a - 0.5$ is the effect.", False, "minus in inline math"),
+        ("  \\frac{\\max - \\min}{\\max} > \\tau ,", False, "minus in display math",
+         True),
+        ("A dash \u2013 inside $x - y$ math on the line.", True,
+         "en dash beside math"),
+        ("  x = 1 \u2013 2 in display math", True, "en dash inside display math", True),
+    ]
+    fails = 0
+    for case in cases:
+        line, expect_fail, what = case[:3]
+        got = dash_violations(line, in_math=case[3] if len(case) > 3 else False)
+        ok = bool(got) == expect_fail
+        fails += not ok
+        print(f"   {'ok  ' if ok else 'BAD '} {what}: "
+              f"{'flagged' if got else 'clean'} "
+              f"{[n for n, _ in got]}")
+    print(f"   {'FAIL' if fails else 'pass'}: {len(cases) - fails}/{len(cases)} "
+          "dash cases behave as specified")
+    return fails
+
+
 def main():
     if not CHAPTERS:
         print("no msu_ch*.tex files found yet")
@@ -237,14 +351,10 @@ def main():
     print("PASS 1  dashes")
     bad = 0
     for f in ALL_CHAPTERS + FRONTMATTER:
-        for i, line in enumerate(f.read_text().splitlines(), 1):
-            for ch, name in (("\u2014", "em dash"), ("\u2013", "en dash"), ("\u2212", "minus sign")):
-                if ch in line:
-                    print(f"   {f.name}:{i}  {name}: {line.strip()[:90]}")
-                    bad += 1
-            if re.search(r"(?<!\-)\-\-(?!\-)", line) and "%" not in line[:2]:
-                print(f"   {f.name}:{i}  latex en dash (--): {line.strip()[:90]}")
-                bad += 1
+        lines = f.read_text().splitlines()
+        for i, name, hits in scan_dashes(f.read_text()):
+            print(f"   {f.name}:{i}  {name}: {lines[i - 1].strip()[:90]}")
+            bad += hits
     # Figures are drawn from scripts, and a dash inside a rendered PDF is
     # invisible to a scan of the .tex. Check the generating source too.
     figsrc = 0
@@ -445,4 +555,7 @@ def main():
 
 
 if __name__ == "__main__":
+    if "--self-test" in sys.argv:
+        print("PASS 1 dash rule, negative tests")
+        sys.exit(1 if self_test() else 0)
     sys.exit(main())
