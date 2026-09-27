@@ -57,7 +57,11 @@ from sklearn.metrics import roc_auc_score
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
+# accord/control/report.py does "from delong import delong_roc_test", so its
+# own directory has to be importable before it can be imported.
+sys.path.insert(0, str(ROOT / "accord" / "control"))
 
+from accord.control.report import hanley_mcneil_min_detectable_auc  # noqa: E402
 from accord.prompt_sensitivity.analyze_c109 import (  # noqa: E402
     CONFOUND_AUROC_THRESHOLD,
     MDE_AUROC_253,
@@ -246,21 +250,44 @@ def main():
         # (lower end above 0.5) AND BEGINS ABOVE that same floor. Both halves
         # are recorded per cell, because only the first half is met anywhere
         # and a claim that quotes it without the second is overstated.
-        floors = {"g253": MDE_AUROC_253,
-                  "rules_1_2": MDE_AUROC_253,
-                  "rules_3_4": MDE_AUROC_DEFECT_FREE}
-        for name, floor in floors.items():
+        # C109 registers a floor for G_253 (0.7355) and for the defect-free
+        # Rules 3-4 subset (0.8058). It registers NONE for Rules 1-2. The
+        # G_253 floor must NOT be borrowed for Rules 1-2: that stratum has 6
+        # positives instead of 12, so its floor is HIGHER, and borrowing the
+        # G_253 value would make a lenient test look like a passed one. The
+        # stratum-exact Hanley-McNeil floor is recomputed here with
+        # accord/control/report.py's own formula, and the floor actually
+        # applied is the STRICTER of the registered value and the
+        # stratum-exact one.
+        registered_floors = {"g253": MDE_AUROC_253,
+                             "rules_1_2": None,
+                             "rules_3_4": MDE_AUROC_DEFECT_FREE}
+        for name, reg_floor in registered_floors.items():
             b = blocks[name]
+            n, n_pos = b["n"], b["n_pos"]
+            exact = None
+            if 0 < n_pos < n:
+                exact = float(hanley_mcneil_min_detectable_auc(
+                    n_pos, n - n_pos)["minimum_detectable_auc"])
+            candidates = [f for f in (reg_floor, exact) if f is not None]
+            floor = max(candidates) if candidates else None
+            b["registered_floor"] = reg_floor
+            b["stratum_exact_hanley_mcneil_floor"] = exact
+            b["floor_applied"] = floor
+            b["floor_source"] = (
+                "max of the C109-registered floor and the stratum-exact "
+                "Hanley-McNeil floor recomputed with "
+                "accord/control/report.py::hanley_mcneil_min_detectable_auc; "
+                "Rules 1-2 has no registered floor, so the stratum-exact one "
+                "is used there rather than borrowing the G_253 value")
             ci = b["bootstrap"]["ci95"] if b["bootstrap"] else None
-            b["registered_floor"] = floor
-            b["floor_source"] = ("analyze_c109.py::MDE_AUROC_253" if floor == MDE_AUROC_253
-                                 else "analyze_c109.py::MDE_AUROC_DEFECT_FREE")
             b["bootstrap_lower_above_half"] = bool(ci and ci[0] > 0.5)
-            b["bootstrap_lower_above_registered_floor"] = bool(ci and ci[0] > floor)
-            b["auroc_at_or_above_registered_floor"] = bool(
-                b["auroc"] is not None and b["auroc"] >= floor)
+            b["bootstrap_lower_above_applied_floor"] = bool(
+                ci and floor is not None and ci[0] > floor)
+            b["auroc_at_or_above_applied_floor"] = bool(
+                b["auroc"] is not None and floor is not None and b["auroc"] >= floor)
             b["mirror_of_bounded_null_fully_met"] = bool(
-                ci and ci[0] > 0.5 and ci[0] > floor)
+                ci and floor is not None and ci[0] > 0.5 and ci[0] > floor)
 
         ids253 = ids_for(None)
         _, p_high = perm_p_high_precision(
@@ -365,9 +392,9 @@ def main():
                          if v["g253"]["mirror_of_bounded_null_fully_met"])
     lower_above_floor_any = sorted(
         k for k, v in scored.items()
-        if v["g253"]["bootstrap_lower_above_registered_floor"]
-        or v["stratum_rules_1_2"].get("bootstrap_lower_above_registered_floor")
-        or v["stratum_rules_3_4"].get("bootstrap_lower_above_registered_floor"))
+        if v["g253"]["bootstrap_lower_above_applied_floor"]
+        or v["stratum_rules_1_2"].get("bootstrap_lower_above_applied_floor")
+        or v["stratum_rules_3_4"].get("bootstrap_lower_above_applied_floor"))
     alpha_bonf = 0.05 / len(CONFIGS)
     rejects_05 = sorted(k for k, v in scored.items()
                         if (v["g253"]["permutation_p"] or 1.0) < 0.05)
@@ -438,6 +465,14 @@ def main():
             "cells_meeting_the_full_mirror_of_the_bounded_null_on_g253": mirror_full,
             "n_cells_meeting_the_full_mirror_of_the_bounded_null_on_g253": len(mirror_full),
             "cells_whose_interval_begins_above_the_floor_on_any_stratum": lower_above_floor_any,
+            "floor_note": (
+                "C109 registers no floor for Rules 1-2. The G_253 floor is "
+                "not valid there: that stratum has 6 positives, not 12, so "
+                "its Hanley-McNeil floor is 0.8384, well above G_253's "
+                "0.7355. The floor applied per stratum is the stricter of the "
+                "registered value and the stratum-exact recomputation, so "
+                "that a lenient borrowed floor cannot turn into a passed "
+                "test."),
             "mirror_note": (
                 "Chapter 5 defines a bounded null as an interval that contains "
                 "chance AND ends below the simulated Mann-Whitney floor. The "

@@ -54,6 +54,12 @@ def main():
                  "n_surviving_bonferroni_at_registered_B_20000",
                  "n_surviving_bonferroni_at_B_200000"):
         put(f"labellerintervals.summary.{name}", REL_I, f"summary.{name}", s[name])
+    put("labellerintervals.summary.n_cells_meeting_full_mirror_on_g253", REL_I,
+        "summary.n_cells_meeting_the_full_mirror_of_the_bounded_null_on_g253",
+        s["n_cells_meeting_the_full_mirror_of_the_bounded_null_on_g253"])
+    put("labellerintervals.summary.n_cells_interval_above_floor_any_stratum", REL_I,
+        "summary.cells_whose_interval_begins_above_the_floor_on_any_stratum (length)",
+        len(s["cells_whose_interval_begins_above_the_floor_on_any_stratum"]))
     put("labellerintervals.summary.n_confounded_direction_free", REL_I,
         "summary.confounded_cells_direction_free_same_thresholds (length)",
         len(s["confounded_cells_direction_free_same_thresholds"]))
@@ -79,6 +85,14 @@ def main():
         put(f"labellerintervals.{sk}.g253.bootstrap_lower_above_half", REL_I,
             f"cells.{cell_key}.g253.bootstrap.lower_bound_above_half",
             g["bootstrap"]["lower_bound_above_half"])
+        put(f"labellerintervals.{sk}.g253.floor_applied", REL_I,
+            f"cells.{cell_key}.g253.floor_applied", g["floor_applied"])
+        put(f"labellerintervals.{sk}.g253.bootstrap_lower_above_floor", REL_I,
+            f"cells.{cell_key}.g253.bootstrap_lower_above_applied_floor",
+            g["bootstrap_lower_above_applied_floor"])
+        put(f"labellerintervals.{sk}.g253.mirror_of_bounded_null_fully_met", REL_I,
+            f"cells.{cell_key}.g253.mirror_of_bounded_null_fully_met",
+            g["mirror_of_bounded_null_fully_met"])
         put(f"labellerintervals.{sk}.g253.lopo_auroc_min", REL_I,
             f"cells.{cell_key}.g253.lopo_auroc_min", g["lopo_auroc_min"])
         put(f"labellerintervals.{sk}.g253.lopo_auroc_max", REL_I,
@@ -95,6 +109,11 @@ def main():
             put(f"labellerintervals.{sk}.{nm}.bootstrap_n_discarded", REL_I,
                 f"cells.{cell_key}.{st}.bootstrap.n_resamples_discarded_single_class",
                 b["bootstrap"]["n_resamples_discarded_single_class"])
+            put(f"labellerintervals.{sk}.{nm}.floor_applied", REL_I,
+                f"cells.{cell_key}.{st}.floor_applied", b["floor_applied"])
+            put(f"labellerintervals.{sk}.{nm}.bootstrap_lower_above_floor", REL_I,
+                f"cells.{cell_key}.{st}.bootstrap_lower_above_applied_floor",
+                b["bootstrap_lower_above_applied_floor"])
             put(f"labellerintervals.{sk}.{nm}.lopo_auroc_min", REL_I,
                 f"cells.{cell_key}.{st}.lopo_auroc_min", b["lopo_auroc_min"])
             put(f"labellerintervals.{sk}.{nm}.lopo_auroc_max", REL_I,
