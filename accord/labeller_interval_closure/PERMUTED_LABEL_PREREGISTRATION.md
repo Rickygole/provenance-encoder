@@ -90,5 +90,32 @@ comparably, not the distribution over draws.
 
 ## Outcome
 
-(recorded after the run; see
-`results/accord/labeller_interval_closure/permuted_label_control.json`)
+Recorded after the run. The decision rule above was not edited. Artifact:
+`results/accord/labeller_interval_closure/permuted_label_control.json`.
+
+All three gates passed. Three seeds trained on MPS, the run having waited for
+two other processes to release the GPU first.
+
+**Outcome A.** The permuted-label ensemble AUROC on `G_253` is
+0.4810 with AP
+0.0570 and bootstrap 95 percent interval
+[0.3238, 0.633], against the
+real-label run's 0.5360 / AP
+0.0830 and
+[0.3454, 0.7196]. The permuted
+value lies inside the real-label interval. The paired bootstrap difference on
+the same 253 pairs, real minus permuted, is 0.0561 with 95 percent
+interval [-0.1108, 0.2255], which contains zero. Both
+halves of the Outcome A criterion are met.
+
+Per seed on `G_253`: 0.5041, 0.5062, 0.4333.
+
+The permutation moved 100 of 1183
+training rows (0.0845), because the
+replication label vector is 1132/1183
+positive. That is a property of the weak labels, not of the permutation, and
+it is recorded here because it limits how much the test could ever have
+shown: an almost constant label vector has very little association with the
+inputs to destroy. A follow-up arm that draws labels independently of the
+inputs rather than permuting them would destroy the label fully, and is not
+run here because it was not pre-registered.

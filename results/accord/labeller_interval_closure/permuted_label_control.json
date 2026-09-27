@@ -1,0 +1,259 @@
+{
+  "preregistration": "accord/labeller_interval_closure/PERMUTED_LABEL_PREREGISTRATION.md",
+  "design": {
+    "what": "Adebayo and colleagues' data randomisation test: the plain control detector retrained on a permuted copy of the training-pool label vector, everything else identical to the C130 real-label run",
+    "trainer": "accord/control/train.py (unedited)",
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "epochs": 3,
+    "batch_size": 16,
+    "lr": 2e-05,
+    "weight_decay": 0.01,
+    "max_length": 160,
+    "optimizer": "AdamW",
+    "split_seed": 1337,
+    "permutation_seed": 137,
+    "n_permutation_draws": 1,
+    "permutation_fixed_across_seeds": true
+  },
+  "gates": {
+    "split_size": {
+      "n_train": 1183,
+      "n_val": 205,
+      "n_gold": 299,
+      "n_leaked_rows_excluded": 291,
+      "expected_n_train": 1183,
+      "expected_n_leaked": 291,
+      "split_seed": 1337,
+      "passed": true
+    },
+    "join_completeness": {
+      "n_train_rows": 1183,
+      "n_train_duplicate_join_key_rows": 0,
+      "n_matched_rows_after_join": 1183,
+      "n_pool_rows_missing_a_replication_label": 0,
+      "passed": true
+    },
+    "permutation": {
+      "n_rows": 1183,
+      "n_positive_before_permutation": 1132,
+      "n_positive_after_permutation": 1132,
+      "marginal_preserved": true,
+      "n_rows_whose_label_changed": 100,
+      "fraction_of_rows_whose_label_changed": 0.08453085376162299,
+      "single_class_after_permutation": false,
+      "permutation_seed": 137,
+      "passed": true
+    }
+  },
+  "g299": {
+    "ensemble": {
+      "n": 299,
+      "n_pos": 12,
+      "auroc": 0.46399535423925664,
+      "ap": 0.04456352387707617,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "n_resamples_discarded_single_class": 0,
+        "ci95": [
+          0.3129145408163266,
+          0.6177424109048228
+        ],
+        "boot_mean": 0.4635135658807014,
+        "boot_std": 0.07670992683215323,
+        "seed": 42
+      }
+    },
+    "seed42": {
+      "n": 299,
+      "n_pos": 12,
+      "auroc": 0.4979674796747968,
+      "ap": 0.0637887948580058,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "n_resamples_discarded_single_class": 0,
+        "ci95": [
+          0.2940279462161094,
+          0.7009316965408239
+        ],
+        "boot_mean": 0.4976885428881094,
+        "boot_std": 0.10315772179113201,
+        "seed": 42
+      }
+    },
+    "seed123": {
+      "n": 299,
+      "n_pos": 12,
+      "auroc": 0.4869337979094077,
+      "ap": 0.040207643789528284,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "n_resamples_discarded_single_class": 0,
+        "ci95": [
+          0.35153180453420596,
+          0.628672241001008
+        ],
+        "boot_mean": 0.4863009897797747,
+        "boot_std": 0.0702446888891609,
+        "seed": 42
+      }
+    },
+    "seed2024": {
+      "n": 299,
+      "n_pos": 12,
+      "auroc": 0.42334494773519166,
+      "ap": 0.04594933052175622,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "n_resamples_discarded_single_class": 0,
+        "ci95": [
+          0.25085443897894333,
+          0.6062283737024222
+        ],
+        "boot_mean": 0.42251051510266063,
+        "boot_std": 0.09140108456134559,
+        "seed": 42
+      }
+    }
+  },
+  "g253": {
+    "ensemble": {
+      "n": 253,
+      "n_pos": 12,
+      "auroc": 0.4809820193637621,
+      "ap": 0.05702244151821122,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "n_resamples_discarded_single_class": 0,
+        "ci95": [
+          0.3238142109268143,
+          0.6329693767371589
+        ],
+        "boot_mean": 0.480043273267126,
+        "boot_std": 0.07882166822873816,
+        "seed": 42
+      }
+    },
+    "seed42": {
+      "n": 253,
+      "n_pos": 12,
+      "auroc": 0.504149377593361,
+      "ap": 0.07166770818983796,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "n_resamples_discarded_single_class": 0,
+        "ci95": [
+          0.2914895948005758,
+          0.7066120973182661
+        ],
+        "boot_mean": 0.503726088149794,
+        "boot_std": 0.105762449165352,
+        "seed": 42
+      }
+    },
+    "seed123": {
+      "n": 253,
+      "n_pos": 12,
+      "auroc": 0.5062240663900415,
+      "ap": 0.049338216830008164,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "n_resamples_discarded_single_class": 0,
+        "ci95": [
+          0.365490280624573,
+          0.6423182191174981
+        ],
+        "boot_mean": 0.5051301409524919,
+        "boot_std": 0.07094650238411121,
+        "seed": 42
+      }
+    },
+    "seed2024": {
+      "n": 253,
+      "n_pos": 12,
+      "auroc": 0.43326417704011067,
+      "ap": 0.057351117904739346,
+      "bootstrap": {
+        "n_boot_valid": 10000,
+        "n_resamples_discarded_single_class": 0,
+        "ci95": [
+          0.2567157166156583,
+          0.6209723945409428
+        ],
+        "boot_mean": 0.43300763199636977,
+        "boot_std": 0.09374264355450079,
+        "seed": 42
+      }
+    }
+  },
+  "g253_rules_3_4": {
+    "n": 108,
+    "n_pos": 6,
+    "auroc": 0.4330065359477124,
+    "ap": 0.08801359772413705,
+    "bootstrap": {
+      "n_boot_valid": 10000,
+      "n_resamples_discarded_single_class": 21,
+      "ci95": [
+        0.13398058252427186,
+        0.7499999999999999
+      ],
+      "boot_mean": 0.43179726346630287,
+      "boot_std": 0.15394958746316528,
+      "seed": 42
+    }
+  },
+  "g253_rules_1_2": {
+    "n": 145,
+    "n_pos": 6,
+    "auroc": 0.5251798561151079,
+    "ap": 0.04710763744393582,
+    "bootstrap": {
+      "n_boot_valid": 10000,
+      "n_resamples_discarded_single_class": 25,
+      "ci95": [
+        0.3778786739943188,
+        0.6828571428571428
+      ],
+      "boot_mean": 0.5251197792835384,
+      "boot_std": 0.07709304006008522,
+      "seed": 42
+    }
+  },
+  "comparison_vs_real_label_run": {
+    "reference_artifact": "results/accord/c130_reproducible_student/c130.json::g253.ensemble",
+    "real_label_ensemble_auroc_g253": 0.5359612724757953,
+    "real_label_ensemble_ap_g253": 0.08298569987933005,
+    "real_label_bootstrap_ci95_g253": [
+      0.345434996612753,
+      0.7195712309820194
+    ],
+    "permuted_label_ensemble_auroc_g253": 0.4809820193637621,
+    "permuted_label_ensemble_ap_g253": 0.05702244151821122,
+    "permuted_label_bootstrap_ci95_g253": [
+      0.3238142109268143,
+      0.6329693767371589
+    ],
+    "permuted_auroc_inside_real_label_interval": true,
+    "auroc_difference_real_minus_permuted": 0.054979253112033166,
+    "paired_bootstrap_difference_same_253_pairs": {
+      "mean": 0.05611879263949312,
+      "ci95": [
+        -0.11081893313298274,
+        0.22552142564417804
+      ],
+      "contains_zero": true,
+      "seed": 43,
+      "n_boot": 10000,
+      "direction": "real_label_ensemble_auroc minus permuted_label_ensemble_auroc"
+    },
+    "paired_bootstrap_note": null
+  },
+  "outcome": "A",
+  "outcome_reason": "the permuted-label ensemble AUROC on G_253 lies inside the real-label run's bootstrap interval and the paired difference interval contains zero: the real labels are not distinguishable from label-destroyed labels at this sample size",
+  "what_this_does_not_establish": "G_253 carries 12 positives. The real-label run's own bootstrap 95 percent interval is [0.345434996612753, 0.7195712309820194], which is 0.374 AUROC wide and contains 0.5. An interval that wide cannot separate 'the labels carried nothing' from 'the labels carried an effect this study is too small to see'. This result is therefore that the real-label control run is INDISTINGUISHABLE from training on destroyed labels, not a measurement that the real labels are uninformative. One permutation draw is also not a permutation null distribution: it shows that one label-destroying draw performs comparably, not the distribution over draws. And a detector that was already at chance on this gold set cannot fall below chance by much, so the test has little room to discriminate in the first place.",
+  "pool_label_marginal_note": "the replication label vector is 94.7 percent positive on the pool, so permuting it changed only 100 of 1183 training rows (0.0845). That is a property of the weak labels, not of the permutation: an almost constant label vector has very little association with the inputs to destroy, which is itself the point."
+}
