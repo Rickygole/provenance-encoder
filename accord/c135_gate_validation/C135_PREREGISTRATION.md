@@ -137,3 +137,35 @@ written.
 
 ## Outcome (appended after the run; the text above is unchanged)
 
+Run on 2026-09-26, seed 42, SNLI obtained successfully (no fallback needed). Frames as specified: pilot 300 with
+exactly 12 positives, pool 5000 with 200, test 10000 with 400, pool and test disjoint. Artifact
+`results/accord/c135_gate_validation/c135.json`. The real Ollama arm was not run under this pre-registration.
+
+**Outcome C, not validated, AND the run is uninformative about the gate.** Both readings are recorded because the
+rule above is not edited.
+
+The pre-registered reading at the 0.60 threshold, synthetic arm, 24 labellers: cells 5 / 0 / 19 / 0 (gate fail and
+student failed / gate fail and student useful / gate pass and student failed / gate pass and student useful),
+sensitivity 0.208, PPV 1.000, specificity and NPV undefined and 0.000 respectively. Sensitivity 0.208 is below
+0.90, so the pre-registered reading is Outcome C.
+
+That reading cannot be trusted, and the run is recorded as uninformative, because the outcome variable has no
+variance: **every one of the 24 students failed, and so did the clean-label reference student.** The diagnostic
+reference added to the script after the grid was run, and computed only from true pool labels with no gate quantity
+involved, is `clean_label_oracle_student_auroc = 0.6037`. A labeller with perfect labels therefore lands 0.004 above
+the 0.60 failure line and below the 0.70 line. The pre-registered student, TF-IDF plus logistic regression on 5000
+SNLI items at 4 percent prevalence, that is 200 positives, is too weak for the task, so no labeller in the grid
+could have produced a useful student and no screening instrument of any kind could have been scored on this design.
+Specificity is undefined for exactly this reason.
+
+The design defect is in the student, not in the gate and not in the labeller grid. It is recorded here and carried
+to a fresh pre-registration, C136, which keeps the seed, the frames, the labeller grid, the gate, the thresholds and
+the reading rule unchanged and replaces the student's feature extractor with one that has headroom. The C136 student
+choice was made from the clean-label reference alone; no gate verdict, screening statistic or 2x2 cell from this run
+entered it.
+
+One fact from this run is design independent, is arithmetic about the gate rather than about the data, and carries
+forward: with N = 300 and K = 12, the gate's FAIL region is exactly the flag counts {0} together with
+{235, 236, ..., 300}. It is the union of a single point at zero and one upper tail, so the gate is a threshold rule
+on the flag count and nothing more. The gate fails a labeller only if that labeller flags at least 235 of 300 items,
+a pilot flag rate of 0.783 or higher.
