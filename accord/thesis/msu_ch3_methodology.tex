@@ -37,7 +37,7 @@ previous stage's defects, so the checks are given stage by stage.
 \section{Data and Cohort}
 \label{sec:m-data}
 
-\subsection{Source, access, and text handling}
+\subsection{Source, Access, and Text Handling}
 
 All clinical experiments use MIMIC-III v1.4 \citep{johnson2016mimic}, a de-identified critical-care
 database from one academic medical centre. MIMIC-III is credentialed data; access came through the
@@ -58,7 +58,7 @@ system that replaces protected health information with bracketed surrogate token
 and identifier fields sit. A model truncating a discharge summary to its first few hundred WordPiece
 tokens is therefore reading an administrative header for some unknown fraction of notes. 
 
-\subsection{Cohort definition}
+\subsection{Cohort Definition}
 
 The primary cohort is heart failure, chosen because polypharmacy is the norm in this population and
 the drugs involved, among them loop diuretics and anticoagulants, have narrow therapeutic windows and
@@ -71,7 +71,7 @@ One further clinical filter applies, a positive length of stay. Applying the pre
 returns 13,608 heart failure admissions; after the length-of-stay filter 13,597 remain, of which
 10,143 belong to distinct subjects.
 
-\subsection{Note roles}
+\subsection{Note Roles}
 
 The clinical hypothesis is that note types carry different institutional weight: a nursing
 progress note recording that a diuretic was withheld is an account of what happened at the
@@ -115,13 +115,13 @@ the confirmed contradictions.
 \begin{figure}[!t]
 
 \centering
-\caption{Cohort flow from the source database to the evaluated sets}
+\caption{Cohort Flow From the Source Database to the Evaluated Sets}
 \includegraphics[width=0.88\linewidth]{figures/fig-cohort-flow.pdf}
 \label{fig:cohort-flow}
 \apanote{The path from the source database to the evaluated sets, with the unit at each count. Solid side boxes are recorded exclusions; dashed side boxes are differences between two recorded counts, except the one at the temporal prefilter, which carries no count because the unit changes there from mentions to candidates, a candidate being a pair of mentions matched under a rule.}
 \end{figure}
 
-\subsection{Medication mention extraction and splitting}
+\subsection{Medication Mention Extraction and Splitting}
 
 Medication extraction has strong published systems \citep{uzuner2010medication,henry2020n2c2} and
 mature tooling \citep{neumann2019scispacy,eyre2021medspacy}. This project used neither, after
@@ -189,7 +189,7 @@ whether a candidate exists, and the exemplar selector $E_r(a,d)$, which decides 
 accompanies it. A correct implementation requires that $T_r$ holding implies $\mathrm{act}(m_N)$
 and $\mathrm{act}(m_D)$ are the two actions that made it hold.
 
-\subsection{The four rules}
+\subsection{The Four Rules}
 
 Rule 1 fires when the same drug appears in both notes and the action sets disagree in a specific
 direction. With $A_N = \{\mathrm{act}(m) : m \in M(N_a),\ \mathrm{drug}(m) = d\}$ and $A_D$ defined
@@ -249,7 +249,7 @@ admissions without a usable window, so the two admission counts are not reconcil
 candidate count elsewhere in this thesis is the post-prefilter figure, 1,978, unless stated
 otherwise, and the gold sample was drawn from this pool, not from the rebuilt one.
 
-\subsection{Exemplar selection and the defect in it}
+\subsection{Exemplar Selection and the Defect in It}
 \label{sec:m-exemplar}
 
 A surviving excerpt of the reference mining notebook for Rules 1 and 2, quoted in the rebuild's
@@ -305,7 +305,7 @@ read as undecidable or off-pair alone.
 \section{Weak Supervision}
 \label{sec:m-weak}
 
-\subsection{Labeller, pool, and prompt protocol}
+\subsection{Labeller, Pool, and Prompt Protocol}
 
 A few hundred annotations containing a handful of positives cannot train a supervised
 detector, so this project uses weak supervision: approximate labels obtained cheaply, with
@@ -341,7 +341,7 @@ public text, and compared each model's first-token log-odds across repeated call
 models reproduced their scores, on that workload and on the clinical rows.
 Unparseable generations are kept in their own category, never defaulted to a class.
 
-\subsection{How the labeller's confidence field was used}
+\subsection{How the Labeller's Confidence Field Was Used}
 
 The labelling stage emits a \texttt{weak\_confidence} field alongside each label. Across the
 training pool and the audited rows it takes exactly two distinct values, one for each label class,
@@ -357,7 +357,7 @@ multiplied into the per-example loss. With two values fixed by the label, that i
 \section{Architecture}
 \label{sec:m-detector}
 
-\subsection{Backbone and what the running code contained}
+\subsection{Backbone and What the Running Code Contained}
 
 The encoder is BioMedBERT (released as PubMedBERT) \citep{gu2021biomedbert}, selected over
 ClinicalBERT \citep{alsentzer2019clinicalbert} on published benchmark performance, adapted with
@@ -402,7 +402,7 @@ although no training row is itself a gold pair. The decontaminated run is a thre
 same detector whose training rows are subject-disjoint from the gold set, scored per seed and as the
 mean of its three seeds, the decontaminated ensemble.
 
-\subsection{Pretraining and an untrained configuration}
+\subsection{Pretraining and an Untrained Configuration}
 
 Before supervised training the model was to be pretrained with a cross-note coherence objective,
 discriminating genuine note pairs from mismatched ones. One configuration has a surviving run
@@ -412,7 +412,7 @@ configuration: it freezes the backbone unconditionally and has no path that unfr
 layer. The parameter total attributed to that configuration is reproducible only by counting a
 pooler module flagged trainable that receives no gradient.
 
-\subsection{The plain control model}
+\subsection{The Plain Control Model}
 \label{sec:m-control-model}
 
 Because the detector carries documented defects, a null measured on it alone cannot be attributed
@@ -448,7 +448,7 @@ power simulation of Section~``\nameref{sec:m-mde}'' draws on the same model's sc
 \section{The Gold Standard}
 \label{sec:m-gold}
 
-\subsection{Sampling and annotation protocol}
+\subsection{Sampling and Annotation Protocol}
 
 The original pipeline drew a stratified sample from its 1,978-candidate pool, allocated across the four rules in
 proportion to each rule's share of the pool (886, 202, 520, and 370 candidates for Rules 1 through
@@ -470,7 +470,7 @@ rating; and, for contradictions, an ordinal danger rating. The annotator saw the
 pair and the rule that generated the candidate, the same evidence the weak labeller and
 the detector saw. Annotation ran in two passes separated by a two-week washout, which controls for within-session drift and fatigue and for nothing else.
 
-\paragraph{No blinding was performed.} No step of the gold standard's
+\paragraph{No Blinding Was Performed.} No step of the gold standard's
 construction was blinded, and three facts on record describe an unblinded
 determination. First, the annotator saw the identifier of the rule that generated
 each candidate. That identifier is itself a model input: the prior-feature
@@ -489,7 +489,7 @@ holding the hypothesis beside the annotator for every judgement. The two-pass
 washout does not address any of the three. Chapter~\ref{ch:conclusion},
 Section~``\nameref{sec:disc-limits},'' states what the absence costs.
 
-\paragraph{No sample size justification exists.} No calculation in this project
+\paragraph{No Sample Size Justification Exists.} No calculation in this project
 takes a target effect and returns a required $n$. The figure of $300$ sampled
 pairs carries no recorded rationale; what was fixed in advance was the allocation
 across the four rules, proportional to each rule's share of the pool, not the
@@ -497,7 +497,7 @@ total. The minimum detectable effect of Section~``\nameref{sec:m-mde}'' is post
 hoc sensitivity computed on an $n$ already fixed and is not a sample size
 justification.
 
-\subsection{The ambiguity category}
+\subsection{The Ambiguity Category}
 
 A pair was coded ambiguous when the presented evidence did not permit adjudication, rather than
 being forced into a binary that would have converted an evidential limitation into a label
@@ -511,7 +511,7 @@ is reported under both denominators for the same reason. Over-calling ratios are
 every ambiguous pair counted as a contradiction; that post hoc sensitivity reading rescales every
 ratio's denominator by one constant and says nothing about the labeller.
 
-\subsection{What this design can and cannot establish}
+\subsection{What This Design Can and Cannot Establish}
 
 No inter-rater reliability coefficient is available for this gold set, and none can be computed
 from it. The binary contradiction label and the ordinal danger rating are not two independent
@@ -530,7 +530,7 @@ $G_{134}$ and $G_{108}$ are subsets of $G_{299}$, and each holds half of the con
 $G_{145}$ holds the other half and, together with $G_{108}$, partitions $G_{253}$.
 
 \begin{table}[H]
-\caption{Evaluation strata, their symbols, sizes, and positive counts}
+\caption{Evaluation Strata, Their Symbols, Sizes, and Positive Counts}
 \label{tab:m-strata}
 \centering
 \small
@@ -559,7 +559,7 @@ Each subsection states one check as a condition: what would have to be true for 
 reading to survive. None of these checks is novel, and none is claimed as a contribution. Whether a
 check was fixed before its run is stated in Section~``\nameref{sec:m-prereg}.''
 
-\subsection{RQ1: what the pool's measured precision estimates}
+\subsection{Research Question 1: What the Pool's Measured Precision Estimates}
 \label{sec:m-control-rq1}
 
 \textbf{Condition.} If the exemplar selector agrees with its own trigger on substantially every
@@ -577,7 +577,7 @@ decontaminated ensemble with the ambiguous pairs excluded. Because every AUROC a
 fixed before the run: with 6 confirmed positives in $G_{108}$, against the minimum detectable AUROC
 of Section~``\nameref{sec:m-mde},'' a failure to show a difference cannot establish that the exemplar defect has no effect.
 
-\subsection{RQ2: whether the labeller's error is noise or prior}
+\subsection{Research Question 2: Whether the Labeller's Error Is Noise or Prior}
 \label{sec:m-control-rq2}
 
 \textbf{Condition.} If a weak labeller's error were noise, its marginal would approximate the true
@@ -619,7 +619,7 @@ implicit training-time prior and the deployment prevalence. The adjustment was f
 public text at this evaluation's prevalence and sample size, and the corrected target was compared with an uncorrected soft target
 and a hard-label ablation on the identical training pool and student.
 
-\subsection{Specifying the marginal feasibility gate}
+\subsection{Specifying the Marginal Feasibility Gate}
 \label{sec:m-feasgate}
 
 Before any score is compared, a thresholded labeller's flag count and the gold standard's
@@ -634,7 +634,7 @@ statistic given its marginals \citep{cohen1960kappa}, applied here as a check on
 marginal. The floor is the minimum attainable significance level derivable
 from the marginal totals of a discrete test \citep{tarone1990modified}. 
 
-\subsection{Pre-registered checks}
+\subsection{Pre-Registered Checks}
 \label{sec:m-prereg}
 
 A pre-registered check was committed as a file fixing its rule before its first datum, its
@@ -673,7 +673,7 @@ bag-of-words permutation test's headline statistic, the RQ3 code audits, the rul
 Fisher test with its exact power, the synthetic assertion fixtures, the Monte Carlo cross-check of the minimum detectable AUROC, the subject-overlap run's threshold sweep, the
 ceiling in the bounded null's definition, and the Spearman tests.
 
-\paragraph{Reported measures that appear in no pre-registration.} The list above names
+\paragraph{Reported Measures That Appear in No Pre-Registration.} The list above names
 checks. Eight \emph{measures} appear in no pre-registration and are not on that list either:
 Cohen's $\kappa$, expected calibration error, balanced accuracy, prevalence-adjusted bias-adjusted kappa, the odds ratio of the rule-group Fisher test, the danger rating used as a
 Spearman target, the best Matthews correlation returned by the threshold sweep, and the
@@ -690,7 +690,7 @@ this thesis only of a rule in Table~\ref{tab:m-prereg} below.
 \small
 \singlespacing
 \begin{longtable}{@{}>{\tblragged}p{0.75in}>{\tblragged}p{1.6in}>{\tblragged}p{3.3in}@{}}
-\caption{Identifier, plain name, and rule for each check}
+\caption{Identifier, Plain Name, and Rule for Each Check}
 \label{tab:m-prereg}\\
 \toprule
 \textbf{Identifier} & \textbf{Plain name} & \textbf{Rule, in one line} \\
@@ -762,7 +762,7 @@ and the same-teacher student exclude zero with positive point estimates. \\
 \end{longtable}
 \endgroup
 
-\subsection{RQ3: whether the running code contains what it is credited with}
+\subsection{Research Question 3: Whether the Running Code Contains What It Is Credited With}
 \label{sec:m-control-rq3}
 
 \textbf{Condition.} A component credited with a semantic contribution must, at minimum, exist in the
@@ -779,7 +779,7 @@ encoder: no reported parameter value, metric, or claimed contribution names it, 
 followed the claims made for the system, and whether that encoder contributes anything is
 not known.
 
-\subsection{RQ4: whether the detector's null is real}
+\subsection{Research Question 4: Whether the Detector's Null Is Real}
 
 \textbf{Condition.} A null result is evidence only if the instrument that produced it can be shown
 to resolve an effect of comparable size, and only if the evaluation had enough power to see one.
@@ -787,7 +787,7 @@ For the contradiction evaluation that is the minimum detectable effect and the p
 (Section~``\nameref{sec:m-mde}''). The null survives this check only in bounded form: it can exclude
 effects above the resolvable floor and cannot speak to effects below it.
 
-\subsection{Base-rate comparison for the low-prevalence metrics}
+\subsection{Base-Rate Comparison for the Low-Prevalence Metrics}
 
 \textbf{Condition.} Balanced accuracy, PABAK, $\kappa$, and MCC depend on prevalence as well as on
 discrimination, so a value of any of them is uninterpretable without the value the same statistic
@@ -808,7 +808,7 @@ Precision-recall summaries are preferred to ROC summaries where the positive cla
 \section{Statistical Procedures}
 \label{sec:m-stats}
 
-\subsection{Bootstrap intervals and correlated AUROC comparison}
+\subsection{Bootstrap Intervals and Correlated Area Under the Curve Comparison}
 
 Interval estimates on AUROC and average precision are nonparametric percentile bootstraps over the
 evaluation rows \citep{efron1994bootstrap}. The main control uses $10{,}000$ resamples at a fixed
@@ -826,7 +826,7 @@ detector, and between individual seeds and the detector, use the DeLong test for
 \citep{delong1988comparing}, which estimates the covariance of the two areas from the same subjects
 and returns a $z$ statistic and a two-sided $p$ value.
 
-\subsection{Minimum detectable effect}
+\subsection{Minimum Detectable Effect}
 \label{sec:m-mde}
 
 The sensitivity of the evaluation is a property of the evaluation set, not of any model, and
@@ -866,7 +866,7 @@ described below, a score whose true AUROC is exactly $0.7355$ meets the rule on 
 replicates: a system with that much signal fails the rule about as often as it passes.
 
 \begin{table}[H]
-\caption{Evaluation sensitivity under each treatment of ambiguous rows}
+\caption{Evaluation Sensitivity Under Each Treatment of Ambiguous Rows}
 \label{tab:m-mde}
 \centering
 \small
@@ -923,7 +923,7 @@ $0.80$. A calibrated
 interval would be wider. Section~``\nameref{sec:res-rq4}'' in Chapter~\ref{ch:results} states
 what that does to the margin the bounded null rests on.
 
-\subsection{Seed variation and the standard-deviation convention}
+\subsection{Seed Variation and the Standard-Deviation Convention}
 
 The subject-disjoint control and the decontaminated run each use three seeds, controlling model
 initialisation, dropout, and data loader shuffle order but not the train and validation split, which
@@ -947,7 +947,7 @@ thesis; Appendix~\ref{app:provenance}, Section~``\nameref{app:provenance},'' des
 the counts. Of the distinct registered quantities the trace names, most match more than one
 registered value at the printed precision and are marked indicative, not definitive.
 
-\subsection{Pairs that share an admission or a subject}
+\subsection{Pairs That Share an Admission or a Subject}
 
 Every row-level interval and test in this thesis treats each annotated pair as an independent row. One note
 pair per admission was selected, but several candidate pairs can come from one admission and
@@ -964,12 +964,14 @@ the rest.
 \section{Data Use, Ethics, and Compliance}
 \label{sec:m-ethics}
 
-\paragraph{The annotator.} The gold standard was produced by one board-certified pharmacist, who
+\paragraph{The Annotator.} The gold standard was produced by one board-certified pharmacist, who
 read each pair on the author's screen, in the author's presence, and gave a judgement the author recorded. No file was transferred, printed, or photographed, and nothing was retained.
 No re-identification was attempted and nothing was
 joined against MIMIC-III at the patient level.
 
-\paragraph{Clinical status and code contribution.} Nothing in this thesis has been validated for
+\paragraph{Note Text and Third-Party Transmission.} Sentence pairs extracted from MIMIC-III notes were sent to hosted language model services in several runs earlier in this project. Every result obtained that way is withdrawn from every table and figure, and none is reported here. The Credentialed Data Use Agreement governing this data, and PhysioNet's guidance of 24 September 2025 on the use of MIMIC data with large language models and online services \citep{physionet2025llm}, permit a hosted service only where zero data retention, no training on the data, and no human review can be verified. This project could not verify those conditions for the hosted runs it had made. Whether those transmissions were consistent with the agreement is a determination for PhysioNet and for the institution, not one this thesis makes. The record of what was sent, by which route, and when, is retained and available to either on request. Credentialed files, including one joining note sentences to weak labels, were at one point held in the author's institutional cloud storage rather than on the local machine; that is the exception to the file handling described above.
+
+\paragraph{Clinical Status and Code Contribution.} Nothing in this thesis has been validated for
 clinical use or supports deployment in any care setting. The analysis code is released, with one gap: the deployed weak-labelling run of Section~``\nameref{sec:m-weak}'' cannot be repeated. That run produced two numbers nobody can regenerate: $1{,}425$ positive labels in the $1{,}679$-row weak-labelled pool
 and the $261$ of $299$ marginal that Chapter~\ref{ch:results} reports. The
 reproducible-labeller retrain (pre-registered) replaces those labels with ones

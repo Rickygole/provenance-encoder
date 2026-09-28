@@ -23,6 +23,9 @@ PREFIX = "answerpolarity"
 # rates: summing two values already rounded to four places moves the last digit
 # of the sum (1.0536 against the true 1.0535).
 CACHE = pathlib.Path.home() / "mimic_local_only/accord_prompt_sensitivity_cache"
+# Provenance string for the register: the cache is local-only and outside the
+# released tree, so name it as the source rather than the JSON it is checked against.
+CACHE_REL = "mimic_local_only/accord_prompt_sensitivity_cache/*.jsonl (local only)"
 STEM = {"Llama 3 8B": "_llama3_8b_nothink",
         "Granite 3.3 8B": "_granite33_8b_nothink",
         "Qwen 3 8B": "_qwen3_8b_nothink"}
@@ -52,10 +55,50 @@ for model, s in slug.items():
             ("raw_yes_consistency", round(b, 4), "P_reversed"),
             ("raw_yes_sum", round(a + b, 4), "the two above, summed")):
         facts[f"{PREFIX}.{s}.{field}"] = collections.OrderedDict(
-            [("value", val), ("artifact", f"{SRC}::cells[{note}]")])
+            [("value", val),
+             ("artifact", f"{CACHE_REL}, derived: {note}; cross-checked against {SRC}::cells")])
         n += 1
-FACTS.write_text(json.dumps(facts, indent=1) + "\n")
-print(f"registered {PREFIX}: {n} keys")
 for model, s in slug.items():
     print(f"  {model:16}{rate[(model,'P_neutral')]:.4f} + {rate[(model,'P_reversed')]:.4f}"
           f" = {round(rate[(model,'P_neutral')]+rate[(model,'P_reversed')],4)}")
+
+# The fig:answer-polarity and fig:scale-ladder captions also print inter-framing
+# kappas and the Qwen ladder fit. Those were read straight off the artifact and
+# never registered, so the provenance gate matched them to unrelated keys.
+art = json.loads((ROOT / SRC).read_text())
+
+coh = [c for c in art["coherence"]
+       if c["forward_prompt"] == "P_neutral" and c["reverse_prompt"] == "P_reversed"]
+for c in coh:
+    s_ = slug[c["model"]]
+    facts[f"{PREFIX}.{s_}.kappa_between_framings"] = collections.OrderedDict(
+        [("value", c["kappa_between_framings"]),
+         ("artifact", f"{SRC}::coherence[{c['model']}, P_neutral vs P_reversed]"
+                      ".kappa_between_framings")])
+    n += 1
+ks = sorted(c["kappa_between_framings"] for c in coh)
+for field, val in (("kappa_between_framings_min", ks[0]),
+                   ("kappa_between_framings_max", ks[-1])):
+    facts[f"{PREFIX}.{field}"] = collections.OrderedDict(
+        [("value", val),
+         ("artifact", f"{SRC}::coherence, derived: {field.split('_')[-1]} over the three "
+                      "P_neutral vs P_reversed cells")])
+    n += 1
+
+lad = art["ladder"]
+for field in ("slope_per_log10_params", "pearson_r"):
+    facts[f"{PREFIX}.ladder.{field}"] = collections.OrderedDict(
+        [("value", lad[field]), ("artifact", f"{SRC}::ladder.{field}")])
+    n += 1
+for pt in lad["points"]:
+    if "params_b" not in pt:
+        continue
+    tag = f"qwen3_{str(pt['params_b']).replace('.', 'p')}b"
+    for field in ("n_parsed", "n_unparsed", "raw_yes_rate"):
+        facts[f"{PREFIX}.ladder.{tag}.{field}"] = collections.OrderedDict(
+            [("value", pt[field]),
+             ("artifact", f"{SRC}::ladder.points[{pt['model']}].{field}")])
+        n += 1
+
+FACTS.write_text(json.dumps(facts, indent=1) + "\n")
+print(f"registered {PREFIX}: {n} keys total")

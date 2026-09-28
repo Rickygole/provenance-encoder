@@ -26,7 +26,7 @@ Two sources of p values are collected:
 
 One p value in Chapter 4 is printed without its own `p` marker: the NLI model's
 permutation p on G_299 appears as the bare second value in
-"($p = 0.01335$ on $G_{253}$, $0.0120$ on $G_{299}$)". A regex over `p` cannot
+"($p = 0.0134$ on $G_{253}$, $0.0120$ on $G_{299}$)". A regex over `p` cannot
 see it, so it is declared here and its presence in the source is asserted.
 
 No MIMIC data is read. Inputs are the committed .tex sources only.
@@ -52,7 +52,7 @@ FACTS = json.loads((ROOT / "results" / "accord" / "VERIFIED_FACTS.json").read_te
 # must be present in the named file for the declaration to stand.
 DECLARED_BARE = [
     {"file": "msu_ch4_results.tex", "printed": "0.0120",
-     "context_must_contain": "$p = 0.01335$ on $G_{253}$, $0.0120$ on",
+     "context_must_contain": "$p = 0.0134$ on $G_{253}$, $0.0120$ on",
      "what": "NLI average-precision label-permutation p on G_299, printed as the "
              "bare companion of the G_253 value"},
 ]

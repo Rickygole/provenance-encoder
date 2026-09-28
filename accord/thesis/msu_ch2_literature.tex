@@ -26,7 +26,7 @@ five leave.
 \section{Contradiction and Inconsistency Detection in Clinical Text}
 \label{sec:lit-contradiction}
 
-\subsection{The clinical problem the task inherits}
+\subsection{The Clinical Problem the Task Inherits}
 
 Adverse drug events are among the best documented inpatient safety problems, and a classic
 incidence study established both their frequency and that a substantial share
@@ -41,7 +41,7 @@ literature shape the computational formulation. The most common discrepancy cate
 list is an instruction that will be acted on while a nursing note records what was observed, and
 that relation has a direction that carries the consequence.
 
-\subsection{Formulations inherited from natural language inference}
+\subsection{Formulations Inherited From Natural Language Inference}
 
 Natural language inference classifies a premise-hypothesis pair as entailment, contradiction, or neutral, and the large general corpora \citep{bowman2015snli,williams2018mnli} made it a standard
 probe of sentence-level semantic competence. MedNLI \citep{romanov2018mednli} carried the task into
@@ -68,7 +68,7 @@ adversarially \citep{mccoy2019hans}, the pattern is characterised as shortcut le
 \citep{geirhos2020shortcut}, and the clinical analogue appears in imaging, where models key on image features that identify the site \citep{zech2018generalization}. Those studies diagnose a model that scores
 well; this thesis has a pipeline that scores poorly and needs to know whether the poor score is real.
 
-\subsection{What has actually been built for the clinical case}
+\subsection{What Has Actually Been Built for the Clinical Case}
 
 Among the work reviewed for this chapter, no system or benchmark was found for the case this thesis
 addresses, medication contradictions between two free-text notes of one admission. Neighbouring work exists:
@@ -101,10 +101,10 @@ Alert acceptance falls as the number of alerts rises, particularly for
 repeated alerts, with no evidence of an effect of workload as such \citep{ancker2017alertfatigue}. A recall figure
 without the corresponding precision therefore says nothing about clinical usefulness.
 
-\section{Weak Supervision and Label Noise in Clinical NLP}
+\section{Weak Supervision and Label Noise in Clinical Natural Language Processing}
 \label{sec:lit-weak}
 
-\subsection{Programmatic labelling and the assumption underneath it}
+\subsection{Programmatic Labelling and the Assumption Underneath It}
 
 Distant supervision \citep{mintz2009distant} established the pattern of generating training labels
 by projecting a structured resource onto unlabelled text and tolerating the resulting noise. Data
@@ -121,7 +121,7 @@ to fit, which the method states as its premise; a single instruction-tuned model
 puts a project in exactly that position, and the literature supplies no check that
 can be run before annotation when only one source is available.
 
-\subsection{The language model as annotator}
+\subsection{The Language Model as Annotator}
 
 Since 2023 the default cheap labeller has been an instruction-tuned language model, on the strength
 of results reporting that such models match or exceed crowd annotators on several classification
@@ -142,7 +142,7 @@ shifted prior produces a corrupted marginal, not symmetric noise. Even curated b
 carry pervasive label errors whose correction can reorder
 published rankings \citep{northcutt2021labelerrors}, making the reference standard itself an object needing audit.
 
-\subsection{Surrogate labels bias what is computed from them}
+\subsection{Surrogate Labels Bias What Is Computed From Them}
 
 The most directly relevant result takes the now-common
 workflow in which a language model annotates a document set that feeds a downstream statistical
@@ -157,7 +157,7 @@ quantity in a social-science analysis. It is not the training signal of a detect
 found mapping the result to the case where surrogate labels are the training
 targets themselves. What transfers is the shape of the warning.
 
-\subsection{Counting is a different problem from classifying}
+\subsection{Counting Is a Different Problem From Classifying}
 
 An over-calling annotator is a bad prevalence estimator, and there is a
 literature about exactly that. One line of work formalises quantification, estimating
@@ -177,7 +177,7 @@ same setting, and the requirement has to be met before the annotator runs.
 \section{Evaluation Under Class Imbalance and Low Prevalence}
 \label{sec:lit-metrics}
 
-\subsection{Agreement statistics depend on prevalence}
+\subsection{Agreement Statistics Depend on Prevalence}
 
 Cohen's kappa \citep{cohen1960kappa} corrects observed agreement for the agreement expected by
 chance under the observed marginals. It therefore depends on those marginals in ways that surprise
@@ -197,7 +197,7 @@ under the name of a chance-corrected coefficient, so a system evaluated by PABAK
 on the exchange rate between a missed contradiction and a false alarm, a clinical question the papers
 in this thread do not address.
 
-\subsection{The Matthews line and its limits}
+\subsection{The Matthews Line and Its Limits}
 
 The Matthews correlation coefficient (MCC), introduced for assessing secondary structure prediction
 \citep{matthews1975mcc}, is the Pearson correlation between the binary prediction and the binary
@@ -218,7 +218,7 @@ tool at high skew \citep{saito2015prcurve}; both are reported in this thesis. Tw
 cases are correlated, so their difference cannot be tested as though the samples were independent;
 the standard nonparametric treatment \citep{delong1988comparing} is used here for each paired comparison of the control model or a reference baseline with the detector. The parallel argument has been made for scale instead of prevalence, attributing emergent abilities in large language models to the researcher's choice of a nonlinear or discontinuous metric, not to a change in model behaviour \citep{schaeffer2023mirage}.
 
-\subsection{Training under skew is not measuring under skew}
+\subsection{Training Under Skew Is Not Measuring Under Skew}
 
 The class imbalance literature is large and mostly about fitting: resampling \citep{chawla2002smote},
 characterisation of when imbalance actually hurts \citep{japkowicz2002imbalance}, a broad survey
@@ -244,7 +244,7 @@ This section describes the methodological backbone of the thesis. Everything in
 it is borrowed, and the attribution is unambiguous: each design below is named
 with its owner, and the closing paragraph says which this project ran.
 
-\paragraph{Three control designs a fuller audit would add.} One was run here, the data
+\paragraph{Three Control Designs a Fuller Audit Would Add.} One was run here, the data
 randomisation test below, and only after the main results were in hand
 (Chapter~\ref{ch:results}); the other two a later audit should carry.
 The negative control was formalised for observational epidemiology
@@ -279,7 +279,7 @@ a component is credited with exploiting can be replaced with an arbitrary
 assignment of the same shape, and if that assignment recovers the gain, the
 credited feature was not the source.
 
-\subsection{Leakage and measurement}
+\subsection{Leakage and Measurement}
 
 The formulation, detection, and avoidance of leakage in data mining are set out in one place \citep{kaufman2012leakage}:
 the introduction of information about the target that should not legitimately be available. That work
@@ -295,11 +295,11 @@ operationalisation is where harms and invalid conclusions originate. It gives fa
 accounts of construct reliability and validity, arguing that disagreements about fairness definitions
 frequently mask disagreements about the underlying construct. The question here is whether what is scored, a rule-mined candidate pair judged by one annotator against heuristic-selected evidence, measures clinical contradiction at all.
 
-\paragraph{What this thesis takes and what it does not claim.}
+\paragraph{What This Thesis Takes and What It Does Not Claim.}
 Table~\ref{tab:lit-controls} lists the checks this thesis ran and their sources. Of the first three designs above, only the data randomisation test was run, and only after the main results; the architecture components were examined by code audit instead. No row is itself a contribution.
 
 \begin{table}[!htbp]
-\caption{Checks run in this thesis and the work each borrows from}
+\caption{Checks Run in This Thesis and the Work Each Borrows From}
 \label{tab:lit-controls}
 \centering
 \small

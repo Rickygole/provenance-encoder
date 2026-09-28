@@ -382,23 +382,10 @@ RETIRED = {
 # and a figure cannot appear in a chapter and in this directory in the same
 # breath.
 PENDING_INCLUSION = {
-    "fig-scale-ladder": (
-        "fig:scale-ladder", "msu_ch4_results.tex",
-        "Built in the round that added the framing-mechanism run. It argues "
-        "one claim the results chapter now needs and no other figure carries: "
-        "over-calling falls monotonically across four sizes of one open-weights "
-        "family under one identical prompt on the same 299 pairs, and is still "
-        "an order of magnitude above the pharmacist's base rate at the largest "
-        "size that can be served here. Drawn at the 0.98 measure, so the "
-        "chapter must include it with width=0.98\\linewidth."),
-    "fig-answer-polarity": (
-        "fig:answer-polarity", "msu_ch4_results.tex",
-        "Built in the same round, from the same artifact's coherence block. It "
-        "argues that asking the complementary question moves two of the three "
-        "models' answer rate further than the pharmacist's own ambiguity "
-        "allows, which is the mechanism claim behind the over-calling result "
-        "and is argued nowhere else in the set. Drawn at the 0.98 measure, so "
-        "the chapter must include it with width=0.98\\linewidth."),
+    # Both entries retired once msu_ch4_results.tex bound the figures:
+    # fig-scale-ladder in the within-family scale step, fig-answer-polarity
+    # before the false-positives section. An entry left here after the
+    # chapter includes the figure fails this gate, which is the point.
 }
 
 

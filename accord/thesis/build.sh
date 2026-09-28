@@ -18,7 +18,13 @@ cd "$(dirname "$0")"
 # MAIN_THESIS_MAX_PAGES: a shell script and a Python module have no single
 # source to import a shared constant from without a new dependency, so the
 # number is repeated here rather than shared, and named the same way.
-MAIN_THESIS_MAX_PAGES=150
+# The Morgan handbook and the ETD Error Checklist impose NO page limit; the
+# only length caps in either are the 250-word abstract and the one-page
+# dedication. This ceiling is therefore self-imposed, to stop unbounded
+# growth, and is not a submission requirement. Raised from 150 to 165 when
+# the hosted-transmission disclosure and the 17-cell interval family were
+# added, both of which the document needs more than it needs the old number.
+MAIN_THESIS_MAX_PAGES=165
 
 OVERALL_FAILED=0
 

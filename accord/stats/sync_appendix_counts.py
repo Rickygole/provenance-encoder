@@ -53,7 +53,7 @@ def counts():
 # fails loudly here and cannot leave a stale number behind.
 PATTERNS = [
     ("total", r"(the record of reported quantities: )([\d,]+)( entries)"),
-    ("citable", r"(file it was read from; )([\d,]+)( of those entries are citable)"),
+    ("citable", r"(; )([\d,]+)( of those entries are citable)"),
     ("scanned", r"(scans the chapters for )([\d,]+)( numeric quantities)"),
     ("resolved", r"(and resolves )([\d,]+)( of\s+them)"),
     ("distinct", r"(of the )([\d,]+)( distinct registered quantities)"),

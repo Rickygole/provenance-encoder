@@ -83,6 +83,24 @@ def main():
             preregistration=None, in_chapter_count=False, verdict="IN_FAMILY",
             block="B1_threshold_sweep_missed_by_chapter")
 
+    # The same sweep was then run on the decontaminated ensemble and reported in
+    # the same paragraph. Its artifact names the value "comparable to printed
+    # 0.8195", i.e. the same maximisation against the same random-score null, so
+    # it has the same inferential target as the two rows above and joins them.
+    _sweep = json.loads((ROOT / "results/accord/c134_reanalysis/"
+                         "c134d_decontam_threshold_sweep.json").read_text())
+    add(id="threshsweep_contra_prob_g253_decontam_ensemble",
+        p=_sweep["headline"]["p_comparable_to_printed_0_8195"],
+        test="Permutation test (maximised MCC on random scores)",
+        target=("best MCC at any cutoff on the decontaminated ensemble's contradiction "
+                "probability, G_253, against the same maximisation on random scores"),
+        source=("results/accord/c134_reanalysis/c134d_decontam_threshold_sweep.json"
+                "::headline.p_comparable_to_printed_0_8195"),
+        thesis_location="sec:r-ranking, the same paragraph as the two rows above",
+        read_against="alpha=0.05, uncorrected, via the null verdict 'no threshold rescues either run'",
+        preregistration=None, in_chapter_count=False, verdict="IN_FAMILY",
+        block="B1_threshold_sweep_missed_by_chapter")
+
     # ---- Block B2: the four gate rows where the floor p IS the observed test
     # The tab:feasgate note says the floor p is "a precondition rather than a
     # test unless observed MCC equals ceiling MCC, where it is also the exact

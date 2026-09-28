@@ -146,7 +146,9 @@ def _fig_script_audit(figdir):
 # so a future revision changes one constant, not a literal buried in a
 # print statement, and so build.sh (which reports the same number) and this
 # gate cannot silently disagree.
-MAIN_THESIS_MAX_PAGES = 150
+# No handbook or checklist page limit exists; this ceiling is self-imposed.
+# Kept in sync by eye with accord/thesis/build.sh.
+MAIN_THESIS_MAX_PAGES = 165
 
 # Pass 6. Hard verbs gate; soft verbs are reported for review. A match whose
 # preceding thirty characters contain a negation is legitimate hedging, not an

@@ -74,7 +74,7 @@ Matthews correlation coefficient (MCC), and average precision.
 \begin{figure}[!ht]
 
 \centering
-\caption{The four pipeline stages and what each check found}
+\caption{The Four Pipeline Stages and What Each Check Found}
 \includegraphics[width=0.98\linewidth]{figures/fig-pipeline-status.pdf}
 \label{fig:pipeline-status}
 \apanote{The four stages, numbered as in the text: (1) candidate mining, (2) weak supervision, (3) architecture, and (4) evaluation, each drawn with the verdict its check returned and stated in the research questions below. The vertical rail labelled ``the same selected exemplar'' marks shared input, not a failed check: stages $2$, $3$, and $4$ each consumed the exemplar stage $1$ selected by position.}
@@ -83,7 +83,7 @@ Matthews correlation coefficient (MCC), and average precision.
 \begin{figure}[!tbp]
 
 \centering
-\caption{Five readings of the exemplar defect rate}
+\caption{Five Readings of the Exemplar Defect Rate}
 \includegraphics[width=0.88\linewidth]{figures/fig-exemplar.pdf}
 \label{fig:exemplar}
 \apanote{The rule fires on a conflict between two sets of medication mentions; the exemplar
@@ -103,8 +103,9 @@ membership, and no assertion tying the two together. The Rules 1 and 2 selector 
 candidates positionally (Figure~\ref{fig:exemplar}), and the pool's reported precision carried
 no trace of it, no metric comparing displayed against triggering evidence. Which mention fired
 is not recoverable, the candidate schema not recording it, but whether the displayed mentions
-could have fired is decidable from the stored action labels. Section~``\nameref{sec:r-exemplar}'' reports four readings, at $0$, $0.4364$, $0.4745$ and
-$0.9315$, three of them near $0.4$ across two substrates.
+could have fired is decidable from the stored action labels. Section~``\nameref{sec:r-exemplar}'' reports four readings, at $0$, $0.4364$, $0.4745$, and
+$0.9315$; counting the rebuilt pool's design rate the set supports three readings near
+$0.4$ across two substrates.
 Two further defects are argued in Chapter~\ref{ch:method}. The harm head received no term in the training objective (RQ3 below). The train and validation split was made by subject, but the gold pairs were removed from the
 training pool by row, so the subject-overlap run's training rows still share subjects with the gold set, and
 Chapter~\ref{ch:results} marks the tables that rest on that run.
@@ -140,7 +141,8 @@ pool with usable precision?
 \emph{Not established. Four rules enrich the pool to $12$ confirmed contradictions in $299$
 annotated pairs, a base rate of $0.0401$, but for Rules 1 and 2 the surviving selector excerpt
 picks the exemplar by position, an instance of trigger-exemplar dissociation whose firing rate
-four readings span from $0$ to $0.9315$, three of them near $0.4$, and no check here fixes the
+four readings span from $0$ to $0.9315$, with three near $0.4$ once the rebuilt pool's design
+rate is counted, and no check here fixes the
 direction of the resulting bias (Section~``\nameref{sec:r-exemplar}'').
 Section~``\nameref{sec:intro-notclaim}'' states what that leaves of the $0.0401$ figure.}
 
@@ -173,12 +175,13 @@ interval past that floor (Section~``\nameref{sec:res-rq4}'').}
 
 The methods applied here are not novel, and Chapter~\ref{ch:lit} attributes each to its owner
 \citep{cohen1960kappa,feinstein1990paradoxes,cicchetti1990resolving,byrt1993pabak,kaufman2012leakage};
-what is new is the measurement on this pipeline. Three contributions follow, and statistical
-power matters to the first alone, through its evaluation verdict (RQ4).
+what is new is the measurement on this pipeline. Three contributions follow. Statistical power bears on the first
+through its evaluation verdict (RQ4), and on the second through the five and seven
+labellers its surviving direction rests on.
 
 \begin{enumerate}
 \item \textbf{A stage-by-stage audit.} The four stage verdicts of RQ1 to RQ4 and
-Figure~\ref{fig:pipeline-status}: one not established, two unsupported by code audit, and a
+Figure~\ref{fig:pipeline-status}: one not established, two unsupported, one of them by code audit, and a
 bounded null conditional on the labels, 1 or 2 targeted relabels undoing it.
 
 \item \textbf{A marginal feasibility gate that fails as a screen.} The maximum agreement
@@ -196,7 +199,7 @@ invalid by its own gate. The measured MCC sits under the ceiling its marginal fi
 bounds thresholded labels and leaves graded scores free, and among the local labellers the gate
 fails for Llama 3 8B alone. A later pre-registration moved the question to public data, where a
 student's utility is measurable: sensitivity to student failure is $0.2941$ against a registered
-floor of $0.90$, the verdict is reproduced exactly by a flag count at or above $235$ of $300$,
+floor of $0.90$, on every synthetic labeller the verdict is reproduced exactly by a flag count at or above $235$ of $300$,
 and a plain ratio of flag rate to base rate beats the gate on Youden $J$, $0.6807$ against
 $0.2941$ (Section~``\nameref{sec:r-feasgate}''). One direction survives: nothing the gate
 condemned produced a useful student, on the $5$ labellers of $24$ it condemned, a Wilson 95
