@@ -81,7 +81,7 @@ Correcting a marginal this biased needs gold labels on the same distribution
 \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey} cannot supply, and a student
 trained on those labels inherits the marginal: the teacher-student comparison cannot distinguish
 the detector's ranking of the gold pairs from its labeller's. Whether that prior scales with
-capability is unknown, no labeller above $14$ billion parameters whose results are reported here having been evaluated
+capability is unknown, since no labeller above $14$ billion parameters has results reported here
 (Section~``\nameref{sec:disc-limits}''). What survives is that nobody checked the weak labeller's
 marginal before training on it \citep{pangakis2023validation}, and that the size of its
 over-calling depends on the prompt and the ambiguity reading
@@ -198,11 +198,14 @@ transfer.
 \textbf{The danger is concentrated in one drug class.} Five of the twelve confirmed contradictions
 are an anticoagulant and all three rated at the scale maximum are
 (Chapter~\ref{ch:results}, Table~\ref{tab:confirmed}). The pool's base rate of $0.0401$ therefore
-averages over a hazard that is not evenly spread, and it is confounded with a mining dictionary in
-which anticoagulants are the largest class. That restricted rate is measurable and roughly double:
-$5$ confirmed among the $62$ annotated pairs mentioning an anticoagulant, or $0.0806$
-(Chapter~\ref{ch:results}). A system that cannot detect contradictions in general might still be
-worth building for one class, at twice the prevalence and with the harm concentrated there.
+averages over a hazard that is not evenly spread. The restricted rate can be computed, and it is
+not resolved: $5$ confirmed among the $62$ annotated pairs mentioning an anticoagulant, or
+$0.0806$, with a Wilson interval from $0.0349$ to $0.1753$ that contains the pool's own rate
+(Chapter~\ref{ch:results}). The class was also picked out of these same rows, so the figure is
+descriptive. What survives is the concentration of the highest danger ratings, not a demonstrated
+enrichment: a system that cannot detect contradictions in general might still be worth building for
+one class, and whether that class carries a workable base rate is the first thing a next attempt
+should measure.
 
 \textbf{A labeller's graded score carries more than its hard label, and less than it appears to.}
 The thresholded label cannot exceed the ceiling its marginal fixes, while $16$ of $17$ graded
@@ -523,8 +526,8 @@ stage-by-stage audit (Table~\ref{tab:disc-spine}), a marginal feasibility gate t
 a screen and can only rule a pilot out, and a named mining bug pattern, trigger-exemplar dissociation,
 which a one-line assertion catches once the candidate schema records which mention
 fired. Two findings sit alongside those: the danger in the confirmed set is concentrated in one drug
-class, five of twelve rows and all three rated most dangerous being an anticoagulant, and no stage
-here was ever measured against a rule-identity prior, which a labeller's graded score does not
-beat. None of that shows the task cannot be done. A $253$-pair evaluation resolves only large effects, and its bounded null fails if 1 or 2
+class, five of twelve rows and all three rated most dangerous being an anticoagulant, and no stage here was designed to be
+checked against a rule-identity prior, and when the labeller's graded score finally was, it did not
+beat it. None of that shows the task cannot be done. A $253$-pair evaluation resolves only large effects, and its bounded null fails if 1 or 2
 greedily chosen labels are wrong. The next attempt's size is set out in the future work
 above.

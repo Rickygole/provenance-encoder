@@ -360,8 +360,12 @@ The labelling stage emits a \texttt{weak\_confidence} field alongside each label
 training pool and the audited rows it takes exactly two distinct values, one for each label class,
 in a one-to-one mapping, so it carries no information about the labeller's uncertainty on
 any individual example. The calibration work reviewed in
-Chapter~\ref{ch:lit} \citep{guo2017calibration,zhao2021calibrate} does not cover a confidence value that a language model writes beside a label; the calibration of this one was
-never measured, and this thesis does not treat it as a probability.
+Chapter~\ref{ch:lit} \citep{guo2017calibration,zhao2021calibrate} concerns a classifier's output
+probabilities, and the verbalised-confidence work there
+\citep{kadavath2022know,tian2023askcalibration,xiong2024uncertainty} concerns a model's confidence
+in an answer it gives, not in a label it assigns as an annotator at a low base rate. That work
+predicts such a value will be poorly calibrated and supplies no way to correct it here. The
+calibration of this one was never measured, and this thesis does not treat it as a probability.
 
 The field was used in two places, both converting a label into a training-time intervention. As a filter, the training code's confidence threshold lies beneath the field's minimum
 value, so it removes nothing while reading as quality control. As a loss weight, the same field is
@@ -774,12 +778,12 @@ C138 & Prevalence-matched thresholding & Thresholding the teacher's graded score
 set's own base rate helps only if the paired intervals against both the reproducible-label
 and the same-teacher student exclude zero with positive point estimates. \\
 \addlinespace[3pt]
-(none) & Permuted-label control & The real-label run is indistinguishable from label-destroyed training if the permuted-label ensemble AUROC on $G_{253}$ lies inside the real-label interval and the paired difference contains zero. \\
-\addlinespace[3pt]
 C139 & Rule-identity prior comparison & A graded labeller score beats a rule-identity prior only
 if a paired test against a score set to each pair's own rule precision clears 0.05 divided by the
 17 configurations; invalid unless the rule column covers all 253 pairs and the prior takes more
 than one value. \\
+\addlinespace[3pt]
+(none) & Permuted-label control & The real-label run is indistinguishable from label-destroyed training if the permuted-label ensemble AUROC on $G_{253}$ lies inside the real-label interval and the paired difference contains zero. \\
 \end{longtable}
 \endgroup
 
