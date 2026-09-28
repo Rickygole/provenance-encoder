@@ -167,10 +167,18 @@
 % the malformed variants, and APA 7 section 9.8 bars a truncated list). The one
 % list refs.bib itself cannot complete is Llama 3, whose author field ends in
 % "and others" because the paper has more than 500 authors; biblatex prints the
-% andothers bibstring for it whatever maxbibnames is, so that string is an
-% ellipsis, APA's own marker for the authors a list omits, not "et al.".
-\DefineBibliographyStrings{english}{andothers={\textellipsis}}
-\renewcommand*{\andothersdelim}{\addspace}
+% andothers bibstring for it whatever maxbibnames is.
+%
+% That bibstring is shared by the reference list and by in-text citations, so it
+% cannot simply be replaced: the checklist bars "et al." in the reference list
+% but explicitly permits it in an in-text citation (it bars only the malformed
+% variants "et. al.", "et al," and "et al.:" there). biblatex's own
+% \ifbibliography test separates the two contexts, so the string expands to
+% "and others" inside the reference list and to "et al." everywhere else. The
+% bibliography form is spelled out rather than left as a bare ellipsis so no
+% entry trails off with no word at its end.
+\DefineBibliographyStrings{english}{%
+  andothers={\ifbibliography{and others}{et\addabbrvspace al\adddot}}}
 %
 % Article numbers and e-locators. refs.bib keeps them in the eid field, never
 % in pages, so none prints as a page ("p. 36"). numeric-comp's default prints
