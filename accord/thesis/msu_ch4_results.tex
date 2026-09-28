@@ -66,15 +66,19 @@ pool's true contradiction rate and every over-calling ratio is divided by it.
 
 Table~\ref{tab:confirmed} shows all 12. Five of the twelve rows are an
 anticoagulant, and all three danger-5 cases are an anticoagulant. That concentration is the most
-clinically legible pattern in the confirmed set, and it is what a pharmacist would expect: these
-are narrow-therapeutic-index agents whose continuation after a documented hold carries a bleeding
-risk that does not depend on the dose being wrong, which is why a disagreement about them is rated
-at the scale maximum where a diuretic disagreement is not. It is a description of $12$ rows and not
-an incidence estimate, and it is confounded with the mining dictionary, which covers
-anticoagulants more densely than most classes. What it does support is a target for a system that
-cannot detect contradictions in general: the danger is not spread evenly across the pool, so a
-detector restricted to one class would be evaluated against a base rate this project did not
-measure.
+clinically legible pattern in the confirmed set, and the danger ratings track it: the three rows at
+the scale maximum are all anticoagulants, while the three loop diuretic rows are rated $1$ and $2$.
+The reading those ratings imply is that an anticoagulant continued after a documented hold carries a
+bleeding risk that does not require the dose to be wrong. That reading is the annotator's, recorded
+in the ratings; this thesis adds no clinical claim of its own to it. It is a description of $12$ rows and not
+an incidence estimate, and it is confounded with the mining dictionary: anticoagulants carry $6$
+agents there, more than any other class. The class-restricted base rate is measurable from the same
+annotations, and it is higher than the pool's. Of the $299$ annotated pairs, $62$ mention an
+anticoagulant and $5$ of those are confirmed, a rate of $0.0806$ against the pool's $0.0401$; the
+next two largest strata are loop diuretics at $3$ of $61$, or $0.0492$, and beta blockers at $2$ of
+$53$, or $0.0377$. Every other dictionary class holds no confirmed contradiction at all, and $45$
+pairs carry no dictionary class. So a detector restricted to anticoagulants would face roughly twice
+the prevalence this evaluation worked at, which is the one design change these $12$ rows support.
 
 \begin{table}[!htbp]
 \caption{The 12 Pharmacist-Confirmed Contradictions}
@@ -817,8 +821,9 @@ falls to chance, yet whose interval still opens below the floor applied to it, $
 Table~\ref{tab:m-mde} rather than the $0.7382$ analytic value. Eleven cells carry a rule cue in one
 direction or the other and two are confounded on the direction-free reading.
 
-That cue is not incidental, and a pre-registered check put a number on it. Pharmacist precision runs
-from $0.0256$ on Rule 1 to $0.1071$ on Rule 2, so a score carrying no information except which of the
+That cue is not incidental, and a pre-registered check put a number on it. Pharmacist precision on $G_{253}$ runs
+from $0.0256$ on Rule 1 to $0.1071$ on Rule 2, above the $G_{299}$ pair in
+Table~\ref{tab:rule-precision} because the ambiguous rows are dropped, so a score carrying no information except which of the
 four rules generated a pair reaches AUROC $0.6478$ on the same $253$ pairs, bootstrap interval
 $0.4778$ to $0.8024$, label-permutation $p = 0.0367$. That prior was fitted in sample on the labels it
 is scored against, which makes it an optimistic reading of rule identity and the comparison a
@@ -832,8 +837,15 @@ detection, and its size is not resolved at $12$ positives either. Within a singl
 where rule identity is constant and cannot carry the ranking, the strongest cell reads $0.7339$,
 $0.5600$, $0.8771$ and $0.8953$ on $3$, $3$, $4$ and $2$ positives; that points the other way and is
 registered as descriptive only, because two to four positives cannot carry a test. The honest
-position is that this is the same rule-identity leakage the architecture audit found in the
-rule-type head, reaching the labeller's score as well.
+position is narrower than either reading. The graded score is not shown to exceed a rule-identity
+prior, and whether it carries information beyond rule-correlated content is not resolved: the
+within-stratum readings, where rule identity is constant, lean the other way on too few positives
+to test. This is not the leakage the architecture audit found, which was the rule identifier sitting
+in the head's own input. The prompts here name no conflict type and no rule
+(Chapter~\ref{ch:method}, Section~``\nameref{sec:m-weak}''), so rule identity can only reach the
+score through what each rule's pairs contain, such as a dose on Rule 3 or a literal marker in place
+of a discharge sentence on Rule 4. That is confounding by rule-correlated content, a different
+mechanism with a different remedy.
 
 The pre-registered prior-correction experiment asked whether a prior-probability
 correction rescues a distilled student trained on such a score, on public
@@ -1285,7 +1297,9 @@ depressing it. Half the folds fit a near-constant model, with an out-of-fold sco
 $0.001$ over their 20 or 21 negatives, but those folds average $0.3833$ and the folds with real
 score spread average $0.1500$, so the below-chance ranking is not those folds' rounding error. At
 12 positives and one positive per fold the estimate is too coarse to support a claim of inverse
-discrimination; what it does not support is any claim of discrimination.
+discrimination, and a leave-one-positive-out design carries a structural negative bias at this size
+even read fold by fold, because removing the held-out positive shifts the training balance against
+it; what it does not support is any claim of discrimination.
 
 The pre-registered inference-model baseline, an off-the-shelf natural-language-inference model,
 a RoBERTa architecture \citep{liu2019roberta} trained for entailment and not for
@@ -1377,13 +1391,14 @@ confirmation (Bonferroni-corrected within itself), the Rules 3 and 4 rescore,
 the bag-of-words robustness checks, the rank-based paired test, the
 tipping-point and stratum-interval checks, the exact-join agreement, and the
 teacher-student comparison. The remaining checks in that table report rates, intervals, or a
-simulation read against a written rule, and add no test to any family. The four
+simulation read against a written rule, and add no test to any family. The five
 latest registrations are each their own family and each reported in full whatever
 it returned: the dissociation-cost check reads bootstrap intervals, the
 prevalence-matched thresholding four paired intervals none of which excludes
-zero, the permuted-label control one paired interval, and the gate validation
-screening statistics with no $p$ value attached to its verdict. Three of the four
-returned a null or a negative verdict; none is omitted on that ground. The descriptive Granite 3.3 8B cells of the
+zero, the permuted-label control one paired interval, the gate validation
+screening statistics with no $p$ value attached to its verdict, and the
+rule-identity prior comparison $17$ paired tests under its own correction. Four of
+the five returned a null or a negative verdict; none is omitted on that ground. The descriptive Granite 3.3 8B cells of the
 prompt-wording confirmation are uncorrected across models.
 
 The planted-defect benchmark's later parts say which of these checks were themselves

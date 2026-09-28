@@ -19,7 +19,10 @@
 
  With $12$ pharmacist-confirmed contradictions against
 $241$ negatives in $G_{253}$, this evaluation cannot tell a modest detector from a
-useless one (Section~``\nameref{sec:res-rq4}'').
+useless one (Section~``\nameref{sec:res-rq4}''). This chapter reads Chapter~\ref{ch:results}
+against that limit: it gives each pipeline stage the verdict its own check returned, says what the
+four checks together support and what was learned despite them, and then sets out what bounds every
+number in this thesis and what a next attempt would have to do differently.
 
 \section{What Each Check Changed}
 \label{sec:disc-spine}
@@ -78,7 +81,7 @@ Correcting a marginal this biased needs gold labels on the same distribution
 \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey} cannot supply, and a student
 trained on those labels inherits the marginal: the teacher-student comparison cannot distinguish
 the detector's ranking of the gold pairs from its labeller's. Whether that prior scales with
-capability is unknown, no labeller above $14$ billion parameters having been evaluated here
+capability is unknown, no labeller above $14$ billion parameters whose results are reported here having been evaluated
 (Section~``\nameref{sec:disc-limits}''). What survives is that nobody checked the weak labeller's
 marginal before training on it \citep{pangakis2023validation}, and that the size of its
 over-calling depends on the prompt and the ambiguity reading
@@ -195,9 +198,11 @@ transfer.
 \textbf{The danger is concentrated in one drug class.} Five of the twelve confirmed contradictions
 are an anticoagulant and all three rated at the scale maximum are
 (Chapter~\ref{ch:results}, Table~\ref{tab:confirmed}). The pool's base rate of $0.0401$ therefore
-averages over a hazard that is not evenly spread, and it is confounded with a mining dictionary
-that covers anticoagulants densely. A system that cannot detect contradictions in general might
-still be worth building for one class, against a base rate this project did not measure.
+averages over a hazard that is not evenly spread, and it is confounded with a mining dictionary in
+which anticoagulants are the largest class. That restricted rate is measurable and roughly double:
+$5$ confirmed among the $62$ annotated pairs mentioning an anticoagulant, or $0.0806$
+(Chapter~\ref{ch:results}). A system that cannot detect contradictions in general might still be
+worth building for one class, at twice the prevalence and with the harm concentrated there.
 
 \textbf{A labeller's graded score carries more than its hard label, and less than it appears to.}
 The thresholded label cannot exceed the ceiling its marginal fixes, while $16$ of $17$ graded
@@ -216,11 +221,14 @@ decline both framings more often (Chapter~\ref{ch:results}, Figure~\ref{fig:answ
 A single over-calling ratio therefore describes a model under a prompt, not a property of language
 model annotation, which is why this thesis reports the prompt beside every ratio it quotes.
 
-\textbf{Rule identity leaks at more than one stage.} The architecture audit found the rule
-identifier readable from the rule-type head's own input, and the graded-score comparison above
-finds a rule-identity prior that a labeller's score does not beat. Two independent stages of one
-pipeline picked up the same shortcut, which is the argument for checking a stage against a
-trivial-information baseline rather than against chance.
+\textbf{Rule identity is a trivial baseline that more than one stage has to be checked against.}
+The architecture audit found the rule identifier readable from the rule-type head's own input, which
+is leakage. The graded-score comparison found something weaker and separate: a score built from
+rule identity alone that the labeller's score does not beat, where the rules' own content is the
+only route by which identity could reach it. The two are different mechanisms and only the first is
+leakage. What they share is that neither stage was ever measured against the cheapest competing
+explanation, and chance is not that competitor. A stage that beats chance and not a rule prior has
+not been shown to do its job.
 
 \section{Limitations}
 \label{sec:disc-limits}
@@ -421,6 +429,8 @@ Pairs sharing an admission or a subject & Moderate & Checked for the bounded nul
 Rule identifier in model inputs & Moderate to severe & Shown on the rule-type head, confounded (Table~\ref{tab:disc-spine}) \\
 \addlinespace
 Extraction never validated against human annotation & Moderate to severe & Stated; extraction resolves an overlapping action mention by first-match order among the action classes, so no independent check confirms the assigned class \\
+\addlinespace
+Three of the twelve positives not settled by their own justification & Severe for the bounded null & The $3$ Rule 3 rows whose parsed dose gap exceeds $100$ percent pair a bolus against a maintenance figure; their justifications run $7$ to $15$ words and name no route, form, rate or monitoring, and the null tips after $1$ or $2$ relabels (Section~``\nameref{sec:disc-limits}'') \\
 \bottomrule
 \end{tabular}
 \apanote{Severity ranks how much a stated conclusion would change if the threat were realised, from
@@ -512,6 +522,9 @@ annotate, no check told the detector's ranking of the gold pairs apart from chan
 stage-by-stage audit (Table~\ref{tab:disc-spine}), a marginal feasibility gate that fails as
 a screen and can only rule a pilot out, and a named mining bug pattern, trigger-exemplar dissociation,
 which a one-line assertion catches once the candidate schema records which mention
-fired. None of that shows the task cannot be done. A $253$-pair evaluation resolves only large effects, and its bounded null fails if 1 or 2
+fired. Two findings sit alongside those: the danger in the confirmed set is concentrated in one drug
+class, five of twelve rows and all three rated most dangerous being an anticoagulant, and no stage
+here was ever measured against a rule-identity prior, which a labeller's graded score does not
+beat. None of that shows the task cannot be done. A $253$-pair evaluation resolves only large effects, and its bounded null fails if 1 or 2
 greedily chosen labels are wrong. The next attempt's size is set out in the future work
 above.

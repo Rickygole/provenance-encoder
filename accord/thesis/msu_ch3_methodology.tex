@@ -216,6 +216,9 @@ Rule 2 relaxes drug identity to pharmacologic class, so two different agents in 
 continued and one ceased across the notes, can be flagged as a substitution documented on one side
 only. It uses a hand-written class dictionary covering the major heart-failure classes, plus a guard
 that the drug sets on the two sides are not identical, which would return the candidate to Rule 1.
+The guard asks only that the two sets be unequal, not that they be disjoint, so they may still
+share an agent, and a pair whose sides read as a class-level instruction against that shared agent
+satisfies the rule.
 The dictionary is small relative to the pharmacologic space, is not derived from a standard
 terminology such as ATC or RxNorm, and has no mechanism for cross-class interactions.
 
@@ -656,7 +659,8 @@ were in, so each is fixed relative to its own run but post hoc relative to the p
 rank-based paired test, the exact-join agreement, the teacher-student comparison,
 the exemplar-prevalence check, the reproducible-labeller retrain, the
 cluster-bootstrap check, the interval tipping-point check, the dissociation-cost check, the gate
-validation, the prevalence-matched thresholding, and the data-randomisation control.
+validation, the prevalence-matched thresholding, the rule-identity prior comparison, and the
+data-randomisation control.
 A pre-registered scale
 ladder within one model family was attempted twice, and a prospective version of the
 feasibility check that depended on it could run neither time, because one model size in the
@@ -771,6 +775,11 @@ set's own base rate helps only if the paired intervals against both the reproduc
 and the same-teacher student exclude zero with positive point estimates. \\
 \addlinespace[3pt]
 (none) & Permuted-label control & The real-label run is indistinguishable from label-destroyed training if the permuted-label ensemble AUROC on $G_{253}$ lies inside the real-label interval and the paired difference contains zero. \\
+\addlinespace[3pt]
+C139 & Rule-identity prior comparison & A graded labeller score beats a rule-identity prior only
+if a paired test against a score set to each pair's own rule precision clears 0.05 divided by the
+17 configurations; invalid unless the rule column covers all 253 pairs and the prior takes more
+than one value. \\
 \end{longtable}
 \endgroup
 
