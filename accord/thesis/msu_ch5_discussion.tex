@@ -16,10 +16,7 @@
 \label{ch:discussion}
 \label{ch:conclusion}
 
-Chapter~\ref{ch:results} reported what each stage of the pipeline measured and
-what the check attached to that stage measured afterwards. This chapter argues
-about the difference, then states the practical lesson, the future work, and
-what the thesis leaves. With $12$ pharmacist-confirmed contradictions against
+ With $12$ pharmacist-confirmed contradictions against
 $241$ negatives in $G_{253}$, this evaluation cannot tell a modest detector from a
 useless one (Section~``\nameref{sec:res-rq4}'').
 
@@ -28,9 +25,7 @@ useless one (Section~``\nameref{sec:res-rq4}'').
 
 Table~\ref{tab:disc-spine} is the summary this section argues through. The
 pipeline has four stages; at the first three, no standard metric was sensitive to
-the defect behind the reported number. The checks run were cheap, and none of them
-is one of the three control designs Chapter~\ref{ch:lit} describes, which were not
-run here.
+the defect behind the reported number. 
 
 \begin{table}[!htbp]
 \centering
@@ -56,16 +51,13 @@ distinguishes the reported reading from the audited defect; unsupported, the che
 
 \subsection{Candidate mining: not established}
 
-The gold sample was drawn by the original pipeline from its own pool, so
-$0.0401$ is unbiased for that annotated sample (Chapter~\ref{ch:method} states
-the estimand) and its validity as a property of the mining rules is not
-established: nothing ties the positional selector to the exemplars the
-pharmacist judged. Of the four readings of how often the selector failed
-(Section~``\nameref{sec:r-exemplar}''), the lower bound and the reconstruction
-read nearly the same labels and are not independent of each other, which leaves
-the rebuilt pool's design rate of $0.4139$ as the one independent reading and
-three readings across two substrates, concentrated near $0.4$, as what the set
-supports. Which mention fired is still not recoverable, and no single reading is
+The gold sample was drawn by the original pipeline from its own pool, so $0.0401$ is
+unbiased for that annotated sample (Chapter~\ref{ch:method} states the estimand), but
+nothing ties the positional selector to the exemplars the pharmacist judged, so its validity
+as a property of the mining rules is not established. Of the four readings of how often the selector failed
+(Section~``\nameref{sec:r-exemplar}''), two share a substrate, which leaves the rebuilt
+pool's design rate of $0.4139$ as the one independent reading and three readings
+concentrated near $0.4$ as what the set supports. Which mention fired is still not recoverable, and no single reading is
 a tiebreaker. The stratum $G_{134}$ lies outside the documented positional defect but its
 exemplar correctness is assumed, because the original selector code for Rules 3 and
 4 does not survive, so every comparison between the rule groups in this chapter is
@@ -73,24 +65,19 @@ confounded with rule content and base rate and is not a test of the defect.
 
 \subsection{Weak supervision: unsupported}
 
-The labeller looked usable on the property it was checked against, recall. High
-raw agreement beside a low chance-corrected coefficient under skewed marginals
-is the paradox Feinstein and Cicchetti documented
-\citep{feinstein1990paradoxes,cicchetti1990resolving}, and the check that would
-have caught this labeller is this thesis's application of Cohen's maximum:
-compare the marginal against a human-established base rate before believing
-anything about agreement. Saying yes to $87$ percent of a pool whose confirmed
-rate is $4$ percent does not reflect judgement on individual pairs; it is what a
-fixed prior would produce, and the marginal had settled the agreement result
-before any pair was compared.
+The labeller looked usable on the property it was checked against, recall. High raw
+agreement beside a low chance-corrected coefficient under skewed marginals is the paradox
+Feinstein and Cicchetti documented \citep{feinstein1990paradoxes,cicchetti1990resolving},
+and what would have caught this labeller is Cohen's maximum: compare the marginal against a
+human-established base rate before believing anything about agreement. Saying yes to $87$ percent of a pool whose confirmed rate is $4$ percent is what a fixed
+prior would produce, and the marginal had settled the agreement result before any pair was
+compared.
 
 Correcting a marginal this biased needs gold labels on the same distribution
-\citep{forman2008quantifying,egami2023surrogates}, which a workflow built to
-avoid annotation
-\citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey} cannot
-supply, and a student trained on those labels inherits the marginal: the
-teacher-student comparison finds the detector's ranking of the gold pairs not
-distinguishable from its labeller's. Whether that prior scales with capability
+\citep{forman2008quantifying,egami2023surrogates}, which a workflow built to avoid
+annotation \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey} cannot
+supply, and a student trained on those labels inherits the marginal: the teacher-student
+comparison cannot distinguish the detector's ranking of the gold pairs from its labeller's. Whether that prior scales with capability
 is unknown, since no labeller above $14$ billion parameters was evaluated here
 (Section~``\nameref{sec:disc-limits}''). What survives is that nobody checked
 the weak labeller's marginal before training on it
@@ -101,25 +88,21 @@ quoted ratio have to travel with it.
 
 \subsection{Architecture: unsupported by code audit}
 
-The architectural checks did the most damage, and the verdict differs by
-component. The authority parameters are unsupported at their initial values
-because each is initialised at the value later reported as discovered and sits
-behind a normalisation that drives its gradient towards zero, so the reported
-value is an artifact of the initialiser rather than a finding. The rule-type head
+The verdict differs by component. The authority parameters are unsupported: each is initialised at the value later reported as
+discovered, behind a normalisation that drives its gradient towards zero, so the reported
+value is an artifact of the initialiser. The rule-type head
 is confounded, its auxiliary target readable from the input features one linear
 layer away, the textbook symptom of leakage \citep{kaufman2012leakage}, which
 vacates the metric without refuting the component. The harm head is untrained, so
-its output range is not a severity score. RQ3
-(Section~``\nameref{sec:m-control-rq3}'') is answered component by component for
-that reason.
+its output range is not a severity score, which is why RQ3
+(Section~``\nameref{sec:m-control-rq3}'') is answered component by component.
 
 \subsection{Evaluation: a bounded null}
 
-The evaluation's power bounds what the detector's near-chance ranking can be
-taken to show (Section~``\nameref{sec:res-rq4}''). Decontamination did not
-rescue the ranking, and it could not have inflated much to begin with: the rows
-sharing subjects with the gold pairs carried the weak labeller's labels and
-never the pharmacist's. A plain BioMedBERT control model with none of ACCORD's
+The evaluation's power bounds what the detector's near-chance ranking shows
+(Section~``\nameref{sec:res-rq4}''). Decontamination did not rescue the ranking and could
+not have inflated much to begin with: the rows sharing subjects with the gold pairs carried
+the weak labeller's labels and never the pharmacist's. A plain BioMedBERT control model with none of ACCORD's
 credited components has bootstrap intervals on $G_{299}$ and $G_{134}$ that
 contain chance, but the control's own report reads them as inconclusive under
 its ceiling of $0.6$ and runs no test against chance, so no null is claimed for
@@ -133,7 +116,10 @@ for a test of the control against chance.
 What replicates is narrow. The chance-level ranking held for the decontaminated
 ensemble, for each of its three seeds, and for the plain control detector
 retrained on reproducible labels; the over-calling held across three local model
-families, though its size did not. The bound on the fourth stage is conditional on
+families, though its size did not. The reproducible retrain is not evidence that
+the labels carried signal: retrained on a permuted copy of the same labels the control is indistinguishable from its
+real-label run, on a label vector so nearly constant that permuting it moves few rows and
+the test is correspondingly weak (Section~``\nameref{sec:res-rq4}''). The bound on the fourth stage is conditional on
 the labels: 1 or 2 targeted relabels lift an interval to the floor, and 3 to 6 make
 one exclude chance (Section~``\nameref{sec:disc-limits}''). No claim about
 mechanism or about scale is supported: this is a measurement of a pipeline under
@@ -149,13 +135,9 @@ Chapter~\ref{ch:results}, and their contrast identifies no single one. It lowers
 Granite 3.3 8B's (\texttt{granite3.3:8b}) and Qwen 3 8B's (\texttt{qwen3:8b})
 positive rates sharply and leaves Llama 3 8B (\texttt{llama3:8b}) within the
 spread between two runs of its own prompt text
-(Section~``\nameref{sec:m-weak},'' Chapter~\ref{ch:method}), and with ambiguous
-pairs read as negative no lowered ratio reaches the public-text ceiling of
-$3.5000$ set in advance as the test of sufficiency. Reading the $46$ ambiguous
-pairs as confirmed multiplies every ratio by exactly $12/58$, which puts the
-Granite 3.3 8B and Qwen 3 8B plain-prompt rows below the ceiling while
-Llama 3 8B's stays above it: only the denominator changed, and no model's calls
-did. The absence of an ambiguity gradient in the $8$ local Fisher tests is
+(Section~``\nameref{sec:m-weak},'' Chapter~\ref{ch:method}), and no lowered ratio reaches the public-text ceiling set in advance as the test of
+sufficiency, while reading the ambiguous pairs as confirmed rescales every ratio by one
+constant and changes no model's calls. The absence of an ambiguity gradient in the $8$ local Fisher tests is
 absence of evidence, not calibration.
 
 \textbf{Scale, public text, and what a single run means.} The step to
@@ -163,11 +145,9 @@ Qwen 3 14B (\texttt{qwen3:14b}), the largest model this project's hardware serve
 and not frontier scale, sits inside the spread three 8B models already show, and
 nothing is concluded about scale. On an SNLI sweep under generic prompts the same
 models do not reproduce the clinical magnitude or direction, but that sweep
-changes prompt, negative type, and domain together. The determinism check of the
-public factorial experiment (Chapter~\ref{ch:results}) found stable per-item
-output for Llama 3 8B alone, so a single-run public cell for any other model is
-one draw from a spread, while on the clinical rows the prompt-wording
-confirmation reproduced Granite 3.3 8B exactly. Across all of these runs, every
+changes prompt, negative type, and domain together. The determinism check found stable per-item output for Llama 3 8B alone
+(Chapter~\ref{ch:results}), so a single-run public cell for any other model is one draw from
+a spread. Across all of these runs, every
 8B labeller under the clinical-pharmacist framing flags several times the
 confirmed count when ambiguous pairs are read as negative, and the least
 over-calling printed row falls below the public-text ceiling after $5$ relabels.
@@ -176,44 +156,36 @@ over-calling printed row falls below the public-text ceiling after $5$ relabels.
 \label{sec:disc-null}
 
 The usual objection to a negative result in a small clinical sample is that the
-experiment was too small to see anything. That holds for most such results. The
-answer here is a bound on what the evaluation could have seen: the detector's
+experiment was too small to see anything, and it holds for most such results. The answer
+here is a bound on what the evaluation could have seen: the detector's
 bootstrap interval on $G_{253}$ excludes an AUROC above $0.7034$ but not a
 modestly useful model below it.
 
-That bound comes from a power simulation, which is no empirical validation of the
-clinical instrument, and it depends on the decision rule
-(Section~``\nameref{sec:res-rq4}''). The two-sided Mann-Whitney test needs AUROC
-$0.7466$ for $80$ percent power and the registered decision rule $0.8084$; at the
-registered AUROC threshold $0.7355$, which is not the analytic minimum detectable
-AUROC of $0.7382$, that rule rejects on only $0.5208$ of replicates. The two
-floors are not measured at a common size, since at a true AUROC of $0.50$ the
-Mann-Whitney rule alone rejects $0.048$ of replicates against the registered
-rule's $0.00075$, so the pair should be read as two rules with two different
-false-positive rates rather than as a range. This work cannot establish that
-cross-note contradiction detection is unsolvable, only that this pipeline does not
-solve it and that an AUROC effect above the floor of the rule applied would likely
-have been visible.
+That bound comes from a power simulation, no empirical validation of the clinical
+instrument, and it depends on the decision rule (Section~``\nameref{sec:res-rq4}''): the
+two-sided Mann-Whitney test needs AUROC $0.7466$ for $80$ percent power and the registered
+rule $0.8084$, and at the registered threshold $0.7355$, not the analytic minimum detectable
+AUROC of $0.7382$, that rule rejects on only $0.5208$ of replicates. The two floors sit at
+two different false-positive rates, $0.048$ of replicates against $0.00075$ at a true AUROC
+of $0.50$, so they are two rules and not a range. This work cannot establish that cross-note
+contradiction detection is unsolvable, only that this pipeline does not solve it and that an
+AUROC effect above the floor of the rule applied would likely have been visible.
 
-Whether the ranking null is an artifact of the exemplar-selection defect was put
-to the pre-registered Rules 3 and 4 rescore on $G_{108}$. Its AUROC lies above
-the Rules 1 and 2 value, the direction a defect-artifact reading predicts, but
-its interval holds both chance and the per-test floors, and the weak labeller
-shows no comparable rise ($0.5294$ against $0.5216$, descriptive). With $6$
-positives the rescore leaves the defect-artifact reading neither supported nor
-excluded, and the comparison being confounded as stated above, even a separation
-would not have isolated the defect.
+Whether the ranking null is an artifact of the exemplar-selection defect was put to the pre-registered Rules 3 and 4 rescore on $G_{108}$. Its AUROC lies above the Rules 1 and 2 value,
+the direction a defect-artifact reading predicts, but its interval holds both chance and the
+per-test floors, and the weak labeller shows no comparable rise ($0.5294$ against $0.5216$,
+descriptive). With $6$ positives the rescore leaves that reading neither supported nor
+excluded, and the comparison being confounded as above, even a separation would not have
+isolated the defect.
 
-The baselines (Section~``\nameref{sec:res-rq4}'') leave the null in place and
-narrow its possible causes. A bag-of-words model trained on the identical weak
-labels and an entailment model never trained on them each clear an
-average-precision null where the detector does not, the statistic having been
-chosen for the bag-of-words model after its value was known; a label-free model
-finds the same kind of signal. The bag-of-words robustness checks call that
-signal, in their registered interpretation, a surface lexical or
-semantic-similarity signal and no evidence that the weak labels carried signal.
-Because the rank-based paired test separates no two of the three, neither simple
-model is shown to exceed the detector.
+The baselines (Section~``\nameref{sec:res-rq4}'') leave the null in place and narrow its
+causes. A bag-of-words model trained on the identical weak labels and an entailment model
+never trained on them each clear an average-precision null where the detector does not, the
+statistic having been chosen for the bag-of-words model after its value was known, so a
+label-free model finds the same kind of signal. The bag-of-words robustness checks call that
+signal, in their registered interpretation, a surface lexical or semantic-similarity signal
+and no evidence that the weak labels carried signal, and because the rank-based paired test
+separates no two of the three, neither simple model is shown to exceed the detector.
 
 \section{Limitations}
 \label{sec:disc-limits}
@@ -221,65 +193,44 @@ model is shown to exceed the detector.
 \paragraph{The extractor was never validated against human annotation.} Every
 count in this thesis that depends on which drug carries which action rests on a
 dictionary extractor over a general-purpose English pipeline, and nothing
-measures how often it is right. Its three documented properties each admit error
-without bound: action classification operates on a three-sentence window, so every
-drug named anywhere in it receives the same action; overlapping action classes
-resolve by first-match order, so a window carrying vocabulary from two classes
-takes whichever is tested first; and negation is a hard flip with no scope model,
-where a purpose-built context algorithm would model scope explicitly
+measures how often it is right. Its three documented properties, the three-sentence action window, first-match resolution of
+overlapping classes, and a scopeless negation flip, each admit error without bound
 (Chapter~\ref{ch:method}, Section~``\nameref{sec:m-data}''). No sample of mentions
 was adjudicated by a human, so the extractor has no measured precision or recall,
 and neither has anything built on its output: the four mining rules, the rebuilt
 candidate pool, and every reading of the exemplar defect that consults the stored
-action labels. It is stated first because it sits under the others.
+action labels. 
 
 \paragraph{No blinding was performed.} The gold standard was produced unblinded,
-and Chapter~\ref{ch:method}, Section~``\nameref{sec:m-gold}'' states the three
-facts on record: the annotator saw the rule identifier, itself a model input and
-the feature that makes the rule-type head's metric confounded; annotation followed
-weak-label generation rather than preceding it; and the author sat beside the
-annotator recording each judgement. Nothing here bounds how far that could have
+and Chapter~\ref{ch:method}, Section~``\nameref{sec:m-gold}'' states the three facts on
+record. Nothing here bounds how far that could have
 moved a label, and the single-annotator limitation below compounds it, because no
 second, blinded rater exists to compare against. The asymmetry is internal: this
 project used a blind second coder on its own literature survey and none on the
 clinical annotation.
 
-\paragraph{No sample size justification exists.} No calculation in this project
-takes a target effect and returns a required $n$. The $300$ sampled pairs carry
-no recorded rationale; what was fixed in advance was the allocation across the
-four rules, not the total (Chapter~\ref{ch:method},
-Section~``\nameref{sec:m-gold}''). The minimum detectable effect and the power
-simulation are post hoc sensitivity on an already-fixed $n$ and are not a sample
-size justification: they report what the annotated set could resolve, never what a
-target effect would have required. The floors under ``\nameref{sec:conc-future}''
+\paragraph{No sample size justification exists.} Chapter~\ref{ch:method}, Section~``\nameref{sec:m-gold}'' records that no calculation
+returns a required $n$, that the sampled pairs carry no recorded rationale, and that the
+minimum detectable effect and the power simulation are post hoc sensitivity on an already-fixed $n$. The floors under ``\nameref{sec:conc-future}''
 are the closest this thesis comes to one, and they were computed after the fact.
 
 \paragraph{Mining recall is unknown.} No pair was sampled from outside the
 candidate pool. Every annotated pair is one the four rules already flagged, so
 this thesis can describe what the pipeline flags and never what it misses: a
 contradiction whose drug the extractor failed to classify, or whose shape no
-trigger matches, leaves no trace in any count reported here. The rules were built
-to be high-recall and enriching and neither property is measured, so no statement
-here about what the pipeline detects can be read as a statement about how much
-there was to detect.
+trigger matches, leaves no trace in any count reported here. Neither the rules' recall nor their enrichment is measured.
 
 \paragraph{The evidence unit is one sentence per side.} Each candidate reached
 the annotator, the weak labeller, and the detector as a single nursing sentence
 paired with a single discharge sentence, and on the annotation sheet a discharge
 cell could be truncated at $200$ characters (Chapter~\ref{ch:results},
-Section~``\nameref{sec:r-exemplar}''). That caps what all three instruments
-could judge: a conflict cue one clause outside the displayed sentence is invisible
-to each of them, and the direct exemplar check measures the cost most plainly, since
-$69$ of the $136$ rows it calls wrong carry no classified action on at least one
-side. A contradiction whose evidence spans more than one sentence on a side cannot
-be confirmed, labelled, or detected under this design.
+Section~``\nameref{sec:r-exemplar}''). A conflict cue one clause outside the displayed sentence is invisible to all three
+instruments, which the direct exemplar check measures most plainly, so a contradiction whose
+evidence spans more than one sentence on a side cannot be confirmed, labelled, or detected
+under this design.
 
-\paragraph{Eight reported measures appear in no pre-registration.} Cohen's
-$\kappa$, expected calibration error, balanced accuracy, prevalence-adjusted
-bias-adjusted kappa, the rule-group odds ratio, the danger rating used as a
-Spearman target, the threshold sweep's best Matthews correlation, and the
-bootstrap mean are neither registered nor on the post hoc list of checks
-(Chapter~\ref{ch:method}, Section~``\nameref{sec:m-prereg}''). Several are
+\paragraph{Eight reported measures appear in no pre-registration.} Chapter~\ref{ch:method}, Section~``\nameref{sec:m-prereg}'' names all eight; none is
+registered or on the post hoc list of checks. Several are
 load-bearing columns read as evidence, so the freedom to choose a measure after
 seeing what it returns is not confined to the incidental parts of the tables.
 
@@ -291,13 +242,9 @@ objection (Section~``\nameref{sec:res-rq4}''). Every ranking measurement on
 $G_{299}$ or $G_{253}$ rests on $12$ positives and every measurement on
 $G_{108}$ on $6$; each null carries its floor, and the two systems this pipeline
 produced are not ordered, both Matthews correlations within $0.05$ of chance.
-Twelve positives can still separate something: Granite 3.3 8B zero-shot sits at
-its marginal-implied ceiling with a one-sided hypergeometric $p$ of $0.0242$ on
-$G_{253}$, nominal and uncorrected, which is a claim about one thresholded
-labeller and does not reach the detector. In the prompt-wording confirmation the
-registered Llama 3 8B reversed-prompt score failed on AUROC under all three new
-wordings, while Granite 3.3 8B's descriptive cells, uncorrected, met both
-criteria under two (Section~``\nameref{sec:res-rq2},''
+Twelve positives can still separate something: one thresholded labeller sits at its
+marginal-implied ceiling and rejects the null nominally, and one descriptive graded cell met
+both registered criteria under two new wordings (Section~``\nameref{sec:res-rq2},''
 Chapter~\ref{ch:results}). The null is therefore a statement about these trained
 models under this supervision, no ablation carries a significance claim, and the
 cross-note difference encoder, the fourth component Chapter~\ref{ch:method}
@@ -317,9 +264,7 @@ largest labeller evaluated here is 14 billion parameters. Whether
 over-calling attenuates at frontier scale is therefore open, and answerable
 only by a larger model served locally.
 
-\paragraph{The deployed labelling run is lost, but the ranking null does not rest on it.} The
-script and prompt behind the deployed weak labels were never committed, and those labels cannot be
-regenerated. The ranking null reproduces on labels regenerated with the committed
+\paragraph{The deployed labelling run is lost, but the ranking null does not rest on it.}  The ranking null reproduces on labels regenerated with the committed
 replication prompt and script (Section~``\nameref{sec:res-rq4}''). The limitation therefore reaches only the deployed run's numbers, such as its $261$ of $299$ marginal, which remain measured but not repeatable.
 
 \paragraph{Deployment risk and a score that was never trained.} The decontaminated ensemble's three seeds average
@@ -328,8 +273,7 @@ seed alone generates many false alarms per true contradiction, the first raising
 $216$ against $9$ true contradictions at a recall of $0.75$. That alarm
 ratio, on a ranking already returned as a bounded null (Table~\ref{tab:disc-spine}), is why this
 system should not be deployed in any form; alert burdens at that ratio are separately associated
-with reduced acceptance \citep{vandersijs2006overriding,ancker2017alertfatigue}. A more specific hazard sits inside the
-architecture: the untrained harm head's outputs span $0.3977$ to $0.6096$, the range of an untrained sigmoid and not a severity scale.
+with reduced acceptance \citep{vandersijs2006overriding,ancker2017alertfatigue}. A second hazard sits inside the architecture, the untrained harm head's output range.
 The design lesson is a one-line diagnostic: print the range of every emitted score before any
 interpretation is placed on it.
 
@@ -338,17 +282,13 @@ to a single United States academic medical centre \citep{johnson2016mimic}.
 The primary cohort is a billing-code phenotype, over-including comorbid
 admissions and under-including uncoded ones, and documentation conventions,
 note-type taxonomies, the drug and class dictionaries, the dose threshold, and
-the danger judgements all encode that institution and era. Two further cohorts
-were built for a transfer test across index diagnosis whose results are not
-reported. Nothing here speaks to generalisation across diagnoses or
+the danger judgements all encode that institution and era.  Nothing here speaks to generalisation across diagnoses or
 institutions \citep{zech2018generalization}. MIMIC-III is a credentialed
 PhysioNet resource; no note text or identifier is reported in this document or
 in any released file.
 
-\paragraph{The trigger fires late, and the record cannot say how late.} Because the
-system compares a nursing note against a discharge summary, it produces
-nothing until that document exists. Discharge summaries carry only a charting
-date, which means the summary cannot be placed in time relative to the discharge. A contradiction detected at that point is a documentation
+\paragraph{The trigger fires late, and the record cannot say how late.} The system produces nothing until the discharge summary exists, and that document carries
+only a charting date, so it cannot be placed in time relative to the discharge. A contradiction detected at that point is a documentation
 finding, too late to be an intervention, and nothing here measures whether the task is tractable at the
 discharge order.
 
@@ -359,7 +299,11 @@ rule-group comparison closes the gap: the benchmark did not meet its rule, and t
 comparison has exact power $0.0495$ at the observed rates, so near-equal precision
 between the groups shows only that the test could not have detected a smaller
 difference (Chapter~\ref{ch:results}). The rebuild fixes the
-selector for future runs, but no gold exemplar passed through the fix, which is why $0.0401$ cannot be cited as a property of the mining rules by anyone, this thesis included. The weak-supervision finding needs no base-rate estimate,
+selector for future runs, but no gold exemplar passed through the fix, which is why $0.0401$ cannot be cited as a property of the mining rules by anyone, this thesis included. What the dissociation-cost check adds is a sign rather than a rate: on a public analogue,
+under a planting model chosen by the author and reproduced by one of the two judges tried,
+the defect makes a measured precision understate the true one at every planted rate, so
+$0.0401$ is better read as a floor than as a point, which bounds the direction of the error
+and not its size here. The weak-supervision finding needs no base-rate estimate,
 because it is a marginal comparison on the annotated pairs.
 
 \paragraph{One annotator.} Every gold label came from a single pharmacist in two
@@ -369,23 +313,11 @@ gold set either: the binary contradiction label and the ordinal danger rating ar
 logically equivalent rather than independent judgements
 (Chapter~\ref{ch:method}), the second pass overwrote the first, and no
 intra-rater figure exists. How far a wrong label could move a conclusion is
-bounded by counts, not by any estimate of how many labels are wrong. Read from
-the point estimate, $5$, $6$, and $7$ relabelled positives lift the
-decontaminated ensemble's AUROC past the three floors, and against floors
-recomputed for the positives each flip leaves no count within the first $7$
-tips it, so that count is above $7$ of the $12$ where the fixed floor put it at
-$5$; under the opposite reading, with the $46$ ambiguous pairs counted positive,
-the plain control detector retrained on reproducible labels scores $0.4940$ on
-the $299$ pairs, below chance. Read from the interval the bound is far weaker: 2
-greedily chosen relabels in either direction lift the decontaminated ensemble's
-upper end past $0.7466$ and 1 does so for the plain control detector, so by the
-criterion this thesis uses the bounded null holds only if those 1 or 2 labels are
-right, and the ensemble's count of 2 cannot be separated from 1. It takes 3 to 6
-relabels before an interval excludes chance, so 1 or 2 wrong labels would leave
-the reading inconclusive without reversing it. The floor was held at $0.7466$
-throughout, the relabelled intervals resample single pairs, the greedy search
-bounds targeted rather than ordinary error, and no second annotator exists to
-confirm the labels in question. The checks also cannot reach the $46$ ambiguous
+bounded by counts, not by any estimate of how many labels are wrong. Chapter~\ref{ch:results} gives the relabelling arithmetic: read from the point estimate the
+reading tips after $5$ relabels, and above $7$ against floors recomputed at the post-flip
+counts; read from the interval, the criterion this thesis uses, it rests on 1 or 2 labels.
+It takes 3 to 6 relabels before an interval excludes chance. The greedy search bounds
+targeted rather than ordinary error. The checks also cannot reach the $46$ ambiguous
 pairs, which outnumber the $12$ positives nearly 4 to 1 and on which the
 decontaminated ensemble has no score. In a post hoc relabelling check $5$
 relabelled flags move the least over-calling row below the public-text ceiling.
@@ -393,20 +325,14 @@ Section~``\nameref{sec:res-rq4}'' gives every count above and the limits of each
 check.
 
 \paragraph{Invalid designs.} The public factorial experiment left too few
-models with a valid cell after the determinism check, so it is reported as invalid under its rule and not reinterpreted. The
-prior-correction experiment was declared invalid by its own registered rule as well. Neither contributes a finding beyond the factorial experiment's determinism check, and neither
+models with a valid cell after the determinism check, so it is reported as invalid under its rule, as was the prior-correction experiment. Neither
 absence is read as a null.
 
 \paragraph{Pairs that share an admission or a subject.} Row-level intervals treat
 each pair as independent, although $20$ of the $231$ admissions and $24$ of the
-$225$ subjects behind $G_{253}$ hold more than one pair. A pre-registered cluster
-bootstrap resampled whole admissions, and separately whole subjects, for both
-ensembles, and clustering barely moves the intervals: every clustered upper end
-stays under the simulated Mann-Whitney floor of $0.7466$ with at least $0.0236$
-to spare, and under $0.7318$, the alternate construction's two-sided
-Mann-Whitney floor, a comparison made after the result was seen and outside the
-registered rule (Section~``\nameref{sec:res-rq4}''). The bounded null therefore
-holds under clustering, by a rule fixed before the run. Clustering addresses
+$225$ subjects behind $G_{253}$ hold more than one pair. A pre-registered cluster bootstrap resampled whole admissions, and separately whole
+subjects, for both ensembles, and the bounded null holds under clustering by a rule fixed
+before the run (Section~``\nameref{sec:res-rq4}''). Clustering addresses
 dependence between rows and leaves untouched whether the $12$ labels are right.
 No other test was rerun with clustered resampling, and for those the row-level
 caution of Chapter~\ref{ch:method} stands.
@@ -414,10 +340,8 @@ caution of Chapter~\ref{ch:method} stands.
 \section{Threats to Validity}
 \label{sec:disc-threats}
 
-Internal threats attack whether the measured relationships hold in this sample,
-external threats whether they hold anywhere else, and construct threats whether the
-quantities measured are the quantities named. Table~\ref{tab:disc-internal} lists
-the internal threats and what this thesis does with each.
+Table~\ref{tab:disc-internal} lists the internal threats; the external and construct threats
+follow it.
 
 \begin{table}[!htp]
 \centering
@@ -451,11 +375,11 @@ disclosed limitation, or a bound established by another check, not a claim that 
 resolved.}
 \end{table}
 
-Externally, generalisation is bounded by one centre and documentation culture,
-one primary billing-code phenotype, and one era predating generative assistance
-in note writing (Section~``\nameref{sec:disc-limits}''). The task is a fourth
-axis: the over-calling was not reproduced on public text, and even within this
-pool its magnitude is not stable across how the question is asked.
+Externally, generalisation is bounded by one centre and documentation culture, one primary
+billing-code phenotype, and one era predating generative assistance in note writing
+(Section~``\nameref{sec:disc-limits}''). The task bounds it too: the over-calling was not
+reproduced on public text, and within this pool its magnitude is not stable across how the
+question is asked.
 
 Three constructs are named more confidently than they are measured, the gap
 between construct and operationalisation that the measurement-modelling
@@ -472,10 +396,9 @@ subject to the documented paradoxes
 correlation is used as the better-behaved default
 \citep{chicco2020mcc,delgado2019kappa}, not as a solution.
 
-The part of that critique this evaluation set makes concrete is the exchange
-rate. Each summary statistic implies a rate at which a forgone true positive is
-worth some number of gained true negatives, fixed by class counts and by nothing
-clinical. The local Granite 3.3 8B few-shot labeller carries $10$ true positives
+What this evaluation set makes concrete is the exchange rate: each summary statistic implies
+a rate at which a forgone true positive is worth some number of gained true negatives, fixed
+by class counts and nothing clinical. The local Granite 3.3 8B few-shot labeller carries $10$ true positives
 and $75$ true negatives against the subject-overlap run's $11$ and $18$ on
 $G_{253}$, and Matthews correlation prices that trade as a net gain, $0.0668$
 against $-0.0070$. A statistic with a different exchange rate could read the same
@@ -490,29 +413,34 @@ against a human-established base rate, measured on a small expert-labelled pilot
 training anything on its output. That feasibility gate applies the classical
 maximum of agreement under fixed marginals and the minimum attainable
 significance of a discrete test \citep{cohen1960kappa,tarone1990modified}, and it
-needs no statistical power. Its limit, stated in Chapter~\ref{ch:method}, is that
-it can clear a pilot to test a labeller and cannot vouch for the labeller, and it
-treats the pilot's confirmed positive count as known. A simple baseline's significance test belongs
-alongside any neural ranking result, and the exemplar check
-(Figure~\ref{fig:exemplar} in Chapter~\ref{ch:intro}) is cheap relative to the training budget. That is a
-reason to run it earlier next time, and no claim is made that it would have changed what
-this evaluation could resolve.
+needs no statistical power. Its limit has been measured, and it is narrower than the recommendation sounds. Validated
+against student utility on public data, the gate is a sound veto and not a
+screen: nothing it condemned produced a useful student, but it condemned $5$ of $24$
+labellers while $17$ of the $24$ yielded a failing student, and on that arm its verdict is a
+restatement of the flag count that the ratio of flag rate to base rate reproduces exactly.
+So run it to rule a pilot out, not to clear a labeller in; expect no more of it than that
+raw ratio already gives; and note that it treats the pilot's confirmed positive count as
+known. Correcting the labeller's marginal after the fact is not the remedy either:
+thresholding a teacher's graded score at the gold set's own base rate left the distilled
+student at chance, so at the only effect size $12$ positives can see, rethresholding the
+marginal is not sufficient to recover the ranking. A simple baseline's significance test belongs alongside any neural ranking result, and the
+exemplar check (Figure~\ref{fig:exemplar} in Chapter~\ref{ch:intro}) is cheap enough to run
+earlier next time, with no claim that it would have changed what this evaluation could
+resolve.
 
 \section{Future Work}
 \label{sec:conc-future}
 
-\textbf{A larger annotated set.} With $12$ positives the per-test floors sit at
-$0.7466$ and $0.8084$, and on $G_{108}$, with $6$, the intervals are wider still;
-those floors set the size of the annotation effort a future attempt needs before a
-modest detector could be told apart from chance. Re-annotation against corrected
-exemplars and a cohort with far more positives would test these conclusions, and
-neither is available from these data.
+\textbf{A larger annotated set.} The per-test floors at $12$ positives, and the wider intervals at the $6$ of $G_{108}$, set
+the annotation effort a future attempt needs before a modest detector could be told apart
+from chance. Re-annotation against corrected exemplars and a cohort with far more positives would test
+these conclusions; neither is available from these data.
 
 \textbf{An independent set, a validated exemplar instrument, and larger local
 labellers.} A wording-specific prompt signal can only be tested on pairs it was
 not found on, and the strongest one did not confirm under new wordings. The
 highest of the four exemplar readings comes from an extractor never validated
-against human annotation, and validating one would bound the defect rate and whether the pool's confirmed base rate is valid. Whether over-calling attenuates
+against human annotation. Whether over-calling attenuates
 with scale was attempted twice on a local model ladder, invalid under its gate both
 times (Chapter~\ref{ch:method}), and is answerable only by a larger labeller served
 locally: the same clinical-framing prompt on a 30-billion-parameter-class
@@ -525,10 +453,9 @@ than the machine used here provides.
 Dangerous medication contradictions between nursing notes and discharge
 summaries do occur, and detecting them is worth the effort. At the size this thesis could
 annotate, no check told the detector's ranking of the gold pairs apart from chance. The thesis leaves a
-stage-by-stage audit (Table~\ref{tab:disc-spine}), a feasibility check on a weak
-labeller's marginal, and a named mining bug pattern, trigger-exemplar dissociation,
+stage-by-stage audit (Table~\ref{tab:disc-spine}), a veto on a weak labeller's marginal, and
+a named mining bug pattern, trigger-exemplar dissociation,
 which a one-line assertion catches once the candidate schema records which mention
-fired. None of that shows the task cannot be done. A $253$-pair evaluation with floors of $0.7466$ and
-$0.8084$, one per test, resolves only large effects, and its bounded null fails if 1 or 2 greedily chosen labels
-are wrong. The size and
-design of the next attempt are set out in the future work above.
+fired. None of that shows the task cannot be done. A $253$-pair evaluation resolves only large effects, and its bounded null fails if 1 or 2
+greedily chosen labels are wrong. The next attempt's size is set out in the future work
+above.
