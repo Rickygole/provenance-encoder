@@ -6,10 +6,11 @@
 %  Numeric provenance: every quantity is from results/accord/VERIFIED_FACTS.json.
 %
 %  This chapter interprets Chapter 4 and does not restate numbers it already
-%  gives. The post hoc list lives in Chapter 3 (sec:m-prereg); the data-use and
-%  transmission statement in Chapter 3 (sec:m-ethics). The paragraph in
-%  sec:disc-limits naming the labellers evaluated and why no hosted service was
-%  used for a reported result is fixed wording: do not paraphrase it.
+%  gives. The post hoc list lives in Chapter 3 (sec:m-prereg); the data-use
+%  statement in Chapter 3 (sec:m-ethics). The paragraph in sec:disc-limits
+%  naming the labellers whose results are reported, and why no hosted service
+%  was used for a reported result, is fixed wording: change it only on an
+%  explicit instruction.
 % ============================================================================
 
 \chapter{Summary \& Conclusion}
@@ -51,14 +52,13 @@ distinguishes the reported reading from the audited defect; unsupported, the che
 
 \subsection{Candidate mining: not established}
 
-The gold sample was drawn by the original pipeline from its own pool, so $0.0401$ is
-unbiased for that annotated sample (Chapter~\ref{ch:method} states the estimand), but
-nothing ties the positional selector to the exemplars the pharmacist judged, so its validity
-as a property of the mining rules is not established. Of the four readings of how often the selector failed
-(Section~``\nameref{sec:r-exemplar}''), two share a substrate, which leaves the rebuilt
-pool's design rate of $0.4139$ as the one independent reading and three readings
-concentrated near $0.4$ as what the set supports. Which mention fired is still not recoverable, and no single reading is
-a tiebreaker. The stratum $G_{134}$ lies outside the documented positional defect but its
+The gold sample was drawn by the original pipeline from its own pool, so $0.0401$ is unbiased for
+that annotated sample (Chapter~\ref{ch:method} states the estimand), but nothing ties the
+positional selector to the exemplars the pharmacist judged, so its validity as a property of the
+mining rules is not established. Of the four readings of how often the selector failed
+(Section~``\nameref{sec:r-exemplar}''), two share a substrate, leaving the rebuilt pool's design
+rate of $0.4139$ as the one independent reading and three readings near $0.4$ as what the set
+supports. Which mention fired is still not recoverable, and no reading is a tiebreaker. The stratum $G_{134}$ lies outside the documented positional defect but its
 exemplar correctness is assumed, because the original selector code for Rules 3 and
 4 does not survive, so every comparison between the rule groups in this chapter is
 confounded with rule content and base rate and is not a test of the defect.
@@ -66,31 +66,29 @@ confounded with rule content and base rate and is not a test of the defect.
 \subsection{Weak supervision: unsupported}
 
 The labeller looked usable on the property it was checked against, recall. High raw
-agreement beside a low chance-corrected coefficient under skewed marginals is the paradox
-Feinstein and Cicchetti documented \citep{feinstein1990paradoxes,cicchetti1990resolving},
-and what would have caught this labeller is Cohen's maximum: compare the marginal against a
-human-established base rate before believing anything about agreement. Saying yes to $87$ percent of a pool whose confirmed rate is $4$ percent is what a fixed
+agreement beside a low chance-corrected coefficient under skewed marginals is a documented
+paradox \citep{feinstein1990paradoxes,cicchetti1990resolving}, and what would have caught this
+labeller is the maximum agreement its marginals permit \citep{cohen1960kappa}: compare the
+marginal against a human-established base rate before believing anything about agreement. Saying yes to $87$ percent of a pool whose confirmed rate is $4$ percent is what a fixed
 prior would produce, and the marginal had settled the agreement result before any pair was
 compared.
 
 Correcting a marginal this biased needs gold labels on the same distribution
-\citep{forman2008quantifying,egami2023surrogates}, which a workflow built to avoid
-annotation \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey} cannot
-supply, and a student trained on those labels inherits the marginal: the teacher-student
-comparison cannot distinguish the detector's ranking of the gold pairs from its labeller's. Whether that prior scales with capability
-is unknown, since no labeller above $14$ billion parameters was evaluated here
-(Section~``\nameref{sec:disc-limits}''). What survives is that nobody checked
-the weak labeller's marginal before training on it
-\citep{pangakis2023validation}, and that the size of its over-calling depends on
-the prompt and on the ambiguity reading
-(Section~``\nameref{sec:disc-overcalling}''), so the prompt and reading behind a
-quoted ratio have to travel with it.
+\citep{forman2008quantifying,egami2023surrogates}, which a workflow built to avoid annotation
+\citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey} cannot supply, and a student
+trained on those labels inherits the marginal: the teacher-student comparison cannot distinguish
+the detector's ranking of the gold pairs from its labeller's. Whether that prior scales with
+capability is unknown, no labeller above $14$ billion parameters having been evaluated here
+(Section~``\nameref{sec:disc-limits}''). What survives is that nobody checked the weak labeller's
+marginal before training on it \citep{pangakis2023validation}, and that the size of its
+over-calling depends on the prompt and the ambiguity reading
+(Section~``\nameref{sec:disc-overcalling}''), so both have to travel with a quoted ratio.
 
 \subsection{Architecture: unsupported by code audit}
 
-The verdict differs by component. The authority parameters are unsupported: each is initialised at the value later reported as
-discovered, behind a normalisation that drives its gradient towards zero, so the reported
-value is an artifact of the initialiser. The rule-type head
+The verdict differs by component. The authority parameters are unsupported: each is initialised at the value the design
+specifies as learned, behind a normalisation that drives its gradient towards zero, so the
+reported value is an artifact of the initialiser. The rule-type head
 is confounded, its auxiliary target readable from the input features one linear
 layer away, the textbook symptom of leakage \citep{kaufman2012leakage}, which
 vacates the metric without refuting the component. The harm head is untrained, so
@@ -100,26 +98,26 @@ its output range is not a severity score, which is why RQ3
 \subsection{Evaluation: a bounded null}
 
 The evaluation's power bounds what the detector's near-chance ranking shows
-(Section~``\nameref{sec:res-rq4}''). Decontamination did not rescue the ranking and could
-not have inflated much to begin with: the rows sharing subjects with the gold pairs carried
-the weak labeller's labels and never the pharmacist's. A plain BioMedBERT control model with none of ACCORD's
-credited components has bootstrap intervals on $G_{299}$ and $G_{134}$ that
-contain chance, but the control's own report reads them as inconclusive under
-its ceiling of $0.6$ and runs no test against chance, so no null is claimed for
-either stratum. The DeLong tests reported for those two sets
-(Table~\ref{tab:delong} in Chapter~\ref{ch:results}) pair the control ensemble
-against ACCORD's subject-overlap run on the same pairs, and neither substitutes
-for a test of the control against chance.
+(Section~``\nameref{sec:res-rq4}''). Decontamination did not rescue the ranking and could not have
+inflated much to begin with: the rows sharing subjects with the gold pairs carried the weak
+labeller's labels and never the pharmacist's. A plain BioMedBERT control model with none of
+ACCORD's credited components has bootstrap intervals on $G_{299}$ and $G_{134}$ that contain
+chance, but its own report reads them as inconclusive under its ceiling of $0.6$ and runs no test
+against chance, so no null is claimed for either stratum. The DeLong tests for those two sets
+(Table~\ref{tab:delong} in Chapter~\ref{ch:results}) pair the control ensemble against ACCORD's
+subject-overlap run on the same pairs, and neither substitutes for a test of the control against
+chance.
 
 \subsection{What the checks support}
 
 What replicates is narrow. The chance-level ranking held for the decontaminated
 ensemble, for each of its three seeds, and for the plain control detector
 retrained on reproducible labels; the over-calling held across three local model
-families, though its size did not. The reproducible retrain is not evidence that
-the labels carried signal: retrained on a permuted copy of the same labels the control is indistinguishable from its
-real-label run, on a label vector so nearly constant that permuting it moves few rows and
-the test is correspondingly weak (Section~``\nameref{sec:res-rq4}''). The bound on the fourth stage is conditional on
+families, though its size did not. One check supports nothing and is not counted here: the data-randomisation control is
+uninformative by construction at this label balance, permuting a training label vector of
+$1{,}132$ positives against $51$ negatives having changed only $100$ of $1{,}183$ rows
+(Section~``\nameref{sec:res-rq4}''). The reproducible retrain is therefore no evidence that
+the labels carried signal. The bound on the fourth stage is conditional on
 the labels: 1 or 2 targeted relabels lift an interval to the floor, and 3 to 6 make
 one exclude chance (Section~``\nameref{sec:disc-limits}''). No claim about
 mechanism or about scale is supported: this is a measurement of a pipeline under
@@ -199,35 +197,34 @@ overlapping classes, and a scopeless negation flip, each admit error without bou
 was adjudicated by a human, so the extractor has no measured precision or recall,
 and neither has anything built on its output: the four mining rules, the rebuilt
 candidate pool, and every reading of the exemplar defect that consults the stored
-action labels. 
+action labels. The published alternatives were not used: installation of scispaCy
+and medspaCy failed against this project's fixed software environment
+(Chapter~\ref{ch:method}, Section~``\nameref{sec:m-data}''), so neither was evaluated. 
 
 \paragraph{No blinding was performed.} The gold standard was produced unblinded,
 and Chapter~\ref{ch:method}, Section~``\nameref{sec:m-gold}'' states the three facts on
 record. Nothing here bounds how far that could have
 moved a label, and the single-annotator limitation below compounds it, because no
-second, blinded rater exists to compare against. The asymmetry is internal: this
-project used a blind second coder on its own literature survey and none on the
-clinical annotation.
+second, blinded rater exists to compare against.
 
 \paragraph{No sample size justification exists.} Chapter~\ref{ch:method}, Section~``\nameref{sec:m-gold}'' records that no calculation
 returns a required $n$, that the sampled pairs carry no recorded rationale, and that the
 minimum detectable effect and the power simulation are post hoc sensitivity on an already-fixed $n$. The floors under ``\nameref{sec:conc-future}''
 are the closest this thesis comes to one, and they were computed after the fact.
 
-\paragraph{Mining recall is unknown.} No pair was sampled from outside the
-candidate pool. Every annotated pair is one the four rules already flagged, so
-this thesis can describe what the pipeline flags and never what it misses: a
-contradiction whose drug the extractor failed to classify, or whose shape no
-trigger matches, leaves no trace in any count reported here. Neither the rules' recall nor their enrichment is measured.
+\paragraph{Mining recall is unknown.} No pair was sampled from outside the candidate pool. Every
+annotated pair is one the four rules already flagged, so this thesis can describe what the pipeline
+flags and never what it misses: a contradiction whose drug the extractor failed to classify, or
+whose shape no trigger matches, leaves no trace in any count here. Neither the rules' recall nor
+their enrichment is measured.
 
-\paragraph{The evidence unit is one sentence per side.} Each candidate reached
-the annotator, the weak labeller, and the detector as a single nursing sentence
-paired with a single discharge sentence, and on the annotation sheet a discharge
-cell could be truncated at $200$ characters (Chapter~\ref{ch:results},
-Section~``\nameref{sec:r-exemplar}''). A conflict cue one clause outside the displayed sentence is invisible to all three
-instruments, which the direct exemplar check measures most plainly, so a contradiction whose
-evidence spans more than one sentence on a side cannot be confirmed, labelled, or detected
-under this design.
+\paragraph{The evidence unit is one sentence per side.} Each candidate reached the annotator, the
+weak labeller, and the detector as one nursing sentence paired with one discharge sentence, and on
+the annotation sheet a discharge cell could be truncated at $200$ characters
+(Chapter~\ref{ch:results}, Section~``\nameref{sec:r-exemplar}''). A conflict cue one clause outside
+the displayed sentence is invisible to all three instruments, which the direct exemplar check
+measures most plainly, so a contradiction whose evidence spans more than one sentence on a side
+cannot be confirmed, labelled, or detected under this design.
 
 \paragraph{Eight reported measures appear in no pre-registration.} Chapter~\ref{ch:method}, Section~``\nameref{sec:m-prereg}'' names all eight; none is
 registered or on the post hoc list of checks. Several are
@@ -251,7 +248,7 @@ cross-note difference encoder, the fourth component Chapter~\ref{ch:method}
 lists, was not audited at all: the audits followed the three components credited
 with a result.
 
-\paragraph{Every labeller evaluated here was served locally.} Every labeller evaluated in this thesis was an open-weights model served
+\paragraph{Every labeller reported here was served locally.} Every labeller whose results are reported in this thesis was an open-weights model served
 locally: Llama 3 8B, Granite 3.3 8B, and Qwen 3 at sizes from 0.6 to 14
 billion parameters. No hosted model service was used for any reported
 result. The Credentialed Data Use Agreement governing this data, and
@@ -260,7 +257,7 @@ large language models and online services \citep{physionet2025llm}, permit a hos
 where zero data retention, no training on the data, and no human review can
 be verified, and direct that the service not be used where any of those is
 unclear. Those conditions could not be established for this project, so the
-largest labeller evaluated here is 14 billion parameters. Whether
+largest labeller whose results are reported here is 14 billion parameters. Whether
 over-calling attenuates at frontier scale is therefore open, and answerable
 only by a larger model served locally.
 
@@ -299,11 +296,15 @@ rule-group comparison closes the gap: the benchmark did not meet its rule, and t
 comparison has exact power $0.0495$ at the observed rates, so near-equal precision
 between the groups shows only that the test could not have detected a smaller
 difference (Chapter~\ref{ch:results}). The rebuild fixes the
-selector for future runs, but no gold exemplar passed through the fix, which is why $0.0401$ cannot be cited as a property of the mining rules by anyone, this thesis included. What the dissociation-cost check adds is a sign rather than a rate: on a public analogue,
-under a planting model chosen by the author and reproduced by one of the two judges tried,
-the defect makes a measured precision understate the true one at every planted rate, so
-$0.0401$ is better read as a floor than as a point, which bounds the direction of the error
-and not its size here. The weak-supervision finding needs no base-rate estimate,
+selector for future runs, but no gold exemplar passed through the fix, which is why $0.0401$ cannot be cited as a property of the mining rules by anyone, this thesis included. The dissociation-cost check adds less than a rate and less than a
+sign. Its perfect-judge arm is a derivation: under a planting model chosen by the author, in
+which a wrong exemplar can only hide a contradiction and never manufacture one, measured
+precision is the true precision times one minus the planted rate by construction, so $0.0401$
+is a floor under that model and the arm tests nothing. Because the model admits no false
+confirmation, the case that would push a measured precision above the true one, it cannot show
+the bias runs only downward here. Its fallible-judge arm is the measured one, and of the two
+judges tried one recovered $0.7683$ of that drop while the other almost never confirmed a true
+positive at all (Chapter~\ref{ch:results}). The weak-supervision finding needs no base-rate estimate,
 because it is a marginal comparison on the annotated pairs.
 
 \paragraph{One annotator.} Every gold label came from a single pharmacist in two
@@ -410,17 +411,18 @@ worth trading, taken before any result is seen.
 
 The lesson is a recommendation, not a demonstrated safeguard: check a weak labeller's marginal
 against a human-established base rate, measured on a small expert-labelled pilot, before
-training anything on its output. That feasibility gate applies the classical
-maximum of agreement under fixed marginals and the minimum attainable
+training anything on its output. The marginal feasibility gate that does this applies the
+classical maximum of agreement under fixed marginals and the minimum attainable
 significance of a discrete test \citep{cohen1960kappa,tarone1990modified}, and it
-needs no statistical power. Its limit has been measured, and it is narrower than the recommendation sounds. Validated
-against student utility on public data, the gate is a sound veto and not a
-screen: nothing it condemned produced a useful student, but it condemned $5$ of $24$
-labellers while $17$ of the $24$ yielded a failing student, and on that arm its verdict is a
-restatement of the flag count that the ratio of flag rate to base rate reproduces exactly.
-So run it to rule a pilot out, not to clear a labeller in; expect no more of it than that
-raw ratio already gives; and note that it treats the pilot's confirmed positive count as
-known. Correcting the labeller's marginal after the fact is not the remedy either:
+needs no statistical power. Its limit has been measured, and it is narrower than the
+recommendation sounds. Validated against student utility on public data, the gate fails as a
+screen and reduces to arithmetic on a flag count: it condemned $5$ of $24$ labellers while
+$17$ of the $24$ yielded a failing student, and on that arm its verdict is a restatement of
+the flag count that the ratio of flag rate to base rate reproduces exactly and beats. Nothing
+it condemned produced a useful student, on $5$ condemned labellers and a Wilson 95 percent
+interval from $0.5655$ to $1.0000$. So run it to rule a pilot out, not to clear a labeller in;
+expect no more of it than that raw ratio already gives; and note that it treats the pilot's
+confirmed positive count as known. Correcting the labeller's marginal after the fact is not the remedy either:
 thresholding a teacher's graded score at the gold set's own base rate left the distilled
 student at chance, so at the only effect size $12$ positives can see, rethresholding the
 marginal is not sufficient to recover the ranking. A simple baseline's significance test belongs alongside any neural ranking result, and the
@@ -453,8 +455,8 @@ than the machine used here provides.
 Dangerous medication contradictions between nursing notes and discharge
 summaries do occur, and detecting them is worth the effort. At the size this thesis could
 annotate, no check told the detector's ranking of the gold pairs apart from chance. The thesis leaves a
-stage-by-stage audit (Table~\ref{tab:disc-spine}), a veto on a weak labeller's marginal, and
-a named mining bug pattern, trigger-exemplar dissociation,
+stage-by-stage audit (Table~\ref{tab:disc-spine}), a marginal feasibility gate that fails as
+a screen and can only rule a pilot out, and a named mining bug pattern, trigger-exemplar dissociation,
 which a one-line assertion catches once the candidate schema records which mention
 fired. None of that shows the task cannot be done. A $253$-pair evaluation resolves only large effects, and its bounded null fails if 1 or 2
 greedily chosen labels are wrong. The next attempt's size is set out in the future work

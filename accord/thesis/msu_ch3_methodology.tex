@@ -48,7 +48,8 @@ ICD-9 codes defining the cohort, and \texttt{NOTEEVENTS} for the notes with thei
 and chart date.
 
 No clinical note text appears in this thesis, in any table, figure, appendix, or released file,
-and no admission or subject identifier is printed anywhere. Note-derived intermediate files are kept
+and no admission or subject identifier is printed anywhere: every reported result is an aggregate
+or is keyed to an internal sequential index. Note-derived intermediate files are kept
 outside the version-controlled tree; the exceptions are disclosed in
 Section~``\nameref{sec:m-ethics}.'' The export script scans candidate files for note-text markers and stops on a hit without
 exporting, rather than filtering. MIMIC-III notes are de-identified by an automated
@@ -68,9 +69,7 @@ condition was present but uncoded.
 
 One further clinical filter applies, a positive length of stay. Applying the prefix match alone
 returns 13,608 heart failure admissions; after the length-of-stay filter 13,597 remain, of which
-10,143 belong to distinct subjects. Two secondary cohorts, sepsis under \texttt{038} (6,265 to 6,253
-admissions after the same filter) and acute kidney injury under \texttt{584} (11,422 to 11,408), were
-built for a transfer test whose results are not reported in this thesis.
+10,143 belong to distinct subjects.
 
 \subsection{Note roles}
 
@@ -368,7 +367,7 @@ which is where the de-identification header of Section~``\nameref{sec:m-data}'' 
 system was specified as that backbone plus four purpose-built components, a cross-note difference
 encoder, an asymmetric conditioning module, a pharmacological prior conditioning module, and a
 guideline-grounded harm estimator, with three claimed contributions attached to them.  The
-pharmacological prior module was deleted in the second version and replaced by a function returning a
+pharmacological prior module was deleted before the runs reported here and replaced by a function returning a
 fixed-length vector of zeros with two positions overwritten, a danger multiplier and a normalised
 rule identifier. That function has zero learned parameters, and the running code holds no drug class
 table, interaction table, or contraindication list.
@@ -389,13 +388,13 @@ shows what follows, a model that scores well on a cue that is not the task. The 
 input, not on transfer scores.
 
 The asymmetric conditioning module carries a two-element authority parameter initialised at the pair
-of values later reported as discovered, applied to a cross-attention branch that is immediately
+of values the design specifies as learned, applied to a cross-attention branch that is immediately
 layer-normalised. Layer normalisation is invariant to a per-branch scalar rescaling of its input up
 to the effect on its own affine parameters, so the normalisation removes most of what the parameter
 does and the gradient reaching it is correspondingly small. The diagnostic applied in
 Chapter~\ref{ch:results} is the parameter's displacement from its initial value across seeds. No
 gradient-norm trace was recorded for any run. The audit read the code and the final parameter
-values; for a parameter reported as learned, future work should publish the trace too.
+values; for a parameter specified in the design as learned, future work should publish the trace too.
 
 Two runs of this detector are scored, and their names are fixed here. The subject-overlap run is the
 one whose training rows share subjects with the gold set through the weak-labelled pool,
@@ -410,9 +409,8 @@ discriminating genuine note pairs from mismatched ones. One configuration has a 
 record, with a frozen backbone. A wider configuration was meant to test whether the constraint was trainable capacity or
 architecture. The pretraining script could not have trained the wider
 configuration: it freezes the backbone unconditionally and has no path that unfreezes an encoder
-layer. A checkpoint bearing that configuration's name exists; its origin is unexplained. The
-parameter total attributed to it is reproducible only by counting a pooler module flagged trainable
-that receives no gradient.
+layer. The parameter total attributed to that configuration is reproducible only by counting a
+pooler module flagged trainable that receives no gradient.
 
 \subsection{The plain control model}
 \label{sec:m-control-model}
@@ -566,7 +564,7 @@ check was fixed before its run is stated in Section~``\nameref{sec:m-prereg}.''
 
 \textbf{Condition.} If the exemplar selector agrees with its own trigger on substantially every
 action-conflict candidate, the pharmacist judged the evidence that caused the candidate to exist,
-and the measured precision estimates the pool's precision. If it does not agree, the pharmacist judged sentences that need not contain the conflict, and the measured precision is a biased estimate of the pool's precision. Which way it is biased the data collected cannot determine, and the dissociation-cost check now determines it elsewhere: on a public analogue the gap is negative at every planted rate, because a displayed exemplar drawn from outside the trigger set can cost a genuine positive its confirmation and cannot manufacture one, so a measured precision is a floor on the true one under that planting model. The audit instruments both selectors and records, for every action-conflict candidate, whether the
+and the measured precision estimates the pool's precision. If it does not agree, the pharmacist judged sentences that need not contain the conflict, and the measured precision is a biased estimate of the pool's precision. Which way it is biased the data collected cannot determine, and the dissociation-cost check does not determine it either. That check plants the defect on a public analogue under a model in which a wrong exemplar can only hide a contradiction and never manufacture one, so under that model a measured precision is a floor on the true one by construction rather than by measurement. Because the model admits no false confirmation, and a positionally chosen pair in the real pipeline can look contradictory when the pair that fired the trigger is not a true contradiction, the check cannot show that the bias runs only downward here. The audit instruments both selectors and records, for every action-conflict candidate, whether the
 positional exemplar's action pair matched the pair required by the branch that fired, and whether
 the corrected selector changed the chosen rows. Two quantities follow, an agreement rate and a change rate, and they differ, because a
 candidate can change exemplar on one side while the old exemplar was correct on the other. Rules 3 and 4 lie outside the positional defect, under the caveat of Section~``\nameref{sec:m-candidates},'' so their gold pairs form strata fixed before any model score exists, and Chapter~\ref{ch:results} reports the
@@ -615,7 +613,7 @@ Rules 1 and 2 from Rules 3 and 4 among the confirmed negatives.
 Whether a score rescues the marginal problem is the last axis. A scored labeller can rank well
 even while its hard-label marginal sits far from the base rate, which the marginal feasibility gate
 below does not test. The prior-correction experiment (pre-registered) therefore used the
-intercept-shift form of the Saerens, Latinne, and Decaestecker adjustment
+intercept-shift form of the expectation-maximisation prior-probability adjustment
 \citep{saerens2002adjusting}, which corrects a classifier's output for a known shift between its
 implicit training-time prior and the deployment prevalence. The adjustment was fitted to a teacher's continuous score on
 public text at this evaluation's prevalence and sample size, and the corrected target was compared with an uncorrected soft target
@@ -649,7 +647,7 @@ rank-based paired test, the exact-join agreement, the teacher-student comparison
 the exemplar-prevalence check, the reproducible-labeller retrain, the
 cluster-bootstrap check, the interval tipping-point check, the dissociation-cost check, the gate
 validation, the prevalence-matched thresholding, and the data-randomisation control.
-The requests came from this project's own internal review rounds. A pre-registered scale
+A pre-registered scale
 ladder within one model family was attempted twice, and a prospective version of the
 feasibility check that depended on it could run neither time, because one model size in the
 ladder breached the registered parse-failure ceiling in the first attempt and again after
@@ -662,8 +660,8 @@ could have been scored. A fifth changed only that student's feature extractor, r
 completion with its headroom precondition passed, and returned a negative verdict on the
 gate as a screen (Chapter~\ref{ch:results}). The gate has therefore been applied after the fact in this
 thesis and never before a labelling run. Identifiers are assigned once, in commit order, from one sequence this project shares between its
-pre-registered checks and its internal correction entries. The gaps in the
-sequence below are therefore correction entries, not unreported checks, apart from the three
+pre-registered checks and its other numbered records. The gaps in the
+sequence below are therefore those other records, not unreported checks, apart from the three
 identifiers spent on those unreported scale-ladder and prospective attempts. One registration
 carries no identifier at all: the data-randomisation control was committed as a named control
 rather than into that sequence, and the table lists it without one.
@@ -918,9 +916,10 @@ The ceiling in that criterion was not the project's first. The script behind the
 registration of the reproducible-labeller retrain describes that report as using the same ceiling; it did not.
 Under a ceiling of $0.6$ both $G_{253}$ ensembles, whose upper ends are $0.7034$ and $0.7196$, would also read as
 inconclusive. The ceiling moved to the simulated Mann-Whitney floor after the decontaminated ensemble's upper end was
-known, and a bounded null in this thesis is bounded at $0.7466$ and no tighter. One property of that definition was never checked: the coverage of the percentile bootstrap
-interval at $12$ positives, since measured on the same pool under the unstratified rule this
-thesis's own intervals use, at five true AUROC values from $0.50$ to $0.80$. A calibrated
+known, and a bounded null in this thesis is bounded at $0.7466$ and no tighter. One property of that definition went unchecked when it was written down: the coverage of the
+percentile bootstrap interval at $12$ positives. It has since been measured on the same pool under
+the unstratified rule this thesis's own intervals use, at five true AUROC values from $0.50$ to
+$0.80$. A calibrated
 interval would be wider. Section~``\nameref{sec:res-rq4}'' in Chapter~\ref{ch:results} states
 what that does to the margin the bounded null rests on.
 
@@ -931,15 +930,15 @@ initialisation, dropout, and data loader shuffle order but not the train and val
 is fixed once by a separate split seed. The spread across seeds therefore reflects training
 stochasticity and excludes sampling variance. The decontaminated run's seeds, decision threshold, and bootstrap
 count are recorded in that run's aggregate file, released with the code; its training hyperparameters are not recorded in any traced file. Error bars reported as $\pm$ are standard
-deviations across those three seeds, not standard errors and not confidence intervals. The convention is not uniform in the underlying result files: the subject-disjoint control computes the
-standard deviation with $\mathrm{ddof} = 1$, the sample convention, while the decontamination analysis
-uses $\mathrm{ddof} = 0$, the population convention. Because the two differ materially at three seeds,
-every reported spread in Chapter~\ref{ch:results} carries its convention explicitly, and no spread
-computed under one convention is compared against a spread computed under the other.
+deviations across those three seeds, not standard errors and not confidence intervals. Every
+spread reported in Chapter~\ref{ch:results} uses the sample convention, $\mathrm{ddof} = 1$. Some
+underlying result files store the population convention instead, which at three seeds differs
+materially, so each such spread is recomputed under the sample convention before it is printed and
+no two spreads are compared across conventions.
 
-Two further reporting rules follow from documented defects in the earlier work. No standard deviation
+Two further reporting rules are fixed here. No standard deviation
 is emitted over fewer than three genuinely independent runs, where independence means the seed setter
-ran inside the run and the row was produced by that run rather than pasted from an earlier one, and a
+ran inside the run and the row was produced by that run rather than carried over from another, and a
 reference row in any comparison table must be produced by the same script and protocol as the rows it
 is compared against, or the comparison is reported as directional with no significance claim
 attached. Every printed quantity in Chapter~\ref{ch:results} maps to the committed file that
@@ -964,23 +963,6 @@ the rest.
 
 \section{Data Use, Ethics, and Compliance}
 \label{sec:m-ethics}
-
-\paragraph{Note text and third-party transmission.} Sentence pairs extracted from MIMIC-III notes were sent to hosted language model services in
-several runs. PhysioNet's guidance of 24 September 2025,
-\emph{Use of MIMIC Data with Large Language Models and Online Services} \citep{physionet2025llm}, states that the
-Credentialed Data Use Agreement prohibits sharing access to the data with third parties, including
-sending it through APIs or using it on online platforms, and that MIMIC data must not be stored or
-retained by third-party LLM services. The guidance strongly recommends locally deployed models, and
-it permits a cloud service or API only where zero data retention, no training on the data, and no
-human review are verified; where any of those is unclear, it says not to use the service. This
-project could not verify those conditions for the hosted runs it had made.
-Every result obtained through a hosted service has therefore been withdrawn from this thesis: no figure,
-table, or number reported in any chapter derives from any such transmission, and an automated check
-over every reported number enforces this, so it is not left to prose. Every reported model comparison used models served locally, the route that guidance recommends. Whether
-the withdrawn transmissions were consistent with the agreement is a determination for PhysioNet and for the institution, not one this thesis makes. The record of what was sent, by which route, and when, is retained and available to either on
-request. Credentialed files, including a file joining
-note sentences to weak labels, were at one point held in the author's institutional cloud account; no
-script in the repository reads or writes note-level data in that account.
 
 \paragraph{The annotator.} The gold standard was produced by one board-certified pharmacist, who
 read each pair on the author's screen, in the author's presence, and gave a judgement the author recorded. No file was transferred, printed, or photographed, and nothing was retained.

@@ -81,7 +81,7 @@ algorithm for medication discrepancy detection at Cincinnati Children's Hospital
 structured discharge prescription lists against free-text notes for 271 patients in a Complex Care
 Medical Home Program \citep{li2015discrepancy}. Component performance on entity detection and attribute linkage is strong, but
 combining stages drops precision, recall, and $F$-measure to 71.5 percent, 65.2 percent, and 68.2 percent on discrepant
-medications, well below the matched-medication figures. Three properties of that setting explain why
+medication names, well below the matched-medication figures. Three properties of that setting explain why
 the numbers do not transfer, and between them they define the problem this thesis takes on. One side
 of the comparison is structured, where here both sides must be extracted from prose; the cohort is a care-management
 programme followed deliberately and so has a raised base rate; and the comparison is anchored, since
@@ -96,7 +96,7 @@ attribute layer \citep{uzuner2010medication,henry2020n2c2}, negation handling ha
 The layer above it is not. A review of data-quality dimensions finds completeness, correctness, and
 plausibility handled unevenly \citep{weiskopf2013quality}, and consistency across documents about one episode is a dimension the
 reuse literature flags and the extraction literature does not target. The deployment literature says
-what that costs. Drug safety alerts are overridden in 49 percent to 96 percent of cases \citep{vandersijs2006overriding}; the range is that review's, and reading it as the price of low precision is this thesis's inference.
+what that costs. Drug safety alerts are overridden in 49 percent to 96 percent of cases \citep{vandersijs2006overriding}, with serious overdose alerts overridden in about a quarter of cases as the exception; the range is that review's, and reading it as the price of low precision is this thesis's inference.
 Alert acceptance falls as the number of alerts rises, particularly for
 repeated alerts, with no evidence of an effect of workload as such \citep{ancker2017alertfatigue}. A recall figure
 without the corresponding precision therefore says nothing about clinical usefulness.
@@ -171,8 +171,8 @@ The relevance to weak supervision is direct and, in clinical NLP, largely
 unremarked: when a weak labeller's positive rate differs from the base rate,
 correcting the discrepancy needs estimates of the labeller's true and false
 positive rates on the same distribution, which need gold labels. This correction
-and the Egami correction fail for the same reason in the same setting, and the
-requirement has to be met before the annotator runs.
+and the surrogate-outcome correction \citep{egami2023surrogates} fail for the same reason in the
+same setting, and the requirement has to be met before the annotator runs.
 
 \section{Evaluation Under Class Imbalance and Low Prevalence}
 \label{sec:lit-metrics}
@@ -244,8 +244,9 @@ This section describes the methodological backbone of the thesis. Everything in
 it is borrowed, and the attribution is unambiguous: each design below is named
 with its owner, and the closing paragraph says which this project ran.
 
-\paragraph{Three control designs a fuller audit would add.} None of the three
-was run here, and each is a design a later audit of this pipeline should carry.
+\paragraph{Three control designs a fuller audit would add.} One was run here, the data
+randomisation test below, and only after the main results were in hand
+(Chapter~\ref{ch:results}); the other two a later audit should carry.
 The negative control was formalised for observational epidemiology
 \citep{lipsitch2010negative}: one tests for a noncausal association by finding
 an exposure known not to cause the outcome, or an outcome known not to be caused
@@ -283,8 +284,9 @@ credited feature was not the source.
 The formulation, detection, and avoidance of leakage in data mining are set out in one place \citep{kaufman2012leakage}:
 the introduction of information about the target that should not legitimately be available. That work
 gives three routes to detection, exploratory data analysis, surprisingly good model performance, and
-early field testing, and ranks none of them; the second is the behavioural one, a model performing
-implausibly well relative to the task's difficulty. An auxiliary objective derivable from the model's own inputs is a textbook
+early field testing, naming the last as perhaps the best and the most expensive to implement and
+observing that all three rest on domain knowledge. The second is the behavioural one, a model
+performing implausibly well relative to the task's difficulty. An auxiliary objective derivable from the model's own inputs is a textbook
 instance, and the diagnosis is that the target is not independent of what the model already has.
 Measurement modelling has been brought from the quantitative social sciences to
 computational systems \citep{jacobs2021measurement}, and that framing covers the whole chapter: systems operationalise
@@ -294,7 +296,7 @@ accounts of construct reliability and validity, arguing that disagreements about
 frequently mask disagreements about the underlying construct. The question here is whether what is scored, a rule-mined candidate pair judged by one annotator against heuristic-selected evidence, measures clinical contradiction at all.
 
 \paragraph{What this thesis takes and what it does not claim.}
-Table~\ref{tab:lit-controls} lists the checks this thesis ran and their sources. The first three designs above were not run; the architecture components were examined by code audit instead. No row is itself a contribution.
+Table~\ref{tab:lit-controls} lists the checks this thesis ran and their sources. Of the first three designs above, only the data randomisation test was run, and only after the main results; the architecture components were examined by code audit instead. No row is itself a contribution.
 
 \begin{table}[!htbp]
 \caption{Checks run in this thesis and the work each borrows from}
@@ -317,12 +319,14 @@ Rule-stratum comparison & \citep{barocas2021disaggregated} & Evaluation \\
 \addlinespace[3pt]
 Power analysis for AUROC & \citep{hanley1982meaning} & Evaluation \\
 \addlinespace[3pt]
+Data randomisation on the training labels & \citep{adebayo2018sanity} & Evaluation \\
+\addlinespace[3pt]
 Construct validity framing & \citep{jacobs2021measurement} & Task definition \\
 \bottomrule
 \end{tabular}
 \apanote{Stage names the pipeline step each check applies to, under the four names used
 throughout this thesis (candidate mining, weak supervision, architecture, evaluation); task
-definition marks a framing check that applies before any stage. For the exemplar-selector audit, the cited work names the hazard and the check is this thesis's application.}
+definition marks a framing check that applies before any stage. For the exemplar-selector audit, the cited work names the hazard and the check is this thesis's application. The data randomisation row was run after the main results and is uninformative at this thesis's training-label balance (Chapter~\ref{ch:results}).}
 \end{table}
 
 \section{Auditing a Pipeline Stage by Stage}
@@ -357,12 +361,10 @@ marginal, although automated annotation must be validated against human labels
 \citep{pangakis2023validation,egami2023surrogates}. Such a check needs only a base
 rate from a small expert-labelled sample, and this thesis applied it after the fact.
 
-Third, the nearest descriptions of the mining bug pattern are neighbours, not
-instances: leakage \citep{kaufman2012leakage} is target information a model should not see, label
-errors \citep{northcutt2021labelerrors} are wrong labels on correctly displayed items, and boundary
-defects \citep{sculley2015debt} are named without a check. In trigger-exemplar dissociation the label
-may be right while the evidence displayed with it is not what triggered the candidate, and none of
-those framings supplies the assertion that would catch it.
-The question this thesis asks is therefore smaller than the pipeline that motivates it: what each
-stage's reported number is worth once its check is run, at a sample size that resolves only large
-effects. Nothing that follows claims a method attributed here to someone else.
+Third, the nearest descriptions of the mining bug pattern are neighbours, not instances: leakage
+\citep{kaufman2012leakage} is target information a model should not see, label errors
+\citep{northcutt2021labelerrors} are wrong labels on correctly displayed items, and boundary defects
+\citep{sculley2015debt} are named without a check. In trigger-exemplar dissociation the label may be
+right while the displayed evidence is not what triggered the candidate, and none of those framings
+supplies the assertion that would catch it. The question here is therefore smaller than the pipeline
+motivating it: what each stage's number is worth once its check is run.
