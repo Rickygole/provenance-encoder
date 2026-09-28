@@ -1,0 +1,108 @@
+{
+  "what": "decomposition of the pooled leave-one-positive-out AUROC of 0.3434 into the part attributable to pooling and the part attributable to the estimator, from C134b's stored fold statistics",
+  "source_artifact": "results/accord/c134_reanalysis/c134b_perfold_auroc.json",
+  "targets_claim": "Chapter 4 reports the gold-only nested cross-validation as '0.3434, AP 0.0362, one-sided Mann-Whitney p = 0.9666, worse than a constant-score floor' with no caveat",
+  "three_estimates_of_the_same_quantity": {
+    "pooled_out_of_fold_auroc": 0.3433609958506224,
+    "mean_per_fold_auroc": 0.26666666666666666,
+    "rank_normalised_pooled_auroc": 0.26556016597510373,
+    "per_fold_sd_ddof1": 0.24710444362780296,
+    "per_fold_sem": 0.07133290852323237,
+    "per_fold_ci95_normal": [
+      0.12685416596113122,
+      0.40647916737220213
+    ],
+    "per_fold_min": 0.0,
+    "per_fold_max": 0.7,
+    "n_folds_above_0_5": 2,
+    "n_folds_below_0_5": 10
+  },
+  "how_much_is_the_pooling": {
+    "pooled_minus_mean_per_fold": 0.07669432918395575,
+    "pooled_minus_rank_normalised_pooled": 0.07780082987551867,
+    "direction": "pooling RAISES the figure",
+    "reading": "both pooling-free estimates are below 0.3434, so the pooling flatters the estimator rather than depressing it; a reader who discounts 0.3434 as a pooling artifact is discounting it in the wrong direction"
+  },
+  "how_much_is_a_degenerate_estimator": {
+    "degenerate_span_threshold": 0.001,
+    "n_folds_degenerate": 6,
+    "n_folds_non_degenerate": 6,
+    "per_stratum": [
+      {
+        "stratum": "degenerate out-of-fold score span, below 0.001",
+        "folds": [
+          3,
+          6,
+          8,
+          10,
+          11,
+          12
+        ],
+        "n_folds": 6,
+        "auroc_values": [
+          0.05,
+          0.35,
+          0.1,
+          0.45,
+          0.65,
+          0.7
+        ],
+        "mean_auroc": 0.3833333333333333,
+        "median_auroc": 0.4
+      },
+      {
+        "stratum": "non-degenerate out-of-fold score span, at or above 0.001",
+        "folds": [
+          1,
+          2,
+          4,
+          5,
+          7,
+          9
+        ],
+        "n_folds": 6,
+        "auroc_values": [
+          0.0,
+          0.4,
+          0.0,
+          0.15,
+          0.05,
+          0.3
+        ],
+        "mean_auroc": 0.15000000000000002,
+        "median_auroc": 0.1
+      },
+      {
+        "stratum": "wide out-of-fold score span, at or above 0.01",
+        "folds": [
+          4,
+          5,
+          7
+        ],
+        "n_folds": 3,
+        "auroc_values": [
+          0.0,
+          0.15,
+          0.05
+        ],
+        "mean_auroc": 0.06666666666666667,
+        "median_auroc": 0.05
+      }
+    ],
+    "spearman_fold_score_span_vs_fold_auroc": {
+      "rho": -0.635091628769366,
+      "p_two_sided": 0.026491475868930303,
+      "n": 12,
+      "caveat": "12 folds, each AUROC on a 1/20 or 1/21 grid, folds not independent; read as descriptive"
+    },
+    "per_fold_mean_if_degenerate_folds_are_read_as_chance": 0.325,
+    "n_folds_positive_scored_below_the_negative_mean": 10,
+    "reading": "the degenerate folds sit NEARER chance than the folds with real score spread, so the below-chance result is not the degenerate folds' rounding error; it is concentrated in the folds where the fitted model does separate rows"
+  },
+  "which_caveat_is_true": {
+    "A_pooling_made_it_look_bad": false,
+    "B_half_the_folds_are_constant_predictors_and_the_ranking_is_rounding_error": false,
+    "verdict": "neither as stated. Pooling flatters the number, and the near-constant folds are the ones nearest chance. What the estimator shows is a consistent below-chance ranking that survives both pooling-free estimates and is strongest where the fitted model is least degenerate."
+  },
+  "sentence_the_thesis_should_carry": "That pooled figure is not the only estimate available, and it is the most favourable one: the mean of the 12 per-fold AUROCs is 0.2667 and pooling within-fold mid-ranks instead of raw probabilities gives 0.2656, so the pooling raises the figure rather than depressing it. Half the folds fit a near-constant model, with an out-of-fold score span below 0.001 over their 20 or 21 negatives, but those folds average 0.3833 and the folds with real score spread average 0.1500, so the below-chance ranking is not those folds' rounding error. At 12 positives and one positive per fold the estimate is too coarse to support a claim of inverse discrimination; what it does not support is any claim of discrimination."
+}
