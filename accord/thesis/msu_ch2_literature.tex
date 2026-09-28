@@ -134,8 +134,24 @@ varies enough across tasks that a headline accuracy from one setting licenses no
 Calibration is a second problem: the output probabilities of modern neural classifiers are
 miscalibrated unless calibration is measured and corrected \citep{guo2017calibration}, and a language
 model's few-shot predictions shift with the format of the prompt and the choice and order of its
-examples \citep{zhao2021calibrate}. Neither work studies a confidence value that a language model
-writes beside its label. Such a value is treated here as unmeasured.
+examples \citep{zhao2021calibrate}. Neither work studies a confidence value that a language
+model writes beside its label, but a separate literature does. A model's own probability that its
+answer is correct tracks correctness on many tasks, though the relationship weakens as the question
+moves away from what the model was trained on \citep{kadavath2022know}; a confidence figure asked
+for in words can be better calibrated than the token probabilities of a model tuned with human
+feedback \citep{tian2023askcalibration}; and verbalised confidence across several models and
+datasets is systematically overconfident, clustering on a few round values
+\citep{xiong2024uncertainty}. All three study the confidence of an answer a model gives, not the
+confidence of a label it assigns as an annotator at a low base rate, and none reports a clinical
+setting. The field this thesis borrows from therefore supplies a reason to expect such a value to
+be poorly calibrated and no basis for correcting it here, which is why it is treated as unmeasured.
+
+A related question is whether an instruction-tuned labeller's excess of positive labels is a
+tendency to agree with whatever it is asked rather than a reading of the text. That question is
+answerable within one pool by asking the complementary question of the same pairs, which
+Chapter~\ref{ch:results} does; no work reviewed here reports such a contrast for a clinical
+annotation task, and the studies above measure confidence in an answer rather than the direction of
+a labelling prior. The contrast is therefore run rather than cited.
 
 Label noise has its own literature. A survey of classification under label
 noise separates the cases that matter \citep{frenay2014labelnoise}: noise completely at random, noise depending on the true
