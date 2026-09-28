@@ -116,9 +116,9 @@ ontology-driven weak supervision matches hand-labelled training data for entity 
 by writing rules over an auxiliary text modality \citep{dunnmon2020crossmodal}; the
 paradigm has its own survey \citep{zhang2022wssurvey}.
 
-The label model estimates each source's accuracy from the agreements and disagreements among several sources, taking their errors as conditionally independent given the true label except where a correlation between sources is modelled. Disagreement is then informative, and aggregation recovers a better label than any single source. With one source, aggregation is the identity function and the generative model has no signal
-to fit, which the method states as its premise. A single instruction-tuned
-model puts a project in exactly that one-source position, and the literature supplies no check that
+The label model estimates each source's accuracy from the agreements and disagreements among several sources, taking their errors as conditionally independent given the true label except where a correlation is modelled, so disagreement is informative and aggregation recovers a better label than any single source. With one source aggregation is the identity function and the generative model has no signal
+to fit, which the method states as its premise; a single instruction-tuned model
+puts a project in exactly that position, and the literature supplies no check that
 can be run before annotation when only one source is available.
 
 \subsection{The language model as annotator}
@@ -154,9 +154,8 @@ not sufficient for a valid downstream conclusion: reporting it is not a validati
 second is that the correction itself requires gold labels on a subsample, which the workflow that
 used a language model to avoid annotation entirely cannot supply. That estimand is a population
 quantity in a social-science analysis. It is not the training signal of a detector, and no work was
-found mapping the result to the case where surrogate labels are the training targets themselves. What
-transfers is the shape of the warning: accuracy on the annotator's own terms says nothing about the
-validity of what is built on it.
+found mapping the result to the case where surrogate labels are the training
+targets themselves. What transfers is the shape of the warning.
 
 \subsection{Counting is a different problem from classifying}
 
@@ -169,10 +168,11 @@ true and false positive rates, and is defined only when those two rates differ. 
 covers the resulting family of estimators \citep{gonzalez2017quantification}.
 
 The relevance to weak supervision is direct and, in clinical NLP, largely
-unremarked. When a weak labeller's positive rate differs from the base rate, the quantification
-literature says both what the discrepancy means and what correcting it requires: estimates of the
-labeller's true and false positive rates on the same distribution, which require gold labels. This
-correction and the Egami correction therefore fail for the same reason in the same setting. The requirement therefore has to be met before the annotator runs.
+unremarked: when a weak labeller's positive rate differs from the base rate,
+correcting the discrepancy needs estimates of the labeller's true and false
+positive rates on the same distribution, which need gold labels. This correction
+and the Egami correction fail for the same reason in the same setting, and the
+requirement has to be met before the annotator runs.
 
 \section{Evaluation Under Class Imbalance and Low Prevalence}
 \label{sec:lit-metrics}
@@ -240,41 +240,43 @@ before a results table exists.
 \section{Controls and Construct Validity in Machine Learning Evaluation}
 \label{sec:lit-controls}
 
-This section describes the methodological backbone of the thesis. Everything in it is
-borrowed, and laying it out at length makes the attribution unambiguous. Each subsection names the owner and states the design; the closing paragraph says which this project ran.
+This section describes the methodological backbone of the thesis. Everything in
+it is borrowed, and the attribution is unambiguous: each design below is named
+with its owner, and the closing paragraph says which this project ran.
 
-\subsection{Negative and positive controls in observational research}
-
-The negative control was formalised for observational epidemiology \citep{lipsitch2010negative}: a
-noncausal association between exposure and outcome threatens any causal claim, so one tests for it
-by finding an exposure known not to cause the outcome, or an outcome known not to be caused by the
-exposure, and checking whether the analysis nonetheless produces an association. An association where
-none can exist is evidence that the analysis is picking up confounding, recall bias, or a defect in procedure, though the control does not identify which. A positive control runs the same analysis in
-the opposite direction, on a case where an effect is already known to exist. Its result describes the instrument and leaves the question untouched, and that formalisation does
-not cover this direction \citep{lipsitch2010negative}. The transfer to a machine learning pipeline is direct: replace the
-substantive input with one that cannot carry the claimed information, hold everything else fixed,
-and see whether the reported effect survives.
-
-\subsection{Randomisation tests for attribution}
-
-The same logic drives the sanity checks proposed for saliency maps \citep{adebayo2018sanity}. A model randomisation test
-progressively randomises trained weights and asks whether the saliency map changes, and a data
-randomisation test retrains on permuted labels and asks the same; some widely used methods produce
-visually plausible maps independent of both, which means those maps cannot be evidence about the model. The
-design generalises past saliency to any component credited with contributing something: replace what
-it consumes with something that cannot contain the credited signal and see whether the contribution persists.
-
-\subsection{Control tasks and selectivity}
-
-The design an architecture control would follow comes from the probing literature \citep{hewitt2019control}. A probe trained to predict a linguistic property from a neural representation may succeed because the
-representation encodes the property, or merely because the probe is expressive enough to memorise the
-mapping. That control task assigns random outputs to word types, trains the same probe on that, and
-defines selectivity as the gap between linguistic and control task accuracy; common probing setups
-have poor selectivity, dropout does not fix this for multilayer perceptron probes, and a more
-selective representation layer can win despite lower raw accuracy. A synthesis of the literature
-that followed concludes that probe accuracy alone identifies neither what a
-representation encodes nor whether the model uses it \citep{belinkov2022probing}. The transfer to an architecture is this thesis's own inference, which that synthesis does not draw: an ordinal or categorical feature a component is credited with exploiting can be replaced with an arbitrary assignment of the same shape, and if
-that assignment recovers the gain, the credited feature was not the source.
+\paragraph{Three control designs a fuller audit would add.} None of the three
+was run here, and each is a design a later audit of this pipeline should carry.
+The negative control was formalised for observational epidemiology
+\citep{lipsitch2010negative}: one tests for a noncausal association by finding
+an exposure known not to cause the outcome, or an outcome known not to be caused
+by the exposure, and checking whether the analysis nonetheless produces an
+association. An association where none can exist is evidence that the analysis
+is picking up confounding, recall bias, or a defect in procedure, though the
+control does not identify which; a positive control runs the same analysis on a
+case where an effect is known to exist, which describes the instrument and
+leaves the question untouched, and that formalisation does not cover this
+direction \citep{lipsitch2010negative}. The transfer to a machine learning
+pipeline is direct: replace the substantive input with one that cannot carry the
+claimed information, hold everything else fixed, and see whether the reported
+effect survives. The same logic drives the sanity checks proposed for saliency
+maps \citep{adebayo2018sanity}, where a model randomisation test progressively
+randomises trained weights and a data randomisation test retrains on permuted
+labels, and some widely used methods produce visually plausible maps independent
+of both, which means those maps cannot be evidence about the model; the design
+generalises past saliency to any component credited with contributing something.
+The third design, the one an architecture control would follow, comes from the
+probing literature \citep{hewitt2019control}: a control task assigns random
+outputs to word types, trains the same probe on that, and defines selectivity as
+the gap between linguistic and control task accuracy, since a probe may succeed
+because the representation encodes the property or merely because the probe can
+memorise the mapping. Common probing setups have poor selectivity, and a
+synthesis of the literature that followed concludes that probe accuracy alone
+identifies neither what a representation encodes nor whether the model uses it
+\citep{belinkov2022probing}. The transfer to an architecture is this thesis's own
+inference, which that synthesis does not draw: an ordinal or categorical feature
+a component is credited with exploiting can be replaced with an arbitrary
+assignment of the same shape, and if that assignment recovers the gain, the
+credited feature was not the source.
 
 \subsection{Leakage and measurement}
 
@@ -326,20 +328,18 @@ definition marks a framing check that applies before any stage. For the exemplar
 \section{Auditing a Pipeline Stage by Stage}
 \label{sec:lit-selection}
 
-The literature on disaggregated evaluation bears on this thesis only through the idea of auditing a
-pipeline stage by stage, since its fairness quantities are not claims about this thesis's own
-contradiction detector. Stage-level auditing already exists \citep{biswas2021fairpreprocessing}: that work studies
-fairness introduced by data preprocessing rather than by the classifier, evaluates 37 pipelines drawn
-from three sources using causal fairness measures, and shows how the local fairness of individual
-preprocessing stages composes into the fairness of the pipeline as a whole. The idea of auditing by stage is borrowed from it; what differs here is the object audited. That metric, fairness against protected attributes, is defined at every stage,
-whereas the quantity here is the validity of each stage's evidential claim: whether a candidate pool
-contains the pairs it should, whether a weak labeller's marginal is usable, whether an architectural
-component contributes what it is credited with, and whether the evaluation could resolve an effect.
-These are stage-specific and not comparable to one another, so they cannot be composed the way a
-fairness metric composes.
-The general hazard, that system-level defects arise at component
-boundaries rather than inside any one of them, is anticipated without any per-stage check being
-proposed \citep{sculley2015debt}.
+Stage-level auditing already exists \citep{biswas2021fairpreprocessing}: that work
+studies fairness introduced by data preprocessing rather than by the classifier,
+evaluates 37 pipelines drawn from three sources using causal fairness measures,
+and shows how the local fairness of individual preprocessing stages composes into
+the fairness of the pipeline as a whole. The idea of auditing by stage is borrowed
+from it; what differs is the object audited. Fairness against protected attributes
+is defined at every stage, whereas the quantity here is the validity of each
+stage's evidential claim, and those quantities are stage-specific and cannot be
+composed the way a fairness metric composes. The general hazard, that
+system-level defects arise at component boundaries rather than inside any one of
+them, is anticipated without any per-stage check being proposed
+\citep{sculley2015debt}.
 
 \section{What Is Left}
 \label{sec:lit-gap}
@@ -349,12 +349,13 @@ five threads leave three further openings, one for each contribution of this the
 was found that runs a stage-appropriate check at every stage of a clinical text pipeline and reports
 each outcome whichever way it falls: one line audits by stage for a metric
 defined at every stage \citep{biswas2021fairpreprocessing}, and another names the hazard without
-per-stage checks \citep{sculley2015debt}. Second, the maximum agreement attainable under fixed marginals is classical
-\citep{cohen1960kappa}, and automated annotation must be validated against human labels
-\citep{pangakis2023validation,egami2023surrogates}. No work was found that uses the bound, together
-with the minimum attainable significance of a discrete test \citep{tarone1990modified}, as a check on
-a single language-model labeller's marginal. Such a check needs only a base rate from a small
-expert-labelled sample, and this thesis applied it after the fact.
+per-stage checks \citep{sculley2015debt}. Second, no work was found that uses the
+classical maximum of agreement under fixed marginals \citep{cohen1960kappa},
+together with the minimum attainable significance of a discrete test
+\citep{tarone1990modified}, as a check on a single language-model labeller's
+marginal, although automated annotation must be validated against human labels
+\citep{pangakis2023validation,egami2023surrogates}. Such a check needs only a base
+rate from a small expert-labelled sample, and this thesis applied it after the fact.
 
 Third, the nearest descriptions of the mining bug pattern are neighbours, not
 instances: leakage \citep{kaufman2012leakage} is target information a model should not see, label

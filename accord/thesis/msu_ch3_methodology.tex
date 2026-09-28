@@ -26,10 +26,10 @@ The stage-by-stage audit checks each stage's reading against a fixed condition, 
 computed from counts, or a rule written down before its run; it is not the randomisation tests, control tasks, or negative controls that Chapter~\ref{ch:lit} describes, which were not run here.
 
 A preceding cohort-building step extracts admissions from MIMIC-III and, for each, a paired
-nursing note and discharge summary. On that cohort the pipeline runs four stages. Stage one mines
-the paired notes with four rules to produce a pool of contradiction candidates. Stage two labels
-the pool with a local language model. Stage three trains a neural detector on those labels. Stage
-four, evaluation, scores it against a pharmacist-annotated gold set. Each stage inherits the
+nursing note and discharge summary. On that cohort the pipeline runs the four stages
+Chapter~\ref{ch:intro} numbers: rule-based mining, weak labelling by a local
+language model, training a neural detector on those labels, and evaluation against
+a pharmacist-annotated gold set. Each stage inherits the
 previous stage's defects, which is why the checks are given stage by stage and not collected at the end. No result appears here beyond counts that trace to the file that produced them.
 
 \section{Data and Cohort}
@@ -98,19 +98,15 @@ the resource does not contain. Every statement that the nursing note came first 
 the selection rule; no comparison of times was measured. One explanation for a disagreement is that some
 other note, written between the two selected notes, documents the change; at sub-day resolution that
 explanation cannot be tested in this resource, which is different from its having been tested and
-rejected. Counting such notes at date-level resolution is a coarser but answerable question, and Section~``\nameref{sec:m-candidates}''
-reports it.
+rejected; counting such notes at date-level resolution is coarser but answerable, and Section~``\nameref{sec:m-candidates}'' reports it.
 
 This selection returns 9,783 admissions with a selected nursing note and 9,783 with a selected
 discharge summary, for 19,566 note rows across 9,783 pairs in total, 37 fewer than the 9,820
 admissions carrying both roles. The shortfall is entirely nursing-side: being selectable on that
 side also requires a recorded chart time strictly before discharge, a condition the discharge side
-does not carry. That is the cohort the mining rules run against.
-Figure~\ref{fig:cohort-flow} carries the whole path: admissions selected by billing code, filtered on
-length of stay, reduced to those carrying both note roles and then to one note pair per admission;
-the medication mentions extracted and the subset carrying an action class; the candidates the four
-mining rules return after the temporal prefilter; and the pairs a pharmacist annotated, ending in the
-non-ambiguous evaluation core and the confirmed contradictions inside it.
+does not carry. That is the cohort the mining rules run against, and
+Figure~\ref{fig:cohort-flow} carries the whole path from the source database to
+the confirmed contradictions.
 
 \begin{figure}[!t]
 
@@ -485,6 +481,33 @@ the detector saw. Annotation ran in two passes separated by a two-week washout. 
 controls for within-session drift and fatigue, and that is all it controls for; it does not
 establish inter-rater reliability, because there is one rater.
 
+\paragraph{No blinding was performed.} No step of the gold standard's
+construction was blinded, and three facts on record describe an unblinded
+determination. First, the annotator saw the identifier of the rule that generated
+each candidate. That identifier is itself a model input: the prior-feature
+constructor writes it into the detector's input vector and the rule-type head
+predicts it from the same forward pass
+(Section~``\nameref{sec:m-detector}''), so the annotator was shown the feature
+whose presence in the input makes that head's metric confounded. Second,
+annotation followed weak-label generation rather than preceding it: the labelled
+pool is the candidate pool minus these annotated pairs, and the pharmacist's
+labels were collected after the labelling run
+(Section~``\nameref{sec:m-weak}''). Third, the pharmacist read each pair on the
+author's screen, in the author's presence, and gave a judgement the author
+recorded (Section~``\nameref{sec:m-ethics}''). That protocol was adopted to keep
+note text off any transferred, printed, or retained file, and it places the person
+holding the hypothesis beside the annotator for every judgement. The two-pass
+washout does not address any of the three. Chapter~\ref{ch:conclusion},
+Section~``\nameref{sec:disc-limits},'' states what the absence costs.
+
+\paragraph{No sample size justification exists.} No calculation in this project
+takes a target effect and returns a required $n$. The figure of $300$ sampled
+pairs carries no recorded rationale; what was fixed in advance was the allocation
+across the four rules, proportional to each rule's share of the pool, not the
+total. The minimum detectable effect of Section~``\nameref{sec:m-mde}'' is post
+hoc sensitivity computed on an $n$ already fixed and is not a sample size
+justification.
+
 \subsection{The ambiguity category}
 
 A pair was coded ambiguous when the presented evidence did not permit adjudication, rather than
@@ -563,7 +586,7 @@ the corrected selector changed the chosen rows. Two quantities follow, an agreem
 change rate, and they differ: a candidate can change exemplar on one side while
 the old exemplar happened to be correct on the other. The second half of the check is structural and involves no measurement. Rules 3 and 4 lie outside the positional defect, under the caveat of Section~``\nameref{sec:m-candidates},'' so their gold pairs form strata fixed before any model score exists, and Chapter~\ref{ch:results} reports the
 detection metrics on them as well as on the full set. A difference between the two rule groups is
-confounded with rule content and base rate. It compares rule groups and does not test the defect.
+confounded with rule content and base rate and does not test the defect.
 
 The Rules 3 and 4 rescore (pre-registered) sharpens this comparison. It scored the subject-overlap run,
 the off-the-shelf inference model, and the TF-IDF baseline on the Rules 1 and 2 and the Rules 3 and 4
@@ -623,13 +646,11 @@ attainable one-sided hypergeometric $p$ that marginal permits. Placing every con
 the flagged set gives the best table that marginal could produce. A labeller whose floor sits
 above the significance level its agreement is read at, $0.05$ throughout, could not have rejected the
 null however it behaved. The floor depends on the pilot's size as well as on the marginal, so a
-failed gate faults the pilot, and a passed one shows only that a test was possible. The bound covers a hard, thresholded decision
-only; a scored labeller can sweep its threshold and rank well regardless of flag rate, which is why the bound says
-nothing about a ranking metric. The ceiling is the classical maximum of a chance-corrected agreement
+failed gate faults the pilot, and a passed one shows only that a test was possible. The bound covers a hard,
+thresholded decision only and says nothing about a ranking metric. The ceiling is the classical maximum of a chance-corrected agreement
 statistic given its marginals \citep{cohen1960kappa}, applied here as a check on a weak labeller's
 marginal. The floor is the minimum attainable significance level derivable
-from the marginal totals of a discrete test \citep{tarone1990modified}. The gate itself is post hoc, added after the
-results it bounds were already in hand.
+from the marginal totals of a discrete test \citep{tarone1990modified}. The gate itself is post hoc.
 
 \subsection{Pre-registered checks}
 \label{sec:m-prereg}
@@ -641,12 +662,10 @@ records and not on an independent timestamp. Table~\ref{tab:m-prereg} maps each
 identifier, which no chapter uses outside this table, to the plain name the thesis uses and to
 its rule in one line; the full rule, including what makes a run invalid, is in the file. Several checks
 were requested after the main results were in, so each is fixed relative to its own run but post hoc
-relative to the original plan: the tipping-point and stratum-interval checks, which count the gold
-labels that must flip before the decontaminated ensemble reaches each floor and give its interval on
-$G_{108}$; the rank-based paired test; the exact-join agreement; the teacher-student comparison; the
-exemplar-prevalence check; the reproducible-labeller retrain; the cluster-bootstrap check, which adds to its clustered
-resampling the floors at the post-flip counts and the reading with the ambiguous pairs counted positive; and the
-interval tipping-point check, which repeats the greedy relabelling and reads the interval's upper end after each relabel.
+relative to the original plan: the tipping-point and stratum-interval checks, the
+rank-based paired test, the exact-join agreement, the teacher-student comparison,
+the exemplar-prevalence check, the reproducible-labeller retrain, the
+cluster-bootstrap check, and the interval tipping-point check.
 The requests came from this project's own internal review rounds. A pre-registered scale ladder
 within one model family was attempted twice, and a prospective version of the feasibility check that
 depended on it could run neither time. All three registrations were invalid under their gate, and none
@@ -667,6 +686,24 @@ statistic, the RQ3 code audits, the rule-group Fisher test with its exact power,
 assertion fixtures, the Monte Carlo cross-check of the minimum detectable AUROC, the subject-overlap run's
 threshold sweep, the ceiling in the bounded null's definition, and the Spearman tests. None of these had a
 threshold fixed in advance.
+
+\paragraph{Reported measures that appear in no pre-registration.} The list above
+names checks. Eight \emph{measures} reported in this thesis appear in no
+pre-registration and are not on that list either: Cohen's $\kappa$, expected
+calibration error, balanced accuracy, prevalence-adjusted bias-adjusted kappa,
+the odds ratio of the rule-group Fisher test, the danger rating used as a
+Spearman target, the best Matthews correlation returned by the threshold sweep,
+and the bootstrap mean. Several are load-bearing columns read as evidence rather
+than incidental descriptions: the ceiling $\kappa$ of the feasibility gate's
+table, the per-seed $\kappa$ and expected calibration error of the
+decontaminated detector's operating point, the bootstrap mean printed beside the
+control model's AUROC, the swept best Matthews correlation offered against the
+threshold objection, and the odds ratio quoted for the rule-group comparison.
+Choosing a measure after seeing what it returns is the same freedom as choosing a
+test after seeing its $p$ value, and none of these eight was constrained. The
+word \emph{prespecified}, and \emph{pre-registered} with it, is used in this
+thesis only of a rule that appears in Table~\ref{tab:m-prereg} below; no measure
+in this list qualifies.
 
 \begingroup
 \small
@@ -796,12 +833,15 @@ Two systems scored on the same rows produce correlated ROC curves, so an unpaire
 overstates the variance of their difference. Comparisons between the control model and the
 detector, and between individual seeds and the detector, use the DeLong test for correlated areas
 \citep{delong1988comparing}, which estimates the covariance of the two areas from the same subjects
-and returns a $z$ statistic and a two-sided $p$ value. Per-comparison outputs are written to the released control report.
+and returns a $z$ statistic and a two-sided $p$ value.
 
 \subsection{Minimum detectable effect}
 \label{sec:m-mde}
 
-The sensitivity of the evaluation is a property of the evaluation set, not of any model. Under the null of no discrimination, the standard error of an AUROC
+The sensitivity of the evaluation is a property of the evaluation set, not of any model. It is
+not a sample size justification: the set was already fixed at the size reported
+in Section~``\nameref{sec:m-gold}'' when every figure below was computed, and
+nothing here derives a required $n$ from a target effect. Under the null of no discrimination, the standard error of an AUROC
 estimate with $n_+$ positives and $n_-$ negatives is approximated by
 \[
 \mathrm{SE}_0 = \sqrt{\frac{n_+ + n_- + 1}{12\, n_+ n_-}} ,
@@ -959,9 +999,8 @@ joined against MIMIC-III at the patient level.
 
 \paragraph{Clinical status and code contribution.} Nothing in this thesis has been validated for
 clinical use or supports deployment in any care setting. The analysis code is released, with one gap: the deployed weak-labelling run of Section~``\nameref{sec:m-weak}'' cannot be repeated. That run produced two numbers nobody can regenerate: $1{,}425$ positive labels in the $1{,}679$-row weak-labelled pool
-and the $261$ of $299$ marginal that Chapter~\ref{ch:results} reports. Subject-disjoint exclusion and the validation split then reduce
-that pool to the $1{,}183$-row training pool of Table~\ref{tab:m-strata}. The reproducible-labeller retrain (pre-registered) is the plain control
-detector retrained on reproducible labels: labels regenerated from the committed replication prompt
-and script replace the lost run's on the same pool, so the ranking null can be checked without the
-lost run
+and the $261$ of $299$ marginal that Chapter~\ref{ch:results} reports. The
+reproducible-labeller retrain (pre-registered) replaces those labels with ones
+regenerated from the committed replication prompt and script on the same pool, so
+the ranking null can be checked without the lost run
 (Section~``\nameref{sec:res-rq4}'').
