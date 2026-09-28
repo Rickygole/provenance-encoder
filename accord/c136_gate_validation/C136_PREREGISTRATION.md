@@ -3,7 +3,9 @@
 Committed before the first C136 datum. The outcome is appended below; the rule above the outcome line is never
 edited. Convention set by C44.
 
-## Superseded first attempt, this check's own history
+## Superseded first attempt
+
+(Commit hashes updated after the duplicate-identifier resolution rewrote history; the originals are unreachable from HEAD.), this check's own history
 
 This check was attempted once before and abandoned. That attempt is **not a separately numbered check**: it is this
 check's first attempt, and it holds no identifier of its own. Its rule text and its script are preserved unedited
@@ -17,7 +19,7 @@ prevalence, had no headroom: its clean-label reference student reached AUROC 0.6
 0.60 failure line, so every labeller in the grid produced a failing student, the outcome variable had no variance,
 and specificity was undefined. No screening instrument could have been scored on that design.
 
-Commits that hold it: `8f31ab7` committed its rule before its first datum, and `ed0ecdf` appended its outcome and
+Commits that hold it: `cdec8d0` committed its rule before its first datum, and `8adec39` appended its outcome and
 recorded it as uninformative. Both commits describe it as "C135". That identifier was a collision: the
 trigger-exemplar dissociation-cost check, `accord/c135_dissociation_cost/`, is the live holder of C135, it has a
 completed run and 188 keys under the `c135` register prefix, and this abandoned attempt wrote nothing to the
