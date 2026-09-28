@@ -478,7 +478,7 @@ ACCORD at $\tau = 0.5$         & 11 & 1 & 223 & 18  & 0.0470 & 0.9167 \\
 Llama 3 8B evaluation baseline & 11 & 1 & 231 & 10  & 0.0455 & 0.9167 \\
 \bottomrule
 \end{tabular}
-\apanote{On $G_{253}$, 12 positives and 241 negatives. TP, FN, FP, and TN are true positive, false negative, false positive, and true negative counts; $\tau$ is the decision threshold applied to the contradiction-probability score. The last row is a separately prompted Llama 3 8B evaluation run and is \emph{not} the weak-supervision labeller of Table~\ref{tab:marginal}, whose own calls on these pairs differ. The ACCORD row is the subject-overlap run, whose recall of 11 of 12 no decontaminated seed reaches; it is kept only because its per-pair calls are the committed ones.}
+\apanote{On $G_{253}$, 12 positives and 241 negatives. TP, FN, FP, and TN are true positive, false negative, false positive, and true negative counts; $\tau$ names the released per-pair decision rather than a cut on the contradiction-probability score, whose values on these rows reach only $0.5528$; the cut that reproduces these cells is at about $0.3515$. The last row is a separately prompted Llama 3 8B evaluation run and is \emph{not} the weak-supervision labeller of Table~\ref{tab:marginal}, whose own calls on these pairs differ. The ACCORD row is the subject-overlap run, whose recall of 11 of 12 no decontaminated seed reaches; it is kept only because its per-pair calls are the committed ones.}
 \label{tab:systems253}
 \end{table}
 
@@ -779,7 +779,7 @@ Per-seed mean        & 0.5211 & & & \\
 Per-seed SD          & 0.0201 & & & \\
 Three-seed ensemble & 0.5145 & & 0.8668 & \\
 \midrule
-subject-overlap run, same 253 pairs & 0.4595 & & 0.6418 & \\
+subject-overlap run, same 253 pairs & 0.4595 & & 0.6377 & \\
 Weak labeller, 0/1 score (ref.) & 0.5185 & & & \\
 \bottomrule
 \end{tabular}
@@ -901,9 +901,9 @@ random scores (median $0.0968$). On that run no threshold rescues the
 detector. No sweep was run on the decontaminated ensemble behind
 Table~\ref{tab:operating}, so the threshold objection is not answered for it.
 The harm-score optimum rests on $2$ true positives and is quoted only as a bound,
-and within the released file the harm score at $0.5$ is a near-constant positive,
-the same pattern Table~\ref{tab:operating} reports for the contradiction-probability
-decision. Both decision variables are degenerate.
+and within the released file the harm score is near-constant in value, spanning
+$0.3977$ to $0.6096$, so a cut at $0.5$ splits the pool almost in half, $137$ of
+$253$, rather than expressing a judgement about any pair.
 
 \subsection{The tipping point and the cluster bootstrap}
 
@@ -943,7 +943,7 @@ lifts it to $0.7373$ and a second to $0.7673$. The plain control detector retrai
 a single relabel in either direction, with upper ends of $0.7591$ and $0.7530$. Under the rule fixed before the run a count of 1
 or 2 means the bounded null does not survive that many wrong labels, so by the
 criterion this thesis uses it rests on 1 or 2 labels where the point estimate
-suggested $7$. The caveat about greedy search above applies here too, and because the search follows the point AUROC, a count of 2
+put it at $5$ against the registered target and above $7$ against the moving floor. The caveat about greedy search above applies here too, and because the search follows the point AUROC, a count of 2
 is only an upper bound on the smallest number of relabels that would tip the interval.
 
 The decontaminated ensemble's count of 2 cannot be separated from 1. After 1 positive is relabelled, its upper end,
