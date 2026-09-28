@@ -398,7 +398,11 @@ def pass9_template():
         # words shorter than it is, and a 254-word abstract passed as 244.
         plain = re.sub(r"\\[a-zA-Z]+\*?", " ", body)
         plain = re.sub(r"[{}$]", "", plain)
-        body_words = plain.split()
+        # Stripping the command name off a dimension assignment leaves its value
+        # behind, so \parindent=0pt\RaggedRightParindent=0pt became the token
+        # "=0pt=0pt" and read as a word. A word processor counts no such token.
+        plain = re.sub(r"=\s*-?[0-9.]+\s*(?:pt|in|cm|mm|em|ex|bp|pc|sp)\b", " ", plain)
+        body_words = [w for w in plain.split() if re.search(r"[A-Za-z0-9]", w)]
         n_words = len(body_words)
         if n_words > 250:
             print(f"   abstract body is {n_words} words (template cap: 250)")
