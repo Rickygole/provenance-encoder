@@ -28,9 +28,9 @@ five leave.
 
 \subsection{The clinical problem the task inherits}
 
-Adverse drug events are among the best documented inpatient safety problems, and the classic
-incidence study of \citet{bates1995ade} established both their frequency and that a substantial share
-are preventable. The transition out of hospital concentrates the risk: unintended medication
+Adverse drug events are among the best documented inpatient safety problems, and a classic
+incidence study established both their frequency and that a substantial share
+are preventable \citep{bates1995ade}. The transition out of hospital concentrates the risk: unintended medication
 discrepancies are found at a large fraction of admissions \citep{cornish2005discrepancies} and at
 discharge \citep{wong2008reconciliation}, discontinuity between inpatient and outpatient care affects
 a meaningful share of discharged patients \citep{moore2003discontinuity}, adverse events after
@@ -50,15 +50,16 @@ closest established benchmark to the problem studied here. Later clinical resour
 multi-evidence and numerical reasoning over structured trial documents \citep{jullien2023nli4ct},
 still within one document and never across documents written by different roles.
 
-Contradiction detection as a task distinct from entailment was posed by
-\citet{demarneffe2008contradictions}, whose typology separates negation, numeric, antonymy, and
-structural contradiction and whose central observation is that contradiction is rarer and worse
-served than the symmetric three-way framing implies. In the biomedical domain
-\citet{alamri2016corpus} built a corpus of potentially contradictory claims from cardiovascular
-abstracts, a resource about published claims, not care documentation. Work at document scale
-is more recent: \citet{hsu2021wikicontradiction} learn contradiction-aware comparisons over sentence
-pairs within a Wikipedia article, and \citet{li2024contradoc} annotate self-contradictions in long
-documents and show that even strong large language models are unreliable on cases requiring context.
+Contradiction detection was posed as a task distinct from entailment by one typology that
+separates negation, numeric, antonymy, and structural contradiction, whose central observation is
+that contradiction is rarer and worse served than the symmetric three-way framing implies
+\citep{demarneffe2008contradictions}. In the biomedical domain a corpus of potentially contradictory
+claims was built from cardiovascular abstracts \citep{alamri2016corpus}, a resource about published
+claims, not care documentation. Work at document scale
+is more recent: contradiction-aware comparisons have been learned over sentence
+pairs within a Wikipedia article \citep{hsu2021wikicontradiction}, and self-contradictions have been
+annotated in long documents, where even strong large language models are unreliable on cases
+requiring context \citep{li2024contradoc}.
 
 A separate body of work shows how inference models reach high benchmark accuracy without doing the
 intended inference. Hypothesis-only baselines recover much of the label signal
@@ -71,14 +72,14 @@ well; this thesis has a pipeline that scores poorly and needs to know whether th
 
 Among the work reviewed for this chapter, no system or benchmark was found for the case this thesis
 addresses, medication contradictions between two free-text notes of one admission. Neighbouring work exists:
-\citet{kwon2024ehrcon} check clinical notes against the structured tables of the same record,
-\citet{makhervaks2023clinical} detect contradictions between sentences of medical abstracts with
-ontology-based distant supervision, and \citet{benabacha2025medec} benchmark error detection within
-a single clinical note. None compares two free-text notes of one admission. The nearest system
-found is instructive. \citet{li2015discrepancy} report an end-to-end hybrid
+one system checks clinical notes against the structured tables of the same record
+\citep{kwon2024ehrcon}, another detects contradictions between sentences of medical abstracts with
+ontology-based distant supervision \citep{makhervaks2023clinical}, and a third benchmarks error
+detection within a single clinical note \citep{benabacha2025medec}. None compares two free-text notes
+of one admission. The nearest system found is instructive: an end-to-end hybrid
 algorithm for medication discrepancy detection at Cincinnati Children's Hospital, comparing
 structured discharge prescription lists against free-text notes for 271 patients in a Complex Care
-Medical Home Program. Component performance on entity detection and attribute linkage is strong, but
+Medical Home Program \citep{li2015discrepancy}. Component performance on entity detection and attribute linkage is strong, but
 combining stages drops precision, recall, and $F$-measure to 71.5 percent, 65.2 percent, and 68.2 percent on discrepant
 medications, well below the matched-medication figures. Three properties of that setting explain why
 the numbers do not transfer, and between them they define the problem this thesis takes on. One side
@@ -92,12 +93,12 @@ model and caps its recall absolutely.
 The extraction machinery for the medication half is mature: shared tasks established the entity and
 attribute layer \citep{uzuner2010medication,henry2020n2c2}, negation handling has a standard solution
 \citep{chapman2001negex}, and open tooling is available \citep{neumann2019scispacy,eyre2021medspacy}.
-The layer above it is not. \citet{weiskopf2013quality} find completeness, correctness, and
-plausibility handled unevenly, and consistency across documents about one episode is a dimension the
+The layer above it is not. A review of data-quality dimensions finds completeness, correctness, and
+plausibility handled unevenly \citep{weiskopf2013quality}, and consistency across documents about one episode is a dimension the
 reuse literature flags and the extraction literature does not target. The deployment literature says
-what that costs. \citet{vandersijs2006overriding} report that drug safety alerts are overridden in 49 percent to 96 percent of cases; the range is theirs, and reading it as the price of low precision is this thesis's inference.
-\citet{ancker2017alertfatigue} find that alert acceptance fell as the number of alerts rose,
-particularly repeated alerts, and find no evidence of an effect of workload as such. A recall figure
+what that costs. Drug safety alerts are overridden in 49 percent to 96 percent of cases \citep{vandersijs2006overriding}; the range is that review's, and reading it as the price of low precision is this thesis's inference.
+Alert acceptance falls as the number of alerts rises, particularly for
+repeated alerts, with no evidence of an effect of workload as such \citep{ancker2017alertfatigue}. A recall figure
 without the corresponding precision therefore says nothing about clinical usefulness.
 
 \section{Weak Supervision and Label Noise in Clinical NLP}
@@ -112,8 +113,8 @@ programming \citep{ratner2016dataprogramming} and its system realisation Snorkel
 generative model over their accuracies and correlations. The clinical track record is real:
 ontology-driven weak supervision matches hand-labelled training data for entity classification
 \citep{fries2021trove}, and cross-modal data programming speeds model development in medical imaging
-by writing rules over an auxiliary text modality \citep{dunnmon2020crossmodal};
-\citet{zhang2022wssurvey} survey the paradigm.
+by writing rules over an auxiliary text modality \citep{dunnmon2020crossmodal}; the
+paradigm has its own survey \citep{zhang2022wssurvey}.
 
 The label model estimates each source's accuracy from the agreements and disagreements among several sources, taking their errors as conditionally independent given the true label except where a correlation between sources is modelled. Disagreement is then informative, and aggregation recovers a better label than any single source. With one source, aggregation is the identity function and the generative model has no signal
 to fit, which the method states as its premise. A single instruction-tuned
@@ -124,7 +125,7 @@ can be run before annotation when only one source is available.
 
 Since 2023 the default cheap labeller has been an instruction-tuned language model, on the strength
 of results reporting that such models match or exceed crowd annotators on several classification
-tasks \citep{gilardi2023chatgpt}. \citet{pangakis2023validation} give the corrective: any automated
+tasks \citep{gilardi2023chatgpt}. The corrective is stated plainly \citep{pangakis2023validation}: any automated
 annotation procedure must be validated against human labels on the same items, since performance
 varies enough across tasks that a headline accuracy from one setting licenses nothing in another.
 Calibration is a second problem: the output probabilities of modern neural classifiers are
@@ -133,25 +134,25 @@ model's few-shot predictions shift with the format of the prompt and the choice 
 examples \citep{zhao2021calibrate}. Neither work studies a confidence value that a language model
 writes beside its label. Such a value is treated here as unmeasured.
 
-Label noise has its own literature. \citet{frenay2014labelnoise} survey classification under label
-noise and separate the cases that matter: noise completely at random, noise depending on the true
+Label noise has its own literature. A survey of classification under label
+noise separates the cases that matter \citep{frenay2014labelnoise}: noise completely at random, noise depending on the true
 class, and noise depending on the features. The distinction matters, because the strongest
 noise-robust guarantees assume one of the first two, whereas an annotator with a systematically
-shifted prior produces a corrupted marginal, not symmetric noise. \citet{northcutt2021labelerrors}
-show that even curated benchmark test sets carry pervasive label errors whose correction can reorder
-published rankings, making the reference standard itself an object needing audit.
+shifted prior produces a corrupted marginal, not symmetric noise. Even curated benchmark test sets
+carry pervasive label errors whose correction can reorder
+published rankings \citep{northcutt2021labelerrors}, making the reference standard itself an object needing audit.
 
 \subsection{Surrogate labels bias what is computed from them}
 
-The most directly relevant result is \citet{egami2023surrogates}, who consider the now-common
+The most directly relevant result takes the now-common
 workflow in which a language model annotates a document set that feeds a downstream statistical
-analysis, and show that direct use of surrogate labels causes substantial bias and invalid confidence
-intervals even at 80 percent to 90 percent surrogate accuracy. Their remedy, design-based supervised learning, is
+analysis, and shows that direct use of surrogate labels causes substantial bias and invalid confidence
+intervals even at 80 percent to 90 percent surrogate accuracy \citep{egami2023surrogates}. The remedy offered there, design-based supervised learning, is
 a doubly-robust estimator combining surrogate labels with a smaller set of gold-standard labels,
 giving valid inference without assuming the surrogate is good. Two consequences follow. The headline is that high annotator accuracy is
 not sufficient for a valid downstream conclusion: reporting it is not a validation step. The
 second is that the correction itself requires gold labels on a subsample, which the workflow that
-used a language model to avoid annotation entirely cannot supply. Their estimand is a population
+used a language model to avoid annotation entirely cannot supply. That estimand is a population
 quantity in a social-science analysis. It is not the training signal of a detector, and no work was
 found mapping the result to the case where surrogate labels are the training targets themselves. What
 transfers is the shape of the warning: accuracy on the annotator's own terms says nothing about the
@@ -160,12 +161,12 @@ validity of what is built on it.
 \subsection{Counting is a different problem from classifying}
 
 An over-calling annotator is a bad prevalence estimator, and there is a
-literature about exactly that. \citet{forman2008quantifying} formalises quantification, estimating
+literature about exactly that. One line of work formalises quantification, estimating
 class prevalence instead of labelling individual members, and shows the classify-and-count estimator
 is biased for any imperfect classifier except at the one prevalence where its false positives and
-false negatives cancel; his adjusted-count correction inverts the relation using estimates of the
-true and false positive rates, and is defined only when those two rates differ. \citet{gonzalez2017quantification}
-review the resulting family of estimators.
+false negatives cancel \citep{forman2008quantifying}; its adjusted-count correction inverts the relation using estimates of the
+true and false positive rates, and is defined only when those two rates differ. A later review
+covers the resulting family of estimators \citep{gonzalez2017quantification}.
 
 The relevance to weak supervision is direct and, in clinical NLP, largely
 unremarked. When a weak labeller's positive rate differs from the base rate, the quantification
@@ -181,16 +182,16 @@ correction and the Egami correction therefore fail for the same reason in the sa
 Cohen's kappa \citep{cohen1960kappa} corrects observed agreement for the agreement expected by
 chance under the observed marginals. It therefore depends on those marginals in ways that surprise
 readers who take it for a corrected accuracy, and it is bounded above by a maximum the marginals
-themselves fix. \citet{feinstein1990paradoxes} set out the two paradoxes: high observed agreement can
+themselves fix. The two paradoxes are set out directly \citep{feinstein1990paradoxes}: high observed agreement can
 coexist with a low kappa when the marginals are badly unbalanced, and kappa is higher when the
-imbalance in the marginal totals is asymmetrical than when it is symmetrical. They add that
+imbalance in the marginal totals is asymmetrical than when it is symmetrical. That paper adds that
 substituting the maximum kappa repairs neither paradox, and this thesis accordingly uses the maximum
 as a feasibility bound on what a labeller's marginal permits, not as a repaired agreement
 coefficient. The companion paper \citep{cicchetti1990resolving} works through the resolution and
 recommends that kappa always be accompanied by separate values of positive and negative agreement.
-\citet{byrt1993pabak} recommend reporting indices of prevalence and bias alongside kappa, and they
-propose the prevalence-adjusted bias-adjusted
-kappa, an affine function of observed agreement, $\mathrm{PABAK} = 2p_o - 1$, which removes the
+A further recommendation is to report indices of prevalence and bias alongside kappa, together
+with the prevalence-adjusted bias-adjusted
+kappa \citep{byrt1993pabak}, an affine function of observed agreement, $\mathrm{PABAK} = 2p_o - 1$, which removes the
 marginal sensitivity by removing the marginal information. It reports a rescaled observed agreement
 under the name of a chance-corrected coefficient, so a system evaluated by PABAK on a set with 12 positives is scored almost entirely on its behaviour on the negatives. Whether that is right depends
 on the exchange rate between a missed contradiction and a false alarm, a clinical question the papers
@@ -200,22 +201,22 @@ in this thread do not address.
 
 The Matthews correlation coefficient (MCC), introduced for assessing secondary structure prediction
 \citep{matthews1975mcc}, is the Pearson correlation between the binary prediction and the binary
-label, computed from all four confusion matrix cells. \citet{chicco2020mcc} argue it should be
-preferred to accuracy and $F_1$ under imbalance because it is high only when all four cells are
-favourable, and \citet{chicco2021mccbalanced} extend the argument against balanced accuracy,
-bookmaker informedness, and markedness. \citet{powers2011evaluation} situates it among informedness
-and markedness measures, and \citet{delgado2019kappa} argue from kappa's behaviour under skew that
-it should be avoided as a measure of classification performance, using MCC as their contrast measure
-without explicitly recommending it.
+label, computed from all four confusion matrix cells. It is argued to be
+preferable to accuracy and $F_1$ under imbalance because it is high only when all four cells are
+favourable \citep{chicco2020mcc}, and the same argument has been extended against balanced accuracy,
+bookmaker informedness, and markedness \citep{chicco2021mccbalanced}. It has also been situated among informedness
+and markedness measures \citep{powers2011evaluation}, and kappa's behaviour under skew has been read
+as a reason to avoid kappa as a measure of classification performance, with MCC as the contrast
+measure and no explicit recommendation of it \citep{delgado2019kappa}.
 
 Balanced accuracy, the unweighted mean of sensitivity and specificity \citep{brodersen2010balanced},
 is the measure most often reached for when a prevalence-blind summary is wanted, and its implicit
 weighting is the least often written down. Under heavy negative skew the receiver operating characteristic (ROC) curve is dominated by
 the majority class and can look acceptable while precision-recall behaviour sits at the no-skill
-line, which is why \citet{saito2015prcurve} argue the precision-recall curve should be the primary
-tool at high skew; both are reported in this thesis. Two areas under the curve computed on the same
+line, which is why the precision-recall curve is argued to be the primary
+tool at high skew \citep{saito2015prcurve}; both are reported in this thesis. Two areas under the curve computed on the same
 cases are correlated, so their difference cannot be tested as though the samples were independent;
-\citet{delong1988comparing} give the standard nonparametric treatment, used here for each paired comparison of the control model or a reference baseline with the detector. \citet{schaeffer2023mirage} make the parallel argument for scale instead of prevalence, attributing emergent abilities in large language models to the researcher's choice of a nonlinear or discontinuous metric, not to a change in model behaviour.
+the standard nonparametric treatment \citep{delong1988comparing} is used here for each paired comparison of the control model or a reference baseline with the detector. The parallel argument has been made for scale instead of prevalence, attributing emergent abilities in large language models to the researcher's choice of a nonlinear or discontinuous metric, not to a change in model behaviour \citep{schaeffer2023mirage}.
 
 \subsection{Training under skew is not measuring under skew}
 
@@ -224,10 +225,10 @@ characterisation of when imbalance actually hurts \citep{japkowicz2002imbalance}
 \citep{he2009imbalanced}, cost-sensitive decision rules \citep{elkan2001cost}, loss reshaping in
 several forms \citep{lin2017focal,cui2019classbalanced,cao2019ldam,menon2021logitadjust}, and
 positive-unlabelled formulations \citep{bekker2020pu}. Their relevance here is bounded by a single
-result: \citet{vandengoorbergh2022harm} show, in clinical risk prediction, that imbalance corrections
+result: in clinical risk prediction, imbalance corrections
 including undersampling, oversampling, and SMOTE (synthetic minority oversampling) produce severe miscalibration without improving
-discrimination as measured by AUROC, and that whatever sensitivity gain they deliver is available by
-shifting the threshold instead. Such corrections move the operating point along a ranking; they do
+discrimination as measured by AUROC, and whatever sensitivity gain they deliver is available by
+shifting the threshold instead \citep{vandengoorbergh2022harm}. Such corrections move the operating point along a ranking; they do
 not create ranking information. The tools that address the measurement side sit outside that literature: decision curve analysis
 \citep{vickers2006dca} evaluates a model across the threshold probabilities a decision maker might
 hold, and cost-sensitive learning \citep{elkan2001cost} makes the exchange rate an explicit
@@ -244,19 +245,19 @@ borrowed, and laying it out at length makes the attribution unambiguous. Each su
 
 \subsection{Negative and positive controls in observational research}
 
-\citet{lipsitch2010negative} formalised the negative control for observational epidemiology: a
+The negative control was formalised for observational epidemiology \citep{lipsitch2010negative}: a
 noncausal association between exposure and outcome threatens any causal claim, so one tests for it
 by finding an exposure known not to cause the outcome, or an outcome known not to be caused by the
 exposure, and checking whether the analysis nonetheless produces an association. An association where
 none can exist is evidence that the analysis is picking up confounding, recall bias, or a defect in procedure, though the control does not identify which. A positive control runs the same analysis in
-the opposite direction, on a case where an effect is already known to exist. Its result describes the instrument and leaves the question untouched; \citet{lipsitch2010negative} do not
-formalise this direction. The transfer to a machine learning pipeline is direct: replace the
+the opposite direction, on a case where an effect is already known to exist. Its result describes the instrument and leaves the question untouched, and that formalisation does
+not cover this direction \citep{lipsitch2010negative}. The transfer to a machine learning pipeline is direct: replace the
 substantive input with one that cannot carry the claimed information, hold everything else fixed,
 and see whether the reported effect survives.
 
 \subsection{Randomisation tests for attribution}
 
-\citet{adebayo2018sanity} use the same logic in their sanity checks for saliency maps. A model randomisation test
+The same logic drives the sanity checks proposed for saliency maps \citep{adebayo2018sanity}. A model randomisation test
 progressively randomises trained weights and asks whether the saliency map changes, and a data
 randomisation test retrains on permuted labels and asks the same; some widely used methods produce
 visually plausible maps independent of both, which means those maps cannot be evidence about the model. The
@@ -265,28 +266,28 @@ it consumes with something that cannot contain the credited signal and see wheth
 
 \subsection{Control tasks and selectivity}
 
-\citet{hewitt2019control} supply the design an architecture control would follow. A probe trained to predict a linguistic property from a neural representation may succeed because the
+The design an architecture control would follow comes from the probing literature \citep{hewitt2019control}. A probe trained to predict a linguistic property from a neural representation may succeed because the
 representation encodes the property, or merely because the probe is expressive enough to memorise the
-mapping. Their control task assigns random outputs to word types, trains the same probe on that, and
+mapping. That control task assigns random outputs to word types, trains the same probe on that, and
 defines selectivity as the gap between linguistic and control task accuracy; common probing setups
 have poor selectivity, dropout does not fix this for multilayer perceptron probes, and a more
-selective representation layer can win despite lower raw accuracy. \citet{belinkov2022probing}
-synthesises the literature that followed: probe accuracy alone identifies neither what a
-representation encodes nor whether the model uses it. The transfer to an architecture is this thesis's own inference, which Belinkov does not draw: an ordinal or categorical feature a component is credited with exploiting can be replaced with an arbitrary assignment of the same shape, and if
+selective representation layer can win despite lower raw accuracy. A synthesis of the literature
+that followed concludes that probe accuracy alone identifies neither what a
+representation encodes nor whether the model uses it \citep{belinkov2022probing}. The transfer to an architecture is this thesis's own inference, which that synthesis does not draw: an ordinal or categorical feature a component is credited with exploiting can be replaced with an arbitrary assignment of the same shape, and if
 that assignment recovers the gain, the credited feature was not the source.
 
 \subsection{Leakage and measurement}
 
-\citet{kaufman2012leakage} give the formulation, detection, and avoidance of leakage in data mining:
-the introduction of information about the target that should not legitimately be available. They
-give three routes to detection, exploratory data analysis, surprisingly good model performance, and
-early field testing, and rank none of them; the second is the behavioural one, a model performing
+The formulation, detection, and avoidance of leakage in data mining are set out in one place \citep{kaufman2012leakage}:
+the introduction of information about the target that should not legitimately be available. That work
+gives three routes to detection, exploratory data analysis, surprisingly good model performance, and
+early field testing, and ranks none of them; the second is the behavioural one, a model performing
 implausibly well relative to the task's difficulty. An auxiliary objective derivable from the model's own inputs is a textbook
 instance, and the diagnosis is that the target is not independent of what the model already has.
-\citet{jacobs2021measurement} bring measurement modelling from the quantitative social sciences to
-computational systems, and their framing covers the whole chapter: systems operationalise
+Measurement modelling has been brought from the quantitative social sciences to
+computational systems \citep{jacobs2021measurement}, and that framing covers the whole chapter: systems operationalise
 unobservable constructs through observable proxies, and the gap between construct and
-operationalisation is where harms and invalid conclusions originate. They give fairness-oriented
+operationalisation is where harms and invalid conclusions originate. It gives fairness-oriented
 accounts of construct reliability and validity, arguing that disagreements about fairness definitions
 frequently mask disagreements about the underlying construct. The question here is whether what is scored, a rule-mined candidate pair judged by one annotator against heuristic-selected evidence, measures clinical contradiction at all.
 
@@ -302,19 +303,19 @@ Table~\ref{tab:lit-controls} lists the checks this thesis ran and their sources.
 \toprule
 \textbf{Check run} & \textbf{Borrowed from} & \textbf{Stage} \\
 \midrule
-Code audit of the exemplar selector & \citet{sculley2015debt} & Candidate mining \\
+Code audit of the exemplar selector & \citep{sculley2015debt} & Candidate mining \\
 \addlinespace[3pt]
-Marginal ceiling and attainable floor & \citet{cohen1960kappa}, \citet{tarone1990modified} & Weak supervision \\
+Marginal ceiling and attainable floor & \citep{cohen1960kappa,tarone1990modified} & Weak supervision \\
 \addlinespace[3pt]
-Measured agreement with expert labels & \citet{pangakis2023validation} & Weak supervision \\
+Measured agreement with expert labels & \citep{pangakis2023validation} & Weak supervision \\
 \addlinespace[3pt]
-Code audit for target leakage & \citet{kaufman2012leakage} & Architecture \\
+Code audit for target leakage & \citep{kaufman2012leakage} & Architecture \\
 \addlinespace[3pt]
-Rule-stratum comparison & \citet{barocas2021disaggregated} & Evaluation \\
+Rule-stratum comparison & \citep{barocas2021disaggregated} & Evaluation \\
 \addlinespace[3pt]
-Power analysis for AUROC & \citet{hanley1982meaning} & Evaluation \\
+Power analysis for AUROC & \citep{hanley1982meaning} & Evaluation \\
 \addlinespace[3pt]
-Construct validity framing & \citet{jacobs2021measurement} & Task definition \\
+Construct validity framing & \citep{jacobs2021measurement} & Task definition \\
 \bottomrule
 \end{tabular}
 \apanote{Stage names the pipeline step each check applies to, under the four names used
@@ -327,17 +328,18 @@ definition marks a framing check that applies before any stage. For the exemplar
 
 The literature on disaggregated evaluation bears on this thesis only through the idea of auditing a
 pipeline stage by stage, since its fairness quantities are not claims about this thesis's own
-contradiction detector. \citet{biswas2021fairpreprocessing} already audit at stage level: they study
-fairness introduced by data preprocessing rather than by the classifier, evaluate 37 pipelines drawn
-from three sources using causal fairness measures, and show how the local fairness of individual
-preprocessing stages composes into the fairness of the pipeline as a whole. The idea of auditing by stage is theirs; what differs here is the object audited. Their metric, fairness against protected attributes, is defined at every stage,
+contradiction detector. Stage-level auditing already exists \citep{biswas2021fairpreprocessing}: that work studies
+fairness introduced by data preprocessing rather than by the classifier, evaluates 37 pipelines drawn
+from three sources using causal fairness measures, and shows how the local fairness of individual
+preprocessing stages composes into the fairness of the pipeline as a whole. The idea of auditing by stage is borrowed from it; what differs here is the object audited. That metric, fairness against protected attributes, is defined at every stage,
 whereas the quantity here is the validity of each stage's evidential claim: whether a candidate pool
 contains the pairs it should, whether a weak labeller's marginal is usable, whether an architectural
 component contributes what it is credited with, and whether the evaluation could resolve an effect.
 These are stage-specific and not comparable to one another, so they cannot be composed the way a
 fairness metric composes.
-\citet{sculley2015debt} anticipate the general hazard, that system-level defects arise at component
-boundaries rather than inside any one of them, without proposing per-stage checks.
+The general hazard, that system-level defects arise at component
+boundaries rather than inside any one of them, is anticipated without any per-stage check being
+proposed \citep{sculley2015debt}.
 
 \section{What Is Left}
 \label{sec:lit-gap}
@@ -345,8 +347,9 @@ boundaries rather than inside any one of them, without proposing per-stage check
 No cross-note, free-text-to-free-text medication contradiction system or benchmark was found, and the
 five threads leave three further openings, one for each contribution of this thesis. First, no work
 was found that runs a stage-appropriate check at every stage of a clinical text pipeline and reports
-each outcome whichever way it falls: \citet{biswas2021fairpreprocessing} audit by stage for a metric
-defined at every stage, and \citet{sculley2015debt} name the hazard without per-stage checks. Second, the maximum agreement attainable under fixed marginals is classical
+each outcome whichever way it falls: one line audits by stage for a metric
+defined at every stage \citep{biswas2021fairpreprocessing}, and another names the hazard without
+per-stage checks \citep{sculley2015debt}. Second, the maximum agreement attainable under fixed marginals is classical
 \citep{cohen1960kappa}, and automated annotation must be validated against human labels
 \citep{pangakis2023validation,egami2023surrogates}. No work was found that uses the bound, together
 with the minimum attainable significance of a discrete test \citep{tarone1990modified}, as a check on

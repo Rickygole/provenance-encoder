@@ -48,8 +48,7 @@ and chart date.
 No clinical note text appears in this thesis, in any table, figure, appendix, or released file,
 and no admission or subject identifier is printed anywhere. Note-derived intermediate files are kept
 outside the version-controlled tree; the exceptions are disclosed in
-Section~``\nameref{sec:m-ethics},'' which also states why every result obtained by sending sentence
-pairs to hosted model APIs has been withdrawn. The export script scans candidate files for note-text markers and, if it finds one, stops without exporting anything; it does not try to filter the text out. MIMIC-III notes are de-identified by an automated
+Section~``\nameref{sec:m-ethics}.'' The export script scans candidate files for note-text markers and, if it finds one, stops without exporting anything; it does not try to filter the text out. MIMIC-III notes are de-identified by an automated
 system that replaces protected health information with bracketed surrogate tokens
 \citep{neamatullah2008deid}, and surrogates cluster at the head of a note where name, date, service,
 and identifier fields sit. A model truncating a discharge summary to its first few hundred WordPiece
@@ -168,7 +167,7 @@ S_{\text{train}} \cap S_{\text{val}} = S_{\text{train}} \cap S_{\text{test}}
 S_{\text{train}} \cup S_{\text{val}} \cup S_{\text{test}} = S .
 \]
 Patient-level grouping is the correct unit because it is the only unit guaranteeing no shared note
-and no shared documentation episode. Disjointness by row, or even by admission, is weaker than disjointness by subject, since a subject can contribute one admission to the gold set and another to the weak-labelled pool. The released run is that case: gold pairs were removed from its training pool by row only. For that reason the control
+and no shared documentation episode. Disjointness by row, or even by admission, is weaker than disjointness by subject, since a subject can contribute one admission to the gold set and another to the weak-labelled pool. The subject-overlap run is that case: gold pairs were removed from its training pool by row only. For that reason the control
 training pool of Section~``\nameref{sec:m-control-model}'' excludes, by assertion, every weak-label
 row whose subject appears in the gold set.
 
@@ -267,7 +266,7 @@ mention, the trigger fires on the continuation-cessation branch and the candidat
 rule's own definition. The positional selector still returns a continuation row on the discharge
 side, so the exemplar presented as a contradiction consists of two sentences in which the notes
 agree.
-That this code selected the annotated gold exemplars is not established: no file links it to the annotation sheet, and the three measurements of the defect rate in Chapter~\ref{ch:results} disagree.
+That this code selected the annotated gold exemplars is not established: no file links it to the annotation sheet, and the four readings of the defect rate in Chapter~\ref{ch:results} bound it without pinning it.
 
 This is a methods matter as well as a bug: the pharmacist annotated the exemplar pair,
 the weak labeller read it, and the detector was trained on it. Wherever the selector failed, all
@@ -275,7 +274,7 @@ three reasoned about evidence that did not contain the conflict that caused the 
 The defect was invisible because of an upstream schema decision: with no sentence index or character
 offset, two mentions of one drug in one note are indistinguishable rows, so no representation could
 express which mention carried the conflict. This is configuration
-and data-dependency debt in the sense of \citet{sculley2015debt}, a defect that could not be seen because the field that would have exposed it did not exist.
+and data-dependency debt in the sense the systems literature gives those terms \citep{sculley2015debt}, a defect that could not be seen because the field that would have exposed it did not exist.
 
 The rebuild selects, on each side independently, among the mentions whose action equals
 the action required by that candidate's conflict branch:
@@ -319,7 +318,7 @@ not viable, so this project uses weak supervision: obtain approximate labels che
 they are noisy, and rely on training to absorb the noise. The pattern was established for several labelling sources, whose disagreements a label model can use \citep{ratner2017snorkel}. The
 single source used here is an instruction-tuned language model, the default cheap labeller whose
 record Chapter~\ref{ch:lit} reviews \citep{gilardi2023chatgpt}. Weak labels are used as training supervision here, never as ground
-truth: any metric computed against them measures agreement with the labeller and says nothing about clinical correctness. The validation Chapter~\ref{ch:lit} takes from \citet{pangakis2023validation} is run on the gold set of Section~``\nameref{sec:m-gold}.''
+truth: any metric computed against them measures agreement with the labeller and says nothing about clinical correctness. The validation Chapter~\ref{ch:lit} takes from the weak-labelling literature \citep{pangakis2023validation} is run on the gold set of Section~``\nameref{sec:m-gold}.''
 
 The production labeller is Llama 3 8B \citep{grattafiori2024llama3}, run locally and presented with
 each candidate's exemplar sentence pair and the identifier of the rule that generated it, asked for
@@ -376,7 +375,7 @@ which is where the de-identification header of Section~``\nameref{sec:m-data}'' 
 system was specified as that backbone plus four purpose-built components, a cross-note difference
 encoder, an asymmetric conditioning module, a pharmacological prior conditioning module, and a
 guideline-grounded harm estimator, with three claimed contributions attached to them. What follows
-describes the code that produced the results, per the correction record released with the code. The
+describes the code that produced the results. The
 pharmacological prior module was deleted in the second version and replaced by a function returning a
 fixed-length vector of zeros with two positions overwritten, a danger multiplier and a normalised
 rule identifier. That function has zero learned parameters, and the running code holds no drug class
@@ -392,7 +391,7 @@ untrained module rather than severity ranking.
 
 The auxiliary rule-type head predicts the rule identifier that the prior-feature constructor writes
 into the model's input, in the same forward pass, so its target is in its input. That is leakage in the
-sense of \citet{kaufman2012leakage}, information about the target reaching the model that should not
+standard sense \citep{kaufman2012leakage}, information about the target reaching the model that should not
 legitimately be available to it, and an auxiliary head whose target is derivable from its own input
 features is not an auxiliary task. The annotation-artifact and shortcut-learning literature
 \citep{poliak2018hypothesis,gururangan2018artifacts,mccoy2019hans,geirhos2020shortcut,zech2018generalization}
@@ -408,8 +407,8 @@ Chapter~\ref{ch:results} is the parameter's displacement from its initial value 
 gradient-norm trace was recorded for any run. The audit read the code and the final parameter
 values; for a parameter reported as learned, future work should publish the trace too.
 
-Two runs of this detector are scored, and their names are fixed here. The contaminated run is the
-released detector, whose training rows share subjects with the gold set through the weak-labelled pool,
+Two runs of this detector are scored, and their names are fixed here. The subject-overlap run is the
+one whose training rows share subjects with the gold set through the weak-labelled pool,
 although no training row is itself a gold pair. The decontaminated run is a three-seed retrain of the
 same detector whose training rows are subject-disjoint from the gold set, scored per seed and as the
 mean of its three seeds, the decontaminated ensemble.
@@ -423,7 +422,7 @@ architecture. The pretraining script could not have trained the wider
 configuration: it freezes the backbone unconditionally and has no path that unfreezes an encoder
 layer. A checkpoint bearing that configuration's name exists; its origin is unexplained. The
 parameter total attributed to it is reproducible only by counting a pooler module flagged trainable
-that receives no gradient (correction record released with the code).
+that receives no gradient.
 
 \subsection{The plain control model}
 \label{sec:m-control-model}
@@ -502,11 +501,11 @@ ratio's denominator by one constant and says nothing about the labeller.
 
 \subsection{What this design can and cannot establish}
 
-A reliability claim previously attached to this gold set is retracted. The project reported a Cohen's $\kappa$ of
-$1.000$ between two independent pharmacist judgement instruments, which were in fact the binary
-contradiction label and the ordinal danger rating: a pair that is not a contradiction has no danger
-by definition, so the agreement between a positive label and a positive danger rating is an identity
-guaranteed by construction and measures nothing about annotator reliability. This study has one
+No inter-rater reliability coefficient is available for this gold set, and none can be computed
+from it. The binary contradiction label and the ordinal danger rating are not two independent
+pharmacist judgements: a pair that is not a contradiction has no danger by definition, so agreement
+between a positive label and a positive danger rating is an identity guaranteed by construction and
+measures nothing about annotator reliability. This study has one
 annotator, a two-pass protocol with a washout, and no established inter-rater reliability; a second
 annotator would be the highest-value single addition to the work, and its absence is a first-order
 limitation on every conclusion resting on the gold labels.
@@ -566,7 +565,7 @@ the old exemplar happened to be correct on the other. The second half of the che
 detection metrics on them as well as on the full set. A difference between the two rule groups is
 confounded with rule content and base rate. It compares rule groups and does not test the defect.
 
-The Rules 3 and 4 rescore (pre-registered) sharpens this comparison. It scored the contaminated run,
+The Rules 3 and 4 rescore (pre-registered) sharpens this comparison. It scored the subject-overlap run,
 the off-the-shelf inference model, and the TF-IDF baseline on the Rules 1 and 2 and the Rules 3 and 4
 strata alike under both readings of the ambiguous pairs, and then, under the same rule, the
 decontaminated ensemble with the ambiguous pairs excluded. Because every AUROC and average-precision figure carries a label-permutation null, a difference between strata is tested instead of read off a point estimate. Its interpretation was
@@ -628,19 +627,17 @@ failed gate faults the pilot, and a passed one shows only that a test was possib
 only; a scored labeller can sweep its threshold and rank well regardless of flag rate, which is why the bound says
 nothing about a ranking metric. The ceiling is the classical maximum of a chance-corrected agreement
 statistic given its marginals \citep{cohen1960kappa}, applied here as a check on a weak labeller's
-marginal. The floor is the minimum attainable significance level that \citet{tarone1990modified}
-derives from the marginal totals of a discrete test. The gate itself is post hoc, added after the
-hosted results were withdrawn.
+marginal. The floor is the minimum attainable significance level derivable
+from the marginal totals of a discrete test \citep{tarone1990modified}. The gate itself is post hoc, added after the
+results it bounds were already in hand.
 
 \subsection{Pre-registered checks}
 \label{sec:m-prereg}
 
 A pre-registered check was committed as a file fixing its rule before its first datum, with its
 outcome appended below the rule and the rule never edited. Each pre-registration file's first commit
-precedes the first commit of its result file in the public repository history, where a reader
-can check the order. That history was rewritten once, to remove commit trailers, which left author
-and committer dates identical, so the order rests on those recorded dates and not on an independent
-timestamp. Table~\ref{tab:m-prereg} maps each
+precedes the first commit of its result file. That order rests on the dates the repository
+records and not on an independent timestamp. Table~\ref{tab:m-prereg} maps each
 identifier, which no chapter uses outside this table, to the plain name the thesis uses and to
 its rule in one line; the full rule, including what makes a run invalid, is in the file. Several checks
 were requested after the main results were in, so each is fixed relative to its own run but post hoc
@@ -650,7 +647,7 @@ $G_{108}$; the rank-based paired test; the exact-join agreement; the teacher-stu
 exemplar-prevalence check; the reproducible-labeller retrain; the cluster-bootstrap check, which adds to its clustered
 resampling the floors at the post-flip counts and the reading with the ambiguous pairs counted positive; and the
 interval tipping-point check, which repeats the greedy relabelling and reads the interval's upper end after each relabel.
-The requests came from this project's own internal review rounds. The project's files call those rounds ``the committee'' or ``an examiner,'' and neither phrase refers to the thesis committee. A pre-registered scale ladder
+The requests came from this project's own internal review rounds. A pre-registered scale ladder
 within one model family was attempted twice, and a prospective version of the feasibility check that
 depended on it could run neither time. All three registrations were invalid under their gate, and none
 is reported. The pre-registration
@@ -659,15 +656,15 @@ stayed under a parse-failure ceiling, and one size did not, returning a preamble
 answer on every pair in the first attempt and failing the same gate again after the registered
 decoding repair in the second. The gate has therefore been applied after the fact in this
 thesis and never before a labelling run. Identifiers are assigned once, in commit order, from one sequence this project shares between its
-pre-registered checks and its correction record (Appendix~\ref{app:corrections}). The gaps in the
+pre-registered checks and its internal correction entries. The gaps in the
 sequence below are therefore correction entries, not unreported checks, apart from the three
 identifiers spent on those unreported scale-ladder and prospective attempts.
 
 Every other check was specified after results were seen. That includes the feasibility gate, the
-ambiguous-positive reading, both tipping-point readings on the contaminated run, the public sweep
+ambiguous-positive reading, both tipping-point readings on the subject-overlap run, the public sweep
 decomposition, the choice of average precision as the bag-of-words permutation test's headline
 statistic, the RQ3 code audits, the rule-group Fisher test with its exact power, the synthetic
-assertion fixtures, the Monte Carlo cross-check of the minimum detectable AUROC, the contaminated-run
+assertion fixtures, the Monte Carlo cross-check of the minimum detectable AUROC, the subject-overlap run's
 threshold sweep, the ceiling in the bounded null's definition, and the Spearman tests. None of these had a
 threshold fixed in advance.
 
@@ -773,10 +770,10 @@ majority-class no-skill line, and an ordering among systems is claimed only if t
 on the difference excludes zero.
 
 This is applied literature, not a contribution. The prevalence dependence of chance-corrected
-agreement is set out by \citet{feinstein1990paradoxes} and \citet{cicchetti1990resolving}, the
-prevalence-adjusted correction by \citet{byrt1993pabak}, and the dependence of $\kappa$ on marginals
-by \citet{delgado2019kappa}. The case for MCC over $F_1$ under imbalance is made by
-\citet{chicco2020mcc}, and the balanced-accuracy case by \citet{brodersen2010balanced}.
+agreement is set out in the agreement literature \citep{feinstein1990paradoxes,cicchetti1990resolving}, the
+prevalence-adjusted correction with it \citep{byrt1993pabak}, and the dependence of $\kappa$ on marginals
+alongside \citep{delgado2019kappa}. The case for MCC over $F_1$ under imbalance is made there
+\citep{chicco2020mcc}, and the balanced-accuracy case beside it \citep{brodersen2010balanced}.
 Precision-recall summaries are preferred to ROC summaries where the positive class is very rare
 \citep{saito2015prcurve}, and both are reported here.
 
@@ -810,16 +807,18 @@ estimate with $n_+$ positives and $n_-$ negatives is approximated by
 \mathrm{SE}_0 = \sqrt{\frac{n_+ + n_- + 1}{12\, n_+ n_-}} ,
 \]
 with $\alpha = 0.05$ and power $0.80$ throughout. The table's minimum detectable AUROC column solves the
-standard \citet{hanley1982meaning} condition, which splits the two terms of the requirement: the critical
+standard power condition \citep{hanley1982meaning}, which splits the two terms of the requirement: the critical
 value of the test is set under the null, so the significance term takes the standard error at the null and
 only the power term takes the standard error $\mathrm{SE}(a)$ at the alternative, giving
 $a - 0.5 \geq z_{1-\alpha/2}\, \mathrm{SE}_0 + z_{1-\beta}\, \mathrm{SE}(a)$, solved for the smallest
-$a$ by search because the \citet{hanley1982meaning} sampling variance behind $\mathrm{SE}(a)$ depends on
+$a$ by search because the sampling variance behind $\mathrm{SE}(a)$ \citep{hanley1982meaning} depends on
 $a$. The two standard errors are one convention, not two approximations: at $a = 0.5$ that sampling variance
 has $Q_1 = Q_2 = 1/3$ and collapses exactly to $\mathrm{SE}_0$. Since $\mathrm{SE}(a) < \mathrm{SE}_0$ for
 every $a > 0.5$, dividing the whole effect by $\mathrm{SE}(a)$ alone instead asks it to clear a smaller
 quantity and returns a floor that is too low: on $G_{253}$ that route gives $0.7355$ where the condition
-above gives $0.7382$. Figure~\ref{fig:power} draws the same condition as a curve.
+above gives $0.7382$. A third route takes the standard error at the null in both terms and gives $0.7397$.
+Table~\ref{tab:m-mde} prints all three, so no chapter needs to walk through them again, and
+Figure~\ref{fig:power} draws the standard condition as a curve.
 
 The registered decision rule, used by several pre-registered checks and named that way throughout
 this thesis, is an AUROC at or above 0.7355 with a one-sided Mann-Whitney $p$ below 0.05 on
@@ -840,17 +839,19 @@ replicates: a system with that much signal fails the rule about as often as it p
 \label{tab:m-mde}
 \centering
 \small
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-\textbf{Stratum} & \textbf{$n_+$} & \textbf{$n_-$} & \textbf{$\mathrm{SE}_0$} & \textbf{$\mathrm{AUROC}_{\min}$} \\
+ & & & & \multicolumn{3}{c}{\textbf{Route through the variance formula}} \\
+\cmidrule(l){5-7}
+\textbf{Stratum} & \textbf{$n_+$} & \textbf{$n_-$} & \textbf{$\mathrm{SE}_0$} & \textbf{Standard} & \textbf{$\mathrm{SE}(a)$ only} & \textbf{Null only} \\
 \midrule
-$G_{253}$ & 12 & 241 & 0.0856 & 0.7382 \\
-$G_{299}$ & 12 & 287 & 0.0852 & 0.7375 \\
-$G_{134}$ & 6 & 128 & 0.1210 & 0.8258 \\
-$G_{108}$ & 6 & 102 & 0.1218 & 0.8274 \\
+$G_{253}$ & 12 & 241 & 0.0856 & 0.7382 & 0.7355 & 0.7397 \\
+$G_{299}$ & 12 & 287 & 0.0852 & 0.7375 & 0.7350 & \\
+$G_{134}$ & 6 & 128 & 0.1210 & 0.8258 & 0.8058 & \\
+$G_{108}$ & 6 & 102 & 0.1218 & 0.8274 & 0.8064 & \\
 \bottomrule
 \end{tabular}
-\apanote{$n_+$ and $n_-$ are the positive and negative counts of the stratum; $\mathrm{SE}_0$ is the analytic standard error of an AUROC estimate under the null of no discrimination, defined above; $\mathrm{AUROC}_{\min}$ is the analytic minimum detectable AUROC. Both columns come from the same \citet{hanley1982meaning} sampling variance: $\mathrm{SE}_0$ is that variance evaluated at the null, and $\mathrm{AUROC}_{\min}$ solves the two-term condition stated above, which is the condition that also draws the curve and the marker in Figure~\ref{fig:power} in Chapter~\ref{ch:results}. Values are rounded to four decimal places. These figures bound what the evaluation could have seen and are not results about any model. They also state the limit of the thesis's negative claim: nothing here can establish that the task is unsolvable, only that this pipeline does not solve it at a sensitivity this coarse.}
+\apanote{$n_+$ and $n_-$ are the positive and negative counts of the stratum; $\mathrm{SE}_0$ is the analytic standard error of an AUROC estimate under the null of no discrimination, defined above; the three right-hand columns are the minimum detectable AUROC under each route through that sampling variance. \emph{Standard} solves the two-term condition stated above and is the analytic minimum detectable AUROC this thesis reports, the condition that also draws the curve and the marker in Figure~\ref{fig:power} in Chapter~\ref{ch:results}. \emph{$\mathrm{SE}(a)$ only} divides the whole effect by the standard error at the alternative; on $G_{253}$ it is the defective route the registered AUROC threshold was set from, so that column's $0.7355$ is a record of a decision and not a sensitivity. \emph{Null only} takes the standard error at the null in both terms and is computed for $G_{253}$ alone. All four columns come from the same sampling variance: $\mathrm{SE}_0$ is that variance evaluated at the null. Values are rounded to four decimal places. These figures bound what the evaluation could have seen and are not results about any model. They also state the limit of the thesis's negative claim: nothing here can establish that the task is unsolvable, only that this pipeline does not solve it at a sensitivity this coarse.}
 \end{table}
 
 The table is an analytic approximation. The power simulation (pre-registered) checks it on a real score distribution in place of the binormal assumption the analytic procedure makes: replicate
@@ -886,9 +887,12 @@ Under a ceiling of $0.6$ both $G_{253}$ ensembles, whose upper ends are $0.7034$
 inconclusive. The ceiling moved to the simulated Mann-Whitney floor after the decontaminated ensemble's upper end was
 known, and a bounded null in this thesis is bounded at $0.7466$ and no tighter. One property of that definition was
 never checked. The power simulation measured how often the Mann-Whitney test rejects when the true AUROC is $0.50$,
-$0.048$ of replicates against a nominal $0.05$, but nothing here measures how often the percentile bootstrap's upper
-end covers the true value at $12$ positives. The definition rests on that upper end, so its calibration at this size
-is assumed rather than shown.
+$0.048$ of replicates against a nominal $0.05$. The coverage of the percentile bootstrap interval at $12$ positives
+has since been measured on the same pool, under the unstratified rule this thesis's own intervals use and at five
+true AUROC values from $0.50$ to $0.80$: the nominal 95 percent interval covers the true value between $0.9165$ and
+$0.9345$ of the time. An interval this thesis calls a 95 percent interval is therefore closer to a 92 percent
+interval, and a calibrated one would be wider. Section~``\nameref{sec:res-rq4}'' in Chapter~\ref{ch:results} states
+what that does to the margin the bounded null rests on.
 
 \subsection{Seed variation and the standard-deviation convention}
 

@@ -119,28 +119,19 @@ candidate mentions, an exemplar selector that picks from that set by position in
 together. Here the Rules 1 and 2 selector indexed candidates positionally
 (Figure~\ref{fig:exemplar}), and the pool's reported precision carried no
 trace of it, because no metric compares displayed evidence against
-triggering evidence. The pattern is not hypothetical. On the rebuilt candidate pool the original positional rule misplaces the exemplar for $41.4$ percent of Rules 1 and 2 candidates, a design rate set out under the third contribution below. What the annotated exemplars cannot recover is which mention fired, because the
-candidate schema does not record it. Whether the displayed mentions could have
-fired the trigger is a different question and is decidable from the stored action
-labels alone: for Rules 1 and 2 the trigger fires only on an opposite action pair,
-so a displayed pair that is not one provably cannot be the pair that fired. On
-that test $72$ of the $165$ annotated Rules 1 and 2 pairs sit outside the trigger
-set, a rate of $0.4364$ (Wilson $0.3630$ to $0.5126$), which is the miss rate
-printed on stage $1$ of Figure~\ref{fig:pipeline-status}. It is a lower bound and not the rate, because a display can
-be an opposite pair and still be drawn from the wrong mentions. Four instruments
-now read the same quantity: $0$ (the key join, on the $23$ rows it could resolve),
-$0.4364$ (this lower bound, on all $165$ pairs), $0.4745$ (the reconstruction),
-and $0.9315$ (the direct extractor, $69$ of whose $136$ wrong rows have no
-classified action on at least one side). The lower bound and the reconstruction
-are not independent, since they read nearly the same labels, which agree at
-$0.8934$ on the nursing side and $0.9508$ on the discharge side. The independent
-agreement is the rebuilt pool's design rate of $0.4139$, which touches neither the
-annotated candidates table nor that snapshot. What the set supports is three
-readings across two substrates, concentrated near $0.4$, with zero excluded on the
-annotated pairs themselves. Section~``\nameref{sec:r-exemplar}'' reports all four.
+triggering evidence. The pattern is not hypothetical. On the rebuilt candidate pool the original positional rule misplaces the exemplar for $41.4$ percent of Rules 1 and 2 candidates, a design rate set out under the third contribution below. Which mention fired is
+not recoverable, because the candidate schema does not record it, but whether the displayed
+mentions could have fired is decidable from the stored action labels: $72$ of the $165$
+annotated Rules 1 and 2 pairs display a pair the trigger cannot have fired on, a lower bound
+of $0.4364$ rather than a rate, since a display can be an opposite pair and still be drawn
+from the wrong mentions. Four instruments read the quantity, at $0$, $0.4364$, $0.4745$, and
+$0.9315$, with the lower bound and the reconstruction sharing a substrate, which leaves three
+readings across two substrates, concentrated near $0.4$, and zero excluded on the annotated
+pairs themselves. Section~``\nameref{sec:r-exemplar}'' reports all four against the rebuilt
+pool's independent design rate of $0.4139$.
 Two further defects and one scope limitation are argued in
 Chapter~\ref{ch:method}. The harm head received no term in the training objective (RQ3 below). The train and validation split was made by subject, but the gold pairs were removed from the
-training pool by row, so the released run's training rows still share subjects with the gold set, and
+training pool by row, so the subject-overlap run's training rows still share subjects with the gold set, and
 Chapter~\ref{ch:results} marks the tables that rest on that run.
 The scope limitation is that scispaCy and medspaCy were abandoned over dependency resolution
 without being evaluated, which is not a defect a check could have caught.
@@ -163,12 +154,8 @@ $0.5185$). That comparison, requested after the main results, cannot show that t
 \label{sec:intro-rqs}
 
 The project was organised around four research questions (RQ1 to RQ4), one
-about each stage. RQ4 is reworded
-from its original form, whether the failure was a property of the task or of
-the instrument, because the results that answered that form were withdrawn
-(Appendix~\ref{app:corrections}). The stage readings checked are this
-project's own, as reported in the draft of this thesis that preceded the correction record of
-Appendix~\ref{app:corrections}. The audit in the title is the set of checks
+about each stage. The stage readings checked are this project's own, as the
+pipeline of Section~``\nameref{sec:intro-pipeline}'' produced them. The audit in the title is the set of checks
 Chapter~\ref{ch:method} specifies; it is not the randomisation or negative-control designs of
 Chapter~\ref{ch:lit}, none of which was run. The evidence for each check sits in
 Chapter~\ref{ch:results}, and only the pre-registered checks were fixed before
@@ -231,8 +218,9 @@ what this project's own instrument can show?
 earlier ceiling would read it as inconclusive (Chapter~\ref{ch:method}). No AUROC effect above the resolvable floor is found on the $253$ non-ambiguous pairs: a power
 simulation puts 80 percent power at an AUROC of $0.7466$ for a two-sided Mann-Whitney test and
 $0.8084$ for the registered decision rule, and the three seeds of the decontaminated ensemble are not
-distinguishable from chance. The reading is fragile. Lifting the point estimate past its floor takes $7$ relabelled positives of
-the $12$, when each flip is compared with the floor recomputed for the positives that remain. The bounded null is defined by
+distinguishable from chance. The reading is fragile. Compared with the floor recomputed for the positives each flip
+leaves, no count within the first $7$ relabelled positives lifts the point estimate past its own
+floor, so that count is above $7$ of the $12$. The bounded null is defined by
 its interval, however, and a pre-registered check found that 1 greedily chosen relabel lifts the upper end past $0.7466$ for the plain control detector retrained on reproducible labels and that 2 do so for the decontaminated ensemble, a count the check cannot separate from 1. Making an interval exclude chance takes 3 to 6. Those labels come from a single annotator with no reliability figure, and the check does not reach the $46$ ambiguous pairs (Section~``\nameref{sec:disc-limits}''). Average
 precision was chosen after its value was known. On it, a permutation of the
 gold labels against fixed scores puts a bag-of-words model trained on the weak
@@ -305,5 +293,6 @@ evaluation bounds what this pipeline showed and leaves open what a detector coul
 that $0.0401$ is wrong: that figure is an unbiased estimate for the annotated pairs, and
 trigger-exemplar dissociation leaves open whether it describes the mining rules. It does not claim to know the defect rate of
 the gold exemplars, which four instruments bound near $0.4$ without pinning. It does not claim that a
-frontier-scale model would not help, since every hosted result is withdrawn and the largest
-model run here is not frontier scale.
+frontier-scale model would not help: the largest labeller evaluated here is $14$ billion
+parameters, which is not frontier scale, and Chapter~\ref{ch:conclusion},
+Section~``\nameref{sec:disc-limits},'' states why.

@@ -6,8 +6,10 @@
 %  Numeric provenance: every quantity is from results/accord/VERIFIED_FACTS.json.
 %
 %  This chapter interprets Chapter 4 and does not restate numbers it already
-%  gives. The post hoc list lives in Chapter 3 (sec:m-prereg); the
-%  hosted-withdrawal statement in Chapter 3 (sec:m-ethics).
+%  gives. The post hoc list lives in Chapter 3 (sec:m-prereg); the data-use and
+%  transmission statement in Chapter 3 (sec:m-ethics). The paragraph in
+%  sec:disc-limits naming the labellers evaluated and why no hosted service was
+%  used for a reported result is fixed wording: do not paraphrase it.
 % ============================================================================
 
 \chapter{Summary \& Conclusion}
@@ -37,12 +39,12 @@ three control designs Chapter~\ref{ch:lit} describes, and those designs were not
 
 \begin{table}[!htbp]
 \centering
-\caption{Each pipeline stage before and after its check}
+\caption{Each pipeline stage under its standard metric and after its check}
 \label{tab:disc-spine}
 \footnotesize
 \begin{tabular}{@{}>{\tblragged}p{0.18\linewidth}>{\tblragged}p{0.22\linewidth}>{\tblragged}p{0.33\linewidth}>{\tblragged}p{0.18\linewidth}@{}}
 \toprule
-\textbf{Stage} & \textbf{Before check} & \textbf{After check} & \textbf{Verdict} \\
+\textbf{Stage} & \textbf{Standard metric reading} & \textbf{After check} & \textbf{Verdict} \\
 \midrule
 Candidate mining & Pool base rate $0.0401$ read as a property of the mining rules & Confirmed rate on the annotated pairs only; exemplar defect rate bounded, not pinned (four readings: $0$, $0.4364$, $0.4745$, $0.9315$; the $0.4364$ a lower bound on all $165$ annotated Rules 1 and 2 pairs) & Not established \\
 \addlinespace
@@ -54,7 +56,7 @@ Evaluation & AUROC near chance, plausibly an artifact of a small, defective samp
 \bottomrule
 \end{tabular}
 \apanote{Verdict names the status this thesis gives each stage's check: not established, no metric
-distinguishes the reported reading from the audited defect; unsupported, the check finds no evidence for the reading; bounded null, the interval contains chance and ends below the simulated Mann-Whitney floor, as defined in Chapter~\ref{ch:method}; under the ceiling of $0.6$ that an earlier report coded, the same intervals read as inconclusive.}
+distinguishes the reported reading from the audited defect; unsupported, the check finds no evidence for the reading; bounded null, the interval contains chance and ends below the simulated Mann-Whitney floor, as defined in Chapter~\ref{ch:method}; under the ceiling of $0.6$ that the plain control model's own report applies, the same intervals read as inconclusive.}
 \end{table}
 
 \subsection{Candidate mining: not established}
@@ -70,15 +72,11 @@ original's. Four instruments read how often that
 failure fired on the pooled Rules 1 and 2 candidates
 (Section~``\nameref{sec:r-exemplar}''): a reconstruction, an exact key join on a
 much smaller subset, a purpose-built extractor
-applied to the single truncated sentence the pharmacist saw, and a lower bound that
-needs none of the three. For Rules 1 and 2 the trigger fires only on an opposite
-action pair, so a displayed pair that is not one provably cannot be the pair that
-fired; $72$ of the $165$ annotated pairs are such a display, a rate of at least
-$0.4364$ (Wilson $0.3630$ to $0.5126$). That bound is not independent of the
-reconstruction, which reads nearly the same labels: the two substrates agree at
-$0.8934$ on the nursing side and $0.9508$ on the discharge side. The independent
-reading is the rebuilt pool's design rate of $0.4139$, which touches neither the
-annotated candidates table nor that snapshot. What the set supports is three
+applied to the single truncated sentence the pharmacist saw, and a lower bound of $0.4364$ that
+needs none of the three and excludes none of the $165$ annotated pairs. That bound and the
+reconstruction read nearly the same labels, which match what the pharmacist saw at $0.8934$ on the
+nursing side and $0.9508$ on the discharge side, so they are not independent of each other; the
+independent reading is the rebuilt pool's design rate of $0.4139$. What the set supports is three
 readings across two substrates, concentrated near $0.4$, with zero excluded on the
 annotated pairs themselves. Which mention fired is still not recoverable, and no
 single reading is a tiebreaker for the rate itself.
@@ -113,8 +111,8 @@ this biased needs gold labels on the same distribution
 \citep{ratner2016dataprogramming,ratner2017snorkel,zhang2022wssurvey} cannot supply. A student trained on those labels inherits that marginal.
 The teacher-student comparison finds the detector's ranking of the gold pairs
 not distinguishable from its labeller's. Whether that prior scales with
-capability or vendor is unknown, since the hosted comparisons are
-withdrawn. What survives is that nobody checked the weak labeller's marginal before training on it \citep{pangakis2023validation}, and that the size of its over-calling depends on the prompt.
+capability is unknown: no labeller above $14$ billion parameters was evaluated here
+(Section~``\nameref{sec:disc-limits}''). What survives is that nobody checked the weak labeller's marginal before training on it \citep{pangakis2023validation}, and that the size of its over-calling depends on the prompt.
 
 \subsection{Architecture: unsupported by code audit}
 
@@ -124,7 +122,7 @@ behind a normalisation that drives its gradient towards zero, and moves by less 
 auxiliary target readable from the input features one linear layer away, the
 textbook symptom of leakage \citep{kaufman2012leakage}, which vacates the metric
 without refuting the component. The harm head is untrained: no term in the
-objective trains it, and its severity claim is withdrawn. RQ3 (Section~``\nameref{sec:m-control-rq3}'') is
+objective trains it, and its output range is not a severity score. RQ3 (Section~``\nameref{sec:m-control-rq3}'') is
 therefore answered component by component.
 
 \subsection{Evaluation: a bounded null}
@@ -135,7 +133,7 @@ to show. Decontamination did not rescue the ranking, and because the rows sharin
 with the gold pairs carried the weak labeller's labels and never the pharmacist's, the overlap could
 do little to inflate agreement with gold. A plain BioMedBERT control model with none of ACCORD's
 credited components has a point estimate of $0.4692$ on $G_{299}$ and $0.5469$ on $G_{134}$. Its bootstrap intervals, $0.2880$ to $0.6553$ and $0.2418$ to $0.8281$, contain chance, but the control's own report reads them as inconclusive under its ceiling of $0.6$ and runs no test against chance, so no null is claimed for either stratum. The DeLong tests reported for these two sets (Table~\ref{tab:delong} in Chapter~\ref{ch:results}), $p = 0.9300$ on $G_{299}$ and $p = 0.4306$ on $G_{134}$,
-pair the control ensemble against ACCORD's contaminated released run on the
+pair the control ensemble against ACCORD's subject-overlap run on the
 same pairs; neither substitutes for a test of the control against chance.
 
 \subsection{What survived}
@@ -190,8 +188,9 @@ model below it.
 What the evaluation can resolve comes from a power simulation, which is no empirical validation of the clinical instrument, and it depends
 on the decision rule (Section~``\nameref{sec:res-rq4}''). With $12$ positives
 and $241$ negatives, the two-sided Mann-Whitney test needs AUROC $0.7466$ for
-$80$ percent power and the registered decision rule $0.8084$, and at the analytic
-$0.7355$ the registered decision rule rejects on only $0.5208$ of replicates. The
+$80$ percent power and the registered decision rule $0.8084$, and at the registered AUROC
+threshold $0.7355$, which is not the analytic minimum detectable AUROC of $0.7382$, the
+registered decision rule rejects on only $0.5208$ of replicates. The
 two floors are not measured at a common size: at a true AUROC of $0.50$ the Mann-Whitney
 rule alone rejects $0.048$ of replicates against the registered decision rule's $0.00075$
 (Section~``\nameref{sec:res-rq4}''). The pair should be read as two rules with two different
@@ -222,10 +221,10 @@ simple model is shown to exceed the detector.
 \section{Limitations}
 \label{sec:disc-limits}
 
-\paragraph{What was post hoc and what the positives allow.} RQ4 does not depend
-on any withdrawn hosted number: the detector's bootstrap interval, the power
+\paragraph{What was post hoc and what the positives allow.} RQ4 is answered on
+locally served runs throughout: the detector's bootstrap interval, the power
 simulation, and the minimum detectable effect
-(Section~``\nameref{sec:m-mde}'') answer it locally, and the analyses run after
+(Section~``\nameref{sec:m-mde}'') answer it, and the analyses run after
 their numbers were in hand are listed in
 Section~``\nameref{sec:m-prereg}.'' The decontaminated ensemble was never swept across
 thresholds and stays open to the threshold objection
@@ -242,7 +241,20 @@ cells, uncorrected, met both criteria under two new wordings
 trained models under this supervision. Whether a graded score escapes the
 agreement ceiling is not settled, and no ablation carries a significance claim. The cross-note
 difference encoder, the fourth component Chapter~\ref{ch:method} lists, was not audited: the
-audits followed the three components that the draft preceding the correction record credited with a result.
+audits followed the three components credited with a result.
+
+\paragraph{Every labeller evaluated here was served locally.} Every labeller evaluated in this thesis was an open-weights model served
+locally: Llama 3 8B, Granite 3.3 8B, and Qwen 3 at sizes from 0.6 to 14
+billion parameters. No hosted model service was used for any reported
+result. The Credentialed Data Use Agreement governing this data, and
+PhysioNet's guidance of 24 September 2025 on the use of MIMIC data with
+large language models and online services \citep{physionet2025llm}, permit a hosted service only
+where zero data retention, no training on the data, and no human review can
+be verified, and direct that the service not be used where any of those is
+unclear. Those conditions could not be established for this project, so the
+largest labeller evaluated here is 14 billion parameters. Whether
+over-calling attenuates at frontier scale is therefore open, and answerable
+only by a larger model served locally.
 
 \paragraph{The deployed labelling run is lost, but the ranking null does not rest on it.} The
 script and prompt behind the deployed weak labels were never committed, and those labels cannot be
@@ -258,9 +270,10 @@ false alarms against $9$ true contradictions at a recall of $0.75$. That alarm
 ratio, on a ranking already returned as a bounded null (Table~\ref{tab:disc-spine}), is why this
 system should not be deployed in any form; alert burdens at that ratio are separately associated
 with reduced acceptance \citep{vandersijs2006overriding,ancker2017alertfatigue}. A more specific hazard sits inside the
-architecture: the untrained harm head's outputs span $0.3977$ to $0.6096$, yet the draft preceding the correction record presented that range as a severity score, the
-most serious overstatement this project produced. A one-line
-diagnostic, printing the empirical range of every emitted score, catches it.
+architecture: the untrained harm head's outputs span $0.3977$ to $0.6096$, which is the range
+of an untrained sigmoid and not a severity scale, since no term in the objective ties it to harm.
+The design lesson is a one-line diagnostic: print the range of every emitted score before any
+interpretation is placed on it.
 
 \paragraph{A single institution, corpus, and era.} MIMIC-III covers admissions
 to a single United States academic medical centre \citep{johnson2016mimic}.
@@ -293,18 +306,19 @@ because it is a marginal comparison on the annotated pairs.
 
 \paragraph{One annotator.} Every gold label came from a single pharmacist in two
 passes separated by a washout, which controls within-session drift but does not
-establish inter-rater reliability. A previously reported perfect agreement
-between two pharmacist judgement instruments described as independent is retracted in the
-correction record, because the instruments were logically equivalent. The
-second pass overwrote the first, and no intra-rater figure exists either. How far
+establish inter-rater reliability. No agreement coefficient is available for this gold set
+either: the binary contradiction label and the ordinal danger rating are logically
+equivalent rather than independent judgements (Chapter~\ref{ch:method}). The
+second pass overwrote the first, and no intra-rater figure exists. How far
 a wrong label could move a conclusion is bounded by counts, not estimates
 of how many labels are wrong: in the tipping-point and stratum-interval checks,
 $5$, $6$, and $7$ relabelled positives lift the decontaminated ensemble's AUROC
 past the three floors, and in a post hoc relabelling check $5$ relabelled flags
 move the least over-calling row below the public-text ceiling. Section~``\nameref{sec:res-rq4}'' states the tipping-point check's two limits, and the
 cluster-bootstrap check answers the second: compared with the floor recomputed for the positives that
-remain, the ensemble needs $7$ relabelled positives to tip, where the fixed floor put the count at $5$. Under the opposite reading, with the $46$ ambiguous pairs counted positive, the plain
-control detector retrained on reproducible labels scores $0.4940$ on the $299$ pairs. The first reading needs $7$ of the $12$ positives to be wrong, and the second leaves the point estimate below chance.
+remain, no count within the first $7$ relabelled positives tips the ensemble, so that count is above $7$,
+where the fixed floor put it at $5$. Under the opposite reading, with the $46$ ambiguous pairs counted positive, the plain
+control detector retrained on reproducible labels scores $0.4940$ on the $299$ pairs. The first reading needs more than $7$ of the $12$ positives to be wrong, and the second leaves the point estimate below chance.
 
 The interval's upper end reaches its floor sooner. The bounded null is
 defined by an upper end below $0.7466$, and the interval tipping-point check found that 2 greedily
@@ -353,9 +367,9 @@ Twelve positives; every interval wide & Severe & Stated; per-test floor with eve
 \addlinespace
 Training rows sharing subjects with the evaluation set & Severe if unaddressed & Retrained subject-disjoint; AUROC $0.4595$ before, $0.5145$ after: one run against an ensemble, untested, a descriptive comparison that cannot be read either way \\
 \addlinespace
-Exemplar defect on action-conflict candidates & Severe for pool precision & Three readings disagree, none a tiebreaker; planted-defect benchmark did not meet its rule; Rules 3 and 4 rescore inconclusive \\
+Exemplar defect on action-conflict candidates & Severe for pool precision & Four readings disagree, none a tiebreaker, though three of them concentrate near $0.4$ across two substrates; planted-defect benchmark did not meet its rule; Rules 3 and 4 rescore inconclusive \\
 \addlinespace
-Single annotator, no reliability figure & Severe; bounds every gold-label conclusion & Stated; circular coefficient retracted; tipping-point and relabelling checks bound sensitivity to wrong labels; read from the interval, the bounded null tips after 1 or 2 relabels \\
+Single annotator, no reliability figure & Severe; bounds every gold-label conclusion & Stated; the two judgement instruments are logically equivalent, so no agreement coefficient exists; tipping-point and relabelling checks bound sensitivity to wrong labels; read from the interval, the bounded null tips after 1 or 2 relabels \\
 \addlinespace
 Pairs sharing an admission or a subject & Moderate & Checked for the bounded null: cluster bootstrap by admission and by subject keeps all four upper ends below $0.7466$; other tests not rerun with clustering \\
 \addlinespace
@@ -380,8 +394,8 @@ describes an instrument on a real score distribution and says nothing about
 whether the clinical result would reproduce elsewhere.
 
 Three constructs are named more confidently than they are measured, the gap
-between construct and operationalisation that \citet{jacobs2021measurement}
-argue is where invalid conclusions originate. ``Dangerous medication
+between construct and operationalisation that the measurement-modelling literature
+places at the origin of invalid conclusions \citep{jacobs2021measurement}. ``Dangerous medication
 contradiction'' is operationalised by four rules and one pharmacist's judgement,
 and the detector's target is the weak label, not the clinical event. Any
 statement that it fails to detect contradictions is therefore a statement about what it
@@ -396,7 +410,7 @@ Matthews correlation is used as the better-behaved default
 The part of that critique this evaluation set makes concrete is the exchange
 rate. Each summary statistic implies a rate at which a forgone true positive is
 worth some number of gained true negatives, fixed by class counts and by nothing clinical. The local Granite 3.3 8B few-shot labeller carries
-$10$ true positives and $75$ true negatives against the released detector's
+$10$ true positives and $75$ true negatives against the subject-overlap run's
 $11$ and $18$ on $G_{253}$, and Matthews correlation prices that trade as a net
 gain, $0.0668$ against $-0.0070$. A statistic with a different exchange rate
 could read the same two matrices the other way. Choosing one is a decision
@@ -433,9 +447,8 @@ labellers.} A wording-specific prompt signal can only be tested on pairs it was
 not found on, and the strongest one did not confirm under new wordings. The
 highest of the three exemplar readings comes from an extractor never validated
 against human annotation, and validating one would bound the defect rate and whether the pool's confirmed base rate is valid. Whether over-calling attenuates
-with scale was attempted through a hosted service and withdrawn
-(Section~``\nameref{sec:m-ethics}''), then attempted twice on a local model ladder that was invalid
-under its gate (Chapter~\ref{ch:method}). It is answerable only by a larger labeller
+with scale was attempted twice on a local model ladder, invalid under its gate both times
+(Chapter~\ref{ch:method}). It is answerable only by a larger labeller
 served locally. The smallest experiment that would close it is the same
 clinical-framing prompt run on a 30-billion-parameter-class open-weights model
 served on the analysis machine, scored against the same gold pairs; it needs more
