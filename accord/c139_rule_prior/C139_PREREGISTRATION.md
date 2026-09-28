@@ -84,3 +84,32 @@ The arm reports nothing if any of these holds:
 ## Outcome
 
 To be appended by accord/c139_rule_prior/c139.py after the run.
+
+**Outcome B, not separable.** Run on 17 configurations.
+
+The rule-identity prior alone reaches AUROC 0.6478 on G253, bootstrap
+95 percent interval 0.4778 to 0.8024,
+label-permutation p 0.0367. A score carrying no information
+except which of the four rules generated a pair therefore ranks above chance on
+this set at the uncorrected level.
+
+Against that prior, **no cell clears the corrected threshold of
+0.0029411765**, and none clears 0.05 uncorrected either.
+15 of 17 sit
+above the prior pointwise. The strongest cell, promptconfirm::granite3.3:8b::P_rev_agree, reaches
+0.7936 against the prior's 0.6478,
+a difference of +0.1457 with a paired DeLong two-sided p
+of 0.1396.
+
+Under the rule fixed above this is Outcome B. The graded finding is **not
+promoted**. The thesis states that the graded ranking is not shown to exceed a
+rule-identity prior on these pairs, and the result stands as a further instance
+of the rule-identity leakage the thesis already documents elsewhere.
+
+The registered descriptive secondary is suggestive in the other direction and is
+reported as descriptive only: within the strongest cell, AUROC by rule stratum is
+1: 0.7339, 2: 0.5600, 3: 0.8771, 4: 0.8953,
+on 3, 3, 4, 2
+positives respectively. Rule identity is constant inside a stratum, so signal
+there is not rule identity, but two to four positives per stratum cannot carry a
+test and no claim is made from them.

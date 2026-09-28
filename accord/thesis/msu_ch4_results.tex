@@ -65,7 +65,16 @@ expected output. What fails is the use made of the figure downstream, where it i
 pool's true contradiction rate and every over-calling ratio is divided by it.
 
 Table~\ref{tab:confirmed} shows all 12. Five of the twelve rows are an
-anticoagulant, and all three danger-5 cases are an anticoagulant.
+anticoagulant, and all three danger-5 cases are an anticoagulant. That concentration is the most
+clinically legible pattern in the confirmed set, and it is what a pharmacist would expect: these
+are narrow-therapeutic-index agents whose continuation after a documented hold carries a bleeding
+risk that does not depend on the dose being wrong, which is why a disagreement about them is rated
+at the scale maximum where a diuretic disagreement is not. It is a description of $12$ rows and not
+an incidence estimate, and it is confounded with the mining dictionary, which covers
+anticoagulants more densely than most classes. What it does support is a target for a system that
+cannot detect contradictions in general: the danger is not spread evenly across the pool, so a
+detector restricted to one class would be evaluated against a base rate this project did not
+measure.
 
 \begin{table}[!htbp]
 \caption{The 12 Pharmacist-Confirmed Contradictions}
@@ -90,7 +99,7 @@ R4 discharge-side absence & heparin & anticoagulants & 5 & omission \\
 R4 discharge-side absence & potassium & electrolyte supplements & 4 & omission \\
 \bottomrule
 \end{tabular}
-\apanote{All 12 pairs the pharmacist confirmed as contradictions, out of 299 annotated pairs (241 not a contradiction, 46 ambiguous). Rule is the generating rule that put the pair in the annotation pool: R1 same drug with opposite actions across the two notes, R2 a class-level instruction against an agent-level one, R3 the same drug at doses differing by more than 20 percent, R4 a drug held in the nursing note and absent from the discharge summary. Rule counts are 3, 3, 4, and 2. Drug and class are dictionary terms: the normalised drug name is a member of the extraction dictionary and the class is a fixed ATC-level class map, so neither is note content. Danger is the pharmacist's ordinal rating, 1 the least and 5 the most clinically dangerous; the 12 ratings have median 2.5 and mean 2.9167, and 4 of 12 are at 4 or above. Conflict type is the coarse reading of the two sides; of the 3 class substitutions, 1 swaps the agent inside the class and 2 set a class-level instruction against the same agent. Of the 4 dose rows, 3 carry a percent difference above 100 because a bolus figure is paired against a maintenance figure; those are unit and role mismatches in the parsed dose, not dose errors of that size. No clinical note text and no patient or admission identifier appears in this table.}
+\apanote{All 12 pairs the pharmacist confirmed as contradictions, out of 299 annotated pairs (241 not a contradiction, 46 ambiguous). Rule is the generating rule that put the pair in the annotation pool: R1 same drug with opposite actions across the two notes, R2 two unequal sets of agents of one pharmacologic class, one continued and one ceased, R3 the same drug at doses differing by more than 20 percent, R4 a drug held in the nursing note and absent from the discharge summary. Rule counts are 3, 3, 4 and 2. Drug and class are dictionary terms: the normalised drug name is a member of the extraction dictionary and the class is a fixed hand-written class map of agents, not a standard terminology, so neither is note content. Danger is the pharmacist's ordinal rating, 1 the least and 5 the most clinically dangerous; the 12 ratings have median 2.5 and mean 2.9167, and 4 of 12 are at 4 or above. Conflict type is the coarse reading of the two sides; of the 3 class substitutions, 1 swaps the agent inside the class and 2 read as a class-level instruction set against the same agent, which the rule admits because it requires the two sides' agent sets to be unequal rather than disjoint, so they may overlap on one agent. Of the 4 dose rows, 3 carry a percent difference above 100 because a bolus figure is paired against a maintenance figure; those are unit and role mismatches in the parsed dose, not dose errors of that size. No clinical note text and no patient or admission identifier appears in this table.}
 \end{table}
 
 
@@ -274,10 +283,9 @@ as an interval around a deterministic identity must. Outcome A, cost established
 records that the identity held and nothing more. The model also excludes the case
 running the other way, a positionally chosen pair that looks contradictory although
 the pair which fired the trigger is not, which would push a measured precision
-above the true one. Under that model $0.0401$ is a floor by construction. The model is the author's and
-excludes the case that would push a measured precision above the true one, so it
-cannot show the bias runs only downward and establishes no floor on this pool's
-precision. It signs and bounds the bias conditional on a defect rate and on a model
+above the true one. Under that model $0.0401$ is a floor by construction, but the model is the
+author's and that exclusion is what makes it one, so it cannot show the bias runs only
+downward and establishes no floor on this pool's precision. It signs and bounds the bias conditional on a defect rate and on a model
 of it, and does not measure this pool's.
 
 The stratum comparison does not depend on that rate, because Rules 3 and 4 lie outside the
@@ -522,7 +530,7 @@ observed MCC equals ceiling MCC, where it is also the exact test observed.}
 \subsection{The Local Labellers on This Pool and a Public-Text Check}
 
 If the over-calling were an artifact of a small open-weights model, a stronger
-labeller would remove it. No frontier-scale labeller was evaluated here
+labeller would remove it. No frontier-scale labeller's results are reported here
 (Chapter~\ref{ch:conclusion}, Section~``\nameref{sec:disc-limits}''), so the question is open. The local
 labellers alone support less: every one of them measured on this pool,
 under the prompt tested there, over-calls, and Table~\ref{tab:systems253}
@@ -612,14 +620,17 @@ already show, and nothing is concluded about scale in either direction.
 \apanote{One model family, one identical prompt, and the same $299$ annotated
 pairs at every rung, with each rate taken over the replies that parsed: $298$ of
 $299$ at $0.6$ billion parameters and $299$ of $299$ at every other rung.
-Flagging rate falls monotonically from $1.0000$ at $0.6$
-billion parameters to $0.5385$ at $14$ billion, a slope of $-0.373$ per decade of
-parameters with $r = -0.98$, and is still more than thirteen times the
-pharmacist's base rate of $0.0401$ at the largest size that could be served here.
+Flagging rate is lower at each larger size, from $1.0000$ at $0.6$
+billion parameters to $0.5385$ at $14$ billion, and is still more than thirteen times the
+pharmacist's base rate of $0.0401$ at the largest size that could be served here. No slope or
+correlation is quoted and no line is fitted: four rungs, the smallest of which flags every pair,
+do not support a trend, and this chapter concludes nothing about scale in either direction.
 The $4$ billion cell returned $299$ unparseable replies out of $299$ and is
 excluded; it is drawn as a named empty column and the series segment spanning it
 is dashed. No fitted line is drawn and the axis stops at the largest model run.
-Post hoc descriptive, not pre-registered.}
+These are the rungs of the scale-ladder registration that was ruled invalid under its own
+parse-failure ceiling (Chapter~\ref{ch:method}), shown descriptively here and carrying no
+registered outcome. Post hoc descriptive, not pre-registered.}
 \end{figure}
 
 \subsection{Prompt Framing and the Reading of Ambiguous Pairs}
@@ -702,9 +713,13 @@ sentences are consistent, Llama 3 8B's two yes rates sum to $1.0535$, just above
 labeller reading each pair would sit, while Granite 3.3 8B sums to $0.6622$ and Qwen 3 8B to
 $0.5619$, both below it (Figure~\ref{fig:answer-polarity}). A pair can be neither contradictory nor
 consistent, and the $46$ pairs the pharmacist coded ambiguous account for part of that shortfall.
-These are marginals and not per-pair coherence, so they show only that the rate each labeller
-returns tracks the question it was asked, which is why a ratio quoted under one framing does not
-carry to the other.
+The two patterns differ in direction, and neither is acquiescence. Llama 3 8B says yes to
+``is there a contradiction?'' at $0.9365$ and yes to ``are these consistent?'' at only $0.1171$,
+which is a standing prior towards contradiction rather than a tendency to agree with whatever it is asked.
+Granite 3.3 8B and Qwen 3 8B answer no to both questions often, which is closer to a tendency to
+decline, and it is what puts their sums below the corridor. These are marginals and not per-pair
+coherence, so they show only that the rate each labeller returns tracks the question it was asked,
+which is why a ratio quoted under one framing does not carry to the other.
 
 \begin{figure}[!tbp]
 \centering
@@ -798,11 +813,27 @@ $0$ of the $17$ have an interval that begins above the detectability floor on an
 $0$ meet the full mirror of the bounded null on $G_{253}$. The strongest cell states the
 position exactly: AUROC $0.7936$ with a bootstrap interval of $0.6541$ to $0.9077$ and a
 permutation $p$ of $0.0002$, whose leave-one-positive-out range of $0.7763$ to $0.8435$ never
-falls to chance, yet whose interval still opens below the $0.7397$ floor applied to it. Eleven
-cells carry a rule cue in one direction or the other and two are confounded on the
-direction-free reading. The family therefore supports one statement and not a second: a graded
-score over these pairs carries signal that repeated wording and a $17$-way correction do not
-remove, and its size is not resolved at $12$ positives.
+falls to chance, yet whose interval still opens below the floor applied to it, $0.7397$ by the null-only route of
+Table~\ref{tab:m-mde} rather than the $0.7382$ analytic value. Eleven cells carry a rule cue in one
+direction or the other and two are confounded on the direction-free reading.
+
+That cue is not incidental, and a pre-registered check put a number on it. Pharmacist precision runs
+from $0.0256$ on Rule 1 to $0.1071$ on Rule 2, so a score carrying no information except which of the
+four rules generated a pair reaches AUROC $0.6478$ on the same $253$ pairs, bootstrap interval
+$0.4778$ to $0.8024$, label-permutation $p = 0.0367$. That prior was fitted in sample on the labels it
+is scored against, which makes it an optimistic reading of rule identity and the comparison a
+conservative one. Against it, in a paired test on the same pairs, no cell clears the family's
+corrected threshold of $0.0029$ and none clears $0.05$ uncorrected; $15$ of the $17$ sit above it
+pointwise, and the strongest cell's margin is $0.1457$ at $p = 0.1396$.
+
+The family therefore supports less than its own point estimates suggest. The graded ranking is not
+shown to exceed a rule-identity prior on these pairs, so it cannot be read as contradiction
+detection, and its size is not resolved at $12$ positives either. Within a single rule stratum,
+where rule identity is constant and cannot carry the ranking, the strongest cell reads $0.7339$,
+$0.5600$, $0.8771$ and $0.8953$ on $3$, $3$, $4$ and $2$ positives; that points the other way and is
+registered as descriptive only, because two to four positives cannot carry a test. The honest
+position is that this is the same rule-identity leakage the architecture audit found in the
+rule-type head, reaching the labeller's score as well.
 
 The pre-registered prior-correction experiment asked whether a prior-probability
 correction rescues a distilled student trained on such a score, on public
@@ -927,7 +958,7 @@ Per-seed mean        & 0.5211 & & & \\
 Per-seed SD          & 0.0246 & & & \\
 Three-seed ensemble & 0.5145 & & 0.8668 & \\
 \midrule
-subject-overlap run, same 253 pairs & 0.4595 & & 0.6377 & \\
+Subject-overlap run, same 253 pairs & 0.4595 & & 0.6377 & \\
 Weak labeller, 0/1 score (ref.) & 0.5185 & & & \\
 \bottomrule
 \end{tabular}
@@ -1234,8 +1265,7 @@ $G_{299}$), while the decontaminated ensemble's average precision, $0.0598$, is 
 above its permutation null ($p = 0.4629$).
 
 The first pre-registered paired test swapped raw scores between systems and separated TF-IDF from
-the decontaminated ensemble at $p < 0.0001$, the smallest non-zero value its $B = 20{,}000$
-permutations can return, while the same statistic gave the NLI model against the ensemble
+the decontaminated ensemble at $p < 0.0001$, while the same statistic gave the NLI model against the ensemble
 $p = 0.1004$ for a difference of about the same size. That exposed the flaw: the
 three systems' scores sit on different scales on $G_{253}$, with medians of $0.8858$, $0.2966$, and
 $0.9647$, so swapping raw scores between them is not an exchange under the null. Those two results

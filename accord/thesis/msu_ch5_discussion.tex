@@ -185,6 +185,43 @@ signal, in their registered interpretation, a surface lexical or semantic-simila
 and no evidence that the weak labels carried signal, and because the rank-based paired test
 separates no two of the three, neither simple model is shown to exceed the detector.
 
+\section{What Was Learned}
+\label{sec:disc-learned}
+
+Four stage verdicts are negative or bounded, and a reader could take the chapter so far as a list of
+what failed. Four things were nevertheless learned, and they are the parts of this work that
+transfer.
+
+\textbf{The danger is concentrated in one drug class.} Five of the twelve confirmed contradictions
+are an anticoagulant and all three rated at the scale maximum are
+(Chapter~\ref{ch:results}, Table~\ref{tab:confirmed}). The pool's base rate of $0.0401$ therefore
+averages over a hazard that is not evenly spread, and it is confounded with a mining dictionary
+that covers anticoagulants densely. A system that cannot detect contradictions in general might
+still be worth building for one class, against a base rate this project did not measure.
+
+\textbf{A labeller's graded score carries more than its hard label, and less than it appears to.}
+The thresholded label cannot exceed the ceiling its marginal fixes, while $16$ of $17$ graded
+configurations rank above chance and $12$ have a bootstrap lower bound above $0.5$. That gap
+between a score and the label cut from it is the thesis's most useful negative lesson about weak
+supervision. It does not survive the check that matters: a score carrying nothing but which rule
+generated a pair reaches AUROC $0.6478$ on the same pairs, and no graded cell separates from that
+prior at the family's corrected threshold (Chapter~\ref{ch:results},
+Section~``\nameref{sec:r-score}''). What is established is that discarding the score to take a
+threshold loses ranking information; what is not established is that the information is about
+contradictions rather than about rules.
+
+\textbf{Over-calling has a direction, and the direction differs by model.} Asked the complementary
+question, Llama 3 8B holds a prior towards contradiction while Granite 3.3 8B and Qwen 3 8B
+decline both framings more often (Chapter~\ref{ch:results}, Figure~\ref{fig:answer-polarity}).
+A single over-calling ratio therefore describes a model under a prompt, not a property of language
+model annotation, which is why this thesis reports the prompt beside every ratio it quotes.
+
+\textbf{Rule identity leaks at more than one stage.} The architecture audit found the rule
+identifier readable from the rule-type head's own input, and the graded-score comparison above
+finds a rule-identity prior that a labeller's score does not beat. Two independent stages of one
+pipeline picked up the same shortcut, which is the argument for checking a stage against a
+trivial-information baseline rather than against chance.
+
 \section{Limitations}
 \label{sec:disc-limits}
 
@@ -217,6 +254,19 @@ annotated pair is one the four rules already flagged, so this thesis can describ
 flags and never what it misses: a contradiction whose drug the extractor failed to classify, or
 whose shape no trigger matches, leaves no trace in any count here. Neither the rules' recall nor
 their enrichment is measured.
+
+\paragraph{Three of the Twelve Confirmed Rows Are Not Settled by Their Own Justification.}
+Of the $4$ confirmed Rule 3 rows, $3$ carry a parsed percent difference above $100$ because a bolus
+figure is paired against a maintenance figure, so the dose gap that triggered the candidate is a
+unit and role mismatch rather than a dose error of that size (Chapter~\ref{ch:results},
+Table~\ref{tab:confirmed}). What the pharmacist confirmed in those rows is therefore not visible in
+the trigger. All $4$ rows carry a written justification, but they run from $7$ to $15$ words, none of
+them mentions route, form, infusion rate, or monitoring, and only $2$ of the $4$ mention dose
+magnitude at all, under a fixed vocabulary applied to the stored justifications. The record therefore
+does not settle whether these are dose contradictions or the parser's mismatch read as one. That
+matters directly rather than in principle: the bounded null tips after $1$ or $2$ targeted relabels
+(Section~``\nameref{sec:res-rq4}''), so three unsettled labels among twelve positives are enough to
+move it. No relabelling was done, because the annotation is closed and no second rater was available.
 
 \paragraph{The Evidence Unit Is One Sentence per Side, With One Exception.} Each candidate reached the annotator, the
 weak labeller, and the detector as one nursing sentence paired with one discharge sentence, except

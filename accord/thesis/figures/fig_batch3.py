@@ -105,7 +105,7 @@ def make_fig_scale_ladder():
     pts.sort()
     assert len(excluded) == 1 and len(pts) == 4
     assert [p[1] for p in pts] == sorted((p[1] for p in pts), reverse=True), \
-        "the ladder is no longer monotone decreasing; the headline would be false"
+        "the ladder is no longer ordered by size; the headline would be false"
     x_excl = float(excluded[0]["model"].split()[-1].rstrip("B"))
     assert pts[0][0] < x_excl < pts[-1][0]
 
@@ -220,9 +220,12 @@ def make_fig_scale_ladder():
         fig.text(X_TXT, y - 0.048,
                  _fits(f"{e:.4f}  [{lo:.2f}, {hi:.2f}]", fontsize=T_NOTE),
                  ha="left", va="center", fontsize=T_NOTE, color=MUTE)
+    # The fitted slope and correlation are NOT drawn. Four points, one of them a
+    # 0.6B model that flags every pair, do not support a trend, and the chapters
+    # say nothing is concluded about scale in either direction. Printing a slope
+    # beside that sentence contradicted it.
     fig.text(X_TXT, y0 - len(pts) * pitch,
-             _fits(f"slope {ladder['slope_per_log10_params']:.3f} per decade\n"
-                   f"of parameters, r = {ladder['pearson_r']:.2f}",
+             _fits("Four rungs. No trend is estimated.",
                    fontsize=T_NOTE, style="italic"),
              ha="left", va="top", fontsize=T_NOTE, color=MUTE, style="italic",
              linespacing=1.18)
@@ -230,9 +233,9 @@ def make_fig_scale_ladder():
              fontsize=T_NOTE, color=MUTE, style="italic")
 
     signature(fig, ramp.DEEP,
-              f"Over-calling falls monotonically across four sizes of one model "
-              f"family and is still\n{ratio:.0f} times the pharmacist's base "
-              f"rate at the largest size served here.")
+              f"Flag rate is lower at larger sizes in this family, and is still\n"
+              f"{ratio:.0f} times the pharmacist's base rate at the largest size "
+              f"served here.")
     fig.savefig(OUTDIR / "fig-scale-ladder.pdf")
     plt.close(fig)
     print("wrote fig-scale-ladder.pdf")
@@ -415,9 +418,11 @@ MANIFEST = [
                 "The reference line is the pharmacist base rate, "
                 "gold.base_rate_299, in the pharmacist's EMERALD; MIST fills "
                 "everything above it, which is over-calling, as MIST fills the "
-                "over-prediction wedge on fig-prevalence-response. The fitted "
-                "slope and r are printed as a note read from the artifact's "
-                "ladder block and NO fitted line is drawn: the axis stops at "
+                "over-prediction wedge on fig-prevalence-response. Neither a fitted "
+                "slope nor a correlation is printed and NO fitted line is "
+                "drawn: four rungs, one of them a 0.6B model that flags every "
+                "pair, do not support a trend, and the chapters conclude "
+                "nothing about scale in either direction. The axis stops at "
                 "the largest size that was run and the figure does not "
                 "extrapolate. Post hoc descriptive, asserted from the "
                 "artifact's own note key. No hosted model appears; the family "

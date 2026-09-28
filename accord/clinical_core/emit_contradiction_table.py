@@ -15,7 +15,7 @@ artifact's own confirmation note:
   - every pharmacologic class is asserted to be a key of
     accord/phase3_mining.py DRUG_CLASSES or a value of
     accord/clinical_core/clinical_core_data.py CLASS_SUPPLEMENT, both fixed maps
-    of ATC-level class terms that no note contributes to;
+    of hand-written pharmacologic class terms that no note contributes to;
   - the emitted body is asserted to contain no pair identifier and no digit
     string that could be an admission or subject identifier.
 
@@ -92,14 +92,16 @@ def main():
         f"({src['gold_label_distribution']['not_contradiction']} not a contradiction, "
         f"{src['gold_label_distribution']['ambiguous']} ambiguous). "
         "Rule is the generating rule that put the pair in the annotation pool: "
-        "R1 same drug with opposite actions across the two notes, R2 a class-level "
-        "instruction against an agent-level one, R3 the same drug at doses differing by "
+        "R1 same drug with opposite actions across the two notes, R2 two unequal sets of "
+        "agents of one pharmacologic class, one continued and one ceased, R3 the same "
+        "drug at doses differing by "
         "more than 20 percent, R4 a drug held in the nursing note and absent from the "
         "discharge summary. "
         f"Rule counts are {per_rule['1']}, {per_rule['2']}, {per_rule['3']} and "
         f"{per_rule['4']}. "
         "Drug and class are dictionary terms: the normalised drug name is a member of "
-        "the extraction dictionary and the class is a fixed ATC-level class map, so "
+        "the extraction dictionary and the class is a fixed hand-written class map of "
+        "agents, not a standard terminology, so "
         "neither is note content. "
         "Danger is the pharmacist's ordinal rating, 1 the least and 5 the most "
         f"clinically dangerous; the 12 ratings have median {dsum['median']} and mean "
@@ -110,7 +112,9 @@ def main():
         f"{src['conflict_type_distribution']['class substitution (agent swapped within class)']}"
         " swaps the agent inside the class and "
         f"{src['conflict_type_distribution']['class substitution (class-level instruction versus same agent)']}"
-        " set a class-level instruction against the same agent. "
+        " read as a class-level instruction set against the same agent, which the rule "
+        "admits because it requires the two sides' agent sets to be unequal rather than "
+        "disjoint, so they may overlap on one agent. "
         f"Of the {per_rule['3']} dose rows, "
         f"{dose['n_confirmed_rule3_above_100_pct']} carry a percent difference above "
         "100 because a bolus figure is paired against a maintenance figure; those are "

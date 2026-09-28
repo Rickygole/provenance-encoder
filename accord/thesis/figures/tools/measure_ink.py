@@ -232,6 +232,19 @@ LOWERED = {
         "and chroma at 0.010: SCARLET_TINT sits at S=0.233, under this metric's "
         "own 0.25 gate, so a third of the canvas turning pink buys nothing "
         "here. That is a statement about the metric and not about the figure."),
+    "fig-scale-ladder": ((0.269, 0.012),
+        "Lowered 0.270 to 0.269, one thousandth, when the fitted slope and "
+        "correlation came off the canvas. The floor was calibrated with a "
+        "two-line italic note printing slope -0.373 per decade and r = -0.98. An "
+        "external review pointed out that the note concluded what both chapters "
+        "say they do not conclude, a trend, on four rungs of which the smallest "
+        "flags every pair, so the note was replaced by the shorter 'Four rungs. "
+        "No trend is estimated.' The ink lost is exactly the removed characters "
+        "and nothing else: no mark, interval, rule or label changed, the four "
+        "measured points and their Wilson intervals are untouched, and the "
+        "excluded 4B rung is still drawn and named. The figure now makes a "
+        "weaker claim with less ink, which is the direction this metric should "
+        "never block."),
     "fig-forest": ((0.070, 0.012),
         "Lowered further than any other entry in this table, and the figure is "
         "better for it. The old canvas separated three unit families with three "

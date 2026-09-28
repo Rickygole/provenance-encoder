@@ -603,8 +603,11 @@ def make_fig_forest():
               f"At {n_pos_253} positives, or {fact('c114.task_c.n_pos')} for Rules 3 "
               "and 4, no headline estimate is distinguishable from chance.",
               deck=f"Nominal 95 percent bootstrap intervals; measured "
-                   f"coverage at {n_pos_253} positives is {cov_lo:.3f} to "
-                   f"{cov_hi:.3f}.")
+                   # Four decimals, matching the chapter text and the register exactly.
+                   # At three the upper end printed 0.934 while the text said
+                   # 0.9345, which reads as two different measurements.
+                   f"coverage at {n_pos_253} positives is {cov_lo:.4f} to "
+                   f"{cov_hi:.4f}.")
     fig.savefig(OUTDIR / "fig-forest.pdf"); plt.close(fig)
     print("wrote fig-forest.pdf")
 
