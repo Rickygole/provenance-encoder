@@ -1,3 +1,59 @@
+# NOTES: JBI manuscript
+
+> **STATUS as of 2026-10-15, after the gate review and the C140 re-analysis.**
+> This file was substantially superseded. Read this block before anything below
+> it; where the two disagree, this block is current.
+>
+> **JBI requirements are VERIFIED, not second-hand.** The guide for authors was
+> read directly in a browser on 2026-10-15 (ScienceDirect returns 403 to
+> automated fetch, so this was done interactively). Confirmed verbatim: body
+> <= 6000 words; mandatory section order Introduction, Related Work, Methods,
+> Results, Discussion, Conclusion; structured abstract with headings Objective,
+> Methods, Results, Conclusion, <= 300 words; <= 8 figures and tables combined;
+> a Statement of Significance; a graphical abstract required at submission; and
+> the submission declaration excluding "academic thesis" from prior publication.
+> Any statement below that these are unverified is stale.
+>
+> **The rival result is WITHDRAWN.** C140 (pre-registered 2026-10-15 at commit
+> fbadcac, before any datum, run at 26989cf) established Outcome B: the
+> rule-identity prior is an in-sample artefact. Refit permutation p 0.2702, not
+> the 0.0367 obtained with the fitted score held fixed; cross-fitted AUROC
+> 0.4412, below chance, interval 0.2086 to 0.6680; in-sample optimism 0.2066;
+> rule-label association absent, chi-square 3.8078 on 3 df, p 0.2830. The claim
+> that no configuration separates from a rule-identity prior, and the mechanism
+> claim of confounding by rule-correlated content, are both withdrawn.
+>
+> **The ceiling is imported apparatus.** MCC on a 2x2 table is Pearson's phi,
+> verified arithmetically on this paper's own numbers; the margin-constrained
+> maximum is phi_max, published by Cureton (1959) and Guilford (1965). The paper
+> claims the transport and the class-level consequence, not the bound.
+>
+> **Premise replaced by evidence.** The claim that stages are "commonly certified
+> by beating chance" described 0 of 37 sampled papers and is deleted. The
+> supported finding: 0 of 37 reported a minimum detectable effect, 0 tested
+> against a chance or zero-skill null, 17 did not report the gold positive count.
+> See premise_survey/.
+>
+> **Build state.** Builds clean: 38 pages in review mode, 0 undefined references
+> and citations, 89 bibliography entries, 3 tables and 2 figures, abstract 285
+> words, body approximately 6020 words. fig1.pdf, fig2.pdf and main.bbl exist.
+>
+> **Corrections applied.** Three false hosted-service statements replaced with
+> vendor-neutral disclosure matching the thesis record; the spurious seventh
+> Bonferroni bullet removed from Table 3 (artifact lists 6); sidedness stated for
+> every test; counts deduplicated for the two determinism re-runs to 14 of 15, 4
+> and 10; Demonstration 1's pre-registration history disclosed; the unrepeatable
+> labelling run disclosed; a data availability statement added; a no-clinical-use
+> sentence added.
+>
+> **Still outstanding and NOT done here.** The PhysioNet compliance email,
+> drafted 2026-08-29, is still unsent. No IRB or exemption determination has been
+> obtained. No clinician has evaluated the checks, which JBI expects. A
+> presubmission enquiry on article type has not been sent. A graphical abstract
+> has not been produced.
+
+---
+
 # NOTES: provenance, open items, reviewer defences, submission record
 
 Manuscript: `main.tex`. Bibliography: `refs.bib`. Figure generator: `make_figures.py`.
