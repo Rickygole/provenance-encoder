@@ -34,13 +34,12 @@
 > against a chance or zero-skill null, 17 did not report the gold positive count.
 > See premise_survey/.
 >
-> **Build state, measured 2026-10-15 after the C141 repair.** 38 pages in review
-> mode, 0 undefined references and citations, 91 bibliography entries, 3 tables
-> and 1 figure, abstract 283 words. Body **6,105 words** by a strict count that
-> strips comments, floats, equations and citation commands and excludes the
-> Statement of Significance and the Data availability statement. That is about
-> 1.8% over the 6,000 limit and the overage is stated rather than estimated away;
-> an earlier claim of 6,020 here was produced by a looser counter and was wrong.
+> **Build state, measured 2026-10-15 after the C142 delivery.** 38 pages in
+> review mode, 0 undefined references and citations, 91 bibliography entries, 3
+> tables and 1 figure, abstract 298 words. Body **6,186 words** by a strict count
+> excluding the Statement of Significance and the Data availability statement.
+> That is about 3% over the 6,000 limit and the overage is stated rather than
+> estimated away.
 >
 > **Corrections applied.** Three false hosted-service statements replaced with
 > vendor-neutral disclosure matching the thesis record; the spurious seventh
@@ -65,6 +64,19 @@
 > the labeller's agreement, not a screen's discrimination, and Table 1's own
 > ratio rule reaches Youden J 0.6807 where the labeller ceiling is 0.0818. The
 > survey is demoted to a motivating sample, matching its own method file.
+>
+> **C142, 2026-10-15.** C140 registered a paired DeLong of all 17 cells against
+> the cross-fitted rival and a one/two-sided restatement, and emitted neither.
+> Both are now delivered. Against a valid comparator the C139 reading does not
+> reproduce: on one five-fold assignment 3 of 15 distinct cells clear p<0.05 and
+> none clears the corrected threshold. Over 200 assignments the count ranges from
+> **0 to 15 of 15** (mean 3.98, median 2), so a single cross-fit is not a
+> decision procedure at 12 positives. No positive claim replaces the withdrawn
+> one.
+>
+> **The thesis was deposited on 2026-10-15.** The cover letter disclosure is now
+> a fact rather than a plan. Elsevier's submission declaration excludes an
+> academic thesis from prior publication.
 >
 > **Still outstanding and NOT done here.** The PhysioNet compliance email,
 > drafted 2026-08-29, is still unsent. No IRB or exemption determination has been

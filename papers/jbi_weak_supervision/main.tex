@@ -57,8 +57,9 @@ the number of gold positives. On the clinical set the attainable ceiling of the
 Matthews correlation was 0.0818 and the stage reached 0.0243. Our own rival
 baseline failed the check it was built to perform: fitted in sample it reached
 AUROC 0.6478, but cross-fitted it is indistinguishable from chance at 0.4939, and
-under a null that refits the comparator its permutation $p$ is 0.2702 rather than
-the 0.0367 obtained with the fit held fixed.
+the finding we drew from it does not reproduce against a valid comparator. The
+corrected comparison replaces it with nothing: over 200 fold assignments the
+count of configurations clearing $p<0.05$ ranges from 0 to 15 of 15.
 
 \textbf{Conclusion.} A certification instrument can be principled in derivation
 and still read a stage only through its marginals, at a measurable cost that was
@@ -127,18 +128,13 @@ methodological risk sits: the weak labeller is a measurement instrument never
 itself measured against a standard of the quality it replaces
 \cite{jacobs2021measurement,pangakis2023validation}.
 
-How that instrument is certified has not been characterised. We coded 37
-clinical and biomedical weak-supervision papers from full text for the comparator
-each uses to evaluate its labelling stage (Section~\ref{sec:survey}). The result
-is not that the bar is low. The bar is absent. No paper reported a minimum
-detectable effect for its labeller evaluation, none tested its labeller's
-agreement with gold against a chance or zero-skill null, and none stated the null
-hypothesis of a labeller-level comparison. Eleven reported no gold-referenced
-evaluation of the labelling stage at all. The modal certification is an absolute
-$F_1$ or AUROC on a small adjudicated set with no reference distribution of any
-kind. Seventeen of the 37 did not report the number of gold positives and fifteen
-did not report prevalence, which is the mechanism: a reader cannot reconstruct
-the chance level even if they wish to.
+How that instrument is certified has not been characterised. We coded 37 clinical
+and biomedical weak-supervision papers from full text for the comparator each
+uses (Section~\ref{sec:survey}). The result is not that the bar is low; the bar
+is absent. None reported a minimum detectable effect, none tested the labeller
+against a chance or zero-skill null, and seventeen did not report the number of
+gold positives, which is the mechanism: a reader cannot reconstruct the chance
+level even if they wish to.
 
 \paragraph{The gap}
 Several literatures hold the ingredients of a stronger standard and none is
@@ -317,7 +313,10 @@ and at a small positive count the optimism can exceed the entire signal.
 vector fixed while permuting the labels it was fitted to is testing the wrong
 hypothesis, and a statistic ordered by its own fitted rates may be bounded below
 by its chance value, in which case no permutation test can evidence an
-association. \emph{Compute the detectability bound first.} At a small gold
+association. \emph{Report the comparison's stability.} A single cross-fit is one partition of
+the gold set; at a small positive count the verdict can move across its whole
+range with the partition, so report the distribution over assignments rather than
+one draw. \emph{Compute the detectability bound first.} At a small gold
 positive count the paired comparison may be unable to return a positive answer at
 any attainable value, and that must be established before the comparison is run,
 not inferred from its null result. Pre-register three outcomes: the stage
@@ -405,9 +404,9 @@ There are 31 labellers. The primary arm is 24 synthetic labellers, each a pair
 $(\mathrm{TPR},\mathrm{FPR})$ with TPR in $\{0.90, 0.50, 0.10, 0.04\}$ and FPR
 from 0.01 to 0.97, including near-chance labellers at low flag rates, the case in
 which a marginal gate is expected to pass a useless labeller. The secondary arm
-is 7 locally run open-weight models (\texttt{qwen3:0.6b}, \texttt{qwen3:1.7b},
-\texttt{qwen3:4b}, \texttt{llama3:8b}, \texttt{granite3.3:8b}, \texttt{qwen3:8b},
-\texttt{qwen3:14b}) under one plain contradiction prompt at temperature 0.
+is 7 locally run open-weight models (\texttt{qwen3} at 0.6b, 1.7b, 4b, 8b and
+14b, \texttt{llama3:8b}, \texttt{granite3.3:8b}) under one plain contradiction
+prompt at temperature 0.
 
 The primary student encodes premise and hypothesis with a locally run MiniLM
 sentence encoder and fits $L_2$-regularised logistic regression; a secondary
@@ -650,24 +649,38 @@ therefore a function of that pair's own label; within every stratum it forces
 every positive below every negative for any label vector. It was pre-registered,
 run, and withdrawn under a second pre-registration rather than edited.
 
-\paragraph{What the comparison could have detected}
-Independently of the above, we had not computed what the paired test could
-detect. Against a comparator at 0.6478, with the variance recomputed at the
-alternative and zero covariance, which is optimistic for the stage, a
-configuration would need an AUROC of 0.9414 to clear the threshold corrected
-across the 15 distinct cells. The best observed value is 0.7936. No cell is
-unreachable in principle, but the bar sits far above anything this literature
-reports, and we had published the detectability floor for the comparison against
-chance, 0.7355, and not the one our conclusion rested on. An earlier version of
-this analysis held each cell's observed standard error fixed while asking what
-would happen at AUROC 1.0 and reported 8 of 17 cells as unreachable; that is
-wrong, because the variance shrinks as the AUROC rises, and it is withdrawn.
+\paragraph{What the comparison returns once the rival is valid}
+Our pre-registration committed us to repeating the comparison against the
+cross-fitted rival and we had not delivered it. Doing so does not reproduce the
+reported result. On a stratified five-fold assignment whose rival sits at 0.5278,
+all 17 cells lie above it pointwise, 3 of the 15 distinct cells clear
+$p < 0.05$ two-sided and none clears the corrected threshold, the smallest $p$
+being 0.0040 against a threshold of 0.0033. Against a valid comparator the graded
+scores are not uniformly indistinguishable, the opposite of what we reported.
+
+That reading does not survive its own stability check either, and this is the
+more useful result. Repeating the fold assignment 200 times, the number of
+distinct cells clearing $p < 0.05$ has mean 3.98 and median 2 with a range of
+\textbf{0 to 15} and a 95\% interval of 1 to 13; at least one cell clears the
+corrected threshold in 35.5\% of assignments. The verdict ranges over the entire
+scale with an arbitrary partition of the same 253 pairs. At 12 positives a single
+cross-fitted comparison is not a decision procedure, and the reportable quantity
+is the distribution over assignments rather than one draw. We therefore make no
+claim that any configuration separates from the rival.
+
+We had also not computed what the paired test could detect. With the variance
+recomputed at the alternative and zero covariance, optimistic for the stage, a
+configuration would need an AUROC of 0.9414 against a best observed 0.7936. We
+had published the detectability floor for the comparison against chance, 0.7355,
+and not the one our conclusion rested on.
 
 \paragraph{What we withdraw}
 We withdraw the claim that the graded scores do not separate from a rule-identity
-prior: the comparator carries no out-of-sample information, so there was nothing
-to separate from. We withdraw the mechanism claim with it, since we cannot
-evidence the association it names. Table~\ref{tab:delong} is retained as the
+prior. It was obtained against a comparator that carries no out-of-sample
+information, and against a valid one it does not reproduce. We withdraw the
+mechanism claim with it, since we cannot evidence the association it names. We
+replace neither with a positive claim: the corrected comparison is too unstable
+at this gold-set size to support one. Table~\ref{tab:delong} is retained as the
 record of the analysis we ran, not because it licenses a conclusion. This is the
 failure mode the paper is about, committed by the paper and caught by the
 discipline it recommends.
@@ -716,28 +729,22 @@ PC & \texttt{granite3.3:8b}, P\_reversed\_rerun$^{\ddagger}$ & 0.7365 & $+0.0887
 
 
 
-\paragraph{Why we had thought there was a mechanism}
+\paragraph{Why we had thought there was a mechanism, and two readings we do not claim}
 We had explained the rival's apparent performance as confounding by
 rule-correlated content, reading the rules' confirmed positive rates of 0.0256,
-0.1071, 0.0635 and 0.0444 as a real property of the pool that a stratum-tracking
-score could exploit. That spread is the spread of 3, 3, 4 and 2 events. We cannot
-evidence the association the explanation requires, and we withdraw the
-explanation; with a smallest expected cell of 1.3281 this is a failure to
-demonstrate and not a demonstration of absence. An earlier reading of these same
-artifacts called the effect leakage of a rule identifier, which was withdrawn in
-favour of confounding, and confounding is now withdrawn in turn.
+0.1071, 0.0635 and 0.0444 as a property a stratum-tracking score could exploit.
+That spread is the spread of 3, 3, 4 and 2 events; with a smallest expected cell
+of 1.3281 we cannot evidence the association the explanation requires, and we
+withdraw it without claiming the association is absent. An earlier reading called
+the effect leakage of a rule identifier, which was withdrawn in favour of
+confounding, and confounding is now withdrawn in turn.
 
-\paragraph{Two readings we report but do not claim}
-Rule identity is constant inside a stratum, so signal surviving within a stratum
-is not rule identity. For the strongest configuration, within-stratum AUROC is
-0.7339, 0.5600, 0.8771 and 0.8953 on 3, 3, 4 and 2 positives respectively. This
-points the other way and was pre-registered as descriptive only: two to four
-positives cannot carry a test and we make no claim from them. We report them
-because suppressing them would be the selective reading this paper argues
-against. Separately, no configuration meets the study's own registered
-detectability floor, which is 0.7355 as registered and 0.7397 when recomputed
-exactly for the stratum: 12 of 17 intervals exclude chance, and none begins above
-the floor.
+Two readings point the other way and we report them without claiming them. Rule
+identity is constant inside a stratum, so signal surviving within a stratum is
+not rule identity; for the strongest configuration the within-stratum AUROCs are
+0.7339, 0.5600, 0.8771 and 0.8953 on 3, 3, 4 and 2 positives. Two to four
+positives cannot carry a test. We report them because suppressing them would be
+the selective reading this paper argues against.
 
 \begin{table}[t]
 \centering
@@ -767,6 +774,7 @@ Random joins scoring at least as high & 0.5442 & 0.5711 \\
 \hline
 \end{tabular}
 \end{table}
+
 
 \subsection{The ceiling check on the deployed labeller}
 \label{sec:res-ceiling}
@@ -805,11 +813,13 @@ The third check failed, and its failure is the paper's most useful result. We
 built a rival from the selection procedure's own strata, fitted it on the 12
 labels it was then scored against, and tested it against a null that held the fit
 fixed. It appeared to rank above chance and it does not: cross-fitted it falls to
-0.4939, indistinguishable from chance, and under a
-refitting null its $p$ is 0.2702 (Section~\ref{sec:res-rival}). Separately, we
-never computed what the paired comparison could detect: a configuration would
-have needed an AUROC of 0.9414 to clear the corrected threshold, against a best
-observed 0.7936. We had published a detectability
+0.4939, indistinguishable from chance
+(Section~\ref{sec:res-rival}). The comparison we had reported against it does not
+reproduce against a valid comparator, and the corrected version ranges from 0 to
+15 of 15 configurations clearing $p<0.05$ with the fold assignment, so it decides
+nothing at this gold-set size. Separately, we never computed what the paired test
+could detect: a configuration would have needed an AUROC of 0.9414, against a
+best observed 0.7936. We had published a detectability
 floor for the comparison against chance and not for the comparison our conclusion
 rested on. Both are instances of this paper's own thesis, committed by
 it: a comparator fitted on the gold labels must be cross-fitted, its null must
@@ -873,11 +883,10 @@ weaker standard, and because the precondition that now guards the demonstration
 exists only because of that first failure.
 
 \emph{A control we ran and do not use.} A data randomisation control
-\cite{adebayo2018sanity} retrained the detector on a permuted label vector. The
-weak label vector is positive on 1,132 of 1,183 rows, so a marginal-preserving
-permutation moved only 100 labels and the control is uninformative by
-construction; its uninformativeness was stated before the run and its values are
-in the released artifact. We draw no inference from it.
+\cite{adebayo2018sanity} retrained the detector on a permuted label vector; with
+the weak label vector positive on 1,132 of 1,183 rows a marginal-preserving
+permutation moved only 100 labels, so it is uninformative by construction. Its
+uninformativeness was stated before the run and its values are released.
 
 \emph{An unrepeatable run.} The production labelling run of
 Section~\ref{sec:mat-pipeline} cannot be regenerated from the released code, so
@@ -936,8 +945,10 @@ bound is new practice and not a correction.
 We also report our own failure. The rival baseline we built to replace the chance
 comparison was fitted on the 12 labels it was scored against and tested against a
 null that held the fit fixed; it does not rank above chance, and cross-fitted it
-is indistinguishable from chance. We did not compute what that comparison could
-detect: a configuration would have needed an AUROC of 0.9414. We report this in preference to a tidier result, because the argument of
+is indistinguishable from chance, and the comparison redone against a valid
+comparator ranges from 0 to 15 of 15 configurations clearing $p<0.05$ with the
+fold assignment alone. We did not compute what that comparison could detect: a
+configuration would have needed an AUROC of 0.9414. We report this in preference to a tidier result, because the argument of
 the paper is that stages are certified too easily and the paper is not exempt.
 
 %% ---------------------------------------------------------------------------
