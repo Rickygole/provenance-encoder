@@ -1,0 +1,220 @@
+{
+ "what": "C141 repair of C140 Q3 (LOO target leak) and Q4 (fixed variance).",
+ "preregistration": "accord/c141_crossfit_repair/C141_PREREGISTRATION.md",
+ "replaces": [
+  "c140.json::q3_cross_fitted_rival",
+  "c140.json::q4_detectability"
+ ],
+ "no_new_inference": true,
+ "seed": 141,
+ "in_sample_auroc": 0.6478215767634855,
+ "strata": {
+  "n": [
+   117,
+   28,
+   63,
+   45
+  ],
+  "positives": [
+   3,
+   3,
+   4,
+   2
+  ]
+ },
+ "q3r_cross_fitted_rival": {
+  "K5": {
+   "mean_auroc": 0.49392894190871367,
+   "sd_across_repeats": 0.048230420134533034,
+   "pct2_5": 0.36788122406639007,
+   "pct97_5": 0.5668395573997234,
+   "min": 0.32710926694329184,
+   "max": 0.5838520055325035,
+   "repeats_used": 200,
+   "repeats_discarded": 0,
+   "in_sample_minus_crossfit": 0.15389263485477184,
+   "mean_above_half": false,
+   "pct2_5_above_half": false,
+   "pct97_5_below_half": false,
+   "refit_permutation_p": 0.39430284857571213,
+   "permutation_draws": 2000
+  },
+  "K3": {
+   "mean_auroc": 0.5025890387275243,
+   "sd_across_repeats": 0.07898863982112864,
+   "pct2_5": 0.3504668049792531,
+   "pct97_5": 0.6253544260027663,
+   "min": 0.23478561549100968,
+   "max": 0.6341632088520055,
+   "repeats_used": 200,
+   "repeats_discarded": 0,
+   "in_sample_minus_crossfit": 0.14523253803596126,
+   "mean_above_half": true,
+   "pct2_5_above_half": false,
+   "pct97_5_below_half": false,
+   "refit_permutation_p": 0.44177911044477763,
+   "permutation_draws": 2000
+  }
+ },
+ "q3r_withdraws": {
+  "c140_loo_auroc": 0.4412171507607192,
+  "c140_loo_optimism": 0.2066044260027663,
+  "reason": "leave-one-out scored each pair as (k_r - y_i)/(n_r - 1), a function of its own label; within every stratum every positive is scored strictly below every negative for any label vector."
+ },
+ "q4r_detectability": {
+  "method": "Hanley-McNeil variance recomputed at the alternative, zero covariance (optimistic for the stage)",
+  "rival_auroc": 0.6478215767634855,
+  "n_distinct_cells": 15,
+  "bonferroni_alpha_distinct": 0.0033333333333333335,
+  "cells_unreachable_at_auroc_1_alpha_0_05": 0,
+  "cells_unreachable_at_auroc_1_bonferroni": 0,
+  "n_cells_evaluated": 17,
+  "min_auroc_for_significance_bonferroni_range": [
+   0.941352018576639,
+   0.941352018576639
+  ],
+  "per_cell": {
+   "promptsens::llama3:8b::P_asserting": {
+    "observed_diff": 0.005705394190871349,
+    "se_diff_observed": 0.11851385726203321,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptsens::llama3:8b::P_neutral": {
+    "observed_diff": 0.04512448132780078,
+    "se_diff_observed": 0.1220695064990513,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptsens::llama3:8b::P_reversed": {
+    "observed_diff": 0.10252420470262791,
+    "se_diff_observed": 0.1086676993550998,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptsens::granite3.3:8b::P_asserting": {
+    "observed_diff": 0.040629322268326384,
+    "se_diff_observed": 0.10945222976391747,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptsens::granite3.3:8b::P_neutral": {
+    "observed_diff": 0.006051175656984764,
+    "se_diff_observed": 0.13206015319493086,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptsens::granite3.3:8b::P_reversed": {
+    "observed_diff": 0.0886929460580912,
+    "se_diff_observed": 0.11060180732027462,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptsens::qwen3:8b::P_asserting": {
+    "observed_diff": -0.07019363762102349,
+    "se_diff_observed": 0.11759590877431973,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptsens::qwen3:8b::P_neutral": {
+    "observed_diff": 0.03647994467496529,
+    "se_diff_observed": 0.12963911696784347,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptsens::qwen3:8b::P_reversed": {
+    "observed_diff": 0.024377593360995764,
+    "se_diff_observed": 0.12540540709003628,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptconfirm::llama3:8b::P_rev_agree": {
+    "observed_diff": 0.08316044260027655,
+    "se_diff_observed": 0.11902032674109267,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptconfirm::llama3:8b::P_rev_follow": {
+    "observed_diff": -0.004668049792531215,
+    "se_diff_observed": 0.12251300312005378,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptconfirm::llama3:8b::P_rev_compatible": {
+    "observed_diff": 0.0036307053941908585,
+    "se_diff_observed": 0.12761344312613382,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptconfirm::llama3:8b::P_reversed_rerun": {
+    "observed_diff": 0.10252420470262791,
+    "se_diff_observed": 0.1086676993550998,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptconfirm::granite3.3:8b::P_rev_agree": {
+    "observed_diff": 0.1457468879668049,
+    "se_diff_observed": 0.09864872294283605,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptconfirm::granite3.3:8b::P_rev_follow": {
+    "observed_diff": 0.030947441217150762,
+    "se_diff_observed": 0.15430467451840216,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptconfirm::granite3.3:8b::P_rev_compatible": {
+    "observed_diff": 0.08834716459197778,
+    "se_diff_observed": 0.12261343195731679,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   },
+   "promptconfirm::granite3.3:8b::P_reversed_rerun": {
+    "observed_diff": 0.0886929460580912,
+    "se_diff_observed": 0.11060180732027462,
+    "min_auroc_for_significance_alpha_0_05": 0.8654161216401343,
+    "unreachable_at_auroc_1_alpha_0_05": false,
+    "min_auroc_for_significance_bonferroni": 0.941352018576639,
+    "unreachable_at_auroc_1_bonferroni": false
+   }
+  }
+ },
+ "q4r_withdraws": {
+  "c140_cells_unreachable_bonferroni": 8,
+  "reason": "C140 held each cell's observed se_diff fixed while asking what would happen at AUROC 1.0; the DeLong variance shrinks as the AUC rises, so the observed standard error does not apply in that counterfactual."
+ },
+ "outcome": "B"
+}
