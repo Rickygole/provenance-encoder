@@ -117,3 +117,38 @@ in-sample 0.6478 has permutation p 0.2702. Q3R now supplies the positive form of
 the same conclusion, that the comparator carries no out-of-sample information,
 and Q4R supplies the honest detectability statement, that a configuration would
 have needed an AUROC of 0.9414 to separate.
+
+---
+
+## Delivery of C140's two outstanding commitments, appended 2026-10-15
+
+C140's pre-registration specified, at Q3, "Paired DeLong of every one of the 17
+cells against this out-of-sample rival," and at Q5 that "every reported p is
+restated one-sided and two-sided." C140 emitted neither. Both are delivered by
+`accord/c141_crossfit_repair/c142_delivery.py` into
+`results/accord/c141_crossfit_repair/c142_delivery.json`, against the corrected
+cross-fitted rival rather than C140's withdrawn leave-one-out rival. No new
+pre-registration: these analyses were registered at fbadcac and are completed,
+not re-specified.
+
+**Result, and it is not the one C139 reported.** On a single stratified five-fold
+assignment at seed 141, whose rival sits at AUROC 0.5278, all 17 cells lie above
+the rival pointwise, 5 clear $p < 0.05$ two-sided and 0 clear the threshold
+corrected across the 15 distinct cells. The 5 contain both determinism duplicate
+pairs, so over distinct cells it is 3 of 15. The smallest two-sided $p$ is
+0.0040, against a corrected threshold of 0.0033.
+
+**But the delivery's own stability is the finding.** Repeating the fold
+assignment 200 times, the number of distinct cells clearing $p < 0.05$ has mean
+3.98 and median 2, with a range of **0 to 15** and a 95% interval of 1 to 13.
+Some assignment clears 0.05 in 99.5% of draws; at least one cell clears the
+corrected threshold in 35.5% of draws. The cross-fitted rival itself has mean
+AUROC 0.4939 with standard deviation 0.0482.
+
+**What this licenses.** Cross-fitting the comparator is necessary, and it changes
+the answer: against a valid rival the graded scores are not uniformly
+indistinguishable, as C139 reported against an invalid one. But at 12 positives a
+single cross-fitted comparison is not a decision procedure, because the verdict
+ranges over the whole scale with the fold assignment. The reportable quantity is
+the distribution over assignments, not one draw. We make no claim that any
+configuration separates from the rival.
