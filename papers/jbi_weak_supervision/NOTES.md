@@ -34,9 +34,13 @@
 > against a chance or zero-skill null, 17 did not report the gold positive count.
 > See premise_survey/.
 >
-> **Build state.** Builds clean: 38 pages in review mode, 0 undefined references
-> and citations, 89 bibliography entries, 3 tables and 2 figures, abstract 285
-> words, body approximately 6020 words. fig1.pdf, fig2.pdf and main.bbl exist.
+> **Build state, measured 2026-10-15 after the C141 repair.** 38 pages in review
+> mode, 0 undefined references and citations, 91 bibliography entries, 3 tables
+> and 1 figure, abstract 283 words. Body **6,105 words** by a strict count that
+> strips comments, floats, equations and citation commands and excludes the
+> Statement of Significance and the Data availability statement. That is about
+> 1.8% over the 6,000 limit and the overage is stated rather than estimated away;
+> an earlier claim of 6,020 here was produced by a looser counter and was wrong.
 >
 > **Corrections applied.** Three false hosted-service statements replaced with
 > vendor-neutral disclosure matching the thesis record; the spurious seventh
@@ -45,6 +49,22 @@
 > and 10; Demonstration 1's pre-registration history disclosed; the unrepeatable
 > labelling run disclosed; a data availability statement added; a no-clinical-use
 > sentence added.
+>
+> **C141, 2026-10-15.** C140's Q3 was not a cross-fit: leave-one-out scored each
+> pair as (k_r - y_i)/(n_r - 1), a function of its own label, forcing every
+> positive below every negative within its stratum for any data. Its 0.4412 and
+> its 0.2066 optimism are withdrawn. C140's Q4 held each cell's observed standard
+> error fixed in a counterfactual where the variance shrinks; its count of 8
+> unreachable cells is withdrawn. Replacements: cross-fitted AUROC 0.4939 at K=5
+> (0.3679 to 0.5668) and 0.5026 at K=3, indistinguishable from chance; 0 cells
+> unreachable, and a configuration would need AUROC 0.9414. The withdrawal of
+> C139's reading stands on C140's Q2, which is unaffected.
+>
+> **Framing retired.** The welded class-level claim is removed throughout. Its
+> second clause was definitional and its first was a type error: phi_max bounds
+> the labeller's agreement, not a screen's discrimination, and Table 1's own
+> ratio rule reaches Youden J 0.6807 where the labeller ceiling is 0.0818. The
+> survey is demoted to a motivating sample, matching its own method file.
 >
 > **Still outstanding and NOT done here.** The PhysioNet compliance email,
 > drafted 2026-08-29, is still unsent. No IRB or exemption determination has been

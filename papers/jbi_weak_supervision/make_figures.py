@@ -115,7 +115,7 @@ def figure_collapse(root, outpath):
     )
     ax.annotate(
         "flagged\nnothing\n({:d})".format(n_zero_ratio),
-        xy=(ZERO_RATIO_X, 0.19),
+        xy=(ZERO_RATIO_X, 0.70),
         ha="center",
         va="bottom",
     )
@@ -158,13 +158,13 @@ def figure_collapse(root, outpath):
             label="open-weight model, gate FAIL",
         ),
     ]
-    ax.legend(handles=handles, loc="lower left", frameon=False, ncol=2)
+    ax.legend(handles=handles, loc="lower center", frameon=False, ncol=2,
+              bbox_to_anchor=(0.5, -0.30))
 
     ax.set_title(
-        "The gate is a threshold on the horizontal axis: "
-        "{:d} verdict disagreements, Youden J {:.4f} against {:.4f}".format(
-            disagreements, gate_j, tuned_j
-        ),
+        "The gate's verdict is a function of the horizontal axis alone: "
+        "{:d} disagreements on the 24 synthetic labellers, Youden J {:.4f} "
+        "against {:.4f} in sample".format(disagreements, gate_j, tuned_j),
         loc="left",
     )
 
