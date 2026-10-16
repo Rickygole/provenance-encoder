@@ -4,6 +4,13 @@
 \usepackage{amsmath}
 \usepackage[hidelinks]{hyperref}
 \usepackage{lineno}
+\makeatletter
+\def\ps@pprintTitle{%
+  \let\@oddhead\@empty
+  \let\@evenhead\@empty
+  \def\@oddfoot{}%
+  \let\@evenfoot\@oddfoot}
+\makeatother
 
 \journal{Journal of Biomedical Informatics}
 
@@ -15,8 +22,11 @@
 \title{Attainable agreement before scoring: what a weak-supervision stage's
 margins can and cannot certify}
 
-\author{Anonymous Submission}
-\address{}
+\author{Ricky Gole\corref{cor1}}
+\cortext[cor1]{Corresponding author}
+\ead{rickygole32@gmail.com}
+\address{Morgan State University, 1700 East Cold Spring Lane, Baltimore,
+MD 21251, United States}
 
 \begin{abstract}
 \textbf{Objective.} A weak-supervision labelling stage is routinely promoted on
@@ -147,9 +157,9 @@ supervision does so with a knowledge base \cite{mintz2009distant}; clinical work
 extends both to ontology-driven and cross-modal settings
 \cite{fries2021trove,dunnmon2020crossmodal}, with distillation supplying the
 second half \cite{hinton2015distilling}. Prompted models are now used directly as
-annotators, with mixed evidence on substitutability
-\cite{gilardi2023chatgpt,pangakis2023validation} and design-based corrections for
-downstream inference \cite{egami2023surrogates}. The paradigm assumes a labelling
+annotators, with mixed evidence on substitutability and on
+design-based corrections for downstream inference
+\cite{gilardi2023chatgpt,pangakis2023validation,egami2023surrogates}. The paradigm assumes a labelling
 function above chance contributes usable signal, aggregation absorbing the rest:
 reasonable with many functions at moderate prevalence, fragile when one function
 is the whole stage and the gold set is small.
@@ -427,9 +437,8 @@ failing student, a fraction of 0.6316. Sensitivity was 0.2941 against the
 pre-registered requirement of 0.90, so the registered outcome is C, not
 validated. The arm using a 0.70 usefulness
 threshold does not move the conclusion: sensitivity 0.2381, with 16 of 19 passed
-labellers still failing. Pooling the 7 real models
-with the 24 synthetic labellers gives sensitivity 0.3636, specificity 1.0000, and
-14 of 23 passed labellers still failing.
+labellers still failing. Pooling the 7 real models with the 24 synthetic gives
+sensitivity 0.3636 and 14 of 23 passed labellers still failing.
 
 \begin{table}[!ht]
 \centering
@@ -825,8 +834,7 @@ established, every result obtained that way is withdrawn, and none is reported
 here or in any artifact cited here. Whether those transmissions were consistent
 with the agreement is for the provider and the responsible institution to
 determine; the record of what was sent, by which route and when,
-is retained and available to either on request. The public demonstration uses SNLI \cite{bowman2015snli}, which carries no
-patient data. Nothing reported here has been validated for clinical use or
+is retained and available to either on request. Nothing reported here has been validated for clinical use or
 supports deployment in any care setting.
 
 The risk this paper is most concerned with is its own subject matter. A stage
@@ -861,6 +869,11 @@ assignment alone. What survives is the cheapest of the three checks. The deploye
 clinical labeller flagged 223 of the 253 adjudicated pairs, and three integers
 fixed its attainable agreement at 0.0818 before any item was scored. It reached
 0.0243.
+
+These checks apply to any pipeline that promotes a labelling stage on an
+agreement coefficient computed against a small adjudicated set, the standard
+arrangement in clinical weak supervision. The ceiling costs three integers and no
+gold labels beyond their count.
 
 \section*{Data availability}
 
