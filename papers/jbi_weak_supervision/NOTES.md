@@ -188,23 +188,33 @@ texcount -inc -sum -nosub main.tex
 If `texcount` is absent, `detex main.tex | wc -w` is a usable floor; subtract the
 abstract and the table and caption text by hand.
 
-### 0.4 JBI guide-for-authors specifics are second-hand
+### 0.4 JBI guide-for-authors specifics are VERIFIED
 
-The following were supplied by the coordinator and **I could not verify them
-myself**: the 6,000 word body limit; the mandatory section order; the
-Objective/Methods/Results/Conclusion abstract headings and 300 word limit; the
-limit of 8 combined figures and tables; the requirement for a Statement of
-Significance; the requirement for a graphical abstract at submission; the
-definitions of the Research Paper and Special Communication article types; the
-"method of methods" scope sentence; and the prior-publication sentence quoted in
-Section 3.2 below.
+Superseded on 2026-10-15. This section previously recorded that the guide's
+requirements were second-hand and unverified, because ScienceDirect returns
+HTTP 403 to automated fetch. The guide was then opened and read in a browser,
+and the author separately pasted the full page text. Both agree.
 
-What I did verify: `https://www.elsevier.com/journals/journal-of-biomedical-informatics/1532-0464/guide-for-authors`
-returns HTTP 301 to
-`https://www.sciencedirect.com/science/journal/15320464/publish/guide-for-authors`,
-which confirms the canonical location of the guide. That destination returned
-HTTP 403 to automated fetch, so no sentence on it was read. **Re-check every item
-in the paragraph above against the live page before submitting.**
+Verified from the page itself: the 6,000 word body limit; the section order
+Introduction, Related Work, Methods, Results, Discussion, Conclusion; the
+Objective/Methods/Results/Conclusion abstract headings at 300 words or fewer;
+8 or fewer combined figures and tables; 1 to 7 keywords; the Statement of
+Significance as a table at the end of the Introduction, 150 words or fewer,
+under the headings Problem or Issue / What is Already Known / What this Paper
+Adds / Who would benefit from the new knowledge in this paper; the graphical
+abstract required at submission at 1328 pixels wide or more with the longest
+side horizontal; the title page requirement for author names, full postal
+affiliation and a corresponding author email; the requirement that the
+Conclusion state the applicability of the research; numbered sections with
+numbered cross-references; the Research Paper and Special Communication
+definitions; the "method of methods" scope sentence; and the submission
+declaration excluding an academic thesis from prior publication.
+
+Two corrections to what this file previously recorded. Special Communication is
+**not** gated on a proposal to the Editor in Chief; that requirement belongs to
+Special Issues, where a guest editor emails the Deputy Editor. And the
+Statement of Significance has a form, place and length requirement that earlier
+passes of this file did not carry at all.
 
 ### 0.5 Numbers in the manuscript that are arithmetic over artifact values rather
 ### than artifact keys
