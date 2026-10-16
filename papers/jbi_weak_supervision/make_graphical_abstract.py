@@ -16,13 +16,14 @@ c120 = json.loads((ROOT / "results/accord/c120_exact_join/c120.json").read_text(
 
 plt.rcParams.update({
     "font.size": 10, "axes.spines.top": False, "axes.spines.right": False,
-    "figure.dpi": 300, "savefig.bbox": "tight", "font.family": "sans-serif",
+    "figure.dpi": 300, "font.family": "sans-serif",
+    "font.sans-serif": ["Arial", "Helvetica"],
     "pdf.fonttype": 42,
 })
 
 pr = c136["primary_reading"]["gate"]
 g253 = c120["g253"]
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.5, 3.9))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.0, 4.0))
 
 # Left: the gate reduces to a flag count
 labels = ["gate FAIL\nstudent failed", "gate PASS\nstudent failed", "gate PASS\nstudent useful"]
@@ -56,6 +57,7 @@ ax2.set_title("The ceiling costs three integers and is computable before scoring
 
 fig.tight_layout()
 out = HERE / "graphical_abstract.pdf"
+fig.tight_layout(pad=0.6)
 fig.savefig(out)
 fig.savefig(HERE / "graphical_abstract.png", dpi=300)
 print(out)
