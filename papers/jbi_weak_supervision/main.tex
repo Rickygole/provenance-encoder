@@ -3,7 +3,12 @@
 
 \usepackage{amsmath}
 \usepackage[hidelinks]{hyperref}
+\hypersetup{pdfauthor={Ricky Gole},
+  pdfsubject={Journal of Biomedical Informatics},
+  pdfkeywords={weak supervision, evaluation methodology, annotation quality,
+    clinical natural language processing, pre-registration, Matthews correlation}}
 \usepackage{lineno}
+\usepackage{float}
 \makeatletter
 \def\ps@pprintTitle{%
   \let\@oddhead\@empty
@@ -49,10 +54,9 @@ the number of gold positives. A single threshold on the flag count reproduced
 that gate's verdicts on 24 labellers with zero disagreements; it passed 19
 labellers, 12 of whose students failed. On the clinical set the ceiling attainable at the
 operating point chosen was 0.0818 and the stage reached
-0.0243. The rival baseline built to replace the chance comparison
-carries no out-of-sample information, AUROC 0.6478 in sample and 0.4939
+0.0243. The rival baseline built to replace it carries no out-of-sample information, AUROC 0.6478 in sample and 0.4939
 cross-fitted; the reading drawn from it is withdrawn, and over 200 fold
-assignments the count clearing $p<0.05$ has median 2 and a 95\% interval of 1 to 13.
+assignments the count clearing $p<0.05$ has median 2 of 15 and a 95\% interval of 1 to 13.
 
 \textbf{Conclusion.} A certification instrument can be principled in derivation
 and still read a stage only through its marginals, at a measurable cost that was
@@ -81,7 +85,7 @@ never itself measured against the standard it replaces
 \cite{jacobs2021measurement,pangakis2023validation}.
 
 How that instrument is certified has not been characterised. We coded 37 such
-papers from full text (Section~\ref{sec:survey}); in that sample three specific
+papers from full text (Section~\ref{sec:survey-method}); in that sample three specific
 checks are absent.
 None reported a
 minimum detectable effect for its labeller evaluation, none tested the labeller
@@ -127,8 +131,9 @@ as mathematics: the instrument is bounded by $\phi_{\max}$ at those margins, and
 it cannot distinguish a labeller from any other presenting the same three counts.
 The Dutch Draw baseline \cite{vandebijl2024dutchdraw,pries2023optimalbaseline} is
 built on this principle. We report the measured cost of overlooking it.
+Table~\ref{tab:significance} summarises the contribution.
 
-\begin{table}[!ht]
+\begin{table}[H]
 \centering
 \caption{Statement of Significance.}
 \label{tab:significance}
@@ -296,7 +301,7 @@ representable at the observed marginals.
 \label{sec:survey-method}
 
 We coded 37 clinical and biomedical weak-supervision papers published between
-2019 and 2026. Records were identified by keyword search of PubMed, arXiv and the ACL Anthology, with
+2019 and 2026 \cite{fries2021trove,das2025criticalfindings,hsu2025knowledgefree,datta2023spatial,wang2019weaksupervisionparadigm,banerjee2019weaklysupervised,vidmar2025probabilistic,jeffery2024noisylabels,azzouzi2024deidentification,dong2023raredisease,wang2022ophthalmologyexam,bejan2022suicidality,shen2022lifestyle,zhang2021chestxray,danniballe2022multilabel,nogues2022weaklysemisupervised,gan2025arch,zhu2021distantlysupervised,vashishth2021medtype,eyuboglu2021multitask,cusick2021suicidalideation,kshatriya2020inhaler,gori2019patientcentered,hsieh2024genegene,agnikula2021asthmacontrol,sanyal2021recurrence,godoy2026mammography,sandlin2026decisional,algaradi2026copd,greco2026west,gao2022keyclass,irvin2019chexpert,smit2020chexbert,agrawal2022fewshot,guevara2024sdoh,yoon2023kbrefined,huemann2023nuclearmedicine}. Records were identified by keyword search of PubMed, arXiv and the ACL Anthology, with
 four added by known-item search; eligibility required programmatic weak
 supervision, distant supervision or model-generated labels over clinical or
 biomedical text, and machine-readable full text. Each paper was coded for whether
@@ -315,8 +320,8 @@ The survey has the defects it documents. The sample is purposive and was not pre
 required machine-readable full text, so it is biased toward open access; five
 candidate studies were dropped for inaccessible full text. Comparators were coded
 generously, as present anywhere in the paper, which inflates comparator counts
-and makes the negative findings conservative. A single coder worked with no
-second rater and no agreement statistic, which is one of the defects the survey
+and makes the negative findings conservative. The author coded every record by hand from the
+full text, with no second rater and no agreement statistic, which is one of the defects the survey
 reports in the papers it codes.
 
 \subsection{Demonstration 1: a feasibility gate on public data}
@@ -343,17 +348,16 @@ than to report.
 
 There are 31 labellers. The primary arm is 24 synthetic labellers, each a pair
 $(\mathrm{TPR},\mathrm{FPR})$ with TPR in $\{0.90, 0.50, 0.10, 0.04\}$ and FPR
-from 0.01 to 0.97, including near-chance labellers at low flag rates, the case in
-which a marginal gate is expected to pass a useless labeller. The secondary arm
+from 0.01 to 0.97, including near-chance labellers at low flag rates, where a
+marginal gate is expected to pass a useless labeller. The secondary arm
 is 7 locally run open-weight models (\texttt{qwen3} at 0.6b, 1.7b, 4b, 8b and
 14b, \texttt{llama3:8b}, \texttt{granite3.3:8b}) under one plain contradiction
 prompt at temperature 0.
 
 The primary student encodes premise and hypothesis with a locally run MiniLM
-encoder and fits $L_2$-regularised logistic regression; a secondary student uses
-TF-IDF features. Both train on the 5000 pool items with that
-labeller's labels and are scored by AUROC on the 10,000 item frame, with student
-failure set at test AUROC below 0.60. The pre-registration required the primary
+encoder and fits $L_2$-regularised logistic regression; a secondary uses TF-IDF. Both train on
+the 5000 pool items with that labeller's labels and are scored by AUROC on the
+10,000 item frame, with failure set below 0.60. The pre-registration required the primary
 student's clean-label reference AUROC to exceed 0.75: MiniLM reached 0.8167 and
 TF-IDF 0.6037.
 Outcome A required sensitivity and positive predictive value both at or above
@@ -453,7 +457,7 @@ condition is ``the distilled student's test AUROC is below the usefulness
 threshold''. The primary reading is the first row; 2x2 cells are given as gate
 fail/student failed, gate fail/student useful, gate pass/student failed, gate
 pass/student useful. Every MiniLM gate row has specificity and positive
-predictive value of 1.0000 and sensitivity never above 0.37 on a synthetic arm,
+predictive value of 1.0000 and sensitivity never above 0.37 on any arm containing the synthetic grid,
 and the TF-IDF row has no defined specificity because no student in it cleared
 the threshold: the gate never wrongly condemns a labeller and almost never
 condemns one. In the primary reading the raw ratio at the gate-equivalent
@@ -521,8 +525,8 @@ the position of a vertical line on this axis.}
 \paragraph{What the gate does buy}
 One narrow thing. Two of the 7 real models, \texttt{qwen3:4b} and
 \texttt{qwen3:8b}, flagged none of the 300 pilot items and are caught by the
-failure set's zero branch; \texttt{qwen3:4b} produced no parsable reply at all,
-so its pool labels were single-class and its student degenerate. Detecting a
+failure set's zero branch; \texttt{qwen3:4b} produced no parsable reply at all.
+Detecting a
 labeller that emitted nothing saves training compute and is otherwise silent.
 That is a sufficient condition for hopelessness which fires almost never: a
 defensible thing for an instrument to be, and not a feasibility criterion.
@@ -571,7 +575,7 @@ pair as $(k_r - y_i)/(n_r - 1)$, a function of that pair's own label, which forc
 every positive below every negative within every stratum.
 
 \paragraph{The comparison redone against a cross-fitted rival}
-On a five-fold assignment whose rival sits at 0.5278, all 17 cells lie above it
+On a five-fold assignment at seed 141, whose rival sits at 0.5278, all 17 cells lie above it
 pointwise, 3 of the 15 distinct cells clear $p < 0.05$ two-sided and none clears
 the corrected threshold, the smallest $p$ being 0.0040 against 0.0033. The two families carry different
 corrections because different pre-registrations fixed them: the chance family at
@@ -618,7 +622,7 @@ evidence about the configuration it names.}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llrrrrcc}
 \hline
- & Model, wording & AUROC & $\Delta$ vs rival & SE & DeLong $p$ & $B$ & $L{>}0.5$ \\
+Family & Model, wording & AUROC & $\Delta$ vs rival & SE & DeLong $p$ & $B$ & $L{>}0.5$ \\
 \hline
 PS & \texttt{llama3:8b}, P\_asserting       & 0.6535 & $+0.0057$ & 0.1185 & 0.9616 &  &  \\
 PS & \texttt{llama3:8b}, P\_neutral         & 0.6929 & $+0.0451$ & 0.1221 & 0.7116 &  & $\bullet$ \\
@@ -693,9 +697,9 @@ no prevalence by itself bounds the coefficient; what bounds it is the gap betwee
 the two. At the 4.74\% prevalence of this study the ceiling is 0.6893 at a flag
 rate of 0.0949, 0.4496 at 0.1976 and 0.2760 at 0.3953. The shaded band is
 computed, not drawn: it is the flag rates from 0.1225 to 0.5534, where the
-ceiling at this prevalence runs from 0.60 down to 0.20, so a reported
-coefficient of 0.2 is a third of the attainable maximum at one edge of the band
-and all of it at the other. The marked point is the stage of
+ceiling at this prevalence lies between 0.20 and 0.60, running from 0.5971 at
+the left edge to 0.2005 at the right, so a reported coefficient of 0.2 is a
+third of the attainable maximum at one edge and all of it at the other. The marked point is the stage of
 Section~\ref{sec:res-ceiling}, which lies far outside the band and is visibly
 degenerate from its flag rate without any coefficient at all.}
 \label{fig:ceiling-curve}
@@ -728,10 +732,9 @@ at those margins, which is a statement about the coefficient, not the stage.
 
 \subsection{What the checks buy}
 
-Two of the three checks changed a verdict chance-based reading would have
-granted. The collapse check turned a pre-registered gate with perfect specificity
-into an instrument arithmetically equivalent to a number it already had, with
-zero disagreements and no model selection. The ceiling check turned a positive
+Two of the three checks changed a verdict that a chance-based reading
+would have granted. The collapse check turned a pre-registered gate with perfect specificity
+into an instrument arithmetically equivalent to a number it already had. The ceiling check turned a positive
 Matthews correlation into 29.72\% of a bound of 0.0818 that three marginal counts
 had fixed in advance. Neither depends on sample size, and the defect each catches
 is arithmetic. For the ceiling the remedy is cheaper still: $\mathrm{MCC}_{\max}$ is 1
@@ -777,15 +780,15 @@ realistic nulls have none. That is the paper's substantive point.
 \emph{One annotator.} The clinical gold labels come from a single pharmacist
 with no second rater, so inter-rater agreement cannot be measured and the gold
 labels' own uncertainty cannot be estimated. The ceiling check partly substitutes
-by bounding attainable agreement from the marginals, but it does not bound error
-in the marginals themselves. Two raters would be stronger.
+by bounding attainable agreement from the marginals, but does not bound error in the marginals
+themselves. Two raters would be stronger.
 
 \emph{Design and scope.} Two demonstrations on two corpora cannot establish that
-these checks matter in every pipeline, and they say nothing about the downstream
+these checks matter in every pipeline, and say nothing about the downstream
 task, the construct validity of the gold standard, or clinical utility. The
 survey is purposive, single-coded and biased toward open access
 (Section~\ref{sec:survey-method}). Its largest sampling defect is that one search
-of 241 records was not screened and 26 of 67 retrieved preprints were unreadable,
+of 241 records was not screened and 26 of the 67 arXiv records the feed reported were not readable,
 so the prompted-model arm is under-sampled; with no record-level screening log we
 report per-search identification counts and no single screened-records figure.
 
@@ -813,8 +816,8 @@ the run and the values are released.
 
 \emph{An unrepeatable run.} The production labelling run of
 Section~\ref{sec:mat-pipeline} cannot be regenerated from the released code, so
-its flag counts of 223 of 253 and 261 of 299 are measured but not reproducible.
-The ceiling does not depend on repeatability, reading only the three marginal
+its flag counts are measured but not reproducible.
+The ceiling reads only the three marginal
 counts in the committed artifact.
 
 \subsection{Ethics, data, and compute}
@@ -848,7 +851,6 @@ Section~\ref{sec:res-ceiling} flagged 0.8814 of the pairs it saw at a confirmed
 positive rate of 0.0474. Publishing its attainable ceiling is part of reporting
 what it could have shown.
 
-\nocite{das2025criticalfindings,hsu2025knowledgefree,datta2023spatial,wang2019weaksupervisionparadigm,banerjee2019weaklysupervised,vidmar2025probabilistic,jeffery2024noisylabels,azzouzi2024deidentification,dong2023raredisease,wang2022ophthalmologyexam,bejan2022suicidality,shen2022lifestyle,zhang2021chestxray,danniballe2022multilabel,nogues2022weaklysemisupervised,gan2025arch,zhu2021distantlysupervised,vashishth2021medtype,eyuboglu2021multitask,cusick2021suicidalideation,kshatriya2020inhaler,gori2019patientcentered,hsieh2024genegene,agnikula2021asthmacontrol,sanyal2021recurrence,godoy2026mammography,sandlin2026decisional,algaradi2026copd,greco2026west,gao2022keyclass,irvin2019chexpert,smit2020chexbert,agrawal2022fewshot,guevara2024sdoh,yoon2023kbrefined,huemann2023nuclearmedicine}
 
 \section{Conclusion}
 \label{sec:conclusion}
@@ -859,8 +861,8 @@ count. The gate examined here was exactly that: a single threshold on the pilot
 flag count reproduced its verdicts with zero disagreements across the 24
 synthetic labellers, and the gate passed 19 labellers, 12 of whose distilled
 students failed. Checking for this costs minutes before any labeller runs. In the 37
-papers we coded neither a minimum detectable effect nor a test against a
-zero-skill null appears, so for that sample publishing the ceiling before
+papers we coded neither a minimum detectable effect for the labeller
+evaluation nor a test against a zero-skill null appears, so for that sample publishing the ceiling before
 scoring would be new.
 
 The rival check that was to replace the chance comparison returns nothing at this
@@ -874,8 +876,8 @@ fixed its attainable agreement at 0.0818 before any item was scored. It reached
 0.0243.
 
 These checks apply to any pipeline that promotes a labelling stage on an
-agreement coefficient computed against a small adjudicated set, the standard
-arrangement in clinical weak supervision. The ceiling costs three integers and no
+agreement coefficient computed against a small adjudicated set, the typical
+arrangement in the papers we coded. The ceiling costs three integers and no
 gold labels beyond their count.
 
 \section*{Data availability}
@@ -907,9 +909,9 @@ database distributed to credentialed investigators by PhysioNet and accessed
 under the PhysioNet Credentialed Health Data Use Agreement. No identifiable
 private information was obtained, no intervention or interaction with a human
 participant took place, and no individual or institution was contacted or
-re-identified, so the work does not meet the definition of human subjects
-research at 45 CFR 46.102(e) and no institutional review board approval or
-waiver was required. The gold standard was produced by one clinician acting as
+re-identified, so the work does not involve human subjects as
+defined at 45 CFR 46.102(e) and no institutional review board approval or
+waiver was sought. The gold standard was produced by one clinician acting as
 a domain expert and not as a research participant; no data about that
 individual were collected or are reported. The public corpus, SNLI, is
 non-clinical text.

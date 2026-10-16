@@ -25,11 +25,17 @@ def ceiling(N, K, n):
     d = math.sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn))
     return (tp*tn - fp*fn)/d if d else float("nan")
 
-plt.rcParams.update({"font.size": 9, "axes.spines.top": False,
+plt.rcParams.update({"font.size": 8, "axes.spines.top": False,
                      "axes.spines.right": False, "figure.dpi": 300,
                      "savefig.bbox": "tight", "font.family": "sans-serif",
+                     "font.sans-serif": ["Arial", "Helvetica"],
+                     "mathtext.fontset": "custom",
+                     "mathtext.rm": "Arial", "mathtext.it": "Arial:italic",
+                     "mathtext.bf": "Arial:bold",
+                     "axes.labelsize": 9, "legend.fontsize": 8,
+                     "xtick.labelsize": 9, "ytick.labelsize": 9,
                      "pdf.fonttype": 42})
-fig, ax = plt.subplots(figsize=(6.4, 3.6))
+fig, ax = plt.subplots(figsize=(4.6, 2.95), constrained_layout=True)
 
 styles = [(0.0474, "-", "#2563EB"), (0.10, "--", "#F59E0B"), (0.25, "-.", "#0D9488"), (0.50, ":", "#E11D48")]
 for prev, ls, col in styles:
@@ -48,22 +54,26 @@ grid = np.arange(K, N - 1)
 cs = np.array([ceiling(N, K, int(n)) for n in grid])
 inband = grid[(cs >= LO) & (cs <= HI)] / N
 band_lo, band_hi = float(inband.min()), float(inband.max())
-ax.axvspan(band_lo, band_hi, color="#FEF3C7", zorder=0)
-ax.text((band_lo + band_hi) / 2, 0.66,
-        "at prevalence %.4f the ceiling\nhere runs %.2f to %.2f" % (K / N, HI, LO),
-        ha="center", va="bottom", fontsize=8, color="#92400E")
+ax.axvspan(band_lo, band_hi, ymin=0.0, ymax=0.60/1.03,
+           color="#FEF3C7", zorder=0)
+ax.text((band_lo + band_hi) / 2, 0.635,
+        "at prevalence %.4f the ceiling\nhere lies between %.2f and %.2f" % (K / N, LO, HI),
+        ha="center", va="bottom", fontsize=9, color="#92400E",
+        bbox=dict(facecolor="white", alpha=0.88, edgecolor="none", pad=1.5))
 
 ax.plot([n_obs / N], [obs_ceiling], "o", color="#7C3AED", markersize=8,
         markeredgecolor="white", markeredgewidth=1.2, zorder=5)
 ax.annotate("this stage: flag rate %.4f,\nceiling %.4f, observed %.4f"
             % (n_obs / N, obs_ceiling, obs_mcc),
-            xy=(n_obs / N, obs_ceiling), xytext=(0.60, 0.33), fontsize=8,
-            arrowprops=dict(arrowstyle="-", color="#7C3AED", linewidth=1.0))
+            xy=(n_obs / N, obs_ceiling), xytext=(0.50, 0.17), fontsize=9,
+            bbox=dict(facecolor="white", alpha=0.9, edgecolor="none", pad=1.5),
+            arrowprops=dict(arrowstyle="-", color="#7C3AED", linewidth=1.0,
+                            shrinkA=2, shrinkB=2))
 
 ax.set_xlabel("flag rate $n/N$")
 ax.set_ylabel("attainable maximum of the Matthews correlation")
 ax.set_xlim(0, 1); ax.set_ylim(0, 1.03)
-ax.legend(frameon=False, fontsize=8, loc="upper right")
+ax.legend(frameon=False, fontsize=9, loc="upper right")
 ax.set_title("The ceiling is fixed by the gap between flag rate and prevalence, "
              "not by prevalence alone", fontsize=9, loc="left")
 out = HERE / "fig2.pdf"

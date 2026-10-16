@@ -20,9 +20,14 @@ USEFULNESS_THRESHOLD = 0.60
 
 plt.rcParams.update(
     {
-        "font.size": 9,
-        "axes.labelsize": 9,
-        "axes.titlesize": 9,
+        "font.size": 8,
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "Helvetica"],
+        "mathtext.fontset": "custom",
+        "mathtext.rm": "Arial", "mathtext.it": "Arial:italic",
+        "mathtext.bf": "Arial:bold",
+        "axes.labelsize": 8,
+        "axes.titlesize": 8,
         "legend.fontsize": 8,
         "xtick.labelsize": 8,
         "ytick.labelsize": 8,
@@ -48,7 +53,7 @@ def figure_collapse(root, outpath):
     tuned_j = primary["ratio_best_over_all_thresholds"]["youden_j"]
     gate_j = primary["gate"]["youden_j"]
 
-    fig, ax = plt.subplots(figsize=(7.1, 3.5))
+    fig, ax = plt.subplots(figsize=(5.0, 3.1), constrained_layout=True)
 
     styles = {
         ("synthetic", False): dict(marker="o", facecolor="white", edgecolor="#2563EB"),
@@ -162,10 +167,11 @@ def figure_collapse(root, outpath):
               bbox_to_anchor=(0.5, -0.30))
 
     ax.set_title(
-        "The gate's verdict is a function of the horizontal axis alone: "
-        "{:d} disagreements on the 24 synthetic labellers, Youden J {:.4f} "
-        "against {:.4f} in sample".format(disagreements, gate_j, tuned_j),
-        loc="left",
+        "The gate's verdict is a function of the horizontal axis alone:\n"
+        "{:d} disagreements on the 24 synthetic labellers,\n"
+        "Youden J {:.4f} against {:.4f} in sample".format(
+            disagreements, gate_j, tuned_j),
+        loc="left", fontsize=9,
     )
 
     fig.savefig(outpath)
