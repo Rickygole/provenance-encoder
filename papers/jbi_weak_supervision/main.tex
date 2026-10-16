@@ -116,31 +116,28 @@ Several literatures hold the ingredients of a stronger standard and none is
 routinely applied to the labelling stage: negative controls
 \cite{lipsitch2010negative}, partial-input baselines
 \cite{poliak2018hypothesis,gururangan2018artifacts}, control tasks against a
-randomised target \cite{hewitt2019control}, and data randomisation, which
-destroys the labels before retraining \cite{adebayo2018sanity}. Label noise and
-pervasive benchmark label error have large literatures
+randomised target \cite{hewitt2019control}, data randomisation
+\cite{adebayo2018sanity}, the label-noise literature
 \cite{frenay2014labelnoise,northcutt2021labelerrors,fogliato2020fairness}, and
-reporting guidance for clinical prediction asks for explicit accounting of such
-threats \cite{collins2024tripodai,sculley2015debt}. A separate
-literature, apparently unconnected to this one, already settles what a marginal
-can establish: the Matthews correlation on a $2\times2$ confusion matrix is the
-phi coefficient, whose margin-constrained maximum $\phi_{\max}$ is classical
+reporting guidance that asks for explicit accounting of such threats
+\cite{collins2024tripodai,sculley2015debt}. A separate literature, apparently
+unconnected to this one, already settles what a marginal can establish: the
+Matthews correlation on a $2\times2$ confusion matrix is the phi coefficient,
+whose margin-constrained maximum $\phi_{\max}$ is classical
 \cite{cureton1959phimax,guilford1965phi}. Weak-labeller evaluation reports the
 Matthews correlation widely and cites none of it.
 
 \paragraph{A method of methods, not a new model}
-We claim no new classifier, no advance over the state of the art, and no new
-bound. The contribution is a method of methods: which
-existing results to apply to one problem space, in what order, and why. Three
-properties of that space drive the choice. Positive prevalence is very low,
-4.74\% here, which leaves ranking statistics with poor resolution and makes a
-mismatched operating point easy to reach: a stage tuned for recall can flag many
-times as many items as there are positives, and it is that discordance, not the
-prevalence, that collapses the attainable agreement
-(Section~\ref{sec:res-ceiling}). Gold comes from one expert
-annotator, so label uncertainty can only be bounded analytically. The evaluation
-items were selected by a procedure, so a comparator built from their metadata
-has to be cross-fitted before it can be believed (Section~\ref{sec:res-rival}).
+We claim no new classifier, no advance over the state of the art and no new
+bound. The contribution is a method of methods: which existing results to apply,
+in what order, and why. Three properties of the problem space drive the choice.
+Prevalence is very low, 4.74\% here, which leaves ranking statistics with poor
+resolution and makes a mismatched operating point easy to reach; it is that
+discordance, not the prevalence, that collapses attainable agreement
+(Section~\ref{sec:res-ceiling}). Gold comes from one annotator, so label
+uncertainty can only be bounded analytically. And the evaluation items were
+selected by a procedure, so a comparator built from their metadata must be
+cross-fitted before it is believed (Section~\ref{sec:res-rival}).
 
 \paragraph{What a marginal cannot certify}
 A certification instrument can look principled and still read the data only
@@ -297,8 +294,8 @@ compute $\mathrm{MCC}_{\max}$. Report the observed coefficient, the ceiling, the
 observed value as a fraction of it, and the minimum detectable effect size for
 every comparison the conclusion will rest on, not only the comparison against
 chance \cite{hanley1982meaning}. Because the ceiling depends only on marginals it
-needs no item-level gold labels, only their count, so it can be published once
-the stage has run and before its output is joined to gold. That also bounds what
+needs no item-level gold labels, only their count, so it can be published once the stage has run and before its output is joined
+to gold. That also bounds what
 it can say. The ceiling is itself a function of $(N,K,n)$, so by the argument of
 Section~\ref{sec:check-collapse} it cannot distinguish a labeller from any other
 presenting the same three counts: at $N=253$, $K=12$ and $n=223$ it is 0.0818
@@ -349,8 +346,8 @@ class of screens that certify on a marginal. It is evaluated as a screening test
 and an unusable distilled student as the condition.
 
 Data are SNLI \cite{bowman2015snli}, binarised as $y=1$ iff contradiction, in
-three disjoint frames at 4\% prevalence under seed 42: a pilot of 300 items with
-12 positives, a pool of 5000 with 200, and a test frame of 10,000 with 400. The
+three disjoint frames at 4\% prevalence under seed 42: a 300-item pilot with 12
+positives, a 5000 pool with 200, and a 10,000 test frame with 400. The
 gate computes the ceiling of Equation~\ref{eq:ceiling} and the hypergeometric
 floor $p_{\text{floor}} = P(X \ge \min(n,K))$ for
 $X \sim \mathrm{Hypergeometric}(N,K,n)$, failing when $p_{\text{floor}} \ge 0.05$;
@@ -365,8 +362,8 @@ is 7 locally run open-weight models (\texttt{qwen3} at 0.6b, 1.7b, 4b, 8b and
 prompt at temperature 0.
 
 The primary student encodes premise and hypothesis with a locally run MiniLM
-sentence encoder and fits $L_2$-regularised logistic regression; a secondary
-student uses TF-IDF features. Both train on the 5000 pool items with that
+encoder and fits $L_2$-regularised logistic regression; a secondary student uses
+TF-IDF features. Both train on the 5000 pool items with that
 labeller's labels and are scored by AUROC on the 10,000 item frame, with student
 failure set at test AUROC below 0.60. The pre-registration required the primary
 student's clean-label reference AUROC to exceed 0.75: MiniLM reached 0.8167 and
@@ -380,41 +377,36 @@ frame, grid entry, prompt or outcome definition after the first number was seen.
 \label{sec:mat-pipeline}
 
 Two objects reported in Section~\ref{sec:res-ceiling} belong to the pipeline
-itself. The production
-labeller is Llama 3 8B \cite{grattafiori2024llama3}, run locally, presented with
-each candidate's exemplar sentence pair and the identifier of the rule that
-generated it, and asked for a binary judgement and a confidence value under a
-fixed template with no demonstrations and no chain-of-thought elicitation. This
-labeller received the rule identifier; the prompts of the 17 configurations of
-Section~\ref{sec:mat-d2} name no rule. Neither that prompt nor
-the script that sent it was committed, so the description cannot be verified from
-the released record and the run cannot be repeated; its flag counts are measured
-but not regenerable, and we report the ceiling from them because the ceiling
-needs only the three marginal counts. The downstream detector is a
-BiomedBERT-base pair classifier \cite{gu2021domainspecific} fine-tuned for three
-epochs with AdamW at learning rate $2\times10^{-5}$ and maximum length 160 on the
-1,183-row training pool.
+itself. The production labeller is Llama 3 8B \cite{grattafiori2024llama3}, run
+locally, given each candidate's exemplar sentence pair and the identifier of the
+rule that generated it, and asked for a binary judgement and a confidence value
+under a fixed template with no demonstrations. It received the rule identifier;
+the prompts of the 17 configurations of Section~\ref{sec:mat-d2} name no rule.
+Neither that prompt nor the script that sent it was committed, so the run cannot
+be repeated and its flag counts are measured but not regenerable; we report the
+ceiling from them because it needs only the three marginal counts. The downstream
+detector is a BiomedBERT-base pair classifier \cite{gu2021domainspecific}
+fine-tuned for three epochs with AdamW at learning rate $2\times10^{-5}$ and
+maximum length 160 on the 1,183-row training pool.
 
 \subsection{Demonstration 2: a rival on a clinical instance}
 \label{sec:mat-d2}
 
 The clinical corpus is a de-identified critical care database
-\cite{johnson2016mimic} accessed under a data use agreement; only aggregate
-statistics are reported here. A pharmacist annotated 299 candidate pairs: 12
-contradictions, 241 not contradictions, and 46 ambiguous. The evaluation set
-$\mathcal{G}_{253}$ is the 253 non-ambiguous pairs, 12 of them positive, a
-prevalence of 4.74\%. No second rater is available.
+\cite{johnson2016mimic} accessed under a data use agreement. A pharmacist
+annotated 299 candidate pairs: 12 contradictions, 241 not contradictions and 46
+ambiguous. The evaluation set $\mathcal{G}_{253}$ is the 253 non-ambiguous pairs,
+12 of them positive, a prevalence of 4.74\%. No second rater is available.
 
 Seventeen configurations each cross a locally run model (\texttt{llama3:8b},
 \texttt{granite3.3:8b}, \texttt{qwen3:8b}) with a prompt wording, scored by a
-graded flag log-odds. Two of the 17 are determinism re-runs of two others and
-reproduce their AUROC to every printed digit, so the 17 cover 15 distinct cells;
-a count of 17 must not be read as 17 independent wordings. No new inference was
-run for these configurations: this is reanalysis of their committed per-pair
-score caches. The rival assigns each pair the confirmed positive rate of its
-generating rule, computed on $\mathcal{G}_{253}$ itself. The four rules cover
-117, 28, 63 and 45 pairs with 3, 3, 4 and 2 confirmed positives. The rival reads
-no text, and no prompt names a rule.
+graded flag log-odds. Two are determinism re-runs of two others and reproduce
+their AUROC to every printed digit, so the 17 cover 15 distinct cells and must
+not be read as 17 independent wordings. No new inference was run: this is
+reanalysis of committed per-pair score caches. The rival assigns each pair the
+confirmed positive rate of its generating rule, computed on
+$\mathcal{G}_{253}$ itself; the four rules cover 117, 28, 63 and 45 pairs with 3,
+3, 4 and 2 confirmed positives. It reads no text, and no prompt names a rule.
 
 Against chance we use a one-sided label-permutation test with 20,000 draws at
 seed 109 and a percentile bootstrap interval with 10,000 draws. Against the rival
@@ -437,13 +429,12 @@ labeller evaluation, none tested its labeller's agreement with gold against a
 chance or zero-skill null, and none stated the null hypothesis of a
 labeller-level comparison. Two reported a random baseline anywhere in the paper
 and one a majority-class baseline. Seven compared the labelling stage against a
-non-text baseline, and in five of those the non-text data was itself part of the
-labeller's input or was the label source; in the remainder we could not confirm
+non-text baseline, and in five the non-text data was part of the labeller's input or was the label
+source; in the remainder we could not confirm
 from the retrieved text a comparison against an independent metadata-only
 baseline on the same gold set, one record being coded uncertain because its
-results table was unreadable. Eleven reported no gold-referenced evaluation of
-the labelling stage at all, and six evaluated only a component or scored on the
-set used to tune it.
+results table was unreadable. Eleven reported no gold-referenced evaluation of the labelling stage, and six
+evaluated only a component or scored on the set used to tune it.
 
 The mechanism is a reporting one. Seventeen papers did not report the number of
 gold positives and fifteen did not report prevalence, so a reader cannot
@@ -555,8 +546,7 @@ would move under a different grid, so a Wilson interval
 there is no population being sampled. We print four places because they are exact
 properties of a stated construction, and do not read the comparison against the
 pre-registered 0.90 as estimating a parameter. None of this touches the collapse
-finding, a count of verdict disagreements that in its a priori form needs no
-labellers at all. With the TF-IDF student no synthetic labeller cleared 0.60, so
+finding, a count of verdict disagreements that a priori needs no labellers at all. With the TF-IDF student no synthetic labeller cleared 0.60, so
 that outcome variable has no variance and specificity is undefined: a screen
 cannot be validated against an outcome that never varies.
 
@@ -605,14 +595,13 @@ all 17 cells lie above it pointwise, 3 of the 15 distinct cells clear
 $p < 0.05$ two-sided and none clears the corrected threshold, the smallest $p$
 being 0.0040 against a threshold of 0.0033.
 
-A single assignment does not decide the question, and that is the more useful
+A single assignment does not decide the question. That is the more useful
 result. Repeating the fold assignment 200 times, the number of distinct cells
 clearing $p < 0.05$ has mean 3.98 and median 2 with a range of \textbf{0 to 15}
 and a 95\% interval of 1 to 13; at least one cell clears the corrected threshold
-in 35.5\% of assignments. The verdict ranges over the entire scale with an
-arbitrary partition of the same 253 pairs. At 12 positives a single cross-fitted
-comparison is not a decision procedure, and the reportable quantity is the
-distribution over assignments. We make no claim that any configuration separates
+in 35.5\% of assignments. The verdict ranges over the whole scale with an arbitrary partition of the same
+253 pairs, so at 12 positives a single cross-fitted comparison is not a decision
+procedure and the reportable quantity is the distribution over assignments. We make no claim that any configuration separates
 from the rival.
 
 The paired comparison's detectability bound is high, and we state which
@@ -788,13 +777,13 @@ before a single label exists. Run the collapse check whenever a project builds a
 composite instrument to evaluate its own stage. The rival check applies when a
 procedure selected the evaluation items, and then cross-fitting, a refitting
 null, a stability report and an advance detectability bound are not optional.
-None of the three is new as a statistical idea: the ceiling is $\phi_{\max}$
+None is new as a statistical idea: the ceiling is $\phi_{\max}$
 \cite{cureton1959phimax,guilford1965phi}, the rival check is a negative control
 \cite{lipsitch2010negative} and a partial-input baseline
-\cite{poliak2018hypothesis} applied to the labelling stage, and the collapse
-check is a sufficiency argument. What is offered is operational form for a stage
-that reporting guidance asks about in spirit \cite{collins2024tripodai} and does
-not cover, with the measured cost of skipping it.
+\cite{poliak2018hypothesis} at the labelling stage, and the collapse check is a
+sufficiency argument. What is offered is operational form for a stage reporting
+guidance asks about in spirit \cite{collins2024tripodai} and does not cover, with
+the measured cost of skipping it.
 
 \subsection{Limitations}
 \label{sec:limitations}
@@ -812,7 +801,7 @@ realistic nulls have none. That is the paper's substantive point.
 with no second rater, so inter-rater agreement cannot be measured and the gold
 labels' own uncertainty cannot be estimated. The ceiling check partly substitutes
 by bounding attainable agreement from the marginals, but it does not bound error
-in the marginals themselves. Two raters would be strictly stronger.
+in the marginals themselves. Two raters would be stronger.
 
 \emph{Design and scope.} Two demonstrations on two corpora cannot establish that
 these checks matter in every pipeline, and they say nothing about the downstream
@@ -854,24 +843,23 @@ counts in the committed artifact.
 \subsection{Ethics, data, and compute}
 
 The clinical corpus is a de-identified critical care database accessed under a
-data use agreement \cite{johnson2016mimic}. Only aggregate statistics appear here. No clinical note text, no record
-identifier and no patient-level row appears in this manuscript or in any artifact
-it cites. No hosted inference service produced any result reported here, and
-every labeller whose results appear ran locally. The agreement states that the licensee will not share
-access to the restricted data with anyone else, and the data provider's guidance
-of 24 September 2025 reads that prohibition as covering transmission to third
-parties including through application programming interfaces and online
-platforms, adding that the data must not be stored or retained by third-party
-language model services \cite{physionet2025llm}. That guidance admits a service
-only where zero data retention, no training on the data and no human review can
-be verified, and directs that a service whose handling is unclear or
-unverifiable not be used. Earlier in this project, sentence pairs extracted from
-the corpus were sent to hosted language model services in several runs. Those
-conditions could not be established for those runs. Every result obtained that
-way is withdrawn and none is reported here or in any artifact cited here. Whether those transmissions were consistent with the agreement is
-a determination for PhysioNet and for the responsible institution, not one this
-paper makes; the record of what was sent, by which route, and when, is retained
-and available to either on request. The public
+data use agreement \cite{johnson2016mimic}. Only aggregate statistics appear here: no clinical note text, no record
+identifier and no patient-level row, in this manuscript or in any artifact it
+cites. No hosted inference service produced any result reported here, and
+every labeller whose results appear ran locally. The agreement states that the licensee will
+not share access to the restricted data with anyone else, and the provider's
+guidance of 24 September 2025 reads that as covering transmission to third
+parties including through programming interfaces and online platforms, adding
+that the data must not be retained by third-party language model services
+\cite{physionet2025llm}. A service is admissible only on verified zero
+retention, no training and no human review, and one whose handling is unclear is
+not to be used. Earlier in this project sentence pairs extracted from the corpus
+were sent to hosted services in several runs; those conditions could not be
+established, every result obtained that way is withdrawn, and none is reported
+here or in any artifact cited here. Whether those transmissions were consistent
+with the agreement is for the provider and the responsible institution to
+determine, not this paper; the record of what was sent, by which route and when,
+is retained and available to either on request. The public
 demonstration uses SNLI \cite{bowman2015snli}, which carries no patient data. Nothing
 reported here has been validated for clinical use or supports deployment in any
 care setting.
