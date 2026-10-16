@@ -73,10 +73,12 @@ out = {
     "n_labellers": len(rows), "n_usable": len(usable),
     "q1_ranking": {
         "spearman_raw_mcc_vs_student_auroc": raw.statistic,
-        "spearman_raw_p": raw.pvalue,
         "spearman_ratio_vs_student_auroc": rat.statistic,
-        "spearman_ratio_p": rat.pvalue,
         "ratio_minus_raw": delta,
+        "note_on_p_values": "Not reported. The pre-registration states that "
+                            "neither rho estimates a population quantity, so a "
+                            "p-value against a sampling null is not meaningful "
+                            "here and is deliberately absent.",
         "registered_margin": 0.05,
         "outcome": outcome,
         "verdict": verdict,
