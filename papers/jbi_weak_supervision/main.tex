@@ -230,16 +230,15 @@ attained and tight.
 The \emph{a priori} form of the check is a code reading: list the verdict function's
 arguments, and if it reads the data only through a vector of marginals with all
 but one component fixed across the units compared, the verdict is a function of
-that component. The \emph{empirical} form compares verdict vectors. Let $V_i$ be
-the instrument's verdict on unit $i$ and $t_i$ a candidate single statistic.
+that component. The \emph{empirical} form compares verdict vectors. Let $V_i$ be the verdict on
+unit $i$ and $t_i$ a candidate statistic.
 Evaluate the instrument at every attainable value of $t$ to obtain its failure
 set, then report (i) the threshold on $t$ whose verdicts come closest to $V$,
 with the disagreement count, and (ii) the best Youden $J$ over all thresholds. Step (i) is the comparison that matters because it involves no selection. Zero disagreements over units spanning the attainable range of $t$ establishes
 the equivalence on that range. Where the failure set is not a single interval,
 as in our own demonstration, a grid omitting part of it can show zero
-disagreements while the equivalence fails elsewhere; we report both arms. Step (ii) is
-diagnostic only, since its threshold is chosen on the units it is scored on, so
-its value is an optimistic bound and must be labelled as such. Neither screening operating characteristics nor a correlation between the
+disagreements while the equivalence fails elsewhere; we report both arms. Step (ii) is diagnostic only: its threshold is chosen on the units it is scored
+on, so its value is an optimistic bound. Neither screening operating characteristics nor a correlation between the
 instrument's internals and the outcome can substitute, since an instrument can
 have perfect specificity and still be redundant; and in our demonstration that correlation is
 moderate (Spearman $\rho = 0.5310$ over the 24 constructed labellers) while the
@@ -248,27 +247,25 @@ instrument's Youden $J$ is 0.2941.
 \subsection{Check 2: rival}
 
 Enumerate variables available to the pipeline but not to the labeller as text:
-typically the generating rule, source section, note type, document length and
-candidate position. Build the best score obtainable from each alone; the obvious
-candidate is the stratum base rate $s(x) = k_{r(x)}/n_{r(x)}$. Score the rival on
-the same items as the stage and compare with a paired test appropriate to the
-statistic; for AUROC that is DeLong's \cite{delong1988comparing}.
+the generating rule, source section, note type, document length, position. Build the best score obtainable from each alone; the obvious candidate is the
+stratum base rate $s(x) = k_{r(x)}/n_{r(x)}$. Score it on the same items as the
+stage and compare with a paired test; for AUROC, DeLong's
+\cite{delong1988comparing}.
 
-Four requirements are not optional. \emph{Cross-fit the rival.} A rival whose
-parameters are estimated from the gold labels it is scored against is optimistic,
-and at a small positive count the optimism can exceed the entire signal.
+Four requirements are not optional. \emph{Cross-fit the rival.} A rival whose parameters are estimated from the gold
+labels it is scored against is optimistic, and at a small positive count that
+optimism can exceed the signal.
 \emph{Make the null refit it.} Holding a fitted score vector fixed while
 permuting the labels it was fitted to tests the wrong hypothesis, and a statistic
 ordered by its own fitted rates may be bounded below by its chance value.
 \emph{Report the comparison's stability.} A single cross-fit is one partition of
-the gold set, and at a small positive count the verdict can move across its whole
-range with the partition, so report the distribution over assignments.
+the gold set, and the verdict can move across its whole range with the
+partition, so report the distribution over assignments.
 \emph{Compute the detectability bound first.} The paired comparison may be unable
 to return a positive answer at any attainable value; a null result does not
-establish that. Pre-register three outcomes: the stage separates, nothing
-separates in either direction, or the rival separates. The middle licenses only
-the statement that the study cannot distinguish the two, and is not evidence that
-the stage carries nothing.
+establish that. Pre-register three outcomes: the stage separates, nothing separates, or the
+rival separates. The middle licenses only the statement that the study cannot
+distinguish the two; it is not evidence that the stage carries nothing.
 
 \subsection{Check 3: ceiling}
 
@@ -279,10 +276,9 @@ weak-labeller evaluation, and the consequence for a whole class of screens that
 this literature has not drawn.
 
 That consequence is the check. Before scoring, record $N$, $K$ and $n$ and
-compute $\mathrm{MCC}_{\max}$. Report the observed coefficient, the ceiling, the
-observed value as a fraction of it, and the minimum detectable effect size for
-every comparison the conclusion will rest on, not only the comparison against
-chance \cite{hanley1982meaning}. Because the ceiling depends only on marginals it
+compute $\mathrm{MCC}_{\max}$. Report the observed coefficient, the ceiling, the observed value as a fraction
+of it, and the minimum detectable effect for every comparison the conclusion
+rests on, not only the one against chance \cite{hanley1982meaning}. Because the ceiling depends only on marginals it
 needs no item-level gold labels, only their count, so it can be published once the stage has run and before its output is joined
 to gold. That also bounds what
 it can say. The ceiling is itself a function of $(N,K,n)$, so by the argument of
@@ -290,11 +286,10 @@ Section~\ref{sec:check-collapse} it cannot distinguish a labeller from any other
 presenting the same three counts: at $N=253$, $K=12$ and $n=223$ it is 0.0818
 both for a stage whose 223 flags contain all 12 positives and for one that
 flagged 223 items at random. It is a statement about representability, never
-about quality. It is not redundant with a power calculation: power asks whether an
-effect of a given size would be detectable, the ceiling whether an effect of a
-useful size is representable by the chosen coefficient at the observed marginals.
-The two can disagree, and a design can have adequate resolution for a coefficient
-whose attainable maximum is a small fraction of its nominal range.
+about quality. It is not redundant with a power calculation: power asks whether an effect of a
+given size is detectable, the ceiling whether an effect of a useful size is
+representable at the observed marginals. A design can have adequate resolution
+for a coefficient whose attainable maximum is a small fraction of its range.
 
 \subsection{The survey of certification practice}
 \label{sec:survey-method}
@@ -398,7 +393,7 @@ $\mathcal{G}_{253}$ itself; the four rules cover 117, 28, 63 and 45 pairs with 3
 3, 4 and 2 confirmed positives. It reads no text, and no prompt names a rule.
 
 Against chance we use a one-sided label-permutation test with 20,000 draws at
-seed 109 and a percentile bootstrap interval with 10,000 draws. Against the rival
+seed 109 and a percentile bootstrap with 10,000 draws. Against the rival
 we use a paired two-sided DeLong test \cite{delong1988comparing} on the same 253
 pairs. Outcome A promoted the stage if any configuration cleared the corrected
 threshold above the rival; Outcome B, not separable, required reporting that the
@@ -414,26 +409,24 @@ detectability analyses reported in Section~\ref{sec:res-rival}.
 \label{sec:survey}
 
 Of the 37 papers coded, none reported a minimum detectable effect for its
-labeller evaluation, none tested its labeller's agreement with gold against a
-chance or zero-skill null, and none stated the null hypothesis of a
-labeller-level comparison. Two reported a random baseline anywhere in the paper
-and one a majority-class baseline. Seven compared the labelling stage against a
-non-text baseline, and in five the non-text data was part of the labeller's input or was the label
-source; in the remainder we could not confirm
-from the retrieved text a comparison against an independent metadata-only
-baseline on the same gold set, one record being coded uncertain because its
-results table was unreadable. Eleven reported no gold-referenced evaluation of the labelling stage, and six
-evaluated only a component or scored on the set used to tune it.
+labeller evaluation, none tested the labeller's agreement with gold against a
+zero-skill null, and none stated a labeller-level null hypothesis. Two reported a random baseline anywhere, one a majority-class baseline. Seven compared the labelling stage against a non-text baseline, and in five that
+data was part of the labeller's input or was the label source; in the remainder
+we could not confirm a comparison against an independent metadata-only baseline
+on the same gold set, one record coded uncertain for an unreadable results
+table. Eleven reported no gold-referenced evaluation of the stage, and six evaluated
+only a component or scored on the set used to tune it.
 
 The mechanism is a reporting one. Seventeen papers did not report the number of
-gold positives and fifteen did not report prevalence, so a reader cannot reconstruct the chance level, which explains the absence of a
-comparison against it. The smallest gold sets hold 5 positives at 0.83\%
-prevalence, 15 positives, and 19 positive patients, so a set of our size exists
-in this literature, though most of the sample is larger.
+gold positives and fifteen did not report prevalence, so a reader of those cannot reconstruct the chance level. That does not explain the absence. Counting
+papers where the figure is derivable from other reported counts, prevalence is
+recoverable in 22 of 37 and the gold positive count in 20 of 37, and the test is
+absent in all 37. The information is usually there; the comparison is not made. The smallest gold sets hold 5 positives at 0.83\% prevalence, 15 positives and
+19 positive patients, so a set of our size exists here, though most are larger.
 
 This changes what the paper proposes. In the papers we coded, a
 ceiling published in a protocol and a cross-fitted comparator are not corrections
-to a lenient practice. They are new practice.
+to a lenient practice. In that sample they are new.
 
 \subsection{A gate with perfect specificity that reads one number}
 \label{sec:res-collapse}
@@ -590,13 +583,14 @@ arbitrary partition of the same 253 pairs, so a single cross-fitted comparison i
 not a decision procedure here and the reportable quantity is the distribution
 over assignments. We claim nothing about any configuration.
 
-The paired comparison's detectability bound is high, and we state which
-comparator it is computed against because the two differ. Against the in-sample
-rival at 0.6478, with the variance recomputed at the alternative and zero
-covariance, optimistic for the stage, a configuration would need an AUROC of
-0.8654 to clear 0.05 and 0.9414 to clear the corrected threshold. Against the
-cross-fitted rival at 0.4939 the bar is far lower: the strongest cell at 0.7936
-cleared 0.05 and missed the corrected threshold by 0.0006. The published floor
+The paired comparison's detectability bound is high, and we state which comparator it uses, because the two differ. Against the in-sample
+rival at 0.6478, with the variance recomputed at the alternative and zero covariance, optimistic
+for the stage, a configuration would need AUROC 0.8654 to clear 0.05 and 0.9414
+to clear the corrected threshold. Against a cross-fitted rival the bar is far lower; on the
+assignment reported above, whose rival sits at 0.5278, the strongest cell at
+0.7936
+cleared 0.05 and missed the corrected threshold by 0.0006 in $p$, not in AUROC:
+0.0040 against 0.0033. The published floor
 of 0.7355 bounds the comparison against chance only.
 
 \paragraph{Withdrawals}
@@ -727,7 +721,8 @@ joins at least as high. The stage's agreement is indistinguishable from a random
 assignment with the same marginals. The ceiling
 of 0.0818 required no gold labels beyond their count and no model run; published
 when the flag rate was first observed, it would have framed the subsequent
-scoring as the measurement of something that could not have been useful.
+scoring as the measurement of a coefficient that could not take a useful value
+at those margins, which is a statement about the coefficient, not the stage.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -758,15 +753,15 @@ on.
 
 \subsection{When to run them, and relation to existing practice}
 
-Run the ceiling check always: three integers, and the only one publishable
-before a single label exists. Run the collapse check whenever a project builds a
+Run the ceiling check always: three integers, and the only one that can be
+published before any agreement figure is seen. Run the collapse check whenever a project builds a
 composite instrument to evaluate its own stage. The rival check applies when a
 procedure selected the evaluation items, and then cross-fitting, a refitting
 null, a stability report and an advance detectability bound are not optional.
 None is new as a statistical idea: the ceiling is $\phi_{\max}$
-\cite{cureton1959phimax,guilford1965phi}, the rival check is a negative control
-\cite{lipsitch2010negative} and a partial-input baseline
-\cite{poliak2018hypothesis} at the labelling stage, and the collapse check is a
+\cite{cureton1959phimax,guilford1965phi}, the rival check a negative control
+\cite{lipsitch2010negative} and partial-input baseline
+\cite{poliak2018hypothesis} at the labelling stage, the collapse check a
 sufficiency argument. What is offered is operational form for a stage reporting
 guidance asks about in spirit \cite{collins2024tripodai} and does not cover, with
 the measured cost of skipping it.
@@ -870,10 +865,10 @@ weak-supervision stage only through its item count, gold positive count and flag
 count. The gate examined here was exactly that: a single threshold on the pilot
 flag count reproduced its verdicts with zero disagreements across the 24
 synthetic labellers, and the gate passed 19 labellers, 12 of whose distilled
-students failed. Checking for this costs minutes before any labeller runs. Across
-37 clinical weak-supervision papers neither a minimum detectable effect nor a
-test against a chance or zero-skill null appears, so publishing the attainable ceiling before
-scoring is new practice.
+students failed. Checking for this costs minutes before any labeller runs. In the 37
+papers we coded neither a minimum detectable effect nor a test against a
+zero-skill null appears, so for that sample publishing the ceiling before
+scoring would be new.
 
 The rival check that was to replace the chance comparison returns nothing at this
 gold-set size: its comparator was fitted on the 12 labels it was scored against,
