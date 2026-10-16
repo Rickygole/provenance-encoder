@@ -28,7 +28,7 @@ g253 = c120["g253"]
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6.5, 2.6), constrained_layout=True)
 
 # Left: the gate reduces to a flag count
-labels = ["gate FAIL\nstudent failed", "gate PASS\nstudent failed", "gate PASS\nstudent useful"]
+labels = ["FAIL\nstudent\nfailed", "PASS\nstudent\nfailed", "PASS\nstudent\nuseful"]
 vals = [pr["cell_gatefail_studentfailed"], pr["cell_gatepass_studentfailed"],
         pr["cell_gatepass_studentuseful"]]
 cols = ["#E11D48", "#F59E0B", "#0D9488"]
@@ -49,9 +49,9 @@ ax2.text(ceil, 0, "  %.4f" % ceil, va="center", fontsize=10)
 ax2.text(obs, 1, "  %.4f" % obs, va="center", fontsize=10)
 ax2.set_xlim(0, ceil * 1.45)
 ax2.set_ylim(-0.6, 1.6)
-ax2.set_xlabel("Matthews correlation on 253 adjudicated pairs")
+ax2.set_xlabel("Matthews correlation, 253 pairs")
 ax2.set_title("The ceiling costs three integers\n"
-              "observed %.4f against an attainable %.4f"
+              "observed %.4f, attainable %.4f"
               % (g253["mcc"], g253["ceiling_mcc"]), fontsize=10, loc="left")
 
 out = HERE / "graphical_abstract.pdf"

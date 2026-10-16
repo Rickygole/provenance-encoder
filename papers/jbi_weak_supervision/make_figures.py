@@ -266,13 +266,12 @@ def figure_rival(root, outpath):
 
 def main():
     root = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_ROOT
-    for relpath in (C136, C139):
+    for relpath in (C136,):
         full = os.path.join(root, relpath)
         if not os.path.exists(full):
             raise SystemExit("missing artifact: {}".format(full))
     produced = [
         figure_collapse(root, os.path.join(HERE, "fig1.pdf")),
-        figure_rival(root, os.path.join(HERE, "rival_forest_unused.pdf")),
     ]
     for path in produced:
         print(path)

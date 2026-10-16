@@ -49,6 +49,9 @@ rat = stats.spearmanr([r["ratio"] for r in usable],
                       [r["student_auroc_minilm"] for r in usable])
 
 delta = rat.statistic - raw.statistic
+if not math.isfinite(delta):
+    raise SystemExit("delta is not finite; the registration requires this be "
+                     "reported as not run rather than as an outcome")
 if delta > 0.05:
     outcome, verdict = "A", "the ratio ranks better than the raw coefficient"
 elif delta < -0.05:
