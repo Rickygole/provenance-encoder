@@ -53,41 +53,10 @@ pre-registration, and one procedural failure disclosed.
 
 \begin{keyword}
 weak supervision \sep evaluation methodology \sep annotation quality \sep
-clinical natural language processing \sep pre-registration \sep class imbalance
+clinical natural language processing \sep pre-registration \sep Matthews correlation
 \end{keyword}
 
 \end{frontmatter}
-
-\section*{Statement of Significance}
-
-\emph{Problem.} Weak supervision is the standard way to obtain training labels
-for rare clinical events. How the labelling stage is certified before its labels are used downstream has
-not been characterised.
-
-\emph{What is already known.} The margin-constrained maximum of an agreement
-coefficient is classical: $\phi_{\max}$ dates to Cureton \cite{cureton1959phimax}
-and Guilford \cite{guilford1965phi}, and the Matthews correlation on a
-$2\times2$ confusion matrix is the phi coefficient. Certifying by a tail probability on a count has precedent in acceptance sampling
-\cite{dodge1929sampling} and pilot-trial progression criteria
-\cite{lewis2021progression}. None of this literature is connected to the
-evaluation of weak labellers, where the Matthews correlation is widely reported.
-
-\emph{What this paper adds.} A check for whether a certification instrument carries information beyond a
-statistic the stage already emits, and the finding that a pre-registered
-hypergeometric gate reduced exactly to a function of its own flag count while
-passing 19 labellers, 12 of whose students failed. A worked application of the $\phi_{\max}$ bound to a clinical stage that reached
-29.72\% of an attainable ceiling of 0.0818. A motivating
-survey of 37 papers in which no labeller-level minimum detectable effect, no
-zero-skill null
-and, in seventeen, no gold positive count is reported. Two readings of our
-own are withdrawn here and one procedural failure disclosed, each beside the
-analysis it concerns.
-
-\emph{What a developer should do differently.} Compute the attainable ceiling of
-the reported agreement coefficient from the three marginal counts as soon as the
-stage has run, and publish it before scoring against gold. Report the gold positive count and the prevalence. If a comparator is fitted on the gold labels, cross-fit it and make
-its null refit the comparator, or it will appear to carry information it does
-not.
 
 \section{Introduction}
 \label{sec:intro}
@@ -148,6 +117,24 @@ as mathematics: the instrument is bounded by $\phi_{\max}$ at those margins, and
 it cannot distinguish a labeller from any other presenting the same three counts.
 The Dutch Draw baseline \cite{vandebijl2024dutchdraw,pries2023optimalbaseline} is
 built on this principle. We report the measured cost of overlooking it.
+
+\begin{table}[!ht]
+\centering
+\caption{Statement of Significance.}
+\label{tab:significance}
+\footnotesize
+\begin{tabular}{@{}p{0.30\textwidth}p{0.64\textwidth}@{}}
+\hline
+\textbf{Problem or Issue} & Weak supervision is the standard route to training labels for rare clinical events. How its labelling stage is certified has not been characterised. \\[4pt]
+
+\textbf{What is Already Known} & The margin-constrained maximum of an agreement coefficient is classical as $\phi_{\max}$ \cite{cureton1959phimax,guilford1965phi}, and the Matthews correlation on a $2\times2$ table is the phi coefficient. Neither result is connected to weak-labeller evaluation. \\[4pt]
+
+\textbf{What this Paper Adds} & A check for whether a certification instrument carries information beyond a statistic the stage already emits; a pre-registered gate that reduced to a function of its own flag count while passing 19 labellers, 12 of whose students failed; and the bound applied to a clinical stage reaching 29.72\% of an attainable 0.0818. \\[4pt]
+
+\textbf{Who would benefit from the new knowledge in this paper} & Developers and reviewers of clinical weak-supervision pipelines, who can compute the attainable ceiling from three counts and publish it before scoring. \\
+\hline
+\end{tabular}
+\end{table}
 
 \section{Related Work}
 \label{sec:related}
@@ -896,18 +883,6 @@ be deposited in a repository open to the research community on acceptance, as th
 data use agreement requires. That deposit will contain no clinical data. The
 labelling run whose marginals Section~\ref{sec:res-ceiling} reports is the one
 exception to full reproducibility and is described in Section~\ref{sec:limitations}.
-
-\section*{Declaration of competing interest}
-
-[To be completed by the author.]
-
-\section*{Funding}
-
-[To be completed by the author.]
-
-\section*{Declaration of generative AI and AI-assisted technologies in the writing process}
-
-[To be completed by the author.]
 
 \bibliographystyle{elsarticle-num}
 \bibliography{refs}
