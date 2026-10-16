@@ -157,14 +157,14 @@ supervision does so with a knowledge base \cite{mintz2009distant}; clinical work
 extends both to ontology-driven and cross-modal settings
 \cite{fries2021trove,dunnmon2020crossmodal}, with distillation supplying the
 second half \cite{hinton2015distilling}. Prompted models are now used directly as
-annotators, with mixed evidence on substitutability and on
-design-based corrections for downstream inference
-\cite{gilardi2023chatgpt,pangakis2023validation,egami2023surrogates}. The paradigm assumes a labelling
+annotators, with mixed evidence on substitutability
+\cite{gilardi2023chatgpt,pangakis2023validation} and design-based corrections
+for downstream inference \cite{egami2023surrogates}. The paradigm assumes a labelling
 function above chance contributes usable signal, aggregation absorbing the rest:
 reasonable with many functions at moderate prevalence, fragile when one function
 is the whole stage and the gold set is small.
 
-\paragraph{Controls and partial-input base\-lines}
+\paragraph{Controls and partial-input baselines}
 Control tasks report probe selectivity against a randomised target
 \cite{hewitt2019control,belinkov2022probing}. Hypothesis-only baselines showed a
 model reading half the input achieves much of full-input accuracy
@@ -185,7 +185,7 @@ margin-constrained maximum of phi is classical
 \cite{cureton1959phimax,guilford1965phi}. Which coefficient suits an imbalanced
 problem has a literature of its own
 \cite{chicco2020mcc,chicco2021mccbalanced,saito2015prcurve,delgado2019kappa},
-and detectable effect size is likewise bounded. Certifying by a tail probability on a count is
+and detectable effect size is likewise bounded \cite{hanley1982meaning}. Certifying by a tail probability on a count is
 standardised in acceptance sampling \cite{dodge1929sampling} and pilot-trial
 progression criteria \cite{lewis2021progression}, and under fixed margins such a
 test is the closed form of a label-permutation test
@@ -259,9 +259,8 @@ the gold set, and the verdict can move across its whole range with the
 partition, so report the distribution over assignments.
 \emph{Compute the detectability bound first.} The paired comparison may be unable
 to return a positive answer at any attainable value; a null result does not
-establish that. Pre-register three outcomes: the stage separates, nothing separates, or the
-rival separates. The middle licenses only the statement that the study cannot
-distinguish the two; it is not evidence that the stage carries nothing.
+establish that. Pre-register three outcomes. A null result licenses only the statement that the
+study cannot distinguish stage from rival, not that the stage carries nothing.
 
 \subsection{Check 3: ceiling}
 
@@ -282,7 +281,7 @@ Section~\ref{sec:check-collapse} it cannot distinguish a labeller from any other
 presenting the same three counts: at $N=253$, $K=12$ and $n=223$ it is 0.0818
 both for a stage whose 223 flags contain all 12 positives and for one that
 flagged 223 items at random. It is a statement about representability, never
-about quality, and it binds a hard-label stage. Where the labeller emits a score
+about quality, and it binds a hard-label stage. Where the labeller emits a score,
 $n$ is a free parameter, so the ceiling at the observed $n$ bounds the operating
 point that was chosen rather than the labeller, and belongs beside a threshold
 sweep. It is not redundant with a power calculation: power asks whether an effect of a
@@ -408,7 +407,7 @@ detectability analyses reported in Section~\ref{sec:res-rival}.
 Of the 37 papers coded, none reported a minimum detectable effect for its
 labeller evaluation, none tested the labeller's agreement with gold against a
 zero-skill null, and none stated a labeller-level null hypothesis. Two reported a random baseline anywhere, one a majority-class baseline. Nine reported a structured-data comparator and seven of those compared it
-against the labelling stage on the same task; in five of the nine that data was
+against the labelling stage on the same task; in five of those seven that data was
 part of the labeller's input or was the label source; in the remainder
 we could not confirm an independent metadata-only comparison on the same gold set, one record coded uncertain for an unreadable results
 table. Eleven reported no gold-referenced evaluation of the stage, and six evaluated
