@@ -51,10 +51,10 @@ def figure_collapse(root, outpath):
     fig, ax = plt.subplots(figsize=(7.1, 3.5))
 
     styles = {
-        ("synthetic", False): dict(marker="o", facecolor="white", edgecolor="black"),
-        ("synthetic", True): dict(marker="o", facecolor="black", edgecolor="black"),
-        ("real_ollama", False): dict(marker="s", facecolor="white", edgecolor="0.35"),
-        ("real_ollama", True): dict(marker="s", facecolor="0.35", edgecolor="0.35"),
+        ("synthetic", False): dict(marker="o", facecolor="white", edgecolor="#2563EB"),
+        ("synthetic", True): dict(marker="o", facecolor="#2563EB", edgecolor="#1E3A5F"),
+        ("real_ollama", False): dict(marker="s", facecolor="white", edgecolor="#E11D48"),
+        ("real_ollama", True): dict(marker="s", facecolor="#E11D48", edgecolor="#881337"),
     }
 
     n_zero_ratio = 0
@@ -79,11 +79,11 @@ def figure_collapse(root, outpath):
         )
 
     ax.axhline(
-        USEFULNESS_THRESHOLD, color="black", linestyle="-", linewidth=0.8, zorder=1
+        USEFULNESS_THRESHOLD, color="#0D9488", linestyle="-", linewidth=1.1, zorder=1
     )
-    ax.axvline(gate_equivalent, color="black", linestyle="-", linewidth=1.3, zorder=2)
-    ax.axvline(tuned, color="black", linestyle="--", linewidth=1.3, zorder=2)
-    ax.axvspan(ZERO_RATIO_X * 0.75, ZERO_RATIO_X * 1.25, color="0.90", zorder=0)
+    ax.axvline(gate_equivalent, color="#7C3AED", linestyle="-", linewidth=1.6, zorder=2)
+    ax.axvline(tuned, color="#F59E0B", linestyle="--", linewidth=1.6, zorder=2)
+    ax.axvspan(ZERO_RATIO_X * 0.75, ZERO_RATIO_X * 1.25, color="#FEE2E2", zorder=0)
 
     ax.set_xscale("log")
     ax.set_xlim(0.19, 45)
@@ -126,7 +126,7 @@ def figure_collapse(root, outpath):
             [],
             marker="o",
             markerfacecolor="white",
-            markeredgecolor="black",
+            markeredgecolor="#2563EB",
             linestyle="none",
             label="synthetic, gate PASS",
         ),
@@ -134,8 +134,8 @@ def figure_collapse(root, outpath):
             [],
             [],
             marker="o",
-            markerfacecolor="black",
-            markeredgecolor="black",
+            markerfacecolor="#2563EB",
+            markeredgecolor="#1E3A5F",
             linestyle="none",
             label="synthetic, gate FAIL",
         ),
@@ -144,7 +144,7 @@ def figure_collapse(root, outpath):
             [],
             marker="s",
             markerfacecolor="white",
-            markeredgecolor="0.35",
+            markeredgecolor="#E11D48",
             linestyle="none",
             label="open-weight model, gate PASS",
         ),
@@ -152,8 +152,8 @@ def figure_collapse(root, outpath):
             [],
             [],
             marker="s",
-            markerfacecolor="0.35",
-            markeredgecolor="0.35",
+            markerfacecolor="#E11D48",
+            markeredgecolor="#881337",
             linestyle="none",
             label="open-weight model, gate FAIL",
         ),

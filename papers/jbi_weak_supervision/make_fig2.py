@@ -30,7 +30,7 @@ plt.rcParams.update({"font.size": 9, "axes.spines.top": False,
                      "savefig.bbox": "tight", "font.family": "sans-serif"})
 fig, ax = plt.subplots(figsize=(6.4, 3.6))
 
-styles = [(0.0474, "-", "0.15"), (0.10, "--", "0.35"), (0.25, "-.", "0.55"), (0.50, ":", "0.70")]
+styles = [(0.0474, "-", "#2563EB"), (0.10, "--", "#F59E0B"), (0.25, "-.", "#0D9488"), (0.50, ":", "#E11D48")]
 for prev, ls, col in styles:
     KK = max(1, int(round(prev * N)))
     ns = np.arange(KK, N - 1)
@@ -39,15 +39,16 @@ for prev, ls, col in styles:
             label="prevalence %.2f" % (KK / N))
 
 # the band where a developer could mistake a low coefficient for a real one
-ax.axvspan(0.15, 0.50, color="0.92", zorder=0)
+ax.axvspan(0.15, 0.50, color="#FEF3C7", zorder=0)
 ax.text(0.325, 0.93, "coefficient looks small\nbut is near its maximum",
-        ha="center", va="top", fontsize=8, color="0.3")
+        ha="center", va="top", fontsize=8, color="#92400E")
 
-ax.plot([n_obs / N], [obs_ceiling], "o", color="black", markersize=6, zorder=5)
+ax.plot([n_obs / N], [obs_ceiling], "o", color="#7C3AED", markersize=8,
+        markeredgecolor="white", markeredgewidth=1.2, zorder=5)
 ax.annotate("this stage: flag rate %.4f,\nceiling %.4f, observed %.4f"
             % (n_obs / N, obs_ceiling, obs_mcc),
             xy=(n_obs / N, obs_ceiling), xytext=(0.60, 0.33), fontsize=8,
-            arrowprops=dict(arrowstyle="-", color="black", linewidth=0.8))
+            arrowprops=dict(arrowstyle="-", color="#7C3AED", linewidth=1.0))
 
 ax.set_xlabel("flag rate $n/N$")
 ax.set_ylabel("attainable maximum of the Matthews correlation")

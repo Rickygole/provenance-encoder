@@ -27,7 +27,7 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.5, 3.9))
 labels = ["gate FAIL\nstudent failed", "gate PASS\nstudent failed", "gate PASS\nstudent useful"]
 vals = [pr["cell_gatefail_studentfailed"], pr["cell_gatepass_studentfailed"],
         pr["cell_gatepass_studentuseful"]]
-cols = ["0.25", "0.55", "0.85"]
+cols = ["#E11D48", "#F59E0B", "#0D9488"]
 b = ax1.bar(labels, vals, color=cols, edgecolor="black", linewidth=0.8)
 ax1.bar_label(b, padding=2, fontsize=10)
 ax1.set_ylabel("labellers (of 24)")
@@ -43,7 +43,7 @@ ax1.set_title("A pre-registered gate is a threshold on its own flag count\n"
 # Right: observed agreement against its attainable ceiling
 obs, ceil = g253["mcc"], g253["ceiling_mcc"]
 ax2.barh(["attainable\nceiling", "observed"], [ceil, obs], height=0.45,
-         color=["0.85", "0.25"], edgecolor="black", linewidth=0.8)
+         color=["#BFDBFE", "#2563EB"], edgecolor="#1E3A5F", linewidth=0.9)
 ax2.text(ceil, 0, "  %.4f" % ceil, va="center", fontsize=10)
 ax2.text(obs, 1, "  %.4f" % obs, va="center", fontsize=10)
 ax2.set_xlim(0, ceil * 1.45)
