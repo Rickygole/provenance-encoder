@@ -71,4 +71,31 @@ and both rho are reported as descriptions of this grid.
 
 ## Outcome
 
-To be completed after the run.
+Run 2026-10-15 from `accord/c143_ceiling_sweep/c143.py` into
+`results/accord/c143_ceiling_sweep/c143.json`. No rule in this file was edited.
+
+**Q1. Outcome C: the ratio ranks worse than the raw coefficient.** Over the 29
+labellers of 31 with a defined ratio and a student AUROC, Spearman rho against
+`student_auroc_minilm` is 0.9241379 for the raw observed MCC and 0.8344828 for
+the ceiling-normalised ratio. The difference is -0.0896552, which exceeds the
+registered margin of 0.05 in the direction that disfavours the ratio.
+
+Per the rule fixed above, the manuscript's instruction to report the observed
+value as a fraction of the ceiling is withdrawn, and the recommendation is
+narrowed to publishing MCC_max as context for interpreting a reported
+coefficient. Neither rho estimates a population quantity: 24 of the 29 are
+synthetic labellers on a grid we chose, and both are reported as descriptions
+of that grid.
+
+**Q2. Two labellers qualify, both inside Figure 2's computed band.**
+
+| labeller | n | flag rate | observed MCC | MCC_max | ratio | student AUROC |
+| --- | --- | --- | --- | --- | --- | --- |
+| `synth_tpr0.90_fpr0.20` | 72 | 0.2400 | 0.3632 | 0.3632 | 1.0000 | 0.5766 |
+| `synth_tpr0.90_fpr0.10` | 43 | 0.1433 | 0.4505 | 0.4990 | 0.9027 | 0.6504 |
+
+The first is the demonstration the manuscript lacked: a coefficient of 0.3632
+at a flag rate of 0.24, which a reader would call a weak labeller, is exactly
+the maximum its margins permit. Nothing about its flag rate alone says so.
+
+**Q3.** The 31-labeller table is in `c143.json` under `q3_table`.
