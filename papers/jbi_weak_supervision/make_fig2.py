@@ -27,7 +27,8 @@ def ceiling(N, K, n):
 
 plt.rcParams.update({"font.size": 9, "axes.spines.top": False,
                      "axes.spines.right": False, "figure.dpi": 300,
-                     "savefig.bbox": "tight", "font.family": "sans-serif"})
+                     "savefig.bbox": "tight", "font.family": "sans-serif",
+                     "pdf.fonttype": 42})
 fig, ax = plt.subplots(figsize=(6.4, 3.6))
 
 styles = [(0.0474, "-", "#2563EB"), (0.10, "--", "#F59E0B"), (0.25, "-.", "#0D9488"), (0.50, ":", "#E11D48")]
@@ -36,12 +37,21 @@ for prev, ls, col in styles:
     ns = np.arange(KK, N - 1)
     ys = [ceiling(N, KK, int(n)) for n in ns]
     ax.plot(ns / N, ys, ls, color=col, linewidth=1.6,
-            label="prevalence %.2f" % (KK / N))
+            label="prevalence %.4f" % (KK / N))
 
-# the band where a developer could mistake a low coefficient for a real one
-ax.axvspan(0.15, 0.50, color="#FEF3C7", zorder=0)
-ax.text(0.325, 0.93, "coefficient looks small\nbut is near its maximum",
-        ha="center", va="top", fontsize=8, color="#92400E")
+# The region is computed, not drawn: on the study prevalence curve, the flag
+# rates whose ceiling lies in [LO, HI]. Inside it a coefficient of LO is
+# between LO/HI and all of what the margins allow, so the same reported value
+# carries a different meaning at each end.
+LO, HI = 0.20, 0.60
+grid = np.arange(K, N - 1)
+cs = np.array([ceiling(N, K, int(n)) for n in grid])
+inband = grid[(cs >= LO) & (cs <= HI)] / N
+band_lo, band_hi = float(inband.min()), float(inband.max())
+ax.axvspan(band_lo, band_hi, color="#FEF3C7", zorder=0)
+ax.text((band_lo + band_hi) / 2, 0.66,
+        "at prevalence %.4f the ceiling\nhere runs %.2f to %.2f" % (K / N, HI, LO),
+        ha="center", va="bottom", fontsize=8, color="#92400E")
 
 ax.plot([n_obs / N], [obs_ceiling], "o", color="#7C3AED", markersize=8,
         markeredgecolor="white", markeredgewidth=1.2, zorder=5)
@@ -65,4 +75,7 @@ print(json.dumps({
     "ceiling_at_n_50": ceiling(N, K, 50),
     "ceiling_at_n_100": ceiling(N, K, 100),
     "ceiling_observed": ceiling(N, K, n_obs),
+    "band_lo_flag_rate": band_lo,
+    "band_hi_flag_rate": band_hi,
+    "band_ceiling_range": [LO, HI],
 }, indent=1))

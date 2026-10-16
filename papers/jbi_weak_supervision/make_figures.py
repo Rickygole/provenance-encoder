@@ -266,7 +266,7 @@ def main():
             raise SystemExit("missing artifact: {}".format(full))
     produced = [
         figure_collapse(root, os.path.join(HERE, "fig1.pdf")),
-        figure_rival(root, os.path.join(HERE, "fig2.pdf")),
+        figure_rival(root, os.path.join(HERE, "rival_forest_unused.pdf")),
     ]
     for path in produced:
         print(path)

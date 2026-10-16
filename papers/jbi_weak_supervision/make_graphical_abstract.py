@@ -17,6 +17,7 @@ c120 = json.loads((ROOT / "results/accord/c120_exact_join/c120.json").read_text(
 plt.rcParams.update({
     "font.size": 10, "axes.spines.top": False, "axes.spines.right": False,
     "figure.dpi": 300, "savefig.bbox": "tight", "font.family": "sans-serif",
+    "pdf.fonttype": 42,
 })
 
 pr = c136["primary_reading"]["gate"]
