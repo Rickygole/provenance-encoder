@@ -15,10 +15,10 @@ c136 = json.loads((ROOT / "results/accord/c136_gate_validation/c136.json").read_
 c120 = json.loads((ROOT / "results/accord/c120_exact_join/c120.json").read_text())
 
 plt.rcParams.update({
-    "font.size": 9, "axes.spines.top": False, "axes.spines.right": False,
+    "font.size": 11, "axes.spines.top": False, "axes.spines.right": False,
     "figure.dpi": 300, "font.family": "sans-serif",
     "font.sans-serif": ["Arial", "Helvetica"],
-    "axes.labelsize": 9, "xtick.labelsize": 8, "ytick.labelsize": 8,
+    "axes.labelsize": 11, "xtick.labelsize": 10, "ytick.labelsize": 10,
     "mathtext.fontset": "custom", "mathtext.rm": "Arial",
     "pdf.fonttype": 42,
 })
@@ -33,13 +33,13 @@ vals = [pr["cell_gatefail_studentfailed"], pr["cell_gatepass_studentfailed"],
         pr["cell_gatepass_studentuseful"]]
 cols = ["#E11D48", "#F59E0B", "#0D9488"]
 b = ax1.bar(labels, vals, color=cols, edgecolor="black", linewidth=0.8)
-ax1.bar_label(b, padding=2, fontsize=8)
+ax1.bar_label(b, padding=2, fontsize=10)
 ax1.set_ylabel("labellers (of %d)" % pr["n_labellers"])
 ax1.set_ylim(0, max(vals) * 1.35)
-ax1.set_title("A pre-registered gate is a threshold on its own flag count\n"
-              "%d of %d labellers it passed produced a failing student"
+ax1.set_title("A pre-registered gate is a threshold on its flag count\n"
+              "%d of %d labellers it passed had failing students"
               % (pr["cell_gatepass_studentfailed"], pr["n_gate_pass"]),
-              fontsize=9, loc="left")
+              fontsize=10, loc="left")
 
 # Right: observed agreement against its attainable ceiling
 obs, ceil = g253["mcc"], g253["ceiling_mcc"]
@@ -51,8 +51,8 @@ ax2.set_xlim(0, ceil * 1.45)
 ax2.set_ylim(-0.6, 1.6)
 ax2.set_xlabel("Matthews correlation on 253 adjudicated pairs")
 ax2.set_title("The ceiling costs three integers\n"
-              "observed is %.2f%% of what the margins allow"
-              % (g253["fraction_of_ceiling"] * 100), fontsize=9, loc="left")
+              "observed %.4f against an attainable %.4f"
+              % (g253["mcc"], g253["ceiling_mcc"]), fontsize=10, loc="left")
 
 out = HERE / "graphical_abstract.pdf"
 fig.savefig(out)

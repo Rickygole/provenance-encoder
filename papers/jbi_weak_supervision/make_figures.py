@@ -53,7 +53,7 @@ def figure_collapse(root, outpath):
     tuned_j = primary["ratio_best_over_all_thresholds"]["youden_j"]
     gate_j = primary["gate"]["youden_j"]
 
-    fig, ax = plt.subplots(figsize=(5.0, 3.1), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(5.0, 3.5), constrained_layout=True)
 
     styles = {
         ("synthetic", False): dict(marker="o", facecolor="white", edgecolor="#2563EB"),
@@ -164,7 +164,7 @@ def figure_collapse(root, outpath):
         ),
     ]
     ax.legend(handles=handles, loc="lower center", frameon=False, ncol=2,
-              bbox_to_anchor=(0.5, -0.30))
+              bbox_to_anchor=(0.5, -0.46))
 
     ax.set_title(
         "The gate's verdict is a function of the horizontal axis alone:\n"
