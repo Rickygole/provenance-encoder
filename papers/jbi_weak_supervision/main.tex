@@ -88,9 +88,7 @@ never itself measured against the standard it replaces
 \cite{jacobs2021measurement,pangakis2023validation}.
 
 How that instrument is certified has not been characterised. We coded 37 such
-papers from full text (Section~\ref{sec:survey-method}); in that sample three specific
-checks are absent.
-None reported a
+papers from full text (Section~\ref{sec:survey-method}). None reported a
 minimum detectable effect for its labeller evaluation, none tested the labeller
 against a chance or zero-skill null, and none stated a labeller-level null
 hypothesis. Seventeen also did not report the number of gold positives.
@@ -145,7 +143,7 @@ Table~\ref{tab:significance} summarises the contribution.
 
 \textbf{What is Already Known} & The Matthews correlation on a $2\times2$ table is the phi coefficient, whose margin-constrained maximum $\phi_{\max}$ is classical \cite{cureton1959phimax,guilford1965phi}. Neither is connected to weak-labeller evaluation. \\[4pt]
 
-\textbf{What this Paper Adds} & $\phi_{\max}$ as a quantity to publish before scoring: three counts fixed a clinical stage's attainable maximum at 0.0818 against an observed 0.0243. Also a check for whether a certification instrument only re-reads a statistic the stage already emits, and a pre-registered gate that reduced to its own flag count while passing 19 labellers, 12 of whose students failed. \\[4pt]
+\textbf{What this Paper Adds} & $\phi_{\max}$ as a quantity to publish before scoring: three counts fixed a clinical stage's attainable maximum at 0.0818 against an observed 0.0243. Also a check for whether a certification instrument only re-reads what the stage already emits, and a pre-registered gate that reduced to its own flag count, passing 19 labellers, 12 of whose students failed. \\[4pt]
 
 \textbf{Who would benefit from the new knowledge in this paper} & Developers and reviewers of clinical weak-supervision pipelines, who can compute the ceiling from three counts and publish it before scoring. \\
 \hline
@@ -197,7 +195,8 @@ test is the closed form of a label-permutation test
 \cite{vandebijl2024dutchdraw,pries2023optimalbaseline} is a published baseline
 whose statistic is a function of the margins alone. None of this is connected to
 weak-labeller evaluation. The
-bound is available. In the 37 we coded, publishing it before scoring is not.
+bound is available and reviewed \cite{umesh1989kappamax,davenport1991phiphimax}.
+In the 37 we coded, publishing it before scoring is not.
 
 \section{Methods}
 \label{sec:method}
@@ -284,8 +283,10 @@ needs no item-level gold labels, only their count. It can therefore be published
 once the stage has run and before its output is joined to gold. The ceiling is itself a function of $(N,K,n)$, so by the argument of
 Section~\ref{sec:check-collapse} it cannot distinguish a labeller from any other
 presenting the same three counts. Demonstration~1's gate is this same arithmetic
-with a tail threshold, which is why we report the ceiling and
-do not gate on it. At $N=253$, $K=12$ and $n=223$ it is 0.0818
+with a tail threshold, which is why we report the ceiling and do not gate on it.
+Given $N$ and $K$ the ceiling is monotone in $n$, so it carries no information
+the flag count does not; what it adds is commensurability with the coefficient
+being reported. At $N=253$, $K=12$ and $n=223$ it is 0.0818
 both for a stage whose 223 flags contain all 12 positives and for one that
 flagged 223 items at random. It is a statement about representability, never
 about quality, and it binds a hard-label stage. Where the labeller emits a score,
@@ -417,8 +418,7 @@ Seventeen papers did not report the number of
 gold positives and fifteen did not report prevalence, so a reader of those cannot
 reconstruct the chance level. That does not explain the absence. Counting
 papers where the figure is derivable from other reported counts, prevalence is
-recoverable in 22 of 37 and the gold positive count in 20 of 37. The test is
-absent in all 37. The information is usually there; the comparison is not made. The smallest gold sets hold 5 positives at 0.83\% prevalence, 15 positives and
+recoverable in 22 of 37 and the gold positive count in 20 of 37. The test is absent in all 37. The smallest gold sets hold 5 positives at 0.83\% prevalence, 15 positives and
 19 positive patients.
 
 This changes what the paper proposes: in the sample we coded, a ceiling published
@@ -540,7 +540,7 @@ data at all. With $N=300$ and $K=12$ fixed across all 31 labellers the gate's
 internal quantities are functions of the flag count alone, so the verdict is a
 function of $n$. Evaluating $p_{\text{floor}}$ at every flag count from 0 to 300
 gives the failure set exactly: the point 0 together with the upper tail from
-235 to 300. The empirical form corroborates it with a scope that must be stated.
+235 to 300.
 Predicting student failure when the flag-rate ratio $n/K$ reaches 19.5833, the
 gate's own boundary rather than a fitted value, reproduces the gate's verdict on
 all 24 primary-arm labellers with zero disagreements and the identical
@@ -575,8 +575,9 @@ the position of a vertical line on this axis.}
 
 \paragraph{What the gate does buy}
 One narrow thing. Two of the 7 real models, \texttt{qwen3:4b} and
-\texttt{qwen3:8b}, flagged none of the 300 pilot items and are caught by the
-failure set's zero branch. Detecting a labeller that emitted nothing saves
+\texttt{qwen3:8b}, flagged none of the 300 pilot items and are caught by the failure set's zero
+branch. For the first every output was unparsable, so the branch also catches a
+broken parser. Detecting a labeller that emitted nothing saves
 training compute and says nothing else. That is a sufficient condition for
 hopelessness which fires almost never: defensible for an instrument, and not a
 feasibility criterion.
@@ -601,7 +602,8 @@ ratio, Spearman $\rho$ against the distilled student's AUROC is 0.9241 for the
 raw coefficient and 0.8345 for the ratio. The difference is $-0.0897$ against a
 registered margin of 0.05. The registered outcome is C, the ratio ranks worse,
 and the instruction to report the observed value as a fraction of the ceiling
-is withdrawn under the rule fixed before the run. Neither $\rho$ estimates a population quantity: 24 of the 29 sit on a
+is withdrawn under the rule fixed before the run. A review of
+$\phi/\phi_{\max}$ reached a consonant conclusion \cite{davenport1991phiphimax}. Neither $\rho$ estimates a population quantity: 24 of the 29 sit on a
 constructed grid, and the margin comparison is the registered decision rule on
 that grid rather than an inferential test. The raw coefficient's 0.9241 is not evidence that pilot
 agreement generalises, because on this grid both it and the student's AUROC are
@@ -683,46 +685,6 @@ rule-identity prior, and the mechanism claim built on it. Neither is replaced: a
 this gold-set size the corrected comparison supports no claim about any
 configuration.
 
-\begin{table}[!ht]
-\centering
-\caption{Paired DeLong comparison of 17 labeller configurations against the
-rule-identity rival on the same 253 pairs with 12 positives. PS is the
-prompt-sensitivity family and PC the prompt-confirmation family; $\ddagger$ marks
-a determinism re-run of the row above its own family's entry, so the 17 rows
-cover 15 distinct cells. $B$ marks a configuration clearing the chance threshold
-corrected across configurations and $L{>}0.5$ one whose bootstrap lower bound
-exceeds 0.5; over distinct cells, at the registered divisor of 17, those counts are 4 and 10. Bold marks the highest AUROC and the smallest $p$. The rival against which these
-differences are computed is fitted in sample and carries no out-of-sample
-information (Section~\ref{sec:res-rival}), so no row here is evidence about the
-configuration it names.}
-\label{tab:delong}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llrrrrcc}
-\hline
-Family & Model, wording & AUROC & $\Delta$ vs rival & SE & DeLong $p$ & $B$ & $L{>}0.5$ \\
-\hline
-PS & \texttt{llama3:8b}, P\_asserting       & 0.6535 & $+0.0057$ & 0.1185 & 0.9616 &  &  \\
-PS & \texttt{llama3:8b}, P\_neutral         & 0.6929 & $+0.0451$ & 0.1221 & 0.7116 &  & $\bullet$ \\
-PS & \texttt{llama3:8b}, P\_reversed        & 0.7503 & $+0.1025$ & 0.1087 & 0.3454 & $\bullet$ & $\bullet$ \\
-PS & \texttt{granite3.3:8b}, P\_asserting   & 0.6885 & $+0.0406$ & 0.1095 & 0.7105 &  & $\bullet$ \\
-PS & \texttt{granite3.3:8b}, P\_neutral     & 0.6539 & $+0.0061$ & 0.1321 & 0.9635 &  &  \\
-PS & \texttt{granite3.3:8b}, P\_reversed    & 0.7365 & $+0.0887$ & 0.1106 & 0.4226 & $\bullet$ & $\bullet$ \\
-PS & \texttt{qwen3:8b}, P\_asserting        & 0.5776 & $-0.0702$ & 0.1176 & 0.5506 &  &  \\
-PS & \texttt{qwen3:8b}, P\_neutral          & 0.6843 & $+0.0365$ & 0.1296 & 0.7784 &  & $\bullet$ \\
-PS & \texttt{qwen3:8b}, P\_reversed         & 0.6722 & $+0.0244$ & 0.1254 & 0.8459 &  & $\bullet$ \\
-PC & \texttt{llama3:8b}, P\_rev\_agree       & 0.7310 & $+0.0832$ & 0.1190 & 0.4847 &  & $\bullet$ \\
-PC & \texttt{llama3:8b}, P\_rev\_follow      & 0.6432 & $-0.0047$ & 0.1225 & 0.9696 &  &  \\
-PC & \texttt{llama3:8b}, P\_rev\_compatible  & 0.6515 & $+0.0036$ & 0.1276 & 0.9773 &  & $\bullet$ \\
-PC & \texttt{llama3:8b}, P\_reversed\_rerun$^{\ddagger}$ & 0.7503 & $+0.1025$ & 0.1087 & 0.3454 & $\bullet$ & $\bullet$ \\
-PC & \texttt{granite3.3:8b}, P\_rev\_agree      & \textbf{0.7936} & $+0.1457$ & 0.0986 & \textbf{0.1396} & $\bullet$ & $\bullet$ \\
-PC & \texttt{granite3.3:8b}, P\_rev\_follow     & 0.6788 & $+0.0309$ & 0.1543 & 0.8410 &  &  \\
-PC & \texttt{granite3.3:8b}, P\_rev\_compatible & 0.7362 & $+0.0883$ & 0.1226 & 0.4712 & $\bullet$ & $\bullet$ \\
-PC & \texttt{granite3.3:8b}, P\_reversed\_rerun$^{\ddagger}$ & 0.7365 & $+0.0887$ & 0.1106 & 0.4226 & $\bullet$ & $\bullet$ \\
-\hline
-\end{tabular}}
-\end{table}
 
 \paragraph{The withdrawn mechanism, and one unclaimed reading}
 The rival's apparent performance was explained as confounding by rule-correlated
@@ -747,10 +709,8 @@ positives cannot carry a test.
 \subsection{What the checks buy}
 
 Two of the three checks read earlier than a chance-based reading, not instead
-of one. The ceiling check turned a positive Matthews correlation into one bounded at
-0.0818 by three marginal counts fixed in advance. It reads before the output
-is joined to gold, where the chance test of Section~\ref{sec:res-ceiling} needs
-that join. The collapse check turned a pre-registered gate with perfect
+of one. The ceiling check turned a positive Matthews correlation into one bounded at 0.0818 by three marginal counts. It reads before the join that
+the chance test of Section~\ref{sec:res-ceiling} requires. The collapse check turned a pre-registered gate with perfect
 specificity into an instrument arithmetically equivalent to a number it already
 had. Neither check's validity depends on sample size, and the defect each catches
 is arithmetic. A low ceiling identifies the operating point as the binding
@@ -862,9 +822,9 @@ what it could have shown.
 \label{sec:conclusion}
 
 Three integers fixed the deployed clinical stage's attainable agreement at its
-chosen operating point to 0.0818 before any item was scored: it flagged 223 of the 253 adjudicated pairs
-against 12 gold positives. It reached 0.0243. The ceiling needs no item-level
-gold labels and no model run, and checking costs minutes. In the 37 papers we
+chosen operating point to 0.0818 before any item was scored: 223 flags of 253
+adjudicated pairs against 12 gold positives. It reached 0.0243. The ceiling needs
+no item-level gold labels and no model run. In the 37 papers we
 coded, neither a minimum detectable effect for the labeller evaluation nor a
 test against a zero-skill null appears. For that sample, publishing the ceiling
 before scoring would be new.
@@ -923,6 +883,55 @@ non-clinical text.
 
 This work was supported by the Center for Equitable Artificial Intelligence and
 Machine Learning Systems (CEAMLS) at Morgan State University.
+
+\appendix
+\setcounter{table}{0}
+\setcounter{figure}{0}
+\section{The withdrawn in-sample comparison}
+\label{sec:app-delong}
+
+The table below is the comparison Section~\ref{sec:res-rival} withdraws. Its rival is fitted in sample, so no row is evidence about the configuration it names. It is retained here, rather than deleted, so that the withdrawal can be read against what was withdrawn.
+
+\begin{table}[!ht]
+\centering
+\caption{Paired DeLong comparison of 17 labeller configurations against the
+rule-identity rival on the same 253 pairs with 12 positives. PS is the
+prompt-sensitivity family and PC the prompt-confirmation family; $\ddagger$ marks
+a determinism re-run of the row above its own family's entry, so the 17 rows
+cover 15 distinct cells. $B$ marks a configuration clearing the chance threshold
+corrected across configurations and $L{>}0.5$ one whose bootstrap lower bound
+exceeds 0.5; over distinct cells, at the registered divisor of 17, those counts are 4 and 10. Bold marks the highest AUROC and the smallest $p$. The rival against which these
+differences are computed is fitted in sample and carries no out-of-sample
+information (Section~\ref{sec:res-rival}), so no row here is evidence about the
+configuration it names.}
+\label{tab:delong}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrrcc}
+\hline
+Family & Model, wording & AUROC & $\Delta$ vs rival & SE & DeLong $p$ & $B$ & $L{>}0.5$ \\
+\hline
+PS & \texttt{llama3:8b}, P\_asserting       & 0.6535 & $+0.0057$ & 0.1185 & 0.9616 &  &  \\
+PS & \texttt{llama3:8b}, P\_neutral         & 0.6929 & $+0.0451$ & 0.1221 & 0.7116 &  & $\bullet$ \\
+PS & \texttt{llama3:8b}, P\_reversed        & 0.7503 & $+0.1025$ & 0.1087 & 0.3454 & $\bullet$ & $\bullet$ \\
+PS & \texttt{granite3.3:8b}, P\_asserting   & 0.6885 & $+0.0406$ & 0.1095 & 0.7105 &  & $\bullet$ \\
+PS & \texttt{granite3.3:8b}, P\_neutral     & 0.6539 & $+0.0061$ & 0.1321 & 0.9635 &  &  \\
+PS & \texttt{granite3.3:8b}, P\_reversed    & 0.7365 & $+0.0887$ & 0.1106 & 0.4226 & $\bullet$ & $\bullet$ \\
+PS & \texttt{qwen3:8b}, P\_asserting        & 0.5776 & $-0.0702$ & 0.1176 & 0.5506 &  &  \\
+PS & \texttt{qwen3:8b}, P\_neutral          & 0.6843 & $+0.0365$ & 0.1296 & 0.7784 &  & $\bullet$ \\
+PS & \texttt{qwen3:8b}, P\_reversed         & 0.6722 & $+0.0244$ & 0.1254 & 0.8459 &  & $\bullet$ \\
+PC & \texttt{llama3:8b}, P\_rev\_agree       & 0.7310 & $+0.0832$ & 0.1190 & 0.4847 &  & $\bullet$ \\
+PC & \texttt{llama3:8b}, P\_rev\_follow      & 0.6432 & $-0.0047$ & 0.1225 & 0.9696 &  &  \\
+PC & \texttt{llama3:8b}, P\_rev\_compatible  & 0.6515 & $+0.0036$ & 0.1276 & 0.9773 &  & $\bullet$ \\
+PC & \texttt{llama3:8b}, P\_reversed\_rerun$^{\ddagger}$ & 0.7503 & $+0.1025$ & 0.1087 & 0.3454 & $\bullet$ & $\bullet$ \\
+PC & \texttt{granite3.3:8b}, P\_rev\_agree      & \textbf{0.7936} & $+0.1457$ & 0.0986 & \textbf{0.1396} & $\bullet$ & $\bullet$ \\
+PC & \texttt{granite3.3:8b}, P\_rev\_follow     & 0.6788 & $+0.0309$ & 0.1543 & 0.8410 &  &  \\
+PC & \texttt{granite3.3:8b}, P\_rev\_compatible & 0.7362 & $+0.0883$ & 0.1226 & 0.4712 & $\bullet$ & $\bullet$ \\
+PC & \texttt{granite3.3:8b}, P\_reversed\_rerun$^{\ddagger}$ & 0.7365 & $+0.0887$ & 0.1106 & 0.4226 & $\bullet$ & $\bullet$ \\
+\hline
+\end{tabular}}
+\end{table}
 
 \bibliographystyle{elsarticle-num}
 \bibliography{refs}

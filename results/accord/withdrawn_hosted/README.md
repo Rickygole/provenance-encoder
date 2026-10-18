@@ -17,7 +17,8 @@ The classification is in `accord/hosted_withdrawal.py` and the relocation in
 
 These files are retained rather than deleted so that the correction record can say
 what was withdrawn and what each withdrawal cost. They are excluded from the
-released results tree by `scripts/export_results.py`.
+deposit because `scripts/export_results.py` builds it from an allow-list of the
+artifacts the paper's numbers come from, and these files are not on it.
 
 Whether the transmissions were consistent with the agreement is a determination
 for PhysioNet and for the institution, not one made here.
