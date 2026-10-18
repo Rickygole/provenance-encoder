@@ -93,8 +93,7 @@ checks are absent.
 None reported a
 minimum detectable effect for its labeller evaluation, none tested the labeller
 against a chance or zero-skill null, and none stated a labeller-level null
-hypothesis. Seventeen also did not report the number of gold positives, so a
-reader of those cannot reconstruct the chance level.
+hypothesis. Seventeen also did not report the number of gold positives.
 
 \paragraph{The gap}
 Several literatures hold the ingredients of a stronger standard, none routinely
@@ -282,8 +281,7 @@ for every comparison the conclusion rests on, not only the one against chance
 coefficient; do not substitute the ratio for it, which
 Section~\ref{sec:res-ratio} tests and finds worse. Because the ceiling depends only on marginals it
 needs no item-level gold labels, only their count. It can therefore be published
-once the stage has run and before its output is joined to gold. That also bounds what
-it can say. The ceiling is itself a function of $(N,K,n)$, so by the argument of
+once the stage has run and before its output is joined to gold. The ceiling is itself a function of $(N,K,n)$, so by the argument of
 Section~\ref{sec:check-collapse} it cannot distinguish a labeller from any other
 presenting the same three counts. Demonstration~1's gate is this same arithmetic
 with a tail threshold, which is why we report the ceiling and
@@ -338,8 +336,6 @@ $X \sim \mathrm{Hypergeometric}(N,K,n)$, failing when $p_{\text{floor}} \ge 0.05
 At $N=300$ and $K=12$ its verdict uses the pilot alone. The gate is therefore
 Check 3 read through a tail threshold, and on this grid the two coincide
 exactly: the failure set below is $\{n : \mathrm{MCC}_{\max}(n) \le 0.1074\}$.
-Demonstration~1 measures what the ceiling does when it is used to decide rather
-than to report.
 
 There are 31 labellers. The primary arm is 24 synthetic labellers, each a pair
 $(\mathrm{TPR},\mathrm{FPR})$ with TPR in $\{0.90, 0.50, 0.10, 0.04\}$ and FPR
@@ -433,16 +429,19 @@ practice but new.
 \subsection{The ceiling check on the deployed labeller}
 \label{sec:res-ceiling}
 
-Table~\ref{tab:controls} carries the cheapest check with the
-largest consequence. The deployed clinical labeller flagged 223 of the 253
-adjudicated pairs, a flag rate of 0.8814, against 12 gold positives. By
+The deployed clinical labeller flagged 223 of the 253
+adjudicated pairs (Table~\ref{tab:controls}), a flag rate of 0.8814, against 12
+gold positives. By
 Equation~\ref{eq:ceiling} its Matthews correlation could not have exceeded 0.0818
 whatever its judgement, because at that flag rate the confusion matrix is almost
 entirely false positives by construction. Figure~\ref{fig:ceiling-curve} places that operating
-point against the regime where the check is not redundant, in which a reported
-coefficient of 0.2 can be a third of the attainable maximum or all of it. It
+point against the regime where the check is not redundant. It
 reached 0.0243. The one-sided hypergeometric $p$ for its true positive count is 0.5722, and
-57.11\% of 10,000 random permutations score at least as high. The ceiling required no gold labels beyond their count and no model run.
+57.11\% of 10,000 random permutations score at least as high. At these margins the statistics those papers report instead are bounded too:
+precision at 0.0538 and $F_1$ at 0.1021. The ceiling required no gold labels beyond their
+count and no model run. The labeller emits a score, so this bounds the
+operating point it was run at, and only the marginals survive, so no sweep is
+possible.
 Published when the flag rate was first observed, it would have framed the
 scoring as the measurement of a coefficient that could not take a useful value
 at those margins.
@@ -453,7 +452,8 @@ at those margins.
 adjudicated sets. The ceiling is $\phi_{\max}$ at the observed margins
 \cite{cureton1959phimax,guilford1965phi} and needs only the three counts in the
 first row; it is attained by the arrangement of Equation~\ref{eq:ceiling} and is
-therefore tight.}
+therefore tight. The 299 pair column scores the 46 ambiguous pairs as negatives;
+the 253 pair column, which every reported result uses, excludes them.}
 \label{tab:controls}
 \small
 \begin{tabular}{lrr}
@@ -607,8 +607,8 @@ constructed grid, and the margin comparison is the registered decision rule on
 that grid rather than an inferential test. The raw coefficient's 0.9241 is not evidence that pilot
 agreement generalises, because on this grid both it and the student's AUROC are
 monotone in the chosen pair of rates. An earlier pre-registration recorded, as
-deciding nothing, $\rho = 0.5310$ for the ceiling against student AUROC and
-$-0.5197$ for the gate's floor probability, at $p$ of 0.0076 and 0.0092. The
+deciding nothing, over the 24 synthetic labellers, $\rho = 0.5310$ for the
+ceiling against student AUROC and $-0.5197$ for the gate's floor probability. The
 same monotonicity applies, so neither is evidence that the ceiling ranks
 labellers. The registered rule was written to withdraw on this
 evidence and not to adopt on it.
@@ -673,7 +673,7 @@ reportable quantity is the distribution, not any single comparison.
 
 The detectability bound differs by comparator. Against the in-sample rival at
 0.6478, variance recomputed at the alternative with zero covariance assumed
-because it was not estimated, a configuration would need AUROC 0.8654 to clear
+because it was not estimated, which makes both bounds conservative, a configuration would need AUROC 0.8654 to clear
 0.05 and 0.9414 corrected. Against the cross-fitted rival at 0.5278 the
 strongest cell, 0.7936, cleared 0.05 and missed the corrected threshold by
 0.0006 in $p$. The published floor of 0.7355 bounds the chance comparison
@@ -754,11 +754,12 @@ of one. The ceiling check turned a positive Matthews correlation into one bounde
 is joined to gold, where the chance test of Section~\ref{sec:res-ceiling} needs
 that join. The collapse check turned a pre-registered gate with perfect
 specificity into an instrument arithmetically equivalent to a number it already
-had. On this stage the two agree,
-which is corroboration. Neither depends on sample size, and the defect each catches
-is arithmetic. For the ceiling the remedy is cheaper still: $\mathrm{MCC}_{\max}$ is 1
-whenever the flag rate equals the prevalence, so a low ceiling means a mismatched
-operating point and the fix is the threshold, not more labels.
+had. Neither check's validity depends on sample size, and the defect each catches
+is arithmetic. A low ceiling identifies the operating point as the binding
+constraint: $\mathrm{MCC}_{\max}$ is 1 whenever the flag rate equals the
+prevalence. Whether re-thresholding recovers useful agreement is untested here,
+and the grid labeller that attained its ceiling exactly still distilled a
+failing student.
 
 The third check returned no per-cell verdict this design can defend. At this
 gold-set size it yields a methodological warning rather than a result
@@ -862,8 +863,8 @@ what it could have shown.
 \section{Conclusion}
 \label{sec:conclusion}
 
-Three integers fixed the deployed clinical labeller's attainable agreement at
-0.0818 before any item was scored: it flagged 223 of the 253 adjudicated pairs
+Three integers fixed the deployed clinical stage's attainable agreement at its
+chosen operating point to 0.0818 before any item was scored: it flagged 223 of the 253 adjudicated pairs
 against 12 gold positives. It reached 0.0243. The ceiling needs no item-level
 gold labels and no model run, and checking costs minutes. In the 37 papers we
 coded, neither a minimum detectable effect for the labeller evaluation nor a

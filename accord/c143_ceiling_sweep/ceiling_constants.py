@@ -159,6 +159,40 @@ add("clinical.band_flag_rate_hi", "Equation 1, matches "
     f"{C143}::q2_non_degenerate.band_flag_rate_hi", chi / CN)
 add("clinical.band_matches_c143_literals",
     f"Equation 1 against {C143}::q2_non_degenerate", True)
+# ------------------- 4. the analogues for the coefficients the field reports
+# The survey records no paper reporting the Matthews correlation, so the ceiling
+# is given here for the two statistics those papers do report. Both are fixed by
+# the same three integers. Brute force over every attainable 2x2 at the clinical
+# margins checks each closed form rather than trusting the algebra.
+CLIN_N, CLIN_K = 253, 12
+CLIN_FLAGS = c136_clinical_flags = 223
+
+
+def attainable(N, K, n):
+    """Every 2x2 consistent with N items, K positives and n flags."""
+    for tp in range(max(0, n - (N - K)), min(n, K) + 1):
+        yield tp, n - tp, K - tp, N - n - (K - tp)
+
+
+prec_closed = CLIN_K / CLIN_FLAGS
+f1_closed = 2 * CLIN_K / (CLIN_FLAGS + CLIN_K)
+prec_brute = max(tp / (tp + fp) if tp + fp else 0.0
+                 for tp, fp, fn, tn in attainable(CLIN_N, CLIN_K, CLIN_FLAGS))
+f1_brute = max(2 * tp / (2 * tp + fp + fn) if 2 * tp + fp + fn else 0.0
+               for tp, fp, fn, tn in attainable(CLIN_N, CLIN_K, CLIN_FLAGS))
+assert abs(prec_closed - prec_brute) < 1e-12, (prec_closed, prec_brute)
+assert abs(f1_closed - f1_brute) < 1e-12, (f1_closed, f1_brute)
+add("clinical.flags", f"{C136}-sibling clinical join, n flags", CLIN_FLAGS)
+add("clinical.precision_ceiling",
+    "K / n, checked against every attainable 2x2 at these margins", prec_closed)
+add("clinical.f1_ceiling",
+    "2K / (n + K), checked against every attainable 2x2 at these margins",
+    f1_closed)
+add("clinical.precision_ceiling_matches_brute_force",
+    "closed form against enumeration of every attainable 2x2", True)
+add("clinical.f1_ceiling_matches_brute_force",
+    "closed form against enumeration of every attainable 2x2", True)
+
 add("band_ceiling_lo", "the band Figure 1 draws", BAND_CEILING_LO)
 add("band_ceiling_hi", "the band Figure 1 draws", BAND_CEILING_HI)
 
@@ -208,5 +242,7 @@ print(f"grid band labellers inside  {len(in_grid)}; registered band "
       f"{all(q in in_grid for q in qualifying)} {qualifying}")
 print(f"clinical band recomputed    {clo/CN:.10f} to {chi/CN:.10f}  "
       f"(matches the c143.py literals)")
+print(f"precision ceiling           {prec_closed:.10f}  (K/n, brute-force checked)")
+print(f"F1 ceiling                  {f1_closed:.10f}  (2K/(n+K), brute-force checked)")
 print(f"registered {len(entries)} keys under {PREFIX}; "
       f"{len(facts)} keys total, was {len(others_before) + len(mine)}")
