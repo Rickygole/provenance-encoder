@@ -56,7 +56,7 @@ second branch at zero flags. It passed 19 labellers of which 12 produced failing
 students. Of the 37, none reported a labeller-level minimum detectable effect,
 none tested its labeller against chance, and 17 omitted the gold positive count.
 A rival baseline built as a stronger comparator carries no out-of-sample
-information; that reading is withdrawn. A further pre-registration tested our
+information, so the non-separation claim is withdrawn. A further pre-registration tested our
 recommendation to report that coefficient as a fraction of its ceiling. The
 ratio ranked worse on our grid by 0.0897 against a registered 0.05 margin, so we
 withdraw it.
@@ -108,8 +108,7 @@ reporting guidance that asks for explicit accounting of such threats
 \cite{collins2024tripodai,sculley2015debt}. A separate literature already settles what a marginal can establish: the
 Matthews correlation on a $2\times2$ confusion matrix is the phi coefficient,
 whose margin-constrained maximum $\phi_{\max}$ is classical
-\cite{cureton1959phimax,guilford1965phi}. Weak-labeller evaluation reports that
-correlation widely and cites none of it.
+\cite{cureton1959phimax,guilford1965phi}. Weak-labeller evaluation cites none of it.
 
 \paragraph{A method of methods, not a new model}
 We claim no new classifier, no advance over the state of the art and no new
@@ -198,8 +197,8 @@ test is the closed form of a label-permutation test
 \cite{ojala2009permutation,combrisson2015chance}. The Dutch Draw
 \cite{vandebijl2024dutchdraw,pries2023optimalbaseline} is a published baseline
 whose statistic is a function of the margins alone. None of this is connected to
-weak-labeller evaluation, where the Matthews correlation is widely reported. The
-bound is available. The practice of publishing it before scoring is not.
+weak-labeller evaluation. The
+bound is available. In the 37 we coded, publishing it before scoring is not.
 
 \section{Methods}
 \label{sec:method}
@@ -410,7 +409,7 @@ detectability analyses reported in Section~\ref{sec:res-rival}.
 \subsection{Three specific checks are absent}
 \label{sec:survey}
 
-Every one of the 37 papers coded reports at least one comparator, most often a
+Thirty-six of the 37 papers coded report at least one comparator, most often a
 simpler text model (25) or another labeller (23). Three specific checks are
 nonetheless absent from all of them. None reported a minimum detectable effect
 for its labeller evaluation, none tested the labeller's agreement with gold against a
@@ -481,8 +480,8 @@ flag rate, at four prevalences, computed from Equation~\ref{eq:ceiling} on a
 no prevalence by itself bounds the coefficient; what bounds it is the gap between
 the two. At the 4.74\% prevalence of this study the ceiling is 0.6893 at a flag
 rate of 0.0949, 0.4496 at 0.1976 and 0.2760 at 0.3953. The shaded band is
-computed, not drawn: it is the flag rates from 0.1225 to 0.5534, where the
-ceiling at this prevalence lies between 0.20 and 0.60, running from 0.5971 at
+computed, not drawn: it is the flag rates above the prevalence, 0.1225 to
+0.5534, whose ceiling lies between 0.20 and 0.60, running from 0.5971 at
 the left edge to 0.2005 at the right, so a reported coefficient of 0.2 is a
 third of the attainable maximum at one edge and all of it at the other. The marked point is the deployed clinical stage, which lies far outside the
 band and is visibly degenerate from its flag rate without any coefficient at
@@ -663,8 +662,8 @@ $(k_r - y_i)/(n_r - 1)$, a function of its own label.
 \paragraph{The comparison redone against a cross-fitted rival}
 On a five-fold assignment at seed 141, whose rival sits at 0.5278, all 17 cells
 lie above it pointwise, 3 of the 15 distinct cells clear $p<0.05$ two-sided and
-none clears the corrected threshold, the smallest $p$ being 0.0040 against
-0.0033. Different pre-registrations fixed the two corrections: the chance
+none clears the corrected threshold, the smallest $p$ being 0.003964 against
+0.003333. Different pre-registrations fixed the two corrections: the chance
 family at $\alpha/17$, the re-analysis at $\alpha$ over the 15 distinct cells.
 Across 200 assignments that count has median 2 and a 95\% percentile interval
 of \textbf{1 to 13} of 15, with a mean of 3.98 and extremes of 0 and 15. At
@@ -902,8 +901,8 @@ open-weight models served locally.
 
 The analysis code, the pre-registrations, the coded survey table and the
 aggregate result artifacts from which every number in this article is read will
-be deposited in a repository open to the research community on acceptance, as the
-data use agreement requires. That deposit will contain no clinical data. The
+be deposited in a repository open to the research community on acceptance. That
+deposit will contain no clinical data, as the data use agreement requires. The
 labelling run whose marginals Section~\ref{sec:res-ceiling} reports is the one
 exception to full reproducibility and is described in Section~\ref{sec:limitations}.
 

@@ -50,9 +50,9 @@ the emitted labels.
 | structured data / metadata / diagnosis-code-only baseline | 9 | 24% | Jeffery 2024; Dong 2023; Bejan 2022; Nogues 2022; Gan 2025; Eyuboglu 2021 (mortality endpoint only); Sandlin 2026 (ablation, not a named baseline); Al-Garadi 2026; Guevara 2024 |
 | the same, restricted to a named non-text comparator on the same task as the labeller | 7 | 19% | the above minus Eyuboglu and Sandlin |
 | simpler text model or rule baseline | 25 | 68% | |
-| human inter-annotator agreement statistic reported | 10 | 27% | Das, Banerjee, Azzouzi, Dong, Bejan, Shen, Cusick, Sanyal, Sandlin, Guevara |
+| human inter-annotator agreement statistic reported | 11 | 30% | Das, Banerjee, Azzouzi, Dong, Bejan, Shen, Cusick, Sanyal, Sandlin, Smit, Guevara |
 | a different automatic or human labeller | 23 | 62% | |
-| a model trained on manual gold labels | 14 | 38% | |
+| a model trained on manual gold labels | 15 | 41% | |
 | no comparator at all for the labelling stage | 1 | 3% | Gori 2019 |
 
 Two further qualifications, both of which cut against the papers:
