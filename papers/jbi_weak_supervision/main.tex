@@ -79,8 +79,8 @@ clinical natural language processing \sep pre-registration \sep Matthews correla
 \label{sec:intro}
 
 Programmatic weak supervision is the default route to training labels at clinical
-scale: a rule set, an ontology walk, or a prompted language model emits noisy
-labels over a large unlabelled pool, and a student model is distilled from them
+scale: a rule set, an ontology walk, or a prompted language model emits noisy labels over a large unlabelled pool. A student model is distilled
+from them
 \cite{ratner2016dataprogramming,ratner2017snorkel,hinton2015distilling,fries2021trove,dunnmon2020crossmodal}.
 Expert annotation is slow and the phenomena are rare, so the pipeline converts
 rule writing into labels at scale \cite{weiskopf2013quality,henry2020n2c2}. That is where the methodological risk sits: the weak labeller is an instrument
@@ -360,9 +360,8 @@ frame, grid entry or outcome definition after the first number was seen.
 \label{sec:mat-pipeline}
 
 Two objects in Section~\ref{sec:res-ceiling} belong to the pipeline itself. The production labeller is Llama 3 8B \cite{grattafiori2024llama3}, run
-locally, given each candidate's exemplar sentence pair and the identifier of the
-rule that generated it, and asked for a binary judgement and a confidence value
-under a fixed template with no demonstrations. It received the rule identifier;
+locally, given each candidate's exemplar sentence pair and the identifier of the rule that generated it. It was asked for a binary
+judgement and a confidence value under a fixed template with no demonstrations. It received the rule identifier;
 the prompts of the 17 configurations of Section~\ref{sec:mat-d2} name no rule.
 Neither that prompt nor the script that sent it was committed, so the run cannot
 be repeated and its flag counts are measured but not regenerable. We report the
@@ -661,9 +660,8 @@ $(k_r - y_i)/(n_r - 1)$, a function of its own label.
 
 \paragraph{The comparison redone against a cross-fitted rival}
 On a five-fold assignment at seed 141, whose rival sits at 0.5278, all 17 cells
-lie above it pointwise, 3 of the 15 distinct cells clear $p<0.05$ two-sided and
-none clears the corrected threshold, the smallest $p$ being 0.003964 against
-0.003333. Different pre-registrations fixed the two corrections: the chance
+lie above it pointwise, 3 of the 15 distinct cells clear $p<0.05$ two-sided. None clears the corrected
+threshold, the smallest $p$ being 0.003964 against 0.003333. Different pre-registrations fixed the two corrections: the chance
 family at $\alpha/17$, the re-analysis at $\alpha$ over the 15 distinct cells.
 Across 200 assignments that count has median 2 and a 95\% percentile interval
 of \textbf{1 to 13} of 15, with a mean of 3.98 and extremes of 0 and 15. At
