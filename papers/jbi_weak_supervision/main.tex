@@ -40,29 +40,32 @@ MD 21251, United States}
 agreement figure computed on a small adjudicated set, beside some comparator
 but not against chance. We ask what that establishes.
 
-\textbf{Methods.} We coded 37 clinical and biomedical weak-supervision papers
-for how each evaluates its labelling stage, specify a check for whether an
-instrument reads a stage only through its marginals, and apply $\phi_{\max}$, the margin-constrained
-maximum of the Matthews correlation. Pre-registered demonstrations follow on SNLI and 253 adjudicated
+\textbf{Methods.} We coded how 37 clinical and biomedical weak-supervision
+papers evaluate their labelling stage. We specify a check for whether an
+instrument reads a stage only through its marginals, and apply $\phi_{\max}$,
+the margin-constrained maximum of the Matthews correlation. Pre-registered demonstrations follow on SNLI and 253 adjudicated
 clinical pairs.
 
-\textbf{Results.} A hypergeometric feasibility gate of our own construction
-reduced exactly to a function of its flag count: one threshold reproduced
-its verdicts on the 24 synthetic labellers exactly, and on the pooled 31 with
-two disagreements, the failure set having a second branch at zero flags. It passed 19 labellers of which 12 produced failing students. On the clinical
-set three marginal counts fix the attainable ceiling at 0.0818, which needs no item-level gold
-labels and could have been published before the join; the stage reached
-0.0243. Of the 37, none reported a labeller-level minimum detectable effect, none tested its labeller against chance, and 17 omitted the gold
-positive count. A rival baseline
-built as a stronger comparator carries no out-of-sample information; that reading
-is withdrawn. A further pre-registration tested our own recommendation
-to report that coefficient as a fraction of its ceiling;
-the ratio ranked worse on our grid by 0.0897 against a registered 0.05 margin,
-so we withdraw it.
+\textbf{Results.} On the clinical set three marginal counts fix the attainable
+ceiling at 0.0818, which needs no item-level gold labels and could have been
+published before the join. The stage reached 0.0243. A hypergeometric
+feasibility gate of our own construction reduced to a function of its flag
+count. One threshold reproduced its verdicts on the 24 synthetic labellers
+exactly, and on the pooled 31 with two disagreements. The failure set has a
+second branch at zero flags. It passed 19 labellers of which 12 produced failing
+students. Of the 37, none reported a labeller-level minimum detectable effect,
+none tested its labeller against chance, and 17 omitted the gold positive count.
+A rival baseline built as a stronger comparator carries no out-of-sample
+information; that reading is withdrawn. A further pre-registration tested our
+recommendation to report that coefficient as a fraction of its ceiling. The
+ratio ranked worse on our grid by 0.0897 against a registered 0.05 margin, so we
+withdraw it.
 
 \textbf{Conclusion.} A certification instrument can be principled in derivation
-and still read a stage only through its marginals. Compute the attainable
-ceiling from three counts and publish it before the join; report it, do not gate on it or substitute the ratio for it. Two of our readings are withdrawn and one procedural failure disclosed.
+and still read a stage only through its marginals. Two readings are withdrawn
+under their pre-registered rules and one procedural failure is disclosed.
+Compute the attainable ceiling from three counts and publish it before the join.
+Report it; do not gate on it or substitute the ratio for it.
 \end{abstract}
 
 \begin{keyword}
@@ -89,8 +92,9 @@ papers from full text (Section~\ref{sec:survey-method}); in that sample three sp
 checks are absent.
 None reported a
 minimum detectable effect for its labeller evaluation, none tested the labeller
-against a chance or zero-skill null, and seventeen did not report the number of
-gold positives.
+against a chance or zero-skill null, and none stated a labeller-level null
+hypothesis. Seventeen also did not report the number of gold positives, so a
+reader of those cannot reconstruct the chance level.
 
 \paragraph{The gap}
 Several literatures hold the ingredients of a stronger standard, none routinely
@@ -112,8 +116,8 @@ We claim no new classifier, no advance over the state of the art and no new
 bound. The contribution is a method of methods: which existing results to apply,
 in what order, and why. Three properties of the problem space drive the choice.
 Prevalence is very low, 4.74\% here, which leaves ranking statistics with poor
-resolution and makes it easy to operate at a flag rate far from the prevalence;
-it is that gap, not the low prevalence, that collapses attainable agreement
+resolution and makes it easy to operate at a flag rate far from the prevalence.
+It is that gap, not the low prevalence, that collapses attainable agreement
 (Section~\ref{sec:res-ceiling}). Gold comes from one annotator, so label uncertainty can only be bounded
 analytically. And the evaluation items were selected by a procedure, so a
 comparator built from their metadata must be cross-fitted
@@ -141,11 +145,11 @@ Table~\ref{tab:significance} summarises the contribution.
 \hline
 \textbf{Problem or Issue} & Weak supervision is the standard route to training labels for rare clinical events. How its labelling stage is certified has not been characterised. \\[4pt]
 
-\textbf{What is Already Known} & The margin-constrained maximum of an agreement coefficient is classical as $\phi_{\max}$ \cite{cureton1959phimax,guilford1965phi}, and the Matthews correlation on a $2\times2$ table is the phi coefficient. Neither is connected to weak-labeller evaluation. \\[4pt]
+\textbf{What is Already Known} & The Matthews correlation on a $2\times2$ table is the phi coefficient, whose margin-constrained maximum $\phi_{\max}$ is classical \cite{cureton1959phimax,guilford1965phi}. Neither is connected to weak-labeller evaluation. \\[4pt]
 
-\textbf{What this Paper Adds} & A check for whether a certification instrument carries information beyond a statistic the stage already emits; a pre-registered gate that reduced to its own flag count while passing 19 labellers, 12 of whose students failed; and the bound applied to a clinical stage whose attainable maximum was 0.0818 against an observed 0.0243. \\[4pt]
+\textbf{What this Paper Adds} & $\phi_{\max}$ as a quantity to publish before scoring: three counts fixed a clinical stage's attainable maximum at 0.0818 against an observed 0.0243. Also a check for whether a certification instrument only re-reads a statistic the stage already emits, and a pre-registered gate that reduced to its own flag count while passing 19 labellers, 12 of whose students failed. \\[4pt]
 
-\textbf{Who would benefit from the new knowledge in this paper} & Developers and reviewers of clinical weak-supervision pipelines, who can compute the attainable ceiling from three counts and publish it before scoring. \\
+\textbf{Who would benefit from the new knowledge in this paper} & Developers and reviewers of clinical weak-supervision pipelines, who can compute the ceiling from three counts and publish it before scoring. \\
 \hline
 \end{tabular}
 \end{table}
@@ -189,7 +193,7 @@ problem has a literature of its own
 \cite{chicco2020mcc,chicco2021mccbalanced,saito2015prcurve,delgado2019kappa},
 and detectable effect size is likewise bounded \cite{hanley1982meaning}. Certifying by a tail probability on a count is
 standardised in acceptance sampling \cite{dodge1929sampling} and pilot-trial
-progression criteria \cite{lewis2021progression}, and under fixed margins such a
+progression criteria \cite{lewis2021progression}. Under fixed margins such a
 test is the closed form of a label-permutation test
 \cite{ojala2009permutation,combrisson2015chance}. The Dutch Draw
 \cite{vandebijl2024dutchdraw,pries2023optimalbaseline} is a published baseline
@@ -203,14 +207,14 @@ bound is available. The practice of publishing it before scoring is not.
 \subsection{Setting and notation}
 
 A weak-supervision stage comprises a labeller $L$ mapping an item $x$ to a flag
-$\ell(x) \in \{0,1\}$ or a graded score $g(x)$; a pool $\mathcal{P}$ on which $L$
-is run; a student $S$ trained on $\{(x,\ell(x)) : x \in \mathcal{P}\}$; and an
-adjudicated gold set of $N$ items with $K$ positives, of which $L$ flags $n$. A \emph{certification} is a decision to promote the stage: to use its labels
+$\ell(x) \in \{0,1\}$ or a graded score $g(x)$, run over a pool $\mathcal{P}$.
+A student $S$ is trained on $\{(x,\ell(x)) : x \in \mathcal{P}\}$. The
+adjudicated gold set holds $N$ items with $K$ positives, of which $L$ flags $n$. A \emph{certification} is a decision to promote the stage: to use its labels
 downstream or build a claim on its score. Where a statistic is
 already compared to chance, the checks below add to that comparison; in the
 sample of Section~\ref{sec:survey} that comparison is never made, and they
 stand alone. The Matthews
-correlation on a $2\times2$ confusion matrix is the phi coefficient, and its
+correlation on a $2\times2$ confusion matrix is the phi coefficient. Its
 margin-constrained maximum is classical in psychometrics as $\phi_{\max}$
 \cite{cureton1959phimax,guilford1965phi}; in confusion-matrix notation it is
 obtained by placing every gold positive that fits inside the flagged set:
@@ -229,10 +233,10 @@ attained and tight.
 \subsection{Check 1: collapse}
 \label{sec:check-collapse}
 
-The \emph{a priori} form of the check is a code reading: list the verdict function's
-arguments, and if it reads the data only through a vector of marginals with all
-but one component fixed across the units compared, the verdict is a function of
-that component. The \emph{empirical} form compares verdict vectors. Let $V_i$ be the verdict on
+The \emph{a priori} form of the check is a code reading: list the verdict
+function's arguments. If the function reads the data only through a vector of
+marginals with all but one component fixed across the units compared, the
+verdict is a function of that component. The \emph{empirical} form compares verdict vectors. Let $V_i$ be the verdict on
 unit $i$ and $t_i$ a candidate statistic.
 Evaluate the instrument at every attainable value of $t$ to obtain its failure
 set, then report (i) the threshold on $t$ whose verdicts come closest to $V$,
@@ -278,8 +282,8 @@ for every comparison the conclusion rests on, not only the one against chance
 \cite{hanley1982meaning}. Publish the ceiling as context for reading the
 coefficient; do not substitute the ratio for it, which
 Section~\ref{sec:res-ratio} tests and finds worse. Because the ceiling depends only on marginals it
-needs no item-level gold labels, only their count, so it can be published once the stage has run and before its output is joined
-to gold. That also bounds what
+needs no item-level gold labels, only their count. It can therefore be published
+once the stage has run and before its output is joined to gold. That also bounds what
 it can say. The ceiling is itself a function of $(N,K,n)$, so by the argument of
 Section~\ref{sec:check-collapse} it cannot distinguish a labeller from any other
 presenting the same three counts. Demonstration~1's gate is this same arithmetic
@@ -288,8 +292,8 @@ do not gate on it. At $N=253$, $K=12$ and $n=223$ it is 0.0818
 both for a stage whose 223 flags contain all 12 positives and for one that
 flagged 223 items at random. It is a statement about representability, never
 about quality, and it binds a hard-label stage. Where the labeller emits a score,
-$n$ is a free parameter, so the ceiling at the observed $n$ bounds the operating
-point that was chosen rather than the labeller, and belongs beside a threshold
+$n$ is a free parameter. The ceiling at the observed $n$ then bounds the
+operating point that was chosen rather than the labeller, and belongs beside a threshold
 sweep. It is not a power calculation: power asks whether an effect of a given size is
 detectable, the ceiling whether one of a useful size is representable.
 
@@ -297,9 +301,8 @@ detectable, the ceiling whether one of a useful size is representable.
 \label{sec:survey-method}
 
 We coded 37 clinical and biomedical weak-supervision papers published between
-2019 and 2026 \cite{fries2021trove,das2025criticalfindings,hsu2025knowledgefree,datta2023spatial,wang2019weaksupervisionparadigm,banerjee2019weaklysupervised,vidmar2025probabilistic,jeffery2024noisylabels,azzouzi2024deidentification,dong2023raredisease,wang2022ophthalmologyexam,bejan2022suicidality,shen2022lifestyle,zhang2021chestxray,danniballe2022multilabel,nogues2022weaklysemisupervised,gan2025arch,zhu2021distantlysupervised,vashishth2021medtype,eyuboglu2021multitask,cusick2021suicidalideation,kshatriya2020inhaler,gori2019patientcentered,hsieh2024genegene,agnikula2021asthmacontrol,sanyal2021recurrence,godoy2026mammography,sandlin2026decisional,algaradi2026copd,greco2026west,gao2022keyclass,irvin2019chexpert,smit2020chexbert,agrawal2022fewshot,guevara2024sdoh,yoon2023kbrefined,huemann2023nuclearmedicine}. Records were identified by keyword search of PubMed, arXiv and the ACL Anthology, with
-four added by known-item search; eligibility required programmatic weak
-supervision, distant supervision or model-generated labels over clinical or
+2019 and 2026 \cite{fries2021trove,das2025criticalfindings,hsu2025knowledgefree,datta2023spatial,wang2019weaksupervisionparadigm,banerjee2019weaklysupervised,vidmar2025probabilistic,jeffery2024noisylabels,azzouzi2024deidentification,dong2023raredisease,wang2022ophthalmologyexam,bejan2022suicidality,shen2022lifestyle,zhang2021chestxray,danniballe2022multilabel,nogues2022weaklysemisupervised,gan2025arch,zhu2021distantlysupervised,vashishth2021medtype,eyuboglu2021multitask,cusick2021suicidalideation,kshatriya2020inhaler,gori2019patientcentered,hsieh2024genegene,agnikula2021asthmacontrol,sanyal2021recurrence,godoy2026mammography,sandlin2026decisional,algaradi2026copd,greco2026west,gao2022keyclass,irvin2019chexpert,smit2020chexbert,agrawal2022fewshot,guevara2024sdoh,yoon2023kbrefined,huemann2023nuclearmedicine}. Records were identified by keyword search of PubMed, arXiv and the ACL Anthology, with four added by known-item search. Eligibility required
+programmatic weak supervision, distant supervision or model-generated labels over clinical or
 biomedical text, and machine-readable full text. Each paper was coded for whether
 the labelling stage was evaluated against gold at all, the comparator used, the
 null tested if any, whether prevalence and the gold positive count were reported,
@@ -312,12 +315,12 @@ with a stated sampling frame and is not offered as a headline empirical
 contribution. Promotion would require a pre-registered protocol, a second coder
 and a record-level screening log, none of which this sample has.
 
-The survey has the defects it documents. The sample is purposive and was not pre-registered. Eligibility
+The sample is purposive and was not pre-registered. Eligibility
 required machine-readable full text, so it is biased toward open access; five
 candidate studies were dropped for inaccessible full text. Comparators were coded
 generously, as present anywhere in the paper, which inflates comparator counts
-and makes the negative findings conservative. One author coded every record by hand from the full text, with no second rater and no agreement statistic, which is one of the defects the survey
-reports in the papers it codes.
+and makes the negative findings conservative. One author coded every record by hand from the full
+text, with no second rater and no agreement statistic.
 
 \subsection{Demonstration 1: a feasibility gate on public data}
 \label{sec:mat-d1}
@@ -332,8 +335,8 @@ three disjoint frames at 4\% prevalence under seed 42: a 300-item pilot with 12
 positives, a 5000 pool with 200, and a 10,000 test frame with 400. The
 gate computes the ceiling of Equation~\ref{eq:ceiling} and the hypergeometric
 floor $p_{\text{floor}} = P(X \ge \min(n,K))$ for
-$X \sim \mathrm{Hypergeometric}(N,K,n)$, failing when $p_{\text{floor}} \ge 0.05$;
-at $N=300$ and $K=12$ its verdict uses the pilot alone. The gate is therefore
+$X \sim \mathrm{Hypergeometric}(N,K,n)$, failing when $p_{\text{floor}} \ge 0.05$.
+At $N=300$ and $K=12$ its verdict uses the pilot alone. The gate is therefore
 Check 3 read through a tail threshold, and on this grid the two coincide
 exactly: the failure set below is $\{n : \mathrm{MCC}_{\max}(n) \le 0.1074\}$.
 Demonstration~1 measures what the ceiling does when it is used to decide rather
@@ -367,7 +370,7 @@ rule that generated it, and asked for a binary judgement and a confidence value
 under a fixed template with no demonstrations. It received the rule identifier;
 the prompts of the 17 configurations of Section~\ref{sec:mat-d2} name no rule.
 Neither that prompt nor the script that sent it was committed, so the run cannot
-be repeated and its flag counts are measured but not regenerable; we report the
+be repeated and its flag counts are measured but not regenerable. We report the
 ceiling from them because it needs only the three marginal counts. The downstream
 detector is a BiomedBERT-base pair classifier \cite{gu2021domainspecific}
 fine-tuned for three epochs with AdamW at learning rate $2\times10^{-5}$ and
@@ -389,8 +392,8 @@ graded flag log-odds. Two are determinism re-runs reproducing their AUROC to eve
 the 17 cover 15 distinct cells and must not be read as 17 independent wordings. No new inference was run: this is
 reanalysis of committed per-pair score caches. The rival assigns each pair the
 confirmed positive rate of its generating rule, computed on
-$\mathcal{G}_{253}$ itself; the four rules cover 117, 28, 63 and 45 pairs with 3,
-3, 4 and 2 confirmed positives. It reads no text, and no prompt names a rule.
+$\mathcal{G}_{253}$ itself. The four rules cover 117, 28, 63 and 45 pairs with
+3, 3, 4 and 2 confirmed positives. It reads no text, and no prompt names a rule.
 
 Against chance we use a one-sided label-permutation test with 20,000 draws at
 seed 109 and a percentile bootstrap with 10,000 draws. Against the rival
@@ -418,15 +421,74 @@ only a component or scored on the set used to tune it.
 
 Seventeen papers did not report the number of
 gold positives and fifteen did not report prevalence, so a reader of those cannot
-reconstruct the chance level. That does not explain the absence: counting
+reconstruct the chance level. That does not explain the absence. Counting
 papers where the figure is derivable from other reported counts, prevalence is
-recoverable in 22 of 37 and the gold positive count in 20 of 37, and the test is
+recoverable in 22 of 37 and the gold positive count in 20 of 37. The test is
 absent in all 37. The information is usually there; the comparison is not made. The smallest gold sets hold 5 positives at 0.83\% prevalence, 15 positives and
 19 positive patients.
 
 This changes what the paper proposes: in the sample we coded, a ceiling published
 before scoring and a cross-fitted comparator are not corrections to a lenient
 practice but new.
+
+\subsection{The ceiling check on the deployed labeller}
+\label{sec:res-ceiling}
+
+Table~\ref{tab:controls} carries the cheapest check with the
+largest consequence. The deployed clinical labeller flagged 223 of the 253
+adjudicated pairs, a flag rate of 0.8814, against 12 gold positives. By
+Equation~\ref{eq:ceiling} its Matthews correlation could not have exceeded 0.0818
+whatever its judgement, because at that flag rate the confusion matrix is almost
+entirely false positives by construction. Figure~\ref{fig:ceiling-curve} places that operating
+point against the regime where the check is not redundant, in which a reported
+coefficient of 0.2 can be a third of the attainable maximum or all of it. It
+reached 0.0243. The one-sided hypergeometric $p$ for its true positive count is 0.5722, and
+57.11\% of 10,000 random permutations score at least as high. The ceiling required no gold labels beyond their count and no model run.
+Published when the flag rate was first observed, it would have framed the
+scoring as the measurement of a coefficient that could not take a useful value
+at those margins.
+
+\begin{table}[!ht]
+\centering
+\caption{Attainability ceiling for the pipeline's production labeller on both
+adjudicated sets. The ceiling is $\phi_{\max}$ at the observed margins
+\cite{cureton1959phimax,guilford1965phi} and needs only the three counts in the
+first row; it is attained by the arrangement of Equation~\ref{eq:ceiling} and is
+therefore tight.}
+\label{tab:controls}
+\small
+\begin{tabular}{lrr}
+\hline
+Quantity & 299 pair set & 253 pair set \\
+\hline
+Items, gold positives, flags & 299, 12, 261 & 253, 12, 223 \\
+Flag rate & 0.8729 & 0.8814 \\
+Confusion cells TP/FP/FN/TN & 11/250/1/37 & 11/212/1/29 \\
+Observed Matthews correlation & 0.0269 & 0.0243 \\
+Marginal ceiling on Matthews correlation & 0.0780 & 0.0818 \\
+One-sided hypergeometric $p$ for TP & 0.5347 & 0.5722 \\
+Random joins scoring at least as high & 0.5442 & 0.5711 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=\textwidth]{fig1}
+\caption{The attainable maximum of the Matthews correlation as a function of the
+flag rate, at four prevalences, computed from Equation~\ref{eq:ceiling} on a
+253-item set. Each curve reaches 1 where the flag rate equals the prevalence, so
+no prevalence by itself bounds the coefficient; what bounds it is the gap between
+the two. At the 4.74\% prevalence of this study the ceiling is 0.6893 at a flag
+rate of 0.0949, 0.4496 at 0.1976 and 0.2760 at 0.3953. The shaded band is
+computed, not drawn: it is the flag rates from 0.1225 to 0.5534, where the
+ceiling at this prevalence lies between 0.20 and 0.60, running from 0.5971 at
+the left edge to 0.2005 at the right, so a reported coefficient of 0.2 is a
+third of the attainable maximum at one edge and all of it at the other. The marked point is the deployed clinical stage, which lies far outside the
+band and is visibly degenerate from its flag rate without any coefficient at
+all.}
+\label{fig:ceiling-curve}
+\end{figure}
 
 \subsection{A gate with perfect specificity that reads one number}
 \label{sec:res-collapse}
@@ -478,14 +540,15 @@ Arm & Instrument & 2x2 cells & Sens. & Spec. & PPV & NPV & $J$ \\
 The a priori collapse check predicts this, and this form of the finding needs no
 data at all. With $N=300$ and $K=12$ fixed across all 31 labellers the gate's
 internal quantities are functions of the flag count alone, so the verdict is a
-function of $n$; evaluating $p_{\text{floor}}$ at every flag count from 0 to 300
-gives the failure set exactly as the point 0 together with the upper tail from
+function of $n$. Evaluating $p_{\text{floor}}$ at every flag count from 0 to 300
+gives the failure set exactly: the point 0 together with the upper tail from
 235 to 300. The empirical form corroborates it with a scope that must be stated.
-Predicting student failure when the flag-rate ratio $n/K$ reaches 19.5833
-reproduces the gate's verdict on all 24 primary-arm labellers with zero
-disagreements and the identical $2\times2$ of 5/0/12/7; the pooled arm, which
-contains the two real models that flagged nothing, shows 2 disagreements, because
-the failure set has two branches and no synthetic labeller flagged zero. Sweeping every threshold on that ratio, the best
+Predicting student failure when the flag-rate ratio $n/K$ reaches 19.5833, the
+gate's own boundary rather than a fitted value, reproduces the gate's verdict on
+all 24 primary-arm labellers with zero disagreements and the identical
+$2\times2$ of 5/0/12/7. The pooled arm contains the two real models that flagged
+nothing, and shows 2 disagreements, because the failure set has two branches and
+no synthetic labeller flagged zero. Sweeping every threshold on that ratio, the best
 Youden $J$ is 0.6807 at 3.5833 against the gate's 0.2941
 (Figure~\ref{fig:collapse}), chosen in sample and so an upper bound, not an
 operating point. Because the gate is the
@@ -495,13 +558,14 @@ by the ratio itself. That is the measured reason to report the ceiling and not d
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=\textwidth]{fig1}
+\includegraphics[width=\textwidth]{fig2}
 \caption{The gate's decision boundary against the statistic it is a function of.
 Each point is one of 31 labellers; the horizontal axis is the pilot flag-rate
 ratio $n/K$ on a logarithmic scale, the vertical axis the distilled student's
 AUROC on the 10,000 item test frame. A logarithmic axis cannot show zero, so the
-two labellers that flagged nothing are drawn at a pseudo-position inside the
-shaded band at the left and its tick is labelled 0. The horizontal line at 0.60 is the
+two labellers that flagged nothing are drawn at the left edge, inside the shaded
+band, and that tick is labelled 0; they are the failure set's second branch and
+not a small ratio. The horizontal line at 0.60 is the
 pre-registered usefulness threshold; the solid vertical line at 19.5833 is the
 threshold on the ratio that reproduces the gate's verdicts exactly in the primary
 arm; the dashed vertical line at 3.5833 is the in-sample best threshold on the
@@ -515,18 +579,18 @@ the position of a vertical line on this axis.}
 One narrow thing. Two of the 7 real models, \texttt{qwen3:4b} and
 \texttt{qwen3:8b}, flagged none of the 300 pilot items and are caught by the
 failure set's zero branch. Detecting a labeller that emitted nothing saves
-training compute and is otherwise silent.
-That is a sufficient condition for hopelessness which fires almost never: a
-defensible thing for an instrument to be, and not a feasibility criterion.
+training compute and says nothing else. That is a sufficient condition for
+hopelessness which fires almost never: defensible for an instrument, and not a
+feasibility criterion.
 
 \paragraph{The screening statistics are not estimates}
 Sensitivity, specificity and the predictive values in
 Table~\ref{tab:gate} are computed over 24 synthetic labellers on a grid we chose,
 on an incomplete cross of TPR and FPR values. Each is a deterministic function of that composition, so a Wilson interval
 \cite{wilson1927probable} would address sampling error that is not the problem:
-there is no population being sampled. We print four places because they are exact
-properties of a stated construction. With the TF-IDF student no synthetic labeller cleared 0.60, so
-that outcome variable has no variance and specificity is undefined: a screen
+there is no population being sampled, and the four places are exact properties
+of a stated construction. With the TF-IDF student no synthetic labeller cleared
+0.60, so that outcome has no variance and specificity is undefined: a screen
 cannot be validated against an outcome that never varies.
 
 \subsection{The ratio is not the statistic to report}
@@ -536,16 +600,19 @@ A further pre-registration asked whether the observed coefficient as a fraction
 of its ceiling ranks labellers by downstream usefulness better than the
 coefficient itself. Over the 29 of 31 Demonstration~1 labellers with a defined
 ratio, Spearman $\rho$ against the distilled student's AUROC is 0.9241 for the
-raw coefficient and 0.8345 for the ratio, a difference of $-0.0897$ against a
+raw coefficient and 0.8345 for the ratio. The difference is $-0.0897$ against a
 registered margin of 0.05. The registered outcome is C, the ratio ranks worse,
 and the instruction to report the observed value as a fraction of the ceiling
-is withdrawn under the rule fixed before the run. Neither $\rho$ estimates anything: 24 of the 29 sit on a grid we chose, and the
-margin comparison is the registered decision rule on that grid rather than an
-inferential test. The raw coefficient's 0.9241 is not evidence that pilot
+is withdrawn under the rule fixed before the run. Neither $\rho$ estimates a population quantity: 24 of the 29 sit on a
+constructed grid, and the margin comparison is the registered decision rule on
+that grid rather than an inferential test. The raw coefficient's 0.9241 is not evidence that pilot
 agreement generalises, because on this grid both it and the student's AUROC are
-monotone in the chosen pair of rates. The asymmetry is deliberate: withdrawing
-a recommendation on evidence this weak is the conservative direction, adopting
-one would not be.
+monotone in the chosen pair of rates. An earlier pre-registration recorded, as
+deciding nothing, $\rho = 0.5310$ for the ceiling against student AUROC and
+$-0.5197$ for the gate's floor probability, at $p$ of 0.0076 and 0.0092. The
+same monotonicity applies, so neither is evidence that the ceiling ranks
+labellers. The registered rule was written to withdraw on this
+evidence and not to adopt on it.
 
 Nine labellers fall inside the band of Figure~\ref{fig:ceiling-curve}, where
 the check is not redundant, and two meet the registered criterion. That band is computed at the clinical prevalence; the band for this 300-item
@@ -565,11 +632,16 @@ are synthetic: none of the seven real models lies inside the band.
 \subsection{The rival baseline carries no out-of-sample information}
 \label{sec:res-rival}
 
-On $\mathcal{G}_{253}$ the chance-based reading is encouraging: 16 of 17
-configurations reject chance at 0.05 under the 20,000 draw permutation test, 6
-clear the Bonferroni threshold and 12 have a bootstrap lower bound above 0.5.
+Two properties of a small, procedurally selected gold set govern this section: a
+comparator fitted on the labels it is scored against is optimistic, and
+cross-fitting leaves the verdict a function of the fold assignment.
+
+On $\mathcal{G}_{253}$ the chance-based reading is encouraging. Of 17
+configurations, 16 reject chance at 0.05 under the 20,000 draw permutation test,
+6 clear the Bonferroni threshold and 12 have a bootstrap lower bound above 0.5.
 The 17 contain two determinism re-runs covering 15 distinct cells, and both
-duplicates fall inside the counted sets, so each figure drops by two: 14 of 15,
+duplicates fall inside the counted sets. Each figure therefore drops by two:
+14 of 15,
 4 at the registered divisor of 17, and 10. One further cell misses that
 registered threshold by 0.0000587 and would clear a post-hoc divisor of 15; we
 report the registered figure. The rule-identity prior, whose only content is which of four mining rules
@@ -583,8 +655,7 @@ then scored against, and the null that produced $p = 0.0367$ holds the fitted
 score vector fixed while permuting the labels it was fitted to. Refitting the
 rates to each permuted draw gives $p = 0.2702$ against a null mean of 0.6182.
 Cross-fitted by repeated stratified $K$-fold over 200 repeats it reaches 0.4939
-at $K=5$, 2.5th to 97.5th percentile 0.3679 to 0.5668, and 0.5026 at $K=3$: out
-of sample it is indistinguishable from chance, and its in-sample optimism of
+at $K=5$, 2.5th to 97.5th percentile 0.3679 to 0.5668, and 0.5026 at $K=3$. Out of sample it is indistinguishable from chance, and its in-sample optimism of
 0.1539 exceeds the whole above-chance portion of that value.
 Leave-one-pair-out is not usable here, scoring each pair as
 $(k_r - y_i)/(n_r - 1)$, a function of its own label.
@@ -596,7 +667,7 @@ none clears the corrected threshold, the smallest $p$ being 0.0040 against
 0.0033. Different pre-registrations fixed the two corrections: the chance
 family at $\alpha/17$, the re-analysis at $\alpha$ over the 15 distinct cells.
 Across 200 assignments that count has median 2 and a 95\% percentile interval
-of \textbf{1 to 13} of 15, with a mean of 3.98 and extremes of 0 and 15; at
+of \textbf{1 to 13} of 15, with a mean of 3.98 and extremes of 0 and 15. At
 least one cell clears the corrected threshold in 35.5\%. The verdict ranges over the
 whole scale with an arbitrary partition of the same 253 pairs, so the
 reportable quantity is the distribution, not any single comparison.
@@ -611,9 +682,9 @@ only.
 
 \paragraph{Withdrawals}
 We withdraw the claim that the graded scores do not separate from a
-rule-identity prior, and the mechanism claim built on it. Neither is replaced
-by a positive claim; the corrected comparison is too unstable at this gold-set
-size to replace either, and we claim nothing about any configuration.
+rule-identity prior, and the mechanism claim built on it. Neither is replaced: at
+this gold-set size the corrected comparison supports no claim about any
+configuration.
 
 \begin{table}[!ht]
 \centering
@@ -623,11 +694,10 @@ prompt-sensitivity family and PC the prompt-confirmation family; $\ddagger$ mark
 a determinism re-run of the row above its own family's entry, so the 17 rows
 cover 15 distinct cells. $B$ marks a configuration clearing the chance threshold
 corrected across configurations and $L{>}0.5$ one whose bootstrap lower bound
-exceeds 0.5; over distinct cells, at the registered divisor of 17, those counts are 4 and 10. Bold marks the highest AUROC and the smallest $p$. \emph{This table is
-the record of an analysis that does not license a conclusion.} The rival against
-which these differences are computed is fitted in sample and carries no
-out-of-sample information (Section~\ref{sec:res-rival}), so no row here is
-evidence about the configuration it names.}
+exceeds 0.5; over distinct cells, at the registered divisor of 17, those counts are 4 and 10. Bold marks the highest AUROC and the smallest $p$. The rival against which these
+differences are computed is fitted in sample and carries no out-of-sample
+information (Section~\ref{sec:res-rival}), so no row here is evidence about the
+configuration it names.}
 \label{tab:delong}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -657,11 +727,11 @@ PC & \texttt{granite3.3:8b}, P\_reversed\_rerun$^{\ddagger}$ & 0.7365 & $+0.0887
 \end{tabular}}
 \end{table}
 
-\paragraph{The withdrawn mechanism, and one reading we do not claim}
+\paragraph{The withdrawn mechanism, and one unclaimed reading}
 The rival's apparent performance was explained as confounding by rule-correlated
 content, the rules' confirmed positive rates of 0.0256, 0.1071, 0.0635 and 0.0444
 being read as a property a stratum-tracking score could exploit. That spread is
-the spread of 3, 3, 4 and 2 events: the rule by label table gives
+the spread of 3, 3, 4 and 2 events. The rule by label table gives
 $\chi^{2} = 3.8078$ on 3 degrees of freedom and an exact permutation $p$ of
 0.2610, the figure to read because the smallest expected cell is 1.3281. The
 explanation is withdrawn, without claiming the association is absent. An earlier
@@ -670,69 +740,9 @@ of confounding, now withdrawn in turn.
 
 One reading points the other way and we report it without claiming it. Rule
 identity is constant inside a stratum, so signal surviving within a stratum is
-not rule identity; for the strongest configuration the within-stratum AUROCs are
+not rule identity. For the strongest configuration the within-stratum AUROCs are
 0.7339, 0.5600, 0.8771 and 0.8953 on 3, 3, 4 and 2 positives. Two to four
 positives cannot carry a test.
-
-\begin{table}[!ht]
-\centering
-\caption{Attainability ceiling for the pipeline's production labeller on both
-adjudicated sets. The ceiling is $\phi_{\max}$ at the observed margins
-\cite{cureton1959phimax,guilford1965phi} and needs only the three counts in the
-first row; it is attained by the arrangement of Equation~\ref{eq:ceiling} and is
-therefore tight.}
-\label{tab:controls}
-\small
-\begin{tabular}{lrr}
-\hline
-Quantity & 299 pair set & 253 pair set \\
-\hline
-Items, gold positives, flags & 299, 12, 261 & 253, 12, 223 \\
-Flag rate & 0.8729 & 0.8814 \\
-Confusion cells TP/FP/FN/TN & 11/250/1/37 & 11/212/1/29 \\
-Observed Matthews correlation & 0.0269 & 0.0243 \\
-Marginal ceiling on Matthews correlation & 0.0780 & 0.0818 \\
-One-sided hypergeometric $p$ for TP & 0.5347 & 0.5722 \\
-Random joins scoring at least as high & 0.5442 & 0.5711 \\
-\hline
-\end{tabular}
-\end{table}
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=\textwidth]{fig2}
-\caption{The attainable maximum of the Matthews correlation as a function of the
-flag rate, at four prevalences, computed from Equation~\ref{eq:ceiling} on a
-253-item set. Each curve reaches 1 where the flag rate equals the prevalence, so
-no prevalence by itself bounds the coefficient; what bounds it is the gap between
-the two. At the 4.74\% prevalence of this study the ceiling is 0.6893 at a flag
-rate of 0.0949, 0.4496 at 0.1976 and 0.2760 at 0.3953. The shaded band is
-computed, not drawn: it is the flag rates from 0.1225 to 0.5534, where the
-ceiling at this prevalence lies between 0.20 and 0.60, running from 0.5971 at
-the left edge to 0.2005 at the right, so a reported coefficient of 0.2 is a
-third of the attainable maximum at one edge and all of it at the other. The marked point is the stage of
-Section~\ref{sec:res-ceiling}, which lies far outside the band and is visibly
-degenerate from its flag rate without any coefficient at all.}
-\label{fig:ceiling-curve}
-\end{figure}
-
-\subsection{The ceiling check on the deployed labeller}
-\label{sec:res-ceiling}
-
-Table~\ref{tab:controls} carries the cheapest check with the
-largest consequence. The deployed clinical labeller flagged 223 of the 253
-adjudicated pairs, a flag rate of 0.8814, against 12 gold positives. By
-Equation~\ref{eq:ceiling} its Matthews correlation could not have exceeded 0.0818
-whatever its judgement, because at that flag rate the confusion matrix is almost
-entirely false positives by construction. Figure~\ref{fig:ceiling-curve} places that operating
-point against the regime where the check is not redundant: at this prevalence a
-flag rate of 0.0949 admits a ceiling of 0.6893 and one of 0.3953 admits 0.2760,
-so a developer reporting 0.2 there is near the attainable maximum and cannot tell
-from the coefficient. It reached 0.0243. The one-sided hypergeometric $p$ for its true positive count is 0.5722, and
-57.11\% of 10,000 random permutations score at least as high. The ceiling
-of 0.0818 required no gold labels beyond their count and no model run; published when the flag rate was first observed, it would have framed the
-scoring as the measurement of a coefficient that could not take a useful value
-at those margins.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -740,20 +750,19 @@ at those margins.
 \subsection{What the checks buy}
 
 Two of the three checks read earlier than a chance-based reading, not instead
-of one. The collapse check turned a pre-registered gate with perfect specificity
-into an instrument arithmetically equivalent to a number it already had. The ceiling check turned a positive Matthews correlation into one bounded at
-0.0818 by three marginal counts fixed in advance, and it reads before the
-output is joined to gold, where the chance test of
-Section~\ref{sec:res-ceiling} needs that join. On this stage the two agree,
+of one. The ceiling check turned a positive Matthews correlation into one bounded at
+0.0818 by three marginal counts fixed in advance. It reads before the output
+is joined to gold, where the chance test of Section~\ref{sec:res-ceiling} needs
+that join. The collapse check turned a pre-registered gate with perfect
+specificity into an instrument arithmetically equivalent to a number it already
+had. On this stage the two agree,
 which is corroboration. Neither depends on sample size, and the defect each catches
 is arithmetic. For the ceiling the remedy is cheaper still: $\mathrm{MCC}_{\max}$ is 1
 whenever the flag rate equals the prevalence, so a low ceiling means a mismatched
 operating point and the fix is the threshold, not more labels.
 
-The third check returned no per-cell verdict this design can defend: a rival
-fitted on the 12 labels it is scored against carries no out-of-sample
-information, and against a cross-fitted one the count clearing $p<0.05$ moves over a 95\% interval of 1 to 13 of 15 with
-the fold assignment alone
+The third check returned no per-cell verdict this design can defend. At this
+gold-set size it yields a methodological warning rather than a result
 (Section~\ref{sec:res-rival}).
 
 \subsection{When to run them, and relation to existing practice}
@@ -776,11 +785,11 @@ about in spirit \cite{collins2024tripodai} and does not cover.
 
 \emph{Sample size.} The clinical gold set holds 12 positives of 253 pairs. The
 registered floor of 0.7355 bounds only the chance comparison; against the
-in-sample comparator a configuration would have needed 0.8654 uncorrected and
-0.9414 corrected (Section~\ref{sec:res-rival}). Only very large effects are
-resolvable, every negative result here is a failure to demonstrate and not a
+in-sample comparator the bound is 0.8654, and 0.9414 corrected
+(Section~\ref{sec:res-rival}). Only very large effects are
+resolvable. Every negative result here is a failure to demonstrate and not a
 demonstration of absence, and the permutation test against chance is the only one with power to return a
-significant result at this size. That is the paper's substantive point.
+significant result at this size.
 
 \emph{One annotator.} The clinical gold labels come from a single pharmacist
 with no second rater, so inter-rater agreement cannot be measured and the gold
@@ -791,18 +800,16 @@ by bounding attainable agreement from the marginals, but not error in the margin
 these checks matter in every pipeline, and say nothing about the downstream task or clinical utility. The
 survey is purposive, single-coded and biased toward open access
 (Section~\ref{sec:survey-method}). Its largest sampling defect is that one search
-of 241 records was not screened and 26 of the 67 arXiv records the feed reported were not readable,
-so the prompted-model arm is under-sampled; with no record-level screening log we report per-search identification counts
-only.
+of 241 records was not screened and 26 of the 67 arXiv records the feed reported were not readable, so the prompted-model arm is under-sampled. With no
+record-level screening log we report per-search identification counts only.
 
 \emph{Corrections.} Two readings carried earlier in this project are withdrawn here, and one
-procedural failure disclosed. The rival was fitted on the gold labels it
-was scored against and tested against a null holding the fit fixed,
-so the non-separation it produced and the mechanism built on it are both
-withdrawn (Section~\ref{sec:res-rival}). The leave-one-pair-out cross-fit that first replaced it leaks the held-out
+procedural failure disclosed. The non-separation against the rule-identity rival and the mechanism built on
+it are withdrawn (Section~\ref{sec:res-rival}). The leave-one-pair-out cross-fit that first replaced it leaks the held-out
 label; its values were withdrawn under a second pre-registration and retained in
-the released record. The detectability bound for the paired comparison was computed after that
-comparison, which is the order this paper argues against. A recommendation of
+the released record. The detectability bound for the paired comparison was computed after the
+comparison rather than before it; it is reported as computed and changes none of
+the reported values. A recommendation of
 our own is also narrowed: the instruction to report the observed coefficient as
 a fraction of its ceiling is withdrawn under the pre-registration of
 Section~\ref{sec:res-ratio}.
@@ -831,14 +838,14 @@ agreement \cite{johnson2016mimic}. Only aggregate statistics appear here: no cli
 identifier and no patient-level row, in this manuscript or in any artifact it
 cites. No hosted inference service produced any result reported here, and
 every labeller whose results appear ran locally. The agreement states that the licensee will
-not share access to the restricted data with anyone else, and the provider's
+not share access to the restricted data with anyone else. The provider's
 guidance of 24 September 2025 reads that as covering transmission to third
-parties including through programming interfaces and online platforms, adding
-that the data must not be retained by third-party language model services
+parties, including through programming interfaces and online platforms, and
+adds that the data must not be retained by third-party language model services
 \cite{physionet2025llm}. A service is admissible only on verified zero
 retention, no training and no human review; one whose handling is unclear is not to
 be used. Earlier in this project sentence pairs extracted from the corpus
-were sent to hosted services in several runs; those conditions could not be
+were sent to hosted services in several runs. Those conditions could not be
 established, every result obtained that way is withdrawn, and none is reported
 here or in any artifact cited here. Nothing reported here has been validated for clinical use or
 supports deployment in any care setting.
@@ -856,24 +863,23 @@ what it could have shown.
 \section{Conclusion}
 \label{sec:conclusion}
 
-A certification instrument can be principled in derivation and still read a
-weak-supervision stage only through its item count, gold positive count and flag
-count. The gate examined here was exactly that: a single threshold on the pilot flag
-count reproduced its verdicts across the 24 synthetic labellers, and it passed
-19, 12 of whose students failed.
-Checking costs minutes. In the 37 papers we coded neither a minimum detectable
-effect for the labeller evaluation nor a test against a zero-skill null
-appears, so for that sample publishing the ceiling before scoring would be
-new.
+Three integers fixed the deployed clinical labeller's attainable agreement at
+0.0818 before any item was scored: it flagged 223 of the 253 adjudicated pairs
+against 12 gold positives. It reached 0.0243. The ceiling needs no item-level
+gold labels and no model run, and checking costs minutes. In the 37 papers we
+coded, neither a minimum detectable effect for the labeller evaluation nor a
+test against a zero-skill null appears. For that sample, publishing the ceiling
+before scoring would be new.
 
-The rival check returns nothing at this gold-set size: its comparator was
-fitted on the 12 labels it was scored against, and cross-fitted the verdict moves over a 95\% interval of 1 to 13 of 15 with the
-fold assignment alone. What survives is the
-cheapest of the three, as a reporting requirement and not a decision rule, and
-the ratio is not the quantity to report. The deployed
-clinical labeller flagged 223 of the 253 adjudicated pairs, and three integers
-fixed its attainable agreement at 0.0818 before any item was scored. It reached
-0.0243.
+A certification instrument can be principled in derivation and still read a
+weak-supervision stage only through those same three counts. The gate examined
+here was exactly that: a single threshold on the pilot flag count reproduced its
+verdicts across the 24 synthetic labellers, and it passed 19, 12 of whose
+students failed. The rival check returns nothing at this gold-set size. Its
+comparator was fitted on the 12 labels it was scored against, and cross-fitted
+the verdict moves over a 95\% percentile interval of 1 to 13 of 15 with the
+fold assignment alone. Of the three the ceiling is the one to adopt, as a reporting requirement
+and not a decision rule, and the ratio is not the quantity to report.
 
 These checks apply to any pipeline promoting a labelling stage on an agreement
 coefficient against a small adjudicated set, the typical

@@ -271,7 +271,7 @@ def main():
         if not os.path.exists(full):
             raise SystemExit("missing artifact: {}".format(full))
     produced = [
-        figure_collapse(root, os.path.join(HERE, "fig1.pdf")),
+        figure_collapse(root, os.path.join(HERE, "fig2.pdf")),
     ]
     for path in produced:
         print(path)

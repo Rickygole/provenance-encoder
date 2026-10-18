@@ -99,3 +99,15 @@ at a flag rate of 0.24, which a reader would call a weak labeller, is exactly
 the maximum its margins permit. Nothing about its flag rate alone says so.
 
 **Q3.** The 31-labeller table is in `c143.json` under `q3_table`.
+
+## Note added 2026-10-18: manuscript figure renumbering
+
+The rule at "Pre-registered questions and decision rules" and the Q2 record
+above both identify the band by the manuscript figure that computes it, which
+was Figure 2 when this file was written. In answering a peer review the
+manuscript promoted its ceiling section to Results 4.2, which moved that figure
+ahead of the collapse scatter, so the band figure is now the manuscript's
+Figure 1 and the collapse scatter is Figure 2. The rule text and the recorded
+outcome are left exactly as registered. Nothing computed changes: the band is
+the flag rates 0.1225 to 0.5534 either way, and the two qualifying labellers
+and their values are unchanged.

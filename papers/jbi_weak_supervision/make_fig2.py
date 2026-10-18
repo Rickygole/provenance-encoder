@@ -76,7 +76,7 @@ ax.set_xlim(0, 1); ax.set_ylim(0, 1.03)
 ax.legend(frameon=False, fontsize=9, loc="upper right")
 ax.set_title("The ceiling is fixed by the gap between flag rate and prevalence, "
              "not by prevalence alone", fontsize=9, loc="left")
-out = HERE / "fig2.pdf"
+out = HERE / "fig1.pdf"
 fig.savefig(out); print(out)
 # values the caption quotes, generated not typed
 print(json.dumps({
