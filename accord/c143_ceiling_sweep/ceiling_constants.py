@@ -157,6 +157,12 @@ add("clinical.band_flag_rate_lo", "Equation 1, matches "
     f"{C143}::q2_non_degenerate.band_flag_rate_lo", clo / CN)
 add("clinical.band_flag_rate_hi", "Equation 1, matches "
     f"{C143}::q2_non_degenerate.band_flag_rate_hi", chi / CN)
+add("clinical.band_ceiling_at_lo",
+    "Equation 1 at the clinical band's lower edge, the value Figure 1 quotes",
+    ceiling(clo, CN, CK))
+add("clinical.band_ceiling_at_hi",
+    "Equation 1 at the clinical band's upper edge, the value Figure 1 quotes",
+    ceiling(chi, CN, CK))
 add("clinical.band_matches_c143_literals",
     f"Equation 1 against {C143}::q2_non_degenerate", True)
 # ------------------- 4. the analogues for the coefficients the field reports
@@ -242,6 +248,7 @@ print(f"grid band labellers inside  {len(in_grid)}; registered band "
       f"{all(q in in_grid for q in qualifying)} {qualifying}")
 print(f"clinical band recomputed    {clo/CN:.10f} to {chi/CN:.10f}  "
       f"(matches the c143.py literals)")
+print(f"clinical band edge ceilings {ceiling(clo, CN, CK):.10f} to {ceiling(chi, CN, CK):.10f}  -> caption 0.5971, 0.2005")
 print(f"precision ceiling           {prec_closed:.10f}  (K/n, brute-force checked)")
 print(f"F1 ceiling                  {f1_closed:.10f}  (2K/(n+K), brute-force checked)")
 print(f"registered {len(entries)} keys under {PREFIX}; "
