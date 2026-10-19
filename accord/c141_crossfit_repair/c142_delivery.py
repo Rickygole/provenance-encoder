@@ -146,6 +146,10 @@ def main():
     n05 = np.array(n05); nbf = np.array(nbf); rivals = np.array(rivals)
     out["q3_stability_over_fold_assignments"] = {
         "repeats": REPEATS, "n_distinct_cells": len(distinct),
+        # The per-assignment counts themselves, so the distribution the paper
+        # reports can be drawn from the artifact instead of from its summary.
+        "clearing_0_05_per_assignment": [int(x) for x in n05],
+        "clearing_bonferroni_per_assignment": [int(x) for x in nbf],
         "clearing_0_05_mean": float(n05.mean()), "clearing_0_05_median": float(np.median(n05)),
         "clearing_0_05_min": int(n05.min()), "clearing_0_05_max": int(n05.max()),
         "clearing_0_05_pct2_5": float(np.quantile(n05, 0.025)),
