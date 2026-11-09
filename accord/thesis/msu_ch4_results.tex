@@ -343,8 +343,7 @@ ACCORD, subject-overlap run's per-pair decision & 278 & 299 \\
 \label{tab:marginal}
 \end{table}
 
-The validation against human labels that the weak-labelling literature requires \citep{pangakis2023validation}
-(Chapter~\ref{ch:lit}) could not have been made before training, because the pharmacist's
+The validation against human labels that the weak-labelling literature requires \citep[][see Chapter~\ref{ch:lit}]{pangakis2023validation} could not have been made before training, because the pharmacist's
 labels were collected after the labelling run. This project ran
 three local 8B labellers over the pool and the gold set and measured the
 over-calling ratio, the positive rate divided by the gold base rate of
@@ -484,16 +483,29 @@ of $300$ pilot items, a rate of $0.9067$ beside the deployed clinical labeller's
 gate condemned it. That is the only use this chapter claims, a sufficient condition for a pilot
 that could not have tested its labeller, available before a student is trained.
 
-\begin{table}[!htp]
-\caption{The Marginal Feasibility Gate Applied to Labeller Marginals}
-\centering
-\footnotesize
+% Set as a longtable, not a float: with its note double-spaced this table
+% was taller than the text block and LaTeX reported an oversized float.
+\begingroup\footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}>{\tblragged\hangindent=1em\hangafter=1}p{1.48in}lrrr@{\hspace{14pt}}rrl@{}}
+\begin{longtable}{@{}>{\tblragged\hangindent=1em\hangafter=1}p{1.48in}lrrr@{\hspace{14pt}}rrl@{}}
+\caption{The Marginal Feasibility Gate Applied to Labeller Marginals}
+\label{tab:feasgate}\\
 \toprule
 \textbf{Labeller} & \textbf{Basis} & \textbf{Flag rate} & \textbf{Obs.\ MCC} &
 \textbf{Ceil.\ MCC} & \textbf{Ceil.\ $\kappa$} & \textbf{Floor $p$} & \textbf{Rejectable} \\
 \midrule
+\endfirsthead
+\caption[]{The Marginal Feasibility Gate Applied to Labeller Marginals (Continued)}\\
+\toprule
+\textbf{Labeller} & \textbf{Basis} & \textbf{Flag rate} & \textbf{Obs.\ MCC} &
+\textbf{Ceil.\ MCC} & \textbf{Ceil.\ $\kappa$} & \textbf{Floor $p$} & \textbf{Rejectable} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{8}{@{}r@{}}{continued on the next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
 Granite 3.3 8B, few-shot    & $G_{253}$ & 0.6957 & 0.0668 & 0.1476 & 0.0426 & 0.0114 & Yes \\
 Granite 3.3 8B, few-shot    & $G_{299}$ & 0.7023 & 0.0586 & 0.1331 & 0.0348 & 0.0131 & Yes \\
 Granite 3.3 8B, zero-shot  & $G_{253}$ & 0.7391 & 0.1326 & 0.1326 & 0.0345 & 0.0242 & Yes, ceiling \\
@@ -510,15 +522,13 @@ Qwen 3 14B, few-shot        & $G_{253}$ & 0.5415 & 0.0187 & 0.2053 & 0.0809 & 0.
 Qwen 3 14B, few-shot        & $G_{299}$ & 0.5585 & 0.0102 & 0.1818 & 0.0640 & 0.0008 & Yes \\
 Qwen 3 14B, zero-shot       & $G_{253}$ & 0.5217 & 0.1020 & 0.2136 & 0.0873 & 0.0003 & Yes \\
 Qwen 3 14B, zero-shot       & $G_{299}$ & 0.5385 & 0.0868 & 0.1893 & 0.0692 & 0.0005 & Yes \\
-\midrule
 Deployed weak labeller (Llama 3 8B) & $G_{299}$ & 0.8729 & 0.0269 & 0.0780 & 0.0121 & 0.1894 & No \\
 Llama 3 8B eval.\ baseline        & $G_{253}$ & 0.9565 & $-0.0436$ & 0.0476 & 0.0045 & 0.5795 & No \\
 Llama 3 8B, replication     & $G_{299}$ & 0.9532 & not scored & 0.0453 & 0.0041 & 0.5562 & No \\
 Granite 3.3 8B, replication & $G_{299}$ & 0.7425 & not scored & 0.1204 & 0.0286 & 0.0259 & Yes \\
 Qwen 3 8B, replication      & $G_{299}$ & 0.6187 & not scored & 0.1605 & 0.0502 & 0.0027 & Yes \\
-\bottomrule
-\end{tabular}
-\vspace{-2pt}% the wrapped stub cell above made this full-page float 1pt too tall
+\end{longtable}
+\endgroup
 \apanote{Rows are hard-label marginals: scored where this project joined the labeller to the pharmacist row by row, unscored where only the marginal survives. $\kappa$ is Cohen's kappa. Ceiling MCC and ceiling $\kappa$ hold every confirmed case inside the
 flagged set. \emph{Rejectable}: the floor $p$ is below $0.05$;
 \emph{ceiling}: observed MCC equals ceiling MCC. Below the rule, the deployed
@@ -527,8 +537,6 @@ prompted once, row by row; replication rows use the replication prompt; Qwen 3 r
 $p$ is the smallest one-sided hypergeometric $p$ the marginal allows
 (Section~``\nameref{sec:m-feasgate}''), a precondition rather than a test unless
 observed MCC equals ceiling MCC, where it is also the exact test observed.}
-\label{tab:feasgate}
-\end{table}
 
 \begin{figure}[!tbp]
 \centering
@@ -1209,7 +1217,7 @@ subject-overlap run, on the same pairs, for each seed, the ensemble, and the $G_
 
 
 \begin{table}[!htbp]
-\caption[Paired ROC Comparisons by DeLong Test]{Paired Receiver Operating Characteristic Comparisons by DeLong Test}
+\caption{Paired Receiver Operating Characteristic Comparisons by DeLong Test}
 \centering
 \small
 \setlength{\tabcolsep}{4pt}

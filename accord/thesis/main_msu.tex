@@ -307,14 +307,14 @@
 \setlength{\LTleft}{0pt}\setlength{\LTright}{0pt}
 \captionsetup[longtable]{labelsep=newline,labelfont=bf,textfont=it,justification=raggedright,singlelinecheck=false,margin=0pt}
 % Notes below a table or figure: APA 7 sets an italic "Note." with a period.
-% Set single-spaced, which APA permits inside a table or figure: at double
-% spacing three notes pushed their float past the text block and printed body
-% text beneath the folio. Set at \footnotesize, 10pt, which is the size the
-% tables themselves use and is above the handbook's 9pt floor for a table.
+% Double-spaced at body size: the handbook excepts only footnotes and
+% endnotes from double spacing, and a table note is neither. The one note
+% that could not fit its float belongs to a table now set as a longtable, so
+% it breaks across pages instead of forcing an oversized float.
 % double-spaced, flush left.
 \newcommand{\apanote}[1]{%
   \par\vspace{0.25\baselineskip}%
-  \begingroup\footnotesize\singlespacing\RaggedRight\noindent \textit{Note.} #1\par\endgroup}
+  \begingroup\normalsize\doublespacing\RaggedRight\noindent \textit{Note.} #1\par\endgroup}
 
 \setlist[itemize]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip}
 \setlist[enumerate]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip,label=\arabic*.}
