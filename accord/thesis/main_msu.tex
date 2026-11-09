@@ -9,7 +9,7 @@
 %  SUBSTITUTES currently in force. This block described a state the document had
 %  already left: it claimed tocloft was substituted and APA 7 was not reached, and
 %  that newtx was substituted by mathptmx, when tocloft is installed, the
-%  bibliography moved to biblatex-apa below, and newtxtext/newtxmath are now
+%  bibliography is biblatex-apa (APA 7), and newtxtext/newtxmath are now
 %  loaded directly (both installed in ~/Library/texmf). A comment asserting a
 %  compliance state the file contradicts is the same defect class this thesis
 %  audits, so it is corrected rather than left as a stale note.
@@ -68,7 +68,10 @@
 \setlength{\cftfignumwidth}{5.6em}
 \setlength{\cfttabindent}{0pt}
 \setlength{\cftfigindent}{0pt}
-\usepackage{courier}                  % T1-covered Times-companion typewriter face;
+% The handbook requires one font family throughout, including references.
+% \texttt is therefore rendered in the body Times face rather than in a
+% typewriter font; the call sites stay as they are.
+\renewcommand{\ttdefault}{\rmdefault}
                                        % the monospace family the MSU template names
 \usepackage[T1]{fontenc}
 % hyphenat's [htt] option primes every series/shape combination it might need
@@ -154,7 +157,8 @@
 % Numbered citations, alphabetical reference list (author's choice). natbib=true
 % keeps \citep as [n] and \citet as Author [n], so no call site changes.
 \usepackage{csquotes}
-\usepackage[style=numeric-comp,backend=biber,sorting=nyt,natbib=true,giveninits=true,maxbibnames=99,minbibnames=99,doi=true,url=false,isbn=false,eprint=true]{biblatex}
+\usepackage[style=apa,backend=biber,natbib=true,doi=true,url=false,isbn=false,eprint=true]{biblatex}
+\DeclareLanguageMapping{english}{american-apa}
 \addbibresource{refs.bib}
 % American punctuation in the reference list: the full stop and comma go inside
 % the closing quotation mark after a title (School of Graduate Studies error
@@ -162,12 +166,11 @@
 \DefineBibliographyExtras{english}{\uspunctuation}
 % An entry is not split across two pages.
 \AtBeginBibliography{\interlinepenalty=10000}
-% Author lists: maxbibnames=99 with minbibnames=99 prints every name in every
-% list, so no entry hides authors behind "et al." (Error Checklist item 6 bars
-% the malformed variants, and APA 7 section 9.8 bars a truncated list). The one
+% Author lists: apa.bbx applies APA 7 section 9.8 itself, listing up to 20
+% names and then an ellipsis with the final author. The one
 % list refs.bib itself cannot complete is Llama 3, whose author field ends in
 % "and others" because the paper has more than 500 authors; biblatex prints the
-% andothers bibstring for it whatever maxbibnames is.
+% andothers bibstring for it whatever the name limit is.
 %
 % That bibstring is shared by the reference list and by in-text citations, so it
 % cannot simply be replaced: the checklist bars "et al." in the reference list
@@ -185,20 +188,6 @@
 % eid bare and before the year ("21.1, 6 (2020)"), which reads as nothing in
 % particular, so it is labelled and moved to the slot the page range occupies
 % in every other article, the way standard.bbx's own chapter+pages orders it.
-\NewBibliographyString{articleno}
-\DefineBibliographyStrings{english}{articleno={art\adddot\addnbspace no\adddot}}
-\DeclareFieldFormat{eid}{\bibstring{articleno}~#1}
-\renewbibmacro*{volume+number+eid}{%
-  \printfield{volume}%
-  \setunit*{\adddot}%
-  \printfield{number}}
-\renewbibmacro*{note+pages}{%
-  \printfield{note}%
-  \setunit{\bibpagespunct}%
-  \printfield{eid}%
-  \setunit{\bibpagespunct}%
-  \printfield{pages}%
-  \newunit}
 % DOIs print for every entry that has one (doi=true): the handbook requires a
 % DOI or a direct link "where available". URLs stay off (url=false) because the
 % 32 url fields in refs.bib are mostly the landing page of a work whose DOI is
@@ -207,26 +196,6 @@
 % added to standard.bbx's macro keeps the url fallback for an entry that would
 % otherwise print no locator at all: no pages, article number, volume, issue,
 % publisher, eprint identifier or DOI.
-\renewbibmacro*{doi+eprint+url}{%
-  \iftoggle{bbx:doi}
-    {\printfield{doi}}
-    {}%
-  \newunit\newblock
-  \iftoggle{bbx:eprint}
-    {\usebibmacro{eprint}}
-    {}%
-  \newunit\newblock
-  \iftoggle{bbx:url}
-    {\usebibmacro{url+urldate}}
-    {}%
-  \ifboolexpr{
-    test {\iffieldundef{pages}} and test {\iffieldundef{eid}} and
-    test {\iffieldundef{volume}} and test {\iffieldundef{number}} and
-    test {\iffieldundef{eprint}} and test {\iflistundef{publisher}} }
-    {\iffieldundef{doi}
-       {\iftoggle{bbx:url}{}{\iffieldundef{url}{}{\usebibmacro{url+urldate}}}}
-       {\iftoggle{bbx:doi}{}{\printfield{doi}}}}
-    {}}
 % A URL printed by that branch may break after any character and carries no
 % stretch of its own; biblatex's defaults break only at punctuation and
 % stretched the first line of a long URL letter by letter to fill the measure.
@@ -321,25 +290,27 @@
 \titleformat{\paragraph}[runin]{\normalfont\bfseries\normalsize}{}{0pt}{}
 \titlespacing*{\paragraph}{0.5in}{0pt}{0.5em}
 
-% Caption conventions, per the MSU template (October 2024): one line reading
-% "Table 1 Title" / "Figure 1 Title", label and title both italic, not bold,
-% 12pt, single-spaced, flush left, above the float. The short optional caption
-% argument, where given, is what the List of Tables / Figures shows.
-\captionsetup[figure]{labelsep=space,labelfont=it,textfont=it,
+% Caption conventions, APA 7, which is the style this manuscript declares:
+% the label ("Table 1" / "Figure 1") sits bold on its own line, and the title
+% follows on the next line in italic title case. Both sit above the float, with
+% a double space under the title, which is what the SGS Handbook requires. The
+% short optional caption argument, where given, is what the List of Tables /
+% Figures shows.
+\captionsetup[figure]{labelsep=newline,labelfont=bf,textfont=it,
   font={normalsize,stretch=1},justification=raggedright,singlelinecheck=false,
-  position=top,skip=0.6\baselineskip}
-\captionsetup[table]{labelsep=space,labelfont=it,textfont=it,
+  position=top,skip=\baselineskip}
+\captionsetup[table]{labelsep=newline,labelfont=bf,textfont=it,
   font={normalsize,stretch=1},justification=raggedright,singlelinecheck=false,
-  position=top,skip=0.6\baselineskip}
+  position=top,skip=\baselineskip}
 % A longtable's caption is set in the table's own width, which starts a point and a half left of
 % the text block; pin it to the margin like every other caption.
 \setlength{\LTleft}{0pt}\setlength{\LTright}{0pt}
-\captionsetup[longtable]{labelsep=space,labelfont=it,textfont=it,justification=raggedright,singlelinecheck=false,margin=0pt}
-% Notes below a table or figure: the template sets "*Note: ..." upright and
+\captionsetup[longtable]{labelsep=newline,labelfont=bf,textfont=it,justification=raggedright,singlelinecheck=false,margin=0pt}
+% Notes below a table or figure: APA 7 sets an italic "Note." with a period,
 % double-spaced, flush left.
 \newcommand{\apanote}[1]{%
   \par\vspace{0.25\baselineskip}%
-  \begingroup\normalsize\doublespacing\RaggedRight\noindent *Note: #1\par\endgroup}
+  \begingroup\normalsize\doublespacing\RaggedRight\noindent \textit{Note.} #1\par\endgroup}
 
 \setlist[itemize]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip}
 \setlist[enumerate]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip,label=\arabic*.}
@@ -370,17 +341,17 @@
 \doublespacing
 \input{frontmatter/titlepage}
 
-% Abstract: unnumbered, excluded from the page count. A PDF bookmark points at
-% it so it is one click away in any viewer's sidebar.
-\pagenumbering{gobble}
+% Abstract: Sixth Edition Appendix F prints it as page ii, so it keeps the
+% roman sequence the title page started. A PDF bookmark points at it so it is
+% one click away in any viewer's sidebar.
 \pdfbookmark[0]{Abstract}{abstractpage}
 \input{frontmatter/abstract}
 
-% Numbered front matter resumes at ii, the abstract having taken no folio.
+% Front matter continues at iii, the abstract having taken ii.
 \clearpage
 \hypersetup{pageanchor=true}
 \pagenumbering{roman}
-\setcounter{page}{2}
+\setcounter{page}{3}
 \pagestyle{plain}
 \doublespacing
 \input{frontmatter/approval}
@@ -434,31 +405,11 @@
 \clearpage
 \phantomsection
 \addcontentsline{toc}{chapter}{References}
-% References: double-spaced, 0.5in hanging indent, no extra gap between
-% entries. \bibhang is the authortitle/authoryear hanging-indent length; the
-% numeric-comp style used here computes the indent instead from
-% \labelnumberwidth+\biblabelsep (numeric.bbx's bibliography list), so
-% \bibhang has no effect and measured 0.356in before this fix. The
-% environment below is numeric.bbx's own "bibliography" list, copied and
-% re-pointed so the continuation-line margin (\leftmargin) is fixed at
-% exactly 0.5in regardless of how wide the auto-sized label box is, while the
-% label itself is kept flush with the page margin (\labelwidth+\labelsep still
-% sums to \leftmargin, so the label's outdent is unchanged at 0).
-% \bibitemsep/\bibparsep still control the gaps between entries.
-\defbibenvironment{bibliography}
-  {\list
-     {\printtext[labelnumberwidth]{%
-        \printfield{labelprefix}%
-        \printfield{labelnumber}}}
-     {\setlength{\labelsep}{\biblabelsep}%
-      \setlength{\leftmargin}{0.5in}%
-      \setlength{\labelwidth}{\leftmargin}%
-      \addtolength{\labelwidth}{-\labelsep}%
-      \setlength{\itemsep}{\bibitemsep}%
-      \setlength{\parsep}{\bibparsep}}%
-      \renewcommand*{\makelabel}[1]{\hss##1}}
-  {\endlist}
-  {\item}
+% References: double-spaced, no extra gap between entries. apa.bbx sets the
+% APA hanging indent itself through \bibhang, so the bibliography list is NOT
+% redefined here; the numeric-comp override this file used to carry keyed off
+% \labelnumber, which APA does not set, and would have printed an empty label
+% box and flattened the hanging indent on every entry.
 \begingroup
 \doublespacing
 \setlength{\bibitemsep}{0pt}

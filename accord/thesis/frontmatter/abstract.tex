@@ -1,24 +1,20 @@
 \begin{frontmatterpage}
-  \thispagestyle{empty}
-  % This page prints no page number, so the strip the geometry reserves for one
-  % is free: the text may run down to the one-inch bottom margin and no further.
-  \enlargethispage{30pt}
+  % Sixth Edition: this page carries the folio ii, so no page style is
+  % suppressed and no vertical space is borrowed from the footer strip.
   \singlespacing
   {\centering\normalsize\bfseries Abstract\par}
 
-  % Field block per the template: labels flush left, values start at a 3in tab
-  % (hanging). DEPARTURE for fit: the template double-spaces the title and leaves
-  % two blank lines between the blocks, three before the text, and a double-spaced
-  % heading line; with a 250-word double-spaced body that overflows the page by
-  % four lines, so the title is single-spaced and the gaps are one and two lines.
-  \begingroup\RaggedRight\setlength{\parindent}{0pt}
-  \hangindent=3in\hangafter=1
-  \makebox[3in][l]{Title of the Thesis:}{\hyphenpenalty=10000\exhyphenpenalty=10000\MakeUppercase{Where a Clinical NLP Pipeline Fails: A Stage-by-Stage Audit of Cross-Note Medication Contradiction Detection}\par}
-  \hspace*{3in}Ricky Gole, Master of Science in Advanced Computing\par
-  \hspace*{3in}September 2026\par
-  \vspace{\baselineskip}
-  \makebox[3in][l]{Thesis Chair:}Jamell Dacon, Ph.D.\par
-  \hspace*{3in}Department of Computer Science\par
+  % Sixth Edition Appendix F prints the heading and the paragraph alone. The
+  % Common Errors Checklist (items 15, 19, 20 and 23) nonetheless requires the
+  % title, the author's name, the spelled-out degree and the graduation month
+  % and year on this page, so those four stay. The Fifth Edition's two labelled
+  % fields and the chair and department lines are gone.
+  \begingroup\centering\setlength{\parindent}{0pt}
+  {\hyphenpenalty=10000\exhyphenpenalty=10000\MakeUppercase{Where a Clinical NLP Pipeline Fails: A Stage-by-Stage Audit of Cross-Note Medication Contradiction Detection}\par}
+  \vspace{0.5\baselineskip}
+  Ricky Gole\par
+  Master of Science in Advanced Computing\par
+  September 2026\par
   \endgroup
 
   % Two blank lines before the text (template: three; see above).
@@ -30,15 +26,16 @@
   A nursing note and a discharge summary can disagree about a medication, and only the summary leaves
 the hospital. This thesis audits the pipeline the field would build for detecting them in intensive
 care records: rule-based mining, language-model weak supervision, a purpose-built detector, and
-expert evaluation at a 4 percent confirmed base rate. Every stage returns a negative or bounded
-verdict. Candidate precision is not established, because the selector chose the displayed evidence by
-position; four readings put the resulting defect rate between 0 and 0.9315, two of them near 0.4 as is
-the rebuilt pool's design rate, with a lower bound of 72 of 165 annotated pairs. Credited architectural components are unsupported by
+expert evaluation at a 4 percent confirmed base rate. One research question is put to each stage.
+Every stage returns a negative or bounded
+verdict. Candidate precision is not established: the selector chose displayed evidence by
+position, and four readings put the defect rate between 0 and 0.9315, two near 0.4, the rebuilt pool's
+design rate, with a lower bound of 72 of 165 annotated pairs. Credited architectural components are unsupported by
 code audit. A detector ensemble retrained on subject-disjoint rows is indistinguishable from chance
 on 253 non-ambiguous pairs, which resolve only effects above 0.7466 in area under the curve, and one
 annotator leaves that null fragile: 1 or 2 targeted relabels undo it. A marginal feasibility gate
-offered here as a pre-training check was validated and failed as a screen, its sensitivity to student
-failure reaching 0.2941 against a registered floor of 0.90 and reducing at this pilot size to a
+offered as a pre-training check was validated and failed as a screen: its sensitivity to student
+failure reached 0.2941 against a registered floor of 0.90, reducing at this pilot size to a
 threshold on a flag count. Graded labeller scores rank above chance where their hard labels cannot,
 but none separates from a score carrying only the generating rule's identity. Five of the twelve
 confirmed contradictions are an anticoagulant, as are all three rated most dangerous. Each failure
