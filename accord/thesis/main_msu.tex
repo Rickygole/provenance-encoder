@@ -201,9 +201,9 @@
 % stretched the first line of a long URL letter by letter to fill the measure.
 % URLs break at punctuation only. Allowing a break after any letter split
 % "https" across two lines in two entries.
-\setcounter{biburlnumpenalty}{0}
-\setcounter{biburlucpenalty}{0}
-\setcounter{biburllcpenalty}{0}
+\setcounter{biburlnumpenalty}{9000}
+\setcounter{biburlucpenalty}{9000}
+\setcounter{biburllcpenalty}{9000}
 \biburlbigskip=0mu\relax
 \usepackage[hidelinks,linktoc=all,bookmarks=true,bookmarksnumbered=true]{hyperref}
 % linktoc=all makes the whole entry clickable in the Table of Contents, the List
@@ -306,11 +306,15 @@
 % the text block; pin it to the margin like every other caption.
 \setlength{\LTleft}{0pt}\setlength{\LTright}{0pt}
 \captionsetup[longtable]{labelsep=newline,labelfont=bf,textfont=it,justification=raggedright,singlelinecheck=false,margin=0pt}
-% Notes below a table or figure: APA 7 sets an italic "Note." with a period,
+% Notes below a table or figure: APA 7 sets an italic "Note." with a period.
+% Set single-spaced, which APA permits inside a table or figure: at double
+% spacing three notes pushed their float past the text block and printed body
+% text beneath the folio. Set at \footnotesize, 10pt, which is the size the
+% tables themselves use and is above the handbook's 9pt floor for a table.
 % double-spaced, flush left.
 \newcommand{\apanote}[1]{%
   \par\vspace{0.25\baselineskip}%
-  \begingroup\normalsize\doublespacing\RaggedRight\noindent \textit{Note.} #1\par\endgroup}
+  \begingroup\footnotesize\singlespacing\RaggedRight\noindent \textit{Note.} #1\par\endgroup}
 
 \setlist[itemize]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip}
 \setlist[enumerate]{leftmargin=1.4em,itemsep=0.35\baselineskip,topsep=0.25\baselineskip,label=\arabic*.}
